@@ -104,6 +104,12 @@ void MapStructObjects(Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* wrapper, con
 
 void MapStructObjects(Decoded_D3D12_DISPATCH_RAYS_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_SET_WORK_GRAPH_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_NODE_GPU_INPUT* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_MULTI_NODE_GPU_INPUT* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
 void MapStructObjects(Decoded_D3D12_TEXTURE_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
 void MapStructObjects(Decoded_D3D12_BUFFER_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);

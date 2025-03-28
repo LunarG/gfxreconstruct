@@ -760,6 +760,25 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS19:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS19*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_OPTIONS20:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS20*>(feature_data));
+            break;
+        case D3D12_FEATURE_PREDICATION:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_PREDICATION*>(feature_data));
+            break;
+        case D3D12_FEATURE_PLACED_RESOURCE_SUPPORT_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO*>(feature_data));
+            break;
+        case D3D12_FEATURE_HARDWARE_COPY:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_HARDWARE_COPY*>(feature_data));
+            break;
+        case D3D12_FEATURE_D3D12_OPTIONS21:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_data));
+            break;
+        case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(feature_data));
+            break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
                                  "unrecognized D3D12_FEATURE type %d",
@@ -839,6 +858,57 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
             case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
                 EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RAYTRACING_PIPELINE_CONFIG1*>(value.pDesc));
                 break;
+            case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_WORK_GRAPH_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_STREAM_OUTPUT_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_BLEND_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                encoder->EncodeUInt32Ptr(reinterpret_cast<const uint32_t*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RASTERIZER_DESC2*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_INPUT_LAYOUT_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                encoder->EncodeEnumPtr(reinterpret_cast<const D3D12_INDEX_BUFFER_STRIP_CUT_VALUE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                encoder->EncodeEnumPtr(reinterpret_cast<const D3D12_PRIMITIVE_TOPOLOGY_TYPE*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_RT_FORMAT_ARRAY*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                encoder->EncodeEnumPtr(reinterpret_cast<const DXGI_FORMAT*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                EncodeStructPtr(encoder, reinterpret_cast<const DXGI_SAMPLE_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+                encoder->EncodeFlagsPtr(reinterpret_cast<const D3D12_PIPELINE_STATE_FLAGS*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC1*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_VIEW_INSTANCING_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_GENERIC_PROGRAM_DESC*>(value.pDesc));
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                EncodeStructPtr(encoder, reinterpret_cast<const D3D12_DEPTH_STENCIL_DESC2*>(value.pDesc));
+                break;
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
@@ -852,6 +922,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_AS
     EncodeStructPtr(encoder, value.pSubobjectToAssociate);
     encoder->EncodeUInt32Value(value.NumExports);
     encoder->EncodeWStringArray(value.pExports, value.NumExports);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value)
+{
+    encoder->EncodeWString(value.ProgramName);
+    encoder->EncodeUInt32Value(value.NumExports);
+    encoder->EncodeWStringArray(value.pExports, value.NumExports);
+    encoder->EncodeUInt32Value(value.NumSubobjects);
+    EncodeStructArray2D(encoder, value.ppSubobjects, value.NumSubobjects, 1);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value)
@@ -888,6 +967,87 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value)
     encoder->EncodeFloatValue(value.MinLOD);
     encoder->EncodeFloatValue(value.MaxLOD);
     encoder->EncodeEnumValue(value.Flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value)
+{
+    encoder->EncodeWString(value.Shader);
+    encoder->EncodeUInt32Value(value.OverridesType);
+
+    switch (value.OverridesType)
+    {
+        case D3D12_NODE_OVERRIDES_TYPE_BROADCASTING_LAUNCH:
+            EncodeStructPtr(encoder, value.pBroadcastingLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COALESCING_LAUNCH:
+            EncodeStructPtr(encoder, value.pCoalescingLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_THREAD_LAUNCH:
+            EncodeStructPtr(encoder, value.pThreadLaunchOverrides);
+            break;
+        case D3D12_NODE_OVERRIDES_TYPE_COMMON_COMPUTE:
+            EncodeStructPtr(encoder, value.pCommonComputeNodeOverrides);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value)
+{
+    encoder->EncodeUInt32Value(value.NodeType);
+
+    switch (value.NodeType)
+    {
+        case D3D12_NODE_TYPE_SHADER:
+            EncodeStruct(encoder, value.Shader);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.Type);
+
+    switch (value.Type)
+    {
+        case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+            EncodeStruct(encoder, value.GenericPipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+            EncodeStruct(encoder, value.RaytracingPipeline);
+            break;
+        case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+            EncodeStruct(encoder, value.WorkGraph);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.Mode);
+
+    switch (value.Mode)
+    {
+        case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+            EncodeStruct(encoder, value.NodeCPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+            encoder->EncodeUInt64Value(value.NodeGPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+            EncodeStruct(encoder, value.MultiNodeCPUInput);
+            break;
+        case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+            encoder->EncodeUInt64Value(value.MultiNodeGPUInput);
+            break;
+        default:
+            break;
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

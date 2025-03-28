@@ -267,6 +267,18 @@ struct Decoded_D3D12_STATE_SUBOBJECT
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG>*  raytracing_pipeline_config{ nullptr };
     StructPointerDecoder<Decoded_D3D12_HIT_GROUP_DESC>*              hit_group_desc{ nullptr };
     StructPointerDecoder<Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1>* raytracing_pipeline_config1{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_WORK_GRAPH_DESC>*             work_graph_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_STREAM_OUTPUT_DESC>*          stream_output_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_BLEND_DESC>*                  blend_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RASTERIZER_DESC2>*            rasterizer_desc2{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC>*          depth_stencil_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_INPUT_LAYOUT_DESC>*           input_layout_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RT_FORMAT_ARRAY>*             rt_format_array{ nullptr };
+    StructPointerDecoder<Decoded_DXGI_SAMPLE_DESC>*                  dxgi_sample_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC1>*         depth_stencil_desc1{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_VIEW_INSTANCING_DESC>*        view_instancing_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_GENERIC_PROGRAM_DESC>*        generic_program_desc{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_DESC2>*         depth_stencil_desc2{ nullptr };
 };
 
 struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
@@ -277,6 +289,17 @@ struct Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION
 
     StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* pSubobjectToAssociate{ nullptr };
     WStringArrayDecoder                                  pExports;
+};
+
+struct Decoded_D3D12_GENERIC_PROGRAM_DESC
+{
+    using struct_type = D3D12_GENERIC_PROGRAM_DESC;
+
+    D3D12_GENERIC_PROGRAM_DESC* decoded_value{ nullptr };
+
+    WStringDecoder                                        ProgramName;
+    WStringArrayDecoder                                   pExports;
+    StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT*>* ppSubobjects{ nullptr };
 };
 
 struct Decoded_D3D12_BARRIER_GROUP
@@ -296,6 +319,49 @@ struct Decoded_D3D12_SAMPLER_DESC2
 
     D3D12_SAMPLER_DESC2*  decoded_value{ nullptr };
     PointerDecoder<float> FloatBorderColor;
+};
+
+struct Decoded_D3D12_SHADER_NODE
+{
+    using struct_type = D3D12_SHADER_NODE;
+
+    D3D12_SHADER_NODE* decoded_value{ nullptr };
+    
+    WStringDecoder                                                     Shader;
+    StructPointerDecoder<Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES>* broadcasting_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES>*   coalescing_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_THREAD_LAUNCH_OVERRIDES>*       thread_launch_overrides{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES>* common_compute_node_overrides{ nullptr };
+};
+
+struct Decoded_D3D12_NODE
+{
+    using struct_type = D3D12_NODE;
+
+    D3D12_NODE* decoded_value{ nullptr };
+
+    Decoded_D3D12_SHADER_NODE* shader{ nullptr };
+};
+
+struct Decoded_D3D12_SET_PROGRAM_DESC
+{
+    using struct_type = D3D12_SET_PROGRAM_DESC;
+
+    D3D12_SET_PROGRAM_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_SET_GENERIC_PIPELINE_DESC*    generic_pipeline{ nullptr };
+    Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC* raytracing_pipeline{ nullptr };
+    Decoded_D3D12_SET_WORK_GRAPH_DESC*          work_graph{ nullptr };
+};
+
+struct Decoded_D3D12_DISPATCH_GRAPH_DESC
+{
+    using struct_type = D3D12_DISPATCH_GRAPH_DESC;
+
+    D3D12_DISPATCH_GRAPH_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D12_NODE_CPU_INPUT*       node_cpu_input{ nullptr };
+    Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

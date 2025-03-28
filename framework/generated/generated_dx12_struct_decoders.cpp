@@ -33,703 +33,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_FRAME_STATISTICS* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
-    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
-    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MAPPED_RECT* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_MAPPED_RECT* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Pitch));
-    bytes_read += wrapper->pBits.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pBits = wrapper->pBits.GetPointer();
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LUID* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    LUID* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->LowPart));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->HighPart));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_ADAPTER_DESC* value = wrapper->decoded_value;
-
-    wrapper->Description.SetExternalMemory(value->Description, 128);
-    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
-    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
-    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTPUT_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTPUT_DESC* value = wrapper->decoded_value;
-
-    wrapper->DeviceName.SetExternalMemory(value->DeviceName, 32);
-    bytes_read += wrapper->DeviceName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->DesktopCoordinates = DecodeAllocator::Allocate<Decoded_tagRECT>();
-    wrapper->DesktopCoordinates->decoded_value = &(value->DesktopCoordinates);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
-    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
-    value->Monitor = nullptr;
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SHARED_RESOURCE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SHARED_RESOURCE* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Handle));
-    value->Handle = nullptr;
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SURFACE_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SURFACE_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
-    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SWAP_CHAIN_DESC* value = wrapper->decoded_value;
-
-    wrapper->BufferDesc = DecodeAllocator::Allocate<Decoded_DXGI_MODE_DESC>();
-    wrapper->BufferDesc->decoded_value = &(value->BufferDesc);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferDesc);
-    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
-    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferUsage));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferCount));
-    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->OutputWindow));
-    value->OutputWindow = nullptr;
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Windowed));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SwapEffect));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC1* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_ADAPTER_DESC1* value = wrapper->decoded_value;
-
-    wrapper->Description.SetExternalMemory(value->Description, 128);
-    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
-    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
-    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DISPLAY_COLOR_SPACE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_DISPLAY_COLOR_SPACE* value = wrapper->decoded_value;
-
-    wrapper->PrimaryCoordinates.SetExternalMemory(*value->PrimaryCoordinates, 16);
-    bytes_read += wrapper->PrimaryCoordinates.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->WhitePoints.SetExternalMemory(*value->WhitePoints, 32);
-    bytes_read += wrapper->WhitePoints.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_MOVE_RECT* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTDUPL_MOVE_RECT* value = wrapper->decoded_value;
-
-    wrapper->SourcePoint = DecodeAllocator::Allocate<Decoded_tagPOINT>();
-    wrapper->SourcePoint->decoded_value = &(value->SourcePoint);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SourcePoint);
-    wrapper->DestinationRect = DecodeAllocator::Allocate<Decoded_tagRECT>();
-    wrapper->DestinationRect->decoded_value = &(value->DestinationRect);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DestinationRect);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTDUPL_DESC* value = wrapper->decoded_value;
-
-    wrapper->ModeDesc = DecodeAllocator::Allocate<Decoded_DXGI_MODE_DESC>();
-    wrapper->ModeDesc->decoded_value = &(value->ModeDesc);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->ModeDesc);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DesktopImageInSystemMemory));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_POINTER_POSITION* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTDUPL_POINTER_POSITION* value = wrapper->decoded_value;
-
-    wrapper->Position = DecodeAllocator::Allocate<Decoded_tagPOINT>();
-    wrapper->Position->decoded_value = &(value->Position);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Position);
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Visible));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTDUPL_POINTER_SHAPE_INFO* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Pitch));
-    wrapper->HotSpot = DecodeAllocator::Allocate<Decoded_tagPOINT>();
-    wrapper->HotSpot->decoded_value = &(value->HotSpot);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->HotSpot);
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_FRAME_INFO* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTDUPL_FRAME_INFO* value = wrapper->decoded_value;
-
-    wrapper->LastPresentTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->LastPresentTime->decoded_value = &(value->LastPresentTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastPresentTime);
-    wrapper->LastMouseUpdateTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->LastMouseUpdateTime->decoded_value = &(value->LastMouseUpdateTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastMouseUpdateTime);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AccumulatedFrames));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RectsCoalesced));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ProtectedContentMaskedOut));
-    wrapper->PointerPosition = DecodeAllocator::Allocate<Decoded_DXGI_OUTDUPL_POINTER_POSITION>();
-    wrapper->PointerPosition->decoded_value = &(value->PointerPosition);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PointerPosition);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->TotalMetadataBufferSize));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PointerShapeBufferSize));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MODE_DESC1* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_MODE_DESC1* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
-    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
-    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Stereo));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_DESC1* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SWAP_CHAIN_DESC1* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Stereo));
-    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
-    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferUsage));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferCount));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SwapEffect));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->AlphaMode));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* value = wrapper->decoded_value;
-
-    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
-    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Windowed));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_PRESENT_PARAMETERS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_PRESENT_PARAMETERS* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DirtyRectsCount));
-    wrapper->pDirtyRects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagRECT>>();
-    bytes_read += wrapper->pDirtyRects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pDirtyRects = wrapper->pDirtyRects->GetPointer();
-    wrapper->pScrollRect = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagRECT>>();
-    bytes_read += wrapper->pScrollRect->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pScrollRect = wrapper->pScrollRect->GetPointer();
-    wrapper->pScrollOffset = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagPOINT>>();
-    bytes_read += wrapper->pScrollOffset->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pScrollOffset = wrapper->pScrollOffset->GetPointer();
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC2* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_ADAPTER_DESC2* value = wrapper->decoded_value;
-
-    wrapper->Description.SetExternalMemory(value->Description, 128);
-    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
-    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
-    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->GraphicsPreemptionGranularity));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputePreemptionGranularity));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MATRIX_3X2_F* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_MATRIX_3X2_F* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_11));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_12));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_21));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_22));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_31));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_32));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_DECODE_SWAP_CHAIN_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS_MEDIA* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_FRAME_STATISTICS_MEDIA* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
-    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
-    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
-    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->CompositionMode));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ApprovedPresentDuration));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_QUERY_VIDEO_MEMORY_INFO* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Budget));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CurrentUsage));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AvailableForReservation));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CurrentReservation));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_HDR_METADATA_HDR10* value = wrapper->decoded_value;
-
-    wrapper->RedPrimary.SetExternalMemory(value->RedPrimary, 2);
-    bytes_read += wrapper->RedPrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->GreenPrimary.SetExternalMemory(value->GreenPrimary, 2);
-    bytes_read += wrapper->GreenPrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->BluePrimary.SetExternalMemory(value->BluePrimary, 2);
-    bytes_read += wrapper->BluePrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->WhitePoint.SetExternalMemory(value->WhitePoint, 2);
-    bytes_read += wrapper->WhitePoint.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxMasteringLuminance));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinMasteringLuminance));
-    bytes_read += ValueDecoder::DecodeUInt16Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxContentLightLevel));
-    bytes_read += ValueDecoder::DecodeUInt16Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxFrameAverageLightLevel));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10PLUS* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_HDR_METADATA_HDR10PLUS* value = wrapper->decoded_value;
-
-    wrapper->Data.SetExternalMemory(value->Data, 72);
-    bytes_read += wrapper->Data.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC3* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_ADAPTER_DESC3* value = wrapper->decoded_value;
-
-    wrapper->Description.SetExternalMemory(value->Description, 128);
-    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
-    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
-    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
-    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->GraphicsPreemptionGranularity));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputePreemptionGranularity));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTPUT_DESC1* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_OUTPUT_DESC1* value = wrapper->decoded_value;
-
-    wrapper->DeviceName.SetExternalMemory(value->DeviceName, 32);
-    bytes_read += wrapper->DeviceName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->DesktopCoordinates = DecodeAllocator::Allocate<Decoded_tagRECT>();
-    wrapper->DesktopCoordinates->decoded_value = &(value->DesktopCoordinates);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
-    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
-    value->Monitor = nullptr;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BitsPerColor));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ColorSpace));
-    wrapper->RedPrimary.SetExternalMemory(value->RedPrimary, 2);
-    bytes_read += wrapper->RedPrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->GreenPrimary.SetExternalMemory(value->GreenPrimary, 2);
-    bytes_read += wrapper->GreenPrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->BluePrimary.SetExternalMemory(value->BluePrimary, 2);
-    bytes_read += wrapper->BluePrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->WhitePoint.SetExternalMemory(value->WhitePoint, 2);
-    bytes_read += wrapper->WhitePoint.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinLuminance));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxLuminance));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxFullFrameLuminance));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RATIONAL* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_RATIONAL* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Numerator));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Denominator));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SAMPLE_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_SAMPLE_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Count));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Quality));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RGB* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_RGB* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Red));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Green));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Blue));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3DCOLORVALUE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    D3DCOLORVALUE* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->r));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->g));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->b));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->a));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_GAMMA_CONTROL* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_GAMMA_CONTROL* value = wrapper->decoded_value;
-
-    wrapper->Scale = DecodeAllocator::Allocate<Decoded_DXGI_RGB>();
-    wrapper->Scale->decoded_value = &(value->Scale);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Scale);
-    wrapper->Offset = DecodeAllocator::Allocate<Decoded_DXGI_RGB>();
-    wrapper->Offset->decoded_value = &(value->Offset);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Offset);
-    wrapper->GammaCurve = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_DXGI_RGB>>();
-    wrapper->GammaCurve->SetExternalMemory(value->GammaCurve, 1025);
-    bytes_read += wrapper->GammaCurve->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_GAMMA_CONTROL_CAPABILITIES* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScaleAndOffsetSupported));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxConvertedValue));
-    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinConvertedValue));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumGammaControlPoints));
-    wrapper->ControlPointPositions.SetExternalMemory(value->ControlPointPositions, 1025);
-    bytes_read += wrapper->ControlPointPositions.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MODE_DESC* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_MODE_DESC* value = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
-    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
-    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_JPEG_DC_HUFFMAN_TABLE* value = wrapper->decoded_value;
-
-    wrapper->CodeCounts.SetExternalMemory(value->CodeCounts, 12);
-    bytes_read += wrapper->CodeCounts.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->CodeValues.SetExternalMemory(value->CodeValues, 12);
-    bytes_read += wrapper->CodeValues.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_JPEG_AC_HUFFMAN_TABLE* value = wrapper->decoded_value;
-
-    wrapper->CodeCounts.SetExternalMemory(value->CodeCounts, 16);
-    bytes_read += wrapper->CodeCounts.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->CodeValues.SetExternalMemory(value->CodeValues, 162);
-    bytes_read += wrapper->CodeValues.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_QUANTIZATION_TABLE* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t bytes_read = 0;
-    DXGI_JPEG_QUANTIZATION_TABLE* value = wrapper->decoded_value;
-
-    wrapper->Elements.SetExternalMemory(value->Elements, 64);
-    bytes_read += wrapper->Elements.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COMMAND_QUEUE_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -812,6 +115,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BOX
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->right));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bottom));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->back));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LUID* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    LUID* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->LowPart));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->HighPart));
 
     return bytes_read;
 }
@@ -1697,6 +1013,70 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_D3D12_OPTIONS20* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputeOnlyWriteWatchSupported));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->RecreateAtTier));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_D3D12_OPTIONS21* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->WorkGraphsTier));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ExecuteIndirectTier));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SampleCmpGradientAndBiasSupported));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ExtendedCommandInfoSupported));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PREDICATION* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_PREDICATION* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Supported));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_HARDWARE_COPY* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Supported));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Supported));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RESOURCE_ALLOCATION_INFO* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -1753,6 +1133,23 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_HEA
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Properties);
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Alignment));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Dimension));
+    wrapper->DestHeapProperties = DecodeAllocator::Allocate<Decoded_D3D12_HEAP_PROPERTIES>();
+    wrapper->DestHeapProperties->decoded_value = &(value->DestHeapProperties);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DestHeapProperties);
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Supported));
 
     return bytes_read;
 }
@@ -3074,6 +2471,47 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MET
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PROGRAM_IDENTIFIER* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_PROGRAM_IDENTIFIER* value = wrapper->decoded_value;
+
+    wrapper->OpaqueData.SetExternalMemory(value->OpaqueData, 4);
+    bytes_read += wrapper->OpaqueData.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NODE_ID* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_NODE_ID* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->Name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->Name = wrapper->Name.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ArrayIndex));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinSizeInBytes));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxSizeInBytes));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SizeGranularityInBytes));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_OBJECT_CONFIG* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3120,6 +2558,54 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NOD
     D3D12_NODE_MASK* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NodeMask));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAMPLE_MASK* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SAMPLE_MASK* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SampleMask));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_IB_STRIP_CUT_VALUE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_IB_STRIP_CUT_VALUE* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->IndexBufferStripCutValue));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PRIMITIVE_TOPOLOGY_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_PRIMITIVE_TOPOLOGY_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->PrimitiveTopology));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DEPTH_STENCIL_FORMAT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_DEPTH_STENCIL_FORMAT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DepthStencilFormat));
 
     return bytes_read;
 }
@@ -3245,6 +2731,153 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
 
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxTraceRecursionDepth));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NODE_OUTPUT_OVERRIDES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_NODE_OUTPUT_OVERRIDES* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->OutputIndex));
+    wrapper->pNewName = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pNewName->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNewName = wrapper->pNewName->GetPointer();
+    bytes_read += wrapper->pAllowSparseNodes.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pAllowSparseNodes = wrapper->pAllowSparseNodes.GetPointer();
+    bytes_read += wrapper->pMaxRecords.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pMaxRecords = wrapper->pMaxRecords.GetPointer();
+    bytes_read += wrapper->pMaxRecordsSharedWithOutputIndex.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pMaxRecordsSharedWithOutputIndex = wrapper->pMaxRecordsSharedWithOutputIndex.GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_BROADCASTING_LAUNCH_OVERRIDES* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pLocalRootArgumentsTableIndex.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pLocalRootArgumentsTableIndex = wrapper->pLocalRootArgumentsTableIndex.GetPointer();
+    bytes_read += wrapper->pProgramEntry.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pProgramEntry = wrapper->pProgramEntry.GetPointer();
+    wrapper->pNewName = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pNewName->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNewName = wrapper->pNewName->GetPointer();
+    wrapper->pShareInputOf = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pShareInputOf->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pShareInputOf = wrapper->pShareInputOf->GetPointer();
+    bytes_read += wrapper->pDispatchGrid.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pDispatchGrid = wrapper->pDispatchGrid.GetPointer();
+    bytes_read += wrapper->pMaxDispatchGrid.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pMaxDispatchGrid = wrapper->pMaxDispatchGrid.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumOutputOverrides));
+    wrapper->pOutputOverrides = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>>();
+    bytes_read += wrapper->pOutputOverrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOutputOverrides = wrapper->pOutputOverrides->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_COALESCING_LAUNCH_OVERRIDES* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pLocalRootArgumentsTableIndex.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pLocalRootArgumentsTableIndex = wrapper->pLocalRootArgumentsTableIndex.GetPointer();
+    bytes_read += wrapper->pProgramEntry.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pProgramEntry = wrapper->pProgramEntry.GetPointer();
+    wrapper->pNewName = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pNewName->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNewName = wrapper->pNewName->GetPointer();
+    wrapper->pShareInputOf = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pShareInputOf->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pShareInputOf = wrapper->pShareInputOf->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumOutputOverrides));
+    wrapper->pOutputOverrides = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>>();
+    bytes_read += wrapper->pOutputOverrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOutputOverrides = wrapper->pOutputOverrides->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_THREAD_LAUNCH_OVERRIDES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_THREAD_LAUNCH_OVERRIDES* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pLocalRootArgumentsTableIndex.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pLocalRootArgumentsTableIndex = wrapper->pLocalRootArgumentsTableIndex.GetPointer();
+    bytes_read += wrapper->pProgramEntry.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pProgramEntry = wrapper->pProgramEntry.GetPointer();
+    wrapper->pNewName = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pNewName->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNewName = wrapper->pNewName->GetPointer();
+    wrapper->pShareInputOf = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pShareInputOf->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pShareInputOf = wrapper->pShareInputOf->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumOutputOverrides));
+    wrapper->pOutputOverrides = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>>();
+    bytes_read += wrapper->pOutputOverrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOutputOverrides = wrapper->pOutputOverrides->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_COMMON_COMPUTE_NODE_OVERRIDES* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pLocalRootArgumentsTableIndex.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pLocalRootArgumentsTableIndex = wrapper->pLocalRootArgumentsTableIndex.GetPointer();
+    bytes_read += wrapper->pProgramEntry.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pProgramEntry = wrapper->pProgramEntry.GetPointer();
+    wrapper->pNewName = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pNewName->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNewName = wrapper->pNewName->GetPointer();
+    wrapper->pShareInputOf = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pShareInputOf->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pShareInputOf = wrapper->pShareInputOf->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumOutputOverrides));
+    wrapper->pOutputOverrides = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_OUTPUT_OVERRIDES>>();
+    bytes_read += wrapper->pOutputOverrides->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOutputOverrides = wrapper->pOutputOverrides->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_WORK_GRAPH_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_WORK_GRAPH_DESC* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->ProgramName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->ProgramName = wrapper->ProgramName.GetPointer();
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumEntrypoints));
+    wrapper->pEntrypoints = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_ID>>();
+    bytes_read += wrapper->pEntrypoints->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pEntrypoints = wrapper->pEntrypoints->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExplicitlyDefinedNodes));
+    wrapper->pExplicitlyDefinedNodes = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE>>();
+    bytes_read += wrapper->pExplicitlyDefinedNodes->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExplicitlyDefinedNodes = wrapper->pExplicitlyDefinedNodes->GetPointer();
 
     return bytes_read;
 }
@@ -3976,6 +3609,118 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DIS
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SET_WORK_GRAPH_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SET_WORK_GRAPH_DESC* value = wrapper->decoded_value;
+
+    wrapper->ProgramIdentifier = DecodeAllocator::Allocate<Decoded_D3D12_PROGRAM_IDENTIFIER>();
+    wrapper->ProgramIdentifier->decoded_value = &(value->ProgramIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->ProgramIdentifier);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+    wrapper->BackingMemory = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE>();
+    wrapper->BackingMemory->decoded_value = &(value->BackingMemory);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BackingMemory);
+    wrapper->NodeLocalRootArgumentsTable = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE>();
+    wrapper->NodeLocalRootArgumentsTable->decoded_value = &(value->NodeLocalRootArgumentsTable);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->NodeLocalRootArgumentsTable);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SET_RAYTRACING_PIPELINE_DESC* value = wrapper->decoded_value;
+
+    wrapper->ProgramIdentifier = DecodeAllocator::Allocate<Decoded_D3D12_PROGRAM_IDENTIFIER>();
+    wrapper->ProgramIdentifier->decoded_value = &(value->ProgramIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->ProgramIdentifier);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SET_GENERIC_PIPELINE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SET_GENERIC_PIPELINE_DESC* value = wrapper->decoded_value;
+
+    wrapper->ProgramIdentifier = DecodeAllocator::Allocate<Decoded_D3D12_PROGRAM_IDENTIFIER>();
+    wrapper->ProgramIdentifier->decoded_value = &(value->ProgramIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->ProgramIdentifier);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NODE_CPU_INPUT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_NODE_CPU_INPUT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->EntrypointIndex));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumRecords));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pRecords));
+    value->pRecords = nullptr;
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RecordStrideInBytes));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_NODE_GPU_INPUT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_NODE_GPU_INPUT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->EntrypointIndex));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumRecords));
+    wrapper->Records = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE>();
+    wrapper->Records->decoded_value = &(value->Records);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Records);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MULTI_NODE_CPU_INPUT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_MULTI_NODE_CPU_INPUT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumNodeInputs));
+    wrapper->pNodeInputs = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_NODE_CPU_INPUT>>();
+    bytes_read += wrapper->pNodeInputs->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pNodeInputs = wrapper->pNodeInputs->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NodeInputStrideInBytes));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_MULTI_NODE_GPU_INPUT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_MULTI_NODE_GPU_INPUT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumNodeInputs));
+    wrapper->NodeInputs = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE>();
+    wrapper->NodeInputs->decoded_value = &(value->NodeInputs);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->NodeInputs);
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SHADER_CACHE_SESSION_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -4232,6 +3977,690 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INF
     wrapper->DenyList = DecodeAllocator::Allocate<Decoded_D3D12_INFO_QUEUE_FILTER_DESC>();
     wrapper->DenyList->decoded_value = &(value->DenyList);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DenyList);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_FRAME_STATISTICS* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
+    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
+    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MAPPED_RECT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_MAPPED_RECT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Pitch));
+    bytes_read += wrapper->pBits.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pBits = wrapper->pBits.GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_ADAPTER_DESC* value = wrapper->decoded_value;
+
+    wrapper->Description.SetExternalMemory(value->Description, 128);
+    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
+    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTPUT_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTPUT_DESC* value = wrapper->decoded_value;
+
+    wrapper->DeviceName.SetExternalMemory(value->DeviceName, 32);
+    bytes_read += wrapper->DeviceName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->DesktopCoordinates = DecodeAllocator::Allocate<Decoded_tagRECT>();
+    wrapper->DesktopCoordinates->decoded_value = &(value->DesktopCoordinates);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
+    value->Monitor = nullptr;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SHARED_RESOURCE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SHARED_RESOURCE* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Handle));
+    value->Handle = nullptr;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SURFACE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SURFACE_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
+    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SWAP_CHAIN_DESC* value = wrapper->decoded_value;
+
+    wrapper->BufferDesc = DecodeAllocator::Allocate<Decoded_DXGI_MODE_DESC>();
+    wrapper->BufferDesc->decoded_value = &(value->BufferDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferDesc);
+    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
+    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferUsage));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferCount));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->OutputWindow));
+    value->OutputWindow = nullptr;
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Windowed));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SwapEffect));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_ADAPTER_DESC1* value = wrapper->decoded_value;
+
+    wrapper->Description.SetExternalMemory(value->Description, 128);
+    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
+    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DISPLAY_COLOR_SPACE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_DISPLAY_COLOR_SPACE* value = wrapper->decoded_value;
+
+    wrapper->PrimaryCoordinates.SetExternalMemory(*value->PrimaryCoordinates, 16);
+    bytes_read += wrapper->PrimaryCoordinates.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->WhitePoints.SetExternalMemory(*value->WhitePoints, 32);
+    bytes_read += wrapper->WhitePoints.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_MOVE_RECT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTDUPL_MOVE_RECT* value = wrapper->decoded_value;
+
+    wrapper->SourcePoint = DecodeAllocator::Allocate<Decoded_tagPOINT>();
+    wrapper->SourcePoint->decoded_value = &(value->SourcePoint);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SourcePoint);
+    wrapper->DestinationRect = DecodeAllocator::Allocate<Decoded_tagRECT>();
+    wrapper->DestinationRect->decoded_value = &(value->DestinationRect);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DestinationRect);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTDUPL_DESC* value = wrapper->decoded_value;
+
+    wrapper->ModeDesc = DecodeAllocator::Allocate<Decoded_DXGI_MODE_DESC>();
+    wrapper->ModeDesc->decoded_value = &(value->ModeDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->ModeDesc);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DesktopImageInSystemMemory));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_POINTER_POSITION* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTDUPL_POINTER_POSITION* value = wrapper->decoded_value;
+
+    wrapper->Position = DecodeAllocator::Allocate<Decoded_tagPOINT>();
+    wrapper->Position->decoded_value = &(value->Position);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Position);
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Visible));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTDUPL_POINTER_SHAPE_INFO* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Pitch));
+    wrapper->HotSpot = DecodeAllocator::Allocate<Decoded_tagPOINT>();
+    wrapper->HotSpot->decoded_value = &(value->HotSpot);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->HotSpot);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTDUPL_FRAME_INFO* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTDUPL_FRAME_INFO* value = wrapper->decoded_value;
+
+    wrapper->LastPresentTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->LastPresentTime->decoded_value = &(value->LastPresentTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastPresentTime);
+    wrapper->LastMouseUpdateTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->LastMouseUpdateTime->decoded_value = &(value->LastMouseUpdateTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->LastMouseUpdateTime);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AccumulatedFrames));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->RectsCoalesced));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ProtectedContentMaskedOut));
+    wrapper->PointerPosition = DecodeAllocator::Allocate<Decoded_DXGI_OUTDUPL_POINTER_POSITION>();
+    wrapper->PointerPosition->decoded_value = &(value->PointerPosition);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PointerPosition);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->TotalMetadataBufferSize));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PointerShapeBufferSize));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MODE_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_MODE_DESC1* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
+    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
+    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Stereo));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SWAP_CHAIN_DESC1* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Stereo));
+    wrapper->SampleDesc = DecodeAllocator::Allocate<Decoded_DXGI_SAMPLE_DESC>();
+    wrapper->SampleDesc->decoded_value = &(value->SampleDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SampleDesc);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferUsage));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferCount));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SwapEffect));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->AlphaMode));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* value = wrapper->decoded_value;
+
+    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
+    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Windowed));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_PRESENT_PARAMETERS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_PRESENT_PARAMETERS* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DirtyRectsCount));
+    wrapper->pDirtyRects = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagRECT>>();
+    bytes_read += wrapper->pDirtyRects->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pDirtyRects = wrapper->pDirtyRects->GetPointer();
+    wrapper->pScrollRect = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagRECT>>();
+    bytes_read += wrapper->pScrollRect->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pScrollRect = wrapper->pScrollRect->GetPointer();
+    wrapper->pScrollOffset = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_tagPOINT>>();
+    bytes_read += wrapper->pScrollOffset->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pScrollOffset = wrapper->pScrollOffset->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC2* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_ADAPTER_DESC2* value = wrapper->decoded_value;
+
+    wrapper->Description.SetExternalMemory(value->Description, 128);
+    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
+    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->GraphicsPreemptionGranularity));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputePreemptionGranularity));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MATRIX_3X2_F* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_MATRIX_3X2_F* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_11));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_12));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_21));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_22));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_31));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->_32));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_DECODE_SWAP_CHAIN_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS_MEDIA* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_FRAME_STATISTICS_MEDIA* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->PresentRefreshCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SyncRefreshCount));
+    wrapper->SyncQPCTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncQPCTime->decoded_value = &(value->SyncQPCTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncQPCTime);
+    wrapper->SyncGPUTime = DecodeAllocator::Allocate<Decoded_LARGE_INTEGER>();
+    wrapper->SyncGPUTime->decoded_value = &(value->SyncGPUTime);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->SyncGPUTime);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->CompositionMode));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ApprovedPresentDuration));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_QUERY_VIDEO_MEMORY_INFO* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Budget));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CurrentUsage));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AvailableForReservation));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CurrentReservation));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_HDR_METADATA_HDR10* value = wrapper->decoded_value;
+
+    wrapper->RedPrimary.SetExternalMemory(value->RedPrimary, 2);
+    bytes_read += wrapper->RedPrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->GreenPrimary.SetExternalMemory(value->GreenPrimary, 2);
+    bytes_read += wrapper->GreenPrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->BluePrimary.SetExternalMemory(value->BluePrimary, 2);
+    bytes_read += wrapper->BluePrimary.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->WhitePoint.SetExternalMemory(value->WhitePoint, 2);
+    bytes_read += wrapper->WhitePoint.DecodeUInt16((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxMasteringLuminance));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinMasteringLuminance));
+    bytes_read += ValueDecoder::DecodeUInt16Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxContentLightLevel));
+    bytes_read += ValueDecoder::DecodeUInt16Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxFrameAverageLightLevel));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_HDR_METADATA_HDR10PLUS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_HDR_METADATA_HDR10PLUS* value = wrapper->decoded_value;
+
+    wrapper->Data.SetExternalMemory(value->Data, 72);
+    bytes_read += wrapper->Data.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_ADAPTER_DESC3* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_ADAPTER_DESC3* value = wrapper->decoded_value;
+
+    wrapper->Description.SetExternalMemory(value->Description, 128);
+    bytes_read += wrapper->Description.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->VendorId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeviceId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSysId));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedVideoMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->DedicatedSystemMemory));
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SharedSystemMemory));
+    wrapper->AdapterLuid = DecodeAllocator::Allocate<Decoded_LUID>();
+    wrapper->AdapterLuid->decoded_value = &(value->AdapterLuid);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AdapterLuid);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->GraphicsPreemptionGranularity));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputePreemptionGranularity));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_OUTPUT_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_OUTPUT_DESC1* value = wrapper->decoded_value;
+
+    wrapper->DeviceName.SetExternalMemory(value->DeviceName, 32);
+    bytes_read += wrapper->DeviceName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->DesktopCoordinates = DecodeAllocator::Allocate<Decoded_tagRECT>();
+    wrapper->DesktopCoordinates->decoded_value = &(value->DesktopCoordinates);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DesktopCoordinates);
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AttachedToDesktop));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Rotation));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->Monitor));
+    value->Monitor = nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BitsPerColor));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ColorSpace));
+    wrapper->RedPrimary.SetExternalMemory(value->RedPrimary, 2);
+    bytes_read += wrapper->RedPrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->GreenPrimary.SetExternalMemory(value->GreenPrimary, 2);
+    bytes_read += wrapper->GreenPrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->BluePrimary.SetExternalMemory(value->BluePrimary, 2);
+    bytes_read += wrapper->BluePrimary.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->WhitePoint.SetExternalMemory(value->WhitePoint, 2);
+    bytes_read += wrapper->WhitePoint.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinLuminance));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxLuminance));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxFullFrameLuminance));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RATIONAL* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_RATIONAL* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Numerator));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Denominator));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_SAMPLE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_SAMPLE_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Count));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Quality));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_RGB* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_RGB* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Red));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Green));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Blue));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3DCOLORVALUE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3DCOLORVALUE* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->r));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->g));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->b));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->a));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_GAMMA_CONTROL* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_GAMMA_CONTROL* value = wrapper->decoded_value;
+
+    wrapper->Scale = DecodeAllocator::Allocate<Decoded_DXGI_RGB>();
+    wrapper->Scale->decoded_value = &(value->Scale);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Scale);
+    wrapper->Offset = DecodeAllocator::Allocate<Decoded_DXGI_RGB>();
+    wrapper->Offset->decoded_value = &(value->Offset);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Offset);
+    wrapper->GammaCurve = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_DXGI_RGB>>();
+    wrapper->GammaCurve->SetExternalMemory(value->GammaCurve, 1025);
+    bytes_read += wrapper->GammaCurve->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_GAMMA_CONTROL_CAPABILITIES* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScaleAndOffsetSupported));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MaxConvertedValue));
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->MinConvertedValue));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumGammaControlPoints));
+    wrapper->ControlPointPositions.SetExternalMemory(value->ControlPointPositions, 1025);
+    bytes_read += wrapper->ControlPointPositions.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_MODE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_MODE_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Width));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Height));
+    wrapper->RefreshRate = DecodeAllocator::Allocate<Decoded_DXGI_RATIONAL>();
+    wrapper->RefreshRate->decoded_value = &(value->RefreshRate);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->RefreshRate);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScanlineOrdering));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Scaling));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_JPEG_DC_HUFFMAN_TABLE* value = wrapper->decoded_value;
+
+    wrapper->CodeCounts.SetExternalMemory(value->CodeCounts, 12);
+    bytes_read += wrapper->CodeCounts.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->CodeValues.SetExternalMemory(value->CodeValues, 12);
+    bytes_read += wrapper->CodeValues.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_JPEG_AC_HUFFMAN_TABLE* value = wrapper->decoded_value;
+
+    wrapper->CodeCounts.SetExternalMemory(value->CodeCounts, 16);
+    bytes_read += wrapper->CodeCounts.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+    wrapper->CodeValues.SetExternalMemory(value->CodeValues, 162);
+    bytes_read += wrapper->CodeValues.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_JPEG_QUANTIZATION_TABLE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    DXGI_JPEG_QUANTIZATION_TABLE* value = wrapper->decoded_value;
+
+    wrapper->Elements.SetExternalMemory(value->Elements, 64);
+    bytes_read += wrapper->Elements.DecodeUInt8((buffer + bytes_read), (buffer_size - bytes_read));
 
     return bytes_read;
 }

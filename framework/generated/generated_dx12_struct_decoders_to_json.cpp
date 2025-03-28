@@ -71,575 +71,6 @@ inline bool RepresentBinaryFile(const util::JsonOptions& json_options, nlohmann:
     return RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_FRAME_STATISTICS& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_FRAME_STATISTICS& meta_struct = *data;
-        FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options);
-        FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options);
-        FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options);
-        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options);
-        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_MAPPED_RECT& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_MAPPED_RECT& meta_struct = *data;
-        FieldToJson(jdata["Pitch"], decoded_value.Pitch, options);
-        FieldToJson(jdata["pBits"], meta_struct.pBits, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LUID* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const LUID& decoded_value = *data->decoded_value;
-        const Decoded_LUID& meta_struct = *data;
-        FieldToJson(jdata["LowPart"], decoded_value.LowPart, options);
-        FieldToJson(jdata["HighPart"], decoded_value.HighPart, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_ADAPTER_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_ADAPTER_DESC& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options);
-        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
-        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
-        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
-        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
-        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
-        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
-        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTPUT_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTPUT_DESC& meta_struct = *data;
-        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options);
-        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options);
-        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options);
-        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
-        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SHARED_RESOURCE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SHARED_RESOURCE& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SHARED_RESOURCE& meta_struct = *data;
-        FieldToJson(jdata["Handle"], meta_struct.Handle, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SURFACE_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SURFACE_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SURFACE_DESC& meta_struct = *data;
-        FieldToJson(jdata["Width"], decoded_value.Width, options);
-        FieldToJson(jdata["Height"], decoded_value.Height, options);
-        FieldToJson(jdata["Format"], decoded_value.Format, options);
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SWAP_CHAIN_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SWAP_CHAIN_DESC& meta_struct = *data;
-        FieldToJson(jdata["BufferDesc"], meta_struct.BufferDesc, options);
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
-        FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options);
-        FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options);
-        FieldToJson(jdata["OutputWindow"], meta_struct.OutputWindow, options);
-        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options);
-        FieldToJson(jdata["SwapEffect"], decoded_value.SwapEffect, options);
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC1* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_ADAPTER_DESC1& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_ADAPTER_DESC1& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options);
-        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
-        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
-        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
-        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
-        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
-        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
-        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_DISPLAY_COLOR_SPACE& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_DISPLAY_COLOR_SPACE& meta_struct = *data;
-        FieldToJson(jdata["PrimaryCoordinates"], meta_struct.PrimaryCoordinates, options);
-        FieldToJson(jdata["WhitePoints"], meta_struct.WhitePoints, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_MOVE_RECT* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTDUPL_MOVE_RECT& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTDUPL_MOVE_RECT& meta_struct = *data;
-        FieldToJson(jdata["SourcePoint"], meta_struct.SourcePoint, options);
-        FieldToJson(jdata["DestinationRect"], meta_struct.DestinationRect, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTDUPL_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTDUPL_DESC& meta_struct = *data;
-        FieldToJson(jdata["ModeDesc"], meta_struct.ModeDesc, options);
-        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
-        Bool32ToJson(jdata["DesktopImageInSystemMemory"], decoded_value.DesktopImageInSystemMemory, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINTER_POSITION* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTDUPL_POINTER_POSITION& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTDUPL_POINTER_POSITION& meta_struct = *data;
-        FieldToJson(jdata["Position"], meta_struct.Position, options);
-        Bool32ToJson(jdata["Visible"], decoded_value.Visible, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTDUPL_POINTER_SHAPE_INFO& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO& meta_struct = *data;
-        FieldToJson(jdata["Type"], decoded_value.Type, options);
-        FieldToJson(jdata["Width"], decoded_value.Width, options);
-        FieldToJson(jdata["Height"], decoded_value.Height, options);
-        FieldToJson(jdata["Pitch"], decoded_value.Pitch, options);
-        FieldToJson(jdata["HotSpot"], meta_struct.HotSpot, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_FRAME_INFO* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTDUPL_FRAME_INFO& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTDUPL_FRAME_INFO& meta_struct = *data;
-        FieldToJson(jdata["LastPresentTime"], meta_struct.LastPresentTime, options);
-        FieldToJson(jdata["LastMouseUpdateTime"], meta_struct.LastMouseUpdateTime, options);
-        FieldToJson(jdata["AccumulatedFrames"], decoded_value.AccumulatedFrames, options);
-        Bool32ToJson(jdata["RectsCoalesced"], decoded_value.RectsCoalesced, options);
-        Bool32ToJson(jdata["ProtectedContentMaskedOut"], decoded_value.ProtectedContentMaskedOut, options);
-        FieldToJson(jdata["PointerPosition"], meta_struct.PointerPosition, options);
-        FieldToJson(jdata["TotalMetadataBufferSize"], decoded_value.TotalMetadataBufferSize, options);
-        FieldToJson(jdata["PointerShapeBufferSize"], decoded_value.PointerShapeBufferSize, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC1* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_MODE_DESC1& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_MODE_DESC1& meta_struct = *data;
-        FieldToJson(jdata["Width"], decoded_value.Width, options);
-        FieldToJson(jdata["Height"], decoded_value.Height, options);
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
-        FieldToJson(jdata["Format"], decoded_value.Format, options);
-        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
-        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
-        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DESC1* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SWAP_CHAIN_DESC1& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SWAP_CHAIN_DESC1& meta_struct = *data;
-        FieldToJson(jdata["Width"], decoded_value.Width, options);
-        FieldToJson(jdata["Height"], decoded_value.Height, options);
-        FieldToJson(jdata["Format"], decoded_value.Format, options);
-        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options);
-        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
-        FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options);
-        FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options);
-        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
-        FieldToJson(jdata["SwapEffect"], decoded_value.SwapEffect, options);
-        FieldToJson(jdata["AlphaMode"], decoded_value.AlphaMode, options);
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SWAP_CHAIN_FULLSCREEN_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC& meta_struct = *data;
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
-        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
-        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
-        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_PRESENT_PARAMETERS* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_PRESENT_PARAMETERS& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_PRESENT_PARAMETERS& meta_struct = *data;
-        FieldToJson(jdata["DirtyRectsCount"], decoded_value.DirtyRectsCount, options);
-        FieldToJson(jdata["pDirtyRects"], meta_struct.pDirtyRects, options);
-        FieldToJson(jdata["pScrollRect"], meta_struct.pScrollRect, options);
-        FieldToJson(jdata["pScrollOffset"], meta_struct.pScrollOffset, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC2* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_ADAPTER_DESC2& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_ADAPTER_DESC2& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options);
-        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
-        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
-        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
-        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
-        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
-        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
-        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-        FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options);
-        FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MATRIX_3X2_F* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_MATRIX_3X2_F& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_MATRIX_3X2_F& meta_struct = *data;
-        FieldToJson(jdata["_11"], decoded_value._11, options);
-        FieldToJson(jdata["_12"], decoded_value._12, options);
-        FieldToJson(jdata["_21"], decoded_value._21, options);
-        FieldToJson(jdata["_22"], decoded_value._22, options);
-        FieldToJson(jdata["_31"], decoded_value._31, options);
-        FieldToJson(jdata["_32"], decoded_value._32, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_DECODE_SWAP_CHAIN_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC& meta_struct = *data;
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS_MEDIA* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_FRAME_STATISTICS_MEDIA& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_FRAME_STATISTICS_MEDIA& meta_struct = *data;
-        FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options);
-        FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options);
-        FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options);
-        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options);
-        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options);
-        FieldToJson(jdata["CompositionMode"], decoded_value.CompositionMode, options);
-        FieldToJson(jdata["ApprovedPresentDuration"], decoded_value.ApprovedPresentDuration, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_QUERY_VIDEO_MEMORY_INFO& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO& meta_struct = *data;
-        FieldToJson(jdata["Budget"], decoded_value.Budget, options);
-        FieldToJson(jdata["CurrentUsage"], decoded_value.CurrentUsage, options);
-        FieldToJson(jdata["AvailableForReservation"], decoded_value.AvailableForReservation, options);
-        FieldToJson(jdata["CurrentReservation"], decoded_value.CurrentReservation, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_HDR10* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_HDR_METADATA_HDR10& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_HDR_METADATA_HDR10& meta_struct = *data;
-        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options);
-        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options);
-        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options);
-        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options);
-        FieldToJson(jdata["MaxMasteringLuminance"], decoded_value.MaxMasteringLuminance, options);
-        FieldToJson(jdata["MinMasteringLuminance"], decoded_value.MinMasteringLuminance, options);
-        FieldToJson(jdata["MaxContentLightLevel"], decoded_value.MaxContentLightLevel, options);
-        FieldToJson(jdata["MaxFrameAverageLightLevel"], decoded_value.MaxFrameAverageLightLevel, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_HDR10PLUS* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_HDR_METADATA_HDR10PLUS& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_HDR_METADATA_HDR10PLUS& meta_struct = *data;
-        FieldToJson(jdata["Data"], meta_struct.Data, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC3* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_ADAPTER_DESC3& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_ADAPTER_DESC3& meta_struct = *data;
-        FieldToJson(jdata["Description"], meta_struct.Description, options);
-        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
-        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
-        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
-        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
-        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
-        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
-        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
-        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
-        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
-        FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options);
-        FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC1* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_OUTPUT_DESC1& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_OUTPUT_DESC1& meta_struct = *data;
-        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options);
-        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options);
-        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options);
-        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
-        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options);
-        FieldToJson(jdata["BitsPerColor"], decoded_value.BitsPerColor, options);
-        FieldToJson(jdata["ColorSpace"], decoded_value.ColorSpace, options);
-        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options);
-        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options);
-        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options);
-        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options);
-        FieldToJson(jdata["MinLuminance"], decoded_value.MinLuminance, options);
-        FieldToJson(jdata["MaxLuminance"], decoded_value.MaxLuminance, options);
-        FieldToJson(jdata["MaxFullFrameLuminance"], decoded_value.MaxFullFrameLuminance, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_RATIONAL* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_RATIONAL& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_RATIONAL& meta_struct = *data;
-        FieldToJson(jdata["Numerator"], decoded_value.Numerator, options);
-        FieldToJson(jdata["Denominator"], decoded_value.Denominator, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SAMPLE_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_SAMPLE_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_SAMPLE_DESC& meta_struct = *data;
-        FieldToJson(jdata["Count"], decoded_value.Count, options);
-        FieldToJson(jdata["Quality"], decoded_value.Quality, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_RGB* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_RGB& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_RGB& meta_struct = *data;
-        FieldToJson(jdata["Red"], decoded_value.Red, options);
-        FieldToJson(jdata["Green"], decoded_value.Green, options);
-        FieldToJson(jdata["Blue"], decoded_value.Blue, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3DCOLORVALUE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const D3DCOLORVALUE& decoded_value = *data->decoded_value;
-        const Decoded_D3DCOLORVALUE& meta_struct = *data;
-        FieldToJson(jdata["r"], decoded_value.r, options);
-        FieldToJson(jdata["g"], decoded_value.g, options);
-        FieldToJson(jdata["b"], decoded_value.b, options);
-        FieldToJson(jdata["a"], decoded_value.a, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_GAMMA_CONTROL& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_GAMMA_CONTROL& meta_struct = *data;
-        FieldToJson(jdata["Scale"], meta_struct.Scale, options);
-        FieldToJson(jdata["Offset"], meta_struct.Offset, options);
-        FieldToJson(jdata["GammaCurve"], meta_struct.GammaCurve, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_GAMMA_CONTROL_CAPABILITIES& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES& meta_struct = *data;
-        Bool32ToJson(jdata["ScaleAndOffsetSupported"], decoded_value.ScaleAndOffsetSupported, options);
-        FieldToJson(jdata["MaxConvertedValue"], decoded_value.MaxConvertedValue, options);
-        FieldToJson(jdata["MinConvertedValue"], decoded_value.MinConvertedValue, options);
-        FieldToJson(jdata["NumGammaControlPoints"], decoded_value.NumGammaControlPoints, options);
-        FieldToJson(jdata["ControlPointPositions"], meta_struct.ControlPointPositions, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_MODE_DESC& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_MODE_DESC& meta_struct = *data;
-        FieldToJson(jdata["Width"], decoded_value.Width, options);
-        FieldToJson(jdata["Height"], decoded_value.Height, options);
-        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
-        FieldToJson(jdata["Format"], decoded_value.Format, options);
-        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
-        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_JPEG_DC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE& meta_struct = *data;
-        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options);
-        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_JPEG_AC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE& meta_struct = *data;
-        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options);
-        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_QUANTIZATION_TABLE* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const DXGI_JPEG_QUANTIZATION_TABLE& decoded_value = *data->decoded_value;
-        const Decoded_DXGI_JPEG_QUANTIZATION_TABLE& meta_struct = *data;
-        FieldToJson(jdata["Elements"], meta_struct.Elements, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMMAND_QUEUE_DESC* data, const JsonOptions& options)
 {
     using namespace util;
@@ -716,6 +147,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BOX* data, c
         FieldToJson(jdata["right"], decoded_value.right, options);
         FieldToJson(jdata["bottom"], decoded_value.bottom, options);
         FieldToJson(jdata["back"], decoded_value.back, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LUID* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const LUID& decoded_value = *data->decoded_value;
+        const Decoded_LUID& meta_struct = *data;
+        FieldToJson(jdata["LowPart"], decoded_value.LowPart, options);
+        FieldToJson(jdata["HighPart"], decoded_value.HighPart, options);
     }
 }
 
@@ -1492,6 +935,65 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS20& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20& meta_struct = *data;
+        Bool32ToJson(jdata["ComputeOnlyWriteWatchSupported"], decoded_value.ComputeOnlyWriteWatchSupported, options);
+        FieldToJson(jdata["RecreateAtTier"], decoded_value.RecreateAtTier, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_D3D12_OPTIONS21& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21& meta_struct = *data;
+        FieldToJson(jdata["WorkGraphsTier"], decoded_value.WorkGraphsTier, options);
+        FieldToJson(jdata["ExecuteIndirectTier"], decoded_value.ExecuteIndirectTier, options);
+        Bool32ToJson(jdata["SampleCmpGradientAndBiasSupported"], decoded_value.SampleCmpGradientAndBiasSupported, options);
+        Bool32ToJson(jdata["ExtendedCommandInfoSupported"], decoded_value.ExtendedCommandInfoSupported, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_PREDICATION* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_PREDICATION& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_PREDICATION& meta_struct = *data;
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_HARDWARE_COPY& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY& meta_struct = *data;
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED& meta_struct = *data;
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO* data, const JsonOptions& options)
 {
     using namespace util;
@@ -1543,6 +1045,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_HEAP_DESC* d
         FieldToJson(jdata["Properties"], meta_struct.Properties, options);
         FieldToJson(jdata["Alignment"], decoded_value.Alignment, options);
         FieldToJson_D3D12_HEAP_FLAGS(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO& meta_struct = *data;
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["Dimension"], decoded_value.Dimension, options);
+        FieldToJson(jdata["DestHeapProperties"], meta_struct.DestHeapProperties, options);
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
     }
 }
 
@@ -3282,6 +2798,42 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PROGRAM_IDENTIFIER* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_PROGRAM_IDENTIFIER& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_PROGRAM_IDENTIFIER& meta_struct = *data;
+        FieldToJson(jdata["OpaqueData"], meta_struct.OpaqueData, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE_ID* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_NODE_ID& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_NODE_ID& meta_struct = *data;
+        FieldToJson(jdata["Name"], meta_struct.Name, options);
+        FieldToJson(jdata["ArrayIndex"], decoded_value.ArrayIndex, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS& meta_struct = *data;
+        FieldToJson(jdata["MinSizeInBytes"], decoded_value.MinSizeInBytes, options);
+        FieldToJson(jdata["MaxSizeInBytes"], decoded_value.MaxSizeInBytes, options);
+        FieldToJson(jdata["SizeGranularityInBytes"], decoded_value.SizeGranularityInBytes, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_OBJECT_CONFIG* data, const JsonOptions& options)
 {
     using namespace util;
@@ -3323,6 +2875,50 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE_MASK* d
         const D3D12_NODE_MASK& decoded_value = *data->decoded_value;
         const Decoded_D3D12_NODE_MASK& meta_struct = *data;
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SAMPLE_MASK* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SAMPLE_MASK& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SAMPLE_MASK& meta_struct = *data;
+        FieldToJsonAsFixedWidthBinary(jdata["SampleMask"], decoded_value.SampleMask, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_IB_STRIP_CUT_VALUE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_IB_STRIP_CUT_VALUE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_IB_STRIP_CUT_VALUE& meta_struct = *data;
+        FieldToJson(jdata["IndexBufferStripCutValue"], decoded_value.IndexBufferStripCutValue, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PRIMITIVE_TOPOLOGY_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_PRIMITIVE_TOPOLOGY_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_PRIMITIVE_TOPOLOGY_DESC& meta_struct = *data;
+        FieldToJson(jdata["PrimitiveTopology"], decoded_value.PrimitiveTopology, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCIL_FORMAT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_DEPTH_STENCIL_FORMAT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_DEPTH_STENCIL_FORMAT& meta_struct = *data;
+        FieldToJson(jdata["DepthStencilFormat"], decoded_value.DepthStencilFormat, options);
     }
 }
 
@@ -3438,6 +3034,182 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_P
         const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1& meta_struct = *data;
         FieldToJson(jdata["MaxTraceRecursionDepth"], decoded_value.MaxTraceRecursionDepth, options);
         FieldToJson_D3D12_RAYTRACING_PIPELINE_FLAGS(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE_OUTPUT_OVERRIDES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_NODE_OUTPUT_OVERRIDES& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_NODE_OUTPUT_OVERRIDES& meta_struct = *data;
+        FieldToJson(jdata["OutputIndex"], decoded_value.OutputIndex, options);
+        FieldToJson(jdata["pNewName"], meta_struct.pNewName, options);
+        Bool32ToJson(jdata["pAllowSparseNodes"], meta_struct.pAllowSparseNodes, options);
+        FieldToJson(jdata["pMaxRecords"], meta_struct.pMaxRecords, options);
+        FieldToJson(jdata["pMaxRecordsSharedWithOutputIndex"], meta_struct.pMaxRecordsSharedWithOutputIndex, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_BROADCASTING_LAUNCH_OVERRIDES& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES& meta_struct = *data;
+        FieldToJson(jdata["pLocalRootArgumentsTableIndex"], meta_struct.pLocalRootArgumentsTableIndex, options);
+        Bool32ToJson(jdata["pProgramEntry"], meta_struct.pProgramEntry, options);
+        FieldToJson(jdata["pNewName"], meta_struct.pNewName, options);
+        FieldToJson(jdata["pShareInputOf"], meta_struct.pShareInputOf, options);
+        FieldToJson(jdata["pDispatchGrid"], meta_struct.pDispatchGrid, options);
+        FieldToJson(jdata["pMaxDispatchGrid"], meta_struct.pMaxDispatchGrid, options);
+        FieldToJson(jdata["NumOutputOverrides"], decoded_value.NumOutputOverrides, options);
+        FieldToJson(jdata["pOutputOverrides"], meta_struct.pOutputOverrides, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_COALESCING_LAUNCH_OVERRIDES& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES& meta_struct = *data;
+        FieldToJson(jdata["pLocalRootArgumentsTableIndex"], meta_struct.pLocalRootArgumentsTableIndex, options);
+        Bool32ToJson(jdata["pProgramEntry"], meta_struct.pProgramEntry, options);
+        FieldToJson(jdata["pNewName"], meta_struct.pNewName, options);
+        FieldToJson(jdata["pShareInputOf"], meta_struct.pShareInputOf, options);
+        FieldToJson(jdata["NumOutputOverrides"], decoded_value.NumOutputOverrides, options);
+        FieldToJson(jdata["pOutputOverrides"], meta_struct.pOutputOverrides, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_THREAD_LAUNCH_OVERRIDES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_THREAD_LAUNCH_OVERRIDES& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_THREAD_LAUNCH_OVERRIDES& meta_struct = *data;
+        FieldToJson(jdata["pLocalRootArgumentsTableIndex"], meta_struct.pLocalRootArgumentsTableIndex, options);
+        Bool32ToJson(jdata["pProgramEntry"], meta_struct.pProgramEntry, options);
+        FieldToJson(jdata["pNewName"], meta_struct.pNewName, options);
+        FieldToJson(jdata["pShareInputOf"], meta_struct.pShareInputOf, options);
+        FieldToJson(jdata["NumOutputOverrides"], decoded_value.NumOutputOverrides, options);
+        FieldToJson(jdata["pOutputOverrides"], meta_struct.pOutputOverrides, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_COMMON_COMPUTE_NODE_OVERRIDES& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_COMMON_COMPUTE_NODE_OVERRIDES& meta_struct = *data;
+        FieldToJson(jdata["pLocalRootArgumentsTableIndex"], meta_struct.pLocalRootArgumentsTableIndex, options);
+        Bool32ToJson(jdata["pProgramEntry"], meta_struct.pProgramEntry, options);
+        FieldToJson(jdata["pNewName"], meta_struct.pNewName, options);
+        FieldToJson(jdata["pShareInputOf"], meta_struct.pShareInputOf, options);
+        FieldToJson(jdata["NumOutputOverrides"], decoded_value.NumOutputOverrides, options);
+        FieldToJson(jdata["pOutputOverrides"], meta_struct.pOutputOverrides, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_NODE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SHADER_NODE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SHADER_NODE& meta_struct = *data;
+        FieldToJson(jdata["Shader"], meta_struct.Shader, options);
+        FieldToJson(jdata["OverridesType"], decoded_value.OverridesType, options);
+        switch(decoded_value.OverridesType)
+        {
+            case D3D12_NODE_OVERRIDES_TYPE_BROADCASTING_LAUNCH:
+            {
+                FieldToJson(jdata["pBroadcastingLaunchOverrides"], meta_struct.broadcasting_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_COALESCING_LAUNCH:
+            {
+                FieldToJson(jdata["pCoalescingLaunchOverrides"], meta_struct.coalescing_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_THREAD_LAUNCH:
+            {
+                FieldToJson(jdata["pThreadLaunchOverrides"], meta_struct.thread_launch_overrides, options);
+                break;
+            }
+            case D3D12_NODE_OVERRIDES_TYPE_COMMON_COMPUTE:
+            {
+                FieldToJson(jdata["pCommonComputeNodeOverrides"], meta_struct.common_compute_node_overrides, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_NODE_OVERRIDES_TYPE in D3D12_SHADER_NODE.", options);
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_NODE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_NODE& meta_struct = *data;
+        FieldToJson(jdata["NodeType"], decoded_value.NodeType, options);
+        switch(decoded_value.NodeType)
+        {
+            case D3D12_NODE_TYPE_SHADER:
+            {
+                FieldToJson(jdata["Shader"], meta_struct.shader, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_NODE_TYPE in D3D12_NODE.", options);
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_WORK_GRAPH_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_WORK_GRAPH_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_WORK_GRAPH_DESC& meta_struct = *data;
+        FieldToJson(jdata["ProgramName"], meta_struct.ProgramName, options);
+        FieldToJson_D3D12_WORK_GRAPH_FLAGS(jdata["Flags"], decoded_value.Flags, options);
+        FieldToJson(jdata["NumEntrypoints"], decoded_value.NumEntrypoints, options);
+        FieldToJson(jdata["pEntrypoints"], meta_struct.pEntrypoints, options);
+        FieldToJson(jdata["NumExplicitlyDefinedNodes"], decoded_value.NumExplicitlyDefinedNodes, options);
+        FieldToJson(jdata["pExplicitlyDefinedNodes"], meta_struct.pExplicitlyDefinedNodes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GENERIC_PROGRAM_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_GENERIC_PROGRAM_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_GENERIC_PROGRAM_DESC& meta_struct = *data;
+        FieldToJson(jdata["ProgramName"], meta_struct.ProgramName, options);
+        FieldToJson(jdata["NumExports"], decoded_value.NumExports, options);
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options);
+        FieldToJson(jdata["NumSubobjects"], decoded_value.NumSubobjects, options);
+        FieldToJson(jdata["ppSubobjects"], meta_struct.ppSubobjects, options);
     }
 }
 
@@ -4214,6 +3986,167 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DISPATCH_RAY
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_WORK_GRAPH_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SET_WORK_GRAPH_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SET_WORK_GRAPH_DESC& meta_struct = *data;
+        FieldToJson(jdata["ProgramIdentifier"], meta_struct.ProgramIdentifier, options);
+        FieldToJson_D3D12_SET_WORK_GRAPH_FLAGS(jdata["Flags"], decoded_value.Flags, options);
+        FieldToJson(jdata["BackingMemory"], meta_struct.BackingMemory, options);
+        FieldToJson(jdata["NodeLocalRootArgumentsTable"], meta_struct.NodeLocalRootArgumentsTable, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SET_RAYTRACING_PIPELINE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SET_RAYTRACING_PIPELINE_DESC& meta_struct = *data;
+        FieldToJson(jdata["ProgramIdentifier"], meta_struct.ProgramIdentifier, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_GENERIC_PIPELINE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SET_GENERIC_PIPELINE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SET_GENERIC_PIPELINE_DESC& meta_struct = *data;
+        FieldToJson(jdata["ProgramIdentifier"], meta_struct.ProgramIdentifier, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_PROGRAM_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SET_PROGRAM_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SET_PROGRAM_DESC& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        switch(decoded_value.Type)
+        {
+            case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+            {
+                FieldToJson(jdata["GenericPipeline"], meta_struct.generic_pipeline, options);
+                break;
+            }
+            case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+            {
+                FieldToJson(jdata["RaytracingPipeline"], meta_struct.raytracing_pipeline, options);
+                break;
+            }
+            case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+            {
+                FieldToJson(jdata["WorkGraph"], meta_struct.work_graph, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_PROGRAM_TYPE in D3D12_SET_PROGRAM_DESC.", options);
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE_CPU_INPUT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_NODE_CPU_INPUT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_NODE_CPU_INPUT& meta_struct = *data;
+        FieldToJson(jdata["EntrypointIndex"], decoded_value.EntrypointIndex, options);
+        FieldToJson(jdata["NumRecords"], decoded_value.NumRecords, options);
+        FieldToJson(jdata["pRecords"], meta_struct.pRecords, options);
+        FieldToJson(jdata["RecordStrideInBytes"], decoded_value.RecordStrideInBytes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_NODE_GPU_INPUT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_NODE_GPU_INPUT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_NODE_GPU_INPUT& meta_struct = *data;
+        FieldToJson(jdata["EntrypointIndex"], decoded_value.EntrypointIndex, options);
+        FieldToJson(jdata["NumRecords"], decoded_value.NumRecords, options);
+        FieldToJson(jdata["Records"], meta_struct.Records, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_MULTI_NODE_CPU_INPUT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_MULTI_NODE_CPU_INPUT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_MULTI_NODE_CPU_INPUT& meta_struct = *data;
+        FieldToJson(jdata["NumNodeInputs"], decoded_value.NumNodeInputs, options);
+        FieldToJson(jdata["pNodeInputs"], meta_struct.pNodeInputs, options);
+        FieldToJson(jdata["NodeInputStrideInBytes"], decoded_value.NodeInputStrideInBytes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_MULTI_NODE_GPU_INPUT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_MULTI_NODE_GPU_INPUT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_MULTI_NODE_GPU_INPUT& meta_struct = *data;
+        FieldToJson(jdata["NumNodeInputs"], decoded_value.NumNodeInputs, options);
+        FieldToJson(jdata["NodeInputs"], meta_struct.NodeInputs, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DISPATCH_GRAPH_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_DISPATCH_GRAPH_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_DISPATCH_GRAPH_DESC& meta_struct = *data;
+        FieldToJson(jdata["Mode"], decoded_value.Mode, options);
+        switch(decoded_value.Mode)
+        {
+            case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+            {
+                FieldToJson(jdata["NodeCPUInput"], meta_struct.node_cpu_input, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+            {
+                FieldToJson(jdata["NodeGPUInput"], decoded_value.NodeGPUInput, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+            {
+                FieldToJson(jdata["MultiNodeCPUInput"], meta_struct.multi_node_cpu_input, options);
+                break;
+            }
+            case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+            {
+                FieldToJson(jdata["MultiNodeGPUInput"], decoded_value.MultiNodeGPUInput, options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DISPATCH_MODE in D3D12_DISPATCH_GRAPH_DESC.", options);
+                break;
+            }
+        }
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_CACHE_SESSION_DESC* data, const JsonOptions& options)
 {
     using namespace util;
@@ -4472,6 +4405,563 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_INFO_QUEUE_F
         const Decoded_D3D12_INFO_QUEUE_FILTER& meta_struct = *data;
         FieldToJson(jdata["AllowList"], meta_struct.AllowList, options);
         FieldToJson(jdata["DenyList"], meta_struct.DenyList, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_FRAME_STATISTICS& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_FRAME_STATISTICS& meta_struct = *data;
+        FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options);
+        FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options);
+        FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options);
+        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options);
+        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_MAPPED_RECT& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_MAPPED_RECT& meta_struct = *data;
+        FieldToJson(jdata["Pitch"], decoded_value.Pitch, options);
+        FieldToJson(jdata["pBits"], meta_struct.pBits, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_ADAPTER_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_ADAPTER_DESC& meta_struct = *data;
+        FieldToJson(jdata["Description"], meta_struct.Description, options);
+        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
+        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
+        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
+        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
+        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
+        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
+        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTPUT_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTPUT_DESC& meta_struct = *data;
+        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options);
+        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options);
+        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options);
+        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
+        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SHARED_RESOURCE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SHARED_RESOURCE& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SHARED_RESOURCE& meta_struct = *data;
+        FieldToJson(jdata["Handle"], meta_struct.Handle, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SURFACE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SURFACE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SURFACE_DESC& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SWAP_CHAIN_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SWAP_CHAIN_DESC& meta_struct = *data;
+        FieldToJson(jdata["BufferDesc"], meta_struct.BufferDesc, options);
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
+        FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options);
+        FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options);
+        FieldToJson(jdata["OutputWindow"], meta_struct.OutputWindow, options);
+        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options);
+        FieldToJson(jdata["SwapEffect"], decoded_value.SwapEffect, options);
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_ADAPTER_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_ADAPTER_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Description"], meta_struct.Description, options);
+        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
+        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
+        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
+        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
+        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
+        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
+        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DISPLAY_COLOR_SPACE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_DISPLAY_COLOR_SPACE& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_DISPLAY_COLOR_SPACE& meta_struct = *data;
+        FieldToJson(jdata["PrimaryCoordinates"], meta_struct.PrimaryCoordinates, options);
+        FieldToJson(jdata["WhitePoints"], meta_struct.WhitePoints, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_MOVE_RECT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTDUPL_MOVE_RECT& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTDUPL_MOVE_RECT& meta_struct = *data;
+        FieldToJson(jdata["SourcePoint"], meta_struct.SourcePoint, options);
+        FieldToJson(jdata["DestinationRect"], meta_struct.DestinationRect, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTDUPL_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTDUPL_DESC& meta_struct = *data;
+        FieldToJson(jdata["ModeDesc"], meta_struct.ModeDesc, options);
+        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
+        Bool32ToJson(jdata["DesktopImageInSystemMemory"], decoded_value.DesktopImageInSystemMemory, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINTER_POSITION* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTDUPL_POINTER_POSITION& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTDUPL_POINTER_POSITION& meta_struct = *data;
+        FieldToJson(jdata["Position"], meta_struct.Position, options);
+        Bool32ToJson(jdata["Visible"], decoded_value.Visible, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTDUPL_POINTER_SHAPE_INFO& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["Pitch"], decoded_value.Pitch, options);
+        FieldToJson(jdata["HotSpot"], meta_struct.HotSpot, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTDUPL_FRAME_INFO* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTDUPL_FRAME_INFO& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTDUPL_FRAME_INFO& meta_struct = *data;
+        FieldToJson(jdata["LastPresentTime"], meta_struct.LastPresentTime, options);
+        FieldToJson(jdata["LastMouseUpdateTime"], meta_struct.LastMouseUpdateTime, options);
+        FieldToJson(jdata["AccumulatedFrames"], decoded_value.AccumulatedFrames, options);
+        Bool32ToJson(jdata["RectsCoalesced"], decoded_value.RectsCoalesced, options);
+        Bool32ToJson(jdata["ProtectedContentMaskedOut"], decoded_value.ProtectedContentMaskedOut, options);
+        FieldToJson(jdata["PointerPosition"], meta_struct.PointerPosition, options);
+        FieldToJson(jdata["TotalMetadataBufferSize"], decoded_value.TotalMetadataBufferSize, options);
+        FieldToJson(jdata["PointerShapeBufferSize"], decoded_value.PointerShapeBufferSize, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_MODE_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_MODE_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
+        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
+        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SWAP_CHAIN_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SWAP_CHAIN_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        Bool32ToJson(jdata["Stereo"], decoded_value.Stereo, options);
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
+        FieldToJson(jdata["BufferUsage"], decoded_value.BufferUsage, options);
+        FieldToJson(jdata["BufferCount"], decoded_value.BufferCount, options);
+        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
+        FieldToJson(jdata["SwapEffect"], decoded_value.SwapEffect, options);
+        FieldToJson(jdata["AlphaMode"], decoded_value.AlphaMode, options);
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SWAP_CHAIN_FULLSCREEN_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC& meta_struct = *data;
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
+        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
+        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
+        Bool32ToJson(jdata["Windowed"], decoded_value.Windowed, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_PRESENT_PARAMETERS* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_PRESENT_PARAMETERS& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_PRESENT_PARAMETERS& meta_struct = *data;
+        FieldToJson(jdata["DirtyRectsCount"], decoded_value.DirtyRectsCount, options);
+        FieldToJson(jdata["pDirtyRects"], meta_struct.pDirtyRects, options);
+        FieldToJson(jdata["pScrollRect"], meta_struct.pScrollRect, options);
+        FieldToJson(jdata["pScrollOffset"], meta_struct.pScrollOffset, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC2* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_ADAPTER_DESC2& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_ADAPTER_DESC2& meta_struct = *data;
+        FieldToJson(jdata["Description"], meta_struct.Description, options);
+        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
+        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
+        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
+        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
+        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
+        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
+        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+        FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options);
+        FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MATRIX_3X2_F* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_MATRIX_3X2_F& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_MATRIX_3X2_F& meta_struct = *data;
+        FieldToJson(jdata["_11"], decoded_value._11, options);
+        FieldToJson(jdata["_12"], decoded_value._12, options);
+        FieldToJson(jdata["_21"], decoded_value._21, options);
+        FieldToJson(jdata["_22"], decoded_value._22, options);
+        FieldToJson(jdata["_31"], decoded_value._31, options);
+        FieldToJson(jdata["_32"], decoded_value._32, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_DECODE_SWAP_CHAIN_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_DECODE_SWAP_CHAIN_DESC& meta_struct = *data;
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS_MEDIA* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_FRAME_STATISTICS_MEDIA& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_FRAME_STATISTICS_MEDIA& meta_struct = *data;
+        FieldToJson(jdata["PresentCount"], decoded_value.PresentCount, options);
+        FieldToJson(jdata["PresentRefreshCount"], decoded_value.PresentRefreshCount, options);
+        FieldToJson(jdata["SyncRefreshCount"], decoded_value.SyncRefreshCount, options);
+        FieldToJson(jdata["SyncQPCTime"], meta_struct.SyncQPCTime, options);
+        FieldToJson(jdata["SyncGPUTime"], meta_struct.SyncGPUTime, options);
+        FieldToJson(jdata["CompositionMode"], decoded_value.CompositionMode, options);
+        FieldToJson(jdata["ApprovedPresentDuration"], decoded_value.ApprovedPresentDuration, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_QUERY_VIDEO_MEMORY_INFO& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO& meta_struct = *data;
+        FieldToJson(jdata["Budget"], decoded_value.Budget, options);
+        FieldToJson(jdata["CurrentUsage"], decoded_value.CurrentUsage, options);
+        FieldToJson(jdata["AvailableForReservation"], decoded_value.AvailableForReservation, options);
+        FieldToJson(jdata["CurrentReservation"], decoded_value.CurrentReservation, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_HDR10* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_HDR_METADATA_HDR10& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_HDR_METADATA_HDR10& meta_struct = *data;
+        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options);
+        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options);
+        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options);
+        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options);
+        FieldToJson(jdata["MaxMasteringLuminance"], decoded_value.MaxMasteringLuminance, options);
+        FieldToJson(jdata["MinMasteringLuminance"], decoded_value.MinMasteringLuminance, options);
+        FieldToJson(jdata["MaxContentLightLevel"], decoded_value.MaxContentLightLevel, options);
+        FieldToJson(jdata["MaxFrameAverageLightLevel"], decoded_value.MaxFrameAverageLightLevel, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_HDR_METADATA_HDR10PLUS* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_HDR_METADATA_HDR10PLUS& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_HDR_METADATA_HDR10PLUS& meta_struct = *data;
+        FieldToJson(jdata["Data"], meta_struct.Data, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC3* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_ADAPTER_DESC3& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_ADAPTER_DESC3& meta_struct = *data;
+        FieldToJson(jdata["Description"], meta_struct.Description, options);
+        FieldToJson(jdata["VendorId"], decoded_value.VendorId, options);
+        FieldToJson(jdata["DeviceId"], decoded_value.DeviceId, options);
+        FieldToJson(jdata["SubSysId"], decoded_value.SubSysId, options);
+        FieldToJson(jdata["Revision"], decoded_value.Revision, options);
+        FieldToJson(jdata["DedicatedVideoMemory"], decoded_value.DedicatedVideoMemory, options);
+        FieldToJson(jdata["DedicatedSystemMemory"], decoded_value.DedicatedSystemMemory, options);
+        FieldToJson(jdata["SharedSystemMemory"], decoded_value.SharedSystemMemory, options);
+        FieldToJson(jdata["AdapterLuid"], meta_struct.AdapterLuid, options);
+        FieldToJson(jdata["Flags"], decoded_value.Flags, options);
+        FieldToJson(jdata["GraphicsPreemptionGranularity"], decoded_value.GraphicsPreemptionGranularity, options);
+        FieldToJson(jdata["ComputePreemptionGranularity"], decoded_value.ComputePreemptionGranularity, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_OUTPUT_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_OUTPUT_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_OUTPUT_DESC1& meta_struct = *data;
+        FieldToJson(jdata["DeviceName"], meta_struct.DeviceName, options);
+        FieldToJson(jdata["DesktopCoordinates"], meta_struct.DesktopCoordinates, options);
+        Bool32ToJson(jdata["AttachedToDesktop"], decoded_value.AttachedToDesktop, options);
+        FieldToJson(jdata["Rotation"], decoded_value.Rotation, options);
+        FieldToJson(jdata["Monitor"], meta_struct.Monitor, options);
+        FieldToJson(jdata["BitsPerColor"], decoded_value.BitsPerColor, options);
+        FieldToJson(jdata["ColorSpace"], decoded_value.ColorSpace, options);
+        FieldToJson(jdata["RedPrimary"], meta_struct.RedPrimary, options);
+        FieldToJson(jdata["GreenPrimary"], meta_struct.GreenPrimary, options);
+        FieldToJson(jdata["BluePrimary"], meta_struct.BluePrimary, options);
+        FieldToJson(jdata["WhitePoint"], meta_struct.WhitePoint, options);
+        FieldToJson(jdata["MinLuminance"], decoded_value.MinLuminance, options);
+        FieldToJson(jdata["MaxLuminance"], decoded_value.MaxLuminance, options);
+        FieldToJson(jdata["MaxFullFrameLuminance"], decoded_value.MaxFullFrameLuminance, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_RATIONAL* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_RATIONAL& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_RATIONAL& meta_struct = *data;
+        FieldToJson(jdata["Numerator"], decoded_value.Numerator, options);
+        FieldToJson(jdata["Denominator"], decoded_value.Denominator, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_SAMPLE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_SAMPLE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_SAMPLE_DESC& meta_struct = *data;
+        FieldToJson(jdata["Count"], decoded_value.Count, options);
+        FieldToJson(jdata["Quality"], decoded_value.Quality, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_RGB* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_RGB& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_RGB& meta_struct = *data;
+        FieldToJson(jdata["Red"], decoded_value.Red, options);
+        FieldToJson(jdata["Green"], decoded_value.Green, options);
+        FieldToJson(jdata["Blue"], decoded_value.Blue, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3DCOLORVALUE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3DCOLORVALUE& decoded_value = *data->decoded_value;
+        const Decoded_D3DCOLORVALUE& meta_struct = *data;
+        FieldToJson(jdata["r"], decoded_value.r, options);
+        FieldToJson(jdata["g"], decoded_value.g, options);
+        FieldToJson(jdata["b"], decoded_value.b, options);
+        FieldToJson(jdata["a"], decoded_value.a, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_GAMMA_CONTROL& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_GAMMA_CONTROL& meta_struct = *data;
+        FieldToJson(jdata["Scale"], meta_struct.Scale, options);
+        FieldToJson(jdata["Offset"], meta_struct.Offset, options);
+        FieldToJson(jdata["GammaCurve"], meta_struct.GammaCurve, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_GAMMA_CONTROL_CAPABILITIES& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES& meta_struct = *data;
+        Bool32ToJson(jdata["ScaleAndOffsetSupported"], decoded_value.ScaleAndOffsetSupported, options);
+        FieldToJson(jdata["MaxConvertedValue"], decoded_value.MaxConvertedValue, options);
+        FieldToJson(jdata["MinConvertedValue"], decoded_value.MinConvertedValue, options);
+        FieldToJson(jdata["NumGammaControlPoints"], decoded_value.NumGammaControlPoints, options);
+        FieldToJson(jdata["ControlPointPositions"], meta_struct.ControlPointPositions, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MODE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_MODE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_MODE_DESC& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["RefreshRate"], meta_struct.RefreshRate, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["ScanlineOrdering"], decoded_value.ScanlineOrdering, options);
+        FieldToJson(jdata["Scaling"], decoded_value.Scaling, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_JPEG_DC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_JPEG_DC_HUFFMAN_TABLE& meta_struct = *data;
+        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options);
+        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_JPEG_AC_HUFFMAN_TABLE& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_JPEG_AC_HUFFMAN_TABLE& meta_struct = *data;
+        FieldToJson(jdata["CodeCounts"], meta_struct.CodeCounts, options);
+        FieldToJson(jdata["CodeValues"], meta_struct.CodeValues, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_QUANTIZATION_TABLE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const DXGI_JPEG_QUANTIZATION_TABLE& decoded_value = *data->decoded_value;
+        const Decoded_DXGI_JPEG_QUANTIZATION_TABLE& meta_struct = *data;
+        FieldToJson(jdata["Elements"], meta_struct.Elements, options);
     }
 }
 

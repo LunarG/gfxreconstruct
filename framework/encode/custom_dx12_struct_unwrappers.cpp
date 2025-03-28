@@ -226,6 +226,8 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
     {
         switch (value->Type)
         {
+            case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+                break;
             case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
                 value->pDesc = UnwrapStructPtrObjects(
                     reinterpret_cast<const D3D12_GLOBAL_ROOT_SIGNATURE*>(value->pDesc), unwrap_memory);
@@ -233,6 +235,10 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
             case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
                 value->pDesc = UnwrapStructPtrObjects(reinterpret_cast<const D3D12_LOCAL_ROOT_SIGNATURE*>(value->pDesc),
                                                       unwrap_memory);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
                 value->pDesc = UnwrapStructPtrObjects(
@@ -247,6 +253,59 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
                 value->pDesc = unwrapped_struct;
                 break;
             }
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+            {
+                auto unwrapped_struct = MakeUnwrapStructs(
+                    reinterpret_cast<const D3D12_GENERIC_PROGRAM_DESC*>(value->pDesc), 1, unwrap_memory);
+                UnwrapStructObjects(
+                    unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
+                value->pDesc = unwrapped_struct;
+                break;
+            }
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
+                break;
             default:
                 break;
         }
@@ -274,6 +333,25 @@ void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
         // The subobject was not found in the list of existing subobjects, so fall back on standard unwrapping.
         auto unwrapped_struct = MakeUnwrapStructs(value->pSubobjectToAssociate, 1, unwrap_memory);
         UnwrapStructObjects(unwrapped_struct, unwrap_memory, wrapped_subobjects, unwrapped_subobjects, num_subobjects);
+    }
+}
+
+void UnwrapStructObjects(D3D12_GENERIC_PROGRAM_DESC*  value,
+                         HandleUnwrapMemory*          unwrap_memory,
+                         const D3D12_STATE_SUBOBJECT* wrapped_subobjects,
+                         const D3D12_STATE_SUBOBJECT* unwrapped_subobjects,
+                         UINT                         num_subobjects)
+{
+    if (value != nullptr)
+    {
+        auto unwrapped_structs =
+            const_cast<D3D12_STATE_SUBOBJECT**>(MakeUnwrapStructs(value->ppSubobjects, num_subobjects, unwrap_memory));
+
+        for (UINT i = 0; i < num_subobjects; ++i)
+        {
+            UnwrapStructObjects(
+                unwrapped_structs[i], unwrap_memory, &wrapped_subobjects[i], &unwrapped_subobjects[i], 1);
+        }
     }
 }
 

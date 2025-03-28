@@ -78,6 +78,8 @@ typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList8, &__uuidof(ID3D12Graphic
     ID3D12GraphicsCommandList8ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList9, &__uuidof(ID3D12GraphicsCommandList9)>>
     ID3D12GraphicsCommandList9ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList10, &__uuidof(ID3D12GraphicsCommandList10)>>
+    ID3D12GraphicsCommandList10ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12DeviceRemovedExtendedData1)>>
     ID3D12DeviceRemovedExtendedData1ComPtr;
 typedef _com_ptr_t<

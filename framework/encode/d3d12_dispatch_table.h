@@ -42,6 +42,8 @@ struct D3D12DispatchTable
     PFN_D3D12_SERIALIZE_ROOT_SIGNATURE                     D3D12SerializeRootSignature{ nullptr };
     PFN_D3D12_SERIALIZE_VERSIONED_ROOT_SIGNATURE           D3D12SerializeVersionedRootSignature{ nullptr };
     PFN_D3D12_GET_INTERFACE                                D3D12GetInterface{ nullptr };
+    PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER_FROM_SUBOBJECT_IN_LIBRARY
+    D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary{ nullptr };
     // NOTE: There is no typedef in d3d12.h for D3D12EnableExperimentalFeatures.
     decltype(D3D12EnableExperimentalFeatures)* D3D12EnableExperimentalFeatures{ nullptr };
 };

@@ -36,6 +36,10 @@
 #include <algorithm>
 #include <cassert>
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -43,11 +47,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -427,6 +427,32 @@ void MapStructObjects(Decoded_D3D12_DISPATCH_RAYS_DESC* wrapper, const Dx12Objec
         MapStructObjects(wrapper->HitGroupTable, object_info_table, gpu_va_map);
 
         MapStructObjects(wrapper->CallableShaderTable, object_info_table, gpu_va_map);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_SET_WORK_GRAPH_DESC* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->BackingMemory, object_info_table, gpu_va_map);
+
+        MapStructObjects(wrapper->NodeLocalRootArgumentsTable, object_info_table, gpu_va_map);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_NODE_GPU_INPUT* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->Records, object_info_table, gpu_va_map);
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_MULTI_NODE_GPU_INPUT* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructObjects(wrapper->NodeInputs, object_info_table, gpu_va_map);
     }
 }
 

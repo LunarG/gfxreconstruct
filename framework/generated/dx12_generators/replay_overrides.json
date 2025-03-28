@@ -1,7 +1,8 @@
 {
   "functions": {
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
-    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice",
+    "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary": "OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary"
   },
   "classmethods": {
     "IUnknown": {
@@ -117,6 +118,10 @@
       "SetPipelineState1": "OverrideSetPipelineState1",
       "BeginRenderPass": "OverrideBeginRenderPass"
     },
+    "ID3D12GraphicsCommandList10": {
+      "SetProgram": "OverrideSetProgram",
+      "DispatchGraph": "OverrideDispatchGraph"
+    },    
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },

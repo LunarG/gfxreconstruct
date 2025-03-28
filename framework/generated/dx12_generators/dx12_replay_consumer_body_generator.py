@@ -257,6 +257,9 @@ class Dx12ReplayConsumerBodyGenerator(
                 value.base_type in self.EXTERNAL_OBJECT_TYPES
             ) and not value.is_array
             is_output = self.is_output(value)
+            if value.full_type == '_Out_ void *' or value.full_type == '_Inout_ void *':
+                is_output = False
+
             is_struct = self.is_struct(value.base_type)
             is_variable_length_array = self.is_variable_length_array(
                 name, value
@@ -412,16 +415,15 @@ class Dx12ReplayConsumerBodyGenerator(
 
             elif is_extenal_object:
                 if is_output:
-                    if value.full_type != '_Out_ void *':
-                        length = '1'
-                        if value.array_length:
-                            if value.array_length[0] == '*':
-                                length = value.array_length + '->GetPointer()'
-                            else:
-                                length = value.array_length
-                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
-                            value.name, value.name, length
-                        )
+                    length = '1'
+                    if value.array_length:
+                        if value.array_length[0] == '*':
+                            length = value.array_length + '->GetPointer()'
+                        else:
+                            length = value.array_length
+                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                        value.name, value.name, length
+                    )
 
                     if is_override:
                         arg_list.append(value.name)
