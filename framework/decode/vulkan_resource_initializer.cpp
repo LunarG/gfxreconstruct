@@ -188,9 +188,8 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
         {
             bool use_transfer = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
                                 (sample_count == VK_SAMPLE_COUNT_1_BIT);
-            bool use_color_write =
-            graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
-                (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
+            bool use_color_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
+                                   (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
             bool use_depth_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
                                    (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
             bool use_stencil_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
