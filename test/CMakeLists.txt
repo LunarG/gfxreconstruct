@@ -47,6 +47,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
         list(APPEND GFXRECON_TESTCASES test_cases/external-memory-fd.cpp)
+        list(APPEND GFXRECON_TESTCASES test_cases/wait-for-present.cpp)
     endif()
     
     add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})

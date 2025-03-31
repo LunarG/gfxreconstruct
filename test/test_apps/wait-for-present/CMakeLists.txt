@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,23 +21,16 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for test apps
+# Description: CMake script for triangle test app
 ###############################################################################
 
-find_package(SDL3)
+add_executable(gfxrecon-testapp-wait-for-present app.cpp)
 
-add_custom_target(gfxrecon-testapps)
+target_link_libraries(gfxrecon-testapp-wait-for-present gfxrecon-testapp-base)
 
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+common_build_directives(gfxrecon-testapp-wait-for-present)
 
-add_subdirectory(common)
-add_subdirectory(triangle)
-add_subdirectory(multisample-depth)
-add_subdirectory(pipeline-binaries)
-add_subdirectory(host-image-copy)
-add_subdirectory(shader-objects)
-add_subdirectory(sparse-resources)
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd)
-    add_subdirectory(wait-for-present)
-endif()
+install(TARGETS gfxrecon-testapp-wait-for-present RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
+install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
+
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-wait-for-present)
