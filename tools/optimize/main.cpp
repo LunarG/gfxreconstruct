@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -40,6 +41,8 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/date_time.h"
+#include "vulkan_file_optimizer.h"
+#include "decode/vulkan_example_modifier.h"
 
 #include "vulkan/vulkan.h"
 
@@ -113,91 +116,6 @@ static void PrintUsage(const char* exe_name)
 #endif
 }
 
-void GetUnreferencedResources(const std::string&                              input_filename,
-                              std::unordered_set<gfxrecon::format::HandleId>* unreferenced_ids)
-{
-    GFXRECON_ASSERT(unreferenced_ids != nullptr);
-
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::VulkanDecoder                    decoder;
-        gfxrecon::decode::VulkanReferencedResourceConsumer resref_consumer;
-
-        decoder.AddConsumer(&resref_consumer);
-
-        file_processor.AddDecoder(&decoder);
-        file_processor.ProcessAllFrames();
-
-        if (resref_consumer.WasNotOptimizable())
-        {
-            GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
-            gfxrecon::util::Log::Release();
-            exit(65);
-        }
-        else if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
-        {
-            // Get the list of resources that were included in a command buffer submission during replay.
-            resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
-        }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-        {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-            gfxrecon::util::Log::Release();
-            exit(-1);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-            gfxrecon::util::Log::Release();
-            exit(0);
-        }
-    }
-}
-
-void FilterUnreferencedResources(const std::string&                               input_filename,
-                                 const std::string&                               output_filename,
-                                 std::unordered_set<gfxrecon::format::HandleId>&& unreferenced_ids)
-{
-    gfxrecon::FileOptimizer file_processor(std::move(unreferenced_ids));
-    if (file_processor.Initialize(input_filename, output_filename))
-    {
-        file_processor.Process();
-
-        if (file_processor.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone)
-        {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-            gfxrecon::util::Log::Release();
-            exit(-1);
-        }
-
-        GFXRECON_WRITE_CONSOLE("Resource filtering complete.");
-        GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_processor.GetNumBytesRead());
-        GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_processor.GetNumBytesWritten());
-    }
-}
-
-void VkRemoveRedundantResources(std::string input_filename, std::string output_filename)
-{
-    GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for unreferenced resources.", input_filename.c_str());
-    std::unordered_set<gfxrecon::format::HandleId> unreferenced_ids;
-    GetUnreferencedResources(input_filename, &unreferenced_ids);
-
-    if (!unreferenced_ids.empty())
-    {
-        // Filter unreferenced ids.
-        GFXRECON_WRITE_CONSOLE("Writing optimized file, removing initialization data for %" PRIu64 " unused resources.",
-                               unreferenced_ids.size());
-        FilterUnreferencedResources(input_filename, output_filename, std::move(unreferenced_ids));
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("No unused resources detected.  A new file will not be created.",
-                               input_filename.c_str());
-    }
-}
-
 void RunDx12Optimizations(const std::string&                        input_filename,
                           const std::string&                        output_filename,
                           gfxrecon::decode::Dx12OptimizationOptions dx12_options)
@@ -210,6 +128,75 @@ void RunDx12Optimizations(const std::string&                        input_filena
         exit(-1);
     }
 #endif
+}
+
+std::unique_ptr<gfxrecon::VulkanFileOptimizer::VulkanOptimizationData>
+GetVulkanOptimizationData(const std::string& input_filename)
+{
+    auto result = std::make_unique<gfxrecon::VulkanFileOptimizer::VulkanOptimizationData>();
+
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::VulkanDecoder                    decoder;
+        gfxrecon::decode::VulkanReferencedResourceConsumer resref_consumer;
+        auto example_modifier = std::make_unique<gfxrecon::decode::VulkanExampleModifier>();
+
+        decoder.AddConsumer(&resref_consumer);
+        decoder.AddConsumer(example_modifier.get());
+
+        file_processor.AddDecoder(&decoder);
+        file_processor.ProcessAllFrames();
+
+        if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+        {
+            throw std::runtime_error("Failed to scan input file for optimizations");
+        }
+
+        // TODO: resref_consumer should derive from VulkanModifierBase and be handled like other
+        // vulkan modifiers
+        if (resref_consumer.WasOptimizable())
+        {
+            resref_consumer.GetReferencedResourceIds(nullptr, &result->unreferenced_ids);
+        }
+        if (example_modifier->CanOptimize())
+        {
+            result->modifiers.push_back(std::move(example_modifier));
+        }
+    }
+    return result;
+}
+
+void RunVulkanOptimizations(const std::string& input_filename, const std::string& output_filename)
+{
+    GFXRECON_WRITE_CONSOLE("Scanning vulkan trace %s for optimizations...", input_filename.c_str());
+
+    // First pass - scan input for potential optimizations
+    auto vulkan_opt_data = GetVulkanOptimizationData(input_filename);
+
+    // Early exit if no optimization can be done
+    if (vulkan_opt_data->modifiers.empty() && vulkan_opt_data->unreferenced_ids.empty())
+    {
+        GFXRECON_WRITE_CONSOLE("Nothing to optimize. Exiting.");
+        return;
+    }
+
+    // Modification pass. Implement all identified optimizations in output file
+    gfxrecon::VulkanFileOptimizer file_optimizer(vulkan_opt_data.get());
+    if (file_optimizer.Initialize(input_filename, output_filename))
+    {
+        file_optimizer.Process();
+
+        if (file_optimizer.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone &&
+            file_optimizer.GetErrorState() != gfxrecon::decode::FileTransformer::Error::kErrorReadingBlockHeader)
+        {
+            throw std::runtime_error("A failure has occurred during file processing");
+        }
+
+        GFXRECON_WRITE_CONSOLE("Vulkan optimizations complete.");
+        GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
+        GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
+    }
 }
 
 int main(int argc, const char** argv)
@@ -288,7 +275,7 @@ int main(int argc, const char** argv)
             }
             else if (detected_vulkan)
             {
-                VkRemoveRedundantResources(input_filename, output_filename);
+                RunVulkanOptimizations(input_filename, output_filename);
             }
             else
             {

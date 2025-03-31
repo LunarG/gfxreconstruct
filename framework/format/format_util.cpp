@@ -106,5 +106,62 @@ std::string GetCompressionTypeName(CompressionType type)
     return "";
 }
 
+format::function_call_block_t CreateFunctionCallBlock(format::ApiCallId               call_id,
+                                                      format::ThreadId                thread_id,
+                                                      const util::MemoryOutputStream* parameter_buffer,
+                                                      util::Compressor*               compressor,
+                                                      std::vector<uint8_t>*           compressor_scratch_space)
+{
+    GFXRECON_ASSERT(parameter_buffer != nullptr);
+
+    function_call_block_t result{};
+    bool                  not_compressed    = true;
+    size_t                uncompressed_size = parameter_buffer->GetDataSize();
+
+    if (compressor != nullptr && compressor_scratch_space != nullptr)
+    {
+        size_t packet_size = 0;
+        size_t compressed_size =
+            compressor->Compress(uncompressed_size, parameter_buffer->GetData(), compressor_scratch_space, 0);
+
+        if ((compressed_size > 0) && (compressed_size < uncompressed_size))
+        {
+            auto* compressed_header = reinterpret_cast<format::CompressedFunctionCallHeader*>(result.header);
+            result.data             = reinterpret_cast<const void*>(compressor_scratch_space->data());
+            result.data_size        = compressed_size;
+            result.header_size      = sizeof(format::CompressedFunctionCallHeader);
+
+            compressed_header->block_header.type = format::BlockType::kCompressedFunctionCallBlock;
+            compressed_header->api_call_id       = call_id;
+            compressed_header->thread_id         = thread_id;
+            compressed_header->uncompressed_size = uncompressed_size;
+
+            packet_size += sizeof(compressed_header->api_call_id) + sizeof(compressed_header->uncompressed_size) +
+                           sizeof(compressed_header->thread_id) + compressed_size;
+
+            compressed_header->block_header.size = packet_size;
+            not_compressed                       = false;
+        }
+    }
+
+    if (not_compressed)
+    {
+        auto* uncompressed_header = reinterpret_cast<format::FunctionCallHeader*>(result.header);
+        result.data               = reinterpret_cast<const void*>(parameter_buffer->GetData());
+        result.data_size          = uncompressed_size;
+        result.header_size        = sizeof(format::FunctionCallHeader);
+
+        uncompressed_header->block_header.type = format::BlockType::kFunctionCallBlock;
+        uncompressed_header->api_call_id       = call_id;
+        uncompressed_header->thread_id         = thread_id;
+
+        size_t packet_size =
+            sizeof(uncompressed_header->api_call_id) + sizeof(uncompressed_header->thread_id) + result.data_size;
+
+        uncompressed_header->block_header.size = packet_size;
+    }
+    return result;
+}
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
