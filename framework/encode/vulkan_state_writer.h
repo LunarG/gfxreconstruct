@@ -181,7 +181,7 @@ class VulkanStateWriter
                             graphics::VulkanResourcesUtil&        resource_util);
 
     void ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                         const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                                         const std::vector<ImageSnapshotInfo>& image_snapshot_infos,
                                          graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,

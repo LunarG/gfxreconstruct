@@ -2403,7 +2403,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 }
 
 void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                                        const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                                                        const std::vector<ImageSnapshotInfo>& image_snapshot_infos,
                                                         graphics::VulkanResourcesUtil&        resource_util)
 {
     GFXRECON_ASSERT(device_wrapper != nullptr);
@@ -2412,6 +2412,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     std::vector<ImageResource> image_resources;
+    image_resources.reserve(image_snapshot_infos.size());
 
     auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
         format::InitImageCommandHeader upload_cmd;
@@ -2484,7 +2485,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         }
     };
 
-    for (const auto& snapshot_entry : image_snapshot_info)
+    for (const auto& snapshot_entry : image_snapshot_infos)
     {
         vulkan_wrappers::ImageWrapper*              image_wrapper  = snapshot_entry.image_wrapper;
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
