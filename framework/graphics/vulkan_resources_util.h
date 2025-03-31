@@ -178,7 +178,7 @@ class VulkanResourcesUtil
                             float             scale) const;
 
   private:
-    VkCommandBuffer CreateCommandBuffer(uint32_t queue_family_index);
+    VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
     void ResetCommandBuffer(VkCommandBuffer command_buffer);
 
