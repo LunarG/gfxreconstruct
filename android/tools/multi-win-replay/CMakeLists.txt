@@ -5,6 +5,9 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(gfxrecon-replay)
 
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
+find_package(nlohmann_json REQUIRED)
+
 get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 
 add_library(native_app_glue STATIC
@@ -38,7 +41,7 @@ target_include_directories(gfxrecon-replay
 
 target_link_libraries(
         gfxrecon-replay
-        nlohmann_json
+        nlohmann_json::nlohmann_json
         gfxrecon_application_multiwin
         gfxrecon_decode
         gfxrecon_graphics
