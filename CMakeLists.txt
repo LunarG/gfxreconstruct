@@ -278,9 +278,13 @@ endif ()# NOT LZ4_FOUND
 
 find_package(ZSTD)
 
-if (MSVC)
-    find_package(jsoncpp)
-endif () # MSVC
+# Find and use nlohmann_json
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann-json")
+find_package(nlohmann_json REQUIRED)
+
+# if (MSVC)
+# find_package(jsoncpp)
+# endif () # MSVC
 
 if (UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
@@ -376,7 +380,6 @@ if (${RUN_TESTS})
     target_include_directories(catch2 SYSTEM INTERFACE external)
 endif ()
 
-add_subdirectory(external/nlohmann)
 add_subdirectory(framework)
 if (NOT BUILD_STATIC)
     add_subdirectory(layer)
