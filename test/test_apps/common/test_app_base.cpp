@@ -2833,6 +2833,12 @@ std::vector<char> readFile(const std::string& filename, android_app* app)
     AAsset*           file = AAssetManager_open(app->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
     size_t            fileLength = AAsset_getLength(file);
     std::vector<char> data;
+    AAsset*           file = AAssetManager_open(app->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
+    if (file == nullptr)
+    {
+        throw std::runtime_error("failed to open file " + filename);
+    }
+    size_t fileLength = AAsset_getLength(file);
     data.resize(fileLength);
     AAsset_read(file, data.data(), fileLength);
     AAsset_close(file);
