@@ -407,15 +407,15 @@ void App::determine_memory_heaps()
 
     // Also determine sparse binding block size by creating
     // dummy object
-    VkBufferCreateInfo buffer_info  = {};
-    buffer_info.sType               = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_info.pNext               = nullptr;
-    buffer_info.flags               = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
-    buffer_info.size                = 1;
-    buffer_info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-    uint32_t idx                    = init.device.get_queue_index(test::QueueType::graphics).value();
+    VkBufferCreateInfo buffer_info    = {};
+    buffer_info.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.pNext                 = nullptr;
+    buffer_info.flags                 = VK_BUFFER_CREATE_SPARSE_BINDING_BIT;
+    buffer_info.size                  = 1;
+    buffer_info.usage                 = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    uint32_t idx                      = init.device.get_queue_index(test::QueueType::graphics).value();
     buffer_info.queueFamilyIndexCount = 1;
-    buffer_info.pQueueFamilyIndices = &idx;
+    buffer_info.pQueueFamilyIndices   = &idx;
     VkBuffer dummy;
     VkResult result = init.disp.createBuffer(&buffer_info, nullptr, &dummy);
     VERIFY_VK_RESULT("failed to create dummy buffer", result);
@@ -711,9 +711,9 @@ bool App::frame(const int frame_num)
             // Sparse buffer bind
             VkSparseMemoryBind sparse_buffer_bind = {};
             sparse_buffer_bind.resourceOffset     = 0;
-            sparse_buffer_bind.size         = sparse_binding_granularity_;
-            sparse_buffer_bind.memory       = sparse_buffer_backing_memory_;
-            sparse_buffer_bind.memoryOffset = 0;
+            sparse_buffer_bind.size               = sparse_binding_granularity_;
+            sparse_buffer_bind.memory             = sparse_buffer_backing_memory_;
+            sparse_buffer_bind.memoryOffset       = 0;
             if (reverse_bind)
                 sparse_buffer_bind.memoryOffset = sparse_binding_granularity_;
             sparse_buffer_bind.flags = 0;
