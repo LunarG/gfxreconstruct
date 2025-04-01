@@ -60,6 +60,7 @@ class App : public gfxrecon::test::TestAppBase
     const uint32_t buffer_size_                          = sizeof(expected_memory_);
     VkBuffer       buffer_                               = VK_NULL_HANDLE;
     VkDeviceMemory imported_memory_                      = VK_NULL_HANDLE;
+    int            import_socket_                        = -1;
 
     void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config) override;
     void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
@@ -113,7 +114,7 @@ uint32_t App::find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags me
         }
     }
 
-    throw std::runtime_error("Could not find required memory type");
+    throw std::runtime_error("Import App Could not find required memory type");
 }
 
 int receive_int(int socket)
@@ -150,7 +151,7 @@ int receive_int(int socket)
     ssize_t n = recvmsg(socket, &msg, 0);
     if (n <= 0)
     {
-        GFXRECON_LOG_ERROR("Failed to receive message");
+        GFXRECON_LOG_ERROR("Import App Failed to receive message");
         GFXRECON_ASSERT(false);
     }
 
@@ -159,12 +160,12 @@ int receive_int(int socket)
     {
         if (cmptr->cmsg_level != SOL_SOCKET)
         {
-            GFXRECON_LOG_ERROR("control level != SOL_SOCKET");
+            GFXRECON_LOG_ERROR("Import App control level != SOL_SOCKET");
             return -1;
         }
         if (cmptr->cmsg_type != SCM_RIGHTS)
         {
-            GFXRECON_LOG_ERROR("control type != SCM_RIGHTS");
+            GFXRECON_LOG_ERROR("Import App control type != SCM_RIGHTS");
             return -1;
         }
         imported_fd = *reinterpret_cast<int*>(CMSG_DATA(cmptr));
@@ -187,26 +188,37 @@ int receive_int(int socket)
     return imported_fd;
 }
 
-int receive_importable_fd()
-{
-    GFXRECON_LOG_INFO("Connecting to exporter");
 
-    int external_socket = socket(PF_UNIX, SOCK_STREAM, 0);
-    GFXRECON_ASSERT(external_socket >= 0);
+int create_import_socket()
+{
+    GFXRECON_LOG_INFO("Import App Connecting to exporter");
+
+    int import_socket = socket(PF_UNIX, SOCK_STREAM, 0);
+    if (import_socket < 0)
+    {
+        GFXRECON_LOG_ERROR("Import App Failed to create socket (%d)", import_socket);
+    }
 
     sockaddr_un un          = {};
     un.sun_family           = AF_UNIX;
     const char* socket_name = "/tmp/.external-memory";
     snprintf(un.sun_path, sizeof(un.sun_path), "%s", socket_name);
 
-    int connect_result = connect(external_socket, reinterpret_cast<struct sockaddr*>(&un), sizeof(un));
-    GFXRECON_ASSERT(connect_result >= 0);
+    int connect_result = connect(import_socket, reinterpret_cast<struct sockaddr*>(&un), sizeof(un));
+    if (connect_result < 0)
+    {
+        GFXRECON_LOG_ERROR("Import App Failed to connect to socket (%d)", connect_result);
+    }
+    return import_socket;
+}
 
-    int imported_fd = receive_int(external_socket);
-    GFXRECON_ASSERT(imported_fd >= 0);
-    GFXRECON_LOG_INFO("Received fd (%d)", imported_fd);
-
-    close(external_socket);
+int receive_importable_fd(int import_socket)
+{
+    int imported_fd = receive_int(import_socket);
+    if (imported_fd < 0)
+    {
+        GFXRECON_LOG_ERROR("Import App Failed to receive int from socket (%d)", imported_fd);
+    }
 
     return imported_fd;
 }
@@ -227,7 +239,7 @@ void App::create_buffer_from_fd(int imported_fd)
     buffer_create_info.queueFamilyIndexCount = 0u;
     buffer_create_info.pQueueFamilyIndices   = nullptr;
     VkResult result                          = init.disp.createBuffer(&buffer_create_info, nullptr, &buffer_);
-    VERIFY_VK_RESULT("Failed to create buffer", result);
+    VERIFY_VK_RESULT("Import App Failed to create buffer", result);
 
     VkMemoryRequirements buf_mem_requirements;
     init.disp.getBufferMemoryRequirements(buffer_, &buf_mem_requirements);
@@ -246,24 +258,23 @@ void App::create_buffer_from_fd(int imported_fd)
     mem_alloc_info.pNext = &import_mem_fd_info;
 
     result = init.disp.allocateMemory(&mem_alloc_info, nullptr, &imported_memory_);
-    VERIFY_VK_RESULT("Failed to import memory", result);
+    VERIFY_VK_RESULT("Import App Failed to import memory", result);
 
     result = init.disp.bindBufferMemory(buffer_, imported_memory_, 0u);
-    VERIFY_VK_RESULT("Failed to bind memory", result);
+    VERIFY_VK_RESULT("Import App Failed to bind memory", result);
 
     uint32_t* data = nullptr;
     result         = init.disp.mapMemory(imported_memory_, 0u, buffer_size_, 0u, reinterpret_cast<void**>(&data));
-    VERIFY_VK_RESULT("Failed to map buffer memory", result);
+    VERIFY_VK_RESULT("Import App Failed to map buffer memory", result);
     for (uint32_t i = 0; i < buffer_size_ / sizeof(uint32_t); ++i)
     {
         if (data[i] != expected_memory_[i])
         {
-            GFXRECON_LOG_ERROR("Memory check failed")
+            GFXRECON_LOG_ERROR("Import App Memory check failed")
             GFXRECON_ASSERT(false);
         }
     }
-    GFXRECON_LOG_INFO("Memory imported correctly");
-
+    GFXRECON_LOG_INFO("Import App Memory imported correctly");
     init.disp.unmapMemory(imported_memory_);
 }
 
@@ -276,11 +287,17 @@ void App::cleanup()
 {
     init.disp.destroyBuffer(buffer_, nullptr);
     init.disp.freeMemory(imported_memory_, nullptr);
+
+    close(import_socket_);
 }
 
 void App::setup()
 {
-    create_buffer_from_fd(receive_importable_fd());
+    import_socket_ = create_import_socket();
+    int import_fd = receive_importable_fd(import_socket_);
+    if(import_fd >= 0) {
+       create_buffer_from_fd(import_fd);
+    }
 }
 
 GFXRECON_END_NAMESPACE(external_memory_fd_import)
