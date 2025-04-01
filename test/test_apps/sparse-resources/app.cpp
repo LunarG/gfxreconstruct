@@ -75,8 +75,7 @@ class App : public gfxrecon::test::TestAppBase
     uint32_t                        device_memory_type_;
     uint32_t                        staging_memory_type_;
 
-    uint32_t   sparse_binding_granularity_;
-    VkExtent3D sparse_block_dimensions_;
+    uint32_t sparse_binding_granularity_;
 
     VkCommandPool   command_pools_[MAX_FRAMES_IN_FLIGHT];
     VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
@@ -220,17 +219,17 @@ void App::create_graphics_pipeline()
     multisampling.sampleShadingEnable                  = VK_FALSE;
     multisampling.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.colorWriteMask =
+    VkPipelineColorBlendAttachmentState color_blend_attachment = {};
+    color_blend_attachment.colorWriteMask =
         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
+    color_blend_attachment.blendEnable = VK_FALSE;
 
     VkPipelineColorBlendStateCreateInfo color_blending = {};
     color_blending.sType                               = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     color_blending.logicOpEnable                       = VK_FALSE;
     color_blending.logicOp                             = VK_LOGIC_OP_COPY;
     color_blending.attachmentCount                     = 1;
-    color_blending.pAttachments                        = &colorBlendAttachment;
+    color_blending.pAttachments                        = &color_blend_attachment;
     color_blending.blendConstants[0]                   = 0.0f;
     color_blending.blendConstants[1]                   = 0.0f;
     color_blending.blendConstants[2]                   = 0.0f;
@@ -415,6 +414,7 @@ void App::determine_memory_heaps()
     buffer_info.size                = 1;
     buffer_info.usage               = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     uint32_t idx                    = init.device.get_queue_index(test::QueueType::graphics).value();
+    buffer_info.queueFamilyIndexCount = 1;
     buffer_info.pQueueFamilyIndices = &idx;
     VkBuffer dummy;
     VkResult result = init.disp.createBuffer(&buffer_info, nullptr, &dummy);
@@ -531,13 +531,6 @@ void App::create_images()
                                                                 VK_IMAGE_TILING_OPTIMAL,
                                                                 &prop_count,
                                                                 props.data());
-    for (VkSparseImageFormatProperties prop : props)
-    {
-        if (prop.aspectMask == VK_IMAGE_ASPECT_COLOR_BIT)
-        {
-            sparse_block_dimensions_ = prop.imageGranularity;
-        }
-    }
 
     // Create sparsely bound image object
     {
@@ -648,7 +641,7 @@ void App::setup()
 
     auto queue_family_index = init.device.get_queue_index(gfxrecon::test::QueueType::graphics);
     if (!queue_family_index)
-        throw std::runtime_error("could not find graphics queue");
+        throw std::runtime_error("could not find graphics index");
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         VkCommandPool& command_pool = command_pools_[i];
@@ -705,11 +698,11 @@ bool App::frame(const int frame_num)
         VkCommandBufferBeginInfo begin_info = {};
         begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         result                              = init.disp.beginCommandBuffer(command_buffer, &begin_info);
-        VERIFY_VK_RESULT("failed to create command buffer", result);
+        VERIFY_VK_RESULT("failed to begin command buffer", result);
 
         // Bind sparse memory
         const int frames_per_switch = 20;
-        bool      do_memory_bind    = current_frame_ % frames_per_switch == 0;
+        bool      do_memory_bind    = (current_frame_ % frames_per_switch) == 0;
         if (do_memory_bind)
         {
             bool reverse_bind = (current_frame_ / frames_per_switch) % 2 == 1;
@@ -718,7 +711,6 @@ bool App::frame(const int frame_num)
             // Sparse buffer bind
             VkSparseMemoryBind sparse_buffer_bind = {};
             sparse_buffer_bind.resourceOffset     = 0;
-            // sparse_buffer_bind.size = sizeof(Uniforms);
             sparse_buffer_bind.size         = sparse_binding_granularity_;
             sparse_buffer_bind.memory       = sparse_buffer_backing_memory_;
             sparse_buffer_bind.memoryOffset = 0;
@@ -750,10 +742,7 @@ bool App::frame(const int frame_num)
             sparse_image_bind.size               = sparse_binding_granularity_;
             sparse_image_bind.memory             = image_backing_memory_;
             sparse_image_bind.memoryOffset       = 0;
-            // if (reverse_bind)
-            //     sparse_image_bind.memoryOffset = sparse_binding_granularity_;
-            sparse_image_bind.flags = 0;
-            // bind.flags = VK_SPARSE_MEMORY_BIND_METADATA_BIT;
+            sparse_image_bind.flags              = 0;
 
             VkSparseImageOpaqueMemoryBindInfo im_bind_info = {};
             im_bind_info.image                             = sparse_bind_image_;
