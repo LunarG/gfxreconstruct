@@ -292,7 +292,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // Check for implementation in the layer itself
     if (!has_implementation)
     {
-        for (const auto ext_props : kDeviceExtensionProps)
+        for (const auto& ext_props : kDeviceExtensionProps)
         {
             if (std::find(ext_props.instance_funcs.begin(), ext_props.instance_funcs.end(), pName) !=
                 ext_props.instance_funcs.end())
@@ -347,7 +347,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         // Check for implementation in the layer itself
         if (!has_implementation)
         {
-            for (const auto ext_props : kDeviceExtensionProps)
+            for (const auto& ext_props : kDeviceExtensionProps)
             {
                 if (std::find(ext_props.device_funcs.begin(), ext_props.device_funcs.end(), pName) !=
                     ext_props.device_funcs.end())
