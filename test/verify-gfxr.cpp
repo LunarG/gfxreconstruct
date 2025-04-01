@@ -55,7 +55,70 @@ struct Paths
     std::filesystem::path app_json_path;
     std::filesystem::path known_good_json_path;
 
-    Paths(char const* app_directory, char const* app_executable, char const* known_gfxr_path)
+    std::filesystem::path capture_trimming_path{ base_path };
+    std::filesystem::path known_good_trimming_path{ base_path };
+    std::filesystem::path app_trimming_json_path;
+    std::filesystem::path known_good_trimming_json_path;
+
+    void trimming_paths(char const* app_directory,
+                        char const* known_gfxr_path,
+                        char const* trimming_frames)
+    {
+        // Trimming suffix is like "_frame_10" or "_frames_10_through_100"
+        std::string s_trimming_frames = trimming_frames;
+        std::string trimming_suffix   = "_frame";
+        std::string range_begin       = "";
+        std::string range_end         = "";
+
+        auto index = s_trimming_frames.find("-");
+        if (index == std::string::npos)
+        {
+            range_begin = s_trimming_frames;
+        }
+        else
+        {
+            range_begin = s_trimming_frames.substr(0, index);
+            range_end   = s_trimming_frames.substr(index + 1);
+        }
+
+        if (!range_end.empty())
+        {
+            trimming_suffix += "s";
+        }
+        trimming_suffix += "_";
+        trimming_suffix += range_begin;
+        if (!range_end.empty())
+        {
+            trimming_suffix += "_through_";
+            trimming_suffix += range_end;
+        }
+
+        std::string capture_trimming_file = "actual";
+        capture_trimming_file += trimming_suffix;
+        capture_trimming_file += ".gfxr";
+        capture_trimming_path.append("test_apps");
+        capture_trimming_path.append(app_directory);
+        capture_trimming_path.append(capture_trimming_file);
+
+        std::string s_known_gfxr_path        = known_gfxr_path;
+        index                                = s_known_gfxr_path.find(".gfxr");
+        std::string known_gfxr_trimming_path = s_known_gfxr_path.substr(0, index);
+        known_gfxr_trimming_path += trimming_suffix;
+        known_gfxr_trimming_path += ".gfxr";
+        known_good_trimming_path.append("known_good");
+        known_good_trimming_path.append(known_gfxr_trimming_path);
+
+        app_trimming_json_path = std::filesystem::path{ capture_trimming_path };
+        app_trimming_json_path.replace_extension(".json");
+
+        known_good_trimming_json_path = std::filesystem::path{ known_good_trimming_path };
+        known_good_trimming_json_path.replace_extension(".json");
+    }
+
+    Paths(char const* app_directory,
+          char const* app_executable,
+          char const* known_gfxr_path,
+          char const* trimming_frames)
     {
         full_app_directory.append("test_apps");
         full_app_directory.append(app_directory);
@@ -77,6 +140,62 @@ struct Paths
 
         known_good_json_path = std::filesystem::path{ known_good_path };
         known_good_json_path.replace_extension(".json");
+
+        if (trimming_frames)
+        {
+            trimming_paths(app_directory, known_gfxr_path, trimming_frames);
+        }
+    }
+};
+
+// destructor unsets all env vars. It helps when the user forget to unset to affect the other tests.
+class EnvironmentVariables
+{
+  private:
+    std::unordered_map<std::string, std::string> env_vars;
+
+  public:
+    ~EnvironmentVariables()
+    {
+        for (auto& env_var : env_vars)
+        {
+#if defined(__linux__) || defined(__APPLE__)
+            unsetenv(env_var.first.c_str());
+#elif defined(_WIN32)
+            _putenv_s(env_var.first.c_str(), "");
+#else
+#error "Unsupported platform"
+#endif
+        }
+        env_vars.clear();
+    }
+
+void SetEnv(const char* env_name, const char* env_var)
+    {
+#if defined(__linux__) || defined(__APPLE__)
+        ASSERT_EQ(setenv(env_name, env_var, 1), 0) << "set env var: " << env_name << ": " << env_var << " failed.";
+#elif defined(_WIN32)
+        ASSERT_EQ(_putenv_s(env_name, env_var), 0) << "set env var: " << env_name << ": " << env_var << " failed.";
+#else
+#error "Unsupported platform"
+#endif
+        env_vars.insert(std::pair(env_name, env_var));
+    }
+
+    void UnsetEnv(const char* env_name)
+    {
+#if defined(__linux__) || defined(__APPLE__)
+        ASSERT_EQ(unsetenv(env_name), 0) << "unset env var: " << env_name << " failed.";
+#elif defined(_WIN32)
+        ASSERT_EQ(_putenv_s(env_name, ""), 0) << "unset env var: " << env_name << " failed.";
+#else
+#error "Unsupported platform"
+#endif
+        auto entry = env_vars.find(env_name);
+        if (entry != env_vars.end())
+        {
+            env_vars.erase(entry);
+        }
     }
 };
 
@@ -101,14 +220,53 @@ int run_command(std::filesystem::path const& working_directory,
 
 void run_in_background(char const* app_directory, char const* app_executable)
 {
-    Paths paths{ app_directory, app_executable, "" };
+    Paths paths{ app_directory, app_executable, "", nullptr };
     run_command(paths.full_app_directory, paths.full_executable_path, { "&" });
 }
 
-void verify_gfxr(char const* app_directory, char const* app_executable, char const* known_gfxr_path)
+void run_trimming_app(const Paths& paths, char const* trimming_frames)
 {
-    Paths paths{ app_directory, app_executable, known_gfxr_path };
+    EnvironmentVariables env_vars;
 
+    // To not affect the other tests, set env var programmatically, and unset it when it isn't needed.
+    env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
+
+    auto result = run_command(paths.full_app_directory, paths.full_executable_path, {});
+    ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
+                         << paths.full_app_directory;
+
+    env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
+
+    // convert actual gfxr
+    result = run_command(paths.base_path, paths.convert_path, { paths.capture_trimming_path.string() });
+    ASSERT_EQ(result, 0) << "trimming command failed " << paths.convert_path << " " << paths.capture_trimming_path
+                         << " in path " << paths.base_path;
+
+    // convert known good gfxr
+    result = run_command(paths.base_path, paths.convert_path, { paths.known_good_trimming_path.string() });
+    ASSERT_EQ(result, 0) << "trimming command failed " << paths.convert_path << " " << paths.known_good_trimming_path
+                         << " in path " << paths.base_path;
+
+    std::ifstream app_trimming_file{ paths.app_trimming_json_path };
+    ASSERT_TRUE(app_trimming_file.is_open())
+        << "app trimming json file: " << paths.app_trimming_json_path << " would not open";
+    auto app_trimming_json = nlohmann::json::parse(app_trimming_file, clean_gfxr_json);
+
+    std::ifstream known_trimming_file{ paths.known_good_trimming_json_path };
+    ASSERT_TRUE(known_trimming_file.is_open())
+        << "known good trimming json file: " << paths.known_good_trimming_json_path << " would not open ";
+    auto known_trimming_json = nlohmann::json::parse(known_trimming_file, clean_gfxr_json);
+
+    auto trimming_diff = nlohmann::json::diff(known_trimming_json, app_trimming_json);
+    ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
+}
+
+void verify_gfxr(char const* app_directory,
+                 char const* app_executable,
+                 char const* known_gfxr_path,
+                 char const* trimming_frames)
+{
+    Paths paths{ app_directory, app_executable, known_gfxr_path, trimming_frames };
     int result;
 
     // run app
@@ -126,13 +284,18 @@ void verify_gfxr(char const* app_directory, char const* app_executable, char con
                          << paths.base_path;
 
     std::ifstream app_file{ paths.app_json_path };
-    ASSERT_TRUE(app_file.is_open()) << "app json file would not open";
+    ASSERT_TRUE(app_file.is_open()) << "app json file: " << paths.app_json_path << " would not open";
     auto app_json = nlohmann::json::parse(app_file, clean_gfxr_json);
 
     std::ifstream known_file{ paths.known_good_json_path };
-    ASSERT_TRUE(known_file.is_open()) << "known good json file would not open";
+    ASSERT_TRUE(known_file.is_open()) << "known good json file: " << paths.known_good_json_path << " would not open";
     auto known_json = nlohmann::json::parse(known_file, clean_gfxr_json);
 
     auto diff = nlohmann::json::diff(known_json, app_json);
     ASSERT_EQ(diff.size(), 0) << std::setw(4) << diff;
+
+    if (trimming_frames)
+    {
+        run_trimming_app(paths, trimming_frames);
+    }
 }
