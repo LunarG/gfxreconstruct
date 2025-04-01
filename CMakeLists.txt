@@ -282,10 +282,6 @@ find_package(ZSTD)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann-json")
 find_package(nlohmann_json REQUIRED)
 
-# if (MSVC)
-# find_package(jsoncpp)
-# endif () # MSVC
-
 if (UNIX AND NOT APPLE)
     option(BUILD_WSI_XCB_SUPPORT "Build XCB WSI support" ON)
     option(BUILD_WSI_WAYLAND_SUPPORT "Build Wayland WSI support" ON)
