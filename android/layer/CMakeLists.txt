@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
-find_package(nlohmann_json REQUIRED)
-
 project(VkLayer_gfxreconstruct)
 
 get_filename_component(GFXRECON_SOURCE_DIR ../.. ABSOLUTE)
