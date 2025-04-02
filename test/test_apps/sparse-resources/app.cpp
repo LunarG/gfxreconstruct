@@ -895,10 +895,10 @@ bool App::frame(const int frame_num)
                     image_barrier.subresourceRange.layerCount = 1;
                     image_barrier.subresourceRange.levelCount = 1;
                     image_barrier.srcAccessMask               = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    image_barrier.dstAccessMask               = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    image_barrier.dstAccessMask               = VK_ACCESS_SHADER_READ_BIT;
                     init.disp.cmdPipelineBarrier(command_buffer,
                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                                  0,
                                                  0,
                                                  nullptr,
@@ -979,7 +979,7 @@ bool App::frame(const int frame_num)
             image_barrier.dstAccessMask               = VK_ACCESS_NONE;
             init.disp.cmdPipelineBarrier(command_buffer,
                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                                          0,
                                          0,
                                          nullptr,
