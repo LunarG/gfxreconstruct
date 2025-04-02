@@ -61,7 +61,8 @@ struct QueueSubmitHelper
                       VkCommandBuffer                  command_buffer_,
                       VkQueue                          queue_,
                       VkFence                          fence_) :
-        device(device_), device_table(device_table_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
+        device_table(device_table_),
+        device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
         MarkInjectedCommandsHelper mark_injected_commands_helper;
 

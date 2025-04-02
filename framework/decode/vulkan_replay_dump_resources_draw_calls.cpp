@@ -63,12 +63,13 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     original_command_buffer_info(nullptr),
     current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices), active_renderpass(nullptr),
     active_framebuffer(nullptr), bound_gr_pipeline{ nullptr }, current_renderpass(0), current_subpass(0),
-    dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE),
-    device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
-    replay_device_phys_mem_props(nullptr), delegate_(delegate), dump_depth(options.dump_resources_dump_depth),
+    dump_resources_before(options.dump_resources_before), delegate_(delegate),
+    dump_depth(options.dump_resources_dump_depth),
     color_attachment_to_dump(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers(options.dump_resources_dump_vertex_index_buffer),
-    dump_immutable_resources(options.dump_resources_dump_immutable_resources), current_render_pass_type(kNone)
+    dump_immutable_resources(options.dump_resources_dump_immutable_resources), current_render_pass_type(kNone),
+    aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE), device_table(nullptr), instance_table(nullptr),
+    object_info_table(object_info_table), replay_device_phys_mem_props(nullptr)
 {
     must_backup_resources = (dc_indices.size() > 1);
 
