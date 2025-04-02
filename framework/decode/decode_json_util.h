@@ -322,6 +322,10 @@ void Bool32ToJson(nlohmann::ordered_json&         jdata,
                   const PointerDecoder<int, int>* data,
                   const util::JsonOptions&        options = util::JsonOptions());
 
+void Bool32ToJson(nlohmann::ordered_json&         jdata,
+                  const PointerDecoder<int, int>& data,
+                  const util::JsonOptions&        options = util::JsonOptions());
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

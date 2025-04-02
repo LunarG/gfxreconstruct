@@ -36,3 +36,7 @@ add_subdirectory(multisample-depth)
 add_subdirectory(pipeline-binaries)
 add_subdirectory(host-image-copy)
 add_subdirectory(shader-objects)
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
+    add_subdirectory(external-memory-fd)
+endif()

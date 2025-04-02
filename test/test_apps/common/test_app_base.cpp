@@ -2810,7 +2810,7 @@ std::vector<char> readFile(const std::string& filename)
 
     if (!file.is_open())
     {
-        throw std::runtime_error("failed to open file!");
+        throw std::runtime_error("failed to open `" + filename + "`");
     }
 
     size_t            file_size = (size_t)file.tellg();
@@ -2872,13 +2872,16 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
 
     init.inst_disp = init.instance.make_table();
 
-    if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
+    if (!init.instance.is_headless())
     {
-        init.surface = create_surface_sdl(init.instance, init.window);
-    }
-    else
-    {
-        init.surface = create_surface_headless(init.instance, init.inst_disp);
+        if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
+        {
+            init.surface = create_surface_sdl(init.instance, init.window);
+        }
+        else
+        {
+            init.surface = create_surface_headless(init.instance, init.inst_disp);
+        }
     }
 }
 
@@ -3001,9 +3004,12 @@ void TestAppBase::run(const std::string& window_name)
     configure_device_builder(device_builder, init.physical_device, init.test_config);
     device_initialization_phase_4(device_builder, init);
 
-    SwapchainBuilder swapchain_builder{ init.device };
-    configure_swapchain_builder(swapchain_builder, init.test_config);
-    device_initialization_phase_5(swapchain_builder, init);
+    if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr || !init.instance.is_headless())
+    {
+        SwapchainBuilder swapchain_builder{ init.device };
+        configure_swapchain_builder(swapchain_builder, init.test_config);
+        device_initialization_phase_5(swapchain_builder, init);
+    }
 
     setup();
 

@@ -28,6 +28,10 @@
 #ifndef  GFXRECON_GENERATED_DX12_COMMAND_LIST_UTIL_H
 #define  GFXRECON_GENERATED_DX12_COMMAND_LIST_UTIL_H
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -35,11 +39,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -146,6 +146,10 @@ void Track_ID3D12GraphicsCommandList4_DispatchRays(ID3D12CommandList_Wrapper* wr
 void Track_ID3D12GraphicsCommandList5_RSSetShadingRateImage(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * shadingRateImage);
 
 void Track_ID3D12GraphicsCommandList7_Barrier(ID3D12CommandList_Wrapper* wrapper, UINT32 NumBarrierGroups, const D3D12_BARRIER_GROUP * pBarrierGroups);
+
+void Track_ID3D12GraphicsCommandList10_SetProgram(ID3D12CommandList_Wrapper* wrapper, const D3D12_SET_PROGRAM_DESC * pDesc);
+
+void Track_ID3D12GraphicsCommandList10_DispatchGraph(ID3D12CommandList_Wrapper* wrapper, const D3D12_DISPATCH_GRAPH_DESC * pDesc);
 
 void Track_ID3D12DebugCommandList1_AssertResourceState(ID3D12CommandList_Wrapper* wrapper, ID3D12Resource * pResource, UINT Subresource, UINT State);
 

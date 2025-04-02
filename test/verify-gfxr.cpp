@@ -21,6 +21,8 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
                 return false;
             if (key == "\"pipelineCacheUUID\"")
                 return false;
+            if (key == "\"ppData\"")
+                return false;
         }
         break;
         case nlohmann::json::parse_event_t::object_end:
@@ -95,6 +97,12 @@ int run_command(std::filesystem::path const& working_directory,
     auto result = std::system(command_string.c_str());
     std::filesystem::current_path(previous_path);
     return result;
+}
+
+void run_in_background(char const* app_directory, char const* app_executable)
+{
+    Paths paths{ app_directory, app_executable, "" };
+    run_command(paths.full_app_directory, paths.full_executable_path, { "&" });
 }
 
 void verify_gfxr(char const* app_directory, char const* app_executable, char const* known_gfxr_path)

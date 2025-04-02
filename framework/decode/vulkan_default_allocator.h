@@ -82,11 +82,32 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                      const VkAllocationCallbacks* allocation_callbacks,
                                      std::vector<ResourceData>    allocator_datas) override;
 
+    virtual void GetBufferMemoryRequirements(VkBuffer              buffer,
+                                             VkMemoryRequirements* memory_requirements,
+                                             ResourceData          allocator_data) override;
+
+    virtual void GetBufferMemoryRequirements2(const VkBufferMemoryRequirementsInfo2* info,
+                                              VkMemoryRequirements2*                 memory_requirements,
+                                              ResourceData                           allocator_data) override;
+
     virtual void GetImageSubresourceLayout(VkImage                    image,
                                            const VkImageSubresource*  subresource,
                                            VkSubresourceLayout*       layout,
                                            const VkSubresourceLayout* original_layout,
                                            ResourceData               allocator_data) override;
+
+    virtual void GetImageMemoryRequirements(VkImage               image,
+                                            VkMemoryRequirements* memory_requirements,
+                                            ResourceData          allocator_data) override;
+
+    virtual void GetImageMemoryRequirements2(const VkImageMemoryRequirementsInfo2* info,
+                                             VkMemoryRequirements2*                memory_requirements,
+                                             ResourceData                          allocator_data) override;
+
+    virtual VkResult GetVideoSessionMemoryRequirementsKHR(VkVideoSessionKHR video_session,
+                                                          uint32_t*         memory_requirements_count,
+                                                          VkVideoSessionMemoryRequirementsKHR* memory_requirements,
+                                                          std::vector<ResourceData> allocator_datas) override;
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,

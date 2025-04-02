@@ -31,6 +31,10 @@
 #include "encode/handle_unwrap_memory.h"
 #include "util/defines.h"
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -38,11 +42,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>

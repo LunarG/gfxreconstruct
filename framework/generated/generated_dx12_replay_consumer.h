@@ -41,1058 +41,6 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
     Dx12ReplayConsumer(std::shared_ptr<application::Application> application, const DxReplayOptions& options) : Dx12ReplayConsumerBase(application, options) {}
     virtual ~Dx12ReplayConsumer() override {}
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_CreateDXGIFactory(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory) override;
-
-    virtual void Process_CreateDXGIFactory1(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory) override;
-
-    virtual void Process_IDXGIObject_SetPrivateData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        UINT DataSize,
-        PointerDecoder<uint8_t>* pData) override;
-
-    virtual void Process_IDXGIObject_SetPrivateDataInterface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        format::HandleId pUnknown) override;
-
-    virtual void Process_IDXGIObject_GetPrivateData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID Name,
-        PointerDecoder<UINT>* pDataSize,
-        PointerDecoder<uint8_t>* pData) override;
-
-    virtual void Process_IDXGIObject_GetParent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppParent) override;
-
-    virtual void Process_IDXGIDeviceSubObject_GetDevice(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppDevice) override;
-
-    virtual void Process_IDXGIResource_GetSharedHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pSharedHandle) override;
-
-    virtual void Process_IDXGIResource_GetUsage(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<DXGI_USAGE>* pUsage) override;
-
-    virtual void Process_IDXGIResource_SetEvictionPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT EvictionPriority) override;
-
-    virtual void Process_IDXGIResource_GetEvictionPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pEvictionPriority) override;
-
-    virtual void Process_IDXGIKeyedMutex_AcquireSync(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 Key,
-        DWORD dwMilliseconds) override;
-
-    virtual void Process_IDXGIKeyedMutex_ReleaseSync(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT64 Key) override;
-
-    virtual void Process_IDXGISurface_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc) override;
-
-    virtual void Process_IDXGISurface_Map(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
-        UINT MapFlags) override;
-
-    virtual void Process_IDXGISurface_Unmap(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value) override;
-
-    virtual void Process_IDXGISurface1_GetDC(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        BOOL Discard,
-        PointerDecoder<uint64_t, void*>* phdc) override;
-
-    virtual void Process_IDXGISurface1_ReleaseDC(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pDirtyRect) override;
-
-    virtual void Process_IDXGIAdapter_EnumOutputs(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Output,
-        HandlePointerDecoder<IDXGIOutput*>* ppOutput) override;
-
-    virtual void Process_IDXGIAdapter_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc) override;
-
-    virtual void Process_IDXGIAdapter_CheckInterfaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID InterfaceName,
-        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion) override;
-
-    virtual void Process_IDXGIOutput_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc) override;
-
-    virtual void Process_IDXGIOutput_GetDisplayModeList(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        PointerDecoder<UINT>* pNumModes,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc) override;
-
-    virtual void Process_IDXGIOutput_FindClosestMatchingMode(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
-        format::HandleId pConcernedDevice) override;
-
-    virtual void Process_IDXGIOutput_WaitForVBlank(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value) override;
-
-    virtual void Process_IDXGIOutput_TakeOwnership(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        BOOL Exclusive) override;
-
-    virtual void Process_IDXGIOutput_ReleaseOwnership(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id) override;
-
-    virtual void Process_IDXGIOutput_GetGammaControlCapabilities(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps) override;
-
-    virtual void Process_IDXGIOutput_SetGammaControl(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray) override;
-
-    virtual void Process_IDXGIOutput_GetGammaControl(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray) override;
-
-    virtual void Process_IDXGIOutput_SetDisplaySurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pScanoutSurface) override;
-
-    virtual void Process_IDXGIOutput_GetDisplaySurfaceData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDestination) override;
-
-    virtual void Process_IDXGIOutput_GetFrameStatistics(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats) override;
-
-    virtual void Process_IDXGISwapChain_Present(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT SyncInterval,
-        UINT Flags) override;
-
-    virtual void Process_IDXGISwapChain_GetBuffer(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Buffer,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppSurface) override;
-
-    virtual void Process_IDXGISwapChain_SetFullscreenState(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        BOOL Fullscreen,
-        format::HandleId pTarget) override;
-
-    virtual void Process_IDXGISwapChain_GetFullscreenState(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<BOOL>* pFullscreen,
-        HandlePointerDecoder<IDXGIOutput*>* ppTarget) override;
-
-    virtual void Process_IDXGISwapChain_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc) override;
-
-    virtual void Process_IDXGISwapChain_ResizeBuffers(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT NewFormat,
-        UINT SwapChainFlags) override;
-
-    virtual void Process_IDXGISwapChain_ResizeTarget(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters) override;
-
-    virtual void Process_IDXGISwapChain_GetContainingOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIOutput*>* ppOutput) override;
-
-    virtual void Process_IDXGISwapChain_GetFrameStatistics(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats) override;
-
-    virtual void Process_IDXGISwapChain_GetLastPresentCount(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pLastPresentCount) override;
-
-    virtual void Process_IDXGIFactory_EnumAdapters(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter) override;
-
-    virtual void Process_IDXGIFactory_MakeWindowAssociation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT Flags) override;
-
-    virtual void Process_IDXGIFactory_GetWindowAssociation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pWindowHandle) override;
-
-    virtual void Process_IDXGIFactory_CreateSwapChain(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
-        HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain) override;
-
-    virtual void Process_IDXGIFactory_CreateSoftwareAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t Module,
-        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter) override;
-
-    virtual void Process_IDXGIDevice_GetAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIAdapter*>* pAdapter) override;
-
-    virtual void Process_IDXGIDevice_CreateSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
-        UINT NumSurfaces,
-        DXGI_USAGE Usage,
-        StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE>* pSharedResource,
-        HandlePointerDecoder<IDXGISurface*>* ppSurface) override;
-
-    virtual void Process_IDXGIDevice_QueryResourceResidency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IUnknown*>* ppResources,
-        PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
-        UINT NumResources) override;
-
-    virtual void Process_IDXGIDevice_SetGPUThreadPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        INT Priority) override;
-
-    virtual void Process_IDXGIDevice_GetGPUThreadPriority(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<INT>* pPriority) override;
-
-    virtual void Process_IDXGIFactory1_EnumAdapters1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter) override;
-
-    virtual void Process_IDXGIFactory1_IsCurrent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value) override;
-
-    virtual void Process_IDXGIAdapter1_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc) override;
-
-    virtual void Process_IDXGIDevice1_SetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MaxLatency) override;
-
-    virtual void Process_IDXGIDevice1_GetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pMaxLatency) override;
-
-/*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value) override;
-
-    virtual void Process_IDXGIDisplayControl_SetStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL enabled) override;
-
-    virtual void Process_IDXGIOutputDuplication_GetDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc) override;
-
-    virtual void Process_IDXGIOutputDuplication_AcquireNextFrame(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT TimeoutInMilliseconds,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
-        HandlePointerDecoder<IDXGIResource*>* ppDesktopResource) override;
-
-    virtual void Process_IDXGIOutputDuplication_GetFrameDirtyRects(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT DirtyRectsBufferSize,
-        StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
-        PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired) override;
-
-    virtual void Process_IDXGIOutputDuplication_GetFrameMoveRects(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MoveRectsBufferSize,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
-        PointerDecoder<UINT>* pMoveRectsBufferSizeRequired) override;
-
-    virtual void Process_IDXGIOutputDuplication_GetFramePointerShape(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT PointerShapeBufferSize,
-        PointerDecoder<uint8_t>* pPointerShapeBuffer,
-        PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
-        StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo) override;
-
-    virtual void Process_IDXGIOutputDuplication_MapDesktopSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect) override;
-
-    virtual void Process_IDXGIOutputDuplication_UnMapDesktopSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value) override;
-
-    virtual void Process_IDXGIOutputDuplication_ReleaseFrame(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value) override;
-
-    virtual void Process_IDXGISurface2_GetResource(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppParentResource,
-        PointerDecoder<UINT>* pSubresourceIndex) override;
-
-    virtual void Process_IDXGIResource1_CreateSubresourceSurface(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT index,
-        HandlePointerDecoder<IDXGISurface2*>* ppSurface) override;
-
-    virtual void Process_IDXGIResource1_CreateSharedHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
-        DWORD dwAccess,
-        WStringDecoder* lpName,
-        PointerDecoder<uint64_t, void*>* pHandle) override;
-
-    virtual void Process_IDXGIDevice2_OfferResources(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority) override;
-
-    virtual void Process_IDXGIDevice2_ReclaimResources(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        PointerDecoder<BOOL>* pDiscarded) override;
-
-    virtual void Process_IDXGIDevice2_EnqueueSetEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent) override;
-
-    virtual void Process_IDXGISwapChain1_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc) override;
-
-    virtual void Process_IDXGISwapChain1_GetFullscreenDesc(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc) override;
-
-    virtual void Process_IDXGISwapChain1_GetHwnd(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<uint64_t, void*>* pHwnd) override;
-
-    virtual void Process_IDXGISwapChain1_GetCoreWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID refiid,
-        HandlePointerDecoder<void*>* ppUnk) override;
-
-    virtual void Process_IDXGISwapChain1_Present1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT SyncInterval,
-        UINT PresentFlags,
-        StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters) override;
-
-    virtual void Process_IDXGISwapChain1_IsTemporaryMonoSupported(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value) override;
-
-    virtual void Process_IDXGISwapChain1_GetRestrictToOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput) override;
-
-    virtual void Process_IDXGISwapChain1_SetBackgroundColor(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor) override;
-
-    virtual void Process_IDXGISwapChain1_GetBackgroundColor(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor) override;
-
-    virtual void Process_IDXGISwapChain1_SetRotation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_MODE_ROTATION Rotation) override;
-
-    virtual void Process_IDXGISwapChain1_GetRotation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<DXGI_MODE_ROTATION>* pRotation) override;
-
-    virtual void Process_IDXGIFactory2_IsWindowedStereoEnabled(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value) override;
-
-    virtual void Process_IDXGIFactory2_CreateSwapChainForHwnd(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hWnd,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
-
-    virtual void Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        format::HandleId pWindow,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
-
-    virtual void Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hResource,
-        StructPointerDecoder<Decoded_LUID>* pLuid) override;
-
-    virtual void Process_IDXGIFactory2_RegisterStereoStatusWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT wMsg,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIFactory2_RegisterStereoStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIFactory2_UnregisterStereoStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie) override;
-
-    virtual void Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t WindowHandle,
-        UINT wMsg,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIFactory2_UnregisterOcclusionStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie) override;
-
-    virtual void Process_IDXGIFactory2_CreateSwapChainForComposition(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
-
-    virtual void Process_IDXGIAdapter2_GetDesc2(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc) override;
-
-    virtual void Process_IDXGIOutput1_GetDisplayModeList1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        UINT Flags,
-        PointerDecoder<UINT>* pNumModes,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc) override;
-
-    virtual void Process_IDXGIOutput1_FindClosestMatchingMode1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
-        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
-        format::HandleId pConcernedDevice) override;
-
-    virtual void Process_IDXGIOutput1_GetDisplaySurfaceData1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDestination) override;
-
-    virtual void Process_IDXGIOutput1_DuplicateOutput(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
-
-/*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_CreateDXGIFactory2(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        UINT Flags,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppFactory) override;
-
-    virtual void Process_DXGIGetDebugInterface1(
-        const ApiCallInfo& call_info,
-        HRESULT return_value,
-        UINT Flags,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* pDebug) override;
-
-    virtual void Process_IDXGIDevice3_Trim(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id) override;
-
-    virtual void Process_IDXGISwapChain2_SetSourceSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Width,
-        UINT Height) override;
-
-    virtual void Process_IDXGISwapChain2_GetSourceSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pWidth,
-        PointerDecoder<UINT>* pHeight) override;
-
-    virtual void Process_IDXGISwapChain2_SetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT MaxLatency) override;
-
-    virtual void Process_IDXGISwapChain2_GetMaximumFrameLatency(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pMaxLatency) override;
-
-    virtual void Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        uint64_t return_value) override;
-
-    virtual void Process_IDXGISwapChain2_SetMatrixTransform(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix) override;
-
-    virtual void Process_IDXGISwapChain2_GetMatrixTransform(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix) override;
-
-    virtual void Process_IDXGIOutput2_SupportsOverlays(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        BOOL return_value) override;
-
-    virtual void Process_IDXGIFactory3_GetCreationFlags(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT return_value) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_PresentBuffer(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferToPresent,
-        UINT SyncInterval,
-        UINT Flags) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_SetSourceRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_SetTargetRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_SetDestSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Width,
-        UINT Height) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_GetSourceRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_GetTargetRect(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_GetDestSize(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pWidth,
-        PointerDecoder<UINT>* pHeight) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_SetColorSpace(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace) override;
-
-    virtual void Process_IDXGIDecodeSwapChain_GetColorSpace(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value) override;
-
-    virtual void Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hSurface,
-        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
-
-    virtual void Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        uint64_t hSurface,
-        StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
-        format::HandleId pYuvDecodeBuffers,
-        format::HandleId pRestrictToOutput,
-        HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain) override;
-
-    virtual void Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats) override;
-
-    virtual void Process_IDXGISwapChainMedia_SetPresentDuration(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Duration) override;
-
-    virtual void Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT DesiredPresentDuration,
-        PointerDecoder<UINT>* pClosestSmallerPresentDuration,
-        PointerDecoder<UINT>* pClosestLargerPresentDuration) override;
-
-    virtual void Process_IDXGIOutput3_CheckOverlaySupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT EnumFormat,
-        format::HandleId pConcernedDevice,
-        PointerDecoder<UINT>* pFlags) override;
-
-/*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        UINT return_value) override;
-
-    virtual void Process_IDXGISwapChain3_CheckColorSpaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        PointerDecoder<UINT>* pColorSpaceSupport) override;
-
-    virtual void Process_IDXGISwapChain3_SetColorSpace1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_COLOR_SPACE_TYPE ColorSpace) override;
-
-    virtual void Process_IDXGISwapChain3_ResizeBuffers1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT BufferCount,
-        UINT Width,
-        UINT Height,
-        DXGI_FORMAT Format,
-        UINT SwapChainFlags,
-        PointerDecoder<UINT>* pCreationNodeMask,
-        HandlePointerDecoder<IUnknown*>* ppPresentQueue) override;
-
-    virtual void Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_FORMAT Format,
-        DXGI_COLOR_SPACE_TYPE ColorSpace,
-        format::HandleId pConcernedDevice,
-        PointerDecoder<UINT>* pFlags) override;
-
-    virtual void Process_IDXGIFactory4_EnumAdapterByLuid(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_LUID AdapterLuid,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter) override;
-
-    virtual void Process_IDXGIFactory4_EnumWarpAdapter(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter) override;
-
-    virtual void Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie) override;
-
-    virtual void Process_IDXGIAdapter3_QueryVideoMemoryInfo(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo) override;
-
-    virtual void Process_IDXGIAdapter3_SetVideoMemoryReservation(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NodeIndex,
-        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-        UINT64 Reservation) override;
-
-    virtual void Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        DWORD dwCookie) override;
-
-/*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_IDXGIOutput5_DuplicateOutput1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        format::HandleId pDevice,
-        UINT Flags,
-        UINT SupportedFormatsCount,
-        PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
-        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
-
-    virtual void Process_IDXGISwapChain4_SetHDRMetaData(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DXGI_HDR_METADATA_TYPE Type,
-        UINT Size,
-        PointerDecoder<uint8_t>* pMetaData) override;
-
-    virtual void Process_IDXGIDevice4_OfferResources1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        DXGI_OFFER_RESOURCE_PRIORITY Priority,
-        UINT Flags) override;
-
-    virtual void Process_IDXGIDevice4_ReclaimResources1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT NumResources,
-        HandlePointerDecoder<IDXGIResource*>* ppResources,
-        PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults) override;
-
-/*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
-**
-*/
-    virtual void Process_DXGIDeclareAdapterRemovalSupport(
-        const ApiCallInfo& call_info,
-        HRESULT return_value) override;
-
-    virtual void Process_IDXGIAdapter4_GetDesc3(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc) override;
-
-    virtual void Process_IDXGIOutput6_GetDesc1(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc) override;
-
-    virtual void Process_IDXGIOutput6_CheckHardwareCompositionSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        PointerDecoder<UINT>* pFlags) override;
-
-    virtual void Process_IDXGIFactory6_EnumAdapterByGpuPreference(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        UINT Adapter,
-        DXGI_GPU_PREFERENCE GpuPreference,
-        Decoded_GUID riid,
-        HandlePointerDecoder<void*>* ppvAdapter) override;
-
-    virtual void Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        uint64_t hEvent,
-        PointerDecoder<DWORD>* pdwCookie) override;
-
-    virtual void Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        DWORD dwCookie) override;
-
-/*
 ** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
@@ -1126,6 +74,15 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         SIZE_T SrcDataSizeInBytes,
         Decoded_GUID pRootSignatureDeserializerInterface,
         HandlePointerDecoder<void*>* ppRootSignatureDeserializer) override;
+
+    virtual void Process_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pSrcData,
+        SIZE_T SrcDataSizeInBytes,
+        WStringDecoder* RootSignatureSubobjectName,
+        Decoded_GUID pRootSignatureDeserializerInterface,
+        PointerDecoder<uint64_t, void*>* ppRootSignatureDeserializer) override;
 
     virtual void Process_D3D12CreateDevice(
         const ApiCallInfo& call_info,
@@ -2338,6 +1295,96 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         format::HandleId object_id,
         UINT64 PipelineStackSizeInBytes) override;
 
+    virtual void Process_ID3D12StateObjectProperties1_GetProgramIdentifier(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_PROGRAM_IDENTIFIER return_value,
+        WStringDecoder* pProgramName) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetProgramName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        WStringDecoder* return_value,
+        UINT WorkGraphIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetWorkGraphIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        WStringDecoder* pProgramName) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNumNodes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNodeID(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_NODE_ID return_value,
+        UINT WorkGraphIndex,
+        UINT NodeIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNodeIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        Decoded_D3D12_NODE_ID NodeID) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT NodeIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetNumEntrypoints(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetEntrypointID(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        Decoded_D3D12_NODE_ID return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetEntrypointIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        Decoded_D3D12_NODE_ID NodeID) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT WorkGraphIndex,
+        StructPointerDecoder<Decoded_D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS>* pWorkGraphMemoryRequirements) override;
+
+    virtual void Process_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value,
+        UINT WorkGraphIndex,
+        UINT EntrypointIndex) override;
+
     virtual void Process_ID3D12Device5_CreateLifetimeTracker(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2741,6 +1788,26 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         PointerDecoder<DXGI_FORMAT*>* ppCastableFormats,
         StructPointerDecoder<Decoded_D3D12_RESOURCE_ALLOCATION_INFO1>* pResourceAllocationInfo1) override;
 
+    virtual void Process_ID3D12Device13_OpenExistingHeapFromAddress1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t pAddress,
+        SIZE_T size,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvHeap) override;
+
+    virtual void Process_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT nodeMask,
+        PointerDecoder<uint8_t>* pLibraryBlob,
+        SIZE_T blobLengthInBytes,
+        WStringDecoder* subobjectName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature) override;
+
     virtual void Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2765,6 +1832,28 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         BOOL return_value) override;
+
+    virtual void Process_ID3D12Tools1_ReserveGPUVARangesAtCreate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE>* pRanges,
+        UINT uiNumRanges) override;
+
+    virtual void Process_ID3D12Tools1_ClearReservedGPUVARangesList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id) override;
+
+    virtual void Process_ID3D12PageableTools_GetAllocation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE>* pAllocation) override;
+
+    virtual void Process_ID3D12DeviceTools_SetNextAllocationAddress(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress) override;
 
     virtual void Process_ID3D12SDKConfiguration_SetSDKVersion(
         const ApiCallInfo& call_info,
@@ -2862,6 +1951,16 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDeserializer) override;
 
+    virtual void Process_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pLibraryBlob,
+        SIZE_T Size,
+        WStringDecoder* RootSignatureSubobjectName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDeserializer) override;
+
     virtual void Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2904,6 +2003,16 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         format::HandleId object_id,
         D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue) override;
 
+    virtual void Process_ID3D12GraphicsCommandList10_SetProgram(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC>* pDesc) override;
+
+    virtual void Process_ID3D12GraphicsCommandList10_DispatchGraph(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc) override;
+
     virtual void Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2912,6 +2021,46 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         UINT NodeMask,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDSRDevice) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        PointerDecoder<int>* pData,
+        UINT DataSize) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GetGBVSubresourceState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        UINT Subresource,
+        PointerDecoder<int>* pData) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GetGBVResourceUniformState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        PointerDecoder<int>* pData) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GetGBVResourceInfo(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pResourceDesc,
+        PointerDecoder<UINT32>* pResourceHash,
+        PointerDecoder<UINT32>* pSubresourceStatesByteOffset) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GBVReserved0(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id) override;
+
+    virtual void Process_ID3D12GBVDiagnostics_GBVReserved1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id) override;
 
 /*
 ** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
@@ -3387,6 +2536,1058 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         DWORD CallbackCookie) override;
+
+/*
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_CreateDXGIFactory(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory) override;
+
+    virtual void Process_CreateDXGIFactory1(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory) override;
+
+    virtual void Process_IDXGIObject_SetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData) override;
+
+    virtual void Process_IDXGIObject_SetPrivateDataInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        format::HandleId pUnknown) override;
+
+    virtual void Process_IDXGIObject_GetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID Name,
+        PointerDecoder<UINT>* pDataSize,
+        PointerDecoder<uint8_t>* pData) override;
+
+    virtual void Process_IDXGIObject_GetParent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppParent) override;
+
+    virtual void Process_IDXGIDeviceSubObject_GetDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppDevice) override;
+
+    virtual void Process_IDXGIResource_GetSharedHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pSharedHandle) override;
+
+    virtual void Process_IDXGIResource_GetUsage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<DXGI_USAGE>* pUsage) override;
+
+    virtual void Process_IDXGIResource_SetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT EvictionPriority) override;
+
+    virtual void Process_IDXGIResource_GetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pEvictionPriority) override;
+
+    virtual void Process_IDXGIKeyedMutex_AcquireSync(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 Key,
+        DWORD dwMilliseconds) override;
+
+    virtual void Process_IDXGIKeyedMutex_ReleaseSync(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 Key) override;
+
+    virtual void Process_IDXGISurface_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc) override;
+
+    virtual void Process_IDXGISurface_Map(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect,
+        UINT MapFlags) override;
+
+    virtual void Process_IDXGISurface_Unmap(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value) override;
+
+    virtual void Process_IDXGISurface1_GetDC(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        BOOL Discard,
+        PointerDecoder<uint64_t, void*>* phdc) override;
+
+    virtual void Process_IDXGISurface1_ReleaseDC(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pDirtyRect) override;
+
+    virtual void Process_IDXGIAdapter_EnumOutputs(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Output,
+        HandlePointerDecoder<IDXGIOutput*>* ppOutput) override;
+
+    virtual void Process_IDXGIAdapter_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc) override;
+
+    virtual void Process_IDXGIAdapter_CheckInterfaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID InterfaceName,
+        StructPointerDecoder<Decoded_LARGE_INTEGER>* pUMDVersion) override;
+
+    virtual void Process_IDXGIOutput_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC>* pDesc) override;
+
+    virtual void Process_IDXGIOutput_GetDisplayModeList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        PointerDecoder<UINT>* pNumModes,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pDesc) override;
+
+    virtual void Process_IDXGIOutput_FindClosestMatchingMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pModeToMatch,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pClosestMatch,
+        format::HandleId pConcernedDevice) override;
+
+    virtual void Process_IDXGIOutput_WaitForVBlank(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value) override;
+
+    virtual void Process_IDXGIOutput_TakeOwnership(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        BOOL Exclusive) override;
+
+    virtual void Process_IDXGIOutput_ReleaseOwnership(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id) override;
+
+    virtual void Process_IDXGIOutput_GetGammaControlCapabilities(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL_CAPABILITIES>* pGammaCaps) override;
+
+    virtual void Process_IDXGIOutput_SetGammaControl(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray) override;
+
+    virtual void Process_IDXGIOutput_GetGammaControl(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_GAMMA_CONTROL>* pArray) override;
+
+    virtual void Process_IDXGIOutput_SetDisplaySurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pScanoutSurface) override;
+
+    virtual void Process_IDXGIOutput_GetDisplaySurfaceData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDestination) override;
+
+    virtual void Process_IDXGIOutput_GetFrameStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats) override;
+
+    virtual void Process_IDXGISwapChain_Present(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SyncInterval,
+        UINT Flags) override;
+
+    virtual void Process_IDXGISwapChain_GetBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Buffer,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppSurface) override;
+
+    virtual void Process_IDXGISwapChain_SetFullscreenState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        BOOL Fullscreen,
+        format::HandleId pTarget) override;
+
+    virtual void Process_IDXGISwapChain_GetFullscreenState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<BOOL>* pFullscreen,
+        HandlePointerDecoder<IDXGIOutput*>* ppTarget) override;
+
+    virtual void Process_IDXGISwapChain_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc) override;
+
+    virtual void Process_IDXGISwapChain_ResizeBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT NewFormat,
+        UINT SwapChainFlags) override;
+
+    virtual void Process_IDXGISwapChain_ResizeTarget(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC>* pNewTargetParameters) override;
+
+    virtual void Process_IDXGISwapChain_GetContainingOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIOutput*>* ppOutput) override;
+
+    virtual void Process_IDXGISwapChain_GetFrameStatistics(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS>* pStats) override;
+
+    virtual void Process_IDXGISwapChain_GetLastPresentCount(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pLastPresentCount) override;
+
+    virtual void Process_IDXGIFactory_EnumAdapters(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter) override;
+
+    virtual void Process_IDXGIFactory_MakeWindowAssociation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT Flags) override;
+
+    virtual void Process_IDXGIFactory_GetWindowAssociation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pWindowHandle) override;
+
+    virtual void Process_IDXGIFactory_CreateSwapChain(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
+        HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain) override;
+
+    virtual void Process_IDXGIFactory_CreateSoftwareAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t Module,
+        HandlePointerDecoder<IDXGIAdapter*>* ppAdapter) override;
+
+    virtual void Process_IDXGIDevice_GetAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIAdapter*>* pAdapter) override;
+
+    virtual void Process_IDXGIDevice_CreateSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SURFACE_DESC>* pDesc,
+        UINT NumSurfaces,
+        DXGI_USAGE Usage,
+        StructPointerDecoder<Decoded_DXGI_SHARED_RESOURCE>* pSharedResource,
+        HandlePointerDecoder<IDXGISurface*>* ppSurface) override;
+
+    virtual void Process_IDXGIDevice_QueryResourceResidency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IUnknown*>* ppResources,
+        PointerDecoder<DXGI_RESIDENCY>* pResidencyStatus,
+        UINT NumResources) override;
+
+    virtual void Process_IDXGIDevice_SetGPUThreadPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        INT Priority) override;
+
+    virtual void Process_IDXGIDevice_GetGPUThreadPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<INT>* pPriority) override;
+
+    virtual void Process_IDXGIFactory1_EnumAdapters1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        HandlePointerDecoder<IDXGIAdapter1*>* ppAdapter) override;
+
+    virtual void Process_IDXGIFactory1_IsCurrent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value) override;
+
+    virtual void Process_IDXGIAdapter1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc) override;
+
+    virtual void Process_IDXGIDevice1_SetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MaxLatency) override;
+
+    virtual void Process_IDXGIDevice1_GetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pMaxLatency) override;
+
+/*
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value) override;
+
+    virtual void Process_IDXGIDisplayControl_SetStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL enabled) override;
+
+    virtual void Process_IDXGIOutputDuplication_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_DESC>* pDesc) override;
+
+    virtual void Process_IDXGIOutputDuplication_AcquireNextFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT TimeoutInMilliseconds,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_FRAME_INFO>* pFrameInfo,
+        HandlePointerDecoder<IDXGIResource*>* ppDesktopResource) override;
+
+    virtual void Process_IDXGIOutputDuplication_GetFrameDirtyRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT DirtyRectsBufferSize,
+        StructPointerDecoder<Decoded_tagRECT>* pDirtyRectsBuffer,
+        PointerDecoder<UINT>* pDirtyRectsBufferSizeRequired) override;
+
+    virtual void Process_IDXGIOutputDuplication_GetFrameMoveRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MoveRectsBufferSize,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_MOVE_RECT>* pMoveRectBuffer,
+        PointerDecoder<UINT>* pMoveRectsBufferSizeRequired) override;
+
+    virtual void Process_IDXGIOutputDuplication_GetFramePointerShape(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT PointerShapeBufferSize,
+        PointerDecoder<uint8_t>* pPointerShapeBuffer,
+        PointerDecoder<UINT>* pPointerShapeBufferSizeRequired,
+        StructPointerDecoder<Decoded_DXGI_OUTDUPL_POINTER_SHAPE_INFO>* pPointerShapeInfo) override;
+
+    virtual void Process_IDXGIOutputDuplication_MapDesktopSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MAPPED_RECT>* pLockedRect) override;
+
+    virtual void Process_IDXGIOutputDuplication_UnMapDesktopSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value) override;
+
+    virtual void Process_IDXGIOutputDuplication_ReleaseFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value) override;
+
+    virtual void Process_IDXGISurface2_GetResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppParentResource,
+        PointerDecoder<UINT>* pSubresourceIndex) override;
+
+    virtual void Process_IDXGIResource1_CreateSubresourceSurface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT index,
+        HandlePointerDecoder<IDXGISurface2*>* ppSurface) override;
+
+    virtual void Process_IDXGIResource1_CreateSharedHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        DWORD dwAccess,
+        WStringDecoder* lpName,
+        PointerDecoder<uint64_t, void*>* pHandle) override;
+
+    virtual void Process_IDXGIDevice2_OfferResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority) override;
+
+    virtual void Process_IDXGIDevice2_ReclaimResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        PointerDecoder<BOOL>* pDiscarded) override;
+
+    virtual void Process_IDXGIDevice2_EnqueueSetEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent) override;
+
+    virtual void Process_IDXGISwapChain1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc) override;
+
+    virtual void Process_IDXGISwapChain1_GetFullscreenDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pDesc) override;
+
+    virtual void Process_IDXGISwapChain1_GetHwnd(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pHwnd) override;
+
+    virtual void Process_IDXGISwapChain1_GetCoreWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID refiid,
+        HandlePointerDecoder<void*>* ppUnk) override;
+
+    virtual void Process_IDXGISwapChain1_Present1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT SyncInterval,
+        UINT PresentFlags,
+        StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* pPresentParameters) override;
+
+    virtual void Process_IDXGISwapChain1_IsTemporaryMonoSupported(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value) override;
+
+    virtual void Process_IDXGISwapChain1_GetRestrictToOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<IDXGIOutput*>* ppRestrictToOutput) override;
+
+    virtual void Process_IDXGISwapChain1_SetBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor) override;
+
+    virtual void Process_IDXGISwapChain1_GetBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3DCOLORVALUE>* pColor) override;
+
+    virtual void Process_IDXGISwapChain1_SetRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_MODE_ROTATION Rotation) override;
+
+    virtual void Process_IDXGISwapChain1_GetRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<DXGI_MODE_ROTATION>* pRotation) override;
+
+    virtual void Process_IDXGIFactory2_IsWindowedStereoEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value) override;
+
+    virtual void Process_IDXGIFactory2_CreateSwapChainForHwnd(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hWnd,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* pFullscreenDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
+
+    virtual void Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        format::HandleId pWindow,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
+
+    virtual void Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hResource,
+        StructPointerDecoder<Decoded_LUID>* pLuid) override;
+
+    virtual void Process_IDXGIFactory2_RegisterStereoStatusWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT wMsg,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIFactory2_RegisterStereoStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIFactory2_UnregisterStereoStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie) override;
+
+    virtual void Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t WindowHandle,
+        UINT wMsg,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIFactory2_UnregisterOcclusionStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie) override;
+
+    virtual void Process_IDXGIFactory2_CreateSwapChainForComposition(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
+
+    virtual void Process_IDXGIAdapter2_GetDesc2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc) override;
+
+    virtual void Process_IDXGIOutput1_GetDisplayModeList1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        UINT Flags,
+        PointerDecoder<UINT>* pNumModes,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pDesc) override;
+
+    virtual void Process_IDXGIOutput1_FindClosestMatchingMode1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pModeToMatch,
+        StructPointerDecoder<Decoded_DXGI_MODE_DESC1>* pClosestMatch,
+        format::HandleId pConcernedDevice) override;
+
+    virtual void Process_IDXGIOutput1_GetDisplaySurfaceData1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDestination) override;
+
+    virtual void Process_IDXGIOutput1_DuplicateOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
+
+/*
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_CreateDXGIFactory2(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        UINT Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppFactory) override;
+
+    virtual void Process_DXGIGetDebugInterface1(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        UINT Flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* pDebug) override;
+
+    virtual void Process_IDXGIDevice3_Trim(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id) override;
+
+    virtual void Process_IDXGISwapChain2_SetSourceSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Width,
+        UINT Height) override;
+
+    virtual void Process_IDXGISwapChain2_GetSourceSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pWidth,
+        PointerDecoder<UINT>* pHeight) override;
+
+    virtual void Process_IDXGISwapChain2_SetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT MaxLatency) override;
+
+    virtual void Process_IDXGISwapChain2_GetMaximumFrameLatency(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pMaxLatency) override;
+
+    virtual void Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        uint64_t return_value) override;
+
+    virtual void Process_IDXGISwapChain2_SetMatrixTransform(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix) override;
+
+    virtual void Process_IDXGISwapChain2_GetMatrixTransform(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_MATRIX_3X2_F>* pMatrix) override;
+
+    virtual void Process_IDXGIOutput2_SupportsOverlays(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value) override;
+
+    virtual void Process_IDXGIFactory3_GetCreationFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_PresentBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferToPresent,
+        UINT SyncInterval,
+        UINT Flags) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_SetSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_SetTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_SetDestSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Width,
+        UINT Height) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_GetSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_GetTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_tagRECT>* pRect) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_GetDestSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pWidth,
+        PointerDecoder<UINT>* pHeight) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_SetColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace) override;
+
+    virtual void Process_IDXGIDecodeSwapChain_GetColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value) override;
+
+    virtual void Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hSurface,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>* pDesc,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGISwapChain1*>* ppSwapChain) override;
+
+    virtual void Process_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        uint64_t hSurface,
+        StructPointerDecoder<Decoded_DXGI_DECODE_SWAP_CHAIN_DESC>* pDesc,
+        format::HandleId pYuvDecodeBuffers,
+        format::HandleId pRestrictToOutput,
+        HandlePointerDecoder<IDXGIDecodeSwapChain*>* ppSwapChain) override;
+
+    virtual void Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_FRAME_STATISTICS_MEDIA>* pStats) override;
+
+    virtual void Process_IDXGISwapChainMedia_SetPresentDuration(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Duration) override;
+
+    virtual void Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT DesiredPresentDuration,
+        PointerDecoder<UINT>* pClosestSmallerPresentDuration,
+        PointerDecoder<UINT>* pClosestLargerPresentDuration) override;
+
+    virtual void Process_IDXGIOutput3_CheckOverlaySupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT EnumFormat,
+        format::HandleId pConcernedDevice,
+        PointerDecoder<UINT>* pFlags) override;
+
+/*
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value) override;
+
+    virtual void Process_IDXGISwapChain3_CheckColorSpaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        PointerDecoder<UINT>* pColorSpaceSupport) override;
+
+    virtual void Process_IDXGISwapChain3_SetColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_COLOR_SPACE_TYPE ColorSpace) override;
+
+    virtual void Process_IDXGISwapChain3_ResizeBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT BufferCount,
+        UINT Width,
+        UINT Height,
+        DXGI_FORMAT Format,
+        UINT SwapChainFlags,
+        PointerDecoder<UINT>* pCreationNodeMask,
+        HandlePointerDecoder<IUnknown*>* ppPresentQueue) override;
+
+    virtual void Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        DXGI_COLOR_SPACE_TYPE ColorSpace,
+        format::HandleId pConcernedDevice,
+        PointerDecoder<UINT>* pFlags) override;
+
+    virtual void Process_IDXGIFactory4_EnumAdapterByLuid(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_LUID AdapterLuid,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter) override;
+
+    virtual void Process_IDXGIFactory4_EnumWarpAdapter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter) override;
+
+    virtual void Process_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie) override;
+
+    virtual void Process_IDXGIAdapter3_QueryVideoMemoryInfo(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        StructPointerDecoder<Decoded_DXGI_QUERY_VIDEO_MEMORY_INFO>* pVideoMemoryInfo) override;
+
+    virtual void Process_IDXGIAdapter3_SetVideoMemoryReservation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NodeIndex,
+        DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+        UINT64 Reservation) override;
+
+    virtual void Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie) override;
+
+/*
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_IDXGIOutput5_DuplicateOutput1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        UINT Flags,
+        UINT SupportedFormatsCount,
+        PointerDecoder<DXGI_FORMAT>* pSupportedFormats,
+        HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
+
+    virtual void Process_IDXGISwapChain4_SetHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData) override;
+
+    virtual void Process_IDXGIDevice4_OfferResources1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        DXGI_OFFER_RESOURCE_PRIORITY Priority,
+        UINT Flags) override;
+
+    virtual void Process_IDXGIDevice4_ReclaimResources1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT NumResources,
+        HandlePointerDecoder<IDXGIResource*>* ppResources,
+        PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults) override;
+
+/*
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_DXGIDeclareAdapterRemovalSupport(
+        const ApiCallInfo& call_info,
+        HRESULT return_value) override;
+
+    virtual void Process_IDXGIAdapter4_GetDesc3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc) override;
+
+    virtual void Process_IDXGIOutput6_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_DXGI_OUTPUT_DESC1>* pDesc) override;
+
+    virtual void Process_IDXGIOutput6_CheckHardwareCompositionSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pFlags) override;
+
+    virtual void Process_IDXGIFactory6_EnumAdapterByGpuPreference(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Adapter,
+        DXGI_GPU_PREFERENCE GpuPreference,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvAdapter) override;
+
+    virtual void Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie) override;
+
+    virtual void Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DWORD dwCookie) override;
 
 /*
 ** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0

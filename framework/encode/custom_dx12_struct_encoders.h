@@ -61,10 +61,15 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_D
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value);
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature);
 void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI_FEATURE feature);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLER_DESC2& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SHADER_NODE& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_PROGRAM_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_GRAPH_DESC& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

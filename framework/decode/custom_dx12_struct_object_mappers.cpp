@@ -227,11 +227,17 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
 
         switch (value->Type)
         {
+            case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
+                break;
             case D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE:
                 MapStructObjects(wrapper->global_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE:
                 MapStructObjects(wrapper->local_root_signature->GetMetaStructPointer(), object_info_table, gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_NODE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY:
                 break;
             case D3D12_STATE_SUBOBJECT_TYPE_EXISTING_COLLECTION:
                 MapStructObjects(
@@ -243,6 +249,57 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
                                  subobject_stride,
                                  object_info_table,
                                  gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DXIL_SUBOBJECT_TO_EXPORTS_ASSOCIATION:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_WORK_GRAPH:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_STREAM_OUTPUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_BLEND:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_MASK:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RASTERIZER:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_INPUT_LAYOUT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_IB_STRIP_CUT_VALUE:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_PRIMITIVE_TOPOLOGY:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_RENDER_TARGET_FORMATS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL_FORMAT:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_SAMPLE_DESC:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_FLAGS:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL1:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_GENERIC_PROGRAM:
+                MapStructObjects(wrapper->generic_program_desc->GetMetaStructPointer(),
+                                 subobjects,
+                                 subobject_stride,
+                                 object_info_table,
+                                 gpu_va_map);
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                break;
+            case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
                 break;
@@ -286,6 +343,24 @@ void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapp
     }
 }
 
+void MapStructObjects(Decoded_D3D12_GENERIC_PROGRAM_DESC*                  wrapper,
+                      StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
+                      size_t                                               subobject_stride,
+                      const Dx12ObjectInfoTable&                           object_info_table,
+                      const graphics::Dx12GpuVaMap&                        gpu_va_map)
+{
+    if (wrapper != nullptr)
+    {
+        auto descs     = wrapper->ppSubobjects->GetMetaStructPointer();
+        auto num_descs = wrapper->ppSubobjects->GetLength();
+
+        for (size_t i = 0; i < num_descs; ++i)
+        {
+            MapStructObjects(descs[i], subobjects, subobject_stride, object_info_table, gpu_va_map);
+        }
+    }
+}
+
 void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
                       const graphics::Dx12GpuVaMap&            gpu_va_map)
@@ -317,6 +392,55 @@ void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
         for (size_t i = 0; i < length; ++i)
         {
             MapStructObjects(&wrappers[i], object_info_table, gpu_va_map);
+        }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_SET_PROGRAM_DESC* wrapper,
+                      const Dx12ObjectInfoTable&      object_info_table,
+                      const graphics::Dx12GpuVaMap&   gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Type)
+        {
+            case D3D12_PROGRAM_TYPE_GENERIC_PIPELINE:
+                break;
+            case D3D12_PROGRAM_TYPE_RAYTRACING_PIPELINE:
+                break;
+            case D3D12_PROGRAM_TYPE_WORK_GRAPH:
+                MapStructObjects(wrapper->work_graph, object_info_table, gpu_va_map);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void MapStructObjects(Decoded_D3D12_DISPATCH_GRAPH_DESC* wrapper,
+                      const Dx12ObjectInfoTable&         object_info_table,
+                      const graphics::Dx12GpuVaMap&      gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        auto value = wrapper->decoded_value;
+
+        switch (value->Mode)
+        {
+            case D3D12_DISPATCH_MODE_NODE_CPU_INPUT:
+                break;
+            case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
+                object_mapping::MapGpuVirtualAddress(value->NodeGPUInput, gpu_va_map);
+                break;
+            case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
+                break;
+            case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
+                object_mapping::MapGpuVirtualAddress(value->MultiNodeGPUInput, gpu_va_map);
+                break;
+            default:
+                break;
         }
     }
 }

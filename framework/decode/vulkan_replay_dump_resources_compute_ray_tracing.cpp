@@ -53,11 +53,13 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  CommonObjectInfoTable&       object_info_table,
                                                                  const VulkanReplayOptions&   options,
                                                                  VulkanDumpResourcesDelegate& delegate) :
-    original_command_buffer_info(nullptr), DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices),
-    trace_rays_indices(trace_rays_indices), dump_resources_before(options.dump_resources_before), device_table(nullptr),
-    parent_device(VK_NULL_HANDLE), instance_table(nullptr), object_info_table(object_info_table),
-    replay_device_phys_mem_props(nullptr), current_dispatch_index(0), current_trace_rays_index(0), delegate_(delegate),
-    dump_immutable_resources(options.dump_resources_dump_immutable_resources), reached_end_command_buffer(false)
+    original_command_buffer_info(nullptr),
+    DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices), trace_rays_indices(trace_rays_indices),
+    dump_resources_before(options.dump_resources_before), device_table(nullptr), parent_device(VK_NULL_HANDLE),
+    instance_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
+    current_dispatch_index(0), current_trace_rays_index(0), delegate_(delegate),
+    dump_immutable_resources(options.dump_resources_dump_immutable_resources), reached_end_command_buffer(false),
+    bound_pipeline_compute(nullptr), bound_pipeline_trace_rays(nullptr)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -448,18 +450,18 @@ VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_
         cloning_before_cmd ? params.mutable_resources_clones_before : params.mutable_resources_clones, false);
 }
 
-void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptorsDispatch(uint64_t index)
+void DispatchTraceRaysDumpingContext::SnapshotDispatchState(uint64_t index)
 {
     auto params_entry = dispatch_params.find(index);
     assert(params_entry != dispatch_params.end());
-    SnapshotBoundDescriptors(params_entry->second);
+    SnapshotDispatchState(params_entry->second);
 }
 
-void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptorsTraceRays(uint64_t index)
+void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(uint64_t index)
 {
     auto params_entry = trace_rays_params.find(index);
     assert(params_entry != trace_rays_params.end());
-    SnapshotBoundDescriptors(params_entry->second);
+    SnapshotTraceRaysState(params_entry->second);
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResourcesBackupContext& resource_backup_context,
@@ -850,7 +852,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         GFXRECON_ASSERT(dispatch_param_entry != dispatch_params.end());
         draw_call_info.disp_param = &dispatch_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
     }
 
     for (size_t i = 0; i < trace_rays_indices.size(); ++i)
@@ -892,7 +894,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         GFXRECON_ASSERT(trace_rays_param_entry != trace_rays_params.end());
         draw_call_info.tr_param = &trace_rays_param_entry->second;
 
-        delegate_.DumpDrawCallInfo(draw_call_info);
+        delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
@@ -1089,30 +1091,182 @@ bool DispatchTraceRaysDumpingContext::IsRecording() const
     return !reached_end_command_buffer;
 }
 
-void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(DispatchParameters& disp_params)
+void DispatchTraceRaysDumpingContext::SnapshotDispatchState(DispatchParameters& disp_params)
 {
-    for (const auto& desc_set : bound_descriptor_sets_compute)
+    // Copy descriptors that are compatible with the current pipeline layout
+    if (bound_pipeline_compute != nullptr)
     {
-        const uint32_t desc_set_index = desc_set.first;
-        for (const auto& desc : desc_set.second.descriptors)
+        for (const auto& [desc_set_index, set_info] : bound_descriptor_sets_compute)
         {
-            const uint32_t desc_binding_index                                      = desc.first;
-            disp_params.referenced_descriptors[desc_set_index][desc_binding_index] = desc.second;
+            // Check against pipeline layout
+            if (bound_pipeline_compute->desc_set_layouts.size() <= desc_set_index)
+            {
+                continue;
+            }
+
+            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            {
+                // Check against pipeline layout
+                const auto layout_entry =
+                    bound_pipeline_compute->desc_set_layouts[desc_set_index].find(desc_binding_index);
+                if (layout_entry == bound_pipeline_compute->desc_set_layouts[desc_set_index].end())
+                {
+                    continue;
+                }
+
+                disp_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type =
+                    binding_info.desc_type;
+                disp_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
+                    binding_info.stage_flags;
+
+                switch (binding_info.desc_type)
+                {
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        for (const auto& [array_idx, img_info] : binding_info.image_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            disp_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .image_info[array_idx] = img_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (const auto& [array_idx, buf_info] : binding_info.buffer_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            disp_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .buffer_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        disp_params.referenced_descriptors[desc_set_index][desc_binding_index].inline_uniform_block =
+                            binding_info.inline_uniform_block;
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
         }
+    }
+
+    // Copy indirect params
+    if (IsDispatchIndirect(disp_params.type))
+    {
+        CopyDispatchIndirectParameters(disp_params);
     }
 }
 
-void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(TraceRaysParameters& tr_params)
+void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParameters& tr_params)
 {
-    for (const auto& desc_set : bound_descriptor_sets_ray_tracing)
+    // Copy descriptors that are compatible with the current pipeline layout
+    if (bound_pipeline_trace_rays != nullptr)
     {
-        const uint32_t desc_set_index = desc_set.first;
-        for (const auto& desc : desc_set.second.descriptors)
+        for (const auto& [desc_set_index, set_info] : bound_descriptor_sets_ray_tracing)
         {
-            const uint32_t desc_binding_index                                    = desc.first;
-            tr_params.referenced_descriptors[desc_set_index][desc_binding_index] = desc.second;
+            // Check against pipeline layout
+            if (bound_pipeline_trace_rays->desc_set_layouts.size() <= desc_set_index)
+            {
+                continue;
+            }
+
+            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            {
+                // Check against pipeline layout
+                const auto layout_entry =
+                    bound_pipeline_trace_rays->desc_set_layouts[desc_set_index].find(desc_binding_index);
+                if (layout_entry == bound_pipeline_trace_rays->desc_set_layouts[desc_set_index].end())
+                {
+                    continue;
+                }
+
+                tr_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type = binding_info.desc_type;
+                tr_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
+                    binding_info.stage_flags;
+
+                switch (binding_info.desc_type)
+                {
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        for (const auto& [array_idx, img_info] : binding_info.image_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            tr_params.referenced_descriptors[desc_set_index][desc_binding_index].image_info[array_idx] =
+                                img_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (const auto& [array_idx, buf_info] : binding_info.buffer_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            tr_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .buffer_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        tr_params.referenced_descriptors[desc_set_index][desc_binding_index].inline_uniform_block =
+                            binding_info.inline_uniform_block;
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
         }
     }
+
+    // Copy indirect params
+    CopyTraceRaysIndirectParameters(tr_params);
 }
 
 VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_index,
@@ -1142,16 +1296,16 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
 
     if (is_dispatch)
     {
-        const auto disp_params = dispatch_params.find(cmd_index);
-        assert(disp_params != dispatch_params.end());
-        for (const auto& desc_set : disp_params->second.referenced_descriptors)
+        const auto disp_params_entry = dispatch_params.find(cmd_index);
+        GFXRECON_ASSERT(disp_params_entry != dispatch_params.end());
+
+        const DispatchParameters* disp_params = &disp_params_entry->second;
+        for (const auto& desc_set : disp_params->referenced_descriptors)
         {
             const uint32_t desc_set_index = desc_set.first;
-
             for (const auto& desc_binding : desc_set.second)
             {
                 const uint32_t desc_binding_index = desc_binding.first;
-
                 switch (desc_binding.second.desc_type)
                 {
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1230,16 +1384,16 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
     }
     else
     {
-        const auto tr_params = trace_rays_params.find(cmd_index);
-        assert(tr_params != trace_rays_params.end());
-        for (const auto& desc_set : tr_params->second.referenced_descriptors)
+        const auto tr_params_entry = trace_rays_params.find(cmd_index);
+        GFXRECON_ASSERT(tr_params_entry != trace_rays_params.end());
+
+        const TraceRaysParameters* tr_params = &tr_params_entry->second;
+        for (const auto& desc_set : tr_params->referenced_descriptors)
         {
             const uint32_t desc_set_index = desc_set.first;
-
             for (const auto& desc_binding : desc_set.second)
             {
                 const uint32_t desc_binding_index = desc_binding.first;
-
                 switch (desc_binding.second.desc_type)
                 {
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1395,12 +1549,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
     return VK_SUCCESS;
 }
 
-VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(uint64_t index)
+VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(DispatchParameters& disp_params)
 {
-    auto entry = dispatch_params.find(index);
-    assert(entry != dispatch_params.end());
-    DispatchParameters& disp_params = entry->second;
-
     assert(disp_params.type == kDispatchIndirect);
     assert(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info != nullptr);
     assert(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle != VK_NULL_HANDLE);
@@ -1456,12 +1606,8 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(uint64_
     return VK_SUCCESS;
 }
 
-VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(uint64_t index)
+VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceRaysParameters& params)
 {
-    auto entry = trace_rays_params.find(index);
-    assert(entry != trace_rays_params.end());
-    TraceRaysParameters& params = entry->second;
-
     assert(params.type == kTraceRaysIndirect || params.type == kTraceRaysIndirect2);
     if (params.trace_rays_params_union.trace_rays_indirect.indirect_device_address == 0)
     {
@@ -1712,6 +1858,23 @@ void DispatchTraceRaysDumpingContext::EndCommandBuffer()
 {
     reached_end_command_buffer = true;
     device_table->EndCommandBuffer(DR_command_buffer);
+}
+
+void DispatchTraceRaysDumpingContext::BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline)
+{
+    switch (bind_point)
+    {
+        case VK_PIPELINE_BIND_POINT_COMPUTE:
+            bound_pipeline_compute = pipeline;
+            break;
+
+        case VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR:
+            bound_pipeline_trace_rays = pipeline;
+            break;
+
+        default:
+            break;
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

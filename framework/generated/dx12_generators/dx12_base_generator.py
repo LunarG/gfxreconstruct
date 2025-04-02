@@ -143,6 +143,12 @@ class ValueInfo():
         self.is_const = is_const
         self.is_com_outptr = is_com_outptr
 
+        sizeof_key = 'sizeof'
+        if (self.array_length != None) and isinstance(self.array_length, str) and (sizeof_key in self.array_length) and ('(' not in self.array_length):
+            sizeof_index = self.array_length.find(sizeof_key)
+            sizeof_len = len(sizeof_key)
+            self.array_length = self.array_length[:sizeof_index + sizeof_len] + '(' +  self.array_length[sizeof_index + sizeof_len + 1:] + ')'
+
 class Dx12GeneratorOptions():
     """Options for generating C++ function declarations for Dx12 API.
 

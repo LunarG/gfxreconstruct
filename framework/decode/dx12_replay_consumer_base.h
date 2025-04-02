@@ -988,6 +988,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void OverrideExecuteBundle(DxObjectInfo* replay_object_info, DxObjectInfo* command_list_object_info);
 
+    HRESULT OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+        HRESULT                          return_value,
+        PointerDecoder<uint8_t>*         pSrcData,
+        SIZE_T                           SrcDataSizeInBytes,
+        WStringDecoder*                  RootSignatureSubobjectName,
+        Decoded_GUID                     pRootSignatureDeserializerInterface,
+        PointerDecoder<uint64_t, void*>* ppRootSignatureDeserializer);
+
+    void OverrideSetProgram(DxObjectInfo*                                         replay_object_info,
+                            StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC>* pDesc);
+
+    void OverrideDispatchGraph(DxObjectInfo*                                            replay_object_info,
+                               StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }

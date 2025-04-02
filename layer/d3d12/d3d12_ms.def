@@ -16,5 +16,6 @@ D3D12PIXReportCounter @114
 D3D12SerializeRootSignature @115
 D3D12SerializeVersionedRootSignature @116
 D3D12GetInterface @117
+D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary @118
 GetBehaviorValue @100
 SetAppCompatStringPointer @103

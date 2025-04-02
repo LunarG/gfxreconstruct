@@ -28,6 +28,10 @@
 #ifndef  GFXRECON_GENERATED_DX12_API_CALL_ENCODERS_H
 #define  GFXRECON_GENERATED_DX12_API_CALL_ENCODERS_H
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -35,11 +39,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -55,1009 +55,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_CreateDXGIFactory(
-    HRESULT return_value,
-    REFIID riid,
-    void** ppFactory);
-
-void Encode_CreateDXGIFactory1(
-    HRESULT return_value,
-    REFIID riid,
-    void** ppFactory);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_MAPPED_RECT& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const LUID& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SHARED_RESOURCE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SURFACE_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC& value);
-
-void Encode_IDXGIObject_SetPrivateData(
-    IDXGIObject_Wrapper* wrapper,
-    HRESULT return_value,
-    REFGUID Name,
-    UINT DataSize,
-    const void* pData);
-
-void Encode_IDXGIObject_SetPrivateDataInterface(
-    IDXGIObject_Wrapper* wrapper,
-    HRESULT return_value,
-    REFGUID Name,
-    const IUnknown* pUnknown);
-
-void Encode_IDXGIObject_GetPrivateData(
-    IDXGIObject_Wrapper* wrapper,
-    HRESULT return_value,
-    REFGUID Name,
-    UINT* pDataSize,
-    void* pData);
-
-void Encode_IDXGIObject_GetParent(
-    IDXGIObject_Wrapper* wrapper,
-    HRESULT return_value,
-    REFIID riid,
-    void** ppParent);
-
-void Encode_IDXGIDeviceSubObject_GetDevice(
-    IDXGIDeviceSubObject_Wrapper* wrapper,
-    HRESULT return_value,
-    REFIID riid,
-    void** ppDevice);
-
-void Encode_IDXGIResource_GetSharedHandle(
-    IDXGIResource_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE* pSharedHandle);
-
-void Encode_IDXGIResource_GetUsage(
-    IDXGIResource_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_USAGE* pUsage);
-
-void Encode_IDXGIResource_SetEvictionPriority(
-    IDXGIResource_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT EvictionPriority);
-
-void Encode_IDXGIResource_GetEvictionPriority(
-    IDXGIResource_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pEvictionPriority);
-
-void Encode_IDXGIKeyedMutex_AcquireSync(
-    IDXGIKeyedMutex_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT64 Key,
-    DWORD dwMilliseconds);
-
-void Encode_IDXGIKeyedMutex_ReleaseSync(
-    IDXGIKeyedMutex_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT64 Key);
-
-void Encode_IDXGISurface_GetDesc(
-    IDXGISurface_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_SURFACE_DESC* pDesc);
-
-void Encode_IDXGISurface_Map(
-    IDXGISurface_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MAPPED_RECT* pLockedRect,
-    UINT MapFlags);
-
-void Encode_IDXGISurface_Unmap(
-    IDXGISurface_Wrapper* wrapper,
-    HRESULT return_value);
-
-void Encode_IDXGISurface1_GetDC(
-    IDXGISurface1_Wrapper* wrapper,
-    HRESULT return_value,
-    BOOL Discard,
-    HDC* phdc);
-
-void Encode_IDXGISurface1_ReleaseDC(
-    IDXGISurface1_Wrapper* wrapper,
-    HRESULT return_value,
-    RECT* pDirtyRect);
-
-void Encode_IDXGIAdapter_EnumOutputs(
-    IDXGIAdapter_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Output,
-    IDXGIOutput** ppOutput);
-
-void Encode_IDXGIAdapter_GetDesc(
-    IDXGIAdapter_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_ADAPTER_DESC* pDesc);
-
-void Encode_IDXGIAdapter_CheckInterfaceSupport(
-    IDXGIAdapter_Wrapper* wrapper,
-    HRESULT return_value,
-    REFGUID InterfaceName,
-    LARGE_INTEGER* pUMDVersion);
-
-void Encode_IDXGIOutput_GetDesc(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_OUTPUT_DESC* pDesc);
-
-void Encode_IDXGIOutput_GetDisplayModeList(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FORMAT EnumFormat,
-    UINT Flags,
-    UINT* pNumModes,
-    DXGI_MODE_DESC* pDesc);
-
-void Encode_IDXGIOutput_FindClosestMatchingMode(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_MODE_DESC* pModeToMatch,
-    DXGI_MODE_DESC* pClosestMatch,
-    IUnknown* pConcernedDevice);
-
-void Encode_IDXGIOutput_WaitForVBlank(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value);
-
-void Encode_IDXGIOutput_TakeOwnership(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    BOOL Exclusive);
-
-void Encode_IDXGIOutput_ReleaseOwnership(
-    IDXGIOutput_Wrapper* wrapper);
-
-void Encode_IDXGIOutput_GetGammaControlCapabilities(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps);
-
-void Encode_IDXGIOutput_SetGammaControl(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_GAMMA_CONTROL* pArray);
-
-void Encode_IDXGIOutput_GetGammaControl(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_GAMMA_CONTROL* pArray);
-
-void Encode_IDXGIOutput_SetDisplaySurface(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGISurface* pScanoutSurface);
-
-void Encode_IDXGIOutput_GetDisplaySurfaceData(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGISurface* pDestination);
-
-void Encode_IDXGIOutput_GetFrameStatistics(
-    IDXGIOutput_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FRAME_STATISTICS* pStats);
-
-void Encode_IDXGISwapChain_Present(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT SyncInterval,
-    UINT Flags);
-
-void Encode_IDXGISwapChain_GetBuffer(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Buffer,
-    REFIID riid,
-    void** ppSurface);
-
-void Encode_IDXGISwapChain_SetFullscreenState(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    BOOL Fullscreen,
-    IDXGIOutput* pTarget);
-
-void Encode_IDXGISwapChain_GetFullscreenState(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    BOOL* pFullscreen,
-    IDXGIOutput** ppTarget);
-
-void Encode_IDXGISwapChain_GetDesc(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_SWAP_CHAIN_DESC* pDesc);
-
-void Encode_IDXGISwapChain_ResizeBuffers(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT BufferCount,
-    UINT Width,
-    UINT Height,
-    DXGI_FORMAT NewFormat,
-    UINT SwapChainFlags);
-
-void Encode_IDXGISwapChain_ResizeTarget(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_MODE_DESC* pNewTargetParameters);
-
-void Encode_IDXGISwapChain_GetContainingOutput(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGIOutput** ppOutput);
-
-void Encode_IDXGISwapChain_GetFrameStatistics(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FRAME_STATISTICS* pStats);
-
-void Encode_IDXGISwapChain_GetLastPresentCount(
-    IDXGISwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pLastPresentCount);
-
-void Encode_IDXGIFactory_EnumAdapters(
-    IDXGIFactory_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Adapter,
-    IDXGIAdapter** ppAdapter);
-
-void Encode_IDXGIFactory_MakeWindowAssociation(
-    IDXGIFactory_Wrapper* wrapper,
-    HRESULT return_value,
-    HWND WindowHandle,
-    UINT Flags);
-
-void Encode_IDXGIFactory_GetWindowAssociation(
-    IDXGIFactory_Wrapper* wrapper,
-    HRESULT return_value,
-    HWND* pWindowHandle);
-
-void Encode_IDXGIFactory_CreateSwapChain(
-    IDXGIFactory_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    DXGI_SWAP_CHAIN_DESC* pDesc,
-    IDXGISwapChain** ppSwapChain);
-
-void Encode_IDXGIFactory_CreateSoftwareAdapter(
-    IDXGIFactory_Wrapper* wrapper,
-    HRESULT return_value,
-    HMODULE Module,
-    IDXGIAdapter** ppAdapter);
-
-void Encode_IDXGIDevice_GetAdapter(
-    IDXGIDevice_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGIAdapter** pAdapter);
-
-void Encode_IDXGIDevice_CreateSurface(
-    IDXGIDevice_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_SURFACE_DESC* pDesc,
-    UINT NumSurfaces,
-    DXGI_USAGE Usage,
-    const DXGI_SHARED_RESOURCE* pSharedResource,
-    IDXGISurface** ppSurface);
-
-void Encode_IDXGIDevice_QueryResourceResidency(
-    IDXGIDevice_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* const* ppResources,
-    DXGI_RESIDENCY* pResidencyStatus,
-    UINT NumResources);
-
-void Encode_IDXGIDevice_SetGPUThreadPriority(
-    IDXGIDevice_Wrapper* wrapper,
-    HRESULT return_value,
-    INT Priority);
-
-void Encode_IDXGIDevice_GetGPUThreadPriority(
-    IDXGIDevice_Wrapper* wrapper,
-    HRESULT return_value,
-    INT* pPriority);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC1& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_DISPLAY_COLOR_SPACE& value);
-
-void Encode_IDXGIFactory1_EnumAdapters1(
-    IDXGIFactory1_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Adapter,
-    IDXGIAdapter1** ppAdapter);
-
-void Encode_IDXGIFactory1_IsCurrent(
-    IDXGIFactory1_Wrapper* wrapper,
-    BOOL return_value);
-
-void Encode_IDXGIAdapter1_GetDesc1(
-    IDXGIAdapter1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_ADAPTER_DESC1* pDesc);
-
-void Encode_IDXGIDevice1_SetMaximumFrameLatency(
-    IDXGIDevice1_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT MaxLatency);
-
-void Encode_IDXGIDevice1_GetMaximumFrameLatency(
-    IDXGIDevice1_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pMaxLatency);
-
-
-/*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_IDXGIDisplayControl_IsStereoEnabled(
-    IDXGIDisplayControl_Wrapper* wrapper,
-    BOOL return_value);
-
-void Encode_IDXGIDisplayControl_SetStereoEnabled(
-    IDXGIDisplayControl_Wrapper* wrapper,
-    BOOL enabled);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_MOVE_RECT& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_POSITION& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_SHAPE_INFO& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_FRAME_INFO& value);
-
-void Encode_IDXGIOutputDuplication_GetDesc(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    DXGI_OUTDUPL_DESC* pDesc);
-
-void Encode_IDXGIOutputDuplication_AcquireNextFrame(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT TimeoutInMilliseconds,
-    DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
-    IDXGIResource** ppDesktopResource);
-
-void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT DirtyRectsBufferSize,
-    RECT* pDirtyRectsBuffer,
-    UINT* pDirtyRectsBufferSizeRequired);
-
-void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT MoveRectsBufferSize,
-    DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
-    UINT* pMoveRectsBufferSizeRequired);
-
-void Encode_IDXGIOutputDuplication_GetFramePointerShape(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT PointerShapeBufferSize,
-    void* pPointerShapeBuffer,
-    UINT* pPointerShapeBufferSizeRequired,
-    DXGI_OUTDUPL_POINTER_SHAPE_INFO* pPointerShapeInfo);
-
-void Encode_IDXGIOutputDuplication_MapDesktopSurface(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MAPPED_RECT* pLockedRect);
-
-void Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value);
-
-void Encode_IDXGIOutputDuplication_ReleaseFrame(
-    IDXGIOutputDuplication_Wrapper* wrapper,
-    HRESULT return_value);
-
-void Encode_IDXGISurface2_GetResource(
-    IDXGISurface2_Wrapper* wrapper,
-    HRESULT return_value,
-    REFIID riid,
-    void** ppParentResource,
-    UINT* pSubresourceIndex);
-
-void Encode_IDXGIResource1_CreateSubresourceSurface(
-    IDXGIResource1_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT index,
-    IDXGISurface2** ppSurface);
-
-void Encode_IDXGIResource1_CreateSharedHandle(
-    IDXGIResource1_Wrapper* wrapper,
-    HRESULT return_value,
-    const SECURITY_ATTRIBUTES* pAttributes,
-    DWORD dwAccess,
-    LPCWSTR lpName,
-    HANDLE* pHandle);
-
-void Encode_IDXGIDevice2_OfferResources(
-    IDXGIDevice2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NumResources,
-    IDXGIResource* const* ppResources,
-    DXGI_OFFER_RESOURCE_PRIORITY Priority);
-
-void Encode_IDXGIDevice2_ReclaimResources(
-    IDXGIDevice2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NumResources,
-    IDXGIResource* const* ppResources,
-    BOOL* pDiscarded);
-
-void Encode_IDXGIDevice2_EnqueueSetEvent(
-    IDXGIDevice2_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_MODE_DESC1& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC1& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_PRESENT_PARAMETERS& value);
-
-void Encode_IDXGISwapChain1_GetDesc1(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_SWAP_CHAIN_DESC1* pDesc);
-
-void Encode_IDXGISwapChain1_GetFullscreenDesc(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc);
-
-void Encode_IDXGISwapChain1_GetHwnd(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    HWND* pHwnd);
-
-void Encode_IDXGISwapChain1_GetCoreWindow(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    REFIID refiid,
-    void** ppUnk);
-
-void Encode_IDXGISwapChain1_Present1(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT SyncInterval,
-    UINT PresentFlags,
-    const DXGI_PRESENT_PARAMETERS* pPresentParameters);
-
-void Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
-    IDXGISwapChain1_Wrapper* wrapper,
-    BOOL return_value);
-
-void Encode_IDXGISwapChain1_GetRestrictToOutput(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGIOutput** ppRestrictToOutput);
-
-void Encode_IDXGISwapChain1_SetBackgroundColor(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_RGBA* pColor);
-
-void Encode_IDXGISwapChain1_GetBackgroundColor(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_RGBA* pColor);
-
-void Encode_IDXGISwapChain1_SetRotation(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MODE_ROTATION Rotation);
-
-void Encode_IDXGISwapChain1_GetRotation(
-    IDXGISwapChain1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MODE_ROTATION* pRotation);
-
-void Encode_IDXGIFactory2_IsWindowedStereoEnabled(
-    IDXGIFactory2_Wrapper* wrapper,
-    BOOL return_value);
-
-void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    HWND hWnd,
-    const DXGI_SWAP_CHAIN_DESC1* pDesc,
-    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
-    IDXGIOutput* pRestrictToOutput,
-    IDXGISwapChain1** ppSwapChain);
-
-void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    IUnknown* pWindow,
-    const DXGI_SWAP_CHAIN_DESC1* pDesc,
-    IDXGIOutput* pRestrictToOutput,
-    IDXGISwapChain1** ppSwapChain);
-
-void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hResource,
-    LUID* pLuid);
-
-void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    HWND WindowHandle,
-    UINT wMsg,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIFactory2_UnregisterStereoStatus(
-    IDXGIFactory2_Wrapper* wrapper,
-    DWORD dwCookie);
-
-void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    HWND WindowHandle,
-    UINT wMsg,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIFactory2_UnregisterOcclusionStatus(
-    IDXGIFactory2_Wrapper* wrapper,
-    DWORD dwCookie);
-
-void Encode_IDXGIFactory2_CreateSwapChainForComposition(
-    IDXGIFactory2_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    const DXGI_SWAP_CHAIN_DESC1* pDesc,
-    IDXGIOutput* pRestrictToOutput,
-    IDXGISwapChain1** ppSwapChain);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC2& value);
-
-void Encode_IDXGIAdapter2_GetDesc2(
-    IDXGIAdapter2_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_ADAPTER_DESC2* pDesc);
-
-void Encode_IDXGIOutput1_GetDisplayModeList1(
-    IDXGIOutput1_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FORMAT EnumFormat,
-    UINT Flags,
-    UINT* pNumModes,
-    DXGI_MODE_DESC1* pDesc);
-
-void Encode_IDXGIOutput1_FindClosestMatchingMode1(
-    IDXGIOutput1_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_MODE_DESC1* pModeToMatch,
-    DXGI_MODE_DESC1* pClosestMatch,
-    IUnknown* pConcernedDevice);
-
-void Encode_IDXGIOutput1_GetDisplaySurfaceData1(
-    IDXGIOutput1_Wrapper* wrapper,
-    HRESULT return_value,
-    IDXGIResource* pDestination);
-
-void Encode_IDXGIOutput1_DuplicateOutput(
-    IDXGIOutput1_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    IDXGIOutputDuplication** ppOutputDuplication);
-
-
-/*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_CreateDXGIFactory2(
-    HRESULT return_value,
-    UINT Flags,
-    REFIID riid,
-    void** ppFactory);
-
-void Encode_DXGIGetDebugInterface1(
-    HRESULT return_value,
-    UINT Flags,
-    REFIID riid,
-    void** pDebug);
-
-void Encode_IDXGIDevice3_Trim(
-    IDXGIDevice3_Wrapper* wrapper);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_MATRIX_3X2_F& value);
-
-void Encode_IDXGISwapChain2_SetSourceSize(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Width,
-    UINT Height);
-
-void Encode_IDXGISwapChain2_GetSourceSize(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pWidth,
-    UINT* pHeight);
-
-void Encode_IDXGISwapChain2_SetMaximumFrameLatency(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT MaxLatency);
-
-void Encode_IDXGISwapChain2_GetMaximumFrameLatency(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pMaxLatency);
-
-void Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HANDLE return_value);
-
-void Encode_IDXGISwapChain2_SetMatrixTransform(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    const DXGI_MATRIX_3X2_F* pMatrix);
-
-void Encode_IDXGISwapChain2_GetMatrixTransform(
-    IDXGISwapChain2_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MATRIX_3X2_F* pMatrix);
-
-void Encode_IDXGIOutput2_SupportsOverlays(
-    IDXGIOutput2_Wrapper* wrapper,
-    BOOL return_value);
-
-void Encode_IDXGIFactory3_GetCreationFlags(
-    IDXGIFactory3_Wrapper* wrapper,
-    UINT return_value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_DECODE_SWAP_CHAIN_DESC& value);
-
-void Encode_IDXGIDecodeSwapChain_PresentBuffer(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT BufferToPresent,
-    UINT SyncInterval,
-    UINT Flags);
-
-void Encode_IDXGIDecodeSwapChain_SetSourceRect(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    const RECT* pRect);
-
-void Encode_IDXGIDecodeSwapChain_SetTargetRect(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    const RECT* pRect);
-
-void Encode_IDXGIDecodeSwapChain_SetDestSize(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Width,
-    UINT Height);
-
-void Encode_IDXGIDecodeSwapChain_GetSourceRect(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    RECT* pRect);
-
-void Encode_IDXGIDecodeSwapChain_GetTargetRect(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    RECT* pRect);
-
-void Encode_IDXGIDecodeSwapChain_GetDestSize(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pWidth,
-    UINT* pHeight);
-
-void Encode_IDXGIDecodeSwapChain_SetColorSpace(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace);
-
-void Encode_IDXGIDecodeSwapChain_GetColorSpace(
-    IDXGIDecodeSwapChain_Wrapper* wrapper,
-    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value);
-
-void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
-    IDXGIFactoryMedia_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    HANDLE hSurface,
-    const DXGI_SWAP_CHAIN_DESC1* pDesc,
-    IDXGIOutput* pRestrictToOutput,
-    IDXGISwapChain1** ppSwapChain);
-
-void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
-    IDXGIFactoryMedia_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    HANDLE hSurface,
-    DXGI_DECODE_SWAP_CHAIN_DESC* pDesc,
-    IDXGIResource* pYuvDecodeBuffers,
-    IDXGIOutput* pRestrictToOutput,
-    IDXGIDecodeSwapChain** ppSwapChain);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS_MEDIA& value);
-
-void Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
-    IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FRAME_STATISTICS_MEDIA* pStats);
-
-void Encode_IDXGISwapChainMedia_SetPresentDuration(
-    IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Duration);
-
-void Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
-    IDXGISwapChainMedia_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT DesiredPresentDuration,
-    UINT* pClosestSmallerPresentDuration,
-    UINT* pClosestLargerPresentDuration);
-
-void Encode_IDXGIOutput3_CheckOverlaySupport(
-    IDXGIOutput3_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FORMAT EnumFormat,
-    IUnknown* pConcernedDevice,
-    UINT* pFlags);
-
-
-/*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
-    IDXGISwapChain3_Wrapper* wrapper,
-    UINT return_value);
-
-void Encode_IDXGISwapChain3_CheckColorSpaceSupport(
-    IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_COLOR_SPACE_TYPE ColorSpace,
-    UINT* pColorSpaceSupport);
-
-void Encode_IDXGISwapChain3_SetColorSpace1(
-    IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_COLOR_SPACE_TYPE ColorSpace);
-
-void Encode_IDXGISwapChain3_ResizeBuffers1(
-    IDXGISwapChain3_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT BufferCount,
-    UINT Width,
-    UINT Height,
-    DXGI_FORMAT Format,
-    UINT SwapChainFlags,
-    const UINT* pCreationNodeMask,
-    IUnknown* const* ppPresentQueue);
-
-void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
-    IDXGIOutput4_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_FORMAT Format,
-    DXGI_COLOR_SPACE_TYPE ColorSpace,
-    IUnknown* pConcernedDevice,
-    UINT* pFlags);
-
-void Encode_IDXGIFactory4_EnumAdapterByLuid(
-    IDXGIFactory4_Wrapper* wrapper,
-    HRESULT return_value,
-    LUID AdapterLuid,
-    REFIID riid,
-    void** ppvAdapter);
-
-void Encode_IDXGIFactory4_EnumWarpAdapter(
-    IDXGIFactory4_Wrapper* wrapper,
-    HRESULT return_value,
-    REFIID riid,
-    void** ppvAdapter);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_QUERY_VIDEO_MEMORY_INFO& value);
-
-void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
-    IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
-    IDXGIAdapter3_Wrapper* wrapper,
-    DWORD dwCookie);
-
-void Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
-    IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NodeIndex,
-    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-    DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo);
-
-void Encode_IDXGIAdapter3_SetVideoMemoryReservation(
-    IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NodeIndex,
-    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
-    UINT64 Reservation);
-
-void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
-    IDXGIAdapter3_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
-    IDXGIAdapter3_Wrapper* wrapper,
-    DWORD dwCookie);
-
-
-/*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_IDXGIOutput5_DuplicateOutput1(
-    IDXGIOutput5_Wrapper* wrapper,
-    HRESULT return_value,
-    IUnknown* pDevice,
-    UINT Flags,
-    UINT SupportedFormatsCount,
-    const DXGI_FORMAT* pSupportedFormats,
-    IDXGIOutputDuplication** ppOutputDuplication);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10PLUS& value);
-
-void Encode_IDXGISwapChain4_SetHDRMetaData(
-    IDXGISwapChain4_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_HDR_METADATA_TYPE Type,
-    UINT Size,
-    void* pMetaData);
-
-void Encode_IDXGIDevice4_OfferResources1(
-    IDXGIDevice4_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NumResources,
-    IDXGIResource* const* ppResources,
-    DXGI_OFFER_RESOURCE_PRIORITY Priority,
-    UINT Flags);
-
-void Encode_IDXGIDevice4_ReclaimResources1(
-    IDXGIDevice4_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT NumResources,
-    IDXGIResource* const* ppResources,
-    DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
-
-
-/*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void Encode_DXGIDeclareAdapterRemovalSupport(
-    HRESULT return_value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value);
-
-void Encode_IDXGIAdapter4_GetDesc3(
-    IDXGIAdapter4_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_ADAPTER_DESC3* pDesc);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC1& value);
-
-void Encode_IDXGIOutput6_GetDesc1(
-    IDXGIOutput6_Wrapper* wrapper,
-    HRESULT return_value,
-    DXGI_OUTPUT_DESC1* pDesc);
-
-void Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
-    IDXGIOutput6_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT* pFlags);
-
-void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
-    IDXGIFactory6_Wrapper* wrapper,
-    HRESULT return_value,
-    UINT Adapter,
-    DXGI_GPU_PREFERENCE GpuPreference,
-    REFIID riid,
-    void** ppvAdapter);
-
-void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
-    IDXGIFactory7_Wrapper* wrapper,
-    HRESULT return_value,
-    HANDLE hEvent,
-    DWORD* pdwCookie);
-
-void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
-    IDXGIFactory7_Wrapper* wrapper,
-    HRESULT return_value,
-    DWORD dwCookie);
-
-
-/*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_RATIONAL& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_SAMPLE_DESC& value);
-
-
-/*
 ** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
 **
 */
-
-
-/*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
-**
-*/
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_RGB& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3DCOLORVALUE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_GAMMA_CONTROL& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_GAMMA_CONTROL_CAPABILITIES& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_MODE_DESC& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_DC_HUFFMAN_TABLE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_AC_HUFFMAN_TABLE& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE& value);
 
 
 /*
@@ -1089,6 +89,14 @@ void Encode_D3D12CreateVersionedRootSignatureDeserializer(
     HRESULT return_value,
     LPCVOID pSrcData,
     SIZE_T SrcDataSizeInBytes,
+    REFIID pRootSignatureDeserializerInterface,
+    void** ppRootSignatureDeserializer);
+
+void Encode_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+    HRESULT return_value,
+    LPCVOID pSrcData,
+    SIZE_T SrcDataSizeInBytes,
+    LPCWSTR RootSignatureSubobjectName,
     REFIID pRootSignatureDeserializerInterface,
     void** ppRootSignatureDeserializer);
 
@@ -1126,6 +134,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SO_DECLARATION_ENTRY& v
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VIEWPORT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BOX& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const LUID& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCILOP_DESC& value);
 
@@ -1264,6 +274,16 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS19& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS20& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS21& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PREDICATION& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_HARDWARE_COPY& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO1& value);
@@ -1271,6 +291,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INF
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_HEAP_PROPERTIES& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_HEAP_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_MIP_REGION& value);
 
@@ -2435,6 +1457,88 @@ void Encode_ID3D12StateObjectProperties_SetPipelineStackSize(
     ID3D12StateObjectProperties_Wrapper* wrapper,
     UINT64 PipelineStackSizeInBytes);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_PROGRAM_IDENTIFIER& value);
+
+void Encode_ID3D12StateObjectProperties1_GetProgramIdentifier(
+    ID3D12StateObjectProperties1_Wrapper* wrapper,
+    D3D12_PROGRAM_IDENTIFIER return_value,
+    LPCWSTR pProgramName);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_ID& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS& value);
+
+void Encode_ID3D12WorkGraphProperties_GetNumWorkGraphs(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value);
+
+void Encode_ID3D12WorkGraphProperties_GetProgramName(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    LPCWSTR return_value,
+    UINT WorkGraphIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetWorkGraphIndex(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    LPCWSTR pProgramName);
+
+void Encode_ID3D12WorkGraphProperties_GetNumNodes(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetNodeID(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    D3D12_NODE_ID return_value,
+    UINT WorkGraphIndex,
+    UINT NodeIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetNodeIndex(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex,
+    D3D12_NODE_ID NodeID);
+
+void Encode_ID3D12WorkGraphProperties_GetNodeLocalRootArgumentsTableIndex(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex,
+    UINT NodeIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetNumEntrypoints(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetEntrypointID(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    D3D12_NODE_ID return_value,
+    UINT WorkGraphIndex,
+    UINT EntrypointIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetEntrypointIndex(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex,
+    D3D12_NODE_ID NodeID);
+
+void Encode_ID3D12WorkGraphProperties_GetEntrypointRecordSizeInBytes(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex,
+    UINT EntrypointIndex);
+
+void Encode_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequirements(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT WorkGraphIndex,
+    D3D12_WORK_GRAPH_MEMORY_REQUIREMENTS* pWorkGraphMemoryRequirements);
+
+void Encode_ID3D12WorkGraphProperties_GetEntrypointRecordAlignmentInBytes(
+    ID3D12WorkGraphProperties_Wrapper* wrapper,
+    UINT return_value,
+    UINT WorkGraphIndex,
+    UINT EntrypointIndex);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_CONFIG& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GLOBAL_ROOT_SIGNATURE& value);
@@ -2442,6 +1546,14 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_GLOBAL_ROOT_SIGNATURE& 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_LOCAL_ROOT_SIGNATURE& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_MASK& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SAMPLE_MASK& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_IB_STRIP_CUT_VALUE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_PRIMITIVE_TOPOLOGY_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_DEPTH_STENCIL_FORMAT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXPORT_DESC& value);
 
@@ -2458,6 +1570,18 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SHADER_CONFI
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_PIPELINE_CONFIG& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_PIPELINE_CONFIG1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_OUTPUT_OVERRIDES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_BROADCASTING_LAUNCH_OVERRIDES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_COALESCING_LAUNCH_OVERRIDES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_THREAD_LAUNCH_OVERRIDES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMMON_COMPUTE_NODE_OVERRIDES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_WORK_GRAPH_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE& value);
 
@@ -2746,6 +1870,20 @@ void Encode_ID3D12MetaCommand_GetRequiredParameterResourceSize(
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_DISPATCH_RAYS_DESC& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_WORK_GRAPH_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_RAYTRACING_PIPELINE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SET_GENERIC_PIPELINE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_CPU_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_GPU_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_MULTI_NODE_CPU_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_MULTI_NODE_GPU_INPUT& value);
+
 void Encode_ID3D12GraphicsCommandList4_BeginRenderPass(
     ID3D12GraphicsCommandList4_Wrapper* wrapper,
     UINT NumRenderTargets,
@@ -2902,6 +2040,24 @@ void Encode_ID3D12Device12_GetResourceAllocationInfo3(
     const DXGI_FORMAT* const* ppCastableFormats,
     D3D12_RESOURCE_ALLOCATION_INFO1* pResourceAllocationInfo1);
 
+void Encode_ID3D12Device13_OpenExistingHeapFromAddress1(
+    ID3D12Device13_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pAddress,
+    SIZE_T size,
+    REFIID riid,
+    void** ppvHeap);
+
+void Encode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
+    ID3D12Device14_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT nodeMask,
+    const void* pLibraryBlob,
+    SIZE_T blobLengthInBytes,
+    LPCWSTR subobjectName,
+    REFIID riid,
+    void** ppvRootSignature);
+
 void Encode_ID3D12VirtualizationGuestDevice_ShareWithHost(
     ID3D12VirtualizationGuestDevice_Wrapper* wrapper,
     HRESULT return_value,
@@ -2922,6 +2078,24 @@ void Encode_ID3D12Tools_EnableShaderInstrumentation(
 void Encode_ID3D12Tools_ShaderInstrumentationEnabled(
     ID3D12Tools_Wrapper* wrapper,
     BOOL return_value);
+
+void Encode_ID3D12Tools1_ReserveGPUVARangesAtCreate(
+    ID3D12Tools1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_GPU_VIRTUAL_ADDRESS_RANGE* pRanges,
+    UINT uiNumRanges);
+
+void Encode_ID3D12Tools1_ClearReservedGPUVARangesList(
+    ID3D12Tools1_Wrapper* wrapper);
+
+void Encode_ID3D12PageableTools_GetAllocation(
+    ID3D12PageableTools_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_GPU_VIRTUAL_ADDRESS_RANGE* pAllocation);
+
+void Encode_ID3D12DeviceTools_SetNextAllocationAddress(
+    ID3D12DeviceTools_Wrapper* wrapper,
+    D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_DATA& value);
 
@@ -3011,6 +2185,15 @@ void Encode_ID3D12DeviceConfiguration_CreateVersionedRootSignatureDeserializer(
     REFIID riid,
     void** ppvDeserializer);
 
+void Encode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(
+    ID3D12DeviceConfiguration1_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pLibraryBlob,
+    SIZE_T Size,
+    LPCWSTR RootSignatureSubobjectName,
+    REFIID riid,
+    void** ppvDeserializer);
+
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     ID3D12GraphicsCommandList5_Wrapper* wrapper,
     D3D12_SHADING_RATE baseShadingRate,
@@ -3048,6 +2231,14 @@ void Encode_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue(
     ID3D12GraphicsCommandList9_Wrapper* wrapper,
     D3D12_INDEX_BUFFER_STRIP_CUT_VALUE IBStripCutValue);
 
+void Encode_ID3D12GraphicsCommandList10_SetProgram(
+    ID3D12GraphicsCommandList10_Wrapper* wrapper,
+    const D3D12_SET_PROGRAM_DESC* pDesc);
+
+void Encode_ID3D12GraphicsCommandList10_DispatchGraph(
+    ID3D12GraphicsCommandList10_Wrapper* wrapper,
+    const D3D12_DISPATCH_GRAPH_DESC* pDesc);
+
 void Encode_ID3D12DSRDeviceFactory_CreateDSRDevice(
     ID3D12DSRDeviceFactory_Wrapper* wrapper,
     HRESULT return_value,
@@ -3055,6 +2246,40 @@ void Encode_ID3D12DSRDeviceFactory_CreateDSRDevice(
     UINT NodeMask,
     REFIID riid,
     void** ppvDSRDevice);
+
+void Encode_ID3D12GBVDiagnostics_GetGBVEntireSubresourceStatesData(
+    ID3D12GBVDiagnostics_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    int* pData,
+    UINT DataSize);
+
+void Encode_ID3D12GBVDiagnostics_GetGBVSubresourceState(
+    ID3D12GBVDiagnostics_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    UINT Subresource,
+    int* pData);
+
+void Encode_ID3D12GBVDiagnostics_GetGBVResourceUniformState(
+    ID3D12GBVDiagnostics_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    int* pData);
+
+void Encode_ID3D12GBVDiagnostics_GetGBVResourceInfo(
+    ID3D12GBVDiagnostics_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D12Resource* pResource,
+    D3D12_RESOURCE_DESC* pResourceDesc,
+    UINT32* pResourceHash,
+    UINT32* pSubresourceStatesByteOffset);
+
+void Encode_ID3D12GBVDiagnostics_GBVReserved0(
+    ID3D12GBVDiagnostics_Wrapper* wrapper);
+
+void Encode_ID3D12GBVDiagnostics_GBVReserved1(
+    ID3D12GBVDiagnostics_Wrapper* wrapper);
 
 
 /*
@@ -3470,6 +2695,1004 @@ void Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
     ID3D12InfoQueue1_Wrapper* wrapper,
     HRESULT return_value,
     DWORD CallbackCookie);
+
+
+/*
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_CreateDXGIFactory(
+    HRESULT return_value,
+    REFIID riid,
+    void** ppFactory);
+
+void Encode_CreateDXGIFactory1(
+    HRESULT return_value,
+    REFIID riid,
+    void** ppFactory);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_MAPPED_RECT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SHARED_RESOURCE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SURFACE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC& value);
+
+void Encode_IDXGIObject_SetPrivateData(
+    IDXGIObject_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID Name,
+    UINT DataSize,
+    const void* pData);
+
+void Encode_IDXGIObject_SetPrivateDataInterface(
+    IDXGIObject_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID Name,
+    const IUnknown* pUnknown);
+
+void Encode_IDXGIObject_GetPrivateData(
+    IDXGIObject_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID Name,
+    UINT* pDataSize,
+    void* pData);
+
+void Encode_IDXGIObject_GetParent(
+    IDXGIObject_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppParent);
+
+void Encode_IDXGIDeviceSubObject_GetDevice(
+    IDXGIDeviceSubObject_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppDevice);
+
+void Encode_IDXGIResource_GetSharedHandle(
+    IDXGIResource_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE* pSharedHandle);
+
+void Encode_IDXGIResource_GetUsage(
+    IDXGIResource_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_USAGE* pUsage);
+
+void Encode_IDXGIResource_SetEvictionPriority(
+    IDXGIResource_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT EvictionPriority);
+
+void Encode_IDXGIResource_GetEvictionPriority(
+    IDXGIResource_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pEvictionPriority);
+
+void Encode_IDXGIKeyedMutex_AcquireSync(
+    IDXGIKeyedMutex_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT64 Key,
+    DWORD dwMilliseconds);
+
+void Encode_IDXGIKeyedMutex_ReleaseSync(
+    IDXGIKeyedMutex_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT64 Key);
+
+void Encode_IDXGISurface_GetDesc(
+    IDXGISurface_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_SURFACE_DESC* pDesc);
+
+void Encode_IDXGISurface_Map(
+    IDXGISurface_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MAPPED_RECT* pLockedRect,
+    UINT MapFlags);
+
+void Encode_IDXGISurface_Unmap(
+    IDXGISurface_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_IDXGISurface1_GetDC(
+    IDXGISurface1_Wrapper* wrapper,
+    HRESULT return_value,
+    BOOL Discard,
+    HDC* phdc);
+
+void Encode_IDXGISurface1_ReleaseDC(
+    IDXGISurface1_Wrapper* wrapper,
+    HRESULT return_value,
+    RECT* pDirtyRect);
+
+void Encode_IDXGIAdapter_EnumOutputs(
+    IDXGIAdapter_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Output,
+    IDXGIOutput** ppOutput);
+
+void Encode_IDXGIAdapter_GetDesc(
+    IDXGIAdapter_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_ADAPTER_DESC* pDesc);
+
+void Encode_IDXGIAdapter_CheckInterfaceSupport(
+    IDXGIAdapter_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID InterfaceName,
+    LARGE_INTEGER* pUMDVersion);
+
+void Encode_IDXGIOutput_GetDesc(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_OUTPUT_DESC* pDesc);
+
+void Encode_IDXGIOutput_GetDisplayModeList(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT EnumFormat,
+    UINT Flags,
+    UINT* pNumModes,
+    DXGI_MODE_DESC* pDesc);
+
+void Encode_IDXGIOutput_FindClosestMatchingMode(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_MODE_DESC* pModeToMatch,
+    DXGI_MODE_DESC* pClosestMatch,
+    IUnknown* pConcernedDevice);
+
+void Encode_IDXGIOutput_WaitForVBlank(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_IDXGIOutput_TakeOwnership(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    BOOL Exclusive);
+
+void Encode_IDXGIOutput_ReleaseOwnership(
+    IDXGIOutput_Wrapper* wrapper);
+
+void Encode_IDXGIOutput_GetGammaControlCapabilities(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_GAMMA_CONTROL_CAPABILITIES* pGammaCaps);
+
+void Encode_IDXGIOutput_SetGammaControl(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_GAMMA_CONTROL* pArray);
+
+void Encode_IDXGIOutput_GetGammaControl(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_GAMMA_CONTROL* pArray);
+
+void Encode_IDXGIOutput_SetDisplaySurface(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGISurface* pScanoutSurface);
+
+void Encode_IDXGIOutput_GetDisplaySurfaceData(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGISurface* pDestination);
+
+void Encode_IDXGIOutput_GetFrameStatistics(
+    IDXGIOutput_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FRAME_STATISTICS* pStats);
+
+void Encode_IDXGISwapChain_Present(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT SyncInterval,
+    UINT Flags);
+
+void Encode_IDXGISwapChain_GetBuffer(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Buffer,
+    REFIID riid,
+    void** ppSurface);
+
+void Encode_IDXGISwapChain_SetFullscreenState(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    BOOL Fullscreen,
+    IDXGIOutput* pTarget);
+
+void Encode_IDXGISwapChain_GetFullscreenState(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    BOOL* pFullscreen,
+    IDXGIOutput** ppTarget);
+
+void Encode_IDXGISwapChain_GetDesc(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_SWAP_CHAIN_DESC* pDesc);
+
+void Encode_IDXGISwapChain_ResizeBuffers(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT BufferCount,
+    UINT Width,
+    UINT Height,
+    DXGI_FORMAT NewFormat,
+    UINT SwapChainFlags);
+
+void Encode_IDXGISwapChain_ResizeTarget(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_MODE_DESC* pNewTargetParameters);
+
+void Encode_IDXGISwapChain_GetContainingOutput(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGIOutput** ppOutput);
+
+void Encode_IDXGISwapChain_GetFrameStatistics(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FRAME_STATISTICS* pStats);
+
+void Encode_IDXGISwapChain_GetLastPresentCount(
+    IDXGISwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pLastPresentCount);
+
+void Encode_IDXGIFactory_EnumAdapters(
+    IDXGIFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Adapter,
+    IDXGIAdapter** ppAdapter);
+
+void Encode_IDXGIFactory_MakeWindowAssociation(
+    IDXGIFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    HWND WindowHandle,
+    UINT Flags);
+
+void Encode_IDXGIFactory_GetWindowAssociation(
+    IDXGIFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    HWND* pWindowHandle);
+
+void Encode_IDXGIFactory_CreateSwapChain(
+    IDXGIFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    DXGI_SWAP_CHAIN_DESC* pDesc,
+    IDXGISwapChain** ppSwapChain);
+
+void Encode_IDXGIFactory_CreateSoftwareAdapter(
+    IDXGIFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    HMODULE Module,
+    IDXGIAdapter** ppAdapter);
+
+void Encode_IDXGIDevice_GetAdapter(
+    IDXGIDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGIAdapter** pAdapter);
+
+void Encode_IDXGIDevice_CreateSurface(
+    IDXGIDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_SURFACE_DESC* pDesc,
+    UINT NumSurfaces,
+    DXGI_USAGE Usage,
+    const DXGI_SHARED_RESOURCE* pSharedResource,
+    IDXGISurface** ppSurface);
+
+void Encode_IDXGIDevice_QueryResourceResidency(
+    IDXGIDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* const* ppResources,
+    DXGI_RESIDENCY* pResidencyStatus,
+    UINT NumResources);
+
+void Encode_IDXGIDevice_SetGPUThreadPriority(
+    IDXGIDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    INT Priority);
+
+void Encode_IDXGIDevice_GetGPUThreadPriority(
+    IDXGIDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    INT* pPriority);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_DISPLAY_COLOR_SPACE& value);
+
+void Encode_IDXGIFactory1_EnumAdapters1(
+    IDXGIFactory1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Adapter,
+    IDXGIAdapter1** ppAdapter);
+
+void Encode_IDXGIFactory1_IsCurrent(
+    IDXGIFactory1_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_IDXGIAdapter1_GetDesc1(
+    IDXGIAdapter1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_ADAPTER_DESC1* pDesc);
+
+void Encode_IDXGIDevice1_SetMaximumFrameLatency(
+    IDXGIDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT MaxLatency);
+
+void Encode_IDXGIDevice1_GetMaximumFrameLatency(
+    IDXGIDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pMaxLatency);
+
+
+/*
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_IDXGIDisplayControl_IsStereoEnabled(
+    IDXGIDisplayControl_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_IDXGIDisplayControl_SetStereoEnabled(
+    IDXGIDisplayControl_Wrapper* wrapper,
+    BOOL enabled);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_MOVE_RECT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_POSITION& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_POINTER_SHAPE_INFO& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTDUPL_FRAME_INFO& value);
+
+void Encode_IDXGIOutputDuplication_GetDesc(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    DXGI_OUTDUPL_DESC* pDesc);
+
+void Encode_IDXGIOutputDuplication_AcquireNextFrame(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT TimeoutInMilliseconds,
+    DXGI_OUTDUPL_FRAME_INFO* pFrameInfo,
+    IDXGIResource** ppDesktopResource);
+
+void Encode_IDXGIOutputDuplication_GetFrameDirtyRects(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT DirtyRectsBufferSize,
+    RECT* pDirtyRectsBuffer,
+    UINT* pDirtyRectsBufferSizeRequired);
+
+void Encode_IDXGIOutputDuplication_GetFrameMoveRects(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT MoveRectsBufferSize,
+    DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer,
+    UINT* pMoveRectsBufferSizeRequired);
+
+void Encode_IDXGIOutputDuplication_GetFramePointerShape(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT PointerShapeBufferSize,
+    void* pPointerShapeBuffer,
+    UINT* pPointerShapeBufferSizeRequired,
+    DXGI_OUTDUPL_POINTER_SHAPE_INFO* pPointerShapeInfo);
+
+void Encode_IDXGIOutputDuplication_MapDesktopSurface(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MAPPED_RECT* pLockedRect);
+
+void Encode_IDXGIOutputDuplication_UnMapDesktopSurface(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_IDXGIOutputDuplication_ReleaseFrame(
+    IDXGIOutputDuplication_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_IDXGISurface2_GetResource(
+    IDXGISurface2_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppParentResource,
+    UINT* pSubresourceIndex);
+
+void Encode_IDXGIResource1_CreateSubresourceSurface(
+    IDXGIResource1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT index,
+    IDXGISurface2** ppSurface);
+
+void Encode_IDXGIResource1_CreateSharedHandle(
+    IDXGIResource1_Wrapper* wrapper,
+    HRESULT return_value,
+    const SECURITY_ATTRIBUTES* pAttributes,
+    DWORD dwAccess,
+    LPCWSTR lpName,
+    HANDLE* pHandle);
+
+void Encode_IDXGIDevice2_OfferResources(
+    IDXGIDevice2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NumResources,
+    IDXGIResource* const* ppResources,
+    DXGI_OFFER_RESOURCE_PRIORITY Priority);
+
+void Encode_IDXGIDevice2_ReclaimResources(
+    IDXGIDevice2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NumResources,
+    IDXGIResource* const* ppResources,
+    BOOL* pDiscarded);
+
+void Encode_IDXGIDevice2_EnqueueSetEvent(
+    IDXGIDevice2_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_MODE_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SWAP_CHAIN_FULLSCREEN_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_PRESENT_PARAMETERS& value);
+
+void Encode_IDXGISwapChain1_GetDesc1(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_SWAP_CHAIN_DESC1* pDesc);
+
+void Encode_IDXGISwapChain1_GetFullscreenDesc(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pDesc);
+
+void Encode_IDXGISwapChain1_GetHwnd(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    HWND* pHwnd);
+
+void Encode_IDXGISwapChain1_GetCoreWindow(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID refiid,
+    void** ppUnk);
+
+void Encode_IDXGISwapChain1_Present1(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT SyncInterval,
+    UINT PresentFlags,
+    const DXGI_PRESENT_PARAMETERS* pPresentParameters);
+
+void Encode_IDXGISwapChain1_IsTemporaryMonoSupported(
+    IDXGISwapChain1_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_IDXGISwapChain1_GetRestrictToOutput(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGIOutput** ppRestrictToOutput);
+
+void Encode_IDXGISwapChain1_SetBackgroundColor(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_RGBA* pColor);
+
+void Encode_IDXGISwapChain1_GetBackgroundColor(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_RGBA* pColor);
+
+void Encode_IDXGISwapChain1_SetRotation(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MODE_ROTATION Rotation);
+
+void Encode_IDXGISwapChain1_GetRotation(
+    IDXGISwapChain1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MODE_ROTATION* pRotation);
+
+void Encode_IDXGIFactory2_IsWindowedStereoEnabled(
+    IDXGIFactory2_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_IDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    HWND hWnd,
+    const DXGI_SWAP_CHAIN_DESC1* pDesc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+    IDXGIOutput* pRestrictToOutput,
+    IDXGISwapChain1** ppSwapChain);
+
+void Encode_IDXGIFactory2_CreateSwapChainForCoreWindow(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    IUnknown* pWindow,
+    const DXGI_SWAP_CHAIN_DESC1* pDesc,
+    IDXGIOutput* pRestrictToOutput,
+    IDXGISwapChain1** ppSwapChain);
+
+void Encode_IDXGIFactory2_GetSharedResourceAdapterLuid(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hResource,
+    LUID* pLuid);
+
+void Encode_IDXGIFactory2_RegisterStereoStatusWindow(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    HWND WindowHandle,
+    UINT wMsg,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIFactory2_RegisterStereoStatusEvent(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIFactory2_UnregisterStereoStatus(
+    IDXGIFactory2_Wrapper* wrapper,
+    DWORD dwCookie);
+
+void Encode_IDXGIFactory2_RegisterOcclusionStatusWindow(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    HWND WindowHandle,
+    UINT wMsg,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIFactory2_RegisterOcclusionStatusEvent(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIFactory2_UnregisterOcclusionStatus(
+    IDXGIFactory2_Wrapper* wrapper,
+    DWORD dwCookie);
+
+void Encode_IDXGIFactory2_CreateSwapChainForComposition(
+    IDXGIFactory2_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    const DXGI_SWAP_CHAIN_DESC1* pDesc,
+    IDXGIOutput* pRestrictToOutput,
+    IDXGISwapChain1** ppSwapChain);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC2& value);
+
+void Encode_IDXGIAdapter2_GetDesc2(
+    IDXGIAdapter2_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_ADAPTER_DESC2* pDesc);
+
+void Encode_IDXGIOutput1_GetDisplayModeList1(
+    IDXGIOutput1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT EnumFormat,
+    UINT Flags,
+    UINT* pNumModes,
+    DXGI_MODE_DESC1* pDesc);
+
+void Encode_IDXGIOutput1_FindClosestMatchingMode1(
+    IDXGIOutput1_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_MODE_DESC1* pModeToMatch,
+    DXGI_MODE_DESC1* pClosestMatch,
+    IUnknown* pConcernedDevice);
+
+void Encode_IDXGIOutput1_GetDisplaySurfaceData1(
+    IDXGIOutput1_Wrapper* wrapper,
+    HRESULT return_value,
+    IDXGIResource* pDestination);
+
+void Encode_IDXGIOutput1_DuplicateOutput(
+    IDXGIOutput1_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    IDXGIOutputDuplication** ppOutputDuplication);
+
+
+/*
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_CreateDXGIFactory2(
+    HRESULT return_value,
+    UINT Flags,
+    REFIID riid,
+    void** ppFactory);
+
+void Encode_DXGIGetDebugInterface1(
+    HRESULT return_value,
+    UINT Flags,
+    REFIID riid,
+    void** pDebug);
+
+void Encode_IDXGIDevice3_Trim(
+    IDXGIDevice3_Wrapper* wrapper);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_MATRIX_3X2_F& value);
+
+void Encode_IDXGISwapChain2_SetSourceSize(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Width,
+    UINT Height);
+
+void Encode_IDXGISwapChain2_GetSourceSize(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pWidth,
+    UINT* pHeight);
+
+void Encode_IDXGISwapChain2_SetMaximumFrameLatency(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT MaxLatency);
+
+void Encode_IDXGISwapChain2_GetMaximumFrameLatency(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pMaxLatency);
+
+void Encode_IDXGISwapChain2_GetFrameLatencyWaitableObject(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HANDLE return_value);
+
+void Encode_IDXGISwapChain2_SetMatrixTransform(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    const DXGI_MATRIX_3X2_F* pMatrix);
+
+void Encode_IDXGISwapChain2_GetMatrixTransform(
+    IDXGISwapChain2_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MATRIX_3X2_F* pMatrix);
+
+void Encode_IDXGIOutput2_SupportsOverlays(
+    IDXGIOutput2_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_IDXGIFactory3_GetCreationFlags(
+    IDXGIFactory3_Wrapper* wrapper,
+    UINT return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_DECODE_SWAP_CHAIN_DESC& value);
+
+void Encode_IDXGIDecodeSwapChain_PresentBuffer(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT BufferToPresent,
+    UINT SyncInterval,
+    UINT Flags);
+
+void Encode_IDXGIDecodeSwapChain_SetSourceRect(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    const RECT* pRect);
+
+void Encode_IDXGIDecodeSwapChain_SetTargetRect(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    const RECT* pRect);
+
+void Encode_IDXGIDecodeSwapChain_SetDestSize(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Width,
+    UINT Height);
+
+void Encode_IDXGIDecodeSwapChain_GetSourceRect(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    RECT* pRect);
+
+void Encode_IDXGIDecodeSwapChain_GetTargetRect(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    RECT* pRect);
+
+void Encode_IDXGIDecodeSwapChain_GetDestSize(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pWidth,
+    UINT* pHeight);
+
+void Encode_IDXGIDecodeSwapChain_SetColorSpace(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS ColorSpace);
+
+void Encode_IDXGIDecodeSwapChain_GetColorSpace(
+    IDXGIDecodeSwapChain_Wrapper* wrapper,
+    DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS return_value);
+
+void Encode_IDXGIFactoryMedia_CreateSwapChainForCompositionSurfaceHandle(
+    IDXGIFactoryMedia_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    HANDLE hSurface,
+    const DXGI_SWAP_CHAIN_DESC1* pDesc,
+    IDXGIOutput* pRestrictToOutput,
+    IDXGISwapChain1** ppSwapChain);
+
+void Encode_IDXGIFactoryMedia_CreateDecodeSwapChainForCompositionSurfaceHandle(
+    IDXGIFactoryMedia_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    HANDLE hSurface,
+    DXGI_DECODE_SWAP_CHAIN_DESC* pDesc,
+    IDXGIResource* pYuvDecodeBuffers,
+    IDXGIOutput* pRestrictToOutput,
+    IDXGIDecodeSwapChain** ppSwapChain);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_FRAME_STATISTICS_MEDIA& value);
+
+void Encode_IDXGISwapChainMedia_GetFrameStatisticsMedia(
+    IDXGISwapChainMedia_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FRAME_STATISTICS_MEDIA* pStats);
+
+void Encode_IDXGISwapChainMedia_SetPresentDuration(
+    IDXGISwapChainMedia_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Duration);
+
+void Encode_IDXGISwapChainMedia_CheckPresentDurationSupport(
+    IDXGISwapChainMedia_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT DesiredPresentDuration,
+    UINT* pClosestSmallerPresentDuration,
+    UINT* pClosestLargerPresentDuration);
+
+void Encode_IDXGIOutput3_CheckOverlaySupport(
+    IDXGIOutput3_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT EnumFormat,
+    IUnknown* pConcernedDevice,
+    UINT* pFlags);
+
+
+/*
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_IDXGISwapChain3_GetCurrentBackBufferIndex(
+    IDXGISwapChain3_Wrapper* wrapper,
+    UINT return_value);
+
+void Encode_IDXGISwapChain3_CheckColorSpaceSupport(
+    IDXGISwapChain3_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_COLOR_SPACE_TYPE ColorSpace,
+    UINT* pColorSpaceSupport);
+
+void Encode_IDXGISwapChain3_SetColorSpace1(
+    IDXGISwapChain3_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_COLOR_SPACE_TYPE ColorSpace);
+
+void Encode_IDXGISwapChain3_ResizeBuffers1(
+    IDXGISwapChain3_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT BufferCount,
+    UINT Width,
+    UINT Height,
+    DXGI_FORMAT Format,
+    UINT SwapChainFlags,
+    const UINT* pCreationNodeMask,
+    IUnknown* const* ppPresentQueue);
+
+void Encode_IDXGIOutput4_CheckOverlayColorSpaceSupport(
+    IDXGIOutput4_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT Format,
+    DXGI_COLOR_SPACE_TYPE ColorSpace,
+    IUnknown* pConcernedDevice,
+    UINT* pFlags);
+
+void Encode_IDXGIFactory4_EnumAdapterByLuid(
+    IDXGIFactory4_Wrapper* wrapper,
+    HRESULT return_value,
+    LUID AdapterLuid,
+    REFIID riid,
+    void** ppvAdapter);
+
+void Encode_IDXGIFactory4_EnumWarpAdapter(
+    IDXGIFactory4_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppvAdapter);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_QUERY_VIDEO_MEMORY_INFO& value);
+
+void Encode_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent(
+    IDXGIAdapter3_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIAdapter3_UnregisterHardwareContentProtectionTeardownStatus(
+    IDXGIAdapter3_Wrapper* wrapper,
+    DWORD dwCookie);
+
+void Encode_IDXGIAdapter3_QueryVideoMemoryInfo(
+    IDXGIAdapter3_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NodeIndex,
+    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+    DXGI_QUERY_VIDEO_MEMORY_INFO* pVideoMemoryInfo);
+
+void Encode_IDXGIAdapter3_SetVideoMemoryReservation(
+    IDXGIAdapter3_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NodeIndex,
+    DXGI_MEMORY_SEGMENT_GROUP MemorySegmentGroup,
+    UINT64 Reservation);
+
+void Encode_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent(
+    IDXGIAdapter3_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
+    IDXGIAdapter3_Wrapper* wrapper,
+    DWORD dwCookie);
+
+
+/*
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_IDXGIOutput5_DuplicateOutput1(
+    IDXGIOutput5_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pDevice,
+    UINT Flags,
+    UINT SupportedFormatsCount,
+    const DXGI_FORMAT* pSupportedFormats,
+    IDXGIOutputDuplication** ppOutputDuplication);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_HDR_METADATA_HDR10PLUS& value);
+
+void Encode_IDXGISwapChain4_SetHDRMetaData(
+    IDXGISwapChain4_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_HDR_METADATA_TYPE Type,
+    UINT Size,
+    void* pMetaData);
+
+void Encode_IDXGIDevice4_OfferResources1(
+    IDXGIDevice4_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NumResources,
+    IDXGIResource* const* ppResources,
+    DXGI_OFFER_RESOURCE_PRIORITY Priority,
+    UINT Flags);
+
+void Encode_IDXGIDevice4_ReclaimResources1(
+    IDXGIDevice4_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT NumResources,
+    IDXGIResource* const* ppResources,
+    DXGI_RECLAIM_RESOURCE_RESULTS* pResults);
+
+
+/*
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_DXGIDeclareAdapterRemovalSupport(
+    HRESULT return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value);
+
+void Encode_IDXGIAdapter4_GetDesc3(
+    IDXGIAdapter4_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_ADAPTER_DESC3* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_OUTPUT_DESC1& value);
+
+void Encode_IDXGIOutput6_GetDesc1(
+    IDXGIOutput6_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_OUTPUT_DESC1* pDesc);
+
+void Encode_IDXGIOutput6_CheckHardwareCompositionSupport(
+    IDXGIOutput6_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pFlags);
+
+void Encode_IDXGIFactory6_EnumAdapterByGpuPreference(
+    IDXGIFactory6_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Adapter,
+    DXGI_GPU_PREFERENCE GpuPreference,
+    REFIID riid,
+    void** ppvAdapter);
+
+void Encode_IDXGIFactory7_RegisterAdaptersChangedEvent(
+    IDXGIFactory7_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
+    IDXGIFactory7_Wrapper* wrapper,
+    HRESULT return_value,
+    DWORD dwCookie);
+
+
+/*
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_RATIONAL& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_SAMPLE_DESC& value);
+
+
+/*
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_RGB& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3DCOLORVALUE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_GAMMA_CONTROL& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_GAMMA_CONTROL_CAPABILITIES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_MODE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_DC_HUFFMAN_TABLE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_AC_HUFFMAN_TABLE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE& value);
 
 
 /*

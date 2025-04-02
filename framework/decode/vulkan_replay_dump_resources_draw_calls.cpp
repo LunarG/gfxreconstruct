@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
+#include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -59,10 +60,11 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
                                                  CommonObjectInfoTable&                    object_info_table,
                                                  const VulkanReplayOptions&                options,
                                                  VulkanDumpResourcesDelegate&              delegate) :
-    original_command_buffer_info(nullptr), current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices),
-    active_renderpass(nullptr), active_framebuffer(nullptr), bound_gr_pipeline{ nullptr }, current_renderpass(0),
-    current_subpass(0), dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE),
-    aux_fence(VK_NULL_HANDLE), device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
+    original_command_buffer_info(nullptr),
+    current_cb_index(0), dc_indices(dc_indices), RP_indices(rp_indices), active_renderpass(nullptr),
+    active_framebuffer(nullptr), bound_gr_pipeline{ nullptr }, current_renderpass(0), current_subpass(0),
+    dump_resources_before(options.dump_resources_before), aux_command_buffer(VK_NULL_HANDLE), aux_fence(VK_NULL_HANDLE),
+    device_table(nullptr), instance_table(nullptr), object_info_table(object_info_table),
     replay_device_phys_mem_props(nullptr), delegate_(delegate), dump_depth(options.dump_resources_dump_depth),
     color_attachment_to_dump(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers(options.dump_resources_dump_vertex_index_buffer),
@@ -143,6 +145,8 @@ void DrawCallsDumpingContext::InsertNewDrawParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallTypes::kDraw, vertex_count, instance_count, first_vertex, first_instance));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
@@ -158,6 +162,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
         std::forward_as_tuple(
             DrawCallTypes::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
@@ -168,6 +174,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
                                  std::forward_as_tuple(index),
                                  std::forward_as_tuple(kDrawIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
@@ -178,6 +186,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallTypes::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t                index,
@@ -198,6 +208,8 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
@@ -218,6 +230,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t                index,
@@ -238,6 +252,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t  
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uint64_t                index,
@@ -258,15 +274,12 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uin
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
+
+    SnapshotState(new_entry.first->second);
 }
 
-VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
+VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParameters& dc_params)
 {
-    auto entry = draw_call_params.find(index);
-    assert(entry != draw_call_params.end());
-
-    DrawCallParameters& dc_params = entry->second;
-
     assert(IsDrawCallIndirect(dc_params.type));
 
     if (IsDrawCallIndirectCount(dc_params.type))
@@ -505,34 +518,100 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
     return VK_SUCCESS;
 }
 
-void DrawCallsDumpingContext::SnapshotBoundDescriptors(uint64_t index)
+void DrawCallsDumpingContext::SnapshotState(DrawCallParameters& dc_params)
 {
-    auto entry = draw_call_params.find(index);
-    assert(entry != draw_call_params.end());
-
-    DrawCallParameters& dc_params = entry->second;
-
-    // Iterate all bound descriptors
-    for (const auto& desc_set : bound_descriptor_sets_gr)
+    // Copy all bound descriptors that are compatible with the current pipeline layout
+    if (bound_gr_pipeline != nullptr)
     {
-        const uint32_t desc_set_index = desc_set.first;
-        for (const auto& desc : desc_set.second.descriptors)
+        for (const auto& [desc_set_index, set_info] : bound_descriptor_sets_gr)
         {
-            const uint32_t desc_binding_index                                    = desc.first;
-            dc_params.referenced_descriptors[desc_set_index][desc_binding_index] = desc.second;
+            // Check against pipeline layout
+            if (bound_gr_pipeline->desc_set_layouts.size() <= desc_set_index)
+            {
+                continue;
+            }
+
+            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            {
+                // Check against pipeline layout
+                const auto layout_entry = bound_gr_pipeline->desc_set_layouts[desc_set_index].find(desc_binding_index);
+                if (layout_entry == bound_gr_pipeline->desc_set_layouts[desc_set_index].end())
+                {
+                    continue;
+                }
+
+                dc_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type = binding_info.desc_type;
+                dc_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
+                    binding_info.stage_flags;
+
+                switch (binding_info.desc_type)
+                {
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        for (const auto& [array_idx, img_info] : binding_info.image_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].image_info[array_idx] =
+                                img_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (const auto& [array_idx, buf_info] : binding_info.buffer_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            dc_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .buffer_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        dc_params.referenced_descriptors[desc_set_index][desc_binding_index].inline_uniform_block =
+                            binding_info.inline_uniform_block;
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
         }
+    }
+
+    // Copy vertex input information
+    CopyVertexInputStateInfo(dc_params);
+
+    // Copy indirect draw params
+    if (IsDrawCallIndirect(dc_params.type))
+    {
+        CopyDrawIndirectParameters(dc_params);
     }
 }
 
-void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
+void DrawCallsDumpingContext::CopyVertexInputStateInfo(DrawCallParameters& dc_params)
 {
-    auto entry = draw_call_params.find(dc_index);
-    assert(entry != draw_call_params.end());
-
-    DrawCallParameters& dc_params = entry->second;
-
-    assert(bound_gr_pipeline != nullptr);
-
     // Pipeline has no vertex binding and/or attribute information.
     // This can be a case of shader generated vertices, or vertex buffer is bound as a UBO
     if (bound_gr_pipeline != nullptr &&
@@ -809,7 +888,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             GFXRECON_ASSERT(dc_param_entry != draw_call_params.end());
             draw_call_info.dc_param = &dc_param_entry->second;
 
-            delegate_.DumpDrawCallInfo(draw_call_info);
+            delegate_.DumpDrawCallInfo(draw_call_info, instance_table);
         }
 
         res = RevertRenderTargetImageLayouts(queue, cb);

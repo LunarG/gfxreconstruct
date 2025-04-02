@@ -47,7 +47,14 @@
     "vkDestroyBuffer": "OverrideDestroyBuffer",
     "vkCreateImage": "OverrideCreateImage",
     "vkDestroyImage": "OverrideDestroyImage",
+    "vkGetBufferMemoryRequirements": "OverrideGetBufferMemoryRequirements",
+    "vkGetBufferMemoryRequirements2": "OverrideGetBufferMemoryRequirements2",
+    "vkGetBufferMemoryRequirements2KHR": "OverrideGetBufferMemoryRequirements2",
     "vkGetImageSubresourceLayout": "OverrideGetImageSubresourceLayout",
+    "vkGetImageMemoryRequirements": "OverrideGetImageMemoryRequirements",
+    "vkGetImageMemoryRequirements2": "OverrideGetImageMemoryRequirements2",
+    "vkGetImageMemoryRequirements2KHR": "OverrideGetImageMemoryRequirements2",
+    "vkGetVideoSessionMemoryRequirementsKHR": "OverrideGetVideoSessionMemoryRequirementsKHR",
     "vkCreateRenderPass": "OverrideCreateRenderPass",
     "vkCreateRenderPass2": "OverrideCreateRenderPass2",
     "vkCreateRenderPass2KHR": "OverrideCreateRenderPass2",
@@ -139,6 +146,7 @@
     "vkCmdBindDescriptorSets2" : "OverrideCmdBindDescriptorSets2",
     "vkCmdExecuteCommands" : "OverrideCmdExecuteCommands",
     "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
-    "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR"
+    "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR",
+    "vkCreatePipelineLayout" : "OverrideCreatePipelineLayout"
   }
 }

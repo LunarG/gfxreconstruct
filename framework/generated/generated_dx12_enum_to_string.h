@@ -28,6 +28,10 @@
 #ifndef  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 #define  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -35,11 +39,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -52,38 +52,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::string ToString(DXGI_RESIDENCY value);
-std::string ToString(DXGI_SWAP_EFFECT value);
-std::string ToString(DXGI_SWAP_CHAIN_FLAG value);
-std::string ToString(DXGI_ADAPTER_FLAG value);
-std::string ToString(DXGI_OUTDUPL_POINTER_SHAPE_TYPE value);
-std::string ToString(DXGI_ALPHA_MODE value);
-std::string ToString(DXGI_OFFER_RESOURCE_PRIORITY value);
-std::string ToString(DXGI_SCALING value);
-std::string ToString(DXGI_GRAPHICS_PREEMPTION_GRANULARITY value);
-std::string ToString(DXGI_COMPUTE_PREEMPTION_GRANULARITY value);
-std::string ToString(DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS value);
-std::string ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(uint32_t flags);
-std::string ToString(DXGI_FRAME_PRESENTATION_MODE value);
-std::string ToString(DXGI_OVERLAY_SUPPORT_FLAG value);
-std::string ToString(DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG value);
-std::string ToString(DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG value);
-std::string ToString(DXGI_MEMORY_SEGMENT_GROUP value);
-std::string ToString(DXGI_OUTDUPL_FLAG value);
-std::string ToString(DXGI_HDR_METADATA_TYPE value);
-std::string ToString(DXGI_OFFER_RESOURCE_FLAGS value);
-std::string ToString_DXGI_OFFER_RESOURCE_FLAGS(uint32_t flags);
-std::string ToString(DXGI_RECLAIM_RESOURCE_RESULTS value);
-std::string ToString(DXGI_FEATURE value);
-std::string ToString(DXGI_ADAPTER_FLAG3 value);
-std::string ToString(DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS value);
-std::string ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(uint32_t flags);
-std::string ToString(DXGI_GPU_PREFERENCE value);
-std::string ToString(DXGI_COLOR_SPACE_TYPE value);
 std::string ToString(DXGI_FORMAT value);
-std::string ToString(DXGI_MODE_SCANLINE_ORDER value);
-std::string ToString(DXGI_MODE_SCALING value);
-std::string ToString(DXGI_MODE_ROTATION value);
 std::string ToString(D3D12_COMMAND_LIST_TYPE value);
 std::string ToString(D3D12_COMMAND_QUEUE_FLAGS value);
 std::string ToString_D3D12_COMMAND_QUEUE_FLAGS(uint32_t flags);
@@ -102,6 +71,7 @@ std::string ToString(D3D12_LOGIC_OP value);
 std::string ToString(D3D12_CONSERVATIVE_RASTERIZATION_MODE value);
 std::string ToString(D3D12_LINE_RASTERIZATION_MODE value);
 std::string ToString(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE value);
+std::string ToString(D3D12_STANDARD_MULTISAMPLE_QUALITY_LEVELS value);
 std::string ToString(D3D12_PIPELINE_STATE_FLAGS value);
 std::string ToString_D3D12_PIPELINE_STATE_FLAGS(uint32_t flags);
 std::string ToString(D3D12_PIPELINE_STATE_SUBOBJECT_TYPE value);
@@ -121,6 +91,7 @@ std::string ToString(D3D12_CROSS_NODE_SHARING_TIER value);
 std::string ToString(D3D12_RESOURCE_HEAP_TIER value);
 std::string ToString(D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER value);
 std::string ToString(D3D12_VIEW_INSTANCING_TIER value);
+std::string ToString(D3D12_WORK_GRAPHS_TIER value);
 std::string ToString(D3D_ROOT_SIGNATURE_VERSION value);
 std::string ToString(D3D_SHADER_MODEL value);
 std::string ToString(D3D12_SHADER_CACHE_SUPPORT_FLAGS value);
@@ -136,6 +107,8 @@ std::string ToString(D3D12_MESH_SHADER_TIER value);
 std::string ToString(D3D12_SAMPLER_FEEDBACK_TIER value);
 std::string ToString(D3D12_WAVE_MMA_TIER value);
 std::string ToString(D3D12_TRI_STATE value);
+std::string ToString(D3D12_RECREATE_AT_TIER value);
+std::string ToString(D3D12_EXECUTE_INDIRECT_TIER value);
 std::string ToString(D3D12_HEAP_TYPE value);
 std::string ToString(D3D12_CPU_PAGE_PROPERTY value);
 std::string ToString(D3D12_MEMORY_POOL value);
@@ -231,6 +204,10 @@ std::string ToString_D3D12_EXPORT_FLAGS(uint32_t flags);
 std::string ToString(D3D12_HIT_GROUP_TYPE value);
 std::string ToString(D3D12_RAYTRACING_PIPELINE_FLAGS value);
 std::string ToString_D3D12_RAYTRACING_PIPELINE_FLAGS(uint32_t flags);
+std::string ToString(D3D12_NODE_OVERRIDES_TYPE value);
+std::string ToString(D3D12_NODE_TYPE value);
+std::string ToString(D3D12_WORK_GRAPH_FLAGS value);
+std::string ToString_D3D12_WORK_GRAPH_FLAGS(uint32_t flags);
 std::string ToString(D3D12_STATE_OBJECT_TYPE value);
 std::string ToString(D3D12_RAYTRACING_GEOMETRY_FLAGS value);
 std::string ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(uint32_t flags);
@@ -264,6 +241,10 @@ std::string ToString(D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE value);
 std::string ToString(D3D12_RENDER_PASS_ENDING_ACCESS_TYPE value);
 std::string ToString(D3D12_RENDER_PASS_FLAGS value);
 std::string ToString_D3D12_RENDER_PASS_FLAGS(uint32_t flags);
+std::string ToString(D3D12_SET_WORK_GRAPH_FLAGS value);
+std::string ToString_D3D12_SET_WORK_GRAPH_FLAGS(uint32_t flags);
+std::string ToString(D3D12_PROGRAM_TYPE value);
+std::string ToString(D3D12_DISPATCH_MODE value);
 std::string ToString(D3D12_SHADER_CACHE_MODE value);
 std::string ToString(D3D12_SHADER_CACHE_FLAGS value);
 std::string ToString_D3D12_SHADER_CACHE_FLAGS(uint32_t flags);
@@ -323,12 +304,44 @@ std::string ToString(D3D12_DEBUG_FEATURE value);
 std::string ToString(D3D12_GPU_BASED_VALIDATION_SHADER_PATCH_MODE value);
 std::string ToString(D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS value);
 std::string ToString_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(uint32_t flags);
+std::string ToString(D3D12_DEBUG_DEVICE_BYTECODE_VALIDATION_MODE value);
 std::string ToString(D3D12_DEBUG_COMMAND_LIST_PARAMETER_TYPE value);
 std::string ToString(D3D12_MESSAGE_CATEGORY value);
 std::string ToString(D3D12_MESSAGE_SEVERITY value);
 std::string ToString(D3D12_MESSAGE_ID value);
 std::string ToString(D3D12_MESSAGE_CALLBACK_FLAGS value);
 std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(uint32_t flags);
+std::string ToString(DXGI_RESIDENCY value);
+std::string ToString(DXGI_SWAP_EFFECT value);
+std::string ToString(DXGI_SWAP_CHAIN_FLAG value);
+std::string ToString(DXGI_ADAPTER_FLAG value);
+std::string ToString(DXGI_OUTDUPL_POINTER_SHAPE_TYPE value);
+std::string ToString(DXGI_ALPHA_MODE value);
+std::string ToString(DXGI_OFFER_RESOURCE_PRIORITY value);
+std::string ToString(DXGI_SCALING value);
+std::string ToString(DXGI_GRAPHICS_PREEMPTION_GRANULARITY value);
+std::string ToString(DXGI_COMPUTE_PREEMPTION_GRANULARITY value);
+std::string ToString(DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS value);
+std::string ToString_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(uint32_t flags);
+std::string ToString(DXGI_FRAME_PRESENTATION_MODE value);
+std::string ToString(DXGI_OVERLAY_SUPPORT_FLAG value);
+std::string ToString(DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG value);
+std::string ToString(DXGI_OVERLAY_COLOR_SPACE_SUPPORT_FLAG value);
+std::string ToString(DXGI_MEMORY_SEGMENT_GROUP value);
+std::string ToString(DXGI_OUTDUPL_FLAG value);
+std::string ToString(DXGI_HDR_METADATA_TYPE value);
+std::string ToString(DXGI_OFFER_RESOURCE_FLAGS value);
+std::string ToString_DXGI_OFFER_RESOURCE_FLAGS(uint32_t flags);
+std::string ToString(DXGI_RECLAIM_RESOURCE_RESULTS value);
+std::string ToString(DXGI_FEATURE value);
+std::string ToString(DXGI_ADAPTER_FLAG3 value);
+std::string ToString(DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS value);
+std::string ToString_DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAGS(uint32_t flags);
+std::string ToString(DXGI_GPU_PREFERENCE value);
+std::string ToString(DXGI_COLOR_SPACE_TYPE value);
+std::string ToString(DXGI_MODE_SCANLINE_ORDER value);
+std::string ToString(DXGI_MODE_SCALING value);
+std::string ToString(DXGI_MODE_ROTATION value);
 std::string ToString(const IID& riid);
 inline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize){ return ToString(obj); }
 

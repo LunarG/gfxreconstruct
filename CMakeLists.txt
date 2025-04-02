@@ -184,7 +184,7 @@ if (MSVC)
     add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if (${D3D12_SUPPORT})
-        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc")
+        set(D3D12_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/external/AgilitySDK/include")
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.

@@ -84,6 +84,12 @@ void MapStructObjects(Decoded_D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION*      wrapp
                       const Dx12ObjectInfoTable&                           object_info_table,
                       const graphics::Dx12GpuVaMap&                        gpu_va_map);
 
+void MapStructObjects(Decoded_D3D12_GENERIC_PROGRAM_DESC*                  wrapper,
+                      StructPointerDecoder<Decoded_D3D12_STATE_SUBOBJECT>* subobjects,
+                      size_t                                               subobject_stride,
+                      const Dx12ObjectInfoTable&                           object_info_table,
+                      const graphics::Dx12GpuVaMap&                        gpu_va_map);
+
 void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
                       const Dx12ObjectInfoTable&               object_info_table,
                       const graphics::Dx12GpuVaMap&            gpu_va_map);
@@ -91,6 +97,14 @@ void MapStructObjects(Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC* wrapper,
 void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
                       const Dx12ObjectInfoTable&    object_info_table,
                       const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_SET_PROGRAM_DESC* wrapper,
+                      const Dx12ObjectInfoTable&      object_info_table,
+                      const graphics::Dx12GpuVaMap&   gpu_va_map);
+
+void MapStructObjects(Decoded_D3D12_DISPATCH_GRAPH_DESC* wrapper,
+                      const Dx12ObjectInfoTable&         object_info_table,
+                      const graphics::Dx12GpuVaMap&      gpu_va_map);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

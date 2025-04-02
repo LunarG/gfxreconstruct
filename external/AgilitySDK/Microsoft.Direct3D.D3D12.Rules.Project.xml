@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule
+      Name="Microsoft_Direct3D_D3D12"
+      DisplayName="D3D12 NuGet"
+      Order="70"
+      PageTemplate="generic"
+      Description="Options for the Microsoft.Direct3D.D3D12 NuGet Package"
+      xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.Categories>
+    <Category Name="General" DisplayName="General" />
+  </Rule.Categories>
+
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" Label="Globals" />
+  </Rule.DataSource>
+
+  <StringProperty Name="Microsoft_Direct3D_D3D12_D3D12SDKPath"
+                DisplayName="D3D12SDKPath"
+                Description="Specify the exe relative D3D12SDKPath export to modify the copy destination for d3d12core.dll etc."
+                Category="General" />
+
+  <BoolProperty Name="Microsoft_Direct3D_D3D12_SkipLibraryCopy"
+                DisplayName="Disable Library Copy"
+                Description="Disables copying D3D12Core.dll and D3D12Core.pdb into the project output directory."
+                Category="General" />
+
+  <BoolProperty Name="Microsoft_Direct3D_D3D12_SkipDebugLayerCopy"
+                DisplayName="Disable Debug Layer Copy"
+                Description="Disables copying D3D12SDKLayers.dll and D3D12SDKLayers.pdb into the project output directory. This 'debug layer' is used for development only."
+                Category="General" />
+
+  <BoolProperty Name="Microsoft_Direct3D_D3D12_SkipIncludeDir"
+                DisplayName="Disable Include Directory"
+                Description="Disables appending the package's include folder as an additional include directory."
+                Category="General" />
+
+</Rule>

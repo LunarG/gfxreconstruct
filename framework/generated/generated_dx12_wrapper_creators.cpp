@@ -33,6 +33,10 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <dxgiformat.h>
+#include <d3d12.h>
+#include <d3dcommon.h>
+#include <d3d12sdklayers.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -40,11 +44,7 @@
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
 #include <dxgicommon.h>
-#include <dxgiformat.h>
 #include <dxgitype.h>
-#include <d3d12.h>
-#include <d3dcommon.h>
-#include <d3d12sdklayers.h>
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
@@ -75,266 +75,6 @@ void WrapObjectArray(REFIID riid, void** object, UINT num_object, DxWrapperResou
     for (UINT i = 0; i < num_object; i++)
     {
         WrapObject(riid, &object[i], resources);
-    }
-}
-
-void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIKeyedMutex_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIKeyedMutex_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIDisplayControl(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIDisplayControl_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIDisplayControl_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIOutputDuplication(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIOutputDuplication_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIOutputDuplication_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGISurface(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGISurface_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGISurface2_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIResource(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIResource_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIResource1_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIDecodeSwapChain(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIDecodeSwapChain_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIFactoryMedia(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIFactoryMedia_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIFactoryMedia_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGISwapChainMedia(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGISwapChainMedia_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGISwapChainMedia_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGISwapChain(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGISwapChain_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGISwapChain4_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIDevice(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIDevice_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIDevice4_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIAdapter(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIAdapter_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIAdapter4_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIOutput(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIOutput_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIOutput6_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapIDXGIFactory(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = IDXGIFactory_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new IDXGIFactory7_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -654,7 +394,27 @@ void WrapID3D12StateObjectProperties(REFIID riid, void** object, DxWrapperResour
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12StateObjectProperties_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12StateObjectProperties1_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12WorkGraphProperties(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12WorkGraphProperties_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12WorkGraphProperties_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -814,7 +574,7 @@ void WrapID3D12Device(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12Device12_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12Device14_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -854,7 +614,47 @@ void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12Tools_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12Tools1_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12PageableTools(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12PageableTools_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12PageableTools_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12DeviceTools(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12DeviceTools_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12DeviceTools_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -914,7 +714,7 @@ void WrapID3D12DeviceConfiguration(REFIID riid, void** object, DxWrapperResource
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12DeviceConfiguration_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12DeviceConfiguration1_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -934,7 +734,7 @@ void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resou
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12GraphicsCommandList9_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12GraphicsCommandList10_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -955,6 +755,26 @@ void WrapID3D12DSRDeviceFactory(REFIID riid, void** object, DxWrapperResources* 
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
         (*object) = new ID3D12DSRDeviceFactory_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D12GBVDiagnostics(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D12GBVDiagnostics_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D12GBVDiagnostics_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -1215,6 +1035,266 @@ void WrapID3D12InfoQueue(REFIID riid, void** object, DxWrapperResources* resourc
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
         (*object) = new ID3D12InfoQueue1_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIKeyedMutex_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIKeyedMutex_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIDisplayControl(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIDisplayControl_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIDisplayControl_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIOutputDuplication(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIOutputDuplication_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIOutputDuplication_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGISurface(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGISurface_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGISurface2_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIResource(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIResource_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIResource1_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIDecodeSwapChain(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIDecodeSwapChain_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIDecodeSwapChain_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIFactoryMedia(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIFactoryMedia_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIFactoryMedia_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGISwapChainMedia(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGISwapChainMedia_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGISwapChainMedia_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGISwapChain(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGISwapChain_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGISwapChain4_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIDevice(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIDevice_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIDevice4_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIAdapter(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIAdapter_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIAdapter4_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIOutput(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIOutput_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIOutput6_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapIDXGIFactory(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = IDXGIFactory_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new IDXGIFactory7_Wrapper(riid, *wrap_object, resources);
     }
 }
 
