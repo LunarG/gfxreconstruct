@@ -55,11 +55,11 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  VulkanDumpResourcesDelegate& delegate) :
     original_command_buffer_info(nullptr),
     DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices), trace_rays_indices(trace_rays_indices),
-    dump_resources_before(options.dump_resources_before), device_table(nullptr), parent_device(VK_NULL_HANDLE),
-    instance_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
-    current_dispatch_index(0), current_trace_rays_index(0), delegate_(delegate),
-    dump_immutable_resources(options.dump_resources_dump_immutable_resources), reached_end_command_buffer(false),
-    bound_pipeline_compute(nullptr), bound_pipeline_trace_rays(nullptr)
+    dump_resources_before(options.dump_resources_before), delegate_(delegate),
+    dump_immutable_resources(options.dump_resources_dump_immutable_resources), bound_pipeline_compute(nullptr),
+    bound_pipeline_trace_rays(nullptr), device_table(nullptr), parent_device(VK_NULL_HANDLE), instance_table(nullptr),
+    object_info_table(object_info_table), replay_device_phys_mem_props(nullptr), current_dispatch_index(0),
+    current_trace_rays_index(0), reached_end_command_buffer(false)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()

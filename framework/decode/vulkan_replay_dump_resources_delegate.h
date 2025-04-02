@@ -123,7 +123,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                        CommonObjectInfoTable&     object_info_table,
                                        const std::string          capture_filename) :
         VulkanDumpResourcesDelegate(options, capture_filename),
-        options_(options), object_info_table_(object_info_table), dump_json_(options),
+        dump_json_(options), options_(options), object_info_table_(object_info_table),
         capture_filename_(capture_filename)
     {}
     virtual ~DefaultVulkanDumpResourcesDelegate() {}

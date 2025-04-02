@@ -102,7 +102,7 @@ static NSString* NSStringFromStdString(const std::string& std_string)
 }
 
 MetalWindow::MetalWindow(MetalContext* metal_context) :
-    metal_context_(metal_context), window_(nil), window_delegate_(nil), layer_(nil), width_(0), height_(0)
+    window_delegate_(nil), metal_context_(metal_context), window_(nil), layer_(nil), width_(0), height_(0)
 {}
 
 MetalWindow::~MetalWindow() = default;
