@@ -116,6 +116,23 @@ struct replacer_params_t
     uint32_t        num_handles;
 };
 
+struct sorted_array_t
+{
+    VkDeviceAddress storage;
+    uint32_t        size;
+    uint32_t        pad;
+};
+
+struct replacer_params_binary_t
+{
+    sorted_array_t address_array;
+    hashmap_t      address_blacklist;
+
+    // input-/output-arrays can be identical when sbt-alignments/strides match
+    VkDeviceAddress input_handles, output_handles;
+    uint32_t        num_handles;
+};
+
 decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept :
     buffer_context_t()
 {
@@ -281,25 +298,17 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting mismatching "
                                "buffer-device-addresses in-place using a compute-dispatch");
 
-        hashmap_bda_.clear();
+        storage_bda_binary_.clear();
 
         // populate hashmap
         auto address_map = address_tracker.GetBufferDeviceAddressMap();
         for (const auto& [capture_address, replay_address] : address_map)
         {
-            hashmap_bda_.put(capture_address, replay_address);
-
-            // NOTE: this is correct but very slow.
-            // TODO: switch from hashmap to binary-search lookup to support offset-addresses
-            // generate offset-addresses for entire buffer-range
-            //            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
-            //            if (buffer_info != nullptr)
-            //            {
-            //                for (uint32_t offset = 0; offset < buffer_info->size; offset += sizeof(VkDeviceAddress))
-            //                {
-            //                    hashmap_bda_.put(capture_address + offset, replay_address + offset);
-            //                }
-            //            }
+            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+            if (buffer_info != nullptr)
+            {
+                storage_bda_binary_.push_back({ capture_address, replay_address, buffer_info->size });
+            }
         }
 
         if (command_buffer_info != nullptr)
@@ -553,7 +562,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         // get a context for this command-buffer
         auto& pipeline_context_sbt = pipeline_context_map_[command_buffer_info->handle].emplace_back();
 
-        if (!create_buffer(pipeline_context_sbt.hashmap_storage,
+        if (!create_buffer(pipeline_context_sbt.storage_array,
                            hashmap_sbt_.get_storage(nullptr),
                            0,
                            0,
@@ -562,7 +571,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         {
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
         }
-        hashmap_sbt_.get_storage(pipeline_context_sbt.hashmap_storage.mapped_data);
+        hashmap_sbt_.get_storage(pipeline_context_sbt.storage_array.mapped_data);
 
         // input-handles
         constexpr uint32_t max_num_handles = 512;
@@ -601,7 +610,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
 
         replacer_params_t replacer_params = {};
-        replacer_params.hashmap.storage   = pipeline_context_sbt.hashmap_storage.device_address;
+        replacer_params.hashmap.storage   = pipeline_context_sbt.storage_array.device_address;
         replacer_params.hashmap.size      = hashmap_sbt_.size();
         replacer_params.hashmap.capacity  = hashmap_sbt_.capacity();
 
@@ -977,7 +986,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     if (!addresses_to_replace.empty())
     {
         // prepare linear hashmap
-        hashmap_bda_.clear();
+        storage_bda_binary_.clear();
         auto acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
         for (const auto& [capture_address, replay_address] : acceleration_structure_map)
         {
@@ -1000,7 +1009,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
                 // store addresses we will need to replace
                 GFXRECON_ASSERT(new_address != 0);
-                hashmap_bda_.put(capture_address, new_address);
+                storage_bda_binary_.push_back({ capture_address, new_address });
             }
         }
 
@@ -1324,14 +1333,14 @@ bool VulkanAddressReplacer::init_pipeline()
         return result;
     };
 
-    // create SBT pipeline
+    // create SBT pipeline (hashmap search)
     if (create_pipeline(pipeline_layout_, g_replacer_sbt_comp, pipeline_sbt_) != VK_SUCCESS)
     {
         return false;
     }
 
-    // create BDA pipeline
-    if (create_pipeline(pipeline_layout_, g_replacer_bda_comp, pipeline_bda_) != VK_SUCCESS)
+    // create BDA pipeline (binary search)
+    if (create_pipeline(pipeline_layout_, g_replacer_bda_binary_comp, pipeline_bda_) != VK_SUCCESS)
     {
         return false;
     }
@@ -1649,10 +1658,13 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                                 const decode::VulkanDeviceAddressTracker& address_tracker,
                                                 VkPipelineStageFlags                      sync_stage)
 {
-    if (addresses == nullptr || !num_addresses || hashmap_bda_.empty())
+    if (addresses == nullptr || !num_addresses || storage_bda_binary_.empty())
     {
         return;
     }
+
+    // sort array to allow binary-search
+    std::sort(storage_bda_binary_.begin(), storage_bda_binary_.end());
 
     std::unordered_set<VkBuffer> buffer_set;
     for (uint32_t i = 0; i < num_addresses; ++i)
@@ -1671,24 +1683,59 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
     {
-        GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::run_compute_replace(): internal pipeline-creation failed",
-                                  __func__)
+        GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::run_compute_replace(): internal pipeline-creation failed")
         return;
     }
 
-    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
+    // blacklist hashmap storage  >= 16 bytes * 2^20 slots
+    constexpr uint32_t hashmap_elem_size = 2 * sizeof(VkDeviceSize);
+    uint32_t           hashmap_num_slots = std::max<uint32_t>(1U << 20, util::next_pow_2(num_addresses * 4));
+    uint32_t           hashmap_size      = hashmap_elem_size * hashmap_num_slots;
 
-    if (!create_buffer(pipeline_context_bda.hashmap_storage,
-                       hashmap_bda_.get_storage(nullptr),
+    auto prev_buffer = hashmap_storage_bda_binary_.buffer;
+
+    // global hashmap with atomic access, containing addresses which have already been replaced previously
+    if (!create_buffer(hashmap_storage_bda_binary_,
+                       hashmap_size,
+                       VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                       0,
+                       false,
+                       "GFXR VulkanAddressReplacer hashmap_storage_bda_binary_"))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap_storage_bda_binary_ creation failed");
+        return;
+    }
+
+    // init hashmap storage
+    if (prev_buffer != hashmap_storage_bda_binary_.buffer)
+    {
+        device_table_->CmdFillBuffer(
+            command_buffer_info->handle, hashmap_storage_bda_binary_.buffer, 0, hashmap_size, 0);
+        barrier(command_buffer_info->handle,
+                hashmap_storage_bda_binary_.buffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_ACCESS_TRANSFER_WRITE_BIT,
+                VK_SHADER_STAGE_COMPUTE_BIT,
+                VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+    }
+
+    auto&    pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
+    uint32_t storage_size         = std::max<uint32_t>(sizeof(bda_element_t) * storage_bda_binary_.size(), 1U << 10U);
+
+    if (!create_buffer(pipeline_context_bda.storage_array,
+                       storage_size,
                        0,
                        0,
                        true,
-                       "GFXR VulkanAddressReplacer hashmap_storage_bda"))
+                       "GFXR VulkanAddressReplacer storage_bda_binary_"))
     {
-        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: storage-buffer creation failed");
         return;
     }
-    hashmap_bda_.get_storage(pipeline_context_bda.hashmap_storage.mapped_data);
+
+    memcpy(pipeline_context_bda.storage_array.mapped_data,
+           storage_bda_binary_.data(),
+           sizeof(bda_element_t) * storage_bda_binary_.size());
 
     uint32_t num_bytes = num_addresses * sizeof(VkDeviceAddress);
 
@@ -1704,10 +1751,16 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     }
     memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses, num_bytes);
 
-    replacer_params_t replacer_params = {};
-    replacer_params.hashmap.storage   = pipeline_context_bda.hashmap_storage.device_address;
-    replacer_params.hashmap.size      = hashmap_bda_.size();
-    replacer_params.hashmap.capacity  = hashmap_bda_.capacity();
+    replacer_params_binary_t replacer_params = {};
+
+    // actually a sorted array
+    replacer_params.address_array.storage = pipeline_context_bda.storage_array.device_address;
+    replacer_params.address_array.size    = storage_bda_binary_.size();
+
+    // blacklist hashmap
+    replacer_params.address_blacklist.storage  = hashmap_storage_bda_binary_.device_address;
+    replacer_params.address_blacklist.size     = 0;
+    replacer_params.address_blacklist.capacity = hashmap_num_slots;
 
     // in-place
     replacer_params.input_handles  = pipeline_context_bda.input_handle_buffer.device_address;
@@ -1722,7 +1775,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                     pipeline_layout_,
                                     VK_SHADER_STAGE_COMPUTE_BIT,
                                     0,
-                                    sizeof(replacer_params_t),
+                                    sizeof(replacer_params_binary_t),
                                     &replacer_params);
     // dispatch workgroups
     constexpr uint32_t wg_size = 32;
