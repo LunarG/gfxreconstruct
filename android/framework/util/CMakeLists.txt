@@ -1,8 +1,5 @@
 add_library(gfxrecon_util STATIC "")
 
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
-find_package(nlohmann_json REQUIRED)
-
 target_sources(gfxrecon_util
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
