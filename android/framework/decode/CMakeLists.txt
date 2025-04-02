@@ -1,6 +1,3 @@
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
-find_package(nlohmann_json REQUIRED)
-
 add_library(gfxrecon_decode STATIC "")
 
 target_sources(gfxrecon_decode
@@ -147,5 +144,4 @@ target_link_libraries(gfxrecon_decode
                       vulkan_registry
                       vulkan_memory_allocator
                       platform_specific
-                      nlohmann_json::nlohmann_json
                       spirv-reflect-static)

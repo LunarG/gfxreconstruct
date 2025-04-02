@@ -1,6 +1,9 @@
 set(CMAKE_CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 
+list(APPEND CMAKE_PREFIX_PATH "${GFXRECON_SOURCE_DIR}/external/nlohmann-json")
+find_package(nlohmann_json REQUIRED)
+
 set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/external/cmake-modules")
 
 # Version info
@@ -64,9 +67,6 @@ target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_
 
 add_library(spirv_registry INTERFACE)
 target_include_directories(spirv_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/SPIRV-Headers/include)
-
-add_library(nlohmann_json INTERFACE)
-target_include_directories(nlohmann_json INTERFACE ${GFXRECON_SOURCE_DIR}/external/nlohmann)
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_include_directories(vulkan_memory_allocator INTERFACE ${GFXRECON_SOURCE_DIR}/external/VulkanMemoryAllocator/include)

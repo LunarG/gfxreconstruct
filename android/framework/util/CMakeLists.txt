@@ -1,5 +1,8 @@
 add_library(gfxrecon_util STATIC "")
 
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
+find_package(nlohmann_json REQUIRED)
+
 target_sources(gfxrecon_util
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
@@ -69,7 +72,6 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
-                               ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_util
@@ -77,6 +79,7 @@ target_link_libraries(gfxrecon_util
                           vulkan_registry
                           spirv_registry
                           spirv-reflect-static
+                          nlohmann_json::nlohmann_json
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
                           z)
