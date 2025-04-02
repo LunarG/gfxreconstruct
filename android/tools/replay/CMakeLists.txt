@@ -5,10 +5,12 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(gfxrecon-replay)
 
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../external/nlohmann-json")
-find_package(nlohmann_json REQUIRED)
-
 get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
+
+# because the NDK sets CMAKE_FIND_ROOT_PATH_MODE_*  to ONLY, it ignores
+# us setting CMAKE_PREFIX_PATH.  So just set the package DIR directly.
+set(nlohmann_json_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../external/nlohmann-json/share/cmake/nlohmann_json")
+find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAULT_PATH)
 
 add_library(native_app_glue STATIC
         ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
