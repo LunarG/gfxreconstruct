@@ -5273,17 +5273,40 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pBuffer != nullptr) && !pBuffer->IsNull() &&
-           (pBuffer->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfo != nullptr) && (pBuffer != nullptr) &&
+                    !pBuffer->IsNull() && (pBuffer->GetHandlePointer() != nullptr));
 
     auto allocator = device_info->allocator.get();
-    assert(allocator != nullptr);
+    GFXRECON_ASSERT(allocator != nullptr);
 
     VkResult                              result = VK_SUCCESS;
     VulkanResourceAllocator::ResourceData allocator_data;
-    auto                                  replay_buffer      = pBuffer->GetHandlePointer();
-    auto                                  capture_id         = (*pBuffer->GetPointer());
-    auto                                  replay_create_info = pCreateInfo->GetPointer();
+    auto                                  replay_buffer = pBuffer->GetHandlePointer();
+    auto                                  capture_id    = (*pBuffer->GetPointer());
+
+    // We may need to update the create info struct, so make a copy of it for now.
+    auto               replay_create_info   = pCreateInfo->GetPointer();
+    VkBufferCreateInfo modified_create_info = *replay_create_info;
+
+    VkExternalMemoryBufferCreateInfo* external_memory =
+        graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+
+    if (external_memory && external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+    {
+        // If external memory exists and is for an Opaque FD, we need to strip out the structure
+        // since during replay we convert the allocate memory to a standard memory type.
+        if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+        {
+            GFXRECON_LOG_INFO("OverrideCreateBuffer removing VkExternalMemoryBufferCreateInfo");
+            graphics::vulkan_struct_remove_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+        }
+        // Otherwise, just strip out the flag
+        else
+        {
+            GFXRECON_LOG_INFO("OverrideCreateBuffer filtering OPAQUE_FD flag in VkExternalMemoryBufferCreateInfo");
+            external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+        }
+    }
 
     // Check for a buffer device address.
     bool uses_address = false;
@@ -5304,8 +5327,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
         // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
         // VK_BUFFER_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
-        auto modified_create_info = const_cast<VkBufferCreateInfo*>(replay_create_info);
-        modified_create_info->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay &&
@@ -5328,8 +5350,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if (uses_address)
     {
-        VkBufferCreateInfo modified_create_info = (*replay_create_info);
-
         VkBufferOpaqueCaptureAddressCreateInfo address_info = {
             VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
         };
@@ -5359,7 +5379,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     }
     else if (force_address)
     {
-        VkBufferCreateInfo modified_create_info = (*replay_create_info);
         modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         result = allocator->CreateBuffer(
             &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
@@ -5367,7 +5386,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     else
     {
         result = allocator->CreateBuffer(
-            replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
@@ -5434,15 +5453,19 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pImage != nullptr) &&
-           (pImage->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfo != nullptr) && (pImage != nullptr) &&
+                    (pImage->GetHandlePointer() != nullptr));
 
     auto allocator = device_info->allocator.get();
-    assert(allocator != nullptr);
+    GFXRECON_ASSERT(allocator != nullptr);
+    GFXRECON_ASSERT(pCreateInfo != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_data;
     auto                                  replay_image = pImage->GetHandlePointer();
     auto                                  capture_id   = (*pImage->GetPointer());
+
+    auto              replay_create_info   = pCreateInfo->GetPointer();
+    VkImageCreateInfo modified_create_info = *replay_create_info;
 
     if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
@@ -5452,50 +5475,67 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         // VK_IMAGE_USAGE_TRANSFER_SRC_BIT to keep things consistent with capture.
 
         // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
-        auto modified_create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
-        modified_create_info->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 
-    auto* create_info = const_cast<VkImageCreateInfo*>(pCreateInfo->GetPointer());
-    // The original image might be external.
-    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(create_info);
-    // The external memory might be an unknown format.
-    auto* external_format     = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(create_info);
+    // The original image might be external and it might be an unknown format, so perform any
+    // work necessary to handle these scenarios.
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
+    auto* external_format = graphics::vulkan_struct_get_pnext<VkExternalFormatANDROID>(&modified_create_info);
     bool  has_external_format = external_format != nullptr && external_format->externalFormat != 0;
-    if (create_info->format == VK_FORMAT_UNDEFINED && external_memory != nullptr && has_external_format)
+    if (external_memory != nullptr)
     {
-        // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
-        create_info->format             = VK_FORMAT_R8G8B8A8_UNORM;
-        external_format->externalFormat = 0;
+        if (modified_create_info.format == VK_FORMAT_UNDEFINED && has_external_format)
+        {
+            // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
+            modified_create_info.format     = VK_FORMAT_R8G8B8A8_UNORM;
+            external_format->externalFormat = 0;
+        }
+
+        if (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+        {
+            // If external memory exists and is for an Opaque FD, we need to strip out the structure
+            // since during replay we convert the allocate memory to a standard memory type.
+            if (external_memory->handleTypes == VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
+            {
+                GFXRECON_LOG_INFO("OverrideCreateImage removing VkExternalMemoryImageCreateInfo");
+                graphics::vulkan_struct_remove_pnext<VkExternalMemoryImageCreateInfo>(&modified_create_info);
+                external_memory = nullptr;
+            }
+            // Otherwise, just strip out the flag
+            else
+            {
+                GFXRECON_LOG_INFO("OverrideCreateImage filtering OPAQUE_FD flag in VkExternalMemoryImageCreateInfo");
+                external_memory->handleTypes &= ~VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+            }
+        }
     }
 
     VkResult result = allocator->CreateImage(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
+        &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
-    auto replay_create_info = pCreateInfo->GetPointer();
-
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
+    if ((result == VK_SUCCESS) && ((*replay_image) != VK_NULL_HANDLE))
     {
         auto image_info = reinterpret_cast<VulkanImageInfo*>(pImage->GetConsumerData(0));
-        assert(image_info != nullptr);
+        GFXRECON_ASSERT(image_info != nullptr);
 
         image_info->allocator_data = allocator_data;
-        image_info->usage          = replay_create_info->usage;
-        image_info->type           = replay_create_info->imageType;
-        image_info->format         = replay_create_info->format;
-        image_info->extent         = replay_create_info->extent;
-        image_info->tiling         = replay_create_info->tiling;
-        image_info->sample_count   = replay_create_info->samples;
-        image_info->initial_layout = replay_create_info->initialLayout;
-        image_info->layer_count    = replay_create_info->arrayLayers;
-        image_info->level_count    = replay_create_info->mipLevels;
+        image_info->usage          = modified_create_info.usage;
+        image_info->type           = modified_create_info.imageType;
+        image_info->format         = modified_create_info.format;
+        image_info->extent         = modified_create_info.extent;
+        image_info->tiling         = modified_create_info.tiling;
+        image_info->sample_count   = modified_create_info.samples;
+        image_info->initial_layout = modified_create_info.initialLayout;
+        image_info->layer_count    = modified_create_info.arrayLayers;
+        image_info->level_count    = modified_create_info.mipLevels;
 
-        image_info->current_layout = replay_create_info->initialLayout;
+        image_info->current_layout = modified_create_info.initialLayout;
 
-        if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
-            (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
+        if ((modified_create_info.sharingMode == VK_SHARING_MODE_CONCURRENT) &&
+            (modified_create_info.queueFamilyIndexCount > 0) && (modified_create_info.pQueueFamilyIndices != nullptr))
         {
-            image_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
+            image_info->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
         else
         {
