@@ -58,6 +58,19 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 
 bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit);
 
+/**
+ * @brief   copy_dispatch_table_from_device can be used if a command-buffer was not allocated through the loader,
+ *          in order to assign the dispatch table from an existing VkDevice.
+ *
+ * @param   device  a VkDevice handle
+ * @param   handle  a VkCommandBuffer handle
+ */
+static inline void copy_dispatch_table_from_device(VkDevice device, VkCommandBuffer handle)
+{
+    // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+    *reinterpret_cast<void**>(handle) = *reinterpret_cast<void**>(device);
+}
+
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
 GFXRECON_END_NAMESPACE(graphics)
