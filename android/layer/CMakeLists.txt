@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(VkLayer_gfxreconstruct)
-
 get_filename_component(GFXRECON_SOURCE_DIR ../.. ABSOLUTE)
+
+list(APPEND CMAKE_PREFIX_PATH "${GFXRECON_SOURCE_DIR}/external/nlohmann-json")
+find_package(nlohmann_json REQUIRED)
+
+project(VkLayer_gfxreconstruct)
 
 include(../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../framework/util ${CMAKE_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
