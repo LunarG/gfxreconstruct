@@ -43,7 +43,6 @@ target_include_directories(gfxrecon-replay
 
 target_link_libraries(
         gfxrecon-replay
-        nlohmann_json::nlohmann_json
         gfxrecon_application
         gfxrecon_decode
         gfxrecon_graphics

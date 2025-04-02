@@ -34,7 +34,6 @@ target_link_libraries(VkLayer_gfxreconstruct
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
-                      nlohmann_json::nlohmann_json
                       vulkan_registry
                       platform_specific
                       android
