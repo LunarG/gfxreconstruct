@@ -100,37 +100,39 @@ struct QueueSubmitHelper
     }
 };
 
-struct hashmap_t
+//! this struct groups data for an array in gpu-memory (either host- or device-visible)
+//! it's purpose is to serve as storage for sorted arrays (used for binary searches) or as linear hashmap-storage.
+struct gpu_array_t
 {
-    VkDeviceAddress storage;
-    uint32_t        size;
-    uint32_t        capacity;
+    VkDeviceAddress storage  = 0;
+    uint32_t        size     = 0;
+    uint32_t        capacity = 0;
 };
 
-struct replacer_params_t
+//! parameter-struct passed to SBT-replacer compute-shaders
+struct replacer_params_sbt_t
 {
-    hashmap_t hashmap;
+    gpu_array_t hashmap = {};
 
     // input-/output-arrays can be identical when sbt-alignments/strides match
-    VkDeviceAddress input_handles, output_handles;
-    uint32_t        num_handles;
+    VkDeviceAddress input_handles  = 0;
+    VkDeviceAddress output_handles = 0;
+    uint32_t        num_handles    = 0;
 };
 
-struct sorted_array_t
+//! parameter-struct passed to BDA-replacer compute-shaders
+struct replacer_params_bda_t
 {
-    VkDeviceAddress storage;
-    uint32_t        size;
-    uint32_t        pad;
-};
+    // sorted(!) array of bda_element_t, used for mapping device-address from capture -> replay.
+    gpu_array_t address_array = {};
 
-struct replacer_params_binary_t
-{
-    sorted_array_t address_array;
-    hashmap_t      address_blacklist;
+    // opaque storage for a hashmap, cache addresses that have already been replaced
+    gpu_array_t address_blacklist = {};
 
     // input-/output-arrays can be identical when sbt-alignments/strides match
-    VkDeviceAddress input_handles, output_handles;
-    uint32_t        num_handles;
+    VkDeviceAddress input_handles  = 0;
+    VkDeviceAddress output_handles = 0;
+    uint32_t        num_handles    = 0;
 };
 
 decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept :
@@ -609,10 +611,10 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             }
         }
 
-        replacer_params_t replacer_params = {};
-        replacer_params.hashmap.storage   = pipeline_context_sbt.storage_array.device_address;
-        replacer_params.hashmap.size      = hashmap_sbt_.size();
-        replacer_params.hashmap.capacity  = hashmap_sbt_.capacity();
+        replacer_params_sbt_t replacer_params = {};
+        replacer_params.hashmap.storage       = pipeline_context_sbt.storage_array.device_address;
+        replacer_params.hashmap.size          = hashmap_sbt_.size();
+        replacer_params.hashmap.capacity      = hashmap_sbt_.capacity();
 
         replacer_params.input_handles = pipeline_context_sbt.input_handle_buffer.device_address;
         replacer_params.num_handles   = num_addresses;
@@ -722,7 +724,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                                         pipeline_layout_,
                                         VK_SHADER_STAGE_COMPUTE_BIT,
                                         0,
-                                        sizeof(replacer_params_t),
+                                        sizeof(replacer_params_sbt_t),
                                         &replacer_params);
         // run a single workgroup
         constexpr uint32_t wg_size = 32;
@@ -1258,7 +1260,7 @@ bool VulkanAddressReplacer::init_pipeline()
     VkPushConstantRange push_constant_range = {};
     push_constant_range.stageFlags          = VK_SHADER_STAGE_COMPUTE_BIT;
     push_constant_range.offset              = 0;
-    push_constant_range.size                = sizeof(replacer_params_t);
+    push_constant_range.size                = sizeof(replacer_params_sbt_t);
 
     VkPipelineLayoutCreateInfo pipeline_layout_info = {};
     pipeline_layout_info.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -1687,9 +1689,10 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
         return;
     }
 
-    // blacklist hashmap storage  >= 16 bytes * 2^20 slots
+    // TODO: implement growing/resize/rehash logic
+    // blacklist hashmap storage  >= 16 bytes * 2^18 slots (4mB)
     constexpr uint32_t hashmap_elem_size = 2 * sizeof(VkDeviceSize);
-    uint32_t           hashmap_num_slots = std::max<uint32_t>(1U << 20, util::next_pow_2(num_addresses * 4));
+    uint32_t           hashmap_num_slots = std::max<uint32_t>(1U << 18, util::next_pow_2(num_addresses * 4));
     uint32_t           hashmap_size      = hashmap_elem_size * hashmap_num_slots;
 
     auto prev_buffer = hashmap_storage_bda_binary_.buffer;
@@ -1719,8 +1722,11 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                 VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
     }
 
-    auto&    pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
-    uint32_t storage_size         = std::max<uint32_t>(sizeof(bda_element_t) * storage_bda_binary_.size(), 1U << 10U);
+    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
+
+    // use 1 kB as minimum value, purpose is to avoid frequent re-allocations for small workloads.
+    constexpr uint32_t min_storage_size = 1U << 10U;
+    uint32_t storage_size = std::max<uint32_t>(sizeof(bda_element_t) * storage_bda_binary_.size(), min_storage_size);
 
     if (!create_buffer(pipeline_context_bda.storage_array,
                        storage_size,
@@ -1751,7 +1757,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     }
     memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses, num_bytes);
 
-    replacer_params_binary_t replacer_params = {};
+    replacer_params_bda_t replacer_params = {};
 
     // actually a sorted array
     replacer_params.address_array.storage = pipeline_context_bda.storage_array.device_address;
@@ -1775,7 +1781,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                     pipeline_layout_,
                                     VK_SHADER_STAGE_COMPUTE_BIT,
                                     0,
-                                    sizeof(replacer_params_binary_t),
+                                    sizeof(replacer_params_bda_t),
                                     &replacer_params);
     // dispatch workgroups
     constexpr uint32_t wg_size = 32;
