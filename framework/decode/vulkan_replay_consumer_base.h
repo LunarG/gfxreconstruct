@@ -1555,6 +1555,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanDeviceInfo*                                               device_info,
         StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo);
 
+    VkResult OverrideGetPastPresentationTimingGOOGLE(
+        PFN_vkGetPastPresentationTimingGOOGLE                         func,
+        VkResult                                                      original_result,
+        const VulkanDeviceInfo*                                       device_info,
+        const VulkanSwapchainKHRInfo*                                 swapchain_info,
+        PointerDecoder<uint32_t>*                                     pPresentationTimingCount,
+        StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings);
+
+    VkResult OverrideGetRefreshCycleDurationGOOGLE(
+        PFN_vkGetRefreshCycleDurationGOOGLE                         func,
+        VkResult                                                    original_result,
+        const VulkanDeviceInfo*                                     device_info,
+        const VulkanSwapchainKHRInfo*                               swapchain_info,
+        StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
@@ -1874,6 +1889,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>            removed_swapchain_indices_;
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
+
+    std::vector<const char*> faked_extensions_;
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

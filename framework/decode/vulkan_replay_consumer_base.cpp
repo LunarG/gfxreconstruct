@@ -3112,6 +3112,19 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                 }
                 current = current->pNext;
             }
+
+            faked_extensions_.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+        }
+
+        // Fake VK_GOOGLE_display_timing if querried but not supported
+        if (feature_util::IsSupportedExtension(modified_extensions, VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME) &&
+            !feature_util::IsSupportedExtension(available_extensions, VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME))
+        {
+            auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
+                return util::platform::StringCompare(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME, extension) == 0;
+            });
+            modified_extensions.erase(iter);
+            faked_extensions_.push_back(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
         }
 
         if (options_.remove_unsupported_features)
