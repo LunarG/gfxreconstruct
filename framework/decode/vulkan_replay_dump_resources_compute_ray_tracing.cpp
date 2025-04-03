@@ -345,7 +345,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.dstQueueFamilyIndex = src_image_info->queue_family_index;
     img_barrier.image               = src_image_info->handle;
     img_barrier.subresourceRange    = {
-        graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     assert(device_table_ != nullptr);
