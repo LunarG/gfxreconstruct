@@ -135,7 +135,6 @@
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR",
     "vkCreateShadersEXT": "OverrideCreateShadersEXT",
     "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
-    "vkCmdTraceRaysIndirectKHR": "OverrideCmdTraceRaysIndirectKHR",
     "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
     "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
@@ -164,6 +163,8 @@
     "vkGetAccelerationStructureMemoryRequirementsNV": "OverrideGetAccelerationStructureMemoryRequirementsNV",
     "vkGetMemoryFdKHR": "OverrideGetMemoryFdKHR",
     "vkGetDeviceMemoryOpaqueCaptureAddress": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
-    "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress"
+    "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
+    "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
+    "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE"
   }
 }
