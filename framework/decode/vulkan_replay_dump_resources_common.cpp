@@ -477,41 +477,55 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
-        bool                  scaled;
 
-        VkResult res = resource_util.ReadFromImageResourceStaging(
-            image_info->handle,
-            image_info->format,
-            image_info->type,
-            image_info->extent,
-            image_info->level_count,
-            image_info->layer_count,
-            image_info->tiling,
-            image_info->sample_count,
-            (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout,
-            image_info->queue_family_index,
-            image_info->external_format,
-            image_info->size,
-            aspect,
-            data,
-            subresource_offsets,
-            subresource_sizes,
-            scaled,
-            false,
-            scale,
-            dst_format);
+        graphics::VulkanResourcesUtil::ImageResource image_resource = {};
+        image_resource.image                                        = image_info->handle;
+        image_resource.format                                       = image_info->format;
+        image_resource.type                                         = image_info->type;
+        image_resource.extent                                       = image_info->extent;
+        image_resource.level_count                                  = image_info->level_count;
+        image_resource.layer_count                                  = image_info->layer_count;
+        image_resource.tiling                                       = image_info->tiling;
+        image_resource.sample_count                                 = image_info->sample_count;
+        image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
+        image_resource.queue_family_index   = image_info->queue_family_index;
+        image_resource.external_format      = image_info->external_format;
+        image_resource.size                 = image_info->size;
+        image_resource.level_sizes          = &subresource_sizes;
+        image_resource.aspect               = aspect;
+        image_resource.scale                = scale;
+        image_resource.dst_format           = dst_format;
+        image_resource.all_layers_per_level = false;
 
-        assert(!subresource_offsets.empty());
-        assert(!subresource_sizes.empty());
+        image_resource.resource_size = resource_util.GetImageResourceSizesOptimal(image_resource.image,
+                                                                                  image_resource.format,
+                                                                                  image_resource.type,
+                                                                                  image_resource.extent,
+                                                                                  image_resource.level_count,
+                                                                                  image_resource.layer_count,
+                                                                                  image_resource.tiling,
+                                                                                  aspect,
+                                                                                  &subresource_offsets,
+                                                                                  &subresource_sizes,
+                                                                                  image_resource.all_layers_per_level);
+        VkResult result              = resource_util.ReadImageResource(image_resource, data);
 
-        scaling_supported[i] = scaled;
+        GFXRECON_ASSERT(!subresource_offsets.empty());
+        GFXRECON_ASSERT(!subresource_sizes.empty());
 
-        if (res != VK_SUCCESS)
+        scaling_supported[i] = resource_util.IsScalingSupported(image_resource.format,
+                                                                image_resource.tiling,
+                                                                dst_format,
+                                                                image_resource.type,
+                                                                image_resource.extent,
+                                                                scale);
+
+        if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
                                image_info->capture_id,
-                               util::ToString<VkResult>(res).c_str())
-            return res;
+                               util::ToString<VkResult>(result).c_str())
+            return result;
         }
 
         const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
@@ -528,7 +542,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
             {
-                std::string filename = filenames[f++];
+                const std::string& filename = filenames[f++];
 
                 // We don't support stencil output yet
                 if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
@@ -545,7 +559,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                     assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
 
                     VkExtent3D scaled_extent;
-                    if (scale != 1.0f && scaled)
+                    if (scale != 1.0f && scaling_supported[i])
                     {
                         scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
                         scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
@@ -634,7 +648,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
     }
 
     assert(f == total_files);
-
     return VK_SUCCESS;
 }
 
