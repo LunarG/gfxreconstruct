@@ -998,8 +998,8 @@ bool App::frame(const int frame_num)
 
     VkSemaphore          wait_semaphores[] = { sync_.available_semaphores[current_in_flight_frame_] };
     VkPipelineStageFlags wait_stages[]     = {
-        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
     };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores    = wait_semaphores;
