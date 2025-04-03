@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,6 +39,18 @@ void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle, const Dx12Descr
     else
     {
         GFXRECON_LOG_WARNING("Skipping GPU descriptor handle mapping for address with value of 0");
+    }
+}
+
+void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle, const Dx12DescriptorMap& descriptor_map)
+{
+    if (handle.ptr != Dx12DescriptorMap::kNullGpuAddress)
+    {
+        descriptor_map.GetCpuAddress(handle);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Skipping CPU descriptor handle mapping for address with value of 0");
     }
 }
 

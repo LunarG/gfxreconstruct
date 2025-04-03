@@ -299,6 +299,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void MapGpuDescriptorHandles(D3D12_GPU_DESCRIPTOR_HANDLE* handles, size_t handles_len);
 
+    void MapCpuDescriptorHandle(D3D12_CPU_DESCRIPTOR_HANDLE& handle);
+
+    void MapCpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr);
+
     void MapGpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS& address);
 
     void MapGpuVirtualAddress(uint8_t* dst_address_ptr, const uint8_t* src_address_ptr);
@@ -1002,6 +1006,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void OverrideDispatchGraph(DxObjectInfo*                                            replay_object_info,
                                StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc);
 
+    HRESULT OverrideCreateMetaCommand(DxObjectInfo*                device5_object_info,
+                                      HRESULT                      original_result,
+                                      Decoded_GUID                 command_Id,
+                                      UINT                         node_mask,
+                                      PointerDecoder<uint8_t>*     parameters_data,
+                                      SIZE_T                       parameters_data_sizeinbytes,
+                                      Decoded_GUID                 riid,
+                                      HandlePointerDecoder<void*>* meta_command);
+
+    void OverrideInitializeMetaCommand(DxObjectInfo*            command_list4_object_info,
+                                       DxObjectInfo*            meta_command,
+                                       PointerDecoder<uint8_t>* parameters_data,
+                                       SIZE_T                   parameters_data_sizeinbytes);
+
+    void OverrideExecuteMetaCommand(DxObjectInfo*            command_list4_object_info,
+                                    DxObjectInfo*            meta_command,
+                                    PointerDecoder<uint8_t>* parameters_data,
+                                    SIZE_T                   parameters_data_sizeinbytes);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -1228,6 +1251,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
+    void MapMetaCommandParameters(ID3D12Device5*                     device5,
+                                  const GUID&                        meta_command_guid,
+                                  D3D12_META_COMMAND_PARAMETER_STAGE stage,
+                                  uint8_t*                           parameters_data,
+                                  uint8_t                            parameters_data_sizeinbytes);
+
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
@@ -1261,6 +1290,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
+    std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };
