@@ -327,6 +327,9 @@ class VulkanAddressReplacer
         buffer_context_t input_handle_buffer  = {};
         buffer_context_t output_handle_buffer = {};
 
+        //! store parameters in host-visible memory, allows read-back
+        buffer_context_t parameter_buffer = {};
+
         //! this can hold either a linear hashmap or a sorted array of key/value pairs
         buffer_context_t storage_array = {};
     };
@@ -414,6 +417,7 @@ class VulkanAddressReplacer
 
     std::vector<bda_element_t> storage_bda_binary_;
     buffer_context_t           hashmap_storage_bda_binary_ = {};
+    buffer_context_t           hashmap_control_block_bda_binary_ = {};
 
     // pipeline-contexts per command-buffer
     std::unordered_map<VkCommandBuffer, std::vector<pipeline_context_t>> pipeline_context_map_;

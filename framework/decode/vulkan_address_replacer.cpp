@@ -126,8 +126,8 @@ struct replacer_params_bda_t
     // sorted(!) array of bda_element_t, used for mapping device-address from capture -> replay.
     gpu_array_t address_array = {};
 
-    // opaque storage for a hashmap, cache addresses that have already been replaced
-    gpu_array_t address_blacklist = {};
+    // storage-buffer for a hashmap (as gpu_array_t), cache addresses that have already been replaced
+    VkDeviceAddress address_blacklist = 0;
 
     // input-/output-arrays can be identical when sbt-alignments/strides match
     VkDeviceAddress input_handles  = 0;
@@ -1689,6 +1689,26 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
         return;
     }
 
+    // retrieve a storage-context
+    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
+
+    // create a buffer holding parameters. this can be used for reading back replacer_params.address_blacklist.size
+    if (!create_buffer(pipeline_context_bda.parameter_buffer,
+                       sizeof(replacer_params_bda_t),
+                       0,
+                       0,
+                       true,
+                       "GFXR VulkanAddressReplacer pipeline_context_bda.parameter_buffer"))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-pipeline_context_bda.parameter_buffer-buffer creation failed");
+        return;
+    }
+    auto& replacer_params =
+        *reinterpret_cast<replacer_params_bda_t*>(pipeline_context_bda.parameter_buffer.mapped_data);
+
+    // init empty struct
+    replacer_params = {};
+
     // TODO: implement growing/resize/rehash logic
     // blacklist hashmap storage  >= 16 bytes * 2^18 slots (4mB)
     constexpr uint32_t hashmap_elem_size = 2 * sizeof(VkDeviceSize);
@@ -1722,7 +1742,35 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                 VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
     }
 
-    auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
+    // if that buffer already existed we read back some values
+    bool read_hashmap_size = hashmap_control_block_bda_binary_.buffer != VK_NULL_HANDLE;
+
+    // init hashmap control-block
+    if (!create_buffer(hashmap_control_block_bda_binary_,
+                       sizeof(gpu_array_t),
+                       0,
+                       0,
+                       true,
+                       "GFXR VulkanAddressReplacer hashmap_control_block_bda_binary_"))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap_control_block_bda_binary_ creation failed");
+        return;
+    }
+    auto& address_blacklist = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+
+    if (read_hashmap_size)
+    {
+        GFXRECON_LOG_INFO("replacer_params.address_blacklist.size: %d / %d (load-factor: %.2f)",
+                          address_blacklist.size,
+                          address_blacklist.capacity,
+                          address_blacklist.size / static_cast<float>(address_blacklist.capacity));
+    }
+    else
+    {
+        address_blacklist.storage  = hashmap_storage_bda_binary_.device_address;
+        address_blacklist.size     = 0;
+        address_blacklist.capacity = hashmap_num_slots;
+    }
 
     // use 1 kB as minimum value, purpose is to avoid frequent re-allocations for small workloads.
     constexpr uint32_t min_storage_size = 1U << 10U;
@@ -1745,6 +1793,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     uint32_t num_bytes = num_addresses * sizeof(VkDeviceAddress);
 
+    // create a buffer holding input-handles
     if (!create_buffer(pipeline_context_bda.input_handle_buffer,
                        num_bytes,
                        0,
@@ -1757,16 +1806,27 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     }
     memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses, num_bytes);
 
-    replacer_params_bda_t replacer_params = {};
+    // create a buffer holding parameters. this can be used for reading back replacer_params.address_blacklist.size
+    if (!create_buffer(pipeline_context_bda.parameter_buffer,
+                       sizeof(replacer_params_bda_t),
+                       0,
+                       0,
+                       true,
+                       "GFXR VulkanAddressReplacer pipeline_context_bda.parameter_buffer"))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: input-pipeline_context_bda.parameter_buffer-buffer creation failed");
+        return;
+    }
 
-    // actually a sorted array
+    // a sorted array of bda_element_t
     replacer_params.address_array.storage = pipeline_context_bda.storage_array.device_address;
     replacer_params.address_array.size    = storage_bda_binary_.size();
 
     // blacklist hashmap
-    replacer_params.address_blacklist.storage  = hashmap_storage_bda_binary_.device_address;
-    replacer_params.address_blacklist.size     = 0;
-    replacer_params.address_blacklist.capacity = hashmap_num_slots;
+    replacer_params.address_blacklist = hashmap_control_block_bda_binary_.device_address;
+    //    replacer_params.address_blacklist.storage = hashmap_storage_bda_binary_.device_address;
+    //    replacer_params.address_blacklist.size     = 0;
+    //    replacer_params.address_blacklist.capacity = hashmap_num_slots;
 
     // in-place
     replacer_params.input_handles  = pipeline_context_bda.input_handle_buffer.device_address;
@@ -1777,12 +1837,13 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
 
     // NOTE: using push-constants here requires us to re-establish the previous data, if any
+    VkDeviceAddress parameter_buffer_address = pipeline_context_bda.parameter_buffer.device_address;
     device_table_->CmdPushConstants(command_buffer_info->handle,
                                     pipeline_layout_,
                                     VK_SHADER_STAGE_COMPUTE_BIT,
                                     0,
-                                    sizeof(replacer_params_bda_t),
-                                    &replacer_params);
+                                    sizeof(VkDeviceAddress),
+                                    &parameter_buffer_address);
     // dispatch workgroups
     constexpr uint32_t wg_size = 32;
     device_table_->CmdDispatch(command_buffer_info->handle, util::div_up(replacer_params.num_handles, wg_size), 1, 1);
@@ -1797,6 +1858,14 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                 sync_stage,
                 VK_ACCESS_SHADER_READ_BIT);
     }
+
+    // synchronize host-reads
+    barrier(command_buffer_info->handle,
+            hashmap_control_block_bda_binary_.buffer,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_ACCESS_SHADER_WRITE_BIT,
+            sync_stage,
+            VK_ACCESS_HOST_READ_BIT);
 
     // set previous compute-pipeline, if any
     if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
