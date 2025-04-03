@@ -29,7 +29,6 @@
 #include <vector>
 
 #include "util/defines.h"
-#include "encode/vulkan_state_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
