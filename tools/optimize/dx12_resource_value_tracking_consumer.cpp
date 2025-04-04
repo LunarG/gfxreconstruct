@@ -26,8 +26,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 Dx12ResourceValueTrackingConsumer::Dx12ResourceValueTrackingConsumer(
-    std::shared_ptr<application::Application> application, const DxReplayOptions& options, bool experimental_tracker) :
-    Dx12ReplayConsumer(application, options),
+    std::shared_ptr<application::Application> application,
+    const DxReplayOptions&                    options,
+    const format::EnabledOptions&             file_options,
+    bool                                      experimental_tracker) :
+    Dx12ReplayConsumer(application, options, file_options),
     replay_resource_value_calls_(true)
 {
     auto get_current_block_index_func = std::bind(static_cast<uint64_t (Dx12ReplayConsumerBase::*)(void)>(

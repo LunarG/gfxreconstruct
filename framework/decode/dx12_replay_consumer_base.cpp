@@ -118,8 +118,10 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 }
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
-                                               const DxReplayOptions&                    options) :
-    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
+                                               const DxReplayOptions&                    options,
+                                               const format::EnabledOptions&             file_options) :
+    application_(application),
+    file_options_(file_options), options_(options), current_message_length_(0), info_queue_(nullptr),
     resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
     set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
     set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr), frame_end_marker_count_(0)
@@ -2266,8 +2268,6 @@ Dx12ReplayConsumerBase::OverrideGetGpuVirtualAddress(DxObjectInfo*             r
     return replay_result;
 }
 
-static auto placeholder_pipeline_library_enabled = true;
-
 HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineLibrary(DxObjectInfo*                replay_object_info,
                                                               HRESULT                      original_result,
                                                               PointerDecoder<uint8_t>*     library_blob,
@@ -2278,7 +2278,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineLibrary(DxObjectInfo*     
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (!placeholder_pipeline_library_enabled && (original_result == D3D12_ERROR_DRIVER_VERSION_MISMATCH))
+    if (!file_options_.pipeline_library_enabled && (original_result == D3D12_ERROR_DRIVER_VERSION_MISMATCH))
     {
         return original_result;
     }
@@ -2924,7 +2924,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (!placeholder_pipeline_library_enabled && (original_result == E_INVALIDARG))
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
@@ -2968,7 +2968,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (!placeholder_pipeline_library_enabled && (original_result == E_INVALIDARG))
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
@@ -3012,7 +3012,7 @@ Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*   replay_object_info,
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (!placeholder_pipeline_library_enabled && (original_result == E_INVALIDARG))
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
