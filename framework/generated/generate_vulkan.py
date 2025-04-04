@@ -56,7 +56,7 @@ generate_targets = [
     'generated_vulkan_dispatch_table.h',
     'generated_vulkan_layer_func_table.h',
     'generated_vulkan_pnext_struct_encoder.cpp',
-    'generated_vulkan_pnext_struct_encoder.cpp',
+    'generated_vulkan_pnext_struct_decoder.cpp',
     'generated_vulkan_struct_decoders.h',
     'generated_vulkan_struct_decoders.cpp',
     'generated_vulkan_struct_decoders_forward.h',
