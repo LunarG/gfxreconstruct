@@ -218,6 +218,247 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type)
     }
 }
 
+template <>
+VkObjectType GetObjectType<InstanceWrapper>()
+{
+    return VK_OBJECT_TYPE_INSTANCE;
+}
+template <>
+VkObjectType GetObjectType<PhysicalDeviceWrapper>()
+{
+    return VK_OBJECT_TYPE_PHYSICAL_DEVICE;
+}
+template <>
+VkObjectType GetObjectType<DeviceWrapper>()
+{
+    return VK_OBJECT_TYPE_DEVICE;
+}
+template <>
+VkObjectType GetObjectType<QueueWrapper>()
+{
+    return VK_OBJECT_TYPE_QUEUE;
+}
+template <>
+VkObjectType GetObjectType<SemaphoreWrapper>()
+{
+    return VK_OBJECT_TYPE_SEMAPHORE;
+}
+template <>
+VkObjectType GetObjectType<CommandBufferWrapper>()
+{
+    return VK_OBJECT_TYPE_COMMAND_BUFFER;
+}
+template <>
+VkObjectType GetObjectType<FenceWrapper>()
+{
+    return VK_OBJECT_TYPE_FENCE;
+}
+template <>
+VkObjectType GetObjectType<DeviceMemoryWrapper>()
+{
+    return VK_OBJECT_TYPE_DEVICE_MEMORY;
+}
+template <>
+VkObjectType GetObjectType<BufferWrapper>()
+{
+    return VK_OBJECT_TYPE_BUFFER;
+}
+template <>
+VkObjectType GetObjectType<ImageWrapper>()
+{
+    return VK_OBJECT_TYPE_IMAGE;
+}
+template <>
+VkObjectType GetObjectType<EventWrapper>()
+{
+    return VK_OBJECT_TYPE_EVENT;
+}
+template <>
+VkObjectType GetObjectType<BufferViewWrapper>()
+{
+    return VK_OBJECT_TYPE_BUFFER_VIEW;
+}
+template <>
+VkObjectType GetObjectType<ImageViewWrapper>()
+{
+    return VK_OBJECT_TYPE_IMAGE_VIEW;
+}
+template <>
+VkObjectType GetObjectType<ShaderModuleWrapper>()
+{
+    return VK_OBJECT_TYPE_SHADER_MODULE;
+}
+template <>
+VkObjectType GetObjectType<PipelineCacheWrapper>()
+{
+    return VK_OBJECT_TYPE_PIPELINE_CACHE;
+}
+template <>
+VkObjectType GetObjectType<PipelineLayoutWrapper>()
+{
+    return VK_OBJECT_TYPE_PIPELINE_LAYOUT;
+}
+template <>
+VkObjectType GetObjectType<RenderPassWrapper>()
+{
+    return VK_OBJECT_TYPE_RENDER_PASS;
+}
+template <>
+VkObjectType GetObjectType<PipelineWrapper>()
+{
+    return VK_OBJECT_TYPE_PIPELINE;
+}
+template <>
+VkObjectType GetObjectType<DescriptorSetLayoutWrapper>()
+{
+    return VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT;
+}
+template <>
+VkObjectType GetObjectType<SamplerWrapper>()
+{
+    return VK_OBJECT_TYPE_SAMPLER;
+}
+template <>
+VkObjectType GetObjectType<DescriptorPoolWrapper>()
+{
+    return VK_OBJECT_TYPE_DESCRIPTOR_POOL;
+}
+template <>
+VkObjectType GetObjectType<DescriptorSetWrapper>()
+{
+    return VK_OBJECT_TYPE_DESCRIPTOR_SET;
+}
+template <>
+VkObjectType GetObjectType<FramebufferWrapper>()
+{
+    return VK_OBJECT_TYPE_FRAMEBUFFER;
+}
+template <>
+VkObjectType GetObjectType<CommandPoolWrapper>()
+{
+    return VK_OBJECT_TYPE_COMMAND_POOL;
+}
+template <>
+VkObjectType GetObjectType<QueryPoolWrapper>()
+{
+    return VK_OBJECT_TYPE_QUERY_POOL;
+}
+template <>
+VkObjectType GetObjectType<AccelerationStructureKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR;
+}
+template <>
+VkObjectType GetObjectType<SamplerYcbcrConversionWrapper>()
+{
+    return VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION;
+}
+template <>
+VkObjectType GetObjectType<DescriptorUpdateTemplateWrapper>()
+{
+    return VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE;
+}
+template <>
+VkObjectType GetObjectType<PrivateDataSlotWrapper>()
+{
+    return VK_OBJECT_TYPE_PRIVATE_DATA_SLOT;
+}
+template <>
+VkObjectType GetObjectType<SurfaceKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_SURFACE_KHR;
+}
+template <>
+VkObjectType GetObjectType<SwapchainKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_SWAPCHAIN_KHR;
+}
+template <>
+VkObjectType GetObjectType<DisplayKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_DISPLAY_KHR;
+}
+template <>
+VkObjectType GetObjectType<DisplayModeKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_DISPLAY_MODE_KHR;
+}
+template <>
+VkObjectType GetObjectType<DebugReportCallbackEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT;
+}
+template <>
+VkObjectType GetObjectType<VideoSessionKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_VIDEO_SESSION_KHR;
+}
+template <>
+VkObjectType GetObjectType<VideoSessionParametersKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR;
+}
+template <>
+VkObjectType GetObjectType<DebugUtilsMessengerEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT;
+}
+template <>
+VkObjectType GetObjectType<ValidationCacheEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_VALIDATION_CACHE_EXT;
+}
+template <>
+VkObjectType GetObjectType<AccelerationStructureNVWrapper>()
+{
+    return VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV;
+}
+template <>
+VkObjectType GetObjectType<PerformanceConfigurationINTELWrapper>()
+{
+    return VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL;
+}
+template <>
+VkObjectType GetObjectType<DeferredOperationKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR;
+}
+template <>
+VkObjectType GetObjectType<IndirectCommandsLayoutNVWrapper>()
+{
+    return VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV;
+}
+template <>
+VkObjectType GetObjectType<MicromapEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_MICROMAP_EXT;
+}
+template <>
+VkObjectType GetObjectType<OpticalFlowSessionNVWrapper>()
+{
+    return VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV;
+}
+template <>
+VkObjectType GetObjectType<ShaderEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_SHADER_EXT;
+}
+template <>
+VkObjectType GetObjectType<PipelineBinaryKHRWrapper>()
+{
+    return VK_OBJECT_TYPE_PIPELINE_BINARY_KHR;
+}
+template <>
+VkObjectType GetObjectType<IndirectExecutionSetEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT;
+}
+template <>
+VkObjectType GetObjectType<IndirectCommandsLayoutEXTWrapper>()
+{
+    return VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT;
+}
+
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
