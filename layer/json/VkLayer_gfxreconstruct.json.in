@@ -158,6 +158,14 @@
                     "default": ""
                 },
                 {
+                    "key": "capture_package_name",
+                    "env": "GFXRECON_CAPTURE_PACKAGE_NAME",
+                    "label": "Capture Specific package",
+                    "description": "Specify one package name to capture.",
+                    "type": "STRING",
+                    "default": ""
+                },
+                {
                     "key": "capture_file",
                     "env": "GFXRECON_CAPTURE_FILE",
                     "label": "Capture File Name",
