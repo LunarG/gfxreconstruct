@@ -307,7 +307,7 @@ class CommonCaptureManager
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetEnablePipelineLibrarySetting() const
     {
-        return enable_pipeline_library_;
+        return file_options_.pipeline_library_enabled;
     }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
@@ -454,7 +454,6 @@ class CommonCaptureManager
     bool                                    debug_device_lost_;
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
-    bool                                    enable_pipeline_library_;
     bool                                    disable_dxr_;
     uint32_t                                accel_struct_padding_;
     bool                                    iunknown_wrapping_;

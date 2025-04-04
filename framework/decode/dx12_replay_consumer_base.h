@@ -60,7 +60,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12ReplayConsumerBase : public Dx12Consumer
 {
   public:
-    Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application, const DxReplayOptions& options);
+    Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
+                           const DxReplayOptions&                    options,
+                           const format::EnabledOptions&             file_options);
 
     virtual ~Dx12ReplayConsumerBase() override;
 
@@ -1127,6 +1129,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
   protected:
+    format::EnabledOptions             file_options_;
     DxReplayOptions                    options_;
     std::unique_ptr<Dx12DumpResources> dump_resources_{ nullptr };
 

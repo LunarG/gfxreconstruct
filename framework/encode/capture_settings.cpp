@@ -290,6 +290,8 @@ const format::CompressionType kDefaultCompressionType = format::CompressionType:
 #else
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kNone;
 #endif
+const bool kDefaultPipelineLibraryEnabled = false;
+
 // clang-format on
 
 CaptureSettings::CaptureSettings(const TraceSettings& trace_settings)
@@ -491,6 +493,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Capture file options
     settings->trace_settings_.capture_file_options.compression_type =
         ParseCompressionTypeString(FindOption(options, kOptionKeyCaptureCompressionType), kDefaultCompressionType);
+    settings->trace_settings_.capture_file_options.pipeline_library_enabled =
+        ParseBoolString(FindOption(options, kOptionEnablePipelineLibrary), kDefaultPipelineLibraryEnabled);
     settings->trace_settings_.capture_file =
         FindOption(options, kOptionKeyCaptureFile, settings->trace_settings_.capture_file);
     settings->trace_settings_.time_stamp_file = ParseBoolString(FindOption(options, kOptionKeyCaptureFileUseTimestamp),
@@ -648,8 +652,6 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
 
     // DirectX options
-    settings->trace_settings_.enable_pipeline_library = ParseBoolString(
-        FindOption(options, kOptionEnablePipelineLibrary), settings->trace_settings_.enable_pipeline_library);
     settings->trace_settings_.disable_dxr =
         ParseBoolString(FindOption(options, kOptionDisableDxr), settings->trace_settings_.disable_dxr);
     settings->trace_settings_.accel_struct_padding = gfxrecon::util::ParseUintString(
