@@ -25,6 +25,7 @@
 
 #include "decode/copy_shaders.h"
 #include "decode/decoder_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/platform.h"
 
 #include <algorithm>
@@ -185,16 +186,13 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
 
         if (result == VK_SUCCESS)
         {
-            bool use_transfer = ((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) == VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+            bool use_transfer = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
                                 (sample_count == VK_SAMPLE_COUNT_1_BIT);
-            bool use_color_write =
-                ((usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) == VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
-                (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
-            bool use_depth_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
-                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+            bool use_color_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
+                                   (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
+            bool use_depth_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
                                    (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
-            bool use_stencil_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
-                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+            bool use_stencil_write = graphics::ImageHasUsage(usage, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
                                      (aspect == VK_IMAGE_ASPECT_STENCIL_BIT) && have_shader_stencil_write_;
 
             if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) &&

@@ -2036,7 +2036,7 @@ VmaMemoryUsage VulkanRebindAllocator::GetImageMemoryUsage(VkImageUsageFlags     
     capture_properties &= ~(VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD | VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD);
 
     if (((capture_properties & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT) == VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT) &&
-        ((image_usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT))
+        graphics::ImageHasUsage(image_usage, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT))
     {
         // If the resource was bound to memory with the LAZILY_ALLOCATED property, and had TRANSIENT_ATTACHMENT
         // usage, attempt to make it LAZILY_ALLOCATED.
