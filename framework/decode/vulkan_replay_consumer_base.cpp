@@ -2687,7 +2687,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
         // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
         // otherwise always enable it if available.
-        if (modified_create_info.pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
+        if (modified_create_info.pApplicationInfo != nullptr &&
+            modified_create_info.pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
         {
             feature_util::EnableExtensionIfSupported(
                 available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
