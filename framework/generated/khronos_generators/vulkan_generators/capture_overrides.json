@@ -16,6 +16,7 @@
         "vkCmdCopyAccelerationStructureKHR": "manager->OverrideCmdCopyAccelerationStructureKHR",
         "vkCmdWriteAccelerationStructuresPropertiesKHR": "manager->OverrideCmdWriteAccelerationStructuresPropertiesKHR",
         "vkGetPhysicalDeviceProperties2": "manager->OverrideGetPhysicalDeviceProperties2",
-        "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2"
+        "vkGetPhysicalDeviceProperties2KHR": "manager->OverrideGetPhysicalDeviceProperties2",
+        "vkBeginCommandBuffer": "manager->OverrideBeginCommandBuffer"
     }
 }

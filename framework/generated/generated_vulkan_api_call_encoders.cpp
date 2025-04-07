@@ -3589,19 +3589,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(manager, commandBuffer, pBeginInfo);
 
-    const auto command_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-    VkCommandBufferBeginInfo begin_info_copy = *pBeginInfo;
-    // If command buffer level is primary, pInheritanceInfo must be ignored
-    if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY && begin_info_copy.pInheritanceInfo != nullptr)
-    {
-        pBeginInfo = &begin_info_copy;
-        begin_info_copy.pInheritanceInfo = nullptr;
-    }
-
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkCommandBufferBeginInfo* pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, pBeginInfo_unwrapped);
+    VkResult result = manager->OverrideBeginCommandBuffer(commandBuffer, pBeginInfo);
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
     if (encoder)
