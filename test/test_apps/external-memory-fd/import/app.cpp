@@ -152,7 +152,7 @@ int receive_int(int socket)
     if (n <= 0)
     {
         GFXRECON_LOG_ERROR("Import App Failed to receive message");
-        GFXRECON_ASSERT(false);
+        throw std::runtime_error("Import App Failed to receive message");
     }
 
 #ifdef HAVE_MSGHDR_MSG_CONTROL
@@ -271,7 +271,7 @@ void App::create_buffer_from_fd(int imported_fd)
         if (data[i] != expected_memory_[i])
         {
             GFXRECON_LOG_ERROR("Import App Memory check failed")
-            GFXRECON_ASSERT(false);
+            throw std::runtime_error("Import App Memory check failed");
         }
     }
     GFXRECON_LOG_INFO("Import App Memory imported correctly");
@@ -294,8 +294,13 @@ void App::cleanup()
 void App::setup()
 {
     import_socket_ = create_import_socket();
+    if(import_socket_ < 0) {
+        throw std::runtime_error("Import App failed to create import socket");
+    }
     int import_fd = receive_importable_fd(import_socket_);
-    if(import_fd >= 0) {
+    if(import_fd < 0) {
+        throw std::runtime_error("Import App failed to receive import fd");
+    } else {
        create_buffer_from_fd(import_fd);
     }
 }

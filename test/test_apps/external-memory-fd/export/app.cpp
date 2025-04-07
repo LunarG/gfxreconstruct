@@ -173,6 +173,7 @@ void App::send_exportable_fd(int exportable_fd)
     if (external_socket < 0)
     {
         GFXRECON_LOG_ERROR("Export App Failed to create socket (%d)", external_socket);
+        throw std::runtime_error("Export App Failed to create socket");
     }
     sockaddr_un un = {};
     un.sun_family  = AF_UNIX;
@@ -185,12 +186,14 @@ void App::send_exportable_fd(int exportable_fd)
     if (result)
     {
         GFXRECON_LOG_ERROR("Export App Failed to bind socket (%d)", result);
+        throw std::runtime_error("Export App Failed to bind socket");
     }
 
     result = listen(external_socket, 1);
     if (result < 0)
     {
         GFXRECON_LOG_ERROR("Export App Failed to listen on socket (%d)", result);
+        throw std::runtime_error("Export App Failed to listen on socket");
     }
 
     GFXRECON_LOG_INFO("Waiting for importer to connect");
@@ -199,6 +202,7 @@ void App::send_exportable_fd(int exportable_fd)
     if (conn_fd < 0)
     {
         GFXRECON_LOG_ERROR("Export App Failed to accept on socket (%d)", conn_fd);
+        throw std::runtime_error("Export App Failed to accept on socket");
     }
 
     // Send fd
@@ -206,6 +210,7 @@ void App::send_exportable_fd(int exportable_fd)
     if (send_result < 0)
     {
         GFXRECON_LOG_ERROR("Export App Failed to send_int on socket (%d)", send_result);
+        throw std::runtime_error("Export App Failed to send_int on socket");
     }
 
     close(conn_fd);
