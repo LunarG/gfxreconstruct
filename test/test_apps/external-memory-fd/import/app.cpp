@@ -188,7 +188,6 @@ int receive_int(int socket)
     return imported_fd;
 }
 
-
 int create_import_socket()
 {
     GFXRECON_LOG_INFO("Import App Connecting to exporter");
@@ -294,14 +293,18 @@ void App::cleanup()
 void App::setup()
 {
     import_socket_ = create_import_socket();
-    if(import_socket_ < 0) {
+    if (import_socket_ < 0)
+    {
         throw std::runtime_error("Import App failed to create import socket");
     }
     int import_fd = receive_importable_fd(import_socket_);
-    if(import_fd < 0) {
+    if (import_fd < 0)
+    {
         throw std::runtime_error("Import App failed to receive import fd");
-    } else {
-       create_buffer_from_fd(import_fd);
+    }
+    else
+    {
+        create_buffer_from_fd(import_fd);
     }
 }
 
