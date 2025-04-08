@@ -3498,16 +3498,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateCommandBuffers(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateCommandBuffers>::Dispatch(manager, device, pAllocateInfo, pCommandBuffers);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkCommandBufferAllocateInfo* pAllocateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->AllocateCommandBuffers(device, pAllocateInfo_unwrapped, pCommandBuffers);
-
-    if (result >= 0)
-    {
-        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::CommandPoolWrapper, vulkan_wrappers::CommandBufferWrapper>(device, pAllocateInfo->commandPool, pCommandBuffers, pAllocateInfo->commandBufferCount, VulkanCaptureManager::GetUniqueId);
-    }
-    else
+    VkResult result = manager->OverrideAllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
+    if (result < 0)
     {
         omit_output_data = true;
     }

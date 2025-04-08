@@ -837,7 +837,7 @@ inline void InitializePoolObjectState(VkDevice                               par
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->level = alloc_info->level;
+    // Some CommandBufferWrapper's info is initialized in OverrideAllocateCommandBuffers.
 }
 
 inline void InitializePoolObjectState(VkDevice                               parent_handle,

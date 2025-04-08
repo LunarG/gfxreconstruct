@@ -1663,6 +1663,38 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(
     }
 }
 
+VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice                           device,
+                                                              const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                                              VkCommandBuffer*                   pCommandBuffers)
+{
+    auto                               handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkCommandBufferAllocateInfo* pAllocateInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->AllocateCommandBuffers(
+        device, pAllocateInfo_unwrapped, pCommandBuffers);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::CommandPoolWrapper,
+                                              vulkan_wrappers::CommandBufferWrapper>(device,
+                                                                                     pAllocateInfo->commandPool,
+                                                                                     pCommandBuffers,
+                                                                                     pAllocateInfo->commandBufferCount,
+                                                                                     VulkanCaptureManager::GetUniqueId);
+
+        for (uint32_t i = 0; i < pAllocateInfo->commandBufferCount; ++i)
+        {
+            auto cmd_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[i]);
+            GFXRECON_ASSERT(cmd_wrapper);
+
+            cmd_wrapper->level = pAllocateInfo->level;
+        }
+    }
+    return result;
+}
+
 VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
                                                           const VkCommandBufferBeginInfo* pBeginInfo)
 {
