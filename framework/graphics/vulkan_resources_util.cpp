@@ -1668,7 +1668,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].device       = device_;
         tmp_data[i].device_table = &device_table_;
 
-        VkFormat dst_format = img.dst_format == VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
+        VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
 
         GFXRECON_ASSERT(img.level_count <=
                         1 + floor(log2(std::max(std::max(img.extent.width, img.extent.height), img.extent.depth))));
@@ -1802,7 +1802,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                  img.queue_family_index);
             }
 
-            VkFormat dst_format = img.dst_format == VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
+            VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
 
             // Blit image to change dimensions or convert format
             if (tmp_data[i].use_blit)
