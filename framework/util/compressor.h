@@ -36,20 +36,20 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class Compressor
 {
   public:
-    Compressor() = default;
+    Compressor() {}
 
-    virtual ~Compressor() = default;
+    virtual ~Compressor() {}
 
     // If needed, compressed_data will be resized to fit the compressed data + compressed_data_offset.
-    virtual size_t Compress(size_t                uncompressed_size,
+    virtual size_t Compress(const size_t          uncompressed_size,
                             const uint8_t*        uncompressed_data,
                             std::vector<uint8_t>* compressed_data,
-                            size_t                compressed_data_offset) const = 0;
+                            size_t                compressed_data_offset) = 0;
 
-    virtual size_t Decompress(size_t                      compressed_size,
+    virtual size_t Decompress(const size_t                compressed_size,
                               const std::vector<uint8_t>& compressed_data,
-                              size_t                      expected_uncompressed_size,
-                              std::vector<uint8_t>*       uncompressed_data) const = 0;
+                              const size_t                expected_uncompressed_size,
+                              std::vector<uint8_t>*       uncompressed_data) = 0;
 };
 
 GFXRECON_END_NAMESPACE(util)

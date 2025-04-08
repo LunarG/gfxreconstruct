@@ -36,7 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
                                 std::vector<uint8_t>* compressed_data,
-                                size_t                compressed_data_offset) const
+                                size_t                compressed_data_offset)
 {
     size_t data_size = 0;
 
@@ -74,7 +74,7 @@ size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
 size_t ZstdCompressor::Decompress(const size_t                compressed_size,
                                   const std::vector<uint8_t>& compressed_data,
                                   const size_t                expected_uncompressed_size,
-                                  std::vector<uint8_t>*       uncompressed_data) const
+                                  std::vector<uint8_t>*       uncompressed_data)
 {
     size_t data_size = 0;
 
