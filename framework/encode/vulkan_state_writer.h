@@ -169,19 +169,19 @@ class VulkanStateWriter
     void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
 
     void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
-                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_infos,
+                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                              graphics::VulkanResourcesUtil&         resource_util);
 
     void ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
-                                          const std::vector<BufferSnapshotInfo>& buffer_snapshot_infos,
+                                          const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                                           graphics::VulkanResourcesUtil&         resource_util);
 
     void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                            const std::vector<ImageSnapshotInfo>& image_snapshot_infos,
+                            const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                             graphics::VulkanResourcesUtil&        resource_util);
 
     void ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
-                                         const std::vector<ImageSnapshotInfo>& image_snapshot_infos,
+                                         const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                                          graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
