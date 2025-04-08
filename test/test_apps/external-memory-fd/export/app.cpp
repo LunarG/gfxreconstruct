@@ -101,7 +101,7 @@ uint32_t App::find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags me
         }
     }
 
-    throw std::runtime_error("Could not find required memory type");
+    throw std::runtime_error("Export App Could not find required memory type");
 }
 
 void App::create_buffer()
@@ -120,7 +120,7 @@ void App::create_buffer()
     buffer_create_info.queueFamilyIndexCount = 0u;
     buffer_create_info.pQueueFamilyIndices   = nullptr;
     VkResult result                          = init.disp.createBuffer(&buffer_create_info, nullptr, &buffer_);
-    VERIFY_VK_RESULT("Failed to create buffer", result);
+    VERIFY_VK_RESULT("Export App Failed to create buffer", result);
 
     VkMemoryRequirements buf_mem_requirements;
     init.disp.getBufferMemoryRequirements(buffer_, &buf_mem_requirements);
@@ -137,14 +137,14 @@ void App::create_buffer()
         find_memory_type(buf_mem_requirements.memoryTypeBits,
                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     result = init.disp.allocateMemory(&buf_mem_allocate_info, nullptr, &exportable_memory_);
-    VERIFY_VK_RESULT("Failed to exportable memory", result);
+    VERIFY_VK_RESULT("Export App Failed to exportable memory", result);
 
     result = init.disp.bindBufferMemory(buffer_, exportable_memory_, 0u);
-    VERIFY_VK_RESULT("Failed to bind memory", result);
+    VERIFY_VK_RESULT("Export App Failed to bind memory", result);
 
     uint32_t* data = nullptr;
     result         = init.disp.mapMemory(exportable_memory_, 0u, buffer_size_, 0u, reinterpret_cast<void**>(&data));
-    VERIFY_VK_RESULT("Failed to map buffer memory", result);
+    VERIFY_VK_RESULT("Export App Failed to map buffer memory", result);
     for (uint32_t i = 0; i < buffer_size_ / sizeof(uint32_t); ++i)
     {
         data[i] = i;
@@ -162,7 +162,7 @@ int App::get_exportable_fd()
 
     int      exportable_fd = -1;
     VkResult result        = init.disp.getMemoryFdKHR(&get_fd_info, &exportable_fd);
-    VERIFY_VK_RESULT("Failed to get memory fd", result);
+    VERIFY_VK_RESULT("Export App Failed to get memory fd", result);
     return exportable_fd;
 }
 
@@ -170,7 +170,11 @@ void App::send_exportable_fd(int exportable_fd)
 {
     // Need to send the fd to the importer process
     int external_socket = socket(PF_UNIX, SOCK_STREAM, 0);
-    GFXRECON_ASSERT(external_socket >= 0)
+    if (external_socket < 0)
+    {
+        GFXRECON_LOG_ERROR("Export App Failed to create socket (%d)", external_socket);
+        throw std::runtime_error("Export App Failed to create socket");
+    }
     sockaddr_un un = {};
     un.sun_family  = AF_UNIX;
 
@@ -178,20 +182,36 @@ void App::send_exportable_fd(int exportable_fd)
     snprintf(un.sun_path, sizeof(un.sun_path), "%s", socket_name);
     unlink(un.sun_path);
 
-    int bind_result = bind(external_socket, reinterpret_cast<struct sockaddr*>(&un), sizeof(un));
-    GFXRECON_ASSERT(bind_result >= 0)
+    int result = bind(external_socket, reinterpret_cast<struct sockaddr*>(&un), sizeof(un));
+    if (result)
+    {
+        GFXRECON_LOG_ERROR("Export App Failed to bind socket (%d)", result);
+        throw std::runtime_error("Export App Failed to bind socket");
+    }
 
-    int listen_result = listen(external_socket, 1);
-    GFXRECON_ASSERT(listen_result >= 0)
+    result = listen(external_socket, 1);
+    if (result < 0)
+    {
+        GFXRECON_LOG_ERROR("Export App Failed to listen on socket (%d)", result);
+        throw std::runtime_error("Export App Failed to listen on socket");
+    }
 
     GFXRECON_LOG_INFO("Waiting for importer to connect");
     // Blocking
     int conn_fd = accept(external_socket, nullptr, nullptr);
-    GFXRECON_ASSERT(conn_fd >= 0)
+    if (conn_fd < 0)
+    {
+        GFXRECON_LOG_ERROR("Export App Failed to accept on socket (%d)", conn_fd);
+        throw std::runtime_error("Export App Failed to accept on socket");
+    }
 
     // Send fd
     ssize_t send_result = send_int(conn_fd, exportable_fd);
-    GFXRECON_ASSERT(send_result >= 0);
+    if (send_result < 0)
+    {
+        GFXRECON_LOG_ERROR("Export App Failed to send_int on socket (%d)", send_result);
+        throw std::runtime_error("Export App Failed to send_int on socket");
+    }
 
     close(conn_fd);
     close(external_socket);
@@ -251,7 +271,6 @@ void App::setup()
     int fd = get_exportable_fd();
     GFXRECON_LOG_INFO("Exporting fd (%d)", fd);
     send_exportable_fd(fd);
-    GFXRECON_LOG_INFO("Bye");
 }
 
 GFXRECON_END_NAMESPACE(external_memory_fd_export)
