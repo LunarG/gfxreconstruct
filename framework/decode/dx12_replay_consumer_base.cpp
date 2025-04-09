@@ -966,6 +966,19 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             // These are pointers to user data for callback functions. Return nullptr for the replay callbacks that
             // don't expect user data.
             break;
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle:
+        {
+            auto entry = shared_handles_.find(object_id);
+            if (entry != shared_handles_.end())
+            {
+                object = entry->second;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("%s: Unable to retrieve NTHandle.", call_name);
+            }
+            break;
+        }
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -987,7 +1000,14 @@ void Dx12ReplayConsumerBase::PostProcessExternalObject(
         case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
         case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
             break;
-
+        case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName:
+            if (SUCCEEDED(replay_result) && (object_id != nullptr) && (object != nullptr))
+            {
+                shared_handles_.insert(std::make_pair(*object_id, *reinterpret_cast<void**>(object)));
+            }
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
