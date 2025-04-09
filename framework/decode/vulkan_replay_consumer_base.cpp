@@ -141,6 +141,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
         }
     }
 
+    abort();
+
     return VK_FALSE;
 }
 
