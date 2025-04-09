@@ -976,7 +976,7 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
 }
 
 void Dx12ReplayConsumerBase::PostProcessExternalObject(
-    HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
+    HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
 {
     GFXRECON_UNREFERENCED_PARAMETER(replay_result);
     GFXRECON_UNREFERENCED_PARAMETER(object_id);
