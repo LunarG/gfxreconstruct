@@ -5237,7 +5237,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
             Access,
             Name,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle, "ID3D12Device_CreateSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle, "ID3D12Device_CreateSharedHandle");
     }
 }
 
@@ -5320,7 +5320,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
             Name,
             Access,
             pNTHandle);
-        PostProcessExternalObject(replay_result, out_op_pNTHandle, out_p_pNTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName, "ID3D12Device_OpenSharedHandleByName");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pNTHandle), out_p_pNTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName, "ID3D12Device_OpenSharedHandleByName");
     }
 }
 
@@ -9553,7 +9553,7 @@ void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
             replay_result,
             pObject,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost, "ID3D12VirtualizationGuestDevice_ShareWithHost");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost, "ID3D12VirtualizationGuestDevice_ShareWithHost");
     }
 }
 
@@ -13234,7 +13234,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
             return_value,
             replay_result,
             pSharedHandle);
-        PostProcessExternalObject(replay_result, out_op_pSharedHandle, out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pSharedHandle), out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
     }
 }
 
@@ -13496,7 +13496,7 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
             replay_result,
             Discard,
             phdc);
-        PostProcessExternalObject(replay_result, out_op_phdc, out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_phdc), out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
     }
 }
 
@@ -14428,7 +14428,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
             return_value,
             replay_result,
             pWindowHandle);
-        PostProcessExternalObject(replay_result, out_op_pWindowHandle, out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pWindowHandle), out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
     }
 }
 
@@ -15287,7 +15287,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
             dwAccess,
             lpName,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle, "IDXGIResource1_CreateSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle, "IDXGIResource1_CreateSharedHandle");
     }
 }
 
@@ -15481,7 +15481,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
             return_value,
             replay_result,
             pHwnd);
-        PostProcessExternalObject(replay_result, out_op_pHwnd, out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHwnd), out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
     }
 }
 

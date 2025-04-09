@@ -443,7 +443,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(
-        HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
+        HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
 
     ULONG OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result);
 
