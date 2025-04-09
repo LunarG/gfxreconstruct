@@ -69,6 +69,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define LOG_FILE_KEEP_OPEN_UPPER                             "LOG_FILE_KEEP_OPEN"
 #define LOG_LEVEL_LOWER                                      "log_level"
 #define LOG_LEVEL_UPPER                                      "LOG_LEVEL"
+#define LOG_TIMESTAMPS_LOWER                                 "log_timestamps"
+#define LOG_TIMESTAMPS_UPPER                                 "LOG_TIMESTAMPS"
 #define LOG_OUTPUT_TO_CONSOLE_LOWER                          "log_output_to_console"
 #define LOG_OUTPUT_TO_CONSOLE_UPPER                          "LOG_OUTPUT_TO_CONSOLE"
 #define LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER                  "log_output_to_os_debug_string"
@@ -182,6 +184,7 @@ const char kLogFileCreateNewEnvVar[]                         = GFXRECON_OPTION_S
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_OPTION_STR(LOG_FILE_FLUSH_AFTER_WRITE);
 const char kLogFileKeepFileOpenEnvVar[]                      = GFXRECON_OPTION_STR(LOG_FILE_KEEP_OPEN);
 const char kLogLevelEnvVar[]                                 = GFXRECON_OPTION_STR(LOG_LEVEL);
+const char kLogTimestampsEnvVar[]                            = GFXRECON_OPTION_STR(LOG_TIMESTAMPS);
 const char kLogOutputToConsoleEnvVar[]                       = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_CONSOLE);
 const char kLogOutputToOsDebugStringEnvVar[]                 = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_OS_DEBUG_STRING);
 const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_OPTION_STR(MEMORY_TRACKING_MODE);
@@ -242,6 +245,7 @@ const std::string kOptionKeyLogFileCreateNew                         = std::stri
 const std::string kOptionKeyLogFileFlushAfterWrite                   = std::string(kSettingsFilter) + std::string(LOG_FILE_FLUSH_AFTER_WRITE_LOWER);
 const std::string kOptionKeyLogFileKeepOpen                          = std::string(kSettingsFilter) + std::string(LOG_FILE_KEEP_OPEN_LOWER);
 const std::string kOptionKeyLogLevel                                 = std::string(kSettingsFilter) + std::string(LOG_LEVEL_LOWER);
+const std::string kOptionKeyLogTimestamps                            = std::string(kSettingsFilter) + std::string(LOG_TIMESTAMPS_LOWER);
 const std::string kOptionKeyLogOutputToConsole                       = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_CONSOLE_LOWER);
 const std::string kOptionKeyLogOutputToOsDebugString                 = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
 const std::string kOptionKeyMemoryTrackingMode                       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
@@ -396,6 +400,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
     LoadSingleOptionEnvVar(options, kLogFileKeepFileOpenEnvVar, kOptionKeyLogFileKeepOpen);
     LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
+    LoadSingleOptionEnvVar(options, kLogTimestampsEnvVar, kOptionKeyLogTimestamps);
     LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
     LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
 
@@ -710,6 +715,8 @@ void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* se
         FindOption(options, kOptionKeyLogOutputToOsDebugString), settings->log_settings_.output_to_os_debug_string);
     settings->log_settings_.min_severity =
         ParseLogLevelString(FindOption(options, kOptionKeyLogLevel), settings->log_settings_.min_severity);
+    settings->log_settings_.output_timestamps =
+        ParseBoolString(FindOption(options, kOptionKeyLogTimestamps), settings->log_settings_.output_timestamps);
 }
 
 std::string CaptureSettings::FindOption(OptionsMap* options, const std::string& key, const std::string& default_value)
