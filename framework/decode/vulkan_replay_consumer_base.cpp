@@ -116,24 +116,28 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
 {
     GFXRECON_UNREFERENCED_PARAMETER(pUserData);
 
-    if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr) &&
-        (pCallbackData->pMessage != nullptr))
+    // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
+    const char* message_id_name = "(nullptr)";
+    if (pCallbackData->pMessageIdName != nullptr)
+        message_id_name = pCallbackData->pMessageIdName;
+
+    if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
         {
-            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else
         {
-            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
     }
 
