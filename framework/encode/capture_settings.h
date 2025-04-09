@@ -106,6 +106,7 @@ class CaptureSettings
         MemoryTrackingMode           memory_tracking_mode{ kPageGuard };
         std::string                  screenshot_dir;
         std::vector<util::UintRange> screenshot_ranges;
+        uint32_t                     screenshot_interval{ 1 };
         util::ScreenshotFormat       screenshot_format;
         TrimBoundary                 trim_boundary{ TrimBoundary::kUnknown };
         std::vector<util::UintRange> trim_ranges;

@@ -40,7 +40,7 @@ const char kOptions[] =
     "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
-    "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
+    "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
@@ -67,7 +67,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-cached-psos] [--surface-index <N>]");
@@ -141,6 +141,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tascending order and cannot overlap.  Note that frame");
     GFXRECON_WRITE_CONSOLE("          \t\tnumbering is 1-based (i.e. the first frame is frame 1).");
     GFXRECON_WRITE_CONSOLE("          \t\tExample: 200,301-305 will generate six screenshots.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-interval <N>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecifies the number of frames between two screenshots");
+    GFXRECON_WRITE_CONSOLE("          \t\twithin a screenshot range.");
+    GFXRECON_WRITE_CONSOLE("          \t\tExample: If screenshot range is 10-15 and interval is 2,");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshot will be generated for frames 10, 12 and 14.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is 1.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-format <format>");
     GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use for screenshot generation.");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are:");

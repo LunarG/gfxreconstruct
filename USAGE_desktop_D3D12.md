@@ -202,6 +202,7 @@ Usage:
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
+                        [--screenshot-interval <N>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--use-cached-psos] [--surface-index <N>]
@@ -246,6 +247,12 @@ Optional arguments:
                         ascending order and cannot overlap.  Note that frame
                         numbering is 1-based (i.e. the first frame is frame 1).
                         Example: 200,301-305 will generate six screenshots.
+  --screenshot-interval <N>
+                        Specifies the number of frames between two screenshots
+                        within a screenshot range.
+                        Example: If screenshot range is 10-15 and interval is 2,
+                        screenshot will be generated for frames 10, 12 and 14.
+                        Default is 1.
   --screenshot-format <format>
                         Image file format to use for screenshot generation.
                         Available formats are:

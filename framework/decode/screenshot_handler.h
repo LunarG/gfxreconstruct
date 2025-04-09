@@ -44,12 +44,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class ScreenshotHandler : public ScreenshotHandlerBase
 {
   public:
-    ScreenshotHandler(util::ScreenshotFormat screenshot_format, const std::vector<ScreenshotRange>& screenshot_ranges) :
-        ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
+    ScreenshotHandler(util::ScreenshotFormat              screenshot_format,
+                      const std::vector<ScreenshotRange>& screenshot_ranges,
+                      uint32_t                            screenshot_interval) :
+        ScreenshotHandlerBase(screenshot_format, screenshot_ranges, screenshot_interval)
     {}
 
-    ScreenshotHandler(util::ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges) :
-        ScreenshotHandlerBase(screenshot_format, screenshot_ranges)
+    ScreenshotHandler(util::ScreenshotFormat         screenshot_format,
+                      std::vector<ScreenshotRange>&& screenshot_ranges,
+                      uint32_t                       screenshot_interval) :
+        ScreenshotHandlerBase(screenshot_format, screenshot_ranges, screenshot_interval)
     {}
 
     void WriteImage(const std::string&                      filename_prefix,
