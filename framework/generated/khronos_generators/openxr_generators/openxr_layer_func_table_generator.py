@@ -96,7 +96,7 @@ class OpenXrLayerFuncTableGenerator(OpenXrBaseGenerator, KhronosLayerFuncTableGe
     def endFile(self):
         """Method override."""
 
-        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100)
+        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100, 'layer')
         self.newline()
 
         # Finish processing in superclass

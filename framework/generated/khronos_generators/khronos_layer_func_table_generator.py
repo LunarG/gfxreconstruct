@@ -30,21 +30,27 @@ class KhronosLayerFuncTableGenerator():
     Generates C++ function table for Khronos Vulkan API calls exported by the layer.
     """
 
-    def write_layer_func_table_contents(self, skip_func_list, align_col):
+    def write_layer_func_table_contents(self, skip_func_list, align_col, name_identifier=''):
         api_data = self.get_api_data()
 
+        table_name = '{}_func_table'.format(api_data.api_name.lower())
+        skip_func_namespace = '{}'.format(api_data.api_name.lower())
+        if(name_identifier):
+            table_name += '_{}'.format(name_identifier.lower())
+            skip_func_namespace += '_{}'.format(name_identifier.lower())
+
         write(
-            'const std::unordered_map<std::string, {}> {}_func_table = {{'.
-            format(api_data.void_func_pointer_type, api_data.api_name.lower()),
+            'const std::unordered_map<std::string, {}> {} = {{'.
+            format(api_data.void_func_pointer_type, table_name),
             file=self.outFile
         )
 
         for cmd in self.get_all_filtered_cmd_names():
             align = align_col - len(cmd)
             if (cmd in skip_func_list):
-                body = '    {{ "{}",{}reinterpret_cast<{}>({}_entry::{}) }},'.format(
+                body = '    {{ "{}",{}reinterpret_cast<{}>({}::{}) }},'.format(
                     cmd, (' ' * align), api_data.void_func_pointer_type,
-                    api_data.api_name.lower(), cmd[2:]
+                    skip_func_namespace, cmd[2:]
                 )
             else:
                 body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(

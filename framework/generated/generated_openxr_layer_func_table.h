@@ -46,10 +46,10 @@
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
-    { "xrGetInstanceProcAddr",                                                                               reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::GetInstanceProcAddr) },
-    { "xrEnumerateApiLayerProperties",                                                                       reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::EnumerateApiLayerProperties) },
-    { "xrEnumerateInstanceExtensionProperties",                                                              reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::EnumerateInstanceExtensionProperties) },
+const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table_layer = {
+    { "xrGetInstanceProcAddr",                                                                               reinterpret_cast<PFN_xrVoidFunction>(openxr_layer::GetInstanceProcAddr) },
+    { "xrEnumerateApiLayerProperties",                                                                       reinterpret_cast<PFN_xrVoidFunction>(openxr_layer::EnumerateApiLayerProperties) },
+    { "xrEnumerateInstanceExtensionProperties",                                                              reinterpret_cast<PFN_xrVoidFunction>(openxr_layer::EnumerateInstanceExtensionProperties) },
     { "xrDestroyInstance",                                                                                   reinterpret_cast<PFN_xrVoidFunction>(encode::xrDestroyInstance) },
     { "xrGetInstanceProperties",                                                                             reinterpret_cast<PFN_xrVoidFunction>(encode::xrGetInstanceProperties) },
     { "xrPollEvent",                                                                                         reinterpret_cast<PFN_xrVoidFunction>(encode::xrPollEvent) },
