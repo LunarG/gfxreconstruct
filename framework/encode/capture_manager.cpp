@@ -212,7 +212,7 @@ void CommonCaptureManager::DestroyInstance(ApiCaptureManager* api_capture_manage
     }
 }
 
-std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges)
+std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges, uint32_t interval)
 {
     // Take a range of frames and convert it to a flat list of indices
     std::vector<uint32_t> indices;
@@ -223,7 +223,7 @@ std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges)
 
         uint32_t diff = range.last - range.first + 1;
 
-        for (uint32_t j = 0; j < diff; ++j)
+        for (uint32_t j = 0; j < diff; j += interval)
         {
             uint32_t screenshot_index = range.first + j;
 
@@ -261,20 +261,20 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
 {
     bool success = true;
 
-    base_filename_                   = base_filename;
-    file_options_                    = trace_settings.capture_file_options;
-    timestamp_filename_              = trace_settings.time_stamp_file;
-    memory_tracking_mode_            = trace_settings.memory_tracking_mode;
-    force_file_flush_                = trace_settings.force_flush;
-    debug_layer_                     = trace_settings.debug_layer;
-    debug_device_lost_               = trace_settings.debug_device_lost;
-    screenshots_enabled_             = !trace_settings.screenshot_ranges.empty();
-    screenshot_format_               = trace_settings.screenshot_format;
-    screenshot_indices_              = CalcScreenshotIndices(trace_settings.screenshot_ranges);
-    screenshot_prefix_               = PrepScreenshotPrefix(trace_settings.screenshot_dir);
-    disable_dxr_                     = trace_settings.disable_dxr;
-    accel_struct_padding_            = trace_settings.accel_struct_padding;
-    iunknown_wrapping_               = trace_settings.iunknown_wrapping;
+    base_filename_        = base_filename;
+    file_options_         = trace_settings.capture_file_options;
+    timestamp_filename_   = trace_settings.time_stamp_file;
+    memory_tracking_mode_ = trace_settings.memory_tracking_mode;
+    force_file_flush_     = trace_settings.force_flush;
+    debug_layer_          = trace_settings.debug_layer;
+    debug_device_lost_    = trace_settings.debug_device_lost;
+    screenshots_enabled_  = !trace_settings.screenshot_ranges.empty();
+    screenshot_format_    = trace_settings.screenshot_format;
+    screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges, trace_settings.screenshot_interval);
+    screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
+    disable_dxr_          = trace_settings.disable_dxr;
+    accel_struct_padding_ = trace_settings.accel_struct_padding;
+    iunknown_wrapping_    = trace_settings.iunknown_wrapping;
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
@@ -1657,7 +1657,8 @@ CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_m
                                                  const std::string&    filename,
                                                  size_t                buffer_size,
                                                  bool                  append) :
-    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
+    FileOutputStream(filename, buffer_size, append),
+    capture_manager_(capture_manager)
 {}
 
 bool CaptureFileOutputStream::Write(const void* data, size_t len)

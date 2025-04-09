@@ -708,6 +708,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX]
+                          [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
@@ -795,6 +796,12 @@ options:
                         tool)
   --screenshot-dir DIR  Directory to write screenshots. Default is "/sdcard"
                         (forwarded to replay tool)
+  --screenshot-interval INTERVAL
+                        Specifies the number of frames between two screenshots
+                        within a screenshot range.
+                        Example: If screenshot range is 10-15 and interval is 2,
+                        screenshot will be generated for frames 10, 12 and 14.
+                        Default is 1.
   --screenshot-prefix PREFIX
                         Prefix to apply to the screenshot file name. Default
                         is "screenshot" (forwarded to replay tool)

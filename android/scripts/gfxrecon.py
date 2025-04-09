@@ -101,6 +101,7 @@ def CreateReplayParser():
     parser.add_argument('--cpu-mask', metavar='binary_mask', help='Set of CPU cores used by the replayer. `binary-mask` is a succession of "0" and "1" that specifies used/unused cores read from left to right. For example "10010" activates the first and fourth cores and deactivate all other cores. If the option is not set, all cores can be used. If the option is set only for some cores, the other cores are not used. (forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
     parser.add_argument('--screenshots', metavar='RANGES', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots (forwarded to replay tool)')
+    parser.add_argument('--screenshot-interval', metavar='INTERVAL', help='Specifies the number of frames between two screenshots within a screenshot range. Example: If screenshot range is 10-15 and interval is 2, screenshot will be generated for frames 10, 12 and 14. Default is 1. (forwarded to replay tool)')
     parser.add_argument('--screenshot-format', metavar='FORMAT', choices=['bmp', 'png'], help='Image file format to use for screenshot generation.  Available formats are: bmp, png (forwarded to replay tool)')
     parser.add_argument('--screenshot-dir', metavar='DIR', help='Directory to write screenshots. Default is "/sdcard" (forwarded to replay tool)')
     parser.add_argument('--screenshot-prefix', metavar='PREFIX', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
@@ -186,6 +187,10 @@ def MakeExtrasString(args):
     elif args.screenshots:
         arg_list.append('--screenshots')
         arg_list.append('{}'.format(args.screenshots))
+
+    if args.screenshot_interval:
+        arg_list.append('--screenshot-interval')
+        arg_list.append('{}'.format(args.screenshot_interval))
 
     if args.screenshot_format:
         arg_list.append('--screenshot-format')
