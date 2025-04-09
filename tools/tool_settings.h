@@ -92,6 +92,7 @@ const char kAllowedMessages[]                    = "--allowed-messages";
 const char kShaderReplaceArgument[]              = "--replace-shaders";
 const char kScreenshotAllOption[]                = "--screenshot-all";
 const char kScreenshotRangeArgument[]            = "--screenshots";
+const char kScreenshotIntervalArgument[]         = "--screenshot-interval";
 const char kScreenshotFormatArgument[]           = "--screenshot-format";
 const char kScreenshotDirArgument[]              = "--screenshot-dir";
 const char kScreenshotFilePrefixArgument[]       = "--screenshot-prefix";
@@ -1074,7 +1075,15 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 
-    replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
+    replay_options.screenshot_ranges = GetScreenshotRanges(arg_parser);
+    if (arg_parser.IsArgumentSet(kScreenshotIntervalArgument))
+    {
+        replay_options.screenshot_interval = std::stoi(arg_parser.GetArgumentValue(kScreenshotIntervalArgument));
+        if (replay_options.screenshot_interval == 0)
+        {
+            throw std::runtime_error("A screenshot interval of 0 is invalid. Closing the program.");
+        }
+    }
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
@@ -1263,7 +1272,15 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         }
     }
 
-    replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
+    replay_options.screenshot_ranges = GetScreenshotRanges(arg_parser);
+    if (arg_parser.IsArgumentSet(kScreenshotIntervalArgument))
+    {
+        replay_options.screenshot_interval = std::stoi(arg_parser.GetArgumentValue(kScreenshotIntervalArgument));
+        if (replay_options.screenshot_interval == 0)
+        {
+            throw std::runtime_error("A screenshot interval of 0 is invalid. Closing the program.");
+        }
+    }
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);

@@ -39,9 +39,12 @@ class ScreenshotHandlerBase
 {
   public:
     ScreenshotHandlerBase(util::ScreenshotFormat              screenshot_format,
-                          const std::vector<ScreenshotRange>& screenshot_ranges);
+                          const std::vector<ScreenshotRange>& screenshot_ranges,
+                          uint32_t                            screenshot_interval);
 
-    ScreenshotHandlerBase(util::ScreenshotFormat screenshot_format, std::vector<ScreenshotRange>&& screenshot_ranges);
+    ScreenshotHandlerBase(util::ScreenshotFormat         screenshot_format,
+                          std::vector<ScreenshotRange>&& screenshot_ranges,
+                          uint32_t                       screenshot_interval);
 
     uint32_t GetCurrentFrame() const { return current_frame_number_; }
 
@@ -53,6 +56,7 @@ class ScreenshotHandlerBase
     uint32_t                     current_frame_number_;
     util::ScreenshotFormat       screenshot_format_;
     std::vector<ScreenshotRange> screenshot_ranges_;
+    uint32_t                     screenshot_interval_;
     size_t                       current_range_index_;
 };
 
