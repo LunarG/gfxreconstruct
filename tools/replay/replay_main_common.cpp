@@ -198,6 +198,11 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
     application->SetPaused(true);
 #endif
 
+#if defined(WIN32)
+    // Prevent the system from going to sleep while replay is running.
+    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
+#endif
+
     application->SetFpsInfo(&fps_info);
     application->SetAsyncProcessing(arg_parser.IsOptionSet(kAsyncProcessingOption));
 
