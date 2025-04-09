@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -381,6 +381,10 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
 #endif
 
 bool IsFormatCompressed(DXGI_FORMAT format);
+
+bool IsFormatPlanar(DXGI_FORMAT format);
+
+double GetPlanarFormatMultiplier(DXGI_FORMAT format);
 
 uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format);
 

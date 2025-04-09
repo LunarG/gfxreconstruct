@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1537,6 +1537,39 @@ bool IsFormatCompressed(DXGI_FORMAT format)
     return false;
 }
 
+bool IsFormatPlanar(DXGI_FORMAT format)
+{
+    switch (format)
+    {
+        case DXGI_FORMAT_NV12:
+        case DXGI_FORMAT_P010:
+        case DXGI_FORMAT_P016:
+        case DXGI_FORMAT_420_OPAQUE:
+        case DXGI_FORMAT_NV11:
+            return true;
+    }
+
+    return false;
+}
+
+double GetPlanarFormatMultiplier(DXGI_FORMAT format)
+{
+    // Multipliers based on the size calculations defined by the DXGI_FORMAT documentation.
+    switch (format)
+    {
+        case DXGI_FORMAT_NV12:
+        case DXGI_FORMAT_P010:
+        case DXGI_FORMAT_P016:
+        case DXGI_FORMAT_420_OPAQUE:
+            return 1.5;
+        case DXGI_FORMAT_NV11:
+            return 2.0;
+    }
+
+    GFXRECON_LOG_DEBUG("Requesting planar texture format multiplier for uknown planar format or non-planar format");
+    return 1.0;
+}
+
 uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format)
 {
     auto size = FindCompressedSubresourcePixelByteSize(format);
@@ -1736,7 +1769,13 @@ uint64_t GetSubresourceSizeTex2D(
         mip_height = (mip_height + 3) / 4;
     }
 
-    return static_cast<uint64_t>(mip_height) * row_pitch;
+    if (!IsFormatPlanar(format))
+    {
+        return static_cast<uint64_t>(mip_height) * row_pitch;
+    }
+
+    // For planar formats, apply a multiplier to calculate a total texture size that includes the size of all planes.
+    return static_cast<uint64_t>(mip_height) * row_pitch * GetPlanarFormatMultiplier(format);
 }
 
 uint64_t GetSubresourceSizeTex3D(DXGI_FORMAT format,
