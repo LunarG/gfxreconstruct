@@ -4395,6 +4395,46 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                                         HRESULT                      original_result,
+                                                         uint64_t                     NTHandle,
+                                                         Decoded_GUID                 riid,
+                                                         HandlePointerDecoder<void*>* ppvObj)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto  device        = static_cast<ID3D12Device*>(device_object_info->object);
+    auto  in_NTHandle   = static_cast<HANDLE>(PreProcessExternalObject(
+        NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
+    auto& riid_value    = *riid.decoded_value;
+    auto  out_p_ppvObj  = ppvObj->GetPointer();
+    auto  out_hp_ppvObj = ppvObj->GetHandlePointer();
+    auto  replay_result = device->OpenSharedHandle(in_NTHandle, riid_value, out_hp_ppvObj);
+
+    if (SUCCEEDED(replay_result) && !ppvObj->IsNull())
+    {
+        if (IsEqualIID(riid_value, __uuidof(ID3D12Resource)) || IsEqualIID(riid_value, __uuidof(ID3D12Resource1)) ||
+            IsEqualIID(riid_value, __uuidof(ID3D12Resource2)))
+        {
+            // For standard resource creation, the resource state would be initilized based on the InitialState
+            // parameter. For this case, we don't know what the initial state was so initilize to the common state.
+            InitialResourceExtraInfo(ppvObj, D3D12_RESOURCE_STATE_COMMON, false);
+        }
+        else if (IsEqualIID(riid_value, __uuidof(ID3D12Fence)) || IsEqualIID(riid_value, __uuidof(ID3D12Fence1)))
+        {
+            auto fence_info = std::make_unique<D3D12FenceInfo>();
+
+            // For ID3D12Device::CreateFence, this would be initialized with the InitialValue parameter. For this case,
+            // we don't know what the initial value was so initialize to zero.
+            fence_info->last_signaled_value = 0;
+
+            SetExtraInfo(ppvObj, std::move(fence_info));
+        }
+    }
+
+    return replay_result;
+}
+
 HRESULT
 Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_info,
                                                   HRESULT       original_result,

@@ -965,6 +965,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* root_signature_decoder);
 
+    HRESULT OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                     HRESULT                      original_result,
+                                     uint64_t                     NTHandle,
+                                     Decoded_GUID                 riid,
+                                     HandlePointerDecoder<void*>* ppvObj);
+
     HRESULT OverrideCreateStateObject(DxObjectInfo*                                          device5_object_info,
                                       HRESULT                                                original_result,
                                       StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,

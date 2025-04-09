@@ -5259,16 +5259,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
             NTHandle,
             riid,
             ppvObj);
-        auto in_NTHandle = static_cast<HANDLE>(PreProcessExternalObject(NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
-        if(!ppvObj->IsNull()) ppvObj->SetHandleLength(1);
-        auto out_p_ppvObj    = ppvObj->GetPointer();
-        auto out_hp_ppvObj   = ppvObj->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12Device*>(replay_object->object)->OpenSharedHandle(in_NTHandle,
-                                                                                                      *riid.decoded_value,
-                                                                                                      out_hp_ppvObj);
+        DxObjectInfo object_info_ppvObj{};
+        if(!ppvObj->IsNull())
+        {
+            ppvObj->SetHandleLength(1);
+            ppvObj->SetConsumerData(0, &object_info_ppvObj);
+        }
+        auto replay_result = OverrideOpenSharedHandle(replay_object,
+                                                      return_value,
+                                                      NTHandle,
+                                                      riid,
+                                                      ppvObj);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvObj, out_hp_ppvObj, format::ApiCall_ID3D12Device_OpenSharedHandle);
+            AddObject(ppvObj->GetPointer(), ppvObj->GetHandlePointer(), std::move(object_info_ppvObj), format::ApiCall_ID3D12Device_OpenSharedHandle);
         }
         CheckReplayResult("ID3D12Device_OpenSharedHandle", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle>::Dispatch(
