@@ -121,6 +121,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
     if (pCallbackData->pMessageIdName != nullptr)
         message_id_name = pCallbackData->pMessageIdName;
 
+    GFXRECON_LOG_INFO("WE ARE IN THE DEBUG CALLBACK UNCONDITIONAL SECTION");
+
     if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
@@ -140,8 +142,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
             GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
     }
-
-    abort();
 
     return VK_FALSE;
 }
