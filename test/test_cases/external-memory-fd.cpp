@@ -16,7 +16,11 @@ char const* const KNOWN_GFXR_PATH = "external-memory-fd.gfxr";
 
 TEST(ExternalMemoryFD, CorrectGFXR)
 {
+    const char *actual_gfxr = strdup(getenv("GFXRECON_CAPTURE_FILE"));
+    setenv("GFXRECON_CAPTURE_FILE", "background.gfxr", 1);
     run_in_background(APP_RUN_DIRECTORY, EXPORT_APP_PATH);
+    setenv("GFXRECON_CAPTURE_FILE", actual_gfxr, 1);
+
     // Wait for the exporter to be ready
     sleep(1);
     verify_gfxr(APP_RUN_DIRECTORY, IMPORT_APP_PATH, KNOWN_GFXR_PATH);
