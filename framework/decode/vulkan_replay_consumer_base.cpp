@@ -2748,6 +2748,10 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
                 break;
             }
+            default:
+            {
+                GFXRECON_LOG_WARNING("Invalid severity value found when querying logger.")
+            }
         }
 
         create_state.messenger_create_info             = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
