@@ -2729,7 +2729,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     {
         modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-        create_state.messenger_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+        create_state.messenger_create_info             = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
         create_state.messenger_create_info.pNext       = modified_create_info.pNext;
         create_state.messenger_create_info.flags       = 0;
         create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
@@ -2743,9 +2743,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     }
     else
     {
-        GFXRECON_LOG_WARNING(
-            "Failed to create debug utils callback. "
-            "VK_EXT_debug_utils extension is not available for the replay instance.");
+        GFXRECON_LOG_WARNING("Failed to create debug utils callback. "
+                             "VK_EXT_debug_utils extension is not available for the replay instance.");
     }
 
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
@@ -2857,12 +2856,9 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         if (create_state.messenger_create_info.pfnUserCallback != nullptr)
         {
             VkDebugUtilsMessengerEXT where_should_this_go;
-            GetInstanceTable(*replay_instance)->CreateDebugUtilsMessengerEXT(
-                *replay_instance,
-                &create_state.messenger_create_info,
-                nullptr,
-                &where_should_this_go
-            );
+            GetInstanceTable(*replay_instance)
+                ->CreateDebugUtilsMessengerEXT(
+                    *replay_instance, &create_state.messenger_create_info, nullptr, &where_should_this_go);
         }
     }
 
