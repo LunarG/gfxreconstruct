@@ -2733,7 +2733,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         create_state.messenger_create_info.pNext       = modified_create_info.pNext;
         create_state.messenger_create_info.flags       = 0;
         create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
-        create_state.messenger_create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT;
+        create_state.messenger_create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
         create_state.messenger_create_info.pUserData       = nullptr;
 
@@ -2858,7 +2858,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             VkDebugUtilsMessengerEXT where_should_this_go;
             GetInstanceTable(*replay_instance)
                 ->CreateDebugUtilsMessengerEXT(
-                    *replay_instance, &create_state.messenger_create_info, nullptr, &where_should_this_go);
+                    *replay_instance, &create_state.messenger_create_info, GetAllocationCallbacks(pAllocator), &where_should_this_go);
         }
     }
 
