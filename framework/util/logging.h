@@ -181,6 +181,8 @@ class Log
         return parse_success;
     }
 
+    static Severity GetSeverity() { return settings_.min_severity; }
+
   private:
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 
