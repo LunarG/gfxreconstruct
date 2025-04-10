@@ -121,8 +121,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
     if (pCallbackData->pMessageIdName != nullptr)
         message_id_name = pCallbackData->pMessageIdName;
 
-    GFXRECON_LOG_INFO("WE ARE IN THE DEBUG CALLBACK UNCONDITIONAL SECTION");
-
     if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
@@ -2723,6 +2721,33 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                              "extension availability.");
     }
 
+    // We want to create a debug messenger unconditionally so that
+    // debug messages from layers are displayed during replay.
+    // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
+    // in the pNext chain, those messengers will also be created.
+    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    {
+        modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+        create_state.messenger_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+        create_state.messenger_create_info.pNext       = modified_create_info.pNext;
+        create_state.messenger_create_info.flags       = 0;
+        create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
+        create_state.messenger_create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT;
+        create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+        create_state.messenger_create_info.pUserData       = nullptr;
+
+        // We chain the debug messenger create info here to catch debug messages
+        // emitted during vkCreateInstance()/vkDestroyInstance()
+        modified_create_info.pNext = &create_state.messenger_create_info;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Failed to create debug utils callback. "
+            "VK_EXT_debug_utils extension is not available for the replay instance.");
+    }
+
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
     if (options_.enable_validation_layer)
     {
@@ -2732,33 +2757,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
             {
                 modified_layers.push_back(kValidationLayerName);
-
-                // Create a debug util messenger if replay was run with the enable_validation_layer option and the
-                // VK_EXT_debug_utils extension is available. Note that if the app also included one or more
-                // VkDebugUtilsMessengerCreateInfoEXT structs in the pNext chain, those messengers will also be
-                // created.
-                if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
-                {
-                    modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
-                    create_state.messenger_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-                    create_state.messenger_create_info.pNext       = modified_create_info.pNext;
-                    create_state.messenger_create_info.flags       = 0;
-                    create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                                                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                    create_state.messenger_create_info.messageSeverity =
-                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                    create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-                    create_state.messenger_create_info.pUserData       = nullptr;
-
-                    modified_create_info.pNext = &create_state.messenger_create_info;
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING(
-                        "Failed to create debug utils callback for the validation layer enabled by replay option "
-                        "'--validate'. VK_EXT_debug_utils extension is not available for the replay instance.");
-                }
             }
             else
             {
@@ -2853,6 +2851,19 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
         assert(instance_info);
         PostCreateInstanceUpdateState(*replay_instance, create_state.modified_create_info, *instance_info);
+
+        // Register debug callback here to catch all messages that
+        // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
+        if (create_state.messenger_create_info.pfnUserCallback != nullptr)
+        {
+            VkDebugUtilsMessengerEXT where_should_this_go;
+            GetInstanceTable(*replay_instance)->CreateDebugUtilsMessengerEXT(
+                *replay_instance,
+                &create_state.messenger_create_info,
+                nullptr,
+                &where_should_this_go
+            );
+        }
     }
 
     return result;
