@@ -766,7 +766,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
 {
     // Indices should be sorted
-    if (!IsInsideRange(dc_indices_, index))
+    if (std::find(dc_indices_.begin(), dc_indices_.end(), index) == dc_indices_.end())
     {
         return false;
     }
@@ -776,11 +776,6 @@ bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
         if (index == dc_indices_[i])
         {
             return true;
-        }
-        else if (index > dc_indices_[i])
-        {
-            // Indices should be sorted
-            return false;
         }
     }
 
@@ -2832,52 +2827,79 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
 {
     assert(RP_indices_.size());
 
-    for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
+    if (secondaries_.empty())
     {
-        const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-        assert(render_pass.size());
-
-        if (dc_index > render_pass[render_pass.size() - 1])
+        for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
         {
-            continue;
-        }
+            const std::vector<uint64_t>& render_pass = RP_indices_[rp];
+            assert(render_pass.size());
 
-        for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
-        {
-            if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
-            {
-                return RenderPassSubpassPair(rp, sp);
-            }
-        }
-    }
-
-    // This must be a draw call from a secondary
-    for (const auto& ex_com : secondaries_)
-    {
-        const uint64_t execute_commands_index = ex_com.first;
-        for (const DrawCallsDumpingContext* secondary_context : ex_com.second)
-        {
-            const DrawCallIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
-            if (!IsInsideRange(secondary_dcs, dc_index))
+            if (dc_index > render_pass[render_pass.size() - 1])
             {
                 continue;
             }
 
-            for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
+            for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
             {
-                const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-                assert(render_pass.size());
-
-                if (execute_commands_index > render_pass[render_pass.size() - 1])
+                if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
                 {
-                    continue;
+                    return RenderPassSubpassPair(rp, sp);
                 }
+            }
+        }
+    }
+    else
+    {
+        for (const auto& ex_com : secondaries_)
+        {
+            const uint64_t execute_commands_index = ex_com.first;
+            for (const DrawCallsDumpingContext* secondary_context : ex_com.second)
+            {
+                const DrawCallIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
 
-                for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
+                if (IsInsideRange(secondary_dcs, dc_index))
                 {
-                    if (execute_commands_index > render_pass[sp] && execute_commands_index < render_pass[sp + 1])
+                    // Draw call from secondary
+                    for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
                     {
-                        return RenderPassSubpassPair(rp, sp);
+                        const std::vector<uint64_t>& render_pass = RP_indices_[rp];
+                        assert(render_pass.size());
+
+                        if (execute_commands_index > render_pass[render_pass.size() - 1])
+                        {
+                            continue;
+                        }
+
+                        for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
+                        {
+                            if (execute_commands_index > render_pass[sp] &&
+                                execute_commands_index < render_pass[sp + 1])
+                            {
+                                return RenderPassSubpassPair(rp, sp);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Draw call from primary
+                    for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
+                    {
+                        const std::vector<uint64_t>& render_pass = RP_indices_[rp];
+                        assert(render_pass.size());
+
+                        if (dc_index > render_pass[render_pass.size() - 1])
+                        {
+                            continue;
+                        }
+
+                        for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
+                        {
+                            if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
+                            {
+                                return RenderPassSubpassPair(rp, sp);
+                            }
+                        }
                     }
                 }
             }
@@ -2988,7 +3010,6 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
             std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
             dc_indices_.reserve(n_command_buffers);
             dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
-            std::sort(dc_indices_.begin(), dc_indices_.end());
         }
     }
 
