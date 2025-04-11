@@ -1779,8 +1779,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       &tmp_data[i].resolve_memory);
                 if (result != VK_SUCCESS)
                 {
-                    GFXRECON_ASSERT(false);
-                    return result;
+                    tmp_data[i].resource_size = 0;
+                    continue;
                 }
             }
 
@@ -1828,7 +1828,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
                 if (result != VK_SUCCESS)
                 {
-                    return result;
+                    tmp_data[i].resource_size = 0;
+                    continue;
                 }
             }
 
