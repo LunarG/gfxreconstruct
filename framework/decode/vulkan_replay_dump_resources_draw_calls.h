@@ -46,7 +46,6 @@ class DrawCallsDumpingContext
   public:
     DrawCallsDumpingContext(const DrawCallIndices*       dc_indices_,
                             const RenderPassIndices*     rp_indices,
-                            const ExecuteCommands*       execute_commands,
                             CommonObjectInfoTable&       object_info_table,
                             const VulkanReplayOptions&   options,
                             VulkanDumpResourcesDelegate& delegate);

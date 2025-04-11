@@ -90,15 +90,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
         if (has_draw)
         {
-            draw_call_contexts.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(bcb_index),
-                std::forward_as_tuple(&options.Draw_Indices[i],
-                                      &options.RenderPass_Indices[i],
-                                      has_secondaries ? &options.ExecuteCommands_Indices[i] : nullptr,
-                                      *object_info_table,
-                                      options,
-                                      *active_delegate_));
+            draw_call_contexts.emplace(std::piecewise_construct,
+                                       std::forward_as_tuple(bcb_index),
+                                       std::forward_as_tuple(&options.Draw_Indices[i],
+                                                             &options.RenderPass_Indices[i],
+                                                             *object_info_table,
+                                                             options,
+                                                             *active_delegate_));
         }
 
         if (has_dispatch)
@@ -119,14 +117,11 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
         if (has_secondaries && !has_draw)
         {
-            draw_call_contexts.emplace(std::piecewise_construct,
-                                       std::forward_as_tuple(bcb_index),
-                                       std::forward_as_tuple(nullptr,
-                                                             &options.RenderPass_Indices[i],
-                                                             &options.ExecuteCommands_Indices[i],
-                                                             *object_info_table,
-                                                             options,
-                                                             *active_delegate_));
+            draw_call_contexts.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(bcb_index),
+                std::forward_as_tuple(
+                    nullptr, &options.RenderPass_Indices[i], *object_info_table, options, *active_delegate_));
         }
     }
 

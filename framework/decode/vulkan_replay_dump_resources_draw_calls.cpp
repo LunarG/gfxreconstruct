@@ -58,7 +58,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       draw_indices,
                                                  const RenderPassIndices*     renderpass_indices,
-                                                 const ExecuteCommands*       execute_commands,
                                                  CommonObjectInfoTable&       object_info_table,
                                                  const VulkanReplayOptions&   options,
                                                  VulkanDumpResourcesDelegate& delegate) :
