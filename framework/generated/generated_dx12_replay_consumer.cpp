@@ -10903,12 +10903,13 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
             callbackFn,
             pData,
             pCallbackID);
+        auto in_callbackFn = reinterpret_cast<PFN_DESTRUCTION_CALLBACK>(GetReplayCallback(callbackFn, format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback, "ID3DDestructionNotifier_RegisterDestructionCallback"));
         auto in_pData = PreProcessExternalObject(pData, format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback, "ID3DDestructionNotifier_RegisterDestructionCallback");
         if(!pCallbackID->IsNull())
         {
             pCallbackID->AllocateOutputData(1);
         }
-        auto replay_result = reinterpret_cast<ID3DDestructionNotifier*>(replay_object->object)->RegisterDestructionCallback(reinterpret_cast<PFN_DESTRUCTION_CALLBACK>(callbackFn),
+        auto replay_result = reinterpret_cast<ID3DDestructionNotifier*>(replay_object->object)->RegisterDestructionCallback(in_callbackFn,
                                                                                                                             in_pData,
                                                                                                                             pCallbackID->GetOutputPointer());
         CheckReplayResult("ID3DDestructionNotifier_RegisterDestructionCallback", return_value, replay_result);
@@ -12885,12 +12886,13 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
             CallbackFilterFlags,
             pContext,
             pCallbackCookie);
+        auto in_CallbackFunc = reinterpret_cast<D3D12MessageFunc>(GetReplayCallback(CallbackFunc, format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback, "ID3D12InfoQueue1_RegisterMessageCallback"));
         auto in_pContext = PreProcessExternalObject(pContext, format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback, "ID3D12InfoQueue1_RegisterMessageCallback");
         if(!pCallbackCookie->IsNull())
         {
             pCallbackCookie->AllocateOutputData(1);
         }
-        auto replay_result = reinterpret_cast<ID3D12InfoQueue1*>(replay_object->object)->RegisterMessageCallback(reinterpret_cast<D3D12MessageFunc>(CallbackFunc),
+        auto replay_result = reinterpret_cast<ID3D12InfoQueue1*>(replay_object->object)->RegisterMessageCallback(in_CallbackFunc,
                                                                                                                  CallbackFilterFlags,
                                                                                                                  in_pContext,
                                                                                                                  pCallbackCookie->GetOutputPointer());
