@@ -3,6 +3,7 @@
 # Copyright (c) 2013-2024 The Khronos Group Inc.
 # Copyright (c) 2021-2024 LunarG, Inc.
 # Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -1499,6 +1500,11 @@ class Dx12BaseGenerator():
                 if type == k:
                     return e[1]
         return type
+
+    def is_callback(self, type):
+        if self.convert_function(type) == 'Function':
+            return True
+        return False
 
     def make_unique_list(self, in_list):
         """Return a copy of in_list with duplicates removed, preserving order."""

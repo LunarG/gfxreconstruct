@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -53,6 +54,49 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
 
     object_info->extra_info = std::move(extra_info);
 }
+
+static void ReplayDestructionCallback(void* context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+    GFXRECON_LOG_DEBUG("ID3DDestructionNotifier::RegisterDestructionCallback - Callback Invoked");
+}
+
+static void ReplayMessageFunc(D3D12_MESSAGE_CATEGORY category,
+                              D3D12_MESSAGE_SEVERITY severity,
+                              D3D12_MESSAGE_ID       id,
+                              LPCSTR                 description,
+                              void*                  context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(category);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    if (description != nullptr)
+    {
+        constexpr auto kPrefix = "ID3D12InfoQueue1::ID3D12InfoQueue1 - Callback Invoked:";
+
+        switch (severity)
+        {
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
+                GFXRECON_LOG_DEBUG("%s D3D12 CORRUPTION: [ID %d] %s\n", kPrefix, id, description);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR:
+                GFXRECON_LOG_DEBUG("%s D3D12 ERROR: [ID %d] %s\n", kPrefix, id, description);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_WARNING:
+                GFXRECON_LOG_DEBUG("%s D3D12 WARNING: [ID %d] %s\n", kPrefix, id, description);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO:
+                GFXRECON_LOG_DEBUG("%s D3D12 INFO: [ID %d] %s\n", kPrefix, id, description);
+                break;
+            case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_MESSAGE:
+                GFXRECON_LOG_DEBUG("%s D3D12 MESSAGE: [ID %d] %s\n", kPrefix, id, description);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 
 void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
                               D3D12_RESOURCE_STATES        initial_state,
@@ -880,6 +924,25 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
     }
 }
 
+FARPROC
+Dx12ReplayConsumerBase::GetReplayCallback(uint64_t callback_id, format::ApiCallId call_id, const char* call_name)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(callback_id);
+
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback:
+            return reinterpret_cast<FARPROC>(ReplayDestructionCallback);
+        case format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback:
+            return reinterpret_cast<FARPROC>(ReplayMessageFunc);
+        default:
+            GFXRECON_LOG_WARNING("No replay callback available for %s", call_name);
+            break;
+    }
+
+    return nullptr;
+}
+
 void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                        format::ApiCallId call_id,
                                                        const char*       call_name)
@@ -899,6 +962,11 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             }
             break;
         }
+        case format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback:
+        case format::ApiCallId::ApiCall_ID3D12InfoQueue1_RegisterMessageCallback:
+            // These are pointers to user data for callback functions. Return nullptr for the replay callbacks that
+            // don't expect user data.
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);

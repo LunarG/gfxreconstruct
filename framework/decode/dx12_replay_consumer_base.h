@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -436,6 +437,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
+
+    FARPROC GetReplayCallback(uint64_t callback_id, format::ApiCallId call_id, const char* call_name);
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
