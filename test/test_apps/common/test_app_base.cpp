@@ -39,6 +39,12 @@
 #include <algorithm>
 #include <fstream>
 #include <Vulkan-Utility-Libraries/vk_enum_string_helper.h>
+#include <filesystem>
+
+#ifdef __ANDROID__
+#include <vulkan/vulkan_android.h>
+#include <android/looper.h>
+#endif
 
 namespace gfxrecon
 {
@@ -831,7 +837,8 @@ Instance InstanceBuilder::build() const
     }
 
 #if defined(VK_KHR_portability_enumeration)
-    bool portability_enumeration_support = detail::check_extension_supported(system.available_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    bool portability_enumeration_support =
+        detail::check_extension_supported(system.available_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
     if (portability_enumeration_support)
     {
         extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
@@ -2711,6 +2718,21 @@ void SwapchainBuilder::add_desired_present_modes(std::vector<VkPresentModeKHR>& 
     modes.push_back(VK_PRESENT_MODE_FIFO_KHR);
 }
 
+#ifdef __ANDROID__
+VkSurfaceKHR create_surface_android(VkInstance instance, vkb::InstanceDispatchTable const& dispatch, android_app* app)
+{
+    VkAndroidSurfaceCreateInfoKHR info{};
+    info.sType  = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+    info.window = app->window;
+    VkSurfaceKHR surface;
+    assert(dispatch.fp_vkCreateAndroidSurfaceKHR);
+    auto fpCreateAndroidSurfaceKHR =
+        reinterpret_cast<PFN_vkCreateAndroidSurfaceKHR>(dispatch.fp_vkCreateAndroidSurfaceKHR);
+    auto result = fpCreateAndroidSurfaceKHR(instance, &info, nullptr, &surface);
+    VERIFY_VK_RESULT("failed to create android surface", result);
+    return surface;
+}
+#else
 SDL_Window* create_window_sdl(const char* window_name, bool resizable, int width, int height)
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
@@ -2744,6 +2766,7 @@ VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAlloc
     }
     return surface;
 }
+#endif
 
 VkSurfaceKHR
 create_surface_headless(VkInstance instance, vkb::InstanceDispatchTable& disp, VkAllocationCallbacks* callbacks)
@@ -2804,6 +2827,22 @@ Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& d
     return sync;
 }
 
+#ifdef __ANDROID__
+std::vector<char> readFile(const std::string& filename, android_app* app)
+{
+    std::vector<char> data;
+    AAsset*           file = AAssetManager_open(app->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
+    if (file == nullptr)
+    {
+        throw std::runtime_error("failed to open file " + filename);
+    }
+    size_t fileLength = AAsset_getLength(file);
+    data.resize(fileLength);
+    AAsset_read(file, data.data(), fileLength);
+    AAsset_close(file);
+    return data;
+}
+#else
 std::vector<char> readFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -2823,6 +2862,7 @@ std::vector<char> readFile(const std::string& filename)
 
     return buffer;
 }
+#endif
 
 VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vector<char>& code)
 {
@@ -2838,11 +2878,19 @@ VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vec
     return shaderModule;
 }
 
+#ifdef __ANDROID__
+VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename, android_app* app)
+{
+    std::vector<char> code = readFile(filename, app);
+    return createShaderModule(disp, code);
+}
+#else
 VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename)
 {
     std::vector<char> code = readFile(filename);
     return createShaderModule(disp, code);
 }
+#endif
 
 std::exception vulkan_exception(const char* message, VkResult result)
 {
@@ -2853,16 +2901,31 @@ std::exception vulkan_exception(const char* message, VkResult result)
     return std::runtime_error(error_message);
 }
 
+#ifndef __ANDROID__
 std::exception sdl_exception()
 {
     return std::runtime_error(SDL_GetError());
 }
+#endif
 
 void device_initialization_phase_1(const std::string& window_name, InitInfo& init)
 {
     if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
     {
+#ifdef __ANDROID__
+        while (init.android_app->window == nullptr)
+        {
+            int                         events = 0;
+            struct android_poll_source* source = nullptr;
+            int result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+            if (result >= 0 && source)
+            {
+                source->process(init.android_app, source);
+            }
+        }
+#else
         init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+#endif
     }
 }
 
@@ -2876,7 +2939,11 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
     {
         if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
         {
+#ifdef __ANDROID__
+            init.surface = create_surface_android(init.instance, init.inst_disp, init.android_app);
+#else
             init.surface = create_surface_sdl(init.instance, init.window);
+#endif
         }
         else
         {
@@ -2969,8 +3036,10 @@ void cleanup_init(InitInfo& init)
     destroy_device(init.device);
     destroy_surface(init.instance, init.surface);
     destroy_instance(init.instance);
+#ifndef __ANDROID__
     if (init.window != nullptr)
         destroy_window_sdl(init.window);
+#endif
 }
 
 void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init, bool wait_for_idle)
@@ -3017,17 +3086,49 @@ void TestAppBase::run(const std::string& window_name)
     int  frame_num = 0;
     while (running)
     {
-        SDL_Event windowEvent;
-        while (SDL_PollEvent(&windowEvent))
+#ifdef __ANDROID__
+        while (running)
         {
-            if (windowEvent.type == SDL_EVENT_QUIT)
+            int                         result = 0;
+            int                         events = 0;
+            struct android_poll_source* source = nullptr;
+
+            result = ALooper_pollAll(0, nullptr, &events, reinterpret_cast<void**>(&source));
+
+            if (result >= 0)
+            {
+                if (source)
+                {
+                    source->process(init.android_app, source);
+                }
+
+                if (init.android_app->destroyRequested != 0)
+                {
+                    running = false;
+                    break;
+                }
+            }
+            else
             {
                 break;
             }
         }
+#else
+        SDL_Event windowEvent;
+        while (running && SDL_PollEvent(&windowEvent))
+        {
+            if (windowEvent.type == SDL_EVENT_QUIT)
+            {
+                running = false;
+            }
+        }
+#endif
 
-        running = frame(frame_num);
-        ++frame_num;
+        if (running)
+        {
+            running = frame(frame_num);
+            ++frame_num;
+        }
     }
 
     init.disp.deviceWaitIdle();
@@ -3078,6 +3179,13 @@ bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& f
 {
     return physical_device.enable_features_if_present(features_to_enable);
 }
+
+#ifdef __ANDROID__
+void TestAppBase::set_android_app(struct android_app* app)
+{
+    init.android_app = app;
+}
+#endif
 
 } // namespace test
 

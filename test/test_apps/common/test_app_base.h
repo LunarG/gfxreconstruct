@@ -35,11 +35,17 @@
 
 #include <vulkan/vulkan_core.h>
 
+#ifndef __ANDROID__
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
+#endif
 
 #include "test_app_dispatch.h"
 #include "mock_icd_test_config.h"
+
+#if defined(__ANDROID__)
+#include <android_native_app_glue.h>
+#endif
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -75,7 +81,9 @@ namespace test
 {
 
 std::exception vulkan_exception(const char* message, VkResult result);
+#ifndef __ANDROID__
 std::exception sdl_exception();
+#endif
 
 namespace detail
 {
@@ -1014,9 +1022,11 @@ class SwapchainBuilder
     } info;
 };
 
+#ifndef __ANDROID__
 SDL_Window*  create_window_sdl(const char* window_name, bool resizable, int width, int height);
 void         destroy_window_sdl(SDL_Window* window);
 VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAllocationCallbacks* allocator = nullptr);
+#endif
 VkSurfaceKHR create_surface_headless(VkInstance                  instance,
                                      vkb::InstanceDispatchTable& disp,
                                      VkAllocationCallbacks*      callbacks = nullptr);
@@ -1043,11 +1053,19 @@ struct Sync
 
 Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& disp, const int max_frames_in_flight);
 
+#ifdef __ANDROID__
+std::vector<char> readFile(const std::string& filename, android_app*);
+#else
 std::vector<char> readFile(const std::string& filename);
+#endif
 
 VkShaderModule createShaderModule(vkb::DispatchTable const& disp, const std::vector<char>& code);
 
+#ifdef __ANDROID__
+VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename, android_app*);
+#else
 VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename);
+#endif
 
 #define VERIFY_VK_RESULT(message, result)                                             \
     {                                                                                 \
@@ -1058,7 +1076,11 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 
 struct InitInfo
 {
+#ifdef __ANDROID__
+    android_app*               android_app;
+#else
     SDL_Window*                window;
+#endif
     Instance                   instance;
     vkb::InstanceDispatchTable inst_disp;
     VkSurfaceKHR               surface;
@@ -1082,6 +1104,9 @@ class TestAppBase
   public:
     void run(const std::string& window_name);
 
+#ifdef __ANDROID__
+    void set_android_app(struct android_app*);
+#endif
   protected:
     TestAppBase()                              = default;
     ~TestAppBase()                             = default;
