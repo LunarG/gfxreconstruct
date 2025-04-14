@@ -49,3 +49,8 @@ To run the test apps and validate output against known good '.gfxr' files, build
 |Windows| build/windows/x64/output/test      |run-tests.ps1|
 |Linux| build/linux/x64/output/test        |run-tests.sh|
 |MacOs| build/darwin/universal/output/test |run-tests_macos.sh|
+
+## **Run A Single Test App**
+The default of Test Script ***run-tests.sh*** runs whole test apps. It could also run a single test app. It could add the test app's path behind ***run-tests.sh***, like ***run-tests.sh test_apps/triangle/gfxrecon-testapp-triangle***. It has to move shaders folder to the working directory.
+
+It could also run the test app straightforwardly without the test script. However, many environment variables set in the test script are necessary for running a single test app. Plus, some paths of the environment variables might have to be modified to match your environment.
