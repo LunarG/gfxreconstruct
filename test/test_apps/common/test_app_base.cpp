@@ -2830,8 +2830,6 @@ Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& d
 #ifdef __ANDROID__
 std::vector<char> readFile(const std::string& filename, android_app* app)
 {
-    AAsset*           file = AAssetManager_open(app->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
-    size_t            fileLength = AAsset_getLength(file);
     std::vector<char> data;
     AAsset*           file = AAssetManager_open(app->activity->assetManager, filename.c_str(), AASSET_MODE_BUFFER);
     if (file == nullptr)
