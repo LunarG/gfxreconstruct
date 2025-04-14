@@ -1663,6 +1663,59 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(
     }
 }
 
+VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice                           device,
+                                                              const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                                              VkCommandBuffer*                   pCommandBuffers)
+{
+    auto                               handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkCommandBufferAllocateInfo* pAllocateInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->AllocateCommandBuffers(
+        device, pAllocateInfo_unwrapped, pCommandBuffers);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
+                                              vulkan_wrappers::CommandPoolWrapper,
+                                              vulkan_wrappers::CommandBufferWrapper>(device,
+                                                                                     pAllocateInfo->commandPool,
+                                                                                     pCommandBuffers,
+                                                                                     pAllocateInfo->commandBufferCount,
+                                                                                     VulkanCaptureManager::GetUniqueId);
+
+        for (uint32_t i = 0; i < pAllocateInfo->commandBufferCount; ++i)
+        {
+            auto cmd_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[i]);
+            GFXRECON_ASSERT(cmd_wrapper);
+
+            cmd_wrapper->level = pAllocateInfo->level;
+        }
+    }
+    return result;
+}
+
+VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
+                                                          const VkCommandBufferBeginInfo* pBeginInfo)
+{
+    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
+
+    auto modified_begin_info = (*pBeginInfo_unwrapped);
+
+    const auto command_buffer_wrapper =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+
+    // If command buffer level is primary, pInheritanceInfo must be ignored
+    if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
+        modified_begin_info.pInheritanceInfo != nullptr)
+    {
+        modified_begin_info.pInheritanceInfo = nullptr;
+    }
+
+    return vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, &modified_begin_info);
+}
+
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
                                                            VkInstance        instance,
                                                            uint32_t          count,

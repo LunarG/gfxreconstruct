@@ -348,6 +348,12 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                             uint32_t*                 pQueueFamilyPropertyCount,
                                                             VkQueueFamilyProperties2* pQueueFamilyProperties);
 
+    VkResult OverrideAllocateCommandBuffers(VkDevice                           device,
+                                            const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                            VkCommandBuffer*                   pCommandBuffers);
+
+    VkResult OverrideBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
