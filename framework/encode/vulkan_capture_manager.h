@@ -535,64 +535,17 @@ class VulkanCaptureManager : public ApiCaptureManager
                                            uint64_t,
                                            VkSemaphore semaphore,
                                            VkFence     fence,
-                                           uint32_t*   index)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(semaphore);
-            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
-        }
-    }
+                                           uint32_t*   index);
 
     void PostProcess_vkAcquireNextImage2KHR(VkResult result,
                                             VkDevice,
                                             const VkAcquireNextImageInfoKHR* pAcquireInfo,
-                                            uint32_t*                        index)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(pAcquireInfo->semaphore);
-            state_tracker_->TrackAcquireImage(*index,
-                                              pAcquireInfo->swapchain,
-                                              pAcquireInfo->semaphore,
-                                              pAcquireInfo->fence,
-                                              pAcquireInfo->deviceMask);
-        }
-    }
+                                            uint32_t*                        index);
 
     void PostProcess_vkQueuePresentKHR(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                        VkResult                                               result,
                                        VkQueue                                                queue,
-                                       const VkPresentInfoKHR*                                pPresentInfo)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(
-                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
-            state_tracker_->TrackPresentedImages(
-                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
-        }
-
-        if (IsCaptureModeTrack())
-        {
-            if (auto* present_ids = graphics::vulkan_struct_get_pnext<VkPresentIdKHR>(pPresentInfo))
-            {
-                for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i)
-                {
-                    auto wrapper =
-                        vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pPresentInfo->pSwapchains[i]);
-                    GFXRECON_ASSERT(wrapper);
-
-                    wrapper->record_queue_present_ids_not_written.insert(present_ids->pPresentIds[i]);
-                }
-            }
-        }
-
-        EndFrame(current_lock);
-    }
+                                       const VkPresentInfoKHR*                                pPresentInfo);
 
     void PostProcess_vkQueueBindSparse(
         VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
