@@ -269,7 +269,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                          const UpdateTemplateInfo** info) const;
 
     // During trimming, WaitForPresent's QueuePresent could be skipped since it's out of range. Only write
-    // WaitForPresent if its QueuePresent is wirtten.
+    // WaitForPresent if its QueuePresent is written.
     bool CheckWriteWaitForPresentKHR(
         VkResult result, VkDevice device, VkSwapchainKHR swapchain, format::PresentId present_id, uint64_t timeout)
     {
