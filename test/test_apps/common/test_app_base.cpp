@@ -2892,7 +2892,7 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 }
 #endif
 
-std::exception vulkan_exception(const char* message, VkResult result)
+std::runtime_error vulkan_exception(const char* message, VkResult result)
 {
     std::string error_message;
     error_message.append(message);
@@ -2902,7 +2902,7 @@ std::exception vulkan_exception(const char* message, VkResult result)
 }
 
 #ifndef __ANDROID__
-std::exception sdl_exception()
+std::runtime_error sdl_exception()
 {
     return std::runtime_error(SDL_GetError());
 }

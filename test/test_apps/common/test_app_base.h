@@ -80,9 +80,9 @@ namespace gfxrecon
 namespace test
 {
 
-std::exception vulkan_exception(const char* message, VkResult result);
+std::runtime_error vulkan_exception(const char* message, VkResult result);
 #ifndef __ANDROID__
-std::exception sdl_exception();
+std::runtime_error sdl_exception();
 #endif
 
 namespace detail
