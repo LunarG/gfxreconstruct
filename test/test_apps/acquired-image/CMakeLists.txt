@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2025 LunarG, Inc.
+# Copyright (c) 2018-2024 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,24 +21,16 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for test apps
+# Description: CMake script for acquired image test app
 ###############################################################################
 
-find_package(SDL3)
+set(TEST_NAME acquired-image)
+add_executable(gfxrecon-testapp-${TEST_NAME} app.cpp)
 
-add_custom_target(gfxrecon-testapps)
+target_link_libraries(gfxrecon-testapp-${TEST_NAME} gfxrecon-testapp-base gfxrecon_util)
 
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+common_build_directives(gfxrecon-testapp-${TEST_NAME})
 
-add_subdirectory(common)
-add_subdirectory(triangle)
-add_subdirectory(multisample-depth)
-add_subdirectory(pipeline-binaries)
-add_subdirectory(host-image-copy)
-add_subdirectory(shader-objects)
-add_subdirectory(sparse-resources)
-add_subdirectory(acquired-image)
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd)
-    add_subdirectory(wait-for-present)
-endif()
+install(TARGETS gfxrecon-testapp-${TEST_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/${TEST_NAME})
+
+add_dependencies(gfxrecon-testapps gfxrecon-testapp-${TEST_NAME})
