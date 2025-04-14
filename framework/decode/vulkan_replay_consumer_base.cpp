@@ -121,6 +121,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
     if (pCallbackData->pMessageIdName != nullptr)
         message_id_name = pCallbackData->pMessageIdName;
 
+    GFXRECON_LOG_INFO("messageSeverity == %i", messageSeverity);
+
     if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
@@ -2732,31 +2734,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     {
         modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-        // Select debug message severity based on requested logging level
-        VkDebugUtilsMessageSeverityFlagBitsEXT message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        switch (util::Log::GetSeverity())
-        {
-            case util::Log::Severity::kDebugSeverity:
-            {
-                message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
-                break;
-            }
-            case util::Log::Severity::kInfoSeverity:
-            {
-                message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
-                break;
-            }
-            case util::Log::Severity::kWarningSeverity:
-            {
-                message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-                break;
-            }
-            default:
-            {
-                GFXRECON_LOG_WARNING("Invalid severity value found when querying logger.")
-            }
-        }
-
         // Set pfnUserCallback for all debug messengers down the pNext chain
         VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
             graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
@@ -2771,7 +2748,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         create_state.messenger_create_info.pNext       = modified_create_info.pNext;
         create_state.messenger_create_info.flags       = 0;
         create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
-        create_state.messenger_create_info.messageSeverity = message_severity;
+        create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
         create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
         create_state.messenger_create_info.pUserData       = nullptr;
 
