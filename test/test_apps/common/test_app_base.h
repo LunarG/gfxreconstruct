@@ -1133,6 +1133,8 @@ class TestAppBase
                                           vkmock::TestConfig*   test_config);
     virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config);
 
+    uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
+
     InitInfo init;
 };
 

@@ -3177,6 +3177,23 @@ void TestAppBase::configure_device_builder(DeviceBuilder&        device_builder,
 
 void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config) {}
 
+uint32_t TestAppBase::find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags)
+{
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    init.inst_disp.getPhysicalDeviceMemoryProperties(init.physical_device, &memory_properties);
+
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        if ((memoryTypeBits & (1 << i)) && (memory_properties.memoryTypes[i].propertyFlags & memory_property_flags) > 0)
+        {
+            return i;
+            break;
+        }
+    }
+
+    throw std::runtime_error("failed to find memory type");
+}
+
 bool DeviceBuilder::enable_extension_if_present(const char* extension)
 {
     return physical_device.enable_extension_if_present(extension);
