@@ -328,20 +328,35 @@ the name of the most recent capture file discovered when performing step
 
 To capture a replay requires some additional changes.
 
-### 1. Change the Debug app to the GFXRecon Quest replay app
+### 1. Build this project enabling capture of the Quest replay app
 
-If you haven't already done so, first follow the
-instructions to enable the debug layer in section [3. Enable
-GFXReconstruct](#3-enable-gfxreconstruct) in the Capturing IGL Content
-section above.
+By default, the replay does not include the necessary OpenXR
+capture layer manifest files.
+Because of this, you need to pass in the `EnableOpenXRCaptureOfReplay`
+Gradle propery during build to properly define all the dependencies
+for the capture layer.
 
-One change is to make sure that we: 
+This can be done in the following way:
 
-- Capture the correct application
-  (here it is the replay application) 
-- Adjust the capture file to use a
-  different name than the one being replayed (or you will overwrite what
-  you're reading)
+```bash
+gradlew assembleDebug -PEnableOpenXRCaptureOfReplay=true
+```
+
+Once rebuilt, the capture should be ready from the OpenXR side, however,
+you still will need to enable the Vulkan settings to completely and
+properly capture the necessary content.
+
+### 2. Change the Debug app to the GFXRecon Quest replay app
+
+If you haven't already done so, first follow the instructions to enable
+the debug layer in section
+[3. Enable GFXReconstruct](#3-enable-gfxreconstruct)
+in the Capturing IGL Content section above.
+
+One change is to make sure that we:
+* Capture the correct application (here it is the replay application)
+* Adjust the capture file to use a different name than
+the one being replayed (or you will overwrite what you're reading)
 
 ```bash
 adb shell settings put global gpu_debug_app com.lunarg.gfxreconstruct.replay

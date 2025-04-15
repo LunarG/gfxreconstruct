@@ -31,10 +31,18 @@ android {
             path "CMakeLists.txt"
         }
     }
-    androidResources {
-        ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
+    if (project.hasProperty("EnableOpenXRCaptureOfReplay"))
+    {
+        logger.info('GFXReconstruct OpenXR capture layer enabled in replay application (you must also enable the Vulkan side as well manually)')
     }
-}
+    else
+    {
+        logger.info('GFXReconstruct OpenXR capture layer not enabled in replay application [default]')
+        androidResources {
+            ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
+        }
+    }
+ }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
