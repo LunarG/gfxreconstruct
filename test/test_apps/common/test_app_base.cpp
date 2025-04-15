@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2612,6 +2612,15 @@ SwapchainBuilder& SwapchainBuilder::set_old_swapchain(Swapchain const& swapchain
     info.old_swapchain = swapchain.swapchain;
     return *this;
 }
+bool SwapchainBuilder::get_destroy_old_swapchain() const
+{
+    return info.destroy_old_swapchain;
+}
+SwapchainBuilder& SwapchainBuilder::set_destroy_old_swapchain(bool destroy)
+{
+    info.destroy_old_swapchain = destroy;
+    return *this;
+}
 SwapchainBuilder& SwapchainBuilder::set_desired_extent(uint32_t width, uint32_t height)
 {
     info.desired_width  = width;
@@ -2782,7 +2791,10 @@ create_surface_headless(VkInstance instance, vkb::InstanceDispatchTable& disp, V
 void create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain)
 {
     auto new_swapchain = swapchain_builder.set_old_swapchain(swapchain).build();
-    destroy_swapchain(swapchain);
+    if (swapchain_builder.get_destroy_old_swapchain())
+    {
+        destroy_swapchain(swapchain);
+    }
     swapchain = new_swapchain;
 }
 
