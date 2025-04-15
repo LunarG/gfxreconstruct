@@ -730,6 +730,75 @@ void OpenXrReplayConsumerBase::Process_xrCreateVulkanDeviceKHR(
                                 &CommonObjectInfoTable::AddVkDeviceInfo);
 }
 
+static XRAPI_ATTR XrBool32 XRAPI_CALL openXrDebugUtilsCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
+                                                               XrDebugUtilsMessageTypeFlagsEXT     messageTypes,
+                                                               const XrDebugUtilsMessengerCallbackDataEXT* callbackData,
+                                                               void*                                       userData)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(userData);
+
+    if ((callbackData != nullptr) && (callbackData->functionName != nullptr) && (callbackData->message != nullptr))
+    {
+        if (messageSeverity & XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+        {
+            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", callbackData->functionName, callbackData->message);
+        }
+        else if (messageSeverity & XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        {
+            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", callbackData->functionName, callbackData->message);
+        }
+        else if (messageSeverity & XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+        {
+            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", callbackData->functionName, callbackData->message);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", callbackData->functionName, callbackData->message);
+        }
+    }
+
+    return XR_FALSE;
+}
+
+void OpenXrReplayConsumerBase::Process_xrCreateDebugUtilsMessengerEXT(
+    const ApiCallInfo&                                                call_info,
+    XrResult                                                          returnValue,
+    format::HandleId                                                  instance,
+    StructPointerDecoder<Decoded_XrDebugUtilsMessengerCreateInfoEXT>* createInfo,
+    HandlePointerDecoder<XrDebugUtilsMessengerEXT>*                   messenger)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+
+    if (!messenger->IsNull())
+    {
+        messenger->SetHandleLength(1);
+    }
+    XrDebugUtilsMessengerEXT* out_messenger = messenger->GetHandlePointer();
+
+    XrDebugUtilsMessengerCreateInfoEXT modified_create_info{};
+    if (!createInfo->IsNull())
+    {
+        // We need to replace the original user callback with a stub so that we
+        // don't crash when whatever implements the debug utils messenger attempts
+        // to make a callback.
+        modified_create_info              = (*createInfo->GetPointer());
+        modified_create_info.userCallback = openXrDebugUtilsCallback;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("The xrCreateDebugUtilsMessengerEXT parameter pCreateInfo is NULL.");
+    }
+
+    XrResult replay_result =
+        GetInstanceTable(in_instance)->CreateDebugUtilsMessengerEXT(in_instance, &modified_create_info, out_messenger);
+    AddHandle<OpenXrDebugUtilsMessengerEXTInfo>(
+        instance, messenger->GetPointer(), out_messenger, &CommonObjectInfoTable::AddXrDebugUtilsMessengerEXTInfo);
+    AssociateParent(*out_messenger, in_instance);
+    CustomProcess<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::UpdateState(
+        this, call_info, returnValue, instance, createInfo, messenger, replay_result);
+    CheckResult("xrCreateDebugUtilsMessengerEXT", returnValue, replay_result, call_info);
+}
+
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     const ApiCallInfo&                                 call_info,
     XrResult                                           returnValue,

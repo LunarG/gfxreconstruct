@@ -538,13 +538,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            instance,
         StructPointerDecoder<Decoded_XrDebugUtilsObjectNameInfoEXT>* nameInfo) override;
 
-    virtual void Process_xrCreateDebugUtilsMessengerEXT(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            instance,
-        StructPointerDecoder<Decoded_XrDebugUtilsMessengerCreateInfoEXT>* createInfo,
-        HandlePointerDecoder<XrDebugUtilsMessengerEXT>* messenger) override;
-
     virtual void Process_xrDestroyDebugUtilsMessengerEXT(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

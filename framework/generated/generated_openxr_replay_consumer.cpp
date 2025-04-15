@@ -1231,27 +1231,6 @@ void OpenXrReplayConsumer::Process_xrSetDebugUtilsObjectNameEXT(
     CustomProcess<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>::UpdateState(this, call_info, returnValue, instance, nameInfo, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrCreateDebugUtilsMessengerEXT(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            instance,
-    StructPointerDecoder<Decoded_XrDebugUtilsMessengerCreateInfoEXT>* createInfo,
-    HandlePointerDecoder<XrDebugUtilsMessengerEXT>* messenger)
-{
-    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
-    const XrDebugUtilsMessengerCreateInfoEXT* in_createInfo = createInfo->GetPointer();
-    if (!messenger->IsNull()) { messenger->SetHandleLength(1); }
-    XrDebugUtilsMessengerEXT* out_messenger = messenger->GetHandlePointer();
-
-    XrResult replay_result = GetInstanceTable(in_instance)->CreateDebugUtilsMessengerEXT(in_instance, in_createInfo, out_messenger);
-    CheckResult("xrCreateDebugUtilsMessengerEXT", returnValue, replay_result, call_info);
-
-    AddHandle<OpenXrDebugUtilsMessengerEXTInfo>(instance, messenger->GetPointer(), out_messenger, &CommonObjectInfoTable::AddXrDebugUtilsMessengerEXTInfo);
-    
-    AssociateParent(*out_messenger, in_instance);
-    CustomProcess<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::UpdateState(this, call_info, returnValue, instance, createInfo, messenger, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrDestroyDebugUtilsMessengerEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

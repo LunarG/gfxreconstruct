@@ -695,6 +695,7 @@ def make_gen_opts(args):
                 'xrInitializeLoaderKHR',
                 'xrCreateInstance',
                 'xrCreateApiLayerInstance',
+                'xrCreateDebugUtilsMessengerEXT',
             ]
         )
     ]
