@@ -70,10 +70,104 @@ void OpenXrReplayConsumerBase::SetVulkanReplayConsumer(VulkanReplayConsumerBase*
     vulkan_replay_consumer_ = vulkan_replay_consumer;
 }
 
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSetDebugUtilsObjectNameEXT(XrInstance,
+                                                                             const XrDebugUtilsObjectNameInfoEXT*)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermCreateDebugUtilsMessengerEXT(
+    XrInstance, const XrDebugUtilsMessengerCreateInfoEXT*, XrDebugUtilsMessengerEXT*)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermDestroyDebugUtilsMessengerEXT(XrDebugUtilsMessengerEXT)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL
+ReplayXrTermSessionBeginDebugUtilsLabelRegionEXT(XrSession session, const XrDebugUtilsLabelEXT* labelInfo)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSessionEndDebugUtilsLabelRegionEXT(XrSession session)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSessionInsertDebugUtilsLabelEXT(XrSession                   session,
+                                                                                  const XrDebugUtilsLabelEXT* labelInfo)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL
+ReplayXrTermSubmitDebugUtilsMessageEXT(XrInstance                                  instance,
+                                       XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
+                                       XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                                       const XrDebugUtilsMessengerCallbackDataEXT* callbackData)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
 void OpenXrReplayConsumerBase::AddInstanceTable(XrInstance instance)
 {
     encode::OpenXrInstanceTable& table = instance_tables_[instance];
     encode::LoadOpenXrInstanceTable(get_instance_proc_addr_, instance, &table);
+
+    // Note: The "TrackingConsumer" may *also* need this, but there isn't an extant
+    //       place to put it for a common implementation
+
+    // The OpenXR loader doesn't always let the capture layer know that it has enabled
+    // the XR_EXT_debug_utils extension, s.t. at replay we don't know to enable it. In this
+    // case we can have a capture that both *doesn't* have the XR_EXT_debug_utils extension
+    // and *does* contain calls to specific debug utils entry points (for some reason only
+    // 4 of them are terminated by the OpenXrLoader).
+
+    // So... check those entries in the table and add a terminator, just in case.
+    if (!table.SetDebugUtilsObjectNameEXT)
+    {
+        table.SetDebugUtilsObjectNameEXT = ReplayXrTermSetDebugUtilsObjectNameEXT;
+    }
+
+    if (!table.CreateDebugUtilsMessengerEXT)
+    {
+        table.CreateDebugUtilsMessengerEXT = ReplayXrTermCreateDebugUtilsMessengerEXT;
+    }
+
+    if (!table.DestroyDebugUtilsMessengerEXT)
+    {
+        table.DestroyDebugUtilsMessengerEXT = ReplayXrTermDestroyDebugUtilsMessengerEXT;
+    }
+
+    if (!table.SubmitDebugUtilsMessageEXT)
+    {
+        table.SubmitDebugUtilsMessageEXT = ReplayXrTermSubmitDebugUtilsMessageEXT;
+    }
+    if (!table.SessionBeginDebugUtilsLabelRegionEXT)
+    {
+        table.SessionBeginDebugUtilsLabelRegionEXT = ReplayXrTermSessionBeginDebugUtilsLabelRegionEXT;
+    }
+
+    if (!table.SessionEndDebugUtilsLabelRegionEXT)
+    {
+        table.SessionEndDebugUtilsLabelRegionEXT = ReplayXrTermSessionEndDebugUtilsLabelRegionEXT;
+    }
+
+    if (!table.SessionInsertDebugUtilsLabelEXT)
+    {
+        table.SessionInsertDebugUtilsLabelEXT = ReplayXrTermSessionInsertDebugUtilsLabelEXT;
+    }
 }
 
 const encode::OpenXrInstanceTable* OpenXrReplayConsumerBase::GetInstanceTable(XrInstance handle) const
