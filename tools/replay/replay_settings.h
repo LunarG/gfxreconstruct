@@ -124,7 +124,7 @@ static void PrintUsage(const char* exe_name)
 #endif
     GFXRECON_WRITE_CONSOLE(
         "  --debug-messenger-level <level>\tSpecify highest debug messenger severity level. Options are:")
-    GFXRECON_WRITE_CONSOLE("          \t\tdebug, info, warning, and error. Default is info.");
+    GFXRECON_WRITE_CONSOLE("          \t\tdebug, info, warning, and error. Default is warning.");
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
