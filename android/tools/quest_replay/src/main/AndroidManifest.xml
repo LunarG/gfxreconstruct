@@ -3,9 +3,22 @@
           android:versionCode="1"
           android:versionName="1.0"
           android:installLocation="auto">
-    <uses-feature android:name="com.oculus.experimental.enabled" android:required="false" />
-    <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
-    <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+
+    <!-- Tell Android that this application works in either 3DOF or 6DOF mode,
+     as well as on devices that are not all-in-ones. It must be set to false to allow
+     devices where the runtime was installed later to run the application. -->
+    <uses-feature
+        android:name="android.hardware.vr.headtracking"
+        android:required="false" />
+    <uses-feature
+        android:name="com.oculus.experimental.enabled"
+        android:required="false" />
+    <uses-feature
+        android:name="com.oculus.feature.PASSTHROUGH"
+        android:required="false" />
+    <uses-feature
+        android:name="oculus.software.handtracking"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -34,8 +47,17 @@
                   android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
             <meta-data android:name="android.app.lib_name"
                        android:value="gfxrecon-quest-replay" />
+
+            <!-- Android and Khronos intent filter. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+
+                <category android:name="org.khronos.openxr.intent.category.IMMERSIVE_HMD" />
+            </intent-filter>
+
+            <!-- Meta Quest-specific non-standard intent filter. -->
+            <intent-filter>
                 <category android:name="com.oculus.intent.category.VR" />
             </intent-filter>
         </activity>
