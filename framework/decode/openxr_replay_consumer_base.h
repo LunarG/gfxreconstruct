@@ -181,6 +181,13 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                               StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
                                               StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations) override;
 
+    virtual void
+    Process_xrCreateDebugUtilsMessengerEXT(const ApiCallInfo& call_info,
+                                           XrResult           returnValue,
+                                           format::HandleId   instance,
+                                           StructPointerDecoder<Decoded_XrDebugUtilsMessengerCreateInfoEXT>* createInfo,
+                                           HandlePointerDecoder<XrDebugUtilsMessengerEXT>* messenger) override;
+
     void UpdateState_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo&                      call_info,
                                                   XrResult                                returnValue,
                                                   format::HandleId                        instance,
