@@ -66,8 +66,8 @@ class KhronosStructEncodersBodyGenerator():
         write(body, file=self.outFile)
 
     def make_child_struct_cast_switch(self, parent_struct, value, struct_type_var):
-        default_case = 'GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", {}.{});'.format(
-            value, struct_type_var
+        default_case = 'GFXRECON_LOG_WARNING("EncodeStruct({}): unrecognized child structure type %d", {}.{});'.format(
+            parent_struct, value, struct_type_var
         )
         break_string = 'break;'
         switch_expression = 'value.{}'.format(struct_type_var)
