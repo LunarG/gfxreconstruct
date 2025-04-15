@@ -696,6 +696,7 @@ def make_gen_opts(args):
                 'xrCreateInstance',
                 'xrCreateApiLayerInstance',
                 'xrCreateDebugUtilsMessengerEXT',
+                'xrEnumerateEnvironmentBlendModes',
             ]
         )
     ]

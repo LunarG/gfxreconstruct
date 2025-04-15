@@ -87,16 +87,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            systemId,
         StructPointerDecoder<Decoded_XrSystemProperties>* properties) override;
 
-    virtual void Process_xrEnumerateEnvironmentBlendModes(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            instance,
-        format::HandleId                            systemId,
-        XrViewConfigurationType                     viewConfigurationType,
-        uint32_t                                    environmentBlendModeCapacityInput,
-        PointerDecoder<uint32_t>*                   environmentBlendModeCountOutput,
-        PointerDecoder<XrEnvironmentBlendMode>*     environmentBlendModes) override;
-
     virtual void Process_xrCreateSession(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

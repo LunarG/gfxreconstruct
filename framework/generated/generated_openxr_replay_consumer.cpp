@@ -146,26 +146,6 @@ void OpenXrReplayConsumer::Process_xrGetSystemProperties(
     CustomProcess<format::ApiCallId::ApiCall_xrGetSystemProperties>::UpdateState(this, call_info, returnValue, instance, systemId, properties, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrEnumerateEnvironmentBlendModes(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            instance,
-    format::HandleId                            systemId,
-    XrViewConfigurationType                     viewConfigurationType,
-    uint32_t                                    environmentBlendModeCapacityInput,
-    PointerDecoder<uint32_t>*                   environmentBlendModeCountOutput,
-    PointerDecoder<XrEnvironmentBlendMode>*     environmentBlendModes)
-{
-    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
-    XrSystemId in_systemId = MapHandle<OpenXrSystemIdInfo>(systemId, &CommonObjectInfoTable::GetXrSystemIdInfo);
-    uint32_t* out_environmentBlendModeCountOutput = environmentBlendModeCountOutput->IsNull() ? nullptr : environmentBlendModeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
-    XrEnvironmentBlendMode* out_environmentBlendModes = environmentBlendModes->IsNull() ? nullptr : environmentBlendModes->AllocateOutputData(environmentBlendModeCapacityInput);
-
-    XrResult replay_result = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes(in_instance, in_systemId, viewConfigurationType, environmentBlendModeCapacityInput, out_environmentBlendModeCountOutput, out_environmentBlendModes);
-    CheckResult("xrEnumerateEnvironmentBlendModes", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::UpdateState(this, call_info, returnValue, instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrCreateSession(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
