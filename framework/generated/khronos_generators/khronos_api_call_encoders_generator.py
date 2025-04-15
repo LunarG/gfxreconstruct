@@ -28,6 +28,11 @@ class KhronosApiCallEncodersGenerator():
     """KhronosApiCallEncodersGenerator
     Common functions for Api Call Encoding generation
     """
+    def __init__(self, check_write=None):
+        if check_write:
+            self.CHECK_WRITE = check_write
+        else:
+            self.CHECK_WRITE = []
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
