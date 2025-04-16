@@ -475,8 +475,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(
         manager->EndDestroyApiCallCapture<vulkan_wrappers::DeviceWrapper>(device);
     }
 
-    ScopedDestroyLock exclusive_scoped_lock;
-    vulkan_wrappers::GetDeviceTable(device)->DestroyDevice(device, pAllocator);
+    manager->OverrideDestroyDevice(device, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(manager, device, pAllocator);
 
@@ -715,8 +714,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeMemory(
         manager->EndDestroyApiCallCapture<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     }
 
-    ScopedDestroyLock exclusive_scoped_lock;
-    vulkan_wrappers::GetDeviceTable(device)->FreeMemory(device, memory, pAllocator);
+    manager->OverrideFreeMemory(device, memory, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(manager, device, memory, pAllocator);
 
@@ -2117,8 +2115,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImage(
         manager->EndDestroyApiCallCapture<vulkan_wrappers::ImageWrapper>(image);
     }
 
-    ScopedDestroyLock exclusive_scoped_lock;
-    vulkan_wrappers::GetDeviceTable(device)->DestroyImage(device, image, pAllocator);
+    manager->OverrideDestroyImage(device, image, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(manager, device, image, pAllocator);
 
@@ -2188,16 +2185,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImageView(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImageView>::Dispatch(manager, device, pCreateInfo, pAllocator, pView);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkImageViewCreateInfo* pCreateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateImageView(device, pCreateInfo_unwrapped, pAllocator, pView);
-
-    if (result >= 0)
-    {
-        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::NoParentWrapper, vulkan_wrappers::ImageViewWrapper>(device, vulkan_wrappers::NoParentWrapper::kHandleValue, pView, VulkanCaptureManager::GetUniqueId);
-    }
-    else
+    VkResult result = manager->OverrideCreateImageView(device, pCreateInfo, pAllocator, pView);
+    if (result < 0)
     {
         omit_output_data = true;
     }
@@ -2688,16 +2677,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSampler(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSampler>::Dispatch(manager, device, pCreateInfo, pAllocator, pSampler);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkSamplerCreateInfo* pCreateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateSampler(device, pCreateInfo_unwrapped, pAllocator, pSampler);
-
-    if (result >= 0)
-    {
-        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::NoParentWrapper, vulkan_wrappers::SamplerWrapper>(device, vulkan_wrappers::NoParentWrapper::kHandleValue, pSampler, VulkanCaptureManager::GetUniqueId);
-    }
-    else
+    VkResult result = manager->OverrideCreateSampler(device, pCreateInfo, pAllocator, pSampler);
+    if (result < 0)
     {
         omit_output_data = true;
     }
