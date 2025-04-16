@@ -1217,6 +1217,20 @@ void VulkanReplayDumpResourcesBase::OverrideCmdSetVertexInputEXT(
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2EXT(const ApiCallInfo&             call_info,
+                                                                     PFN_vkCmdBindVertexBuffers2EXT func,
+                                                                     VkCommandBuffer         original_command_buffer,
+                                                                     uint32_t                firstBinding,
+                                                                     uint32_t                bindingCount,
+                                                                     const format::HandleId* pBuffers_ids,
+                                                                     const VkDeviceSize*     pOffsets,
+                                                                     const VkDeviceSize*     pSizes,
+                                                                     const VkDeviceSize*     pStrides)
+{
+    HandleCmdBindVertexBuffers2(
+        call_info, func, original_command_buffer, firstBinding, bindingCount, pBuffers_ids, pOffsets, pSizes, pStrides);
+}
+
 void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                                                   PFN_vkCmdBindVertexBuffers2 func,
                                                                   VkCommandBuffer             original_command_buffer,
@@ -1226,6 +1240,20 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
                                                                   const VkDeviceSize*         pOffsets,
                                                                   const VkDeviceSize*         pSizes,
                                                                   const VkDeviceSize*         pStrides)
+{
+    HandleCmdBindVertexBuffers2(
+        call_info, func, original_command_buffer, firstBinding, bindingCount, pBuffers_ids, pOffsets, pSizes, pStrides);
+}
+
+void VulkanReplayDumpResourcesBase::HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
+                                                                PFN_vkCmdBindVertexBuffers2 func,
+                                                                VkCommandBuffer             original_command_buffer,
+                                                                uint32_t                    firstBinding,
+                                                                uint32_t                    bindingCount,
+                                                                const format::HandleId*     pBuffers_ids,
+                                                                const VkDeviceSize*         pOffsets,
+                                                                const VkDeviceSize*         pSizes,
+                                                                const VkDeviceSize*         pStrides)
 {
     CommandBufferIterator first, last;
     bool                  dc_found = GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
@@ -1251,11 +1279,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
         DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
         if (dc_context != nullptr && bindingCount)
         {
-            assert(pBuffers_ids);
-            assert(pOffsets);
-            assert(pSizes);
-            assert(pStrides);
-
             std::vector<const VulkanBufferInfo*> buffer_infos(bindingCount);
 
             for (uint32_t i = 0; i < bindingCount; ++i)
