@@ -28,6 +28,7 @@ android {
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
                 if (project.hasProperty("DisableOpenXR")) {
                     logger.info('GFXReconstruct layer built with NO OpenXr Support! [DisableOpenXR found]')
+                    arguments.add("-DGFXRECON_ENABLE_OPENXR=OFF")
                 }
                 else {
                     logger.info('GFXReconstruct layer built with OpenXr Support.')
