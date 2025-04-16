@@ -133,10 +133,12 @@ if (GFXRECON_ENABLE_OPENXR)
 
     if ((NOT XR_VERSION_MAJOR STREQUAL "") AND (NOT XR_VERSION_MINOR STREQUAL ""))
         set(OPENXR_SUPPORT_ENABLED TRUE)
+        message(STATUS "OpenXR support enabled")
     else()
         message(FATAL_ERROR "Failed to find OpenXR headers for support!")
     endif()
-
+else()
+    message(STATUS "OpenXR support disabled!")
 endif()
 
 # Apply misc build directives to the given target
