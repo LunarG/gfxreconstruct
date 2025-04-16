@@ -623,6 +623,70 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
     }
 }
 
+void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
+                                                          const uint8_t*                       parameters_data)
+{
+    GFXRECON_ASSERT(command_header.capture_id != format::kNullHandleId);
+    auto meta_command_obj = MapObject<ID3D12MetaCommand>(command_header.capture_id);
+    GFXRECON_ASSERT(meta_command_obj != nullptr);
+
+    auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(meta_command_obj);
+    if (device != nullptr)
+    {
+        if ((command_header.block_index == 1) && (resource_data_util_ == nullptr))
+        {
+            resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, 0);
+            auto hr             = resource_data_util_->ResetCommandList();
+            GFXRECON_ASSERT(SUCCEEDED(hr));
+        }
+
+        if (command_header.initialization_parameters_data_size > 0)
+        {
+            if (meta_command_guids_.find(meta_command_obj) != meta_command_guids_.end())
+            {
+                MapMetaCommandParameters(device,
+                                         meta_command_guids_[meta_command_obj],
+                                         D3D12_META_COMMAND_PARAMETER_STAGE_INITIALIZATION,
+                                         const_cast<uint8_t*>(parameters_data),
+                                         command_header.initialization_parameters_data_size);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Meta command GUID not found in meta command GUID map.");
+            }
+        }
+
+        if (resource_data_util_ != nullptr)
+        {
+            resource_data_util_->InitializeMetaCommand(
+                meta_command_obj, parameters_data, command_header.initialization_parameters_data_size);
+
+            if (command_header.block_index == command_header.total_number_of_initializemetacommand)
+            {
+                auto hr = resource_data_util_->CloseCommandList();
+                if (SUCCEEDED(hr))
+                {
+                    hr = resource_data_util_->ExecuteAndWaitForCommandList();
+                    if (!SUCCEEDED(hr))
+                    {
+                        GFXRECON_LOG_ERROR("Failed to execute command list for meta command initialization.");
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to close command list for meta command initialization.");
+                }
+            }
+            resource_data_util_ = nullptr;
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to get ID3D12Device5 from ID3D12MetaCommand object (ID = %" PRIu64 ")",
+                           command_header.capture_id);
+    }
+}
+
 void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     const format::InitDx12AccelerationStructureCommandHeader&       command_header,
     std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,

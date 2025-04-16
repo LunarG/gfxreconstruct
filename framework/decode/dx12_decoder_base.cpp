@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -319,6 +319,15 @@ void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCo
     for (auto consumer : consumers_)
     {
         consumer->ProcessDx12RuntimeInfo(dx12_runtime_info_header);
+    }
+}
+
+void Dx12DecoderBase::DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
+                                                    const uint8_t*                 initialization_parameters_data)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitializeMetaCommand(header, initialization_parameters_data);
     }
 }
 

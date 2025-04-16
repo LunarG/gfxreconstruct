@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2023 Valve Corporation
 ** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -214,6 +215,18 @@ class MetadataJsonConsumer : public Base
         HandleToJson(jdata["swapchain_id"], swapchain_id, json_options);
         FieldToJson(jdata["last_presented_image"], last_presented_image, json_options);
         FieldToJson(jdata["image_state"], "not available", json_options);
+        WriteBlockEnd();
+    }
+
+    virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
+                                              const uint8_t*                       parameters_data) override
+    {
+        const util::JsonOptions& json_options = GetJsonOptions();
+        auto&                    jdata        = WriteMetaCommandStart("InitializeMetaCommand");
+        HandleToJson(jdata["MetaCommand_id"], command_header.capture_id, json_options);
+        FieldToJson(jdata["InitializationParametersDataSizeInBytes"],
+                    command_header.initialization_parameters_data_size,
+                    json_options);
         WriteBlockEnd();
     }
 

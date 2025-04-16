@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -187,33 +188,36 @@ class ApiDecoder
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data) = 0;
 
-    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
+    virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) {};
 
-    virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
+    virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) {};
 
     virtual void DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
                                                uint32_t           n_blocks,
                                                int64_t            offset,
-                                               const std::string& filename){};
+                                               const std::string& filename) {};
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index){};
+    virtual void SetCurrentBlockIndex(uint64_t block_index) {};
 
-    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
+    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) {};
 
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
-                                                        const std::vector<format::HandleId>& blases){};
+                                                        const std::vector<format::HandleId>& blases) {};
 
     virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                        const char*                             env_string){};
+                                                        const char*                             env_string) {};
 
     virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
-                                                                      size_t         buffer_size){};
+                                                                      size_t         buffer_size) {};
 
     virtual void DispatchVulkanAccelerationStructuresCopyMetaCommand(const uint8_t* parameter_buffer,
-                                                                     size_t         buffer_size){};
+                                                                     size_t         buffer_size) {};
 
     virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
-                                                                                size_t         buffer_size){};
+                                                                                size_t         buffer_size) {};
+
+    virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
+                                               const uint8_t*                 initialization_parameters_data) {};
 };
 
 GFXRECON_END_NAMESPACE(decode)

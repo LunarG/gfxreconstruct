@@ -443,7 +443,9 @@ struct ID3D12HeapInfo : public DxWrapperInfo
 };
 
 struct ID3D12MetaCommandInfo : public DxWrapperInfo
-{};
+{
+    std::unique_ptr<util::MemoryOutputStream> initialize_parameters;
+};
 
 struct ID3D12ShaderCacheSessionInfo : public DxWrapperInfo
 {};

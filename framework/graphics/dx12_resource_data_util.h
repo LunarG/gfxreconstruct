@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -126,6 +127,10 @@ class Dx12ResourceDataUtil
                                  const std::vector<dx12::ResourceStateInfo>& after_states,
                                  ID3D12CommandQueue*                         queue = nullptr);
 
+    void InitializeMetaCommand(ID3D12MetaCommand* pMetaCommand,
+                               const void*        pInitializationParametersData,
+                               SIZE_T             InitializationParametersDataSizeInBytes);
+
   private:
     // Copy data to or from a mappable resource.
     static bool CopyMappableResource(ID3D12Resource*              target_resource,
@@ -135,15 +140,15 @@ class Dx12ResourceDataUtil
                                      const std::vector<uint64_t>& subresource_offsets,
                                      const std::vector<uint64_t>& subresource_sizes);
 
-    ID3D12Device*                         device_;
-    dx12::ID3D12CommandQueueComPtr        command_queue_;
-    dx12::ID3D12CommandAllocatorComPtr    command_allocator_;
-    dx12::ID3D12GraphicsCommandListComPtr command_list_;
-    dx12::ID3D12ResourceComPtr            staging_buffers_[2];
-    dx12::ID3D12FenceComPtr               command_fence_;
-    uint64_t                              staging_buffer_sizes_[2];
-    const uint64_t                        min_buffer_size_;
-    uint64_t                              fence_value_;
+    ID3D12Device*                          device_;
+    dx12::ID3D12CommandQueueComPtr         command_queue_;
+    dx12::ID3D12CommandAllocatorComPtr     command_allocator_;
+    dx12::ID3D12GraphicsCommandList4ComPtr command_list_;
+    dx12::ID3D12ResourceComPtr             staging_buffers_[2];
+    dx12::ID3D12FenceComPtr                command_fence_;
+    uint64_t                               staging_buffer_sizes_[2];
+    const uint64_t                         min_buffer_size_;
+    uint64_t                               fence_value_;
 
     // Temporary buffers.
     std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> temp_subresource_layouts_;

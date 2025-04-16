@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020,2022 Valve Corporation
 ** Copyright (c) 2018-2020,2022 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2156,6 +2156,69 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kInitializeMetaCommand)
+    {
+        format::InitializeMetaCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.capture_id, sizeof(header.capture_id));
+        success = success && ReadBytes(&header.block_index, sizeof(header.block_index));
+        success = success && ReadBytes(&header.total_number_of_initializemetacommand,
+                                       sizeof(header.total_number_of_initializemetacommand));
+        success = success && ReadBytes(&header.initialization_parameters_data_size,
+                                       sizeof(header.initialization_parameters_data_size));
+
+        if (success)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.initialization_parameters_data_size);
+            if (header.initialization_parameters_data_size > 0)
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    size_t uncompressed_size = 0;
+                    size_t compressed_size   = static_cast<size_t>(block_header.size) -
+                                             (sizeof(header) - sizeof(header.meta_header.block_header));
+
+                    success =
+                        ReadCompressedParameterBuffer(compressed_size,
+                                                      static_cast<size_t>(header.initialization_parameters_data_size),
+                                                      &uncompressed_size);
+                }
+                else
+                {
+                    success = ReadParameterBuffer(static_cast<size_t>(header.initialization_parameters_data_size));
+                }
+            }
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    if (decoder->SupportsMetaDataId(meta_data_id))
+                    {
+                        decoder->DispatchInitializeMetaCommand(header, parameter_buffer_.data());
+                    }
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read init subresource data meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData,
+                                         "Failed to read init subresource data meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read init subresource data meta-data block header");
         }
     }
     else

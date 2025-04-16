@@ -144,7 +144,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     StandardCreateWrite<ID3D12DeviceRemovedExtendedData_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeOwner_Wrapper>(state_table);
     StandardCreateWrite<ID3D12LifetimeTracker_Wrapper>(state_table);
-    StandardCreateWrite<ID3D12MetaCommand_Wrapper>(state_table);
+    WriteMetaCommandCreationState(state_table);
     StandardCreateWrite<ID3D12ProtectedResourceSession_Wrapper>(state_table);
     StandardCreateWrite<ID3D12QueryHeap_Wrapper>(state_table);
     StandardCreateWrite<ID3D12Tools_Wrapper>(state_table);
@@ -693,6 +693,52 @@ void Dx12StateWriter::WriteResourceCreationState(
         mappable_resource->Unmap(map_info.subresource, &graphics::dx12::kZeroRange);
 
         parameter_stream_.Clear();
+    }
+}
+
+void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*>     processed;
+    std::vector<ID3D12MetaCommand_Wrapper*> metacommand_wrappers;
+    state_table.VisitWrappers([&](ID3D12MetaCommand_Wrapper* wrapper) {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+        assert(wrapper->GetObjectInfo()->create_parameters != nullptr);
+
+        // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+        // all reference the same parameter buffer.
+        auto wrapper_info = wrapper->GetObjectInfo();
+        if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+        {
+            StandardCreateWrite(wrapper);
+            metacommand_wrappers.push_back(wrapper);
+            processed.insert(wrapper_info->create_parameters.get());
+        }
+    });
+
+    if (metacommand_wrappers.size() > 0)
+    {
+        uint32_t block_index = 0;
+        for (auto wrapper : metacommand_wrappers)
+        {
+            // Write the meta command init call.
+            auto                          wrapper_info = wrapper->GetObjectInfo();
+            format::InitializeMetaCommand init_meta_command;
+            init_meta_command.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_meta_command) +
+                                                              wrapper_info->initialize_parameters->GetDataSize();
+            init_meta_command.meta_header.block_header.type = format::kMetaDataBlock;
+            init_meta_command.meta_header.meta_data_id      = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitializeMetaCommand);
+            init_meta_command.thread_id                           = thread_id_;
+            init_meta_command.capture_id                          = wrapper->GetCaptureId();
+            init_meta_command.initialization_parameters_data_size = wrapper_info->initialize_parameters->GetDataSize();
+            init_meta_command.total_number_of_initializemetacommand = metacommand_wrappers.size();
+            init_meta_command.block_index                           = ++block_index;
+
+            output_stream_->Write(&init_meta_command, sizeof(init_meta_command));
+            output_stream_->Write(wrapper_info->initialize_parameters->GetData(),
+                                  wrapper_info->initialize_parameters->GetDataSize());
+        }
     }
 }
 

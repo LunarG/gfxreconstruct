@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -217,6 +218,9 @@ class Dx12DecoderBase : public ApiDecoder
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) override;
+
+    virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
+                                               const uint8_t*                 initialization_parameters_data) override;
 
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
