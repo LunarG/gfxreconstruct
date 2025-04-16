@@ -65,5 +65,6 @@ target_link_libraries(
         android
         log
         OpenXR::openxr_loader)
-
+else()
+    message(WARNING "OpenXR support disabled!")
 endif()

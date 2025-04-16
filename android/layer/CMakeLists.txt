@@ -26,6 +26,8 @@ if (GFXRECON_ENABLE_OPENXR)
     else()
 	    message(FATAL_ERROR "Failed to find OpenXR headers for support.  Continuing with it disabled!")
     endif()
+else()
+    message(STATUS "OpenXR support disabled!")
 endif()
 
 add_subdirectory(../framework/util ${PROJECT_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
