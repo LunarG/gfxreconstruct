@@ -368,6 +368,10 @@ if (BUILD_WERROR)
     endif ()
 endif ()
 
+if(MSVC)
+    target_compile_options(platform_specific INTERFACE /MP)
+endif()
+
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
