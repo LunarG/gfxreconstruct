@@ -21,6 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "util/platform.h"
+
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "layer/trace_layer.h"
@@ -720,6 +722,40 @@ GFXRECON_END_NAMESPACE(openxr_entry)
 #endif // ENABLE_OPENXR_SUPPORT
 
 GFXRECON_END_NAMESPACE(gfxrecon)
+#ifdef ENABLE_OPENXR_SUPPORT
+#ifdef __ANDROID__
+static bool IsVulkanCaptureEnabled()
+{
+    const char* kEnable    = "enable_gpu_debug_layers"; // Must be "1"
+    const char* kLayers    = "gpu_debug_layers";        // Must contain kLayerName
+    const char  kSepChar   = ':';                       // kLayers ':' delimited
+    const char* kLayerName = "VK_LAYER_LUNARG_gfxreconstruct";
+
+    // Note: On Android GetEnv wraps system property lookups
+    std::string enable = gfxrecon::util::platform::GetEnv(kEnable);
+    std::string layers = gfxrecon::util::platform::GetEnv(kLayers);
+    GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: WIP ZZZ layers %s", layers.c_str());
+
+    if (enable != std::string("1"))
+    {
+        GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: WIP ZZZ enable expected 1, received %s",
+                           enable.c_str());
+        return false;
+    }
+
+    std::stringstream layer_stream(layers);
+    for (std::string layer; std::getline(layer_stream, layer, kSepChar);)
+    {
+        GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: WIP ZZZ layer %s", layer.c_str());
+        if (layer == kLayerName)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+#endif // __ANDROID__
+#endif // ENABLE_OPENXR_SUPPORT
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define GFXR_EXPORT __attribute__((visibility("default")))
@@ -811,6 +847,17 @@ extern "C"
             GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: Failed checking incoming structs");
             return XR_ERROR_VALIDATION_FAILURE;
         }
+
+#ifdef __ANDROID__
+        // Currently, Vulkan Capture must *also* be enabled when OpenXR capture is enabled,
+        // and we can tell on Android by checking the properties
+        if (!IsVulkanCaptureEnabled())
+        {
+            GFXRECON_LOG_ERROR(
+                "xrNegotiateLoaderApiLayerInterface: Vulkan Capture must be enabled during OpenXR capture");
+            return XR_ERROR_INITIALIZATION_FAILED;
+        }
+#endif // __ANDROID__
 
         const uint32_t layer_cur_interface_version = 1;
         const uint8_t  loader_min_major_version    = XR_VERSION_MAJOR(loaderInfo->minApiVersion);
