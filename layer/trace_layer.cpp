@@ -799,9 +799,8 @@ extern "C"
     }
 
 #ifdef ENABLE_OPENXR_SUPPORT
-    XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo* loaderInfo,
-                                                                      const char*                  layerName,
-                                                                      XrNegotiateApiLayerRequest*  apiLayerRequest)
+    GFXR_EXPORT XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(
+        const XrNegotiateLoaderInfo* loaderInfo, const char* layerName, XrNegotiateApiLayerRequest* apiLayerRequest)
     {
         // Wrong layer name or something wrong with incoming structs
         if (layerName == nullptr || (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) != 0) ||
@@ -849,9 +848,9 @@ extern "C"
     // TODO: This stub likely makes different trace_layer.def files unneeded, should simplify the CMake
 
     // This is a stub to satisfy Windows exports (in the .def file) when ENABLE_OPENXR_SUPPORT is false
-    VKAPI_ATTR uint32_t VKAPI_CALL xrNegotiateLoaderApiLayerInterface(const void* loaderInfo,
-                                                                      const char* layerName,
-                                                                      void*       apiLayerRequest)
+    GFXR_EXPORT VKAPI_ATTR uint32_t VKAPI_CALL xrNegotiateLoaderApiLayerInterface(const void* loaderInfo,
+                                                                                  const char* layerName,
+                                                                                  void*       apiLayerRequest)
     {
         return -23; // XR_ERROR_LAYER_INVALID
     }
