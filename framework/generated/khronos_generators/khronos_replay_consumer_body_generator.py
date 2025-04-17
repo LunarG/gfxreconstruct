@@ -289,7 +289,7 @@ class KhronosReplayConsumerBodyGenerator():
 
         self.newline()
         write(
-            'static void InitializeOutputStruct{}Impl(const {}* {}, {}* output_struct)'
+            'void InitializeOutputStruct{}Impl(const {}* {}, {}* output_struct)'
             .format(
                 api_data.extended_struct_func_prefix, api_data.base_in_struct,
                 var_name, api_data.base_out_struct

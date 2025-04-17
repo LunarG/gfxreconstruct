@@ -25,6 +25,8 @@
 **
 */
 
+#if defined(D3D12_SUPPORT)
+
 #include "generated_dx12_struct_decoders.h"
 
 #include "decode/custom_dx12_struct_decoders.h"
@@ -4726,3 +4728,5 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded__SECURITY
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)

@@ -28,6 +28,9 @@
 #ifndef  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_H
 
+#if defined(D3D12_SUPPORT)
+
+#ifdef WIN32
 #include <dxgiformat.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
@@ -44,6 +47,10 @@
 #include <guiddef.h>
 #include <windef.h>
 #include <minwinbase.h>
+#else
+#include "format/platform_types.h"
+#endif // WIN32
+
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/string_array_decoder.h"
@@ -2452,5 +2459,7 @@ struct Decoded__SECURITY_ATTRIBUTES
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)
 
 #endif

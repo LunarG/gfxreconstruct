@@ -25,6 +25,8 @@
 **
 */
 
+#if defined(D3D12_SUPPORT)
+
 #include "generated_dx12_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -4934,3 +4936,5 @@ std::string ToString(const IID& iid)
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)

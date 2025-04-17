@@ -3112,6 +3112,70 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
     }
 }
 
+#ifdef ENABLE_OPENXR_SUPPORT
+void VulkanCaptureManager::PreProcess_vkDestroyFence(VkDevice                     device,
+                                                     VkFence                      fence,
+                                                     const VkAllocationCallbacks* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    RemoveValidFence(fence);
+}
+
+void VulkanCaptureManager::PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    if (GetSkipThreadsWithInvalidData())
+    {
+        for (uint32_t fence = 0; fence < fenceCount; ++fence)
+        {
+            if (!IsValidFence(pFences[fence]))
+            {
+                // Skip this thread in the future since it is likely internal to the
+                // OpenXR runtime
+                util::ThreadData* thread_data = GetThreadData();
+                thread_data->EnableSkipCurrentThreadInFuture();
+                break;
+            }
+        }
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkGetFenceStatus(VkDevice device, VkFence fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    if (GetSkipThreadsWithInvalidData() && !IsValidFence(fence))
+    {
+        // Skip this thread in the future since it is likely internal to the
+        // OpenXR runtime
+        util::ThreadData* thread_data = GetThreadData();
+        thread_data->EnableSkipCurrentThreadInFuture();
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkWaitForFences(
+    VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(waitAll);
+    GFXRECON_UNREFERENCED_PARAMETER(timeout);
+    if (GetSkipThreadsWithInvalidData())
+    {
+        for (uint32_t fence = 0; fence < fenceCount; ++fence)
+        {
+            if (!IsValidFence(pFences[fence]))
+            {
+                // Skip this thread in the future since it is likely internal to the
+                // OpenXR runtime
+                util::ThreadData* thread_data = GetThreadData();
+                thread_data->EnableSkipCurrentThreadInFuture();
+                break;
+            }
+        }
+    }
+}
+#endif
+
 void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                                          VkPipelineBindPoint pipelineBindPoint,
                                                          VkPipeline          pipeline)
@@ -3741,6 +3805,81 @@ void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectTagEXT(VkResult     
         }
     }
 }
+
+#ifdef ENABLE_OPENXR_SUPPORT
+void VulkanCaptureManager::PostProcess_vkCreateFence(VkResult                     result,
+                                                     VkDevice                     device,
+                                                     const VkFenceCreateInfo*     pCreateInfo,
+                                                     const VkAllocationCallbacks* pAllocator,
+                                                     VkFence*                     pFence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    if (result == VK_SUCCESS)
+    {
+        AddValidFence(*pFence);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkImportFenceWin32HandleKHR(
+    VkResult result, VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    // NOTE: Double check this logic re: imported fences.  pImportFenceWin32HandleInfo->fence should already have been
+    // added at CreateFence time, and thus we're adding it again.
+    if (result == VK_SUCCESS)
+    {
+        AddValidFence(pImportFenceWin32HandleInfo->fence);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkImportFenceFdKHR(VkResult                      result,
+                                                          VkDevice                      device,
+                                                          const VkImportFenceFdInfoKHR* pImportFenceFdInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    // NOTE: Double check this logic re: imported fences.  pImportFenceWin32HandleInfo->fence should already have been
+    // added at CreateFence time, and thus we're adding it again.
+    if (result == VK_SUCCESS)
+    {
+        AddValidFence(pImportFenceFdInfo->fence);
+    }
+}
+
+// Track which fences are valid by seeing which ones are created in the
+// threads we're tracking.  Since we disable re-entrant command tracking
+// (i.e. OpenXR runtime using Vulkan commands) we may have not see
+// fence creation but we still may encounter fences being used that we
+// don't know about.  Because of this, we will not record those and we will
+// also stop tracking the content of those threads once we've encountered
+// this situation.
+void VulkanCaptureManager::AddValidFence(VkFence fence)
+{
+    if (fence != VK_NULL_HANDLE && common_manager_->IsCaptureModeWrite())
+    {
+        valid_fences_.insert(fence);
+    }
+}
+
+void VulkanCaptureManager::RemoveValidFence(VkFence fence)
+{
+    if (fence != VK_NULL_HANDLE)
+    {
+        valid_fences_.erase(fence);
+    }
+}
+
+bool VulkanCaptureManager::IsValidFence(VkFence fence)
+{
+    if (fence == VK_NULL_HANDLE)
+    {
+        return true;
+    }
+    return valid_fences_.find(fence) != valid_fences_.end();
+}
+
+#endif
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

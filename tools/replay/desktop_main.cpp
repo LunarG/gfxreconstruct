@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -32,6 +32,13 @@
 #include "decode/vulkan_pre_process_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_tracked_object_info_table.h"
+#include "generated/generated_openxr_decoder.h"
+#include "generated/generated_openxr_replay_consumer.h"
+#endif
+
 #include "graphics/fps_info.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
@@ -275,6 +282,15 @@ int main(int argc, const char** argv)
 #endif // GFXRECON_AGS_SUPPORT
             }
 #endif // D3D12_SUPPORT
+
+#if ENABLE_OPENXR_SUPPORT
+            gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
+            gfxrecon::decode::OpenXrDecoder        openxr_decoder;
+            gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
+            openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+            openxr_decoder.AddConsumer(&openxr_replay_consumer);
+            file_processor->AddDecoder(&openxr_decoder);
+#endif
 
             // Warn if the capture layer is active.
             CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));

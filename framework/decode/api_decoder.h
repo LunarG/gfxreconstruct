@@ -216,6 +216,8 @@ class ApiDecoder
     virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
                                                                                 size_t         buffer_size) {};
 
+    virtual void DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location) {};
+
     virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
                                                const uint8_t*                 initialization_parameters_data) {};
 };

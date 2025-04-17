@@ -28,6 +28,8 @@
 #ifndef  GFXRECON_GENERATED_DX12_ENUM_TO_JSON_H
 #define  GFXRECON_GENERATED_DX12_ENUM_TO_JSON_H
 
+#if defined(D3D12_SUPPORT)
+
 /// @file Functions to convert enums to JSON. While trivial these do tidy up
 /// the FieldToJsons of structs which use them and the JSON consumer too.
 /// They also mean that generators don't need separate cases for enums.
@@ -2925,5 +2927,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const IID& value, const J
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)
 
 #endif

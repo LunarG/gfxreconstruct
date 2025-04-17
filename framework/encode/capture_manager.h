@@ -42,7 +42,10 @@
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <optional>
+#include <set>
 #include <shared_mutex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -61,9 +64,31 @@ class CommonCaptureManager
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
-    static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
+    using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
+    using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
+    static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
+    static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
 
-    static auto AcquireExclusiveApiCallLock() { return std::move(std::unique_lock<ApiCallMutexT>(api_call_mutex_)); }
+    class ApiCallLock
+    {
+      public:
+        enum class Type
+        {
+            kExclusive,
+            kShared
+        };
+
+        ApiCallLock(Type type, ApiCallMutexT& mutex);
+        bool            IsShared() const { return shared.has_value(); }
+        ApiSharedLockT& GetSharedRef() { return shared.value(); }
+
+      private:
+        std::optional<ApiExclusiveLockT> exclusive;
+        std::optional<ApiSharedLockT>    shared;
+    };
+
+    // This method returns the composite with the apropos Lock initialized
+    ApiCallLock AcquireCallLock() const;
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -87,7 +112,51 @@ class CommonCaptureManager
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
-            return InitApiCallCapture(call_id);
+#if ENABLE_OPENXR_SUPPORT
+            if (IsCaptureSkippingCurrentThread())
+            {
+                uint32_t            call_id_uint = static_cast<uint32_t>(call_id);
+                format::ApiFamilyId family  = static_cast<format::ApiFamilyId>(format::GetApiCallFamily(call_id_uint));
+                std::string         message = "Skipping ";
+
+                switch (family)
+                {
+                    default:
+                        break;
+                    case format::ApiFamily_Vulkan:
+                        message += "Vulkan ";
+                        break;
+                    case format::ApiFamily_Dxgi:
+                        message += "Dxgi ";
+                        break;
+                    case format::ApiFamily_D3D12:
+                        message += "D3D12 ";
+                        break;
+                    case format::ApiFamily_AGS:
+                        message += "AGS ";
+                        break;
+                    case format::ApiFamily_D3D11:
+                        message += "D3D11 ";
+                        break;
+                    case format::ApiFamily_D3D11On12:
+                        message += "D3D11On12 ";
+                        break;
+                    case format::ApiFamily_OpenXR:
+                        message += "OpenXR ";
+                        break;
+                }
+                std::stringstream stream;
+                stream << std::hex << call_id_uint;
+                message += "ApiCall ID 0x";
+                message += stream.str();
+                message += " because it occurred in a thread with invalid data";
+                WriteDisplayMessageCmd(family, message.c_str());
+            }
+            else
+#endif // ENABLE_OPENXR_SUPPORT
+            {
+                return InitApiCallCapture(call_id);
+            }
         }
 
         return nullptr;
@@ -172,6 +241,11 @@ class CommonCaptureManager
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
 
+    auto GetSkipThreadsWithInvalidData() const
+    {
+        return skip_threads_with_invalid_data_;
+    }
+
     uint64_t GetBlockIndex() { return block_index_ == 0 ? 0 : block_index_ - 1; }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
@@ -204,6 +278,8 @@ class CommonCaptureManager
     util::ThreadData* GetThreadData();
     bool              IsCaptureModeTrack() const;
     bool              IsCaptureModeWrite() const;
+    bool              IsCaptureModeDisabled() const;
+    bool              IsCaptureSkippingCurrentThread() const;
 
     void DestroyInstance(ApiCaptureManager* singleton);
 
@@ -387,6 +463,7 @@ class CommonCaptureManager
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
+    bool                                    skip_threads_with_invalid_data_;
 
     struct
     {

@@ -74,6 +74,7 @@ class VulkanApiCallEncodersHeaderGenerator(VulkanBaseGenerator, KhronosApiCallEn
             warn_file=warn_file,
             diag_file=diag_file
         )
+        KhronosApiCallEncodersGenerator.__init__(self)
 
     def endFile(self):
         """Method override."""

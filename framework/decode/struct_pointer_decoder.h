@@ -181,9 +181,9 @@ class StructPointerDecoder : public PointerDecoderBase
         return bytes_read;
     }
 
-    // When a parent struct pointer was being decoded, determine what child is actually being used
+    // When a parent (BaseHeader) struct pointer was being decoded, determine what child is actually being used
     // and allocate and decode the appropriate child.
-    size_t DecodeChildren(const uint8_t* buffer, size_t buffer_size)
+    size_t DecodeBaseHeader(const uint8_t* buffer, size_t buffer_size)
     {
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
@@ -223,7 +223,7 @@ class StructPointerDecoder : public PointerDecoderBase
                 }
             }
 
-            decoded_structs_ = T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len);
+            decoded_structs_ = T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len, true);
 
             if (HasData())
             {
@@ -341,9 +341,9 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
 
     size_t GetInnerLength(size_t index) const { return inner_lens_[index]; }
 
-    // When a parent struct pointer was being decoded, determine what child is actually being used
+    // When a parent (BaseHeader) struct pointer was being decoded, determine what child is actually being used
     // and allocate and decode the appropriate child.
-    size_t DecodeChildren(const uint8_t* buffer, size_t buffer_size)
+    size_t DecodeBaseHeader(const uint8_t* buffer, size_t buffer_size)
     {
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
@@ -381,8 +381,8 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
                     bytes_read += ValueDecoder::DecodeSizeTValue(
                         (buffer + bytes_read), (buffer_size - bytes_read), &inner_lens_[i]);
 
-                    typename T::struct_type* inner_struct_memory =
-                        DecodeAllocator::Allocate<typename T::struct_type>(inner_lens_[i]);
+                    typename T::struct_type* inner_struct_memory = reinterpret_cast<typename T::struct_type*>(
+                        DecodeAllocator::Allocate<typename T::union_size_type>(inner_lens_[i]));
                     // TODO: We initialize == true because the next field isn't always cleared on kIsNull in the lower
                     //       level decoders.  If this is a performance bottleneck, can clean up the lower decoders to
                     //       initialize all fields.

@@ -126,6 +126,8 @@ class MetadataConsumerBase
         format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
     {}
 
+    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)
     {}

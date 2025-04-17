@@ -45,6 +45,15 @@ endif()
 
 add_library(VkLayer_gfxreconstruct SHARED "")
 
+if (WIN32)
+    # TODO: it's possible that given the !OPEN_XR stub this isn't needed
+    if(OPENXR_SUPPORT_ENABLED)
+        set(VK_LAYER_DEF_FILE "trace_layer_with_xr.def")
+    else()
+        set(VK_LAYER_DEF_FILE "trace_layer.def")
+    endif()
+endif()
+
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
@@ -52,7 +61,7 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
                    ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
-                   $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
+                   $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/${VK_LAYER_DEF_FILE}>
                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
               )
 
@@ -61,7 +70,14 @@ target_include_directories(VkLayer_gfxreconstruct
                                ${CMAKE_BINARY_DIR}
                                ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(VkLayer_gfxreconstruct
+                        gfxrecon_encode
+                        gfxrecon_graphics
+                        gfxrecon_format
+                        gfxrecon_util
+                        vulkan_registry
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
+                        platform_specific)
 
 common_build_directives(VkLayer_gfxreconstruct)
 
@@ -70,7 +86,8 @@ common_build_directives(VkLayer_gfxreconstruct)
 file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
 string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
 include("GenerateLayerJson")
-# Generate the JSON file that will be generated into the build directory
+
+# Generate the Vulkan JSON file that will be generated into the build directory
 GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         "${RELATIVE_PATH_PREFIX}"
         $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
@@ -78,8 +95,18 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
         )
 
+if (OPENXR_SUPPORT_ENABLED)
+    # Generate the OpenXR JSON file that will be generated into the build directory
+    GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json
+            "${RELATIVE_PATH_PREFIX}"
+            $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+            ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
+            $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
+            )
+endif()
+
 if(UNIX)
-        # Generate a JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
+        # Generate a Vulkan JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
         set(RELATIVE_PATH_PREFIX "")
         GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json-staging
                 "${RELATIVE_PATH_PREFIX}"
@@ -87,13 +114,31 @@ if(UNIX)
                 ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
                 $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json
                 )
+
+        if (OPENXR_SUPPORT_ENABLED)
+                # Generate an OpenXR JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
+                set(RELATIVE_PATH_PREFIX "")
+                GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json-staging
+                        "${RELATIVE_PATH_PREFIX}"
+                        $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+                        ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
+                        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json
+                        )
+        endif()
+
 endif()
 
 install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 if (UNIX)
     install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
+    if (OPENXR_SUPPORT_ENABLED)
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/openxr/1/api_layers/explicit_layer.d)
+    endif()
 else()
     install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
+    if (OPENXR_SUPPORT_ENABLED)
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif()
 endif()
 
 if (${RUN_TESTS})

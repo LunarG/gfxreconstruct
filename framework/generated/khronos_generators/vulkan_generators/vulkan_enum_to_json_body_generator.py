@@ -65,9 +65,6 @@ class VulkanEnumToJsonBodyGeneratorOptions(VulkanBaseGeneratorOptions):
 class VulkanEnumToJsonBodyGenerator(VulkanBaseGenerator, KhronosEnumToJsonBodyGenerator):
     """Generate C++ functions for Vulkan FieldToJson() functions"""
 
-    SKIP_ENUM = [
-    ]
-
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -77,12 +74,6 @@ class VulkanEnumToJsonBodyGenerator(VulkanBaseGenerator, KhronosEnumToJsonBodyGe
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        # Set of enums that have been processed since we'll encounter enums that are
-        #   referenced by extensions multiple times.  This list is prepopulated with
-        #   enums that should be skipped.
-        self.processedEnums = set()
-
 
     # Method override
     def endFile(self):

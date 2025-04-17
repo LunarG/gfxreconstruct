@@ -13,6 +13,11 @@ target_sources(gfxrecon_application
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_jni.cpp
               )
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_application PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_application PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_include_directories(gfxrecon_application
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/framework

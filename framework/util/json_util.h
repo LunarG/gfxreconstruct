@@ -189,6 +189,10 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
                  const uint64_t           data[4],
                  const util::JsonOptions& options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& value, const JsonOptions& options = JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json& jdata, const LUID& value, const JsonOptions& options = JsonOptions());
+
 void HandleToJson(nlohmann::ordered_json&  jdata,
                   const format::HandleId*  data,
                   size_t                   num_elements,

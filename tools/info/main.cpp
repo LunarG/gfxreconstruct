@@ -30,24 +30,35 @@
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "generated/generated_vulkan_consumer.h"
-#include "generated/generated_vulkan_decoder.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_detection_consumer.h"
+#include "decode/openxr_stats_consumer.h"
+#include "generated/generated_openxr_decoder.h"
+#endif
+
 #include "decode/info_decoder.h"
 #include "decode/info_consumer.h"
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
+
 #if defined(D3D12_SUPPORT)
 #include "decode/dx12_stats_consumer.h"
 #include "generated/generated_dx12_decoder.h"
 #include "decode/dx12_detection_consumer.h"
 #include "graphics/dx12_util.h"
 #endif
+
 #include "util/argument_parser.h"
 #include "util/strings.h"
 #include "util/logging.h"
 #include "util/to_string.h"
 #include "util/platform.h"
 
+#if ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 #include "vulkan/vulkan.h"
 
 #include <cassert>
@@ -341,6 +352,14 @@ void PrintExeInfo(const gfxrecon::decode::InfoConsumer& info_consumer)
     GFXRECON_WRITE_CONSOLE("\tProduct name: %s", app_data.c_str());
 }
 
+void GatherExeInfo(gfxrecon::decode::FileProcessor& file_processor, gfxrecon::decode::InfoConsumer& info_consumer)
+{
+    gfxrecon::decode::InfoDecoder info_decoder;
+    info_decoder.AddConsumer(&info_consumer);
+    file_processor.AddDecoder(&info_decoder);
+    file_processor.ProcessAllFrames();
+}
+
 // A short pass to get exe info. Only processes the first blocks of a capture file.
 void GatherAndPrintExeInfo(const std::string& input_filename)
 {
@@ -348,17 +367,35 @@ void GatherAndPrintExeInfo(const std::string& input_filename)
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::InfoDecoder info_decoder;
-        info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&info_decoder);
-        file_processor.ProcessAllFrames();
-
+        GatherExeInfo(file_processor, info_consumer);
         PrintExeInfo(info_consumer);
     }
 }
 
-void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
-                      const gfxrecon::decode::FileProcessor&       file_processor,
+#ifdef ENABLE_OPENXR_SUPPORT
+void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processor,
+                      const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
+                      const ApiAgnosticStats&                      api_agnostic_stats,
+                      const AnnotationRecorder&                    annotation_recoder)
+{
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("OpenXR info:");
+
+    GFXRECON_WRITE_CONSOLE("\tHeader Version: %u.%u.%u",
+                           XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
+                           XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
+                           XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+
+    // Application info.
+    uint32_t api_version = openxr_stats_consumer.GetApiVersion();
+    GFXRECON_WRITE_CONSOLE("\tApplication name: %s", openxr_stats_consumer.GetAppName().c_str());
+    GFXRECON_WRITE_CONSOLE("\tApplication version: %u", openxr_stats_consumer.GetAppVersion());
+    GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+}
+#endif // ENABLE_OPENXR_SUPPORT
+
+void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processor,
+                      const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
                       const ApiAgnosticStats&                      api_agnostic_stats,
                       const AnnotationRecorder&                    annotation_recoder)
 {
@@ -820,6 +857,15 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
         file_processor.AddDecoder(&dx12_decoder);
 #endif
 
+#ifdef ENABLE_OPENXR_SUPPORT
+        gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer;
+        gfxrecon::decode::OpenXrStatsConsumer     openxr_stats_consumer;
+        gfxrecon::decode::OpenXrDecoder           openxr_decoder;
+        openxr_decoder.AddConsumer(&openxr_detection_consumer);
+        openxr_decoder.AddConsumer(&openxr_stats_consumer);
+        file_processor.AddDecoder(&openxr_decoder);
+#endif
+
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
         {
@@ -847,7 +893,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 
             if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
             {
-                PrintVulkanStats(vulkan_stats_consumer, file_processor, api_agnostic_stats, annotation_recorder);
+                PrintVulkanStats(file_processor, vulkan_stats_consumer, api_agnostic_stats, annotation_recorder);
 
                 // Add annotations relevant to Vulkan
                 target_annotations.push_back({ "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
@@ -861,6 +907,12 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
             if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
             {
                 PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+            }
+#endif
+#ifdef ENABLE_OPENXR_SUPPORT
+            if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
+            {
+                PrintOpenXrStats(file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder);
             }
 #endif
 

@@ -57,6 +57,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t data[4], const ut
     FieldToJson(jdata, data, 4, options);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const LUID& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata, *reinterpret_cast<const int64_t*>(&data), options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["QuadPart"], data.QuadPart, options);
+}
+
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
 {
     if (options.hex_handles)
@@ -275,6 +285,7 @@ void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const u
     FieldToJson(jdata, HresultToString(hresult), options);
 }
 
+#if defined(D3D12_SUPPORT)
 void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const format::InitDx12AccelerationStructureGeometryDesc& data,
                  const util::JsonOptions&                                 options)
@@ -292,6 +303,7 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
     FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
     FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
 }
+#endif // defined(D3D12_SUPPORT)
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options)
 {

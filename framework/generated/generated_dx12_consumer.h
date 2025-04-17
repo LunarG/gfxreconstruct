@@ -28,11 +28,13 @@
 #ifndef  GFXRECON_GENERATED_DX12_CONSUMER_H
 #define  GFXRECON_GENERATED_DX12_CONSUMER_H
 
+#if defined(D3D12_SUPPORT)
 
 #include "decode/dx12_consumer_base.h"
 #include "generated_dx12_struct_decoders.h"
 #include "decode/custom_dx12_struct_decoders.h"
 
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
