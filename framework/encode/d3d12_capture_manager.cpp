@@ -3793,6 +3793,7 @@ void D3D12CaptureManager::PostProcess_InitializeMetaCommand(ID3D12GraphicsComman
     if (IsCaptureModeTrack())
     {
         auto metacommand_info = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(pMetaCommand)->GetObjectInfo();
+        metacommand_info->was_initialized = true;
         metacommand_info->initialize_parameters = std::make_unique<util::MemoryOutputStream>(
             pInitializationParametersData, InitializationParametersDataSizeInBytes);
     }
