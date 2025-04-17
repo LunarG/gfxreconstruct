@@ -46,7 +46,12 @@
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
+const std::unordered_map<std::string, PFN_xrVoidFunction>
+#if !defined(WIN32)
+  // Ensure function table is initialized before __attribute__((constructor)) static void create_trace_layer()
+  __attribute__ ((init_priority (101))) 
+#endif // !defined(WIN32)
+  openxr_func_table = {
     { "xrGetInstanceProcAddr",                                                                               reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::GetInstanceProcAddr) },
     { "xrEnumerateApiLayerProperties",                                                                       reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::EnumerateApiLayerProperties) },
     { "xrEnumerateInstanceExtensionProperties",                                                              reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::EnumerateInstanceExtensionProperties) },
