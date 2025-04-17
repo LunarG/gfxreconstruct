@@ -28,7 +28,6 @@
 #include "encode/custom_vulkan_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
-#include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 #if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_layer_func_table.h"
@@ -113,11 +112,11 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
 
 LayerVulkanEntry* LayerVulkanEntry::singleton_ = nullptr;
 
-LayerVulkanEntry* LayerVulkanEntry::InitSingleton()
+LayerVulkanEntry* LayerVulkanEntry::InitSingleton(const VulkanFunctionTable& vulkan_function_table)
 {
     if (!singleton_)
     {
-        singleton_ = new LayerVulkanEntry();
+        singleton_ = new LayerVulkanEntry(vulkan_function_table);
     }
     return singleton_;
 }
@@ -383,9 +382,9 @@ PFN_vkVoidFunction LayerVulkanEntry::GetInstanceProcAddr(VkInstance instance, co
     // the instance handle is null and we can't determine if it is available from the next level.
     if (has_implementation || (instance == VK_NULL_HANDLE))
     {
-        const auto entry = vulkan_func_table_layer.find(pName);
+        const auto entry = vulkan_function_table_.find(pName);
 
-        if (entry != vulkan_func_table_layer.end())
+        if (entry != vulkan_function_table_.end())
         {
             result = entry->second;
         }
@@ -437,8 +436,8 @@ PFN_vkVoidFunction LayerVulkanEntry::GetDeviceProcAddr(VkDevice device, const ch
         // Only intercept the requested function if there is an implementation available
         if (has_implementation)
         {
-            const auto entry = vulkan_func_table_layer.find(pName);
-            if (entry != vulkan_func_table_layer.end())
+            const auto entry = vulkan_function_table_.find(pName);
+            if (entry != vulkan_function_table_.end())
             {
                 result = entry->second;
             }
@@ -773,8 +772,8 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
                 // information
                 if ((result == XR_SUCCESS) && (function != nullptr))
                 {
-                    const auto entry = openxr_func_table_layer.find(name);
-                    if (entry != openxr_func_table_layer.cend())
+                    const auto entry = openxr_layer_func_table.find(name);
+                    if (entry != openxr_layer_func_table.cend())
                     {
                         *function = entry->second;
                         result    = XR_SUCCESS;

@@ -92,7 +92,7 @@ class VulkanLayerFuncTableGenerator(VulkanBaseGenerator, KhronosLayerFuncTableGe
     def endFile(self):
         """Method override."""
 
-        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100, 'layer')
+        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100, 'Layer', True)
         self.newline()
 
         # Finish processing in superclass
@@ -103,7 +103,7 @@ class VulkanLayerFuncTableGenerator(VulkanBaseGenerator, KhronosLayerFuncTableGe
         # Manually output the physical device proc address function as its name doesn't
         # match the scheme used by skip_func_list:
         align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
-        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_layer::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+        write('        { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_layer::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

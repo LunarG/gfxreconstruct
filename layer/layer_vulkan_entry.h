@@ -41,6 +41,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(vulkan_layer)
 
+typedef std::unordered_map<std::string, PFN_vkVoidFunction> VulkanFunctionTable;
+
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in the .cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);
@@ -76,10 +78,11 @@ class LayerVulkanEntry
         return singleton_;
     }
 
-    static LayerVulkanEntry* InitSingleton();
+    static LayerVulkanEntry* InitSingleton(const VulkanFunctionTable& vulkan_function_table);
     static void              DestroySingleton();
 
-    LayerVulkanEntry(){};
+    LayerVulkanEntry(const VulkanFunctionTable& vulkan_function_table) :
+        vulkan_function_table_(vulkan_function_table){};
     virtual ~LayerVulkanEntry(){};
 
     // The following prototype declarations are required so the dispatch table can find these
@@ -148,6 +151,8 @@ class LayerVulkanEntry
 
     void SetInstanceNextGPDPA(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_vulkan_next_gpdpa);
     PFN_GetPhysicalDeviceProcAddr GetNextGPDPA(const VkInstance instance);
+
+    const VulkanFunctionTable vulkan_function_table_;
 };
 
 GFXRECON_END_NAMESPACE(vulkan_layer)
