@@ -50,8 +50,8 @@ add_library(VkLayer_gfxreconstruct SHARED "")
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
-                   ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_layer.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_layer.cpp
                    ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
               )
