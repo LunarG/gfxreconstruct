@@ -32,7 +32,7 @@
 
 #include "encode/custom_vulkan_api_call_encoders.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
-#include "layer/trace_layer.h"
+#include "layer/vulkan_entry_layer.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
