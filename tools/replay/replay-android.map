@@ -1,0 +1,8 @@
+{
+  global:
+    MainGetCurrentBlockIndex;
+    MainGetLoadingTrimmedState;
+    SetInjectedCommandCallbacks;
+  local:
+    *;
+};
