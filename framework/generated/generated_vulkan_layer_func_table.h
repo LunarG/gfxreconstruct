@@ -48,7 +48,12 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(vulkan_entry_layer)
-const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table_layer = {
+const std::unordered_map<std::string, PFN_vkVoidFunction>
+#if !defined(WIN32)
+  // Ensure function table is initialized before __attribute__((constructor)) static void create_trace_layer()
+  __attribute__ ((init_priority (101))) 
+#endif // !defined(WIN32)
+  vulkan_func_table_layer = {
     { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateInstance) },
     { "vkDestroyInstance",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::vkDestroyInstance) },
     { "vkEnumeratePhysicalDevices",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::vkEnumeratePhysicalDevices) },

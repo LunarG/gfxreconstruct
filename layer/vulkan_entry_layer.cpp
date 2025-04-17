@@ -28,7 +28,6 @@
 #include "encode/custom_vulkan_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
-#include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 #if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_layer_func_table.h"
@@ -112,11 +111,11 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
 
 VulkanEntryLayer* VulkanEntryLayer::singleton_ = nullptr;
 
-VulkanEntryLayer* VulkanEntryLayer::InitSingleton()
+VulkanEntryLayer* VulkanEntryLayer::InitSingleton(const VulkanFunctionTable& vulkan_function_table)
 {
     if (!singleton_)
     {
-        singleton_ = new VulkanEntryLayer();
+        singleton_ = new VulkanEntryLayer(vulkan_function_table);
     }
     return singleton_;
 }
@@ -373,9 +372,9 @@ PFN_vkVoidFunction VulkanEntryLayer::GetInstanceProcAddr(VkInstance instance, co
     // the instance handle is null and we can't determine if it is available from the next level.
     if (has_implementation || (instance == VK_NULL_HANDLE))
     {
-        const auto entry = vulkan_func_table_layer.find(pName);
+        const auto entry = vulkan_function_table_.find(pName);
 
-        if (entry != vulkan_func_table_layer.end())
+        if (entry != vulkan_function_table_.end())
         {
             result = entry->second;
         }
@@ -427,8 +426,8 @@ PFN_vkVoidFunction VulkanEntryLayer::GetDeviceProcAddr(VkDevice device, const ch
         // Only intercept the requested function if there is an implementation available
         if (has_implementation)
         {
-            const auto entry = vulkan_func_table_layer.find(pName);
-            if (entry != vulkan_func_table_layer.end())
+            const auto entry = vulkan_function_table_.find(pName);
+            if (entry != vulkan_function_table_.end())
             {
                 result = entry->second;
             }

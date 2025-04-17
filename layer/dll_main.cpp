@@ -25,6 +25,7 @@
 #endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
 #include "layer/vulkan_entry_layer.h"
+#include "generated/generated_vulkan_layer_func_table.h"
 
 #if defined(WIN32)
 
@@ -37,7 +38,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-            gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton();
+            gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton(
+                gfxrecon::vulkan_entry_layer::vulkan_func_table_layer);
             gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry_layer::dispatch_CreateInstance,
                                                                   gfxrecon::vulkan_entry_layer::dispatch_CreateDevice);
 #if ENABLE_OPENXR_SUPPORT
@@ -67,7 +69,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 __attribute__((constructor)) static void create_trace_layer()
 {
-    gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton();
+    gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton(
+        gfxrecon::vulkan_entry_layer::vulkan_func_table_layer);
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry_layer::dispatch_CreateInstance,
                                                           gfxrecon::vulkan_entry_layer::dispatch_CreateDevice);
 #if ENABLE_OPENXR_SUPPORT
