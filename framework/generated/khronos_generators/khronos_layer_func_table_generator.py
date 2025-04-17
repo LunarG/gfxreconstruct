@@ -40,8 +40,17 @@ class KhronosLayerFuncTableGenerator():
             skip_func_namespace += '_{}'.format(table_name_suffix)
 
         write(
-            'const std::unordered_map<std::string, {}> {} = {{'.
-            format(api_data.void_func_pointer_type, table_name),
+            'const std::unordered_map<std::string, {}>'.
+            format(api_data.void_func_pointer_type),
+            file=self.outFile
+        )
+        write('#if !defined(WIN32)', file=self.outFile)
+        write('  // Ensure function table is initialized before __attribute__((constructor)) static void create_trace_layer()', file=self.outFile)
+        write('  __attribute__ ((init_priority (101))) ', file=self.outFile)
+        write('#endif // !defined(WIN32)', file=self.outFile)
+        write(
+            '  {} = {{'.
+            format(table_name),
             file=self.outFile
         )
 

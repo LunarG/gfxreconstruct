@@ -30,6 +30,7 @@
 #include <catch2/catch.hpp>
 // Pull in the layer code so we can call functions in there:
 #include "layer/vulkan_entry_layer.cpp"
+#include "generated/generated_vulkan_layer_func_table.h"
 
 namespace
 {
