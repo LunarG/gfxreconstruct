@@ -24,7 +24,7 @@
 #include "encode/openxr_capture_manager.h"
 #endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
-#include "layer/trace_layer.h"
+#include "layer/vulkan_entry_layer.h"
 
 #if defined(WIN32)
 
