@@ -54,19 +54,19 @@ more details
 | gfxrecon-convert | :white_check_mark: | :x: | :x: | :x: | :x: |
 | gfxrecon-info | :white_check_mark: | :x: | :x: | :x: | :x: |
 | gfxrecon-optimize | :white_check_mark: | :x: | :x: | :x: | :x: |
-| **OpenXR (Graphics API using Vulkan)** ||||||
+| **OpenXR (Vulkan Graphics API only)** ||||||
 | Capture | :construction: | :construction: | :x: | :construction: | :construction:  |
 | Replay  | :construction: | :construction: | :x: | :construction: | :construction:  |
-| gfxrecon-compress | :construction: | :construction: | :x: | :construction: | :construction: |
-| gfxrecon-convert | :construction: | :construction: | :x: | :construction: | :construction:  |
-| gfxrecon-info | :construction: | :construction: | :x: | :construction: | :construction:  |
+| gfxrecon-compress | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-convert | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond:  |
+| gfxrecon-info | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond:  |
 | gfxrecon-optimize | :x: | :x: | :x: | :x: | :x: |
 | gfxrecon-tocpp | :x: | :x: | :x: | :x:  | :x: |
 
 **Legend**
 * :white_check_mark: : Supported
 * :x: : Not Suported
-* :large_orange_diamond: : Not supported on Android, but Desktop tools support modifying Android captures
+* :large_orange_diamond: : Not supported on Android/Meta Quest, but Desktop tools support modifying the resulting captures
 * :construction: : Early Preview / Alpha / Beta
 
 ### Cross-Platform Capture/Replay Support
