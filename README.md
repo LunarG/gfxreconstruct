@@ -37,23 +37,31 @@ more details
 
 ## Supported Capabilities
 
-| Capability     |   Windows  |  Linux  |  Mac  |   Android   |
-| -------------- | :--------: | :-----: | :-------: | :-----: |
-| **Vulkan Support** |||||
-| Capture | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| Replay  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| gfxrecon-compress | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: |
-| gfxrecon-convert | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: |
-| gfxrecon-info | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: |
-| gfxrecon-optimize | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: |
-| gfxrecon-tocpp | :x: | :construction: | :x: | :construction:  |
-| **D3D12 Support** |||||
-| Capture  | :white_check_mark: | :x: | :x: | :x: |
-| Replay   | :white_check_mark: | :x: | :x: | :x: |
-| gfxrecon-compress | :white_check_mark: | :x: | :x: | :x: |
-| gfxrecon-convert | :white_check_mark: | :x: | :x: | :x: |
-| gfxrecon-info | :white_check_mark: | :x: | :x: | :x: |
-| gfxrecon-optimize | :white_check_mark: | :x: | :x: | :x: |
+| Capability     |   Windows  |  Linux  |  Mac  |   Android   |  Meta Quest |
+| -------------- | :--------: | :-----: | :-------: | :-----: | :---------: |
+| **Vulkan Support** ||||||
+| Capture | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :construction:  |
+| Replay  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :construction:  |
+| gfxrecon-compress | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-convert | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-info | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-optimize | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :x: |
+| gfxrecon-tocpp | :x: | :construction: | :x: | :construction:  | :x: |
+| **D3D12 Support** ||||||
+| Capture  | :white_check_mark: | :x: | :x: | :x: | :x: |
+| Replay   | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-compress | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-convert | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-info | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-optimize | :white_check_mark: | :x: | :x: | :x: | :x: |
+| **OpenXR (Graphics API using Vulkan)** ||||||
+| Capture | :construction: | :construction: | :x: | :construction: | :construction:  |
+| Replay  | :construction: | :construction: | :x: | :construction: | :construction:  |
+| gfxrecon-compress | :construction: | :construction: | :x: | :construction: | :construction: |
+| gfxrecon-convert | :construction: | :construction: | :x: | :construction: | :construction:  |
+| gfxrecon-info | :construction: | :construction: | :x: | :construction: | :construction:  |
+| gfxrecon-optimize | :x: | :x: | :x: | :x: | :x: |
+| gfxrecon-tocpp | :x: | :x: | :x: | :x:  | :x: |
 
 **Legend**
 * :white_check_mark: : Supported
