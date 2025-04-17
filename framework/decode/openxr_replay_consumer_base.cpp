@@ -70,10 +70,104 @@ void OpenXrReplayConsumerBase::SetVulkanReplayConsumer(VulkanReplayConsumerBase*
     vulkan_replay_consumer_ = vulkan_replay_consumer;
 }
 
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSetDebugUtilsObjectNameEXT(XrInstance,
+                                                                             const XrDebugUtilsObjectNameInfoEXT*)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermCreateDebugUtilsMessengerEXT(
+    XrInstance, const XrDebugUtilsMessengerCreateInfoEXT*, XrDebugUtilsMessengerEXT*)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermDestroyDebugUtilsMessengerEXT(XrDebugUtilsMessengerEXT)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL
+ReplayXrTermSessionBeginDebugUtilsLabelRegionEXT(XrSession session, const XrDebugUtilsLabelEXT* labelInfo)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSessionEndDebugUtilsLabelRegionEXT(XrSession session)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL ReplayXrTermSessionInsertDebugUtilsLabelEXT(XrSession                   session,
+                                                                                  const XrDebugUtilsLabelEXT* labelInfo)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
+static XRAPI_ATTR XrResult XRAPI_CALL
+ReplayXrTermSubmitDebugUtilsMessageEXT(XrInstance                                  instance,
+                                       XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
+                                       XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                                       const XrDebugUtilsMessengerCallbackDataEXT* callbackData)
+{
+    // This is a stub to prevent crashes during replay, see AddInstanceTable below.
+    return XR_SUCCESS;
+}
+
 void OpenXrReplayConsumerBase::AddInstanceTable(XrInstance instance)
 {
     encode::OpenXrInstanceTable& table = instance_tables_[instance];
     encode::LoadOpenXrInstanceTable(get_instance_proc_addr_, instance, &table);
+
+    // Note: The "TrackingConsumer" may *also* need this, but there isn't an extant
+    //       place to put it for a common implementation
+
+    // The OpenXR loader doesn't always let the capture layer know that it has enabled
+    // the XR_EXT_debug_utils extension, s.t. at replay we don't know to enable it. In this
+    // case we can have a capture that both *doesn't* have the XR_EXT_debug_utils extension
+    // and *does* contain calls to specific debug utils entry points (for some reason only
+    // 4 of them are terminated by the OpenXrLoader).
+
+    // So... check those entries in the table and add a terminator, just in case.
+    if (!table.SetDebugUtilsObjectNameEXT)
+    {
+        table.SetDebugUtilsObjectNameEXT = ReplayXrTermSetDebugUtilsObjectNameEXT;
+    }
+
+    if (!table.CreateDebugUtilsMessengerEXT)
+    {
+        table.CreateDebugUtilsMessengerEXT = ReplayXrTermCreateDebugUtilsMessengerEXT;
+    }
+
+    if (!table.DestroyDebugUtilsMessengerEXT)
+    {
+        table.DestroyDebugUtilsMessengerEXT = ReplayXrTermDestroyDebugUtilsMessengerEXT;
+    }
+
+    if (!table.SubmitDebugUtilsMessageEXT)
+    {
+        table.SubmitDebugUtilsMessageEXT = ReplayXrTermSubmitDebugUtilsMessageEXT;
+    }
+    if (!table.SessionBeginDebugUtilsLabelRegionEXT)
+    {
+        table.SessionBeginDebugUtilsLabelRegionEXT = ReplayXrTermSessionBeginDebugUtilsLabelRegionEXT;
+    }
+
+    if (!table.SessionEndDebugUtilsLabelRegionEXT)
+    {
+        table.SessionEndDebugUtilsLabelRegionEXT = ReplayXrTermSessionEndDebugUtilsLabelRegionEXT;
+    }
+
+    if (!table.SessionInsertDebugUtilsLabelEXT)
+    {
+        table.SessionInsertDebugUtilsLabelEXT = ReplayXrTermSessionInsertDebugUtilsLabelEXT;
+    }
 }
 
 const encode::OpenXrInstanceTable* OpenXrReplayConsumerBase::GetInstanceTable(XrInstance handle) const
@@ -797,6 +891,106 @@ void OpenXrReplayConsumerBase::Process_xrCreateDebugUtilsMessengerEXT(
     CustomProcess<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::UpdateState(
         this, call_info, returnValue, instance, createInfo, messenger, replay_result);
     CheckResult("xrCreateDebugUtilsMessengerEXT", returnValue, replay_result, call_info);
+}
+
+void OpenXrReplayConsumerBase::Process_xrEnumerateEnvironmentBlendModes(
+    const ApiCallInfo&                      call_info,
+    XrResult                                returnValue,
+    format::HandleId                        instance,
+    format::HandleId                        systemId,
+    XrViewConfigurationType                 viewConfigurationType,
+    uint32_t                                environmentBlendModeCapacityInput,
+    PointerDecoder<uint32_t>*               environmentBlendModeCountOutput,
+    PointerDecoder<XrEnvironmentBlendMode>* environmentBlendModes)
+{
+    XrResult   replay_result = XR_SUCCESS;
+    XrInstance in_instance   = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    XrSystemId in_systemId   = MapHandle<OpenXrSystemIdInfo>(systemId, &CommonObjectInfoTable::GetXrSystemIdInfo);
+    uint32_t*  out_environmentBlendModeCountOutput =
+        environmentBlendModeCountOutput->IsNull()
+             ? nullptr
+             : environmentBlendModeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
+    XrEnvironmentBlendMode* out_environmentBlendModes = nullptr;
+    if (!environmentBlendModes->IsNull() && (returnValue == XR_SUCCESS || returnValue == XR_ERROR_SIZE_INSUFFICIENT))
+    {
+        auto pfn_enum_env_blend_modes = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes;
+
+        // First get the actual count for the replay
+        uint32_t replay_count = 0;
+        replay_result =
+            pfn_enum_env_blend_modes(in_instance, in_systemId, viewConfigurationType, 0, &replay_count, nullptr);
+
+        if (replay_result == XR_SUCCESS || replay_result == XR_ERROR_SIZE_INSUFFICIENT)
+        {
+            if (replay_count < environmentBlendModeCapacityInput)
+            {
+                GFXRECON_LOG_FATAL(
+                    "xrEnumerateEnvironmentBlendModes failed to find as many items during replay as during capture");
+                return;
+            }
+
+            // Allocate the blend mode array and get all the values
+            std::vector<XrEnvironmentBlendMode> blend_modes;
+            blend_modes.resize(replay_count);
+            replay_result = pfn_enum_env_blend_modes(in_instance,
+                                                     in_systemId,
+                                                     viewConfigurationType,
+                                                     replay_count,
+                                                     out_environmentBlendModeCountOutput,
+                                                     blend_modes.data());
+
+            // We are comparing against success, but the original replay may have had an incomplete
+            CheckResult("xrEnumerateEnvironmentBlendModes", XR_SUCCESS, replay_result, call_info);
+
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrEnvironmentBlendMode* original_modes = environmentBlendModes->GetPointer();
+            for (uint32_t iii = 0; iii < environmentBlendModeCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (blend_modes[jjj] == original_modes[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateEnvironmentBlendModes failed to find environment blend mode %d "
+                                       "which was present in capture",
+                                       original_modes[iii]);
+                }
+            }
+        }
+        else
+        {
+            CheckResult("xrEnumerateEnvironmentBlendModes", returnValue, replay_result, call_info);
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)
+                            ->EnumerateEnvironmentBlendModes(in_instance,
+                                                             in_systemId,
+                                                             viewConfigurationType,
+                                                             environmentBlendModeCapacityInput,
+                                                             out_environmentBlendModeCountOutput,
+                                                             out_environmentBlendModes);
+        CheckResult("xrEnumerateEnvironmentBlendModes", returnValue, replay_result, call_info);
+        CustomProcess<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::UpdateState(
+            this,
+            call_info,
+            returnValue,
+            instance,
+            systemId,
+            viewConfigurationType,
+            environmentBlendModeCapacityInput,
+            environmentBlendModeCountOutput,
+            environmentBlendModes,
+            replay_result);
+    }
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(

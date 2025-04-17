@@ -112,6 +112,7 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrCreateVulkanInstanceKHR',
             'xrCreateVulkanDeviceKHR',
             'xrCreateDebugUtilsMessengerEXT',
+            'xrEnumerateEnvironmentBlendModes',
         ]
 
         # These structures require a customized manager when they are an output struct

@@ -13759,7 +13759,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresentKHR(
     VkResult result = vulkan_wrappers::GetDeviceTable(device)->WaitForPresentKHR(device, swapchain, presentId, timeout);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkWaitForPresentKHR);
-    if (encoder && manager->CheckWriteWaitForPresentKHR(result, device, swapchain, presentId, timeout))
+    if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);

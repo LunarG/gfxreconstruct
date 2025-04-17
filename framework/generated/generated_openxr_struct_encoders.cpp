@@ -246,7 +246,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader& v
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrSwapchainImageBaseHeader): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
@@ -376,7 +376,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader&
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrCompositionLayerBaseHeader): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
@@ -672,7 +672,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrHapticBaseHeader): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_HAPTIC_VIBRATION:
@@ -789,7 +789,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBaseHeader& value)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrEventDataBaseHeader): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
@@ -1512,7 +1512,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrLoaderInitInfoBaseHeaderKHR): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
@@ -1582,7 +1582,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHead
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrBindingModificationBaseHeaderKHR): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
@@ -2052,7 +2052,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB&
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrSwapchainStateBaseHeaderFB): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
@@ -3107,7 +3107,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB&
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrSpaceQueryInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_SPACE_QUERY_INFO_FB:
@@ -3146,7 +3146,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrSpaceFilterInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
@@ -4238,7 +4238,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFutureCompletionBaseHeaderE
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_WARNING("EncodeStruct(XrFutureCompletionBaseHeaderEXT): unrecognized child structure type %d", value.type);
             break;
         }
         case XR_TYPE_FUTURE_COMPLETION_EXT:
