@@ -52,3 +52,7 @@ target_link_libraries(
         native_app_glue
         android
         log)
+
+target_link_options(gfxrecon-replay
+    PRIVATE
+        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/tools/replay/replay-android.map)
