@@ -392,6 +392,18 @@ codesign -dvvv libVkLayer_gfxreconstruct.dylib`
 Apple's developer information about code-signing can be found here:
 https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html
 
+### Disabling OpenXR Inclusing For Desktop Builds
+
+If there are any concerns about using the OpenXR content in the resulting components of GFXReconstruct,
+it may be disabled during CMake build target generation by setting the following CMake option:
+
+```bash
+-DOPENXR_SUPPORT_ENABLED=OFF
+```
+
+This causes the code generation to skip over any OpenXR specific files, and not define the
+environment variables used to enable OpenXR code in files that are included.
+
 ## Building for Android
 
 ### Android Development Requirements
@@ -441,6 +453,16 @@ On Linux:
 ```
 
 To perform a release build, replace the `assembleDebug` task name with `assembleRelease`.
+
+##### Disabling OpenXR support in Gradle
+
+It is also possible to disable OpenXR support in the GFXReconstruct layer when
+building Gradle.
+This can be done by defining the Gradle property `DisableOpenXR` to `true`.
+The Gradle property can be provided either in the command line of the
+build, or defined in the gradle.properties file.
+The later is most useful if the layer is included in a separate external application
+build.
 
 #### Building with Android Studio
 
