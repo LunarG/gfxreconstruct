@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -106,10 +107,7 @@ class MetadataConsumerBase
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data)
     {}
-    virtual void ProcessExecuteBlocksFromFile(uint32_t           n_blocks,
-                                              int64_t            offset,
-                                              const std::string& filename)
-    {}
+    virtual void ProcessExecuteBlocksFromFile(uint32_t n_blocks, int64_t offset, const std::string& filename) {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
@@ -129,6 +127,10 @@ class MetadataConsumerBase
     {}
 
     virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+
+    virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
+                                              const uint8_t*                       parameters_data)
+    {}
 
   protected:
     uint64_t block_index_ = 0;

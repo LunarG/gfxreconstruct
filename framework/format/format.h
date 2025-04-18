@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -159,7 +159,7 @@ enum class MetaDataType : uint16_t
     kViewRelativeLocation                               = 33,
     kExecuteBlocksFromFile                              = 34,
     kCreateHardwareBufferCommand                        = 35,
-    kReserved36                                         = 36,
+    kInitializeMetaCommand                              = 36,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -741,6 +741,20 @@ struct ViewRelativeLocationCmd
     format::ThreadId thread_id;
 
     ViewRelativeLocation location;
+};
+
+struct InitializeMetaCommand
+{
+    MetaDataHeader   meta_header{};
+    ThreadId         thread_id;
+    format::HandleId capture_id;
+    uint32_t         block_index{ 0 };
+    uint32_t         total_number_of_initializemetacommand{ 0 };
+    uint64_t         initialization_parameters_data_size{ 0 };
+
+    // In the capture file, initialize metacommand data is written in the following order:
+    // InitializeMetaCommandHeder
+    // parameters data
 };
 
 // Restore size_t to normal behavior.

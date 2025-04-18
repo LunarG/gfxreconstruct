@@ -3785,5 +3785,19 @@ void D3D12CaptureManager::PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT
     }
 }
 
+void D3D12CaptureManager::PostProcess_InitializeMetaCommand(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                                            ID3D12MetaCommand*                  pMetaCommand,
+                                                            const void* pInitializationParametersData,
+                                                            SIZE_T      InitializationParametersDataSizeInBytes)
+{
+    if (IsCaptureModeTrack())
+    {
+        auto metacommand_info = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(pMetaCommand)->GetObjectInfo();
+        metacommand_info->was_initialized = true;
+        metacommand_info->initialize_parameters = std::make_unique<util::MemoryOutputStream>(
+            pInitializationParametersData, InitializationParametersDataSizeInBytes);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

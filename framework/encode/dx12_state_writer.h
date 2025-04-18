@@ -134,6 +134,8 @@ class Dx12StateWriter
         std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& resource_snapshots,
         std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes);
 
+    void WriteMetaCommandCreationState(const Dx12StateTable& state_table);
+
     void WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info);
 
     void

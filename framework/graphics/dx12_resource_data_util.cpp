@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -526,13 +527,13 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
             }
             else if (layout_sizes[i] < subresource_sizes[i])
             {
-                GFXRECON_LOG_ERROR("The size of the data to be copied to the subresource is greater than the size of the subresource's copyable footprint."
-                                     "Not all data can be written to the subresource. (data size = %" PRIu64
-                                     ", footprint size = %" PRIu64 ", subresouce index = %" PRIu32 ").",
-                                     subresource_sizes[i],
-                                     layout_sizes[i],
-                                     i);
-
+                GFXRECON_LOG_ERROR("The size of the data to be copied to the subresource is greater than the size of "
+                                   "the subresource's copyable footprint."
+                                   "Not all data can be written to the subresource. (data size = %" PRIu64
+                                   ", footprint size = %" PRIu64 ", subresouce index = %" PRIu32 ").",
+                                   subresource_sizes[i],
+                                   layout_sizes[i],
+                                   i);
             }
             size_t layout_offset = static_cast<size_t>(layout_offsets[i]);
             size_t layout_size   = static_cast<size_t>(layout_sizes[i]);
@@ -837,6 +838,14 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
     }
 
     return result;
+}
+
+void Dx12ResourceDataUtil::InitializeMetaCommand(ID3D12MetaCommand* pMetaCommand,
+                                                 const void*        pInitializationParametersData,
+                                                 SIZE_T             InitializationParametersDataSizeInBytes)
+{
+    command_list_->InitializeMetaCommand(
+        pMetaCommand, pInitializationParametersData, InitializationParametersDataSizeInBytes);
 }
 
 HRESULT

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -216,6 +217,9 @@ class ApiDecoder
                                                                                 size_t         buffer_size){};
 
     virtual void DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+
+    virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
+                                               const uint8_t*                 initialization_parameters_data){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

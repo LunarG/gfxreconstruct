@@ -854,6 +854,11 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name);
 
+    void PostProcess_InitializeMetaCommand(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                           ID3D12MetaCommand*                  pMetaCommand,
+                                           const void*                         pInitializationParametersData,
+                                           SIZE_T                              InitializationParametersDataSizeInBytes);
+
   protected:
     D3D12CaptureManager();
 
