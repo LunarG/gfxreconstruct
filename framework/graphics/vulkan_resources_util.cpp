@@ -1815,12 +1815,12 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    img.type,
                                    img.tiling,
                                    img.extent,
-                                   tmp_data[i].scaled_extent,
+                                   tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
                                    img.level_count,
                                    img.layer_count,
                                    img.aspect,
                                    img.queue_family_index,
-                                   img.scale,
+                                   tmp_data[i].scaling_supported ? img.scale : 1.0f,
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
@@ -1840,7 +1840,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                 copy_image,
                                 staging_buffer_.buffer,
                                 tmp_data[i].staging_offset,
-                                tmp_data[i].scaled_extent,
+                                tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
                                 img.level_count,
                                 img.layer_count,
                                 img.aspect,
