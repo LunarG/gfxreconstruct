@@ -1259,7 +1259,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
     void PreProcess_vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
     void PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
     void PreProcess_vkGetFenceStatus(VkDevice device, VkFence fence);

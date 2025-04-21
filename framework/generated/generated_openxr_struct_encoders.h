@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_STRUCT_ENCODERS_H
 #define  GFXRECON_GENERATED_OPENXR_STRUCT_ENCODERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_struct_encoders.h"
 #include "encode/parameter_encoder.h"

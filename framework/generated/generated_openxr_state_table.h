@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_STATE_TABLE_H
 #define  GFXRECON_GENERATED_OPENXR_STATE_TABLE_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/openxr_state_table_base.h"
 

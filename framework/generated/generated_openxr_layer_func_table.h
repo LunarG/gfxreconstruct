@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_LAYER_FUNC_TABLE_H
 #define  GFXRECON_GENERATED_OPENXR_LAYER_FUNC_TABLE_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_api_call_encoders.h"

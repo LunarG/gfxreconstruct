@@ -28,7 +28,7 @@
 
 #include "vulkan/vulkan.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
 #endif
@@ -63,7 +63,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      VkDevice*                    pDevice);
 GFXRECON_END_NAMESPACE(vulkan_entry)
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 GFXRECON_BEGIN_NAMESPACE(openxr_entry)
 // OpenXR
 XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,

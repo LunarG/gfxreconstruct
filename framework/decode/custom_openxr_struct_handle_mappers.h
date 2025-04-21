@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_OPENXR_STRUCT_HANDLE_MAPPERS_H
 #define GFXRECON_DECODE_CUSTOM_OPENXR_STRUCT_HANDLE_MAPPERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/custom_openxr_struct_decoders_forward.h"
 #include "decode/common_object_info_table.h"

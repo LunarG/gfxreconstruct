@@ -20,7 +20,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "encode/openxr_capture_manager.h"
 #endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
@@ -39,7 +39,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         case DLL_PROCESS_ATTACH:
             gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
                                                                   gfxrecon::vulkan_entry::dispatch_CreateDevice);
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(
                 gfxrecon::openxr_entry::dispatch_CreateApiLayerInstance);
 #endif // ENABLE_OPENXR_SUPPOR
@@ -68,7 +68,7 @@ __attribute__((constructor)) static void create_trace_layer()
 {
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
                                                           gfxrecon::vulkan_entry::dispatch_CreateDevice);
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
     gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(gfxrecon::openxr_entry::dispatch_CreateApiLayerInstance);
 #endif // ENABLE_OPENXR_SUPPORT
 }

@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_resource_tracking_consumer.h"
 

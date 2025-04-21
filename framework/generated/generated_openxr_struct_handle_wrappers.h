@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_STRUCT_HANDLE_WRAPPERS_H
 #define  GFXRECON_GENERATED_OPENXR_STRUCT_HANDLE_WRAPPERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_struct_handle_wrappers.h"
 #include "encode/openxr_handle_wrapper_util.h"

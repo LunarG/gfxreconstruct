@@ -24,7 +24,7 @@
 #ifndef GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 #define GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"

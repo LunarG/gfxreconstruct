@@ -24,7 +24,7 @@
 #ifndef GFXRECON_DECODE_OPENXR_DETECTION_CONSUMER_H
 #define GFXRECON_DECODE_OPENXR_DETECTION_CONSUMER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_consumer_base.h"
 #include "util/defines.h"

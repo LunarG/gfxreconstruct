@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_API_CALL_ENCODERS_H
 #define  GFXRECON_GENERATED_OPENXR_API_CALL_ENCODERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "format/platform_types.h"
 #include "util/defines.h"

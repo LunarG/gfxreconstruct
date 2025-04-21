@@ -30,13 +30,13 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_layer_func_table.h"
 #endif
 #include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr_loader_negotiation.h"
 #endif
 
@@ -563,7 +563,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
 
 GFXRECON_END_NAMESPACE(vulkan_entry)
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 GFXRECON_BEGIN_NAMESPACE(openxr_entry)
 
 const XrApiLayerProperties kLayerProps = {
@@ -798,7 +798,7 @@ extern "C"
         return gfxrecon::vulkan_entry::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
     GFXR_EXPORT XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(
         const XrNegotiateLoaderInfo* loaderInfo, const char* layerName, XrNegotiateApiLayerRequest* apiLayerRequest)
     {

@@ -26,7 +26,7 @@
 #include "decode/vulkan_detection_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_detection_consumer.h"
 #include "generated/generated_openxr_decoder.h"
 #endif
@@ -79,7 +79,7 @@ bool DetectAPIs(const std::string& input_filename,
 
 #endif
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
         gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer;
         gfxrecon::decode::OpenXrDecoder           openxr_decoder;
         openxr_decoder.AddConsumer(&openxr_detection_consumer);
@@ -102,7 +102,7 @@ bool DetectAPIs(const std::string& input_filename,
 
 #endif
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
         if (openxr_detection_consumer.WasOpenXrAPIDetected())
         {
             openxr_detected = true;

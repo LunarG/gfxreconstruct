@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_JSON_CONSUMER_H
 #define  GFXRECON_GENERATED_OPENXR_JSON_CONSUMER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_json_consumer_base.h"
 #include "generated/generated_openxr_struct_decoders.h"
