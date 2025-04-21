@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_OPENXR_STRUCT_DECODERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/custom_openxr_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"

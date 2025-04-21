@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_replay_consumer_base.h"
 #include "generated/generated_openxr_struct_decoders.h"

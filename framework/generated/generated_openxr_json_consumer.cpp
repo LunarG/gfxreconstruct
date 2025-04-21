@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "util/defines.h"
 #include "generated/generated_openxr_json_consumer.h"

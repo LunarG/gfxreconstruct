@@ -3120,7 +3120,7 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
     }
 }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 void VulkanCaptureManager::PreProcess_vkDestroyFence(VkDevice                     device,
                                                      VkFence                      fence,
                                                      const VkAllocationCallbacks* pAllocator)
@@ -3814,7 +3814,7 @@ void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectTagEXT(VkResult     
     }
 }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 void VulkanCaptureManager::PostProcess_vkCreateFence(VkResult                     result,
                                                      VkDevice                     device,
                                                      const VkFenceCreateInfo*     pCreateInfo,

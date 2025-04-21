@@ -31,7 +31,7 @@
 #include "util/file_path.h"
 #include "util/platform.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_json_consumer.h"
 #endif
 
@@ -44,7 +44,7 @@
 
 using gfxrecon::util::JsonFormat;
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 using OpenXrJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
     gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::OpenXrExportJsonConsumer>>;
 #endif
@@ -313,7 +313,7 @@ int main(int argc, const char** argv)
             vulkan_decoder.AddConsumer(&vulkan_json_consumer);
             file_processor.AddDecoder(&vulkan_decoder);
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             OpenXrJsonConsumer              openxr_json_consumer;
             gfxrecon::decode::OpenXrDecoder openxr_decoder;
             openxr_decoder.AddConsumer(&openxr_json_consumer);
@@ -336,7 +336,7 @@ int main(int argc, const char** argv)
                                               std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
             vulkan_json_consumer.Initialize(&json_writer, vulkan_version);
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             const std::string openxr_version{ std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
                                               std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
                                               std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION)) };
@@ -438,7 +438,7 @@ int main(int argc, const char** argv)
 
             vulkan_json_consumer.Destroy();
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             openxr_json_consumer.Destroy();
 #endif
 

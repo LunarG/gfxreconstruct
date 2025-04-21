@@ -25,7 +25,7 @@
 #ifndef GFXRECON_DECODE_OPENXR_STAT_CONSUMER_H
 #define GFXRECON_DECODE_OPENXR_STAT_CONSUMER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/custom_openxr_struct_decoders.h"
 #include "decode/api_decoder.h"

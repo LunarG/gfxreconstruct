@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_TRACKED_OPENXR_OBJECT_INFO_H
 #define GFXRECON_DECODE_TRACKED_OPENXR_OBJECT_INFO_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "util/defines.h"
 #include "format/format.h"

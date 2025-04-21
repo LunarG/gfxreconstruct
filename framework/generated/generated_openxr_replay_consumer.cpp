@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/custom_openxr_struct_handle_mappers.h"
 #include "decode/custom_vulkan_struct_handle_mappers.h"

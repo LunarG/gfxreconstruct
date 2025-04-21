@@ -24,7 +24,7 @@
 #ifndef GFXRECON_DECODE_OPENXR_TRACKED_OBJECT_MAPPER_H
 #define GFXRECON_DECODE_OPENXR_TRACKED_OBJECT_MAPPER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_tracked_object_info.h"
 #include "util/defines.h"

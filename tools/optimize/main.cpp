@@ -291,7 +291,7 @@ int main(int argc, const char** argv)
             {
                 VkRemoveRedundantResources(input_filename, output_filename);
             }
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             else if (detected_openxr)
             {
                 GFXRECON_LOG_INFO("No optimizations defined for OpenXR capture files");

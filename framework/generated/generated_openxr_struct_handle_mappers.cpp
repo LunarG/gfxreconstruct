@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "generated/generated_openxr_struct_handle_mappers.h"
 

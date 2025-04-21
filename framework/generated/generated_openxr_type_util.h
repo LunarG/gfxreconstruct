@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_TYPE_UTIL_H
 #define  GFXRECON_GENERATED_OPENXR_TYPE_UTIL_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "format/platform_types.h"
 #include "util/defines.h"

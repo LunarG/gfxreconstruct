@@ -23,7 +23,7 @@
 #ifndef GFXRECON_DECODE_OPENXR_RESOURCE_TRACKING_CONSUMER_H
 #define GFXRECON_DECODE_OPENXR_RESOURCE_TRACKING_CONSUMER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_tracked_object_info.h"
 #include "decode/openxr_tracked_object_info_table.h"
