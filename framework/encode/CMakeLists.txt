@@ -118,6 +118,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_common.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp
