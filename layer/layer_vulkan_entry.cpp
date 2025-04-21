@@ -29,6 +29,7 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
+#include "generated/generated_vulkan_layer_func_table.h"
 #if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_layer_func_table.h"
 #endif
@@ -110,147 +111,16 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
     return LayerVulkanEntry::Get()->dispatch_CreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
 }
 
-LayerVulkanEntry* LayerVulkanEntry::singleton_ = nullptr;
-
-LayerVulkanEntry* LayerVulkanEntry::InitSingleton(const VulkanFunctionTable& vulkan_function_table)
+encode::VulkanEntryBase* LayerVulkanEntry::InitSingleton()
 {
-    if (!singleton_)
-    {
-        singleton_ = new LayerVulkanEntry(vulkan_function_table);
-    }
-    return singleton_;
+    return VulkanEntryBase::InitSingleton<LayerVulkanEntry>(GetVulkanLayerFuncTable());
 }
 
-void LayerVulkanEntry::DestroySingleton()
-{
-    if (singleton_)
-    {
-        delete singleton_;
-        singleton_ = nullptr;
-    }
-}
+LayerVulkanEntry::LayerVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table) :
+    VulkanEntryBase(vulkan_function_table)
+{}
 
-const VkLayerProperties LayerVulkanEntry::kLayerProps = {
-    GFXRECON_PROJECT_VULKAN_LAYER_NAME,
-    VK_HEADER_VERSION_COMPLETE,
-    VK_MAKE_VERSION(GFXRECON_PROJECT_VERSION_MAJOR, GFXRECON_PROJECT_VERSION_MINOR, GFXRECON_PROJECT_VERSION_PATCH),
-    GFXRECON_PROJECT_DESCRIPTION
-    " Version " GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
-        GFXRECON_PROJECT_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_PATCH)
-        GFXRECON_PROJECT_VERSION_DESIGNATION
-};
-
-const std::vector<LayerVulkanEntry::VulkanLayerExtensionProps> LayerVulkanEntry::kVulkanDeviceExtensionProps = {
-    { VkExtensionProperties{ "VK_EXT_tooling_info", 1 }, { "vkGetPhysicalDeviceToolPropertiesEXT" }, {} },
-    { VkExtensionProperties{ VK_EXT_DEBUG_MARKER_EXTENSION_NAME, VK_EXT_DEBUG_MARKER_SPEC_VERSION },
-      {},
-      { "vkCmdDebugMarkerBeginEXT",
-        "vkCmdDebugMarkerEndEXT",
-        "vkCmdDebugMarkerInsertEXT",
-        "vkDebugMarkerSetObjectNameEXT",
-        "vkDebugMarkerSetObjectTagEXT" } },
-    { VkExtensionProperties{ "VK_ANDROID_frame_boundary", 1 }, {}, { "vkFrameBoundaryANDROID" } },
-    { VkExtensionProperties{ "VK_EXT_frame_boundary", 1 }, {}, {} },
-};
-
-/// An alphabetical list of device extensions which we do not report upstream if
-/// other layers or ICDs expose them to us.
-const char* const LayerVulkanEntry::kVulkanUnsupportedDeviceExtensions[] = {
-    VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
-    VK_ARM_TENSORS_EXTENSION_NAME,
-    VK_ARM_DATA_GRAPH_EXTENSION_NAME,
-    VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
-    VK_EXT_PIPELINE_PROPERTIES_EXTENSION_NAME,
-    VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME,
-    VK_HUAWEI_SUBPASS_SHADING_EXTENSION_NAME,
-    VK_NVX_BINARY_IMPORT_EXTENSION_NAME,
-    VK_NV_COPY_MEMORY_INDIRECT_EXTENSION_NAME,
-    VK_NV_LOW_LATENCY_2_EXTENSION_NAME,
-    VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
-    VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
-    VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
-    VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-    VK_NV_EXTERNAL_COMPUTE_QUEUE_EXTENSION_NAME,
-    VK_OHOS_SURFACE_EXTENSION_NAME
-};
-
-void LayerVulkanEntry::RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
-                                        const char* const                   screenedExtensions[],
-                                        const size_t                        screenedCount)
-{
-    auto new_end = std::remove_if(
-        extensionProps.begin(),
-        extensionProps.end(),
-        [&screenedExtensions, screenedCount](const VkExtensionProperties& extension) {
-            return std::find_if(screenedExtensions, &screenedExtensions[screenedCount], [&extension](auto screened) {
-                       return strncmp(extension.extensionName, screened, VK_MAX_EXTENSION_NAME_SIZE) == 0;
-                   }) != &screenedExtensions[screenedCount];
-        });
-    extensionProps.resize(new_end - extensionProps.begin());
-}
-
-const VkLayerInstanceCreateInfo* LayerVulkanEntry::GetInstanceChainInfo(const VkInstanceCreateInfo* pCreateInfo,
-                                                                        VkLayerFunction             func)
-{
-    const VkLayerInstanceCreateInfo* chain_info =
-        reinterpret_cast<const VkLayerInstanceCreateInfo*>(pCreateInfo->pNext);
-
-    while (chain_info &&
-           ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) || (chain_info->function != func)))
-    {
-        chain_info = reinterpret_cast<const VkLayerInstanceCreateInfo*>(chain_info->pNext);
-    }
-
-    return chain_info;
-}
-
-const VkLayerDeviceCreateInfo* LayerVulkanEntry::GetDeviceChainInfo(const VkDeviceCreateInfo* pCreateInfo,
-                                                                    VkLayerFunction           func)
-{
-    const VkLayerDeviceCreateInfo* chain_info = reinterpret_cast<const VkLayerDeviceCreateInfo*>(pCreateInfo->pNext);
-
-    while (chain_info &&
-           ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) || (chain_info->function != func)))
-    {
-        chain_info = reinterpret_cast<const VkLayerDeviceCreateInfo*>(chain_info->pNext);
-    }
-
-    return chain_info;
-}
-
-void LayerVulkanEntry::AddInstanceHandle(VkInstance instance)
-{
-    // Store the instance for use with vkCreateDevice.
-    std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    vulkan_instance_handles[graphics::GetVulkanDispatchKey(instance)] = instance;
-}
-
-VkInstance LayerVulkanEntry::GetInstanceHandle(const void* handle)
-{
-    std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    auto                        entry = vulkan_instance_handles.find(graphics::GetVulkanDispatchKey(handle));
-    return (entry != vulkan_instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
-}
-
-void LayerVulkanEntry::SetInstanceNextGPDPA(const VkInstance              instance,
-                                            PFN_GetPhysicalDeviceProcAddr p_vulkan_next_gpdpa)
-{
-    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
-    std::lock_guard<std::mutex> lock(vulkan_gpdpa_lock);
-    vulkan_next_gpdpa[instance] = p_vulkan_next_gpdpa;
-}
-
-PFN_GetPhysicalDeviceProcAddr LayerVulkanEntry::GetNextGPDPA(const VkInstance instance)
-{
-    GFXRECON_ASSERT(instance != VK_NULL_HANDLE);
-    std::lock_guard<std::mutex> lock(vulkan_gpdpa_lock);
-    auto                        it_gpdpa = vulkan_next_gpdpa.find(instance);
-    if (it_gpdpa == vulkan_next_gpdpa.end())
-    {
-        return nullptr;
-    }
-    return it_gpdpa->second;
-}
+LayerVulkanEntry::~LayerVulkanEntry() {}
 
 VkResult LayerVulkanEntry::dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                    const VkAllocationCallbacks* pAllocator,
@@ -529,7 +399,7 @@ VkResult LayerVulkanEntry::EnumerateDeviceExtensionProperties(VkPhysicalDevice  
         }
 
         RemoveExtensions(device_extension_properties,
-                         kVulkanUnsupportedDeviceExtensions,
+                         kVulkanUnsupportedDeviceExtensions.data(),
                          std::end(kVulkanUnsupportedDeviceExtensions) - std::begin(kVulkanUnsupportedDeviceExtensions));
 
         // Append the extensions we provide in the list to the caller if they aren't already provided downstream.

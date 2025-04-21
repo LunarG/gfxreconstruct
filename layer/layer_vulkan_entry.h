@@ -24,6 +24,8 @@
 #ifndef GFXRECON_LAYER_VULKAN_ENTRY_H
 #define GFXRECON_LAYER_VULKAN_ENTRY_H
 
+#include "encode/vulkan_entry_base.h"
+
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -40,8 +42,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(vulkan_layer)
-
-typedef std::unordered_map<std::string, PFN_vkVoidFunction> VulkanFunctionTable;
 
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in the .cpp
@@ -69,90 +69,39 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      const VkAllocationCallbacks* pAllocator,
                                                      VkDevice*                    pDevice);
 
-class LayerVulkanEntry
+class LayerVulkanEntry : public encode::VulkanEntryBase
 {
   public:
-    static LayerVulkanEntry* Get()
-    {
-        GFXRECON_ASSERT(singleton_ != nullptr);
-        return singleton_;
-    }
+    static VulkanEntryBase* InitSingleton();
 
-    static LayerVulkanEntry* InitSingleton(const VulkanFunctionTable& vulkan_function_table);
-    static void              DestroySingleton();
-
-    LayerVulkanEntry(const VulkanFunctionTable& vulkan_function_table) :
-        vulkan_function_table_(vulkan_function_table){};
-    virtual ~LayerVulkanEntry(){};
+    LayerVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table);
+    virtual ~LayerVulkanEntry();
 
     // The following prototype declarations are required so the dispatch table can find these
     // functions which are defined in trace_layer.cpp
-    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName);
-    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName);
-    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName);
+    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName) override;
+    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName) override;
+    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName) override;
     virtual VkResult           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                                   const char*            pLayerName,
                                                                   uint32_t*              pPropertyCount,
-                                                                  VkExtensionProperties* pProperties);
+                                                                  VkExtensionProperties* pProperties) override;
     virtual VkResult           EnumerateInstanceExtensionProperties(const char*            pLayerName,
                                                                     uint32_t*              pPropertyCount,
-                                                                    VkExtensionProperties* pProperties);
-    virtual VkResult EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-    virtual VkResult EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
-                                                    uint32_t*          pPropertyCount,
-                                                    VkLayerProperties* pProperties);
+                                                                    VkExtensionProperties* pProperties) override;
+    virtual VkResult           EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                VkLayerProperties* pProperties) override;
+    virtual VkResult           EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                              uint32_t*          pPropertyCount,
+                                                              VkLayerProperties* pProperties) override;
 
     virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                              const VkAllocationCallbacks* pAllocator,
-                                             VkInstance*                  pInstance);
+                                             VkInstance*                  pInstance) override;
     virtual VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
                                            const VkDeviceCreateInfo*    pCreateInfo,
                                            const VkAllocationCallbacks* pAllocator,
-                                           VkDevice*                    pDevice);
-
-    // RemoveExtensions is public to enable test in layer\test\main.cpp
-    static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
-                                 const char* const                   screenedExtensions[],
-                                 const size_t                        screenedCount);
-
-  private:
-    static LayerVulkanEntry* singleton_;
-
-    static const VkLayerProperties kLayerProps;
-
-    struct VulkanLayerExtensionProps
-    {
-        VkExtensionProperties    props;
-        std::vector<std::string> instance_funcs;
-        std::vector<std::string> device_funcs;
-    };
-
-    static const std::vector<VulkanLayerExtensionProps> kVulkanDeviceExtensionProps;
-
-    /// An alphabetical list of device extensions which we do not report upstream if
-    /// other layers or ICDs expose them to us.
-    static const char* const kVulkanUnsupportedDeviceExtensions[];
-
-    std::mutex                                  vulkan_instance_handles_lock;
-    std::unordered_map<const void*, VkInstance> vulkan_instance_handles;
-
-    // The GetPhysicalDeviceProcAddr of the next layer in the chain.
-    // Retrieved during instance creation and forwarded to by this layer's
-    // GetPhysicalDeviceProcAddr() after unwrapping its VkInstance parameter.
-    std::mutex                                                    vulkan_gpdpa_lock;
-    std::unordered_map<VkInstance, PFN_GetPhysicalDeviceProcAddr> vulkan_next_gpdpa;
-
-    const VkLayerInstanceCreateInfo* GetInstanceChainInfo(const VkInstanceCreateInfo* pCreateInfo,
-                                                          VkLayerFunction             func);
-    const VkLayerDeviceCreateInfo*   GetDeviceChainInfo(const VkDeviceCreateInfo* pCreateInfo, VkLayerFunction func);
-
-    void       AddInstanceHandle(VkInstance instance);
-    VkInstance GetInstanceHandle(const void* handle);
-
-    void SetInstanceNextGPDPA(const VkInstance instance, PFN_GetPhysicalDeviceProcAddr p_vulkan_next_gpdpa);
-    PFN_GetPhysicalDeviceProcAddr GetNextGPDPA(const VkInstance instance);
-
-    const VulkanFunctionTable vulkan_function_table_;
+                                           VkDevice*                    pDevice) override;
 };
 
 GFXRECON_END_NAMESPACE(vulkan_layer)
