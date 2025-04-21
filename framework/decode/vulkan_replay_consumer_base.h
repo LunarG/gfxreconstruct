@@ -1715,6 +1715,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
 
+    VkDebugUtilsMessengerEXT debug_messenger_;
+
     //! async_tracked_handle_asset_t groups assets used by tracked async-dependencies
     struct async_tracked_handle_asset_t
     {

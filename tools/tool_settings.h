@@ -71,6 +71,7 @@ const char kHelpShortOption[]                    = "-h";
 const char kHelpLongOption[]                     = "--help";
 const char kVersionOption[]                      = "--version";
 const char kLogLevelArgument[]                   = "--log-level";
+const char kDebugMessageSeverityArgument[]       = "--debug-messenger-level";
 const char kLogFileArgument[]                    = "--log-file";
 const char kLogDebugView[]                       = "--log-debugview";
 const char kNoDebugPopup[]                       = "--no-debug-popup";
@@ -1072,6 +1073,32 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitShortOption))
     {
         replay_options.virtual_swapchain_skip_blit = true;
+    }
+
+    const std::string debug_severity_string = arg_parser.GetArgumentValue(kDebugMessageSeverityArgument);
+    if (!debug_severity_string.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase("debug", debug_severity_string.c_str()))
+        {
+            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase("info", debug_severity_string.c_str()))
+        {
+            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase("warning", debug_severity_string.c_str()))
+        {
+            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase("error", debug_severity_string.c_str()))
+        {
+            replay_options.debug_message_severity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized debug messenger severity option value \"%s\"",
+                                 debug_severity_string.c_str());
+        }
     }
 
     replay_options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
