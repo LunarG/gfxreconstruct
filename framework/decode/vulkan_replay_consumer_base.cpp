@@ -118,8 +118,10 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
 
     // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
     const char* message_id_name = "(nullptr)";
-    if (pCallbackData->pMessageIdName != nullptr)
+    if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr))
+    {
         message_id_name = pCallbackData->pMessageIdName;
+    }
 
     if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
@@ -2872,7 +2874,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 ->CreateDebugUtilsMessengerEXT(*replay_instance,
                                                &create_state.messenger_create_info,
                                                GetAllocationCallbacks(pAllocator),
-                                               &debug_messenger);
+                                               &debug_messenger_);
         }
     }
 
