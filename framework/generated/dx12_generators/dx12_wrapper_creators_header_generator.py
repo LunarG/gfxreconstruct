@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -29,6 +30,9 @@ from dx12_base_generator import Dx12BaseGenerator, write
 class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
     # Default C++ code indentation size.
     INDENT_SIZE = 4
+
+    # Bases classes that can be retrieved thorugh an API call, which need to be wrapped.
+    CUSTOM_WRAPPER_OBJECTS = ['ID3D11Resource']
 
     def __init__(
         self,
@@ -90,6 +94,10 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
                 )
                 code += ' },'
                 write(code, file=self.outFile)
+        for name in self.CUSTOM_WRAPPER_OBJECTS:
+            code = indent
+            code += '{ IID_' + name + ', Wrap' + name + ' },'
+            write(code, file=self.outFile)
         indent = self.decrement_indent(indent)
         write('};', file=self.outFile)
         self.newline()
@@ -194,6 +202,7 @@ class Dx12WrapperCreatorsHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = ''
+        code += '#include "encode/custom_dx12_wrapper_creators.h"\n'
         code += '#include "encode/dx12_object_wrapper_resources.h"\n'
         code += '#include "util/defines.h"\n'
         code += '#include <unordered_map>\n'

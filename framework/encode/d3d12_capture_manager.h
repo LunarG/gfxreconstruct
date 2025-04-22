@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,11 +32,13 @@
 #include <stdint.h>
 
 #include "encode/ags_dispatch_table.h"
+#include "encode/d3d11_dispatch_table.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/dx12_rv_annotator.h"
 #include "generated/generated_dx12_wrappers.h"
+#include "graphics/dx11_image_renderer.h"
 #include "graphics/dx12_image_renderer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -95,6 +98,18 @@ class D3D12CaptureManager : public ApiCaptureManager
     //----------------------------------------------------------------------------
     void InitAgsDispatchTable(const AgsDispatchTable& dispatch_table) { ags_dispatch_table_ = dispatch_table; }
 
+    /// \brief Initializes the D3D11 dispatch table.
+    ///
+    /// Initializes the CaptureManager's internal D3D11 dispatch table with
+    /// functions loaded from the D3D11 system DLL.  This dispatch table will be
+    /// used by the 'wrapper' functions to invoke the 'real' D3D11 function prior
+    /// to processing the function parameters for encoding.
+    ///
+    /// \param dispatch_table A D3D11DispatchTable object containing the DXGI
+    ///                       function pointers to be used for initialization.
+    //----------------------------------------------------------------------------
+    void InitD3D11DispatchTable(const D3D11DispatchTable& dispatch_table) { d3d11_dispatch_table_ = dispatch_table; }
+
     //----------------------------------------------------------------------------
     /// \brief Retrieves the DXGI dispatch table.
     ///
@@ -129,6 +144,17 @@ class D3D12CaptureManager : public ApiCaptureManager
     const D3D12DispatchTable& GetD3D12DispatchTable() const { return d3d12_dispatch_table_; }
 
     //----------------------------------------------------------------------------
+    /// \brief Retrieves the D3D11 dispatch table.
+    ///
+    /// Retrieves the CaptureManager's internal D3D11 dispatch table. Intended to be
+    /// used by the 'wrapper' functions when invoking the 'real' D3D11 functions.
+    ///
+    /// \return A D3D11DispatchTable object containing D3D11 function pointers
+    ///         retrieved from the system DLL.
+    //----------------------------------------------------------------------------
+    const D3D11DispatchTable& GetD3D11DispatchTable() const { return d3d11_dispatch_table_; }
+
+    //----------------------------------------------------------------------------
     /// \brief Increments the scope count for the current thread.
     ///
     /// Increments a per-thread scope count that is intended to indicate if an
@@ -160,6 +186,26 @@ class D3D12CaptureManager : public ApiCaptureManager
     void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
     {
         if (IsCaptureModeTrack() && SUCCEEDED(result))
+        {
+            if ((handle != nullptr) && (*handle != nullptr))
+            {
+                assert(state_tracker_ != nullptr);
+
+                auto thread_data = GetThreadData();
+                assert(thread_data != nullptr);
+
+                state_tracker_->AddEntry(
+                    riid, handle, thread_data->call_id_, create_object_wrapper, thread_data->parameter_buffer_.get());
+            }
+        }
+
+        EndMethodCallCapture();
+    }
+
+    template <typename ParentWrapper>
+    void EndCreateMethodCallCapture(REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
+    {
+        if (IsCaptureModeTrack())
         {
             if ((handle != nullptr) && (*handle != nullptr))
             {
@@ -768,6 +814,29 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void OverrideID3D12GraphicsCommandList10_DispatchGraph(ID3D12GraphicsCommandList10_Wrapper* wrapper,
                                                            const D3D12_DISPATCH_GRAPH_DESC*     pDesc);
+    HRESULT OverrideD3D11CreateDevice(IDXGIAdapter*            adapter,
+                                      D3D_DRIVER_TYPE          driver_type,
+                                      HMODULE                  software,
+                                      UINT                     flags,
+                                      const D3D_FEATURE_LEVEL* feature_levels,
+                                      UINT                     num_feature_levels,
+                                      UINT                     sdk_version,
+                                      ID3D11Device**           device,
+                                      D3D_FEATURE_LEVEL*       feature_level,
+                                      ID3D11DeviceContext**    immediate_context);
+
+    HRESULT OverrideD3D11CreateDeviceAndSwapChain(IDXGIAdapter*               adapter,
+                                                  D3D_DRIVER_TYPE             driver_type,
+                                                  HMODULE                     software,
+                                                  UINT                        flags,
+                                                  const D3D_FEATURE_LEVEL*    feature_levels,
+                                                  UINT                        num_feature_levels,
+                                                  UINT                        sdk_version,
+                                                  const DXGI_SWAP_CHAIN_DESC* swap_chain_desc,
+                                                  IDXGISwapChain**            swap_chain,
+                                                  ID3D11Device**              device,
+                                                  D3D_FEATURE_LEVEL*          feature_level,
+                                                  ID3D11DeviceContext**       immediate_context);
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
@@ -791,9 +860,13 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
-    void WriteDx12DriverInfo();
+    void WriteDxDriverInfo(format::ApiFamilyId api_family);
 
-    void WriteDriverInfoCommand(const std::string& info);
+    void WriteDx11DriverInfo() { WriteDxDriverInfo(format::ApiFamilyId::ApiFamily_D3D11); }
+
+    void WriteDx12DriverInfo() { WriteDxDriverInfo(format::ApiFamilyId::ApiFamily_D3D12); }
+
+    void WriteDriverInfoCommand(format::ApiFamilyId api_family, const std::string& info);
 
     void WriteDx12RuntimeInfo();
 
@@ -805,7 +878,200 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
 
-    void WriteDxgiAdapterInfo();
+    void PostProcess_D3D11CreateDevice(HRESULT                  result,
+                                       IDXGIAdapter*            adapter,
+                                       D3D_DRIVER_TYPE          driver_type,
+                                       HMODULE                  software,
+                                       UINT                     flags,
+                                       const D3D_FEATURE_LEVEL* feature_levels,
+                                       UINT                     num_feature_levels,
+                                       UINT                     sdk_version,
+                                       ID3D11Device**           device,
+                                       D3D_FEATURE_LEVEL*       feature_level,
+                                       ID3D11DeviceContext**    immediate_context);
+
+    void PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
+                                                   IDXGIAdapter*               adapter,
+                                                   D3D_DRIVER_TYPE             driver_type,
+                                                   HMODULE                     software,
+                                                   UINT                        flags,
+                                                   const D3D_FEATURE_LEVEL*    feature_levels,
+                                                   UINT                        num_feature_levels,
+                                                   UINT                        sdk_version,
+                                                   const DXGI_SWAP_CHAIN_DESC* swap_chain_desc,
+                                                   IDXGISwapChain**            swap_chain,
+                                                   ID3D11Device**              device,
+                                                   D3D_FEATURE_LEVEL*          feature_level,
+                                                   ID3D11DeviceContext**       immediate_context);
+
+    void PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
+                                               HRESULT                       result,
+                                               const D3D11_BUFFER_DESC*      desc,
+                                               const D3D11_SUBRESOURCE_DATA* initial_data,
+                                               ID3D11Buffer**                buffer);
+
+    void PostProcess_ID3D11Device_CreateDeferredContext(ID3D11Device_Wrapper* wrapper,
+                                                        HRESULT               result,
+                                                        UINT                  context_flags,
+                                                        ID3D11DeviceContext** deferred_context);
+
+    void PostProcess_ID3D11Device1_CreateDeferredContext1(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext1** deferred_context);
+
+    void PostProcess_ID3D11Device2_CreateDeferredContext2(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext2** deferred_context);
+
+    void PostProcess_ID3D11Device3_CreateDeferredContext3(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext3** deferred_context);
+
+    void PostProcess_ID3D11Device_CreateTexture1D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE1D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture1D**             texture1D);
+
+    void PostProcess_ID3D11Device_CreateTexture2D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE2D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture2D**             texture2D);
+
+    void PostProcess_ID3D11Device3_CreateTexture2D1(ID3D11Device_Wrapper*         wrapper,
+                                                    HRESULT                       result,
+                                                    const D3D11_TEXTURE2D_DESC1*  desc1,
+                                                    const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                    ID3D11Texture2D1**            texture2D);
+
+    void PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE3D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture3D**             texture3D);
+
+    void PostProcess_ID3D11Device3_CreateTexture3D1(ID3D11Device_Wrapper*         wrapper,
+                                                    HRESULT                       result,
+                                                    const D3D11_TEXTURE3D_DESC1*  desc1,
+                                                    const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                    ID3D11Texture3D1**            texture3D);
+
+    void Destroy_ID3D11Buffer(ID3D11Buffer_Wrapper* wrapper);
+
+    void Destroy_ID3D11Texture1D(ID3D11Texture1D_Wrapper* wrapper);
+
+    void Destroy_ID3D11Texture2D(ID3D11Texture2D_Wrapper* wrapper);
+
+    void Destroy_ID3D11Texture3D(ID3D11Texture3D_Wrapper* wrapper);
+
+    void PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContext_Wrapper* wrapper,
+                                             HRESULT                      result,
+                                             ID3D11Resource*              resource,
+                                             UINT                         subresource,
+                                             D3D11_MAP                    map_type,
+                                             UINT                         map_flags,
+                                             D3D11_MAPPED_SUBRESOURCE*    mapped_subresource_data);
+
+    void PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceContext_Wrapper* wrapper,
+                                              ID3D11Resource*              resource,
+                                              UINT                         subresource);
+
+    void PreProcess_ID3D11DeviceContext_Dispatch(ID3D11DeviceContext_Wrapper* wrapper,
+                                                 UINT                         thread_group_count_x,
+                                                 UINT                         thread_group_count_y,
+                                                 UINT                         thread_group_count_z);
+
+    void PreProcess_ID3D11DeviceContext_DispatchIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                         ID3D11Buffer*                buffer_for_args,
+                                                         UINT                         aligned_byte_offset_for_args);
+
+    void PreProcess_ID3D11DeviceContext_Draw(ID3D11DeviceContext_Wrapper* wrapper,
+                                             UINT                         vertex_count,
+                                             UINT                         start_vertex_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawAuto(ID3D11DeviceContext_Wrapper* wrapper);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11DeviceContext_Wrapper* wrapper,
+                                                    UINT                         index_count,
+                                                    UINT                         start_index_location,
+                                                    INT                          base_vertex_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                             UINT                         index_count_per_instance,
+                                                             UINT                         instance_count,
+                                                             UINT                         start_index_location,
+                                                             INT                          base_vertex_location,
+                                                             UINT                         start_instance_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                     ID3D11Buffer*                buffer_for_args,
+                                                                     UINT aligned_byte_offset_for_args);
+
+    void PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                      UINT                         vertex_count_per_instance,
+                                                      UINT                         instance_count,
+                                                      UINT                         start_vertex_location,
+                                                      UINT                         start_instance_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                              ID3D11Buffer*                buffer_for_args,
+                                                              UINT aligned_byte_offset_for_args);
+
+    void PostProcess_ID3D11Device_CreateShaderResourceView(ID3D11Device_Wrapper*                  wrapper,
+                                                           HRESULT                                result,
+                                                           ID3D11Resource*                        resource,
+                                                           const D3D11_SHADER_RESOURCE_VIEW_DESC* desc,
+                                                           ID3D11ShaderResourceView**             srview);
+
+    void PostProcess_ID3D11Device_CreateShaderResourceView1(ID3D11Device3_Wrapper*                  wrapper,
+                                                            HRESULT                                 result,
+                                                            ID3D11Resource*                         resource,
+                                                            const D3D11_SHADER_RESOURCE_VIEW_DESC1* desc1,
+                                                            ID3D11ShaderResourceView1**             srview1);
+
+    void PostProcess_ID3D11Device_CreateUnorderedAccessView(ID3D11Device_Wrapper*                   wrapper,
+                                                            HRESULT                                 result,
+                                                            ID3D11Resource*                         resource,
+                                                            const D3D11_UNORDERED_ACCESS_VIEW_DESC* desc,
+                                                            ID3D11UnorderedAccessView**             uaview);
+
+    void PostProcess_ID3D11Device_CreateUnorderedAccessView1(ID3D11Device3_Wrapper*                   wrapper,
+                                                             HRESULT                                  result,
+                                                             ID3D11Resource*                          resource,
+                                                             const D3D11_UNORDERED_ACCESS_VIEW_DESC1* desc1,
+                                                             ID3D11UnorderedAccessView1**             uaview1);
+
+    void PostProcess_ID3D11Device_CreateRenderTargetView(ID3D11Device_Wrapper*                wrapper,
+                                                         HRESULT                              result,
+                                                         ID3D11Resource*                      resource,
+                                                         const D3D11_RENDER_TARGET_VIEW_DESC* desc,
+                                                         ID3D11RenderTargetView**             rtview);
+
+    void PostProcess_ID3D11Device_CreateRenderTargetView1(ID3D11Device3_Wrapper*                wrapper,
+                                                          HRESULT                               result,
+                                                          ID3D11Resource*                       resource,
+                                                          const D3D11_RENDER_TARGET_VIEW_DESC1* desc1,
+                                                          ID3D11RenderTargetView1**             rtview1);
+
+    void PostProcess_ID3D11Device_CreateDepthStencilView(ID3D11Device_Wrapper*                wrapper,
+                                                         HRESULT                              result,
+                                                         ID3D11Resource*                      resource,
+                                                         const D3D11_DEPTH_STENCIL_VIEW_DESC* desc,
+                                                         ID3D11DepthStencilView**             depth_stencil_view);
+
+    void Destroy_ID3D11ShaderResourceView(ID3D11ShaderResourceView_Wrapper* wrapper);
+
+    void Destroy_ID3D11RenderTargetView(ID3D11RenderTargetView_Wrapper* wrapper);
+
+    void Destroy_ID3D11UnorderedAccessView(ID3D11UnorderedAccessView_Wrapper* wrapper);
+
+    void Destroy_ID3D11DepthStencilView(ID3D11DepthStencilView_Wrapper* wrapper);
+
+    void WriteDxgiAdapterInfo(format::ApiFamilyId api_family);
 
     bool IsAccelerationStructureResource(format::HandleId id);
 
@@ -886,10 +1152,12 @@ class D3D12CaptureManager : public ApiCaptureManager
                              util::ThreadData*       thread_data) override
     {}
 
-    void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
-                                   IUnknown*               command_queue,
-                                   uint32_t                image_count,
-                                   DXGI_SWAP_EFFECT        swap_effect);
+    void InitializeSwapChainInfo(IDXGISwapChain_Wrapper* wrapper,
+                                 IUnknown*               unknown,
+                                 uint32_t                buffer_count,
+                                 DXGI_SWAP_EFFECT        swap_effect);
+
+    void AcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, IDXGISwapChainInfo* info, uint32_t image_count);
 
     void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 
@@ -912,10 +1180,10 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);
 
-    void InitializeID3D12DeviceInfo(IUnknown* pAdapter, void** device);
+    void InitializeID3D12DeviceInfo(ID3D12Device_Wrapper* device_wrapper);
 
   private:
-    void     WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
+    void     WriteDxgiAdapterInfoCommand(format::ApiFamilyId api_family, const format::DxgiAdapterDesc& adapter_desc);
     void     CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool     UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     void     EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);
@@ -923,21 +1191,50 @@ class D3D12CaptureManager : public ApiCaptureManager
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
     void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
+    void     ProcessMappedMemory(format::ApiFamilyId api_family);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
     bool                          RvAnnotationActive();
 
-    void PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
-                     IDXGISwapChain_Wrapper*                                wrapper,
-                     UINT                                                   flags);
+    void                                PrePresent(IDXGISwapChain_Wrapper* wrapper);
+    void                                PostPresent(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                    IDXGISwapChain_Wrapper*                                wrapper,
+                                                    UINT                                                   flags);
+    std::shared_ptr<ID3D11ResourceInfo> GetResourceInfo(ID3D11Resource_Wrapper* wrapper);
+    void*
+          AllocateMappedResourceMemory(util::PageGuardManager* manager, MappedSubresource& mapped_subresource, size_t size);
+    void* AllocateMappedResourceMemoryDeferred(util::WriteWatchTracker* deferred_tracker,
+                                               MappedSubresource&       mapped_subresource,
+                                               size_t                   size);
+    void* GetMappedResourceMemory(util::PageGuardManager* manager, const MappedSubresource& mapped_subresource);
+    void* UpdateDiscardedResourceMemory(util::PageGuardManager* manager, const MappedSubresource& mapped_subresource);
+    void* UpdateDiscardedResourceMemoryDeferred(util::WriteWatchTracker* deferred_tracker,
+                                                const MappedSubresource& mapped_subresource);
+    void  FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper);
+    void  ProcessMapDiscardNoOverwriteUnmapped(format::HandleId                          context_id,
+                                               std::shared_ptr<ID3D11DeviceContextInfo>& context_info,
+                                               std::shared_ptr<ID3D11ResourceInfo>&      resource_info,
+                                               MappedSubresource&                        mapped_subresource,
+                                               D3D11_MAP                                 map_type,
+                                               D3D11_MAPPED_SUBRESOURCE*                 mapped_subresource_data,
+                                               size_t                                    size);
+    void  ProcessMapDiscardMapped(std::shared_ptr<ID3D11DeviceContextInfo>& context_info,
+                                  MappedSubresource&                        mapped_subresource,
+                                  D3D11_MAP                                 map_type,
+                                  D3D11_MAPPED_SUBRESOURCE*                 mapped_subresource_data);
+    void  ProcessUnmap(std::shared_ptr<ID3D11DeviceContextInfo>& context_info, MappedSubresource& mapped_subresource);
+    void  PreProcessDraw(ID3D11DeviceContext_Wrapper* wrapper);
+    void  InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper* wrapper, const D3D11_TEXTURE2D_DESC* desc);
+    void  AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource);
+    void  ReleaseViewResourceRef(ID3D11ViewInfo* info);
 
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
+    D3D11DispatchTable d3d11_dispatch_table_; ///< D3D11 dispatch table for functions retrieved from the D3D11 DLL.
     int                ags_version_{};        ///< ags version.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
@@ -951,7 +1248,8 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 
-    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
+    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer12_;
+    std::unique_ptr<graphics::DX11ImageRenderer> frame_buffer_renderer11_;
 
     graphics::dx12::ActiveAdapterMap adapters_;
 

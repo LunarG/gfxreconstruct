@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -34,6 +35,7 @@
 
 #ifdef WIN32
 #include <d3d12.h>
+#include <d3d11.h>
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -366,6 +368,173 @@ struct Decoded_D3D12_DISPATCH_GRAPH_DESC
 
     Decoded_D3D12_NODE_CPU_INPUT*       node_cpu_input{ nullptr };
     Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
+};
+
+struct Decoded_D3D11_SUBRESOURCE_DATA
+{
+    using struct_type = D3D11_SUBRESOURCE_DATA;
+
+    D3D11_SUBRESOURCE_DATA* decoded_value{ nullptr };
+    PointerDecoder<uint8_t> pSysMem;
+};
+
+struct Decoded_D3D11_BUFFER_SRV
+{
+    using struct_type = D3D11_BUFFER_SRV;
+
+    D3D11_BUFFER_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC
+{
+    using struct_type = D3D11_SHADER_RESOURCE_VIEW_DESC;
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_SRV*        Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_SRV*         Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_SRV*   Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_SRV*         Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_SRV*   Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_SRV*       Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_SRV* Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_SRV*         Texture3D{ nullptr };
+    Decoded_D3D11_TEXCUBE_SRV*       TextureCube{ nullptr };
+    Decoded_D3D11_TEXCUBE_ARRAY_SRV* TextureCubeArray{ nullptr };
+    Decoded_D3D11_BUFFEREX_SRV*      BufferEx{ nullptr };
+};
+
+struct Decoded_D3D11_BUFFER_RTV
+{
+    using struct_type = D3D11_BUFFER_RTV;
+
+    D3D11_BUFFER_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC
+{
+    using struct_type = D3D11_UNORDERED_ACCESS_VIEW_DESC;
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_UAV*         Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_UAV*          Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_UAV*    Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_UAV*          Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_UAV*    Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX3D_UAV*          Texture3D{ nullptr };
+};
+
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC
+{
+    using struct_type = D3D11_RENDER_TARGET_VIEW_DESC;
+
+    D3D11_RENDER_TARGET_VIEW_DESC*   decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_RTV*        Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_RTV*         Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_RTV*   Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_RTV*         Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_RTV*   Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_RTV*       Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_RTV* Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_RTV*         Texture3D{ nullptr };
+};
+
+struct Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC
+{
+    using struct_type = D3D11_DEPTH_STENCIL_VIEW_DESC;
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC*   decoded_value{ nullptr };
+    Decoded_D3D11_TEX1D_DSV*         Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_DSV*   Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_DSV*         Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_DSV*   Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_DSV*       Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_DSV* Texture2DMSArray{ nullptr };
+};
+
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1
+{
+    using struct_type = D3D11_SHADER_RESOURCE_VIEW_DESC1;
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC1* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_SRV*         Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_SRV*          Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_SRV*    Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_SRV1*         Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_SRV1*   Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_SRV*        Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_SRV*  Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_SRV*          Texture3D{ nullptr };
+    Decoded_D3D11_TEXCUBE_SRV*        TextureCube{ nullptr };
+    Decoded_D3D11_TEXCUBE_ARRAY_SRV*  TextureCubeArray{ nullptr };
+    Decoded_D3D11_BUFFEREX_SRV*       BufferEx{ nullptr };
+};
+
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1
+{
+    using struct_type = D3D11_UNORDERED_ACCESS_VIEW_DESC1;
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC1* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_UAV*          Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_UAV*           Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_UAV*     Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_UAV1*          Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_UAV1*    Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX3D_UAV*           Texture3D{ nullptr };
+};
+
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC1
+{
+    using struct_type = D3D11_RENDER_TARGET_VIEW_DESC1;
+
+    D3D11_RENDER_TARGET_VIEW_DESC1*  decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_RTV*        Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_RTV*         Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_RTV*   Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_RTV1*        Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_RTV1*  Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_RTV*       Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_RTV* Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_RTV*         Texture3D{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_COLOR
+{
+    using struct_type = D3D11_VIDEO_COLOR;
+
+    D3D11_VIDEO_COLOR* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS
+{
+    using struct_type = D3D11_AUTHENTICATED_PROTECTION_FLAGS;
+
+    D3D11_AUTHENTICATED_PROTECTION_FLAGS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC
+{
+    using struct_type = D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC;
+
+    D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* decoded_value{ nullptr };
+    Decoded_GUID*                         DecodeProfile{ nullptr };
+    Decoded_D3D11_TEX2D_VDOV*             Texture2D{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC;
+
+    D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* decoded_value{ nullptr };
+    Decoded_D3D11_TEX2D_VPIV*              Texture2D{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC;
+
+    D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* decoded_value{ nullptr };
+    Decoded_D3D11_TEX2D_VPOV*               Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_VPOV*         Texture2DArray{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

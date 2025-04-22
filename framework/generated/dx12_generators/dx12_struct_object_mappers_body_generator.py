@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -215,27 +216,33 @@ class Dx12StructObjectMappersBodyGenerator(Dx12BaseGenerator):
 
     def write_struct_member_def(self):
         for k, v in self.structs_with_objects.items():
-            expr = 'void AddStructObjects(const StructPointerDecoder<Decoded_{0}>* capture_value, const {0}* new_value, Dx12ObjectInfoTable& object_info_table)\n'.format(
-                k
-            )
-            expr += '{\n'
-            expr += '    auto decoded_struct = capture_value->GetMetaStructPointer();\n'
-
+            # Ignore structs with arrays of objects when generating the AddStructObjects function.  There are currently no structs containing arrays of
+            # objects that are used as output parameters, retrieving objects that need to be added to the object map.
+            value_expr = ''
             for value in v:
                 if self.is_struct(value.base_type):
-                    expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
+                    value_expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
                             '    {{\n'\
                             '        AddStructObjects(decoded_struct->{0}, new_value->{0}, object_info_table);\n'\
                             '    }}\n'.format(value.name)
 
-                elif self.is_class(value):
-                    expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
+                elif self.is_class(value) and (not value.is_array):
+                    value_expr += '    if(decoded_struct->{0} && new_value->{0})\n'\
                             '    {{\n'\
                             '        object_mapping::AddObject(&decoded_struct->{0}, const_cast<{1}**>(&new_value->{0}), &object_info_table);\n'\
                             '    }}\n'.format(value.name, value.base_type)
 
-            expr += '}\n'
-            write(expr, file=self.outFile)
+            if value_expr:
+                expr = 'void AddStructObjects(const StructPointerDecoder<Decoded_{0}>* capture_value, const {0}* new_value, Dx12ObjectInfoTable& object_info_table)\n'.format(
+                    k
+                )
+                expr += '{\n'
+                expr += '    auto decoded_struct = capture_value->GetMetaStructPointer();\n'
+
+                expr += value_expr
+
+                expr += '}\n'
+                write(expr, file=self.outFile)
 
     def make_struct_handle_mappings(
         self, name, handle_members, generic_handle_members

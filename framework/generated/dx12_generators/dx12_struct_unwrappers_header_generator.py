@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -65,11 +66,7 @@ class Dx12StructUnwrappersHeaderGenerator(Dx12BaseGenerator):
 
         # Find structs with COM object members, which will need to be
         # unwrapped.
-        struct_dict = self.source_dict['struct_dict']
-        for struct in struct_dict:
-            self.check_struct_member_handles(
-                struct, structs_with_objects, None, True
-            )
+        self.check_all_struct_member_handles(structs_with_objects, None, True)
 
         # Generate unwrap functions for any structs that were added to
         # the list.

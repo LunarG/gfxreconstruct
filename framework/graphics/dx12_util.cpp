@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -25,6 +25,8 @@
 #if defined(D3D12_SUPPORT)
 #include "graphics/dx12_util.h"
 
+#include "graphics/dx11_image_renderer.h"
+#include "graphics/dx12_image_renderer.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
 
@@ -196,6 +198,58 @@ UINT GetTexturePitch(UINT64 width)
            D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 }
 
+template <typename T>
+static T GetCurrentBackBuffer(IDXGISwapChain* swapchain)
+{
+    GFXRECON_ASSERT(swapchain != nullptr);
+
+    auto buffer     = T{};
+    auto swapchain3 = IDXGISwapChain3ComPtr{};
+    auto hr         = swapchain->QueryInterface(IID_PPV_ARGS(&swapchain3));
+
+    if (SUCCEEDED(hr))
+    {
+        const int backbuffer_idx = swapchain3->GetCurrentBackBufferIndex();
+        swapchain->GetBuffer(backbuffer_idx, IID_PPV_ARGS(&buffer));
+    }
+
+    return buffer;
+}
+
+static void WriteImageFile(const std::string&               filename_prefix,
+                           uint32_t                         frame_num,
+                           gfxrecon::util::ScreenshotFormat screenshot_format,
+                           uint32_t                         width,
+                           uint32_t                         height,
+                           uint32_t                         pitch,
+                           size_t                           size,
+                           const void*                      data)
+{
+    std::string filename = filename_prefix;
+    filename += "_frame_";
+    filename += std::to_string(frame_num);
+
+    switch (screenshot_format)
+    {
+        default:
+            GFXRECON_LOG_ERROR("Screenshot format invalid! Expected BMP or PNG, falling back to BMP.");
+            // Intentional fall-through
+        case gfxrecon::util::ScreenshotFormat::kBmp:
+            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, data, pitch))
+            {
+                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
+            }
+            break;
+        case gfxrecon::util::ScreenshotFormat::kPng:
+            if (!util::imagewriter::WritePngImage(
+                    filename + ".png", width, height, data, pitch, util::imagewriter::kFormat_RGBA))
+            {
+                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
+            }
+            break;
+    }
+}
+
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                           queue,
                     IDXGISwapChain*                               swapchain,
@@ -203,105 +257,116 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                     const std::string&                            filename_prefix,
                     gfxrecon::util::ScreenshotFormat              screenshot_format)
 {
-    if (queue != nullptr && swapchain != nullptr)
+    if (queue == nullptr || swapchain == nullptr)
     {
-        Microsoft::WRL::ComPtr<IDXGISwapChain3> swapchain3   = nullptr;
-        Microsoft::WRL::ComPtr<IDXGISwapChain>  swapChainCom = swapchain;
+        return;
+    }
 
-        HRESULT hr = swapChainCom.As(&swapchain3);
-
-        if (hr == S_OK)
+    auto frame_buffer_resource = GetCurrentBackBuffer<ID3D12ResourceComPtr>(swapchain);
+    if (frame_buffer_resource)
+    {
+        if (image_renderer == nullptr)
         {
-            const int backbuffer_idx = swapchain3->GetCurrentBackBufferIndex();
+            auto parent_device = dx12::ID3D12DeviceComPtr{};
+            auto hr            = queue->GetDevice(IID_PPV_ARGS(&parent_device));
 
-            Microsoft::WRL::ComPtr<ID3D12Resource> frame_buffer_resource = nullptr;
-            hr                                                           = swapchain->GetBuffer(backbuffer_idx,
-                                      __uuidof(ID3D12Resource),
-                                      reinterpret_cast<void**>(frame_buffer_resource.GetAddressOf()));
-
-            if (hr == S_OK)
+            if (SUCCEEDED(hr))
             {
-                if (image_renderer == nullptr)
+                gfxrecon::graphics::DX12ImageRendererConfig renderer_config;
+                renderer_config.cmd_queue = queue;
+                renderer_config.device    = parent_device;
+
+                image_renderer = gfxrecon::graphics::DX12ImageRenderer::Create(renderer_config);
+            }
+        }
+
+        if (image_renderer != nullptr)
+        {
+            auto fb_desc = frame_buffer_resource->GetDesc();
+            auto pitch   = GetTexturePitch(fb_desc.Width);
+
+            HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.GetInterfacePtr(),
+                                                                  D3D12_RESOURCE_STATE_PRESENT,
+                                                                  static_cast<uint32_t>(fb_desc.Width),
+                                                                  fb_desc.Height,
+                                                                  static_cast<uint32_t>(pitch),
+                                                                  fb_desc.Format);
+
+            if (SUCCEEDED(capture_result))
+            {
+                bool convert_to_bgra = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
+                auto captured_image  = graphics::CpuImage{};
+                capture_result       = image_renderer->RetrieveImageData(captured_image,
+                                                                   static_cast<uint32_t>(fb_desc.Width),
+                                                                   fb_desc.Height,
+                                                                   static_cast<uint32_t>(pitch),
+                                                                   fb_desc.Format,
+                                                                   convert_to_bgra);
+
+                if (SUCCEEDED(capture_result))
                 {
-                    Microsoft::WRL::ComPtr<ID3D12Device> parent_device = nullptr;
-                    hr                                                 = queue->GetDevice(IID_PPV_ARGS(&parent_device));
-
-                    if (hr == S_OK)
-                    {
-                        gfxrecon::graphics::DX12ImageRendererConfig renderer_config;
-                        renderer_config.cmd_queue = queue;
-                        renderer_config.device    = parent_device.Get();
-
-                        image_renderer = gfxrecon::graphics::DX12ImageRenderer::Create(renderer_config);
-                    }
+                    WriteImageFile(filename_prefix,
+                                   frame_num,
+                                   screenshot_format,
+                                   captured_image.width,
+                                   captured_image.height,
+                                   captured_image.pitch,
+                                   std::size(captured_image.data),
+                                   std::data(captured_image.data));
                 }
+            }
+        }
+    }
+}
 
-                if (image_renderer != nullptr)
+void TakeScreenshot(std::unique_ptr<graphics::DX11ImageRenderer>& image_renderer,
+                    ID3D11Device*                                 device,
+                    IDXGISwapChain*                               swapchain,
+                    uint32_t                                      frame_num,
+                    const std::string&                            filename_prefix,
+                    gfxrecon::util::ScreenshotFormat              screenshot_format)
+{
+    if (device != nullptr && swapchain != nullptr)
+    {
+        auto frame_buffer_resource = GetCurrentBackBuffer<ID3D11Texture2DComPtr>(swapchain);
+        if (frame_buffer_resource)
+        {
+            if (image_renderer == nullptr)
+            {
+                auto device_context = dx12::ID3D11DeviceContextComPtr{};
+                device->GetImmediateContext(&device_context);
+
+                gfxrecon::graphics::DX11ImageRendererConfig renderer_config;
+                renderer_config.device  = device;
+                renderer_config.context = device_context;
+
+                image_renderer = gfxrecon::graphics::DX11ImageRenderer::Create(renderer_config);
+            }
+
+            if (image_renderer != nullptr)
+            {
+                auto fb_desc = D3D11_TEXTURE2D_DESC{};
+                frame_buffer_resource->GetDesc(&fb_desc);
+                HRESULT capture_result = image_renderer->CaptureImage(
+                    frame_buffer_resource, fb_desc.SampleDesc.Count, fb_desc.Width, fb_desc.Height, fb_desc.Format);
+
+                if (SUCCEEDED(capture_result))
                 {
-                    D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
+                    bool               convert_to_bgra = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
+                    graphics::CpuImage captured_image  = {};
+                    capture_result                     = image_renderer->RetrieveImageData(
+                        captured_image, fb_desc.Width, fb_desc.Height, fb_desc.Format, convert_to_bgra);
 
-                    auto pitch = GetTexturePitch(fb_desc.Width);
-
-                    graphics::CpuImage captured_image = {};
-
-                    HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.Get(),
-                                                                          D3D12_RESOURCE_STATE_PRESENT,
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          fb_desc.Height,
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          fb_desc.Format);
-
-                    if (capture_result == S_OK)
+                    if (SUCCEEDED(capture_result))
                     {
-                        bool convert_to_bgra  = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
-                        auto buffer_byte_size = pitch * fb_desc.Height;
-                        capture_result        = image_renderer->RetrieveImageData(&captured_image,
-                                                                           static_cast<unsigned int>(fb_desc.Width),
-                                                                           fb_desc.Height,
-                                                                           static_cast<unsigned int>(pitch),
-                                                                           fb_desc.Format,
-                                                                           convert_to_bgra);
-
-                        if (capture_result == S_OK)
-                        {
-                            std::string filename = filename_prefix;
-
-                            filename += "_frame_";
-                            filename += std::to_string(frame_num);
-
-                            switch (screenshot_format)
-                            {
-                                default:
-                                    GFXRECON_LOG_ERROR(
-                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
-                                    // Intentional fall-through
-                                case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write BMP file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                                case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImage(filename + ".png",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          util::imagewriter::kFormat_RGBA))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write PNG file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                            }
-                        }
+                        WriteImageFile(filename_prefix,
+                                       frame_num,
+                                       screenshot_format,
+                                       captured_image.width,
+                                       captured_image.height,
+                                       captured_image.pitch,
+                                       std::size(captured_image.data),
+                                       std::data(captured_image.data));
                     }
                 }
             }
@@ -650,8 +715,13 @@ uint64_t GetSubresourceWriteDataSize(
                                                     dst_subresource);
                 break;
             case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
-                data_size = GetSubresourceSizeTex3D(
-                    resource_desc.DepthOrArraySize, resource_desc.MipLevels, src_depth_pitch, dst_subresource);
+                data_size = GetSubresourceSizeTex3D(resource_desc.Format,
+                                                    resource_desc.Height,
+                                                    resource_desc.DepthOrArraySize,
+                                                    resource_desc.MipLevels,
+                                                    src_row_pitch,
+                                                    src_depth_pitch,
+                                                    dst_subresource);
                 break;
             case D3D12_RESOURCE_DIMENSION_UNKNOWN:
                 GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
@@ -710,7 +780,21 @@ uint64_t GetSubresourceWriteDataSize(
                 }
                 case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
                 {
-                    data_size = CalculateBoxRange(dst_box->front, dst_box->back) * src_depth_pitch;
+                    auto depth             = CalculateBoxRange(dst_box->front, dst_box->back);
+                    auto first_slice_pitch = src_row_pitch;
+
+                    if (IsFormatCompressed(resource_desc.Format))
+                    {
+                        first_slice_pitch *= CalculateBoxRangeBC(dst_box->top, dst_box->bottom);
+                    }
+                    else
+                    {
+                        first_slice_pitch *= CalculateBoxRange(dst_box->top, dst_box->bottom);
+                    }
+
+                    first_slice_pitch = std::max(first_slice_pitch, src_depth_pitch);
+
+                    data_size = first_slice_pitch + ((depth - 1) * src_depth_pitch);
                     break;
                 }
                 case D3D12_RESOURCE_DIMENSION_UNKNOWN:
@@ -765,35 +849,17 @@ void TrackAdapterDesc(IDXGIAdapter*                     adapter,
     }
 }
 
-void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapterMap& adapters)
+void TrackAdapters(IDXGIFactory* factory, graphics::dx12::ActiveAdapterMap& adapters)
 {
-    if (SUCCEEDED(result))
+    if (factory != nullptr)
     {
         // First see if the created factory can be queried as a 1.1 factory
-        IDXGIFactory1* factory1 = reinterpret_cast<IDXGIFactory1*>(*ppFactory);
+        IDXGIFactory1ComPtr factory1;
 
         // DXGI 1.1 tracking (default)
-        if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
+        if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&factory1))))
         {
-            // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
-            RemoveDeactivatedAdapters(adapters);
-
-            // Enumerate 1.1 adapters and fetch data with GetDesc1()
-            IDXGIAdapter1* adapter1 = nullptr;
-
-            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
-            {
-                DXGI_ADAPTER_DESC1 dxgi_desc = {};
-                adapter1->GetDesc1(&dxgi_desc);
-
-                format::AdapterType adapter_type = format::AdapterType::kHardwareAdapter;
-                if (dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-                {
-                    adapter_type = format::AdapterType::kSoftwareAdapter;
-                }
-
-                TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
-            }
+            TrackAdapters(factory1, adapters);
         }
 
         // DXGI 1.0 tracking (fall-back)
@@ -802,27 +868,43 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
             // Only enumerate 1.0 factory adapters if nothing has been seen yet
             if (adapters.empty())
             {
-                IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+                // Enumerate 1.0 adapters and fetch data with GetDesc()
+                IDXGIAdapter* adapter = nullptr;
 
-                if (SUCCEEDED(factory->QueryInterface(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
+                for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
                 {
-                    // Enumerate 1.0 adapters and fetch data with GetDesc()
-                    IDXGIAdapter* adapter = nullptr;
+                    DXGI_ADAPTER_DESC dxgi_desc = {};
+                    adapter->GetDesc(&dxgi_desc);
 
-                    for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
-                    {
-                        DXGI_ADAPTER_DESC dxgi_desc = {};
-                        adapter->GetDesc(&dxgi_desc);
-
-                        TrackAdapterDesc(
-                            adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Could not enumerate and track factory's adapters.")
+                    TrackAdapterDesc(adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
                 }
             }
+        }
+    }
+}
+
+void TrackAdapters(IDXGIFactory1* factory1, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    if (factory1 != nullptr)
+    {
+        // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
+        RemoveDeactivatedAdapters(adapters);
+
+        // Enumerate 1.1 adapters and fetch data with GetDesc1()
+        IDXGIAdapter1* adapter1 = nullptr;
+
+        for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
+        {
+            DXGI_ADAPTER_DESC1 dxgi_desc = {};
+            adapter1->GetDesc1(&dxgi_desc);
+
+            format::AdapterType adapter_type = format::AdapterType::kHardwareAdapter;
+            if (dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+            {
+                adapter_type = format::AdapterType::kSoftwareAdapter;
+            }
+
+            TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
         }
     }
 }
@@ -844,32 +926,87 @@ void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters)
     }
 }
 
+IDXGIAdapterComPtr GetAdapter(ID3D11Device* device)
+{
+    // Get the device's parent adapter.
+    IDXGIAdapterComPtr adapter;
+
+    if (device)
+    {
+        IDXGIDeviceComPtr device_parent;
+        auto              result = device->QueryInterface(IID_PPV_ARGS(&device_parent));
+
+        if (SUCCEEDED(result) && (device_parent != nullptr))
+        {
+            device_parent->GetAdapter(&adapter);
+        }
+    }
+
+    return adapter;
+}
+
+LUID GetAdapterLuid(ID3D11Device* device)
+{
+    // Get the device's parent adapter identifier.
+    LUID               luid{};
+    IDXGIAdapterComPtr adapter = GetAdapter(device);
+
+    if (adapter != nullptr)
+    {
+        DXGI_ADAPTER_DESC desc{};
+        adapter->GetDesc(&desc);
+
+        luid = desc.AdapterLuid;
+    }
+
+    return luid;
+}
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D11Device* device, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    format::DxgiAdapterDesc* active_adapter_desc = nullptr;
+
+    if (device != nullptr)
+    {
+        active_adapter_desc = MarkActiveAdapter(GetAdapterLuid(device), adapters);
+    }
+
+    return active_adapter_desc;
+}
+
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters)
 {
     format::DxgiAdapterDesc* active_adapter_desc = nullptr;
 
     if (device != nullptr)
     {
-        // Get the device's parent adapter identifier
-        LUID parent_adapter_luid = device->GetAdapterLuid();
+        // Get the device's parent adapter identifier.
+        active_adapter_desc = MarkActiveAdapter(device->GetAdapterLuid(), adapters);
+    }
 
-        const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+    return active_adapter_desc;
+}
 
-        // Mark an adapter as active
-        for (auto& adapter : adapters)
+format::DxgiAdapterDesc* MarkActiveAdapter(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    format::DxgiAdapterDesc* active_adapter_desc = nullptr;
+
+    const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+
+    // Mark an adapter as active
+    for (auto& adapter : adapters)
+    {
+        if (adapter.first == packed_luid)
         {
-            if (adapter.first == packed_luid)
+            // Only return adapter desc pointer if it hasn't already been seen
+            if (adapter.second.active == false)
             {
-                // Only return adapter desc pointer if it hasn't already been seen
-                if (adapter.second.active == false)
-                {
-                    active_adapter_desc = &adapter.second.internal_desc;
-                }
-
-                adapter.second.active = true;
-
-                break;
+                active_adapter_desc = &adapter.second.internal_desc;
             }
+
+            adapter.second.active = true;
+
+            break;
         }
     }
 
@@ -1400,6 +1537,39 @@ bool IsFormatCompressed(DXGI_FORMAT format)
     return false;
 }
 
+bool IsFormatPlanar(DXGI_FORMAT format)
+{
+    switch (format)
+    {
+        case DXGI_FORMAT_NV12:
+        case DXGI_FORMAT_P010:
+        case DXGI_FORMAT_P016:
+        case DXGI_FORMAT_420_OPAQUE:
+        case DXGI_FORMAT_NV11:
+            return true;
+    }
+
+    return false;
+}
+
+double GetPlanarFormatMultiplier(DXGI_FORMAT format)
+{
+    // Multipliers based on the size calculations defined by the DXGI_FORMAT documentation.
+    switch (format)
+    {
+        case DXGI_FORMAT_NV12:
+        case DXGI_FORMAT_P010:
+        case DXGI_FORMAT_P016:
+        case DXGI_FORMAT_420_OPAQUE:
+            return 1.5;
+        case DXGI_FORMAT_NV11:
+            return 2.0;
+    }
+
+    GFXRECON_LOG_DEBUG("Requesting planar texture format multiplier for uknown planar format or non-planar format");
+    return 1.0;
+}
+
 uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format)
 {
     auto size = FindCompressedSubresourcePixelByteSize(format);
@@ -1435,6 +1605,145 @@ uint64_t GetPixelByteSize(DXGI_FORMAT format)
     return size;
 }
 
+uint32_t GetNumMipLevels(uint32_t mip_levels, uint32_t width, uint32_t height, uint32_t depth)
+{
+    if (mip_levels != 0)
+    {
+        return mip_levels;
+    }
+
+    return (static_cast<uint32_t>(floor(log2(std::max(width, std::max(height, depth))))) + 1u);
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE1D_DESC* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetNumMipLevels(desc->MipLevels, desc->Width) * desc->ArraySize;
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height) * desc->ArraySize;
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth);
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC1* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height) * desc->ArraySize;
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC1* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth);
+}
+
+uint32_t GetSubresourceDimension(uint32_t dimension, uint32_t mip_levels, uint32_t subresource)
+{
+    auto mip_level = subresource % mip_levels;
+    return std::max(dimension >> mip_level, 1u);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE1D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(data);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex1D(
+        desc->Format, GetNumMipLevels(desc->MipLevels, desc->Width), desc->MipLevels, subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex2D(desc->Format,
+                                   desc->Height,
+                                   GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height),
+                                   data->SysMemPitch,
+                                   subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex3D(desc->Format,
+                                   desc->Height,
+                                   desc->Depth,
+                                   GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth),
+                                   data->SysMemPitch,
+                                   data->SysMemSlicePitch,
+                                   subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex2D(desc->Format,
+                                   desc->Height,
+                                   GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height),
+                                   data->SysMemPitch,
+                                   subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex3D(desc->Format,
+                                   desc->Height,
+                                   desc->Depth,
+                                   GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth),
+                                   data->SysMemPitch,
+                                   data->SysMemSlicePitch,
+                                   subresource);
+}
+
+uint64_t GetSubresourceSize(D3D11_RESOURCE_DIMENSION type,
+                            DXGI_FORMAT              format,
+                            uint32_t                 width,
+                            uint32_t                 height,
+                            uint32_t                 depth,
+                            uint32_t                 mip_levels,
+                            uint32_t                 row_pitch,
+                            uint32_t                 depth_pitch,
+                            uint32_t                 subresource)
+{
+    auto data_size = 0ull;
+
+    switch (type)
+    {
+        case D3D12_RESOURCE_DIMENSION_BUFFER:
+            data_size = width;
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+            data_size = GetSubresourceSizeTex1D(format, width, mip_levels, subresource);
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            data_size = GetSubresourceSizeTex2D(format, height, mip_levels, row_pitch, subresource);
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+            data_size = GetSubresourceSizeTex3D(format, height, depth, mip_levels, row_pitch, depth_pitch, subresource);
+            break;
+        case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+            GFXRECON_LOG_ERROR("Detected resource with D3D11_RESOURCE_DIMENSION_UNKNOWN dimension");
+            break;
+        default:
+            GFXRECON_LOG_DEBUG("Unrecognized D3D11 resource dimension");
+            break;
+    }
+
+    return data_size;
+}
+
 uint64_t GetSubresourceSizeTex1D(DXGI_FORMAT format, uint32_t width, uint32_t mip_levels, uint32_t subresource)
 {
     auto mip_level = subresource % mip_levels;
@@ -1460,17 +1769,375 @@ uint64_t GetSubresourceSizeTex2D(
         mip_height = (mip_height + 3) / 4;
     }
 
-    return static_cast<uint64_t>(mip_height) * row_pitch;
+    if (!IsFormatPlanar(format))
+    {
+        return static_cast<uint64_t>(mip_height) * row_pitch;
+    }
+
+    // For planar formats, apply a multiplier to calculate a total texture size that includes the size of all planes.
+    return static_cast<uint64_t>(mip_height) * row_pitch * GetPlanarFormatMultiplier(format);
 }
 
-uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource)
+uint64_t GetSubresourceSizeTex3D(DXGI_FORMAT format,
+                                 uint32_t    height,
+                                 uint32_t    depth,
+                                 uint32_t    mip_levels,
+                                 uint32_t    row_pitch,
+                                 uint32_t    depth_pitch,
+                                 uint32_t    subresource)
 {
-    auto mip_level = subresource % mip_levels;
-    auto mip_depth = std::max(depth >> mip_level, 1u);
+    auto mip_level  = subresource % mip_levels;
+    auto mip_height = std::max(height >> mip_level, 1u);
+    auto mip_depth  = std::max(depth >> mip_level, 1u);
 
-    return static_cast<uint64_t>(mip_depth) * depth_pitch;
+    if (IsFormatCompressed(format))
+    {
+        mip_height = (mip_height + 3) / 4;
+    }
+
+    // With 3D textures, applications will sometimes overlap slice data by specifying a depth pitch value that is
+    // smaller than the row pitch value, eg. RowPitch=1024 and DepthPitch=64, indicating that the next slice starts 64
+    // bytes into the current slice. To handle this case, we start by calculating the size of the first slice and then
+    // add ((Slices - 1) * DepthPitch) to it. When the slices aren't overlapped, this should simpify to (Slices *
+    // DepthPitch). When they do overlap it should resolve to (Height * RowPitch) + ((Slices - 1) * DepthPitch), which
+    // produces the size of a complete slice plus the size of the additional non-overlaping slice data.
+    auto first_slice_pitch =
+        std::max(static_cast<uint64_t>(mip_height) * row_pitch, static_cast<uint64_t>(depth_pitch));
+    return first_slice_pitch + (static_cast<uint64_t>(mip_depth - 1) * depth_pitch);
 }
 #endif
+
+uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
+                                     DXGI_FORMAT              dst_format,
+                                     uint32_t                 dst_width,
+                                     uint32_t                 dst_height,
+                                     uint32_t                 dst_depth,
+                                     uint32_t                 dst_mip_levels,
+                                     uint32_t                 dst_subresource,
+                                     const D3D11_BOX*         dst_box,
+                                     uint32_t                 src_row_pitch,
+                                     uint32_t                 src_depth_pitch)
+{
+    auto data_size = 0ull;
+    auto empty_box = false;
+
+    if (dst_box == nullptr)
+    {
+        // If pDstBox == nullptr, the data is written to the destination subresource with no offset
+        // Quote: A pointer to a box that defines the portion of the destination subresource to copy
+        //        the resource data into. If NULL, the data is written to the destination subresource
+        //        with no offset.
+        // Source:
+        // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-writetosubresource
+
+        switch (dst_type)
+        {
+            case D3D11_RESOURCE_DIMENSION_BUFFER:
+                data_size = dst_width;
+                break;
+            case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+                data_size = GetSubresourceSizeTex1D(dst_format, dst_width, dst_mip_levels, dst_subresource);
+                break;
+            case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+                data_size =
+                    GetSubresourceSizeTex2D(dst_format, dst_height, dst_mip_levels, src_row_pitch, dst_subresource);
+                break;
+            case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+                data_size = GetSubresourceSizeTex3D(
+                    dst_format, dst_height, dst_depth, dst_mip_levels, src_row_pitch, src_depth_pitch, dst_subresource);
+                break;
+            case D3D11_RESOURCE_DIMENSION_UNKNOWN:
+                GFXRECON_LOG_ERROR("Detected resource with D3D11_RESOURCE_DIMENSION_UNKNOWN dimension");
+                break;
+            default:
+                GFXRECON_LOG_ERROR("Detected invalid resource dimension");
+                break;
+        }
+    }
+    else
+    {
+        if ((dst_box->left >= dst_box->right) || (dst_box->front >= dst_box->back) || (dst_box->top >= dst_box->bottom))
+        {
+            empty_box = true;
+        }
+
+        // When the box is empty, UpdateSubresource call doesn't perform any operation
+        // Quote: An empty box results in a no-op. A box is empty if the top value is greater than or equal to
+        //        the bottom value, or the left value is greater than or equal to the right value, or the front
+        //        value is greater than or equal to the back value. When the box is empty, this method doesn't
+        //        perform any operation.
+        // Source:
+        // https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-updatesubresource
+        if (!empty_box)
+        {
+            switch (dst_type)
+            {
+                case D3D11_RESOURCE_DIMENSION_BUFFER:
+                    data_size = static_cast<uint64_t>(CalculateBoxRange(dst_box->left, dst_box->right));
+                    break;
+                case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+                {
+                    if (IsFormatCompressed(dst_format))
+                    {
+                        data_size = CalculateBoxRangeBC(dst_box->left, dst_box->right) * GetPixelByteSize(dst_format);
+                    }
+                    else
+                    {
+                        data_size = CalculateBoxRange(dst_box->left, dst_box->right) * GetPixelByteSize(dst_format);
+                    }
+                    break;
+                }
+                case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+                {
+                    if (IsFormatCompressed(dst_format))
+                    {
+                        data_size = CalculateBoxRangeBC(dst_box->top, dst_box->bottom) * src_row_pitch;
+                    }
+                    else
+                    {
+                        data_size = CalculateBoxRange(dst_box->top, dst_box->bottom) * src_row_pitch;
+                    }
+                    break;
+                }
+                case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+                {
+                    auto depth             = CalculateBoxRange(dst_box->front, dst_box->back);
+                    auto first_slice_pitch = src_row_pitch;
+
+                    if (IsFormatCompressed(dst_format))
+                    {
+                        first_slice_pitch *= CalculateBoxRangeBC(dst_box->top, dst_box->bottom);
+                    }
+                    else
+                    {
+                        first_slice_pitch *= CalculateBoxRange(dst_box->top, dst_box->bottom);
+                    }
+
+                    first_slice_pitch = std::max(first_slice_pitch, src_depth_pitch);
+
+                    data_size = first_slice_pitch + ((depth - 1) * src_depth_pitch);
+                    break;
+                }
+                case D3D11_RESOURCE_DIMENSION_UNKNOWN:
+                    GFXRECON_LOG_ERROR("Detected resource with D3D11_RESOURCE_DIMENSION_UNKNOWN dimension");
+                    break;
+                default:
+                    GFXRECON_LOG_ERROR("Detected invalid resource dimensions");
+                    break;
+            }
+        }
+    }
+
+    return data_size;
+}
+
+bool NeedUpdateSubresourceAdjustment(bool context_needs_adjustment, const D3D11_BOX* dst_box)
+{
+    return (context_needs_adjustment && (dst_box != nullptr) &&
+            (dst_box->left != 0 || dst_box->top != 0 || dst_box->front != 0));
+}
+
+uint64_t GetUpdateSubresourceAdjustmentOffset(D3D11_RESOURCE_DIMENSION dst_type,
+                                              DXGI_FORMAT              dst_format,
+                                              const D3D11_BOX*         dst_box,
+                                              uint32_t                 src_row_pitch,
+                                              uint32_t                 src_depth_pitch)
+{
+    // The use of UpdateSubresource from a deferred context requires an adjustment to the pSrcData start address value,
+    // which must be inverted prior to encoding so that the correct data is written to the file. Note that the
+    // adjustment/workaround is not required for UpdateSubresource1.
+    GFXRECON_ASSERT(dst_box != nullptr);
+
+    auto left = static_cast<uint64_t>(dst_box->left);
+
+    // Skip pixel size calculations for buffers.
+    if (dst_type == D3D11_RESOURCE_DIMENSION_BUFFER)
+    {
+        return left;
+    }
+
+    auto top   = static_cast<uint64_t>(dst_box->top);
+    auto front = static_cast<uint64_t>(dst_box->front);
+
+    if (IsFormatCompressed(dst_format))
+    {
+        left = (left + 3) / 4;
+        top  = (top + 3) / 4;
+    }
+
+    auto adjusted_offset = 0ull;
+
+    switch (dst_type)
+    {
+        case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+            adjusted_offset = left * GetPixelByteSize(dst_format);
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            adjusted_offset = (top * src_row_pitch) + (left * GetPixelByteSize(dst_format));
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+            adjusted_offset = (front * src_depth_pitch) + (top * src_row_pitch) + (left * GetPixelByteSize(dst_format));
+            break;
+        case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+            GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
+            break;
+        default:
+            GFXRECON_ASSERT(dst_type != D3D12_RESOURCE_DIMENSION_BUFFER);
+            GFXRECON_LOG_ERROR("Detected invalid resource dimensions");
+            break;
+    }
+
+    return adjusted_offset;
+}
+
+void CopyAlignedTexture1D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size)
+{
+    uint32_t copy_width = std::min(src_row_pitch, dst_row_pitch);
+
+    // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+    // end of the row and the replay row pitch was smaller than the capture row pitch.
+    if (offset < dst_row_pitch)
+    {
+        // If the data only represents a partial single row, determined by
+        // copy_width > first_slice_size, limit the copy size to the remaining data size.
+        auto copy_row_size = std::min(static_cast<size_t>(copy_width - offset), size);
+        dst += offset;
+        util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+    }
+}
+
+void CopyAlignedTexture2D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size)
+{
+    uint32_t copy_width = std::min(src_row_pitch, dst_row_pitch);
+
+    auto current_size     = size;
+    auto first_row        = static_cast<uint32_t>(offset / src_row_pitch);
+    auto first_row_offset = static_cast<uint32_t>(offset % src_row_pitch);
+
+    dst += first_row * dst_row_pitch;
+
+    if (first_row_offset != 0)
+    {
+        // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+        // end of the row and the replay row pitch was smaller than the capture row pitch.
+        if (first_row_offset < dst_row_pitch)
+        {
+            // Copy the first partial row. If the data only represents a partial single row, determined by
+            // copy_width - first_row_offset > current_size, limit the copy size to the remaining data size.
+            auto copy_row_size = std::min(static_cast<size_t>(copy_width - first_row_offset), current_size);
+            dst += first_row_offset;
+            util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+
+            // Advance data pointer to the start of the next row.
+            dst += dst_row_pitch - first_row_offset;
+        }
+        else
+        {
+            dst += dst_row_pitch;
+        }
+
+        // Adjust the current data size based on the capture width of the current row, or the remaining data size if all
+        // of the data fits into a partial first row.
+        auto first_row_size = src_row_pitch - first_row_offset;
+        current_size -= std::min(static_cast<size_t>(first_row_size), current_size);
+
+        // Advance data pointer to the start of the next row.
+        src += first_row_size;
+    }
+
+    // Compute the total number of complete rows remining for the resource and determine if the
+    // data contains a final partial row.
+    if (current_size != 0)
+    {
+        auto total_rows         = static_cast<uint32_t>(current_size / src_row_pitch);
+        auto remaining_row_size = static_cast<uint32_t>(current_size % src_row_pitch);
+
+        // Process complete rows.
+        for (uint32_t j = 0; j < total_rows; ++j)
+        {
+            util::platform::MemoryCopy(dst, copy_width, src, copy_width);
+
+            src += src_row_pitch;
+            dst += dst_row_pitch;
+        }
+
+        // Process final partial row.
+        if (remaining_row_size != 0)
+        {
+            auto copy_row_size = std::min(remaining_row_size, copy_width);
+            util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+        }
+    }
+}
+
+void CopyAlignedTexture3D(const uint8_t* src,
+                          uint8_t*       dst,
+                          uint32_t       src_row_pitch,
+                          uint32_t       dst_row_pitch,
+                          uint32_t       src_depth_pitch,
+                          uint32_t       dst_depth_pitch,
+                          size_t         offset,
+                          size_t         size)
+{
+    uint32_t copy_depth = std::min(src_depth_pitch, dst_depth_pitch);
+
+    auto current_size       = size;
+    auto first_slice        = static_cast<uint32_t>(offset / src_depth_pitch);
+    auto first_slice_offset = static_cast<uint32_t>(offset % src_depth_pitch);
+
+    dst += first_slice * dst_depth_pitch;
+
+    if (first_slice_offset != 0)
+    {
+        // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+        // end of the slice and the replay depth pitch was smaller than the capture depth pitch.
+        if (first_slice_offset < dst_depth_pitch)
+        {
+            // Copy the first partial slice. If the data only represents a partial single slice, determined by
+            // first_slice_size > current_size, limit the copy size to the remaining data size.
+            CopyAlignedTexture2D(src,
+                                 dst,
+                                 src_row_pitch,
+                                 dst_row_pitch,
+                                 first_slice_offset,
+                                 std::min(static_cast<size_t>(copy_depth - first_slice_offset), current_size));
+        }
+
+        // Adjust the current data size based on the capture depth of the current slice, or the remaining data size if
+        // all of the data fits into a partial first slice.
+        auto first_slice_size = src_depth_pitch - first_slice_offset;
+        current_size -= std::min(static_cast<size_t>(first_slice_size), current_size);
+
+        // Advance data pointers to the start of the next slice.
+        src += first_slice_size;
+        dst += dst_depth_pitch;
+    }
+
+    // Compute the total number of complete rows remining for the resource and determine if the
+    // data contains a final partial row.
+    if (current_size != 0)
+    {
+        auto total_slices         = static_cast<uint32_t>(current_size / src_depth_pitch);
+        auto remaining_slice_size = static_cast<uint32_t>(current_size % src_depth_pitch);
+
+        // Process complete slices.
+        for (uint32_t j = 0; j < total_slices; ++j)
+        {
+            CopyAlignedTexture2D(src, dst, src_row_pitch, dst_row_pitch, 0, copy_depth);
+
+            src += src_depth_pitch;
+            dst += dst_depth_pitch;
+        }
+
+        // Process final partial slice.
+        if (remaining_slice_size != 0)
+        {
+            CopyAlignedTexture2D(src, dst, src_row_pitch, dst_row_pitch, 0, std::min(remaining_slice_size, copy_depth));
+        }
+    }
+}
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

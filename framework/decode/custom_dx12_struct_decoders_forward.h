@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -51,6 +52,21 @@ struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
 struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA;
 struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS;
 struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS;
+struct Decoded_D3D11_SUBRESOURCE_DATA;
+struct Decoded_D3D11_BUFFER_SRV;
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC;
+struct Decoded_D3D11_BUFFER_RTV;
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC;
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC;
+struct Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC;
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1;
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1;
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC1;
+struct Decoded_D3D11_VIDEO_COLOR;
+struct Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS;
+struct Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC;
+struct Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC;
+struct Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_CLEAR_VALUE* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RESOURCE_BARRIER* wrapper);
@@ -71,6 +87,20 @@ size_t
        DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SUBRESOURCE_DATA* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_SRV* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_VIEW_DESC1* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_COLOR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* wrapper);
 
 // Platform types.
 struct Decoded_LARGE_INTEGER;

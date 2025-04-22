@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -178,6 +179,52 @@ format::HandleId GetDx12WrappedId<IUnknown>(const IUnknown* wrapped_object);
 //----------------------------------------------------------------------------
 template <typename Object>
 Object* const* UnwrapObjects(Object* const* objects, uint32_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    if ((objects != nullptr) && (len > 0))
+    {
+        assert(unwrap_memory != nullptr);
+
+        size_t num_bytes         = len * sizeof(Object*);
+        auto   unwrapped_objects = reinterpret_cast<Object**>(unwrap_memory->GetBuffer(num_bytes));
+
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            unwrapped_objects[i] = GetWrappedObject<Object>(objects[i]);
+        }
+
+        return unwrapped_objects;
+    }
+
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return objects;
+}
+
+//----------------------------------------------------------------------------
+/// \brief Unwraps an array of handles.
+///
+/// Returns an array of unwrapped objects retrieved from the objects in an
+/// array of object wrappers.  The unwrapped object will be stored at the
+/// same index in the array as the object wrapper that is was retrieved from.
+/// The caller must provide a pointer to a HandleUnwrapMemory object that
+/// will provide the memory used to store the unwrapped objects.  If the
+/// pointer to the object wrapper array is null, or the array size is zero,
+/// the pointer to the object wrapper array will be returned with no other
+/// action performed.
+///
+/// \param objects       Pointer to an array of object wrappers to be
+///                      processed for unwrapping.
+/// \param len           Number of items in the array of object wrappers.
+/// \param unwrap_memory Pointer to a HandleUnwrapMemory object that will
+///                      provide the memory used to store the unwrapped
+///                      objects.
+///
+/// \return Pointer to the array of unwrapped objects, stored in memory
+///         provided by the HandleUnwrapMemory object, if the array of
+///         object wrappers is not empty.  Pointer to the array of object
+///         wrappers if the array is empty.
+//----------------------------------------------------------------------------
+template <typename Object>
+Object** UnwrapObjects(Object** objects, uint32_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((objects != nullptr) && (len > 0))
     {

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -270,15 +271,18 @@ int main(int argc, const char** argv)
         // Automatic mode. User specified no options.
         if ((dx12_options.optimize_resource_values == false) && (dx12_options.remove_redundant_psos == false))
         {
+            bool detected_d3d11  = false;
             bool detected_d3d12  = false;
             bool detected_vulkan = false;
             bool detected_openxr = false;
-            gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
+            gfxrecon::decode::DetectAPIs(
+                input_filename, detected_d3d11, detected_d3d12, detected_vulkan, detected_openxr);
 
-            if ((!detected_d3d12) && (!detected_vulkan))
+            if ((!detected_d3d11) && (!detected_d3d12) && (!detected_vulkan))
             {
                 // Detect with no block limit
-                gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr, true);
+                gfxrecon::decode::DetectAPIs(
+                    input_filename, detected_d3d11, detected_d3d12, detected_vulkan, detected_openxr, true);
             }
 
             if (detected_d3d12)
@@ -286,6 +290,11 @@ int main(int argc, const char** argv)
                 dx12_options.optimize_resource_values = true;
                 dx12_options.remove_redundant_psos    = true;
                 RunDx12Optimizations(input_filename, output_filename, dx12_options);
+            }
+            else if (detected_d3d11)
+            {
+                // TODO: redundant resource removal when D3D11 trimming is supported.
+                GFXRECON_LOG_INFO("D3D11 redundant resource removal is not currently implemented.");
             }
             else if (detected_vulkan)
             {

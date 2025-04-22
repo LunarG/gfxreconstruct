@@ -2,6 +2,7 @@
 ** Copyright (c) 2023 Valve Corporation
 ** Copyright (c) 2021, 2023 LunarG, Inc.
 ** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,11 +29,14 @@
 #include "decode/metadata_consumer_base.h"
 #include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
+#include "decode/dx_feature_data_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "format/api_call_id.h"
 
 #include <d3d12.h>
+#include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -58,20 +62,18 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) {}
 
-    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                          HRESULT          original_result,
-                                                          D3D12_FEATURE    feature,
-                                                          const void*      capture_feature_data,
-                                                          void*            replay_feature_data,
-                                                          UINT             feature_data_size)
+    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId      object_id,
+                                                          HRESULT               original_result,
+                                                          D3D12_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size)
     {}
 
-    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                           HRESULT          original_result,
-                                                           DXGI_FEATURE     feature,
-                                                           const void*      capture_feature_data,
-                                                           void*            replay_feature_data,
-                                                           UINT             feature_data_size)
+    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId      object_id,
+                                                           HRESULT               original_result,
+                                                           DXGI_FEATURE          feature,
+                                                           DxFeatureDataDecoder* feature_data,
+                                                           UINT                  feature_data_size)
     {}
 
     virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
@@ -88,6 +90,110 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)
+    {}
+
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo&    call_info,
+                                                          format::HandleId      object_id,
+                                                          HRESULT               return_value,
+                                                          D3D11_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size)
+    {}
+
+    virtual void Process_ID3D11Device_CreateBuffer(const ApiCallInfo&                                    call_info,
+                                                   format::HandleId                                      object_id,
+                                                   HRESULT                                               return_value,
+                                                   StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>*      pDesc,
+                                                   StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                                   HandlePointerDecoder<ID3D11Buffer*>*                  ppBuffer)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture1D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture1D*>*               ppTexture1D)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture2D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture2D*>*               ppTexture2D)
+    {}
+
+    virtual void
+    Process_ID3D11Device_CreateTexture3D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture3D*>*               ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+        const ApiCallInfo&                                call_info,
+        format::HandleId                                  object_id,
+        UINT                                              NumRTVs,
+        HandlePointerDecoder<ID3D11RenderTargetView*>*    ppRenderTargetViews,
+        format::HandleId                                  pDepthStencilView,
+        UINT                                              UAVStartSlot,
+        UINT                                              NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
+        PointerDecoder<UINT>*                             pUAVInitialCounts)
+    {}
+
+    virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,
+                                                               format::HandleId                         object_id,
+                                                               format::HandleId                         pDstResource,
+                                                               UINT                                     DstSubresource,
+                                                               StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                               PointerDecoder<uint8_t>*                 pSrcData,
+                                                               UINT                                     SrcRowPitch,
+                                                               UINT                                     SrcDepthPitch)
+    {}
+
+    virtual void Process_ID3D11DeviceContext1_UpdateSubresource1(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pDstResource,
+                                                                 UINT               DstSubresource,
+                                                                 StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                 PointerDecoder<uint8_t>*                 pSrcData,
+                                                                 UINT                                     SrcRowPitch,
+                                                                 UINT                                     SrcDepthPitch,
+                                                                 UINT                                     CopyFlags)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture2D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture3D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT                                     SrcDepthPitch)
     {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,24 +30,27 @@
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
+#include "util/write_watch_tracker.h"
 
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_5.h>
 
 #include <array>
-#include <unordered_set>
 #include <map>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 struct IUnknown_Wrapper;
+class IDXGISwapChain_Wrapper;
 class ID3D12Resource_Wrapper;
 class ID3D12Device_Wrapper;
 class ID3D12Heap_Wrapper;
-class IDXGISwapChain_Wrapper;
+class ID3D11Resource_Wrapper;
 
 struct GUID_Hash
 {
@@ -109,6 +113,7 @@ struct DxgiWrapperInfo : public DxWrapperInfo
 struct MappedSubresource
 {
     void*     data{ nullptr };
+    uint64_t  tracker_id{ 0 };
     uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
 };
@@ -234,12 +239,24 @@ struct IDXGISwapChainMediaInfo : public DxgiWrapperInfo
 
 struct IDXGISwapChainInfo : public DxgiWrapperInfo
 {
-    format::HandleId command_queue_id{ format::kNullHandleId };
-    DXGI_SWAP_EFFECT swap_effect{};
     // Members for general wrapper support.
-    std::vector<ID3D12Resource_Wrapper*> child_images;
+    uint32_t         buffer_count{ 0 };
+    DXGI_SWAP_EFFECT swap_effect{};
 
+    // Child images requiring an internal reference to prevent the wrapper from being destroyed if the application
+    // releases its reference to the image before it is done using it, which it assumes to be a safe thing to do because
+    // the swap chain is assumed to hold an internal reference to the image that keeps it active. This is either an
+    // ID3D12Resource_Wrapper or an ID3D11Texture2D_Wrapper, stored as the common IUnknown_Wrapper base class type as we
+    // only need to support reference release operations.
+    std::vector<IUnknown_Wrapper*> child_images;
+
+    // D3D12 command queue specified at swap chain creation.
+    format::HandleId                         command_queue_id{ format::kNullHandleId };
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{ nullptr };
+
+    // D3D11 device specified at swap chain creation.
+    format::HandleId                   device_id{ format::kNullHandleId };
+    graphics::dx12::ID3D11DeviceComPtr device{ nullptr };
 
     // Members for trimming state tracking.
     uint32_t                         current_back_buffer_index{ std::numeric_limits<uint32_t>::max() };
@@ -572,6 +589,170 @@ struct AgsContextInfo : public DxWrapperInfo
 {};
 
 struct AgsDeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DeviceContextInfo : public DxWrapperInfo
+{
+    bool                                     is_deferred{ false };
+    bool                                     needs_update_subresource_adjustment{ false };
+    std::unique_ptr<util::WriteWatchTracker> deferred_tracker;
+};
+
+struct ID3D11DepthStencilStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11BlendStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11RasterizerStateInfo : public DxWrapperInfo
+{};
+
+struct ResourceTrackingInfo
+{
+    // Subresource sizes to be calculated/used when resource is mapped. Mapped resource RowPitch and DepthPitch values
+    // have been found to be different for the same resource mapped by different contexts (immediate or deferred), so
+    // the sizes are calculated per-context.
+    std::unique_ptr<uint64_t[]>              subresource_sizes;
+    std::unique_ptr<MappedSubresource[]>     mapped_subresources;
+    std::shared_ptr<ID3D11DeviceContextInfo> mapped_context;
+};
+
+// Parent class for D3D11 buffer and texture resource info.
+struct ID3D11ResourceInfo : public DxWrapperInfo
+{
+    D3D11_RESOURCE_DIMENSION dimension{ D3D11_RESOURCE_DIMENSION_UNKNOWN };
+    DXGI_FORMAT              format{ DXGI_FORMAT_UNKNOWN };
+    uint32_t                 width{ 0 };
+    uint32_t                 height{ 0 };
+    uint32_t                 depth_or_array_size{ 0 };
+    uint32_t                 mip_levels{ 0 };
+    size_t                   num_subresources{ 0 };
+
+    // Map ID3D11DeviceContext ID to mapped subresource info.
+    std::unordered_map<format::HandleId, ResourceTrackingInfo> mapped_info;
+};
+
+// Parent class for D3D11 view info.
+struct ID3D11ViewInfo : public DxWrapperInfo
+{
+    // Resource associated to the view, which requires an internal reference.
+    ID3D11Resource_Wrapper* resource{ nullptr };
+};
+
+struct ID3D11BufferInfo : public ID3D11ResourceInfo
+{};
+
+struct ID3D11Texture1DInfo : public ID3D11ResourceInfo
+{};
+
+struct ID3D11Texture2DInfo : public ID3D11ResourceInfo
+{};
+
+struct ID3D11Texture3DInfo : public ID3D11ResourceInfo
+{};
+
+struct ID3D11ShaderResourceViewInfo : public ID3D11ViewInfo
+{};
+
+struct ID3D11RenderTargetViewInfo : public ID3D11ViewInfo
+{};
+
+struct ID3D11DepthStencilViewInfo : public ID3D11ViewInfo
+{};
+
+struct ID3D11UnorderedAccessViewInfo : public ID3D11ViewInfo
+{};
+
+struct ID3D11VertexShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11HullShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DomainShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11GeometryShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11PixelShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ComputeShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11InputLayoutInfo : public DxWrapperInfo
+{};
+
+struct ID3D11SamplerStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11QueryInfo : public DxWrapperInfo
+{};
+
+struct ID3D11PredicateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CounterInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ClassInstanceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ClassLinkageInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CommandListInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDecoderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorEnumeratorInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorInfo : public DxWrapperInfo
+{};
+
+struct ID3D11AuthenticatedChannelInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CryptoSessionInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDecoderOutputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorInputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorOutputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoContextInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DeviceInfo : public DxWrapperInfo
+{
+    bool supports_command_lists{ false };
+};
+
+struct ID3DDeviceContextStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11FenceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11MultithreadInfo : public DxWrapperInfo
+{};
+
+struct ID3DUserDefinedAnnotationInfo : public DxWrapperInfo
+{};
+
+struct ID3D11On12DeviceInfo : public DxWrapperInfo
 {};
 
 GFXRECON_END_NAMESPACE(encode)

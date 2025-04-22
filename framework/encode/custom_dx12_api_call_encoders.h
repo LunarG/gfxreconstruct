@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to
@@ -28,6 +29,7 @@
 #include "generated/generated_dx12_wrappers.h"
 #include "util/defines.h"
 
+#include <d3d11.h>
 #include <d3d12.h>
 #include <dxgi1_5.h>
 
@@ -53,6 +55,83 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
                                               const void*             pSrcData,
                                               UINT                    SrcRowPitch,
                                               UINT                    SrcDepthPitch);
+
+void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper*      wrapper,
+    UINT                              NumRTVs,
+    ID3D11RenderTargetView* const*    ppRenderTargetViews,
+    ID3D11DepthStencilView*           pDepthStencilView,
+    UINT                              UAVStartSlot,
+    UINT                              NumUAVs,
+    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
+    const UINT*                       pUAVInitialCounts);
+
+void Encode_ID3D11DeviceContext_UpdateSubresource(ID3D11DeviceContext_Wrapper* wrapper,
+                                                  ID3D11Resource*              pDstResource,
+                                                  UINT                         DstSubresource,
+                                                  const D3D11_BOX*             pDstBox,
+                                                  const void*                  pSrcData,
+                                                  UINT                         SrcRowPitch,
+                                                  UINT                         SrcDepthPitch);
+
+void Encode_ID3D11Device_CheckFeatureSupport(ID3D11Device_Wrapper* wrapper,
+                                             HRESULT               return_value,
+                                             D3D11_FEATURE         Feature,
+                                             void*                 pFeatureSupportData,
+                                             UINT                  FeatureSupportDataSize);
+
+void Encode_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
+                                      HRESULT                       return_value,
+                                      const D3D11_BUFFER_DESC*      pDesc,
+                                      const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                      ID3D11Buffer**                ppBuffer);
+
+void Encode_ID3D11Device_CreateTexture1D(ID3D11Device_Wrapper*         wrapper,
+                                         HRESULT                       return_value,
+                                         const D3D11_TEXTURE1D_DESC*   pDesc,
+                                         const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                         ID3D11Texture1D**             ppTexture1D);
+
+void Encode_ID3D11Device_CreateTexture2D(ID3D11Device_Wrapper*         wrapper,
+                                         HRESULT                       return_value,
+                                         const D3D11_TEXTURE2D_DESC*   pDesc,
+                                         const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                         ID3D11Texture2D**             ppTexture2D);
+
+void Encode_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
+                                         HRESULT                       return_value,
+                                         const D3D11_TEXTURE3D_DESC*   pDesc,
+                                         const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                         ID3D11Texture3D**             ppTexture3D);
+
+void Encode_ID3D11DeviceContext1_UpdateSubresource1(ID3D11DeviceContext1_Wrapper* wrapper,
+                                                    ID3D11Resource*               pDstResource,
+                                                    UINT                          DstSubresource,
+                                                    const D3D11_BOX*              pDstBox,
+                                                    const void*                   pSrcData,
+                                                    UINT                          SrcRowPitch,
+                                                    UINT                          SrcDepthPitch,
+                                                    UINT                          CopyFlags);
+
+void Encode_ID3D11Device3_CreateTexture2D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE2D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture2D1**            ppTexture2D);
+
+void Encode_ID3D11Device3_CreateTexture3D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE3D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture3D1**            ppTexture3D);
+
+void Encode_ID3D11Device3_WriteToSubresource(ID3D11Device3_Wrapper* wrapper,
+                                             ID3D11Resource*        pDstResource,
+                                             UINT                   DstSubresource,
+                                             const D3D11_BOX*       pDstBox,
+                                             const void*            pSrcData,
+                                             UINT                   SrcRowPitch,
+                                             UINT                   SrcDepthPitch);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

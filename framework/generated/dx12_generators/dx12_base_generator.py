@@ -3,6 +3,7 @@
 # Copyright (c) 2013-2024 The Khronos Group Inc.
 # Copyright (c) 2021-2024 LunarG, Inc.
 # Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -255,7 +256,7 @@ class Dx12BaseGenerator():
     CONVERT_FUNCTION_LIST = [
         [['BYTE', 'byte', 'UINT8', 'unsigned char'], 'UInt8'],
         [['INT8'], 'Int8'],
-        [['UINT16', 'unsigned short'], 'UInt16'],
+        [['USHORT','UINT16', 'unsigned short'], 'UInt16'],
         [['SHORT'], 'Int16'],
         [
             [
@@ -264,7 +265,7 @@ class Dx12BaseGenerator():
             ], 'UInt32'
         ],
         [['HRESULT', 'LONG', 'BOOL', 'INT', 'int'], 'Int32'],
-        [['UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS'], 'UInt64'],
+        [['ULONGLONG', 'UINT64', 'D3D12_GPU_VIRTUAL_ADDRESS'], 'UInt64'],
         [['LONG_PTR', 'SIZE_T'], 'SizeT'],
         [['FLOAT', 'float'], 'Float'],
         [['void'], 'Void'],
@@ -282,6 +283,12 @@ class Dx12BaseGenerator():
             'InstanceContributionToHitGroupIndex', ':24'
         ],
         ['D3D12_RAYTRACING_INSTANCE_DESC', 'Flags', ':8'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Usage', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'RGB_Range', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'YCbCr_Matrix', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'YCbCr_xvYCC', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Nominal_Range', ':2'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Reserved', ':26'],
     ]
 
     # Dictionary for structs with members that contain objects that must be
@@ -604,7 +611,11 @@ class Dx12BaseGenerator():
             ):
                 if rtn:
                     rtn += ' '
-                rtn += t
+
+                if t == 'CONST':
+                    rtn += 'const'
+                else:
+                    rtn += t
         return rtn
 
     def get_return_value_info(self, param_type, function_name):
@@ -782,7 +793,7 @@ class Dx12BaseGenerator():
         if value.is_pointer or value.is_array:
             count = value.pointer_count
 
-            if self.is_struct(type_name):
+            if self.is_struct(type_name) or self.is_union(type_name):
                 if (value.array_dimension and value.array_dimension == 1):
                     type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
                         type_name
@@ -833,7 +844,7 @@ class Dx12BaseGenerator():
         elif self.is_function_ptr(type_name):
             # Function pointers are encoded as a 64-bit address value.
             type_name = 'uint64_t'
-        elif self.is_struct(type_name):
+        elif self.is_struct(type_name) or self.is_union(type_name):
             type_name = 'Decoded_{}'.format(type_name)
         elif self.is_handle(type_name):
             type_name = 'format::HandleId'
@@ -1321,10 +1332,13 @@ class Dx12BaseGenerator():
         if self.check_blacklist:
             return [
                 key for key in self.source_dict['struct_dict']
-                if not self.is_struct_black_listed(key)
+                if not self.is_struct_black_listed(key) and not '::<anon-' in key
             ]
         else:
-            return self.source_dict['struct_dict'].keys()
+            return [
+                key for key in self.source_dict['struct_dict']
+                if not '::<anon-' in key
+            ]
 
     def get_category_type(self, type):
         if self.is_struct(type):
@@ -1477,20 +1491,17 @@ class Dx12BaseGenerator():
         return None
 
     def is_union(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            return type in union_dict
-        return False
+        union_dict = self.source_dict['union_dict']
+        return type in union_dict
 
     def get_union_members(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            union_info = union_dict.get(type)
-            if union_info:
-                members = list()
-                for m in union_info['members']:
-                    members.append(self.get_value_info(m))
-                return members
+        union_dict = self.source_dict['union_dict']
+        union_info = union_dict.get(type)
+        if union_info:
+            members = list()
+            for m in union_info['members']:
+                members.append(self.get_value_info(m))
+            return members
         return None
 
     def convert_function(self, type):
@@ -1537,7 +1548,8 @@ class Dx12BaseGenerator():
         if self.is_struct(type):
             return type
         elif self.is_union(type):
-            return 'Union'
+            # Union types are processed as struct types.
+            type = 'Struct'
         elif self.is_enum(type):
             return 'Enum'
         elif type == 'wchar_t':
@@ -1583,7 +1595,7 @@ class Dx12BaseGenerator():
             not self.check_blacklist
             or not struct_source_data['name'] in self.STRUCT_BLACKLIST
         ) and struct_type[-4:] != 'Vtbl' and struct_type.find(
-            "::<anon-union-"
+            "::<anon-"
         ) == -1:
             return True
         return False
@@ -1619,6 +1631,22 @@ class Dx12BaseGenerator():
                         structs_with_objects[class_name] = values
 
         return structs_with_objects
+
+    def check_all_struct_member_handles(
+        self,
+        structs_with_handles,
+        structs_with_handle_ptrs=None,
+        ignore_output=False,
+        structs_with_map_data=None,
+        extra_types=None
+    ):
+        struct_dict = self.source_dict['struct_dict']
+        for s in struct_dict:
+            if not '<anon-' in s:
+                self.check_struct_member_handles(
+                    s, structs_with_handles, structs_with_handle_ptrs,
+                    ignore_output, structs_with_map_data, extra_types
+                )
 
     def is_output(self, value):
         if (value.full_type.find('_Out') !=

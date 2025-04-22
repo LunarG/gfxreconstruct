@@ -120,6 +120,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/write_watch_tracker.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/write_watch_tracker.cpp>
 )
 
 
@@ -227,6 +229,7 @@ if (${RUN_TESTS})
     target_link_libraries(gfxrecon_util_test
                         PRIVATE
                             gfxrecon_util
+                            $<$<BOOL:${D3D12_SUPPORT}>:d3d11.lib>
                             $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                             $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
     if (MSVC)

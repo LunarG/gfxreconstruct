@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2023 Valve Corporation
 # Copyright (c) 2021-2023 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -74,7 +75,7 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
           // Reference versions of above which simply pipe through to the pointer versions.
         '''))
         for k, v in struct_dict.items():
-            if not self.is_struct_black_listed(k):
+            if (not self.is_struct_black_listed(k)) and (not '<anon-' in k):
                 body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(k)
                 ref_wrappers += 'inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}& obj, const util::JsonOptions& options){{ FieldToJson(jdata, &obj, options); }}\n'.format(k)
                 write(body, file=self.outFile)
@@ -89,6 +90,7 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         /// <winnt.h> Named union type with two structs and a uint64_t inside.
         void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
         inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+        void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* data, const util::JsonOptions& options);
         '''
         custom_to_fields = format_cpp_code(custom_to_fields)
         write(custom_to_fields, file=self.outFile)

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2022-2023 LunarG, Inc.
 ** Copyright (c) 2023 Valve Corporation
+** Copyright (c) 2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -203,12 +204,44 @@ void HandleToJson(nlohmann::ordered_json&              jdata,
     }
 }
 
+template <typename THandle>
+void HandleToJson(nlohmann::ordered_json&              jdata,
+                  const HandlePointerDecoder<THandle>& data,
+                  const util::JsonOptions&             options = util::JsonOptions())
+{
+    if (data.GetPointer())
+    {
+        const auto decoded_value = data.GetPointer();
+        const auto length        = data.GetLength();
+
+        if (data.IsArray())
+        {
+            for (size_t i = 0; i < length; ++i)
+            {
+                HandleToJson(jdata[i], decoded_value[i], options);
+            }
+        }
+        else if (length == 1)
+        {
+            HandleToJson(jdata, *decoded_value, options);
+        }
+    }
+}
+
 /// @brief Thunk to HandleToJson to allow the standard FieldToJson name to be
 /// used for pointers and arrays where the type of the HandlePointerDecoder
 /// allows the correct version to be resolved.
 template <typename THandle>
 void FieldToJson(nlohmann::ordered_json&              jdata,
                  const HandlePointerDecoder<THandle>* data,
+                 const util::JsonOptions&             options = util::JsonOptions())
+{
+    HandleToJson(jdata, data, options);
+}
+
+template <typename THandle>
+void FieldToJson(nlohmann::ordered_json&              jdata,
+                 const HandlePointerDecoder<THandle>& data,
                  const util::JsonOptions&             options = util::JsonOptions())
 {
     HandleToJson(jdata, data, options);

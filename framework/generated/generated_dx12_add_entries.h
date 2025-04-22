@@ -171,6 +171,74 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12ManualWriteTrackingResource, AddEntry<ID3D12ManualWriteTrackingResource_Wrapper, ParentWrapper> },
     { IID_ID3D12InfoQueue, AddEntry<ID3D12InfoQueue_Wrapper, ParentWrapper> },
     { IID_ID3D12InfoQueue1, AddEntry<ID3D12InfoQueue_Wrapper, ParentWrapper> },
+    { IID_ID3D11DepthStencilState, AddEntry<ID3D11DepthStencilState_Wrapper, ParentWrapper> },
+    { IID_ID3D11Buffer, AddEntry<ID3D11Buffer_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture1D, AddEntry<ID3D11Texture1D_Wrapper, ParentWrapper> },
+    { IID_ID3D11DepthStencilView, AddEntry<ID3D11DepthStencilView_Wrapper, ParentWrapper> },
+    { IID_ID3D11VertexShader, AddEntry<ID3D11VertexShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11HullShader, AddEntry<ID3D11HullShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11DomainShader, AddEntry<ID3D11DomainShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11GeometryShader, AddEntry<ID3D11GeometryShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11PixelShader, AddEntry<ID3D11PixelShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11ComputeShader, AddEntry<ID3D11ComputeShader_Wrapper, ParentWrapper> },
+    { IID_ID3D11InputLayout, AddEntry<ID3D11InputLayout_Wrapper, ParentWrapper> },
+    { IID_ID3D11SamplerState, AddEntry<ID3D11SamplerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11Predicate, AddEntry<ID3D11Predicate_Wrapper, ParentWrapper> },
+    { IID_ID3D11Counter, AddEntry<ID3D11Counter_Wrapper, ParentWrapper> },
+    { IID_ID3D11ClassInstance, AddEntry<ID3D11ClassInstance_Wrapper, ParentWrapper> },
+    { IID_ID3D11ClassLinkage, AddEntry<ID3D11ClassLinkage_Wrapper, ParentWrapper> },
+    { IID_ID3D11CommandList, AddEntry<ID3D11CommandList_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDecoder, AddEntry<ID3D11VideoDecoder_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoProcessor, AddEntry<ID3D11VideoProcessor_Wrapper, ParentWrapper> },
+    { IID_ID3D11AuthenticatedChannel, AddEntry<ID3D11AuthenticatedChannel_Wrapper, ParentWrapper> },
+    { IID_ID3D11CryptoSession, AddEntry<ID3D11CryptoSession_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDecoderOutputView, AddEntry<ID3D11VideoDecoderOutputView_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoProcessorInputView, AddEntry<ID3D11VideoProcessorInputView_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoProcessorOutputView, AddEntry<ID3D11VideoProcessorOutputView_Wrapper, ParentWrapper> },
+    { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
+    { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
+    { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
+    { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture2D1, AddEntry<ID3D11Texture2D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture3D1, AddEntry<ID3D11Texture3D_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState2, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper, ParentWrapper> },
+    { IID_ID3D11ShaderResourceView1, AddEntry<ID3D11ShaderResourceView_Wrapper, ParentWrapper> },
+    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper, ParentWrapper> },
+    { IID_ID3D11RenderTargetView1, AddEntry<ID3D11RenderTargetView_Wrapper, ParentWrapper> },
+    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper, ParentWrapper> },
+    { IID_ID3D11UnorderedAccessView1, AddEntry<ID3D11UnorderedAccessView_Wrapper, ParentWrapper> },
+    { IID_ID3D11Query, AddEntry<ID3D11Query_Wrapper, ParentWrapper> },
+    { IID_ID3D11Query1, AddEntry<ID3D11Query_Wrapper, ParentWrapper> },
+    { IID_ID3D11Fence, AddEntry<ID3D11Fence_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext1, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext2, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext3, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext4, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device4, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device5, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Multithread, AddEntry<ID3D11Multithread_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice2, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device1, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device2, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper, ParentWrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper, ParentWrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper, ParentWrapper> },
@@ -316,6 +384,74 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12ManualWriteTrackingResource, AddEntry<ID3D12ManualWriteTrackingResource_Wrapper> },
     { IID_ID3D12InfoQueue, AddEntry<ID3D12InfoQueue_Wrapper> },
     { IID_ID3D12InfoQueue1, AddEntry<ID3D12InfoQueue_Wrapper> },
+    { IID_ID3D11DepthStencilState, AddEntry<ID3D11DepthStencilState_Wrapper> },
+    { IID_ID3D11Buffer, AddEntry<ID3D11Buffer_Wrapper> },
+    { IID_ID3D11Texture1D, AddEntry<ID3D11Texture1D_Wrapper> },
+    { IID_ID3D11DepthStencilView, AddEntry<ID3D11DepthStencilView_Wrapper> },
+    { IID_ID3D11VertexShader, AddEntry<ID3D11VertexShader_Wrapper> },
+    { IID_ID3D11HullShader, AddEntry<ID3D11HullShader_Wrapper> },
+    { IID_ID3D11DomainShader, AddEntry<ID3D11DomainShader_Wrapper> },
+    { IID_ID3D11GeometryShader, AddEntry<ID3D11GeometryShader_Wrapper> },
+    { IID_ID3D11PixelShader, AddEntry<ID3D11PixelShader_Wrapper> },
+    { IID_ID3D11ComputeShader, AddEntry<ID3D11ComputeShader_Wrapper> },
+    { IID_ID3D11InputLayout, AddEntry<ID3D11InputLayout_Wrapper> },
+    { IID_ID3D11SamplerState, AddEntry<ID3D11SamplerState_Wrapper> },
+    { IID_ID3D11Predicate, AddEntry<ID3D11Predicate_Wrapper> },
+    { IID_ID3D11Counter, AddEntry<ID3D11Counter_Wrapper> },
+    { IID_ID3D11ClassInstance, AddEntry<ID3D11ClassInstance_Wrapper> },
+    { IID_ID3D11ClassLinkage, AddEntry<ID3D11ClassLinkage_Wrapper> },
+    { IID_ID3D11CommandList, AddEntry<ID3D11CommandList_Wrapper> },
+    { IID_ID3D11VideoDecoder, AddEntry<ID3D11VideoDecoder_Wrapper> },
+    { IID_ID3D11VideoProcessor, AddEntry<ID3D11VideoProcessor_Wrapper> },
+    { IID_ID3D11AuthenticatedChannel, AddEntry<ID3D11AuthenticatedChannel_Wrapper> },
+    { IID_ID3D11CryptoSession, AddEntry<ID3D11CryptoSession_Wrapper> },
+    { IID_ID3D11VideoDecoderOutputView, AddEntry<ID3D11VideoDecoderOutputView_Wrapper> },
+    { IID_ID3D11VideoProcessorInputView, AddEntry<ID3D11VideoProcessorInputView_Wrapper> },
+    { IID_ID3D11VideoProcessorOutputView, AddEntry<ID3D11VideoProcessorOutputView_Wrapper> },
+    { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper> },
+    { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper> },
+    { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper> },
+    { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
+    { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
+    { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper> },
+    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper> },
+    { IID_ID3D11Texture2D1, AddEntry<ID3D11Texture2D_Wrapper> },
+    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper> },
+    { IID_ID3D11Texture3D1, AddEntry<ID3D11Texture3D_Wrapper> },
+    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11RasterizerState2, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper> },
+    { IID_ID3D11ShaderResourceView1, AddEntry<ID3D11ShaderResourceView_Wrapper> },
+    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper> },
+    { IID_ID3D11RenderTargetView1, AddEntry<ID3D11RenderTargetView_Wrapper> },
+    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper> },
+    { IID_ID3D11UnorderedAccessView1, AddEntry<ID3D11UnorderedAccessView_Wrapper> },
+    { IID_ID3D11Query, AddEntry<ID3D11Query_Wrapper> },
+    { IID_ID3D11Query1, AddEntry<ID3D11Query_Wrapper> },
+    { IID_ID3D11Fence, AddEntry<ID3D11Fence_Wrapper> },
+    { IID_ID3D11DeviceContext, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext1, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext2, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext3, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext4, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11Device, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device4, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device5, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Multithread, AddEntry<ID3D11Multithread_Wrapper> },
+    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoDevice2, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11On12Device, AddEntry<ID3D11On12Device_Wrapper> },
+    { IID_ID3D11On12Device1, AddEntry<ID3D11On12Device_Wrapper> },
+    { IID_ID3D11On12Device2, AddEntry<ID3D11On12Device_Wrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper> },
@@ -861,6 +997,346 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12InfoQueue1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12InfoQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DepthStencilState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DepthStencilState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Buffer)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Buffer_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture1D)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture1D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DepthStencilView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DepthStencilView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VertexShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VertexShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11HullShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11HullShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DomainShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DomainShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11GeometryShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11GeometryShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11PixelShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11PixelShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ComputeShader)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ComputeShader_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11InputLayout)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11InputLayout_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11SamplerState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11SamplerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Predicate)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Predicate_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Counter)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Counter_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ClassInstance)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ClassInstance_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ClassLinkage)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ClassLinkage_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11CommandList)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11CommandList_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDecoder)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDecoder_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoProcessor)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessor_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11AuthenticatedChannel)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11AuthenticatedChannel_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11CryptoSession)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11CryptoSession_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDecoderOutputView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDecoderOutputView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoProcessorInputView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessorInputView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoProcessorOutputView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessorOutputView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11BlendState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11BlendState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11BlendState1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11BlendState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3DDeviceContextState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3DDeviceContextState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoProcessorEnumerator)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessorEnumerator_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoProcessorEnumerator1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessorEnumerator_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3DUserDefinedAnnotation)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3DUserDefinedAnnotation_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture2D)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture2D1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture3D)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture3D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture3D1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture3D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ShaderResourceView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ShaderResourceView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RenderTargetView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RenderTargetView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11UnorderedAccessView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11UnorderedAccessView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Query)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Query_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Query1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Query_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Fence)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Fence_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device5)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Multithread)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Multithread_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_IDXGIKeyedMutex)

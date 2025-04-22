@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -446,6 +447,315 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_SRV& value)
+{
+    encoder->EncodeUInt32Value(value.FirstElement);
+    encoder->EncodeUInt32Value(value.NumElements);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SHADER_RESOURCE_VIEW_DESC& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_SRV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            EncodeStruct(encoder, value.TextureCube);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            EncodeStruct(encoder, value.TextureCubeArray);
+            break;
+        case D3D11_SRV_DIMENSION_BUFFEREX:
+            EncodeStruct(encoder, value.BufferEx);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_RTV& value)
+{
+    encoder->EncodeUInt32Value(value.FirstElement);
+    encoder->EncodeUInt32Value(value.NumElements);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_RTV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DEPTH_STENCIL_VIEW_DESC& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+    encoder->EncodeEnumValue(value.Flags);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_DSV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_UAV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SHADER_RESOURCE_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_SRV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            EncodeStruct(encoder, value.TextureCube);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            EncodeStruct(encoder, value.TextureCubeArray);
+            break;
+        case D3D11_SRV_DIMENSION_BUFFEREX:
+            EncodeStruct(encoder, value.BufferEx);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_RTV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_UAV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR& value)
+{
+    EncodeStruct(encoder, value.RGBA);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_PROTECTION_FLAGS& value)
+{
+    encoder->EncodeUInt32Value(value.Flags.ProtectionEnabled);
+    encoder->EncodeUInt32Value(value.Flags.OverlayOrFullscreenRequired);
+    encoder->EncodeUInt32Value(value.Flags.Reserved);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC& value)
+{
+    EncodeStruct(encoder, value.DecodeProfile);
+    encoder->EncodeEnumValue(value.ViewDimension);
+    EncodeStruct(encoder, value.Texture2D);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.FourCC);
+    encoder->EncodeEnumValue(value.ViewDimension);
+    EncodeStruct(encoder, value.Texture2D);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC& value)
+{
+    encoder->EncodeEnumValue(value.ViewDimension);
+    EncodeStruct(encoder, value.Texture2D);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_VPOV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_VPOV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        default:
+            break;
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);
@@ -633,6 +943,83 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_D
                     break;
             }
         }
+    }
+}
+
+void EncodeD3D11FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D11_FEATURE feature)
+{
+    switch (feature)
+    {
+        case D3D11_FEATURE_THREADING:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_THREADING*>(feature_data));
+            break;
+        case D3D11_FEATURE_DOUBLES:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_DOUBLES*>(feature_data));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_FORMAT_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT2:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_FORMAT_SUPPORT2*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_ARCHITECTURE_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_ARCHITECTURE_INFO*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_SHADOW_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS1*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_SIMPLE_INSTANCING_SUPPORT:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_MARKER_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_MARKER_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_OPTIONS1*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS2:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS2*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS3:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS3*>(feature_data));
+            break;
+        case D3D11_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS4:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS4*>(feature_data));
+            break;
+        case D3D11_FEATURE_SHADER_CACHE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_SHADER_CACHE*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS5:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS5*>(feature_data));
+            break;
+        // TODO: This requires code generated from the 10.0.22000.194 Windows SDK
+        // case D3D11_FEATURE_DISPLAYABLE:
+        //    EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_DISPLAYABLE*>(feature_data));
+        //    break;
+        default:
+            GFXRECON_LOG_WARNING("Failed to encode ID3D11Device::CheckFeatureSupport pFeatureData parameter with "
+                                 "unrecognized D3D11_FEATURE type %d",
+                                 feature);
+            break;
     }
 }
 

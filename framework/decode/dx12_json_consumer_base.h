@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -65,20 +66,18 @@ class Dx12JsonConsumerBase : public Dx12Consumer
     /// @defGroup CustomFunctions DX12 functions and methods which require fully custom handling.
     /// @{
     /// Data must be extracted from the void pointer depending on the value of feature.
-    void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                  HRESULT          original_result,
-                                                  D3D12_FEATURE    feature,
-                                                  const void*      capture_feature_data,
-                                                  void*            replay_feature_data,
-                                                  UINT             feature_data_size) override;
+    void Process_ID3D12Device_CheckFeatureSupport(format::HandleId      object_id,
+                                                  HRESULT               original_result,
+                                                  D3D12_FEATURE         feature,
+                                                  DxFeatureDataDecoder* feature_data,
+                                                  UINT                  feature_data_size) override;
 
     /// Data must be extracted from the void pointer depending on the value of feature.
-    void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                   HRESULT          original_result,
-                                                   DXGI_FEATURE     feature,
-                                                   const void*      capture_feature_data,
-                                                   void*            replay_feature_data,
-                                                   UINT             feature_data_size) override;
+    void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId      object_id,
+                                                   HRESULT               original_result,
+                                                   DXGI_FEATURE          feature,
+                                                   DxFeatureDataDecoder* feature_data,
+                                                   UINT                  feature_data_size) override;
 
     /// This is only custom because codegen gives pSrcData type uint64_t instead of void*.
     /// <https://github.com/LunarG/gfxreconstruct/issues/1369>
@@ -89,6 +88,42 @@ class Dx12JsonConsumerBase : public Dx12Consumer
                                                            void*                                    pSrcData,
                                                            UINT                                     SrcRowPitch,
                                                            UINT SrcDepthPitch) override;
+
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo&    call_info,
+                                                          format::HandleId      object_id,
+                                                          HRESULT               return_value,
+                                                          D3D11_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size) override;
+
+    virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,
+                                                               format::HandleId                         object_id,
+                                                               format::HandleId                         pDstResource,
+                                                               UINT                                     DstSubresource,
+                                                               StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                               PointerDecoder<uint8_t>*                 pSrcData,
+                                                               UINT                                     SrcRowPitch,
+                                                               UINT SrcDepthPitch) override;
+
+    virtual void Process_ID3D11DeviceContext1_UpdateSubresource1(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pDstResource,
+                                                                 UINT               DstSubresource,
+                                                                 StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                 PointerDecoder<uint8_t>*                 pSrcData,
+                                                                 UINT                                     SrcRowPitch,
+                                                                 UINT                                     SrcDepthPitch,
+                                                                 UINT CopyFlags) override;
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT SrcDepthPitch) override;
+
     /// @}
   protected:
     JsonWriter* writer_{ nullptr };

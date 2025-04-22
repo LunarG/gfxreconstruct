@@ -40,6 +40,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -475,6 +481,46 @@ void MapStructObjects(Decoded_D3D12_BUFFER_BARRIER* wrapper, const Dx12ObjectInf
         value->pResource = object_mapping::MapObject<ID3D12Resource>(wrapper->pResource, object_info_table);
     }
 }
+
+void MapStructObjects(Decoded_D3D11_VIDEO_DECODER_EXTENSION* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D11_VIDEO_DECODER_EXTENSION* value = wrapper->decoded_value;
+
+        value->ppResourceList = object_mapping::MapObjectArray<ID3D11Resource>(&wrapper->ppResourceList, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D11_VIDEO_PROCESSOR_STREAM* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D11_VIDEO_PROCESSOR_STREAM* value = wrapper->decoded_value;
+
+        value->ppPastSurfaces = object_mapping::MapObjectArray<ID3D11VideoProcessorInputView>(&wrapper->ppPastSurfaces, object_info_table);
+
+        value->pInputSurface = object_mapping::MapObject<ID3D11VideoProcessorInputView>(wrapper->pInputSurface, object_info_table);
+
+        value->ppFutureSurfaces = object_mapping::MapObjectArray<ID3D11VideoProcessorInputView>(&wrapper->ppFutureSurfaces, object_info_table);
+
+        value->ppPastSurfacesRight = object_mapping::MapObjectArray<ID3D11VideoProcessorInputView>(&wrapper->ppPastSurfacesRight, object_info_table);
+
+        value->pInputSurfaceRight = object_mapping::MapObject<ID3D11VideoProcessorInputView>(wrapper->pInputSurfaceRight, object_info_table);
+
+        value->ppFutureSurfacesRight = object_mapping::MapObjectArray<ID3D11VideoProcessorInputView>(&wrapper->ppFutureSurfacesRight, object_info_table);
+    }
+}
+
+void MapStructObjects(Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* value = wrapper->decoded_value;
+
+        value->pCryptoSession = object_mapping::MapObject<ID3D11CryptoSession>(wrapper->pCryptoSession, object_info_table);
+    }
+}
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* capture_value, const D3D12_GRAPHICS_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table)
 {
     auto decoded_struct = capture_value->GetMetaStructPointer();
@@ -667,6 +713,28 @@ void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>* 
     if(decoded_struct->pResource && new_value->pResource)
     {
         object_mapping::AddObject(&decoded_struct->pResource, const_cast<ID3D12Resource**>(&new_value->pResource), &object_info_table);
+    }
+}
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_STREAM>* capture_value, const D3D11_VIDEO_PROCESSOR_STREAM* new_value, Dx12ObjectInfoTable& object_info_table)
+{
+    auto decoded_struct = capture_value->GetMetaStructPointer();
+    if(decoded_struct->pInputSurface && new_value->pInputSurface)
+    {
+        object_mapping::AddObject(&decoded_struct->pInputSurface, const_cast<ID3D11VideoProcessorInputView**>(&new_value->pInputSurface), &object_info_table);
+    }
+    if(decoded_struct->pInputSurfaceRight && new_value->pInputSurfaceRight)
+    {
+        object_mapping::AddObject(&decoded_struct->pInputSurfaceRight, const_cast<ID3D11VideoProcessorInputView**>(&new_value->pInputSurfaceRight), &object_info_table);
+    }
+}
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION>* capture_value, const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* new_value, Dx12ObjectInfoTable& object_info_table)
+{
+    auto decoded_struct = capture_value->GetMetaStructPointer();
+    if(decoded_struct->pCryptoSession && new_value->pCryptoSession)
+    {
+        object_mapping::AddObject(&decoded_struct->pCryptoSession, const_cast<ID3D11CryptoSession**>(&new_value->pCryptoSession), &object_info_table);
     }
 }
 

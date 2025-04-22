@@ -28,6 +28,7 @@
 #ifndef  GFXRECON_GENERATED_DX12_WRAPPER_CREATORS_H
 #define  GFXRECON_GENERATED_DX12_WRAPPER_CREATORS_H
 
+#include "encode/custom_dx12_wrapper_creators.h"
 #include "encode/dx12_object_wrapper_resources.h"
 #include "util/defines.h"
 #include <unordered_map>
@@ -37,6 +38,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -159,6 +166,90 @@ void WrapID3D12SharingContract(REFIID riid, void** object, DxWrapperResources* r
 void WrapID3D12ManualWriteTrackingResource(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12InfoQueue(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11DepthStencilState(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Buffer(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Texture1D(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11DepthStencilView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VertexShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11HullShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11DomainShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11GeometryShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11PixelShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11ComputeShader(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11InputLayout(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11SamplerState(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Predicate(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Counter(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11ClassInstance(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11ClassLinkage(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11CommandList(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoDecoder(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoProcessor(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11AuthenticatedChannel(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11CryptoSession(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoDecoderOutputView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoProcessorInputView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoProcessorOutputView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11BlendState(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3DDeviceContextState(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoProcessorEnumerator(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3DUserDefinedAnnotation(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Texture2D(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Texture3D(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11RasterizerState(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11ShaderResourceView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11RenderTargetView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11UnorderedAccessView(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Query(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Fence(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11DeviceContext(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Device(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Multithread(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11On12Device(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -288,6 +379,74 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12ManualWriteTrackingResource, WrapID3D12ManualWriteTrackingResource },
     { IID_ID3D12InfoQueue, WrapID3D12InfoQueue },
     { IID_ID3D12InfoQueue1, WrapID3D12InfoQueue },
+    { IID_ID3D11DepthStencilState, WrapID3D11DepthStencilState },
+    { IID_ID3D11Buffer, WrapID3D11Buffer },
+    { IID_ID3D11Texture1D, WrapID3D11Texture1D },
+    { IID_ID3D11DepthStencilView, WrapID3D11DepthStencilView },
+    { IID_ID3D11VertexShader, WrapID3D11VertexShader },
+    { IID_ID3D11HullShader, WrapID3D11HullShader },
+    { IID_ID3D11DomainShader, WrapID3D11DomainShader },
+    { IID_ID3D11GeometryShader, WrapID3D11GeometryShader },
+    { IID_ID3D11PixelShader, WrapID3D11PixelShader },
+    { IID_ID3D11ComputeShader, WrapID3D11ComputeShader },
+    { IID_ID3D11InputLayout, WrapID3D11InputLayout },
+    { IID_ID3D11SamplerState, WrapID3D11SamplerState },
+    { IID_ID3D11Predicate, WrapID3D11Predicate },
+    { IID_ID3D11Counter, WrapID3D11Counter },
+    { IID_ID3D11ClassInstance, WrapID3D11ClassInstance },
+    { IID_ID3D11ClassLinkage, WrapID3D11ClassLinkage },
+    { IID_ID3D11CommandList, WrapID3D11CommandList },
+    { IID_ID3D11VideoDecoder, WrapID3D11VideoDecoder },
+    { IID_ID3D11VideoProcessor, WrapID3D11VideoProcessor },
+    { IID_ID3D11AuthenticatedChannel, WrapID3D11AuthenticatedChannel },
+    { IID_ID3D11CryptoSession, WrapID3D11CryptoSession },
+    { IID_ID3D11VideoDecoderOutputView, WrapID3D11VideoDecoderOutputView },
+    { IID_ID3D11VideoProcessorInputView, WrapID3D11VideoProcessorInputView },
+    { IID_ID3D11VideoProcessorOutputView, WrapID3D11VideoProcessorOutputView },
+    { IID_ID3D11BlendState, WrapID3D11BlendState },
+    { IID_ID3D11BlendState1, WrapID3D11BlendState },
+    { IID_ID3DDeviceContextState, WrapID3DDeviceContextState },
+    { IID_ID3D11VideoProcessorEnumerator, WrapID3D11VideoProcessorEnumerator },
+    { IID_ID3D11VideoProcessorEnumerator1, WrapID3D11VideoProcessorEnumerator },
+    { IID_ID3DUserDefinedAnnotation, WrapID3DUserDefinedAnnotation },
+    { IID_ID3D11Texture2D, WrapID3D11Texture2D },
+    { IID_ID3D11Texture2D1, WrapID3D11Texture2D },
+    { IID_ID3D11Texture3D, WrapID3D11Texture3D },
+    { IID_ID3D11Texture3D1, WrapID3D11Texture3D },
+    { IID_ID3D11RasterizerState, WrapID3D11RasterizerState },
+    { IID_ID3D11RasterizerState1, WrapID3D11RasterizerState },
+    { IID_ID3D11RasterizerState2, WrapID3D11RasterizerState },
+    { IID_ID3D11ShaderResourceView, WrapID3D11ShaderResourceView },
+    { IID_ID3D11ShaderResourceView1, WrapID3D11ShaderResourceView },
+    { IID_ID3D11RenderTargetView, WrapID3D11RenderTargetView },
+    { IID_ID3D11RenderTargetView1, WrapID3D11RenderTargetView },
+    { IID_ID3D11UnorderedAccessView, WrapID3D11UnorderedAccessView },
+    { IID_ID3D11UnorderedAccessView1, WrapID3D11UnorderedAccessView },
+    { IID_ID3D11Query, WrapID3D11Query },
+    { IID_ID3D11Query1, WrapID3D11Query },
+    { IID_ID3D11Fence, WrapID3D11Fence },
+    { IID_ID3D11DeviceContext, WrapID3D11DeviceContext },
+    { IID_ID3D11DeviceContext1, WrapID3D11DeviceContext },
+    { IID_ID3D11DeviceContext2, WrapID3D11DeviceContext },
+    { IID_ID3D11DeviceContext3, WrapID3D11DeviceContext },
+    { IID_ID3D11DeviceContext4, WrapID3D11DeviceContext },
+    { IID_ID3D11Device, WrapID3D11Device },
+    { IID_ID3D11Device1, WrapID3D11Device },
+    { IID_ID3D11Device2, WrapID3D11Device },
+    { IID_ID3D11Device3, WrapID3D11Device },
+    { IID_ID3D11Device4, WrapID3D11Device },
+    { IID_ID3D11Device5, WrapID3D11Device },
+    { IID_ID3D11Multithread, WrapID3D11Multithread },
+    { IID_ID3D11VideoDevice, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoDevice1, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoDevice2, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoContext, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext1, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext2, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext3, WrapID3D11VideoContext },
+    { IID_ID3D11On12Device, WrapID3D11On12Device },
+    { IID_ID3D11On12Device1, WrapID3D11On12Device },
+    { IID_ID3D11On12Device2, WrapID3D11On12Device },
     { IID_IDXGIKeyedMutex, WrapIDXGIKeyedMutex },
     { IID_IDXGIDisplayControl, WrapIDXGIDisplayControl },
     { IID_IDXGIOutputDuplication, WrapIDXGIOutputDuplication },
@@ -329,6 +488,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_IDXGIFactory5, WrapIDXGIFactory },
     { IID_IDXGIFactory6, WrapIDXGIFactory },
     { IID_IDXGIFactory7, WrapIDXGIFactory },
+    { IID_ID3D11Resource, WrapID3D11Resource },
 };
 
 GFXRECON_END_NAMESPACE(encode)

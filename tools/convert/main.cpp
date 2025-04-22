@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2023 LunarG, Inc.
 ** Copyright (c) 2020 Advanced Micro Devices, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -246,10 +247,11 @@ int main(int argc, const char** argv)
     gfxrecon::decode::FileProcessor file_processor;
 
 #ifndef D3D12_SUPPORT
+    bool detected_d3d11  = false;
     bool detected_d3d12  = false;
     bool detected_vulkan = false;
     bool detected_openxr = false;
-    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d11, detected_d3d12, detected_vulkan, detected_openxr);
 
     if (!detected_vulkan && !is_asset_file)
     {

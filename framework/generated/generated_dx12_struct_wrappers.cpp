@@ -34,6 +34,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -231,6 +237,50 @@ void WrapStruct(const D3D12_BUFFER_BARRIER* value)
     if(value->pResource)
     {
         WrapObject(IID_ID3D12Resource, reinterpret_cast<void**>(value->pResource), nullptr);
+    }
+}
+
+void WrapStruct(const D3D11_VIDEO_DECODER_EXTENSION* value)
+{
+    if(value->ppResourceList)
+    {
+        WrapObject(IID_ID3D11Resource, reinterpret_cast<void**>(value->ppResourceList), nullptr);
+    }
+}
+
+void WrapStruct(const D3D11_VIDEO_PROCESSOR_STREAM* value)
+{
+    if(value->ppPastSurfaces)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->ppPastSurfaces), nullptr);
+    }
+    if(value->pInputSurface)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->pInputSurface), nullptr);
+    }
+    if(value->ppFutureSurfaces)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->ppFutureSurfaces), nullptr);
+    }
+    if(value->ppPastSurfacesRight)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->ppPastSurfacesRight), nullptr);
+    }
+    if(value->pInputSurfaceRight)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->pInputSurfaceRight), nullptr);
+    }
+    if(value->ppFutureSurfacesRight)
+    {
+        WrapObject(IID_ID3D11VideoProcessorInputView, reinterpret_cast<void**>(value->ppFutureSurfacesRight), nullptr);
+    }
+}
+
+void WrapStruct(const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* value)
+{
+    if(value->pCryptoSession)
+    {
+        WrapObject(IID_ID3D11CryptoSession, reinterpret_cast<void**>(value->pCryptoSession), nullptr);
     }
 }
 

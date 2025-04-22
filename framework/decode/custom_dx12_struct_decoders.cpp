@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -1450,6 +1451,590 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DIS
         case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
             bytes_read += ValueDecoder::DecodeUInt64Value(
                 (buffer + bytes_read), (buffer_size - bytes_read), &(value->MultiNodeGPUInput));
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SUBRESOURCE_DATA* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                  bytes_read = 0;
+    D3D11_SUBRESOURCE_DATA* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->pSysMem.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSysMem = wrapper->pSysMem.GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SysMemPitch));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SysMemSlicePitch));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_SRV* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t            bytes_read = 0;
+    D3D11_BUFFER_SRV* value      = wrapper->decoded_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->FirstElement));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumElements));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                           bytes_read = 0;
+    D3D11_SHADER_RESOURCE_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_SRV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_SRV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_SRV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_SRV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_SRV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_SRV>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_SRV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_ARRAY_SRV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_SRV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            wrapper->TextureCube                = DecodeAllocator::Allocate<Decoded_D3D11_TEXCUBE_SRV>();
+            wrapper->TextureCube->decoded_value = &(value->TextureCube);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->TextureCube);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            wrapper->TextureCubeArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEXCUBE_ARRAY_SRV>();
+            wrapper->TextureCubeArray->decoded_value = &(value->TextureCubeArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->TextureCubeArray);
+            break;
+        case D3D11_SRV_DIMENSION_BUFFEREX:
+            wrapper->BufferEx                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFEREX_SRV>();
+            wrapper->BufferEx->decoded_value = &(value->BufferEx);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferEx);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_RTV* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t            bytes_read = 0;
+    D3D11_BUFFER_RTV* value      = wrapper->decoded_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->FirstElement));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumElements));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                            bytes_read = 0;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_UAV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_UAV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_UAV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_UAV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_UAV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_UAV>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_UAV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                         bytes_read = 0;
+    D3D11_RENDER_TARGET_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_RTV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_RTV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_RTV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_RTV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_RTV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_RTV>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_RTV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_ARRAY_RTV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_RTV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                         bytes_read = 0;
+    D3D11_DEPTH_STENCIL_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Flags));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_DSV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_DSV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_DSV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_DSV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_DSV>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_DSV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_ARRAY_DSV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                            bytes_read = 0;
+    D3D11_SHADER_RESOURCE_VIEW_DESC1* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_SRV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_SRV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_SRV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_SRV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_SRV1>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_SRV1>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_SRV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_ARRAY_SRV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_SRV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            wrapper->TextureCube                = DecodeAllocator::Allocate<Decoded_D3D11_TEXCUBE_SRV>();
+            wrapper->TextureCube->decoded_value = &(value->TextureCube);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->TextureCube);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            wrapper->TextureCubeArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEXCUBE_ARRAY_SRV>();
+            wrapper->TextureCubeArray->decoded_value = &(value->TextureCubeArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->TextureCubeArray);
+            break;
+        case D3D11_SRV_DIMENSION_BUFFEREX:
+            wrapper->BufferEx                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFEREX_SRV>();
+            wrapper->BufferEx->decoded_value = &(value->BufferEx);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->BufferEx);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                             bytes_read = 0;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC1* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_UAV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_UAV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_UAV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_UAV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_UAV1>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_UAV1>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_UAV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_VIEW_DESC1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                          bytes_read = 0;
+    D3D11_RENDER_TARGET_VIEW_DESC1* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_RTV_DIMENSION_BUFFER:
+            wrapper->Buffer                = DecodeAllocator::Allocate<Decoded_D3D11_BUFFER_RTV>();
+            wrapper->Buffer->decoded_value = &(value->Buffer);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Buffer);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1D:
+            wrapper->Texture1D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_RTV>();
+            wrapper->Texture1D->decoded_value = &(value->Texture1D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            wrapper->Texture1DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX1D_ARRAY_RTV>();
+            wrapper->Texture1DArray->decoded_value = &(value->Texture1DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture1DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_RTV1>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_RTV1>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_RTV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2DMS_ARRAY_RTV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE3D:
+            wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX3D_RTV>();
+            wrapper->Texture3D->decoded_value = &(value->Texture3D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture3D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_COLOR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t             bytes_read = 0;
+    D3D11_VIDEO_COLOR* value      = wrapper->decoded_value;
+
+    // D3D11_VIDEO_COLOR contains an anonymous union consisting of two structures with identical layouts, so we just
+    // need to decode one of them.
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &value->RGBA.R);
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &value->RGBA.G);
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &value->RGBA.B);
+    bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &value->RGBA.A);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                bytes_read = 0;
+    D3D11_AUTHENTICATED_PROTECTION_FLAGS* value      = wrapper->decoded_value;
+
+    uint32_t flags = 0;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &flags);
+    value->Flags.ProtectionEnabled = flags;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &flags);
+    value->Flags.OverlayOrFullscreenRequired = flags;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &flags);
+    value->Flags.Reserved = flags;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                bytes_read = 0;
+    D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* value      = wrapper->decoded_value;
+
+    wrapper->DecodeProfile                = DecodeAllocator::Allocate<Decoded_GUID>();
+    wrapper->DecodeProfile->decoded_value = &(value->DecodeProfile);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DecodeProfile);
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_VDOV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_VDOV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                 bytes_read = 0;
+    D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->FourCC));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_VPIV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_VPIV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        default:
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                  bytes_read = 0;
+    D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* value      = wrapper->decoded_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ViewDimension));
+
+    switch (value->ViewDimension)
+    {
+        case D3D11_VPOV_DIMENSION_TEXTURE2D:
+            wrapper->Texture2D                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_VPOV>();
+            wrapper->Texture2D->decoded_value = &(value->Texture2D);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2D);
+            break;
+        case D3D11_VPOV_DIMENSION_TEXTURE2DARRAY:
+            wrapper->Texture2DArray                = DecodeAllocator::Allocate<Decoded_D3D11_TEX2D_ARRAY_VPOV>();
+            wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
             break;
         default:
             break;

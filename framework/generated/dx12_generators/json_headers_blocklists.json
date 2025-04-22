@@ -13,7 +13,19 @@
     "ID3D12Resource": [
       "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because the manual signature in the base class defining it doesn't match what correct codegen would produce.",
       "WriteToSubresource"
-    ]
+    ],
+    "ID3D11Device": [
+      "CheckFeatureSupport"
+    ],
+    "ID3D11Device3": [
+      "WriteToSubresource"
+    ],
+    "ID3D11DeviceContext": [
+      "UpdateSubresource"
+    ],
+    "ID3D11DeviceContext1": [
+      "UpdateSubresource1"
+    ]    
   },
   "structures-comment": "We don't want to disable any structs from header generation. Even if we make custom bodies, the function protoypes in the headers will be the same so there's no need to type them all out.",
   "structures": [

@@ -231,10 +231,22 @@ class Dx12StatsConsumer : public Dx12Consumer
     {
         if (swapchain_id_ == object_id)
         {
-            swapchain_width_  = Width;
-            swapchain_height_ = Height;
+            // When width and/or height are zero, the swapchain will resize its width and/or height to match the size of
+            // the client area of the target window.
+            if ((Width != 0) || (Height != 0))
+            {
+                if (Width != 0)
+                {
+                    swapchain_width_ = Width;
+                }
 
-            swapchain_info_found_ = true;
+                if (Height != 0)
+                {
+                    swapchain_height_ = Height;
+                }
+
+                swapchain_info_found_ = true;
+            }
         }
     }
 

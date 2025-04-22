@@ -1121,6 +1121,1176 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12InfoQueue1_UnregisterMessageCallback:
         out = L"ID3D12InfoQueue1_UnregisterMessageCallback";
         break;
+    case format::ApiCallId::ApiCall_D3D11CreateDevice:
+        out = L"D3D11CreateDevice";
+        break;
+    case format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain:
+        out = L"D3D11CreateDeviceAndSwapChain";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceChild_GetDevice:
+        out = L"ID3D11DeviceChild_GetDevice";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceChild_GetPrivateData:
+        out = L"ID3D11DeviceChild_GetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceChild_SetPrivateData:
+        out = L"ID3D11DeviceChild_SetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceChild_SetPrivateDataInterface:
+        out = L"ID3D11DeviceChild_SetPrivateDataInterface";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DepthStencilState_GetDesc:
+        out = L"ID3D11DepthStencilState_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11BlendState_GetDesc:
+        out = L"ID3D11BlendState_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RasterizerState_GetDesc:
+        out = L"ID3D11RasterizerState_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Resource_GetType:
+        out = L"ID3D11Resource_GetType";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Resource_SetEvictionPriority:
+        out = L"ID3D11Resource_SetEvictionPriority";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Resource_GetEvictionPriority:
+        out = L"ID3D11Resource_GetEvictionPriority";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Buffer_GetDesc:
+        out = L"ID3D11Buffer_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture1D_GetDesc:
+        out = L"ID3D11Texture1D_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture2D_GetDesc:
+        out = L"ID3D11Texture2D_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture3D_GetDesc:
+        out = L"ID3D11Texture3D_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11View_GetResource:
+        out = L"ID3D11View_GetResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ShaderResourceView_GetDesc:
+        out = L"ID3D11ShaderResourceView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RenderTargetView_GetDesc:
+        out = L"ID3D11RenderTargetView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DepthStencilView_GetDesc:
+        out = L"ID3D11DepthStencilView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11UnorderedAccessView_GetDesc:
+        out = L"ID3D11UnorderedAccessView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11SamplerState_GetDesc:
+        out = L"ID3D11SamplerState_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Asynchronous_GetDataSize:
+        out = L"ID3D11Asynchronous_GetDataSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Query_GetDesc:
+        out = L"ID3D11Query_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Counter_GetDesc:
+        out = L"ID3D11Counter_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassInstance_GetClassLinkage:
+        out = L"ID3D11ClassInstance_GetClassLinkage";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassInstance_GetDesc:
+        out = L"ID3D11ClassInstance_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassInstance_GetInstanceName:
+        out = L"ID3D11ClassInstance_GetInstanceName";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassInstance_GetTypeName:
+        out = L"ID3D11ClassInstance_GetTypeName";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassLinkage_GetClassInstance:
+        out = L"ID3D11ClassLinkage_GetClassInstance";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ClassLinkage_CreateClassInstance:
+        out = L"ID3D11ClassLinkage_CreateClassInstance";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CommandList_GetContextFlags:
+        out = L"ID3D11CommandList_GetContextFlags";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_VSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSSetShaderResources:
+        out = L"ID3D11DeviceContext_PSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSSetShader:
+        out = L"ID3D11DeviceContext_PSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSSetSamplers:
+        out = L"ID3D11DeviceContext_PSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSSetShader:
+        out = L"ID3D11DeviceContext_VSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexed:
+        out = L"ID3D11DeviceContext_DrawIndexed";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Draw:
+        out = L"ID3D11DeviceContext_Draw";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Map:
+        out = L"ID3D11DeviceContext_Map";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Unmap:
+        out = L"ID3D11DeviceContext_Unmap";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_PSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IASetInputLayout:
+        out = L"ID3D11DeviceContext_IASetInputLayout";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IASetVertexBuffers:
+        out = L"ID3D11DeviceContext_IASetVertexBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IASetIndexBuffer:
+        out = L"ID3D11DeviceContext_IASetIndexBuffer";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstanced:
+        out = L"ID3D11DeviceContext_DrawIndexedInstanced";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstanced:
+        out = L"ID3D11DeviceContext_DrawInstanced";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_GSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSSetShader:
+        out = L"ID3D11DeviceContext_GSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IASetPrimitiveTopology:
+        out = L"ID3D11DeviceContext_IASetPrimitiveTopology";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSSetShaderResources:
+        out = L"ID3D11DeviceContext_VSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSSetSamplers:
+        out = L"ID3D11DeviceContext_VSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Begin:
+        out = L"ID3D11DeviceContext_Begin";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_End:
+        out = L"ID3D11DeviceContext_End";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GetData:
+        out = L"ID3D11DeviceContext_GetData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_SetPredication:
+        out = L"ID3D11DeviceContext_SetPredication";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSSetShaderResources:
+        out = L"ID3D11DeviceContext_GSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSSetSamplers:
+        out = L"ID3D11DeviceContext_GSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargets:
+        out = L"ID3D11DeviceContext_OMSetRenderTargets";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews:
+        out = L"ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetBlendState:
+        out = L"ID3D11DeviceContext_OMSetBlendState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMSetDepthStencilState:
+        out = L"ID3D11DeviceContext_OMSetDepthStencilState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_SOSetTargets:
+        out = L"ID3D11DeviceContext_SOSetTargets";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawAuto:
+        out = L"ID3D11DeviceContext_DrawAuto";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstancedIndirect:
+        out = L"ID3D11DeviceContext_DrawIndexedInstancedIndirect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstancedIndirect:
+        out = L"ID3D11DeviceContext_DrawInstancedIndirect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Dispatch:
+        out = L"ID3D11DeviceContext_Dispatch";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DispatchIndirect:
+        out = L"ID3D11DeviceContext_DispatchIndirect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSSetState:
+        out = L"ID3D11DeviceContext_RSSetState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSSetViewports:
+        out = L"ID3D11DeviceContext_RSSetViewports";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSSetScissorRects:
+        out = L"ID3D11DeviceContext_RSSetScissorRects";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CopySubresourceRegion:
+        out = L"ID3D11DeviceContext_CopySubresourceRegion";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CopyResource:
+        out = L"ID3D11DeviceContext_CopyResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_UpdateSubresource:
+        out = L"ID3D11DeviceContext_UpdateSubresource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CopyStructureCount:
+        out = L"ID3D11DeviceContext_CopyStructureCount";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ClearRenderTargetView:
+        out = L"ID3D11DeviceContext_ClearRenderTargetView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ClearUnorderedAccessViewUint:
+        out = L"ID3D11DeviceContext_ClearUnorderedAccessViewUint";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ClearUnorderedAccessViewFloat:
+        out = L"ID3D11DeviceContext_ClearUnorderedAccessViewFloat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ClearDepthStencilView:
+        out = L"ID3D11DeviceContext_ClearDepthStencilView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GenerateMips:
+        out = L"ID3D11DeviceContext_GenerateMips";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_SetResourceMinLOD:
+        out = L"ID3D11DeviceContext_SetResourceMinLOD";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GetResourceMinLOD:
+        out = L"ID3D11DeviceContext_GetResourceMinLOD";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ResolveSubresource:
+        out = L"ID3D11DeviceContext_ResolveSubresource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ExecuteCommandList:
+        out = L"ID3D11DeviceContext_ExecuteCommandList";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSSetShaderResources:
+        out = L"ID3D11DeviceContext_HSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSSetShader:
+        out = L"ID3D11DeviceContext_HSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSSetSamplers:
+        out = L"ID3D11DeviceContext_HSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_HSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSSetShaderResources:
+        out = L"ID3D11DeviceContext_DSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSSetShader:
+        out = L"ID3D11DeviceContext_DSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSSetSamplers:
+        out = L"ID3D11DeviceContext_DSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_DSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSSetShaderResources:
+        out = L"ID3D11DeviceContext_CSSetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSSetUnorderedAccessViews:
+        out = L"ID3D11DeviceContext_CSSetUnorderedAccessViews";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSSetShader:
+        out = L"ID3D11DeviceContext_CSSetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSSetSamplers:
+        out = L"ID3D11DeviceContext_CSSetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSSetConstantBuffers:
+        out = L"ID3D11DeviceContext_CSSetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_VSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSGetShaderResources:
+        out = L"ID3D11DeviceContext_PSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSGetShader:
+        out = L"ID3D11DeviceContext_PSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSGetSamplers:
+        out = L"ID3D11DeviceContext_PSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSGetShader:
+        out = L"ID3D11DeviceContext_VSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_PSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_PSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IAGetInputLayout:
+        out = L"ID3D11DeviceContext_IAGetInputLayout";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IAGetVertexBuffers:
+        out = L"ID3D11DeviceContext_IAGetVertexBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IAGetIndexBuffer:
+        out = L"ID3D11DeviceContext_IAGetIndexBuffer";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_GSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSGetShader:
+        out = L"ID3D11DeviceContext_GSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_IAGetPrimitiveTopology:
+        out = L"ID3D11DeviceContext_IAGetPrimitiveTopology";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSGetShaderResources:
+        out = L"ID3D11DeviceContext_VSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_VSGetSamplers:
+        out = L"ID3D11DeviceContext_VSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GetPredication:
+        out = L"ID3D11DeviceContext_GetPredication";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSGetShaderResources:
+        out = L"ID3D11DeviceContext_GSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GSGetSamplers:
+        out = L"ID3D11DeviceContext_GSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMGetRenderTargets:
+        out = L"ID3D11DeviceContext_OMGetRenderTargets";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMGetRenderTargetsAndUnorderedAccessViews:
+        out = L"ID3D11DeviceContext_OMGetRenderTargetsAndUnorderedAccessViews";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMGetBlendState:
+        out = L"ID3D11DeviceContext_OMGetBlendState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_OMGetDepthStencilState:
+        out = L"ID3D11DeviceContext_OMGetDepthStencilState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_SOGetTargets:
+        out = L"ID3D11DeviceContext_SOGetTargets";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSGetState:
+        out = L"ID3D11DeviceContext_RSGetState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSGetViewports:
+        out = L"ID3D11DeviceContext_RSGetViewports";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_RSGetScissorRects:
+        out = L"ID3D11DeviceContext_RSGetScissorRects";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSGetShaderResources:
+        out = L"ID3D11DeviceContext_HSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSGetShader:
+        out = L"ID3D11DeviceContext_HSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSGetSamplers:
+        out = L"ID3D11DeviceContext_HSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_HSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_HSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSGetShaderResources:
+        out = L"ID3D11DeviceContext_DSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSGetShader:
+        out = L"ID3D11DeviceContext_DSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSGetSamplers:
+        out = L"ID3D11DeviceContext_DSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_DSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_DSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSGetShaderResources:
+        out = L"ID3D11DeviceContext_CSGetShaderResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSGetUnorderedAccessViews:
+        out = L"ID3D11DeviceContext_CSGetUnorderedAccessViews";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSGetShader:
+        out = L"ID3D11DeviceContext_CSGetShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSGetSamplers:
+        out = L"ID3D11DeviceContext_CSGetSamplers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_CSGetConstantBuffers:
+        out = L"ID3D11DeviceContext_CSGetConstantBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_ClearState:
+        out = L"ID3D11DeviceContext_ClearState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_Flush:
+        out = L"ID3D11DeviceContext_Flush";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GetType:
+        out = L"ID3D11DeviceContext_GetType";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_GetContextFlags:
+        out = L"ID3D11DeviceContext_GetContextFlags";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext_FinishCommandList:
+        out = L"ID3D11DeviceContext_FinishCommandList";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDecoder_GetCreationParameters:
+        out = L"ID3D11VideoDecoder_GetCreationParameters";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDecoder_GetDriverHandle:
+        out = L"ID3D11VideoDecoder_GetDriverHandle";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_GetVideoProcessorContentDesc:
+        out = L"ID3D11VideoProcessorEnumerator_GetVideoProcessorContentDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_CheckVideoProcessorFormat:
+        out = L"ID3D11VideoProcessorEnumerator_CheckVideoProcessorFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_GetVideoProcessorCaps:
+        out = L"ID3D11VideoProcessorEnumerator_GetVideoProcessorCaps";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_GetVideoProcessorRateConversionCaps:
+        out = L"ID3D11VideoProcessorEnumerator_GetVideoProcessorRateConversionCaps";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_GetVideoProcessorCustomRate:
+        out = L"ID3D11VideoProcessorEnumerator_GetVideoProcessorCustomRate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator_GetVideoProcessorFilterRange:
+        out = L"ID3D11VideoProcessorEnumerator_GetVideoProcessorFilterRange";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessor_GetContentDesc:
+        out = L"ID3D11VideoProcessor_GetContentDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessor_GetRateConversionCaps:
+        out = L"ID3D11VideoProcessor_GetRateConversionCaps";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11AuthenticatedChannel_GetCertificateSize:
+        out = L"ID3D11AuthenticatedChannel_GetCertificateSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11AuthenticatedChannel_GetCertificate:
+        out = L"ID3D11AuthenticatedChannel_GetCertificate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11AuthenticatedChannel_GetChannelHandle:
+        out = L"ID3D11AuthenticatedChannel_GetChannelHandle";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CryptoSession_GetCryptoType:
+        out = L"ID3D11CryptoSession_GetCryptoType";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CryptoSession_GetDecoderProfile:
+        out = L"ID3D11CryptoSession_GetDecoderProfile";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CryptoSession_GetCertificateSize:
+        out = L"ID3D11CryptoSession_GetCertificateSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CryptoSession_GetCertificate:
+        out = L"ID3D11CryptoSession_GetCertificate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11CryptoSession_GetCryptoSessionHandle:
+        out = L"ID3D11CryptoSession_GetCryptoSessionHandle";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDecoderOutputView_GetDesc:
+        out = L"ID3D11VideoDecoderOutputView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorInputView_GetDesc:
+        out = L"ID3D11VideoProcessorInputView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorOutputView_GetDesc:
+        out = L"ID3D11VideoProcessorOutputView_GetDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_GetDecoderBuffer:
+        out = L"ID3D11VideoContext_GetDecoderBuffer";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_ReleaseDecoderBuffer:
+        out = L"ID3D11VideoContext_ReleaseDecoderBuffer";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_DecoderBeginFrame:
+        out = L"ID3D11VideoContext_DecoderBeginFrame";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_DecoderEndFrame:
+        out = L"ID3D11VideoContext_DecoderEndFrame";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_SubmitDecoderBuffers:
+        out = L"ID3D11VideoContext_SubmitDecoderBuffers";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_DecoderExtension:
+        out = L"ID3D11VideoContext_DecoderExtension";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputTargetRect:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputTargetRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputBackgroundColor:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputBackgroundColor";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputColorSpace:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputAlphaFillMode:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputAlphaFillMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputConstriction:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputConstriction";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputStereoMode:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputStereoMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetOutputExtension:
+        out = L"ID3D11VideoContext_VideoProcessorSetOutputExtension";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputTargetRect:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputTargetRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputBackgroundColor:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputBackgroundColor";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputColorSpace:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputAlphaFillMode:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputAlphaFillMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputConstriction:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputConstriction";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputStereoMode:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputStereoMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetOutputExtension:
+        out = L"ID3D11VideoContext_VideoProcessorGetOutputExtension";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamFrameFormat:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamFrameFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamColorSpace:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamOutputRate:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamOutputRate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamSourceRect:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamSourceRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamDestRect:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamDestRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamAlpha:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamAlpha";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamPalette:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamPalette";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamPixelAspectRatio:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamPixelAspectRatio";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamLumaKey:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamLumaKey";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamStereoFormat:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamStereoFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamAutoProcessingMode:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamAutoProcessingMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamFilter:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamFilter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamExtension:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamExtension";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamFrameFormat:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamFrameFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamColorSpace:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamColorSpace";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamOutputRate:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamOutputRate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamSourceRect:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamSourceRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamDestRect:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamDestRect";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamAlpha:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamAlpha";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamPalette:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamPalette";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamPixelAspectRatio:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamPixelAspectRatio";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamLumaKey:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamLumaKey";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamStereoFormat:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamStereoFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamAutoProcessingMode:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamAutoProcessingMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamFilter:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamFilter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamExtension:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamExtension";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorBlt:
+        out = L"ID3D11VideoContext_VideoProcessorBlt";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_NegotiateCryptoSessionKeyExchange:
+        out = L"ID3D11VideoContext_NegotiateCryptoSessionKeyExchange";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_EncryptionBlt:
+        out = L"ID3D11VideoContext_EncryptionBlt";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_DecryptionBlt:
+        out = L"ID3D11VideoContext_DecryptionBlt";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_StartSessionKeyRefresh:
+        out = L"ID3D11VideoContext_StartSessionKeyRefresh";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_FinishSessionKeyRefresh:
+        out = L"ID3D11VideoContext_FinishSessionKeyRefresh";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_GetEncryptionBltKey:
+        out = L"ID3D11VideoContext_GetEncryptionBltKey";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_NegotiateAuthenticatedChannelKeyExchange:
+        out = L"ID3D11VideoContext_NegotiateAuthenticatedChannelKeyExchange";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_QueryAuthenticatedChannel:
+        out = L"ID3D11VideoContext_QueryAuthenticatedChannel";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_ConfigureAuthenticatedChannel:
+        out = L"ID3D11VideoContext_ConfigureAuthenticatedChannel";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorSetStreamRotation:
+        out = L"ID3D11VideoContext_VideoProcessorSetStreamRotation";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext_VideoProcessorGetStreamRotation:
+        out = L"ID3D11VideoContext_VideoProcessorGetStreamRotation";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoDecoder:
+        out = L"ID3D11VideoDevice_CreateVideoDecoder";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoProcessor:
+        out = L"ID3D11VideoDevice_CreateVideoProcessor";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateAuthenticatedChannel:
+        out = L"ID3D11VideoDevice_CreateAuthenticatedChannel";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateCryptoSession:
+        out = L"ID3D11VideoDevice_CreateCryptoSession";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoDecoderOutputView:
+        out = L"ID3D11VideoDevice_CreateVideoDecoderOutputView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoProcessorInputView:
+        out = L"ID3D11VideoDevice_CreateVideoProcessorInputView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoProcessorOutputView:
+        out = L"ID3D11VideoDevice_CreateVideoProcessorOutputView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CreateVideoProcessorEnumerator:
+        out = L"ID3D11VideoDevice_CreateVideoProcessorEnumerator";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_GetVideoDecoderProfileCount:
+        out = L"ID3D11VideoDevice_GetVideoDecoderProfileCount";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_GetVideoDecoderProfile:
+        out = L"ID3D11VideoDevice_GetVideoDecoderProfile";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CheckVideoDecoderFormat:
+        out = L"ID3D11VideoDevice_CheckVideoDecoderFormat";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_GetVideoDecoderConfigCount:
+        out = L"ID3D11VideoDevice_GetVideoDecoderConfigCount";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_GetVideoDecoderConfig:
+        out = L"ID3D11VideoDevice_GetVideoDecoderConfig";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_GetContentProtectionCaps:
+        out = L"ID3D11VideoDevice_GetContentProtectionCaps";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_CheckCryptoKeyExchange:
+        out = L"ID3D11VideoDevice_CheckCryptoKeyExchange";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_SetPrivateData:
+        out = L"ID3D11VideoDevice_SetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice_SetPrivateDataInterface:
+        out = L"ID3D11VideoDevice_SetPrivateDataInterface";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateBuffer:
+        out = L"ID3D11Device_CreateBuffer";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture1D:
+        out = L"ID3D11Device_CreateTexture1D";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture2D:
+        out = L"ID3D11Device_CreateTexture2D";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture3D:
+        out = L"ID3D11Device_CreateTexture3D";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateShaderResourceView:
+        out = L"ID3D11Device_CreateShaderResourceView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateUnorderedAccessView:
+        out = L"ID3D11Device_CreateUnorderedAccessView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateRenderTargetView:
+        out = L"ID3D11Device_CreateRenderTargetView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateDepthStencilView:
+        out = L"ID3D11Device_CreateDepthStencilView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateInputLayout:
+        out = L"ID3D11Device_CreateInputLayout";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateVertexShader:
+        out = L"ID3D11Device_CreateVertexShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateGeometryShader:
+        out = L"ID3D11Device_CreateGeometryShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateGeometryShaderWithStreamOutput:
+        out = L"ID3D11Device_CreateGeometryShaderWithStreamOutput";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreatePixelShader:
+        out = L"ID3D11Device_CreatePixelShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateHullShader:
+        out = L"ID3D11Device_CreateHullShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateDomainShader:
+        out = L"ID3D11Device_CreateDomainShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateComputeShader:
+        out = L"ID3D11Device_CreateComputeShader";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateClassLinkage:
+        out = L"ID3D11Device_CreateClassLinkage";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateBlendState:
+        out = L"ID3D11Device_CreateBlendState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateDepthStencilState:
+        out = L"ID3D11Device_CreateDepthStencilState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateRasterizerState:
+        out = L"ID3D11Device_CreateRasterizerState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateSamplerState:
+        out = L"ID3D11Device_CreateSamplerState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateQuery:
+        out = L"ID3D11Device_CreateQuery";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreatePredicate:
+        out = L"ID3D11Device_CreatePredicate";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateCounter:
+        out = L"ID3D11Device_CreateCounter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CreateDeferredContext:
+        out = L"ID3D11Device_CreateDeferredContext";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_OpenSharedResource:
+        out = L"ID3D11Device_OpenSharedResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CheckFormatSupport:
+        out = L"ID3D11Device_CheckFormatSupport";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CheckMultisampleQualityLevels:
+        out = L"ID3D11Device_CheckMultisampleQualityLevels";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CheckCounterInfo:
+        out = L"ID3D11Device_CheckCounterInfo";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CheckCounter:
+        out = L"ID3D11Device_CheckCounter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport:
+        out = L"ID3D11Device_CheckFeatureSupport";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetPrivateData:
+        out = L"ID3D11Device_GetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_SetPrivateData:
+        out = L"ID3D11Device_SetPrivateData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_SetPrivateDataInterface:
+        out = L"ID3D11Device_SetPrivateDataInterface";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetFeatureLevel:
+        out = L"ID3D11Device_GetFeatureLevel";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetCreationFlags:
+        out = L"ID3D11Device_GetCreationFlags";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetDeviceRemovedReason:
+        out = L"ID3D11Device_GetDeviceRemovedReason";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetImmediateContext:
+        out = L"ID3D11Device_GetImmediateContext";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_SetExceptionMode:
+        out = L"ID3D11Device_SetExceptionMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device_GetExceptionMode:
+        out = L"ID3D11Device_GetExceptionMode";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11BlendState1_GetDesc1:
+        out = L"ID3D11BlendState1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RasterizerState1_GetDesc1:
+        out = L"ID3D11RasterizerState1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_CopySubresourceRegion1:
+        out = L"ID3D11DeviceContext1_CopySubresourceRegion1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_UpdateSubresource1:
+        out = L"ID3D11DeviceContext1_UpdateSubresource1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_DiscardResource:
+        out = L"ID3D11DeviceContext1_DiscardResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_DiscardView:
+        out = L"ID3D11DeviceContext1_DiscardView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_VSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_VSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_HSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_HSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_DSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_DSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_GSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_GSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_PSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_PSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_CSSetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_CSSetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_VSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_VSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_HSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_HSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_DSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_DSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_GSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_GSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_PSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_PSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_CSGetConstantBuffers1:
+        out = L"ID3D11DeviceContext1_CSGetConstantBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_SwapDeviceContextState:
+        out = L"ID3D11DeviceContext1_SwapDeviceContextState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_ClearView:
+        out = L"ID3D11DeviceContext1_ClearView";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext1_DiscardView1:
+        out = L"ID3D11DeviceContext1_DiscardView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_SubmitDecoderBuffers1:
+        out = L"ID3D11VideoContext1_SubmitDecoderBuffers1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_GetDataForNewHardwareKey:
+        out = L"ID3D11VideoContext1_GetDataForNewHardwareKey";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_CheckCryptoSessionStatus:
+        out = L"ID3D11VideoContext1_CheckCryptoSessionStatus";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_DecoderEnableDownsampling:
+        out = L"ID3D11VideoContext1_DecoderEnableDownsampling";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_DecoderUpdateDownsampling:
+        out = L"ID3D11VideoContext1_DecoderUpdateDownsampling";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorSetOutputColorSpace1:
+        out = L"ID3D11VideoContext1_VideoProcessorSetOutputColorSpace1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorSetOutputShaderUsage:
+        out = L"ID3D11VideoContext1_VideoProcessorSetOutputShaderUsage";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorGetOutputColorSpace1:
+        out = L"ID3D11VideoContext1_VideoProcessorGetOutputColorSpace1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorGetOutputShaderUsage:
+        out = L"ID3D11VideoContext1_VideoProcessorGetOutputShaderUsage";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorSetStreamColorSpace1:
+        out = L"ID3D11VideoContext1_VideoProcessorSetStreamColorSpace1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorSetStreamMirror:
+        out = L"ID3D11VideoContext1_VideoProcessorSetStreamMirror";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorGetStreamColorSpace1:
+        out = L"ID3D11VideoContext1_VideoProcessorGetStreamColorSpace1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorGetStreamMirror:
+        out = L"ID3D11VideoContext1_VideoProcessorGetStreamMirror";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext1_VideoProcessorGetBehaviorHints:
+        out = L"ID3D11VideoContext1_VideoProcessorGetBehaviorHints";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice1_GetCryptoSessionPrivateDataSize:
+        out = L"ID3D11VideoDevice1_GetCryptoSessionPrivateDataSize";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice1_GetVideoDecoderCaps:
+        out = L"ID3D11VideoDevice1_GetVideoDecoderCaps";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice1_CheckVideoDecoderDownsampling:
+        out = L"ID3D11VideoDevice1_CheckVideoDecoderDownsampling";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice1_RecommendVideoDecoderDownsampleParameters:
+        out = L"ID3D11VideoDevice1_RecommendVideoDecoderDownsampleParameters";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoProcessorEnumerator1_CheckVideoProcessorFormatConversion:
+        out = L"ID3D11VideoProcessorEnumerator1_CheckVideoProcessorFormatConversion";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_GetImmediateContext1:
+        out = L"ID3D11Device1_GetImmediateContext1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_CreateDeferredContext1:
+        out = L"ID3D11Device1_CreateDeferredContext1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_CreateBlendState1:
+        out = L"ID3D11Device1_CreateBlendState1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_CreateRasterizerState1:
+        out = L"ID3D11Device1_CreateRasterizerState1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_CreateDeviceContextState:
+        out = L"ID3D11Device1_CreateDeviceContextState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_OpenSharedResource1:
+        out = L"ID3D11Device1_OpenSharedResource1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device1_OpenSharedResourceByName:
+        out = L"ID3D11Device1_OpenSharedResourceByName";
+        break;
+    case format::ApiCallId::ApiCall_ID3DUserDefinedAnnotation_BeginEvent:
+        out = L"ID3DUserDefinedAnnotation_BeginEvent";
+        break;
+    case format::ApiCallId::ApiCall_ID3DUserDefinedAnnotation_EndEvent:
+        out = L"ID3DUserDefinedAnnotation_EndEvent";
+        break;
+    case format::ApiCallId::ApiCall_ID3DUserDefinedAnnotation_SetMarker:
+        out = L"ID3DUserDefinedAnnotation_SetMarker";
+        break;
+    case format::ApiCallId::ApiCall_ID3DUserDefinedAnnotation_GetStatus:
+        out = L"ID3DUserDefinedAnnotation_GetStatus";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_UpdateTileMappings:
+        out = L"ID3D11DeviceContext2_UpdateTileMappings";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_CopyTileMappings:
+        out = L"ID3D11DeviceContext2_CopyTileMappings";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_CopyTiles:
+        out = L"ID3D11DeviceContext2_CopyTiles";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_UpdateTiles:
+        out = L"ID3D11DeviceContext2_UpdateTiles";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_ResizeTilePool:
+        out = L"ID3D11DeviceContext2_ResizeTilePool";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_TiledResourceBarrier:
+        out = L"ID3D11DeviceContext2_TiledResourceBarrier";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_IsAnnotationEnabled:
+        out = L"ID3D11DeviceContext2_IsAnnotationEnabled";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_SetMarkerInt:
+        out = L"ID3D11DeviceContext2_SetMarkerInt";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_BeginEventInt:
+        out = L"ID3D11DeviceContext2_BeginEventInt";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext2_EndEvent:
+        out = L"ID3D11DeviceContext2_EndEvent";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device2_GetImmediateContext2:
+        out = L"ID3D11Device2_GetImmediateContext2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device2_CreateDeferredContext2:
+        out = L"ID3D11Device2_CreateDeferredContext2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device2_GetResourceTiling:
+        out = L"ID3D11Device2_GetResourceTiling";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device2_CheckMultisampleQualityLevels1:
+        out = L"ID3D11Device2_CheckMultisampleQualityLevels1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture2D1_GetDesc1:
+        out = L"ID3D11Texture2D1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture3D1_GetDesc1:
+        out = L"ID3D11Texture3D1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RasterizerState2_GetDesc2:
+        out = L"ID3D11RasterizerState2_GetDesc2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ShaderResourceView1_GetDesc1:
+        out = L"ID3D11ShaderResourceView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RenderTargetView1_GetDesc1:
+        out = L"ID3D11RenderTargetView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11UnorderedAccessView1_GetDesc1:
+        out = L"ID3D11UnorderedAccessView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Query1_GetDesc1:
+        out = L"ID3D11Query1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_Flush1:
+        out = L"ID3D11DeviceContext3_Flush1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_SetHardwareProtectionState:
+        out = L"ID3D11DeviceContext3_SetHardwareProtectionState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_GetHardwareProtectionState:
+        out = L"ID3D11DeviceContext3_GetHardwareProtectionState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_CreateSharedHandle:
+        out = L"ID3D11Fence_CreateSharedHandle";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_GetCompletedValue:
+        out = L"ID3D11Fence_GetCompletedValue";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_SetEventOnCompletion:
+        out = L"ID3D11Fence_SetEventOnCompletion";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext4_Signal:
+        out = L"ID3D11DeviceContext4_Signal";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext4_Wait:
+        out = L"ID3D11DeviceContext4_Wait";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture2D1:
+        out = L"ID3D11Device3_CreateTexture2D1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture3D1:
+        out = L"ID3D11Device3_CreateTexture3D1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateRasterizerState2:
+        out = L"ID3D11Device3_CreateRasterizerState2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateShaderResourceView1:
+        out = L"ID3D11Device3_CreateShaderResourceView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateUnorderedAccessView1:
+        out = L"ID3D11Device3_CreateUnorderedAccessView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateRenderTargetView1:
+        out = L"ID3D11Device3_CreateRenderTargetView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateQuery1:
+        out = L"ID3D11Device3_CreateQuery1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_GetImmediateContext3:
+        out = L"ID3D11Device3_GetImmediateContext3";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateDeferredContext3:
+        out = L"ID3D11Device3_CreateDeferredContext3";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_WriteToSubresource:
+        out = L"ID3D11Device3_WriteToSubresource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_ReadFromSubresource:
+        out = L"ID3D11Device3_ReadFromSubresource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent:
+        out = L"ID3D11Device4_RegisterDeviceRemovedEvent";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved:
+        out = L"ID3D11Device4_UnregisterDeviceRemoved";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence:
+        out = L"ID3D11Device5_OpenSharedFence";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device5_CreateFence:
+        out = L"ID3D11Device5_CreateFence";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_Enter:
+        out = L"ID3D11Multithread_Enter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_Leave:
+        out = L"ID3D11Multithread_Leave";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected:
+        out = L"ID3D11Multithread_SetMultithreadProtected";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected:
+        out = L"ID3D11Multithread_GetMultithreadProtected";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport:
+        out = L"ID3D11VideoDevice2_CheckFeatureSupport";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT:
+        out = L"ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1:
+        out = L"ID3D11VideoContext3_DecoderBeginFrame1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2:
+        out = L"ID3D11VideoContext3_SubmitDecoderBuffers2";
+        break;
+    case format::ApiCallId::ApiCall_D3D11On12CreateDevice:
+        out = L"D3D11On12CreateDevice";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_CreateWrappedResource:
+        out = L"ID3D11On12Device_CreateWrappedResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_ReleaseWrappedResources:
+        out = L"ID3D11On12Device_ReleaseWrappedResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_AcquireWrappedResources:
+        out = L"ID3D11On12Device_AcquireWrappedResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device1_GetD3D12Device:
+        out = L"ID3D11On12Device1_GetD3D12Device";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device2_UnwrapUnderlyingResource:
+        out = L"ID3D11On12Device2_UnwrapUnderlyingResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device2_ReturnUnderlyingResource:
+        out = L"ID3D11On12Device2_ReturnUnderlyingResource";
+        break;
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
         out = L"CreateDXGIFactory";
         break;

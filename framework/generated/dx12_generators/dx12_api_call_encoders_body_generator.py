@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2021 LunarG, Inc.
 # Copyright (c) 2022 Advanced Micro Devices, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -243,7 +244,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         if is_result and self.is_output(value):
             omit_output_data = ', omit_output_data'
 
-        if self.is_struct(value.base_type):
+        if self.is_struct(value.base_type) or self.is_union(value.base_type):
             rtn = self.get_encode_struct(
                 value, is_generating_struct, is_result
             )
@@ -288,6 +289,9 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             encode_type = self.convert_function(value.base_type)
 
             if encode_type == 'String' or encode_type == 'WString':
+                if value.array_length and value.pointer_count == 1:
+                    # Array length represents a string length parameter, set array_length to 0 so this value is not identified as a string array.
+                    value.array_length = 0
                 value.pointer_count = 0
                 function_value = 0
                 value.array_capacity = 0
@@ -375,6 +379,7 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         end_call_type = ''
         end_call_args = ''
         class_method_name = method_info['name']
+        rtn_type = method_info['rtnType']
 
         if class_name:
             api_or_method = 'Method'
@@ -394,9 +399,11 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
         elif is_create_call:
             begin_call_type = 'Tracked'
             end_call_type = 'Create'
-            end_call_args = 'return_value, {}, {}'.format(
+            end_call_args = '{}, {}'.format(
                 create_object_tuple[0], create_object_tuple[1]
             )
+            if rtn_type.find('void ') == -1:
+                end_call_args = 'return_value, ' + end_call_args
             if class_name:
                 # Check that the calling class is a wrapper type that contains object info. Some wrapper types (e.g., IDXGIObject_Wrapper)
                 # do not contain object infos because they are base class interfaces for final types. Cast to IUnknown_Wrapper for types
@@ -454,7 +461,6 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             encode = self.get_encode_parameter(value, param_values, False, is_result)
             body += '        {}\n'.format(encode)
 
-        rtn_type = method_info['rtnType']
         if rtn_type.find('void ') == -1 or rtn_type.find('void *') != -1:
             value = self.get_return_value_info(rtn_type, class_method_name)
             encode = self.get_encode_parameter(value, [], False, is_result)

@@ -114,6 +114,12 @@ void MapStructObjects(Decoded_D3D12_TEXTURE_BARRIER* wrapper, const Dx12ObjectIn
 
 void MapStructObjects(Decoded_D3D12_BUFFER_BARRIER* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
 
+void MapStructObjects(Decoded_D3D11_VIDEO_DECODER_EXTENSION* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D11_VIDEO_PROCESSOR_STREAM* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
+void MapStructObjects(Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* wrapper, const Dx12ObjectInfoTable& object_info_table, const graphics::Dx12GpuVaMap& gpu_va_map);
+
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC>* capture_value, const D3D12_GRAPHICS_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table);
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC>* capture_value, const D3D12_COMPUTE_PIPELINE_STATE_DESC* new_value, Dx12ObjectInfoTable& object_info_table);
@@ -151,6 +157,12 @@ void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_RENDER_PASS_ENDIN
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_TEXTURE_BARRIER>* capture_value, const D3D12_TEXTURE_BARRIER* new_value, Dx12ObjectInfoTable& object_info_table);
 
 void AddStructObjects(const StructPointerDecoder<Decoded_D3D12_BUFFER_BARRIER>* capture_value, const D3D12_BUFFER_BARRIER* new_value, Dx12ObjectInfoTable& object_info_table);
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_EXTENSION>* capture_value, const D3D11_VIDEO_DECODER_EXTENSION* new_value, Dx12ObjectInfoTable& object_info_table);
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_STREAM>* capture_value, const D3D11_VIDEO_PROCESSOR_STREAM* new_value, Dx12ObjectInfoTable& object_info_table);
+
+void AddStructObjects(const StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION>* capture_value, const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* new_value, Dx12ObjectInfoTable& object_info_table);
 
 
 template <typename T>

@@ -35,6 +35,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -316,6 +322,103 @@ std::string ToString(D3D12_MESSAGE_SEVERITY value);
 std::string ToString(D3D12_MESSAGE_ID value);
 std::string ToString(D3D12_MESSAGE_CALLBACK_FLAGS value);
 std::string ToString_D3D12_MESSAGE_CALLBACK_FLAGS(uint32_t flags);
+std::string ToString(D3D11_INPUT_CLASSIFICATION value);
+std::string ToString(D3D11_FILL_MODE value);
+std::string ToString(D3D11_CULL_MODE value);
+std::string ToString(D3D11_RESOURCE_DIMENSION value);
+std::string ToString(D3D11_DSV_DIMENSION value);
+std::string ToString(D3D11_RTV_DIMENSION value);
+std::string ToString(D3D11_UAV_DIMENSION value);
+std::string ToString(D3D11_USAGE value);
+std::string ToString(D3D11_BIND_FLAG value);
+std::string ToString(D3D11_CPU_ACCESS_FLAG value);
+std::string ToString(D3D11_RESOURCE_MISC_FLAG value);
+std::string ToString(D3D11_MAP value);
+std::string ToString(D3D11_MAP_FLAG value);
+std::string ToString(D3D11_RAISE_FLAG value);
+std::string ToString(D3D11_CLEAR_FLAG value);
+std::string ToString(D3D11_COMPARISON_FUNC value);
+std::string ToString(D3D11_DEPTH_WRITE_MASK value);
+std::string ToString(D3D11_STENCIL_OP value);
+std::string ToString(D3D11_BLEND value);
+std::string ToString(D3D11_BLEND_OP value);
+std::string ToString(D3D11_COLOR_WRITE_ENABLE value);
+std::string ToString(D3D11_TEXTURECUBE_FACE value);
+std::string ToString(D3D11_BUFFEREX_SRV_FLAG value);
+std::string ToString(D3D11_DSV_FLAG value);
+std::string ToString(D3D11_BUFFER_UAV_FLAG value);
+std::string ToString(D3D11_FILTER value);
+std::string ToString(D3D11_FILTER_TYPE value);
+std::string ToString(D3D11_FILTER_REDUCTION_TYPE value);
+std::string ToString(D3D11_TEXTURE_ADDRESS_MODE value);
+std::string ToString(D3D11_FORMAT_SUPPORT value);
+std::string ToString_D3D11_FORMAT_SUPPORT(uint32_t flags);
+std::string ToString(D3D11_FORMAT_SUPPORT2 value);
+std::string ToString_D3D11_FORMAT_SUPPORT2(uint32_t flags);
+std::string ToString(D3D11_ASYNC_GETDATA_FLAG value);
+std::string ToString(D3D11_QUERY value);
+std::string ToString(D3D11_QUERY_MISC_FLAG value);
+std::string ToString(D3D11_COUNTER value);
+std::string ToString(D3D11_COUNTER_TYPE value);
+std::string ToString(D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS value);
+std::string ToString(D3D11_DEVICE_CONTEXT_TYPE value);
+std::string ToString(D3D11_FEATURE value);
+std::string ToString(D3D11_SHADER_MIN_PRECISION_SUPPORT value);
+std::string ToString_D3D11_SHADER_MIN_PRECISION_SUPPORT(uint32_t flags);
+std::string ToString(D3D11_TILED_RESOURCES_TIER value);
+std::string ToString(D3D11_CONSERVATIVE_RASTERIZATION_TIER value);
+std::string ToString(D3D11_SHADER_CACHE_SUPPORT_FLAGS value);
+std::string ToString_D3D11_SHADER_CACHE_SUPPORT_FLAGS(uint32_t flags);
+std::string ToString(D3D11_SHARED_RESOURCE_TIER value);
+std::string ToString(D3D11_VIDEO_DECODER_BUFFER_TYPE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_DEVICE_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_FEATURE_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_FILTER_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_FORMAT_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_AUTO_STREAM_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_STEREO_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_PROCESSOR_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_ITELECINE_CAPS value);
+std::string ToString(D3D11_CONTENT_PROTECTION_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_FILTER value);
+std::string ToString(D3D11_VIDEO_FRAME_FORMAT value);
+std::string ToString(D3D11_VIDEO_USAGE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_OUTPUT_RATE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_STEREO_FORMAT value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_ROTATION value);
+std::string ToString(D3D11_AUTHENTICATED_CHANNEL_TYPE value);
+std::string ToString(D3D11_AUTHENTICATED_PROCESS_IDENTIFIER_TYPE value);
+std::string ToString(D3D11_BUS_TYPE value);
+std::string ToString(D3D11_VDOV_DIMENSION value);
+std::string ToString(D3D11_VPIV_DIMENSION value);
+std::string ToString(D3D11_VPOV_DIMENSION value);
+std::string ToString(D3D11_CREATE_DEVICE_FLAG value);
+std::string ToString(D3D11_COPY_FLAGS value);
+std::string ToString_D3D11_COPY_FLAGS(uint32_t flags);
+std::string ToString(D3D11_LOGIC_OP value);
+std::string ToString(D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG value);
+std::string ToString(D3D11_VIDEO_DECODER_CAPS value);
+std::string ToString(D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS value);
+std::string ToString(D3D11_CRYPTO_SESSION_STATUS value);
+std::string ToString_D3D11_CRYPTO_SESSION_STATUS(uint32_t flags);
+std::string ToString(D3D11_TILE_MAPPING_FLAG value);
+std::string ToString(D3D11_TILE_RANGE_FLAG value);
+std::string ToString(D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_FLAG value);
+std::string ToString(D3D11_TILE_COPY_FLAG value);
+std::string ToString(D3D11_CONTEXT_TYPE value);
+std::string ToString(D3D11_TEXTURE_LAYOUT value);
+std::string ToString(D3D11_CONSERVATIVE_RASTERIZATION_MODE value);
+std::string ToString(D3D11_FENCE_FLAG value);
+std::string ToString(D3D11_FEATURE_VIDEO value);
+std::string ToString(D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT value);
+std::string ToString(D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS value);
+std::string ToString_D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS(uint32_t flags);
+std::string ToString(D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS value);
+std::string ToString_D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS(uint32_t flags);
 std::string ToString(DXGI_RESIDENCY value);
 std::string ToString(DXGI_SWAP_EFFECT value);
 std::string ToString(DXGI_SWAP_CHAIN_FLAG value);

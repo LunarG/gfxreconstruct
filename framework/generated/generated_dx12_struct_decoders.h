@@ -35,6 +35,12 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
+#include <d3d11_3.h>
+#include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -2077,6 +2083,1213 @@ struct Decoded_D3D12_INFO_QUEUE_FILTER
     Decoded_D3D12_INFO_QUEUE_FILTER_DESC* DenyList{ nullptr };
 };
 
+struct Decoded_D3D11_INPUT_ELEMENT_DESC
+{
+    using struct_type = D3D11_INPUT_ELEMENT_DESC;
+
+    D3D11_INPUT_ELEMENT_DESC* decoded_value{ nullptr };
+
+    StringDecoder SemanticName;
+};
+
+struct Decoded_D3D11_SO_DECLARATION_ENTRY
+{
+    using struct_type = D3D11_SO_DECLARATION_ENTRY;
+
+    D3D11_SO_DECLARATION_ENTRY* decoded_value{ nullptr };
+
+    StringDecoder SemanticName;
+};
+
+struct Decoded_D3D11_VIEWPORT
+{
+    using struct_type = D3D11_VIEWPORT;
+
+    D3D11_VIEWPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_DRAW_INSTANCED_INDIRECT_ARGS
+{
+    using struct_type = D3D11_DRAW_INSTANCED_INDIRECT_ARGS;
+
+    D3D11_DRAW_INSTANCED_INDIRECT_ARGS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS
+{
+    using struct_type = D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS;
+
+    D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_BOX
+{
+    using struct_type = D3D11_BOX;
+
+    D3D11_BOX* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_DEPTH_STENCILOP_DESC
+{
+    using struct_type = D3D11_DEPTH_STENCILOP_DESC;
+
+    D3D11_DEPTH_STENCILOP_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_DEPTH_STENCIL_DESC
+{
+    using struct_type = D3D11_DEPTH_STENCIL_DESC;
+
+    D3D11_DEPTH_STENCIL_DESC* decoded_value{ nullptr };
+
+    Decoded_D3D11_DEPTH_STENCILOP_DESC* FrontFace{ nullptr };
+    Decoded_D3D11_DEPTH_STENCILOP_DESC* BackFace{ nullptr };
+};
+
+struct Decoded_D3D11_RENDER_TARGET_BLEND_DESC
+{
+    using struct_type = D3D11_RENDER_TARGET_BLEND_DESC;
+
+    D3D11_RENDER_TARGET_BLEND_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_BLEND_DESC
+{
+    using struct_type = D3D11_BLEND_DESC;
+
+    D3D11_BLEND_DESC* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_BLEND_DESC>* RenderTarget{ nullptr };
+};
+
+struct Decoded_D3D11_RASTERIZER_DESC
+{
+    using struct_type = D3D11_RASTERIZER_DESC;
+
+    D3D11_RASTERIZER_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_MAPPED_SUBRESOURCE
+{
+    using struct_type = D3D11_MAPPED_SUBRESOURCE;
+
+    D3D11_MAPPED_SUBRESOURCE* decoded_value{ nullptr };
+
+    uint64_t pData{ 0 };
+};
+
+struct Decoded_D3D11_BUFFER_DESC
+{
+    using struct_type = D3D11_BUFFER_DESC;
+
+    D3D11_BUFFER_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE1D_DESC
+{
+    using struct_type = D3D11_TEXTURE1D_DESC;
+
+    D3D11_TEXTURE1D_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE2D_DESC
+{
+    using struct_type = D3D11_TEXTURE2D_DESC;
+
+    D3D11_TEXTURE2D_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE3D_DESC
+{
+    using struct_type = D3D11_TEXTURE3D_DESC;
+
+    D3D11_TEXTURE3D_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_BUFFEREX_SRV
+{
+    using struct_type = D3D11_BUFFEREX_SRV;
+
+    D3D11_BUFFEREX_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_SRV
+{
+    using struct_type = D3D11_TEX1D_SRV;
+
+    D3D11_TEX1D_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_ARRAY_SRV
+{
+    using struct_type = D3D11_TEX1D_ARRAY_SRV;
+
+    D3D11_TEX1D_ARRAY_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_SRV
+{
+    using struct_type = D3D11_TEX2D_SRV;
+
+    D3D11_TEX2D_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_SRV
+{
+    using struct_type = D3D11_TEX2D_ARRAY_SRV;
+
+    D3D11_TEX2D_ARRAY_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX3D_SRV
+{
+    using struct_type = D3D11_TEX3D_SRV;
+
+    D3D11_TEX3D_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXCUBE_SRV
+{
+    using struct_type = D3D11_TEXCUBE_SRV;
+
+    D3D11_TEXCUBE_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXCUBE_ARRAY_SRV
+{
+    using struct_type = D3D11_TEXCUBE_ARRAY_SRV;
+
+    D3D11_TEXCUBE_ARRAY_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_SRV
+{
+    using struct_type = D3D11_TEX2DMS_SRV;
+
+    D3D11_TEX2DMS_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_ARRAY_SRV
+{
+    using struct_type = D3D11_TEX2DMS_ARRAY_SRV;
+
+    D3D11_TEX2DMS_ARRAY_SRV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_RTV
+{
+    using struct_type = D3D11_TEX1D_RTV;
+
+    D3D11_TEX1D_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_ARRAY_RTV
+{
+    using struct_type = D3D11_TEX1D_ARRAY_RTV;
+
+    D3D11_TEX1D_ARRAY_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_RTV
+{
+    using struct_type = D3D11_TEX2D_RTV;
+
+    D3D11_TEX2D_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_RTV
+{
+    using struct_type = D3D11_TEX2DMS_RTV;
+
+    D3D11_TEX2DMS_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_RTV
+{
+    using struct_type = D3D11_TEX2D_ARRAY_RTV;
+
+    D3D11_TEX2D_ARRAY_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_ARRAY_RTV
+{
+    using struct_type = D3D11_TEX2DMS_ARRAY_RTV;
+
+    D3D11_TEX2DMS_ARRAY_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX3D_RTV
+{
+    using struct_type = D3D11_TEX3D_RTV;
+
+    D3D11_TEX3D_RTV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_DSV
+{
+    using struct_type = D3D11_TEX1D_DSV;
+
+    D3D11_TEX1D_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_ARRAY_DSV
+{
+    using struct_type = D3D11_TEX1D_ARRAY_DSV;
+
+    D3D11_TEX1D_ARRAY_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_DSV
+{
+    using struct_type = D3D11_TEX2D_DSV;
+
+    D3D11_TEX2D_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_DSV
+{
+    using struct_type = D3D11_TEX2D_ARRAY_DSV;
+
+    D3D11_TEX2D_ARRAY_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_DSV
+{
+    using struct_type = D3D11_TEX2DMS_DSV;
+
+    D3D11_TEX2DMS_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2DMS_ARRAY_DSV
+{
+    using struct_type = D3D11_TEX2DMS_ARRAY_DSV;
+
+    D3D11_TEX2DMS_ARRAY_DSV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_BUFFER_UAV
+{
+    using struct_type = D3D11_BUFFER_UAV;
+
+    D3D11_BUFFER_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_UAV
+{
+    using struct_type = D3D11_TEX1D_UAV;
+
+    D3D11_TEX1D_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX1D_ARRAY_UAV
+{
+    using struct_type = D3D11_TEX1D_ARRAY_UAV;
+
+    D3D11_TEX1D_ARRAY_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_UAV
+{
+    using struct_type = D3D11_TEX2D_UAV;
+
+    D3D11_TEX2D_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_UAV
+{
+    using struct_type = D3D11_TEX2D_ARRAY_UAV;
+
+    D3D11_TEX2D_ARRAY_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX3D_UAV
+{
+    using struct_type = D3D11_TEX3D_UAV;
+
+    D3D11_TEX3D_UAV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_SAMPLER_DESC
+{
+    using struct_type = D3D11_SAMPLER_DESC;
+
+    D3D11_SAMPLER_DESC* decoded_value{ nullptr };
+
+    PointerDecoder<FLOAT> BorderColor;
+};
+
+struct Decoded_D3D11_QUERY_DESC
+{
+    using struct_type = D3D11_QUERY_DESC;
+
+    D3D11_QUERY_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_QUERY_DATA_TIMESTAMP_DISJOINT
+{
+    using struct_type = D3D11_QUERY_DATA_TIMESTAMP_DISJOINT;
+
+    D3D11_QUERY_DATA_TIMESTAMP_DISJOINT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_QUERY_DATA_PIPELINE_STATISTICS
+{
+    using struct_type = D3D11_QUERY_DATA_PIPELINE_STATISTICS;
+
+    D3D11_QUERY_DATA_PIPELINE_STATISTICS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_QUERY_DATA_SO_STATISTICS
+{
+    using struct_type = D3D11_QUERY_DATA_SO_STATISTICS;
+
+    D3D11_QUERY_DATA_SO_STATISTICS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_COUNTER_DESC
+{
+    using struct_type = D3D11_COUNTER_DESC;
+
+    D3D11_COUNTER_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_COUNTER_INFO
+{
+    using struct_type = D3D11_COUNTER_INFO;
+
+    D3D11_COUNTER_INFO* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_CLASS_INSTANCE_DESC
+{
+    using struct_type = D3D11_CLASS_INSTANCE_DESC;
+
+    D3D11_CLASS_INSTANCE_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_THREADING
+{
+    using struct_type = D3D11_FEATURE_DATA_THREADING;
+
+    D3D11_FEATURE_DATA_THREADING* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_DOUBLES
+{
+    using struct_type = D3D11_FEATURE_DATA_DOUBLES;
+
+    D3D11_FEATURE_DATA_DOUBLES* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_FORMAT_SUPPORT;
+
+    D3D11_FEATURE_DATA_FORMAT_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT2
+{
+    using struct_type = D3D11_FEATURE_DATA_FORMAT_SUPPORT2;
+
+    D3D11_FEATURE_DATA_FORMAT_SUPPORT2* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS;
+
+    D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_ARCHITECTURE_INFO
+{
+    using struct_type = D3D11_FEATURE_DATA_ARCHITECTURE_INFO;
+
+    D3D11_FEATURE_DATA_ARCHITECTURE_INFO* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D9_OPTIONS;
+
+    D3D11_FEATURE_DATA_D3D9_OPTIONS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT;
+
+    D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT;
+
+    D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS1
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS1;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT;
+
+    D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_MARKER_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_MARKER_SUPPORT;
+
+    D3D11_FEATURE_DATA_MARKER_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS1
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D9_OPTIONS1;
+
+    D3D11_FEATURE_DATA_D3D9_OPTIONS1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS2
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS2;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS2* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS3
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS3;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS3* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT
+{
+    using struct_type = D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT;
+
+    D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_SHADER_CACHE
+{
+    using struct_type = D3D11_FEATURE_DATA_SHADER_CACHE;
+
+    D3D11_FEATURE_DATA_SHADER_CACHE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS5
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS5;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS5* decoded_value{ nullptr };
+};
+
+struct Decoded_CD3D11_VIDEO_DEFAULT
+{
+    using struct_type = CD3D11_VIDEO_DEFAULT;
+
+    CD3D11_VIDEO_DEFAULT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_DESC
+{
+    using struct_type = D3D11_VIDEO_DECODER_DESC;
+
+    D3D11_VIDEO_DECODER_DESC* decoded_value{ nullptr };
+
+    Decoded_GUID* Guid{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_CONFIG
+{
+    using struct_type = D3D11_VIDEO_DECODER_CONFIG;
+
+    D3D11_VIDEO_DECODER_CONFIG* decoded_value{ nullptr };
+
+    Decoded_GUID* guidConfigBitstreamEncryption{ nullptr };
+    Decoded_GUID* guidConfigMBcontrolEncryption{ nullptr };
+    Decoded_GUID* guidConfigResidDiffEncryption{ nullptr };
+};
+
+struct Decoded_D3D11_AES_CTR_IV
+{
+    using struct_type = D3D11_AES_CTR_IV;
+
+    D3D11_AES_CTR_IV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_ENCRYPTED_BLOCK_INFO
+{
+    using struct_type = D3D11_ENCRYPTED_BLOCK_INFO;
+
+    D3D11_ENCRYPTED_BLOCK_INFO* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC
+{
+    using struct_type = D3D11_VIDEO_DECODER_BUFFER_DESC;
+
+    D3D11_VIDEO_DECODER_BUFFER_DESC* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pIV;
+    Decoded_D3D11_ENCRYPTED_BLOCK_INFO* EncryptedBlockInfo{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_EXTENSION
+{
+    using struct_type = D3D11_VIDEO_DECODER_EXTENSION;
+
+    D3D11_VIDEO_DECODER_EXTENSION* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pPrivateInputData;
+    PointerDecoder<uint8_t> pPrivateOutputData;
+    HandlePointerDecoder<ID3D11Resource*> ppResourceList;
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_CAPS
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_CAPS;
+
+    D3D11_VIDEO_PROCESSOR_CAPS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS;
+
+    D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_CONTENT_PROTECTION_CAPS
+{
+    using struct_type = D3D11_VIDEO_CONTENT_PROTECTION_CAPS;
+
+    D3D11_VIDEO_CONTENT_PROTECTION_CAPS* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_CUSTOM_RATE
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_CUSTOM_RATE;
+
+    D3D11_VIDEO_PROCESSOR_CUSTOM_RATE* decoded_value{ nullptr };
+
+    Decoded_DXGI_RATIONAL* CustomRate{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_FILTER_RANGE
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_FILTER_RANGE;
+
+    D3D11_VIDEO_PROCESSOR_FILTER_RANGE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_CONTENT_DESC;
+
+    D3D11_VIDEO_PROCESSOR_CONTENT_DESC* decoded_value{ nullptr };
+
+    Decoded_DXGI_RATIONAL* InputFrameRate{ nullptr };
+    Decoded_DXGI_RATIONAL* OutputFrameRate{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_COLOR_RGBA
+{
+    using struct_type = D3D11_VIDEO_COLOR_RGBA;
+
+    D3D11_VIDEO_COLOR_RGBA* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_COLOR_YCbCrA
+{
+    using struct_type = D3D11_VIDEO_COLOR_YCbCrA;
+
+    D3D11_VIDEO_COLOR_YCbCrA* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_COLOR_SPACE;
+
+    D3D11_VIDEO_PROCESSOR_COLOR_SPACE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_STREAM
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_STREAM;
+
+    D3D11_VIDEO_PROCESSOR_STREAM* decoded_value{ nullptr };
+
+    HandlePointerDecoder<ID3D11VideoProcessorInputView*> ppPastSurfaces;
+    format::HandleId pInputSurface{ format::kNullHandleId };
+    HandlePointerDecoder<ID3D11VideoProcessorInputView*> ppFutureSurfaces;
+    HandlePointerDecoder<ID3D11VideoProcessorInputView*> ppPastSurfacesRight;
+    format::HandleId pInputSurfaceRight{ format::kNullHandleId };
+    HandlePointerDecoder<ID3D11VideoProcessorInputView*> ppFutureSurfacesRight;
+};
+
+struct Decoded_D3D11_OMAC
+{
+    using struct_type = D3D11_OMAC;
+
+    D3D11_OMAC* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> Omac;
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_INPUT* decoded_value{ nullptr };
+
+    Decoded_GUID* QueryType{ nullptr };
+    uint64_t hChannel{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_OMAC* omac{ nullptr };
+    Decoded_GUID* QueryType{ nullptr };
+    uint64_t hChannel{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* ProtectionFlags{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    uint64_t DeviceHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* Input{ nullptr };
+    uint64_t DecoderHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    uint64_t DecoderHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+    uint64_t DeviceHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* Input{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    uint64_t ProcessHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* Input{ nullptr };
+    uint64_t DeviceHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    uint64_t DeviceHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* Input{ nullptr };
+    uint64_t DeviceHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    uint64_t DeviceHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT;
+
+    D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* Input{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    Decoded_GUID* EncryptionGuid{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT;
+
+    D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* Output{ nullptr };
+    Decoded_GUID* EncryptionGuid{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_OMAC* omac{ nullptr };
+    Decoded_GUID* ConfigureType{ nullptr };
+    uint64_t hChannel{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_OUTPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_OUTPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_OUTPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_OMAC* omac{ nullptr };
+    Decoded_GUID* ConfigureType{ nullptr };
+    uint64_t hChannel{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* Parameters{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* Parameters{ nullptr };
+    Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* Protections{ nullptr };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* Parameters{ nullptr };
+    uint64_t DecoderHandle{ 0 };
+    uint64_t CryptoSessionHandle{ 0 };
+    uint64_t DeviceHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* Parameters{ nullptr };
+    uint64_t ProcessHandle{ 0 };
+};
+
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT
+{
+    using struct_type = D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT;
+
+    D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT* decoded_value{ nullptr };
+
+    Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* Parameters{ nullptr };
+    Decoded_GUID* EncryptionGuid{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_VDOV
+{
+    using struct_type = D3D11_TEX2D_VDOV;
+
+    D3D11_TEX2D_VDOV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_VPIV
+{
+    using struct_type = D3D11_TEX2D_VPIV;
+
+    D3D11_TEX2D_VPIV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_VPOV
+{
+    using struct_type = D3D11_TEX2D_VPOV;
+
+    D3D11_TEX2D_VPOV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_VPOV
+{
+    using struct_type = D3D11_TEX2D_ARRAY_VPOV;
+
+    D3D11_TEX2D_ARRAY_VPOV* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_RENDER_TARGET_BLEND_DESC1
+{
+    using struct_type = D3D11_RENDER_TARGET_BLEND_DESC1;
+
+    D3D11_RENDER_TARGET_BLEND_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_BLEND_DESC1
+{
+    using struct_type = D3D11_BLEND_DESC1;
+
+    D3D11_BLEND_DESC1* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_BLEND_DESC1>* RenderTarget{ nullptr };
+};
+
+struct Decoded_D3D11_RASTERIZER_DESC1
+{
+    using struct_type = D3D11_RASTERIZER_DESC1;
+
+    D3D11_RASTERIZER_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK
+{
+    using struct_type = D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK;
+
+    D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC1
+{
+    using struct_type = D3D11_VIDEO_DECODER_BUFFER_DESC1;
+
+    D3D11_VIDEO_DECODER_BUFFER_DESC1* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pIV;
+    StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK>* pSubSampleMappingBlock{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION
+{
+    using struct_type = D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION;
+
+    D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* decoded_value{ nullptr };
+
+    format::HandleId pCryptoSession{ format::kNullHandleId };
+    PointerDecoder<uint8_t> pBlob;
+    StructPointerDecoder<Decoded_GUID>* pKeyInfoId{ nullptr };
+    PointerDecoder<uint8_t> pPrivateData;
+};
+
+struct Decoded_D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT
+{
+    using struct_type = D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT;
+
+    D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA
+{
+    using struct_type = D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA;
+
+    D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> pbInput;
+};
+
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA
+{
+    using struct_type = D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA;
+
+    D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA* decoded_value{ nullptr };
+
+    PointerDecoder<BYTE> pbOutput;
+};
+
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA
+{
+    using struct_type = D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA;
+
+    D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA>* pInputData{ nullptr };
+    StructPointerDecoder<Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA>* pOutputData{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_SAMPLE_DESC
+{
+    using struct_type = D3D11_VIDEO_SAMPLE_DESC;
+
+    D3D11_VIDEO_SAMPLE_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TILED_RESOURCE_COORDINATE
+{
+    using struct_type = D3D11_TILED_RESOURCE_COORDINATE;
+
+    D3D11_TILED_RESOURCE_COORDINATE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TILE_REGION_SIZE
+{
+    using struct_type = D3D11_TILE_REGION_SIZE;
+
+    D3D11_TILE_REGION_SIZE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_SUBRESOURCE_TILING
+{
+    using struct_type = D3D11_SUBRESOURCE_TILING;
+
+    D3D11_SUBRESOURCE_TILING* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TILE_SHAPE
+{
+    using struct_type = D3D11_TILE_SHAPE;
+
+    D3D11_TILE_SHAPE* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_PACKED_MIP_DESC
+{
+    using struct_type = D3D11_PACKED_MIP_DESC;
+
+    D3D11_PACKED_MIP_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE2D_DESC1
+{
+    using struct_type = D3D11_TEXTURE2D_DESC1;
+
+    D3D11_TEXTURE2D_DESC1* decoded_value{ nullptr };
+
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE3D_DESC1
+{
+    using struct_type = D3D11_TEXTURE3D_DESC1;
+
+    D3D11_TEXTURE3D_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_RASTERIZER_DESC2
+{
+    using struct_type = D3D11_RASTERIZER_DESC2;
+
+    D3D11_RASTERIZER_DESC2* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_SRV1
+{
+    using struct_type = D3D11_TEX2D_SRV1;
+
+    D3D11_TEX2D_SRV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_SRV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_SRV1;
+
+    D3D11_TEX2D_ARRAY_SRV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_RTV1
+{
+    using struct_type = D3D11_TEX2D_RTV1;
+
+    D3D11_TEX2D_RTV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_RTV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_RTV1;
+
+    D3D11_TEX2D_ARRAY_RTV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_UAV1
+{
+    using struct_type = D3D11_TEX2D_UAV1;
+
+    D3D11_TEX2D_UAV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_UAV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_UAV1;
+
+    D3D11_TEX2D_ARRAY_UAV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_QUERY_DESC1
+{
+    using struct_type = D3D11_QUERY_DESC1;
+
+    D3D11_QUERY_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM
+{
+    using struct_type = D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM;
+
+    D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* decoded_value{ nullptr };
+
+    Decoded_D3D11_VIDEO_DECODER_DESC* DecoderDesc{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2
+{
+    using struct_type = D3D11_VIDEO_DECODER_BUFFER_DESC2;
+
+    D3D11_VIDEO_DECODER_BUFFER_DESC2* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pIV;
+    StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK>* pSubSampleMappingBlock{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS4;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS4* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_RESOURCE_FLAGS
+{
+    using struct_type = D3D11_RESOURCE_FLAGS;
+
+    D3D11_RESOURCE_FLAGS* decoded_value{ nullptr };
+};
+
 struct Decoded_DXGI_FRAME_STATISTICS
 {
     using struct_type = DXGI_FRAME_STATISTICS;
@@ -2446,6 +3659,13 @@ struct Decoded_tagPOINT
     using struct_type = tagPOINT;
 
     tagPOINT* decoded_value{ nullptr };
+};
+
+struct Decoded_tagSIZE
+{
+    using struct_type = tagSIZE;
+
+    tagSIZE* decoded_value{ nullptr };
 };
 
 struct Decoded__SECURITY_ATTRIBUTES

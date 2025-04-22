@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -45,6 +46,18 @@ class BasicStringDecoder : public PointerDecoderBase
     CharT* GetPointer() { return data_; }
 
     const CharT* GetPointer() const { return data_; }
+
+    CharT* GetOutputPointer() { return output_data_; }
+
+    CharT* AllocateOutputData(size_t len)
+    {
+        output_len_ = len;
+
+        // Default initialize output_data_
+        output_data_ = DecodeAllocator::Allocate<CharT>(len);
+
+        return output_data_;
+    }
 
     void SetExternalMemory(CharT* data, size_t capacity)
     {
@@ -117,9 +130,17 @@ class BasicStringDecoder : public PointerDecoderBase
     }
 
   private:
+    /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
+    /// to an externally provided allocation when #is_memory_external_ is true.
     CharT* data_;
     size_t capacity_;
     bool   is_memory_external_;
+
+    /// Optional memory allocated for output parameters when retrieving data from a function call. Allows both the data
+    /// read from the file and the data retrieved from an API call to exist simultaneously, allowing the values to be
+    /// compared.
+    CharT* output_data_{ nullptr };
+    size_t output_len_; ///< Size of #output_data_.
 };
 
 typedef BasicStringDecoder<char, format::CharEncodeType, format::PointerAttributes::kIsString>      StringDecoder;

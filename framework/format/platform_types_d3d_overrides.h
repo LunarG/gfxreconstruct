@@ -1666,10 +1666,559 @@ struct D3DCOLORVALUE
 };
 
 #if !defined(D3D11_SUPPORT)
-typedef void*  ID3D11Device;
-typedef void*  ID3D11Texture2D;
+typedef D3D_SRV_DIMENSION D3D11_SRV_DIMENSION;
 
-#endif
+// Enums and Flags
+
+enum D3D11_FEATURE
+{
+    D3D11_FEATURE_THREADING                      = 0,
+    D3D11_FEATURE_DOUBLES                        = (D3D11_FEATURE_THREADING + 1),
+    D3D11_FEATURE_FORMAT_SUPPORT                 = (D3D11_FEATURE_DOUBLES + 1),
+    D3D11_FEATURE_FORMAT_SUPPORT2                = (D3D11_FEATURE_FORMAT_SUPPORT + 1),
+    D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS       = (D3D11_FEATURE_FORMAT_SUPPORT2 + 1),
+    D3D11_FEATURE_D3D11_OPTIONS                  = (D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS + 1),
+    D3D11_FEATURE_ARCHITECTURE_INFO              = (D3D11_FEATURE_D3D11_OPTIONS + 1),
+    D3D11_FEATURE_D3D9_OPTIONS                   = (D3D11_FEATURE_ARCHITECTURE_INFO + 1),
+    D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT   = (D3D11_FEATURE_D3D9_OPTIONS + 1),
+    D3D11_FEATURE_D3D9_SHADOW_SUPPORT            = (D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT + 1),
+    D3D11_FEATURE_D3D11_OPTIONS1                 = (D3D11_FEATURE_D3D9_SHADOW_SUPPORT + 1),
+    D3D11_FEATURE_D3D9_SIMPLE_INSTANCING_SUPPORT = (D3D11_FEATURE_D3D11_OPTIONS1 + 1),
+    D3D11_FEATURE_MARKER_SUPPORT                 = (D3D11_FEATURE_D3D9_SIMPLE_INSTANCING_SUPPORT + 1),
+    D3D11_FEATURE_D3D9_OPTIONS1                  = (D3D11_FEATURE_MARKER_SUPPORT + 1),
+    D3D11_FEATURE_D3D11_OPTIONS2                 = (D3D11_FEATURE_D3D9_OPTIONS1 + 1),
+    D3D11_FEATURE_D3D11_OPTIONS3                 = (D3D11_FEATURE_D3D11_OPTIONS2 + 1),
+    D3D11_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT    = (D3D11_FEATURE_D3D11_OPTIONS3 + 1),
+    D3D11_FEATURE_D3D11_OPTIONS4                 = (D3D11_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT + 1),
+    D3D11_FEATURE_SHADER_CACHE                   = (D3D11_FEATURE_D3D11_OPTIONS4 + 1),
+    D3D11_FEATURE_D3D11_OPTIONS5                 = (D3D11_FEATURE_SHADER_CACHE + 1),
+    D3D11_FEATURE_DISPLAYABLE                    = (D3D11_FEATURE_D3D11_OPTIONS5 + 1)
+};
+
+enum D3D11_DSV_DIMENSION
+{
+    D3D11_DSV_DIMENSION_UNKNOWN          = 0,
+    D3D11_DSV_DIMENSION_TEXTURE1D        = 1,
+    D3D11_DSV_DIMENSION_TEXTURE1DARRAY   = 2,
+    D3D11_DSV_DIMENSION_TEXTURE2D        = 3,
+    D3D11_DSV_DIMENSION_TEXTURE2DARRAY   = 4,
+    D3D11_DSV_DIMENSION_TEXTURE2DMS      = 5,
+    D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY = 6
+};
+
+enum D3D11_RTV_DIMENSION
+{
+    D3D11_RTV_DIMENSION_UNKNOWN          = 0,
+    D3D11_RTV_DIMENSION_BUFFER           = 1,
+    D3D11_RTV_DIMENSION_TEXTURE1D        = 2,
+    D3D11_RTV_DIMENSION_TEXTURE1DARRAY   = 3,
+    D3D11_RTV_DIMENSION_TEXTURE2D        = 4,
+    D3D11_RTV_DIMENSION_TEXTURE2DARRAY   = 5,
+    D3D11_RTV_DIMENSION_TEXTURE2DMS      = 6,
+    D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY = 7,
+    D3D11_RTV_DIMENSION_TEXTURE3D        = 8
+};
+
+enum D3D11_UAV_DIMENSION
+{
+    D3D11_UAV_DIMENSION_UNKNOWN        = 0,
+    D3D11_UAV_DIMENSION_BUFFER         = 1,
+    D3D11_UAV_DIMENSION_TEXTURE1D      = 2,
+    D3D11_UAV_DIMENSION_TEXTURE1DARRAY = 3,
+    D3D11_UAV_DIMENSION_TEXTURE2D      = 4,
+    D3D11_UAV_DIMENSION_TEXTURE2DARRAY = 5,
+    D3D11_UAV_DIMENSION_TEXTURE3D      = 8
+};
+
+enum D3D11_VDOV_DIMENSION
+{
+    D3D11_VDOV_DIMENSION_UNKNOWN   = 0,
+    D3D11_VDOV_DIMENSION_TEXTURE2D = 1
+};
+
+enum D3D11_VPIV_DIMENSION
+{
+    D3D11_VPIV_DIMENSION_UNKNOWN   = 0,
+    D3D11_VPIV_DIMENSION_TEXTURE2D = 1
+};
+
+enum D3D11_VPOV_DIMENSION
+{
+    D3D11_VPOV_DIMENSION_UNKNOWN        = 0,
+    D3D11_VPOV_DIMENSION_TEXTURE2D      = 1,
+    D3D11_VPOV_DIMENSION_TEXTURE2DARRAY = 2
+};
+
+// General types
+
+typedef void* ID3D11Device;
+typedef void* ID3D11Texture2D;
+
+// Structs
+
+struct D3D11_BUFFER_SRV
+{
+    union
+    {
+        UINT FirstElement;
+        UINT ElementOffset;
+    };
+    union
+    {
+        UINT NumElements;
+        UINT ElementWidth;
+    };
+};
+
+struct D3D11_BUFFEREX_SRV
+{
+    UINT FirstElement;
+    UINT NumElements;
+    UINT Flags;
+};
+
+struct D3D11_TEX1D_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+};
+
+struct D3D11_TEX1D_ARRAY_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2D_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+};
+
+struct D3D11_TEX2D_ARRAY_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX3D_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+};
+
+struct D3D11_TEXCUBE_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+};
+
+struct D3D11_TEXCUBE_ARRAY_SRV
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT First2DArrayFace;
+    UINT NumCubes;
+};
+
+struct D3D11_TEX2DMS_SRV
+{
+    UINT UnusedField_NothingToDefine;
+};
+
+struct D3D11_TEX2DMS_ARRAY_SRV
+{
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_SHADER_RESOURCE_VIEW_DESC
+{
+    DXGI_FORMAT         Format;
+    D3D11_SRV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_SRV        Buffer;
+        D3D11_TEX1D_SRV         Texture1D;
+        D3D11_TEX1D_ARRAY_SRV   Texture1DArray;
+        D3D11_TEX2D_SRV         Texture2D;
+        D3D11_TEX2D_ARRAY_SRV   Texture2DArray;
+        D3D11_TEX2DMS_SRV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_SRV Texture2DMSArray;
+        D3D11_TEX3D_SRV         Texture3D;
+        D3D11_TEXCUBE_SRV       TextureCube;
+        D3D11_TEXCUBE_ARRAY_SRV TextureCubeArray;
+        D3D11_BUFFEREX_SRV      BufferEx;
+    };
+};
+
+struct D3D11_BUFFER_RTV
+{
+    union
+    {
+        UINT FirstElement;
+        UINT ElementOffset;
+    };
+    union
+    {
+        UINT NumElements;
+        UINT ElementWidth;
+    };
+};
+
+struct D3D11_TEX1D_RTV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX1D_ARRAY_RTV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2D_RTV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX2DMS_RTV
+{
+    UINT UnusedField_NothingToDefine;
+};
+
+struct D3D11_TEX2D_ARRAY_RTV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2DMS_ARRAY_RTV
+{
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX3D_RTV
+{
+    UINT MipSlice;
+    UINT FirstWSlice;
+    UINT WSize;
+};
+
+struct D3D11_RENDER_TARGET_VIEW_DESC
+{
+    DXGI_FORMAT         Format;
+    D3D11_RTV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_RTV        Buffer;
+        D3D11_TEX1D_RTV         Texture1D;
+        D3D11_TEX1D_ARRAY_RTV   Texture1DArray;
+        D3D11_TEX2D_RTV         Texture2D;
+        D3D11_TEX2D_ARRAY_RTV   Texture2DArray;
+        D3D11_TEX2DMS_RTV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_RTV Texture2DMSArray;
+        D3D11_TEX3D_RTV         Texture3D;
+    };
+};
+
+struct D3D11_TEX1D_DSV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX1D_ARRAY_DSV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2D_DSV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_DSV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2DMS_DSV
+{
+    UINT UnusedField_NothingToDefine;
+};
+
+struct D3D11_TEX2DMS_ARRAY_DSV
+{
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_DEPTH_STENCIL_VIEW_DESC
+{
+    DXGI_FORMAT         Format;
+    D3D11_DSV_DIMENSION ViewDimension;
+    UINT                Flags;
+    union
+    {
+        D3D11_TEX1D_DSV         Texture1D;
+        D3D11_TEX1D_ARRAY_DSV   Texture1DArray;
+        D3D11_TEX2D_DSV         Texture2D;
+        D3D11_TEX2D_ARRAY_DSV   Texture2DArray;
+        D3D11_TEX2DMS_DSV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_DSV Texture2DMSArray;
+    };
+};
+
+struct D3D11_BUFFER_UAV
+{
+    UINT FirstElement;
+    UINT NumElements;
+    UINT Flags;
+};
+
+struct D3D11_TEX1D_UAV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX1D_ARRAY_UAV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX2D_UAV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_UAV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_TEX3D_UAV
+{
+    UINT MipSlice;
+    UINT FirstWSlice;
+    UINT WSize;
+};
+
+struct D3D11_UNORDERED_ACCESS_VIEW_DESC
+{
+    DXGI_FORMAT         Format;
+    D3D11_UAV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_UAV      Buffer;
+        D3D11_TEX1D_UAV       Texture1D;
+        D3D11_TEX1D_ARRAY_UAV Texture1DArray;
+        D3D11_TEX2D_UAV       Texture2D;
+        D3D11_TEX2D_ARRAY_UAV Texture2DArray;
+        D3D11_TEX3D_UAV       Texture3D;
+    };
+};
+
+struct D3D11_TEX2D_SRV1
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_SRV1
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_SHADER_RESOURCE_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_SRV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_SRV        Buffer;
+        D3D11_TEX1D_SRV         Texture1D;
+        D3D11_TEX1D_ARRAY_SRV   Texture1DArray;
+        D3D11_TEX2D_SRV1        Texture2D;
+        D3D11_TEX2D_ARRAY_SRV1  Texture2DArray;
+        D3D11_TEX2DMS_SRV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_SRV Texture2DMSArray;
+        D3D11_TEX3D_SRV         Texture3D;
+        D3D11_TEXCUBE_SRV       TextureCube;
+        D3D11_TEXCUBE_ARRAY_SRV TextureCubeArray;
+        D3D11_BUFFEREX_SRV      BufferEx;
+    };
+};
+
+struct D3D11_TEX2D_RTV1
+{
+    UINT MipSlice;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_RTV1
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_RENDER_TARGET_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_RTV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_RTV        Buffer;
+        D3D11_TEX1D_RTV         Texture1D;
+        D3D11_TEX1D_ARRAY_RTV   Texture1DArray;
+        D3D11_TEX2D_RTV1        Texture2D;
+        D3D11_TEX2D_ARRAY_RTV1  Texture2DArray;
+        D3D11_TEX2DMS_RTV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_RTV Texture2DMSArray;
+        D3D11_TEX3D_RTV         Texture3D;
+    };
+};
+
+struct D3D11_TEX2D_UAV1
+{
+    UINT MipSlice;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_UAV1
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_UNORDERED_ACCESS_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_UAV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_UAV       Buffer;
+        D3D11_TEX1D_UAV        Texture1D;
+        D3D11_TEX1D_ARRAY_UAV  Texture1DArray;
+        D3D11_TEX2D_UAV1       Texture2D;
+        D3D11_TEX2D_ARRAY_UAV1 Texture2DArray;
+        D3D11_TEX3D_UAV        Texture3D;
+    };
+};
+
+struct D3D11_VIDEO_COLOR_RGBA
+{
+    float R;
+    float G;
+    float B;
+    float A;
+};
+
+struct D3D11_VIDEO_COLOR_YCbCrA
+{
+    float Y;
+    float Cb;
+    float Cr;
+    float A;
+};
+
+struct D3D11_VIDEO_COLOR
+{
+    union
+    {
+        D3D11_VIDEO_COLOR_YCbCrA YCbCr;
+        D3D11_VIDEO_COLOR_RGBA   RGBA;
+    };
+};
+
+union D3D11_AUTHENTICATED_PROTECTION_FLAGS
+{
+    struct
+    {
+        UINT ProtectionEnabled : 1;
+        UINT OverlayOrFullscreenRequired : 1;
+        UINT Reserved : 30;
+    } Flags;
+    UINT Value;
+};
+
+struct D3D11_TEX2D_VDOV
+{
+    UINT ArraySlice;
+};
+
+struct D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC
+{
+    GUID                 DecodeProfile;
+    D3D11_VDOV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_TEX2D_VDOV Texture2D;
+    };
+};
+
+struct D3D11_TEX2D_VPIV
+{
+    UINT MipSlice;
+    UINT ArraySlice;
+};
+
+struct D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC
+{
+    UINT                 FourCC;
+    D3D11_VPIV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_TEX2D_VPIV Texture2D;
+    };
+};
+
+struct D3D11_TEX2D_VPOV
+{
+    UINT MipSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_VPOV
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+};
+
+struct D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC
+{
+    D3D11_VPOV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_TEX2D_VPOV       Texture2D;
+        D3D11_TEX2D_ARRAY_VPOV Texture2DArray;
+    };
+};
+
+#endif // !defined(D3D11_SUPPORT)
 
 #if !defined(D3D12_SUPPORT)
 typedef UINT64 D3D12_GPU_VIRTUAL_ADDRESS;

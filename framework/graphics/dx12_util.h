@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,21 +31,21 @@
 #include "util/logging.h"
 #include "util/options.h"
 #include "util/platform.h"
-#ifdef WIN32
-#include "graphics/dx12_image_renderer.h"
-#else
+#ifndef WIN32
 #include "format/platform_types.h"
 #endif
 #include "format/format.h"
 
 #ifdef WIN32
 #include <comdef.h>
+#include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #endif
-#include <vector>
-#include <unordered_map>
 #include <map>
+#include <unordered_map>
+#include <vector>
 
 #if defined(GFXRECON_DXC_SUPPORT)
 #include <d3d12shader.h>
@@ -54,9 +54,18 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+class DX11ImageRenderer;
+class DX12ImageRenderer;
+
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>       IDXGIAdapterComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIDevice, &__uuidof(IDXGIDevice)>>         IDXGIDeviceComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGIFactoryComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGISwapChain, &__uuidof(IDXGISwapChain)>>   IDXGISwapChainComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
@@ -101,6 +110,11 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
+
+typedef _com_ptr_t<_com_IIID<ID3D11Device, &__uuidof(ID3D11Device)>>               ID3D11DeviceComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11DeviceChild, &__uuidof(ID3D11DeviceChild)>>     ID3D11DeviceChildComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11DeviceContext, &__uuidof(ID3D11DeviceContext)>> ID3D11DeviceContextComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11Texture2D, &__uuidof(ID3D11Texture2D)>>         ID3D11Texture2DComPtr;
 
 #if defined(GFXRECON_DXC_SUPPORT)
 typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>> IDxcUtilsComPtr;
@@ -173,6 +187,13 @@ UINT GetTexturePitch(UINT64 width);
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                                     queue,
+                    IDXGISwapChain*                                         swapchain,
+                    uint32_t                                                frame_num,
+                    const std::string&                                      filename_prefix,
+                    gfxrecon::util::ScreenshotFormat                        screenshot_format);
+
+void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX11ImageRenderer>& image_renderer,
+                    ID3D11Device*                                           device,
                     IDXGISwapChain*                                         swapchain,
                     uint32_t                                                frame_num,
                     const std::string&                                      filename_prefix,
@@ -257,11 +278,21 @@ uint64_t GetOneRowSizeByDXGIFormat(ID3D12Resource*      resource,
 uint64_t GetSubresourceWriteDataSize(
     ID3D12Resource* resource, UINT dst_subresource, const D3D12_BOX* dst_box, UINT src_row_pitch, UINT src_depth_pitch);
 
-void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
+void TrackAdapters(IDXGIFactory* factory, graphics::dx12::ActiveAdapterMap& adapters);
+
+void TrackAdapters(IDXGIFactory1* factory, graphics::dx12::ActiveAdapterMap& adapters);
 
 void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters);
 
+IDXGIAdapterComPtr GetAdapter(ID3D11Device* device);
+
+LUID GetAdapterLuid(ID3D11Device* device);
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D11Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
+format::DxgiAdapterDesc* MarkActiveAdapter(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters);
 
 // Query adapter and index by LUID
 bool GetAdapterAndIndexbyLUID(LUID                              luid,
@@ -351,16 +382,96 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
 
 bool IsFormatCompressed(DXGI_FORMAT format);
 
+bool IsFormatPlanar(DXGI_FORMAT format);
+
+double GetPlanarFormatMultiplier(DXGI_FORMAT format);
+
 uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format);
 
 uint64_t GetPixelByteSize(DXGI_FORMAT format);
+
+uint32_t GetNumMipLevels(uint32_t mip_levels, uint32_t width, uint32_t height = 0, uint32_t depth = 0);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE1D_DESC* desc);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC* desc);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC* desc);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC1* desc);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC1* desc);
+
+uint32_t GetSubresourceDimension(uint32_t dimension, uint32_t mip_levels, uint32_t subresource);
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE1D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t
+GetSubresourceSize(const D3D11_TEXTURE2D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t
+GetSubresourceSize(const D3D11_TEXTURE3D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t GetSubresourceSize(D3D11_RESOURCE_DIMENSION type,
+                            DXGI_FORMAT              format,
+                            uint32_t                 width,
+                            uint32_t                 height,
+                            uint32_t                 depth,
+                            uint32_t                 mip_levels,
+                            uint32_t                 row_pitch,
+                            uint32_t                 depth_pitch,
+                            uint32_t                 subresource);
 
 uint64_t GetSubresourceSizeTex1D(DXGI_FORMAT format, uint32_t width, uint32_t mip_levels, uint32_t subresource);
 
 uint64_t GetSubresourceSizeTex2D(
     DXGI_FORMAT format, uint32_t height, uint32_t mip_levels, uint32_t row_pitch, uint32_t subresource);
 
-uint64_t GetSubresourceSizeTex3D(uint32_t depth, uint32_t mip_levels, uint32_t depth_pitch, uint32_t subresource);
+uint64_t GetSubresourceSizeTex3D(DXGI_FORMAT format,
+                                 uint32_t    height,
+                                 uint32_t    depth,
+                                 uint32_t    mip_levels,
+                                 uint32_t    row_pitch,
+                                 uint32_t    depth_pitch,
+                                 uint32_t    subresource);
+
+uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
+                                     DXGI_FORMAT              dst_format,
+                                     uint32_t                 dst_width,
+                                     uint32_t                 dst_height,
+                                     uint32_t                 dst_depth,
+                                     uint32_t                 dst_mip_levels,
+                                     uint32_t                 dst_subresource,
+                                     const D3D11_BOX*         dst_box,
+                                     uint32_t                 src_row_pitch,
+                                     uint32_t                 src_depth_pitch);
+
+bool NeedUpdateSubresourceAdjustment(bool context_needs_adjustment, const D3D11_BOX* dst_box);
+
+uint64_t GetUpdateSubresourceAdjustmentOffset(D3D11_RESOURCE_DIMENSION dst_type,
+                                              DXGI_FORMAT              dst_format,
+                                              const D3D11_BOX*         dst_box,
+                                              uint32_t                 src_row_pitch,
+                                              uint32_t                 src_depth_pitch);
+
+void CopyAlignedTexture1D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size);
+
+void CopyAlignedTexture2D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size);
+
+void CopyAlignedTexture3D(const uint8_t* src,
+                          uint8_t*       dst,
+                          uint32_t       src_row_pitch,
+                          uint32_t       dst_row_pitch,
+                          uint32_t       src_depth_pitch,
+                          uint32_t       dst_depth_pitch,
+                          size_t         offset,
+                          size_t         size);
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)

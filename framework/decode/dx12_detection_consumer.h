@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2024 LunarG, Inc.
 ** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -41,26 +42,60 @@ class Dx12DetectionConsumer : public Dx12Consumer
     static const uint64_t kNoBlockLimit      = 0;
 
     Dx12DetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
-        block_limit_(block_limit), dx12_consumer_usage_(false)
+        block_limit_(block_limit), dx11_consumer_usage_(false), dx12_consumer_usage_(false)
     {}
+    bool         WasD3D11APIDetected() { return dx11_consumer_usage_; }
     bool         WasD3D12APIDetected() { return dx12_consumer_usage_; }
-    virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&           call_info,
-                                           HRESULT                                        return_value,
-                                           gfxrecon::format::HandleId                     pAdapter,
-                                           D3D_FEATURE_LEVEL                              MinimumFeatureLevel,
-                                           gfxrecon::decode::Decoded_GUID                 riid,
-                                           gfxrecon::decode::HandlePointerDecoder<void*>* ppDevice)
+    virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&,
+                                           HRESULT,
+                                           gfxrecon::format::HandleId,
+                                           D3D_FEATURE_LEVEL,
+                                           gfxrecon::decode::Decoded_GUID,
+                                           gfxrecon::decode::HandlePointerDecoder<void*>*)
     {
         dx12_consumer_usage_ = true;
     }
-
+    virtual void Process_D3D11CreateDevice(const ApiCallInfo&,
+                                           HRESULT,
+                                           format::HandleId,
+                                           D3D_DRIVER_TYPE,
+                                           uint64_t,
+                                           UINT,
+                                           PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                           UINT,
+                                           UINT,
+                                           HandlePointerDecoder<ID3D11Device*>*,
+                                           PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                           HandlePointerDecoder<ID3D11DeviceContext*>*)
+    {
+        dx11_consumer_usage_ = true;
+    }
+    virtual void Process_D3D11CreateDeviceAndSwapChain(const ApiCallInfo&,
+                                                       HRESULT,
+                                                       format::HandleId,
+                                                       D3D_DRIVER_TYPE,
+                                                       uint64_t,
+                                                       UINT,
+                                                       PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                                       UINT,
+                                                       UINT,
+                                                       StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>*,
+                                                       HandlePointerDecoder<IDXGISwapChain*>*,
+                                                       HandlePointerDecoder<ID3D11Device*>*,
+                                                       PointerDecoder<D3D_FEATURE_LEVEL>*,
+                                                       HandlePointerDecoder<ID3D11DeviceContext*>*)
+    {
+        dx11_consumer_usage_ = true;
+    }
     virtual bool IsComplete(uint64_t block_index) override
     {
-        return ((block_limit_ != kNoBlockLimit) && (block_index > block_limit_)) || WasD3D12APIDetected();
+        return ((block_limit_ != kNoBlockLimit) && (block_index > block_limit_)) || WasD3D11APIDetected() ||
+               WasD3D12APIDetected();
     }
 
   private:
     const uint64_t block_limit_;
+    bool           dx11_consumer_usage_;
     bool           dx12_consumer_usage_;
 };
 

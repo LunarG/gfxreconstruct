@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -843,6 +844,354 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandLis
         manager->PostProcess_InitializeMetaCommand(args...);
     }
 };
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D11CreateDevice>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_D3D11CreateDevice(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_D3D11CreateDeviceAndSwapChain(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateBuffer(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateDeferredContext>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateDeferredContext(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTexture1D>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateTexture1D(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTexture2D>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateTexture2D(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device1_CreateDeferredContext1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device1_CreateDeferredContext1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device2_CreateDeferredContext2>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device2_CreateDeferredContext2(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateDeferredContext3>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateDeferredContext3(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture2D1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateTexture2D1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTexture3D>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateTexture3D(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture3D1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateTexture3D1(args...);
+    }
+};
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Buffer_Wrapper>(ID3D11Buffer_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Buffer(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture1D_Wrapper>(ID3D11Texture1D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture1D(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture2D_Wrapper>(ID3D11Texture2D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture2D(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture3D_Wrapper>(ID3D11Texture3D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture3D(wrapper);
+}
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Map>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11DeviceContext_Map(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Unmap>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_Unmap(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Dispatch>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_Dispatch(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DispatchIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DispatchIndirect(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Draw>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_Draw(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawAuto>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawAuto(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexed>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexed(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstanced>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstancedIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstanced>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawInstanced(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstancedIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateShaderResourceView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateShaderResourceView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateShaderResourceView1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateShaderResourceView1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateUnorderedAccessView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateUnorderedAccessView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateUnorderedAccessView1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateUnorderedAccessView1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateRenderTargetView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateRenderTargetView(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateRenderTargetView1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateRenderTargetView1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateDepthStencilView>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateDepthStencilView(args...);
+    }
+};
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11ShaderResourceView_Wrapper>(ID3D11ShaderResourceView_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11ShaderResourceView(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11UnorderedAccessView_Wrapper>(ID3D11UnorderedAccessView_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11UnorderedAccessView(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11RenderTargetView_Wrapper>(ID3D11RenderTargetView_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11RenderTargetView(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11DepthStencilView_Wrapper>(ID3D11DepthStencilView_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11DepthStencilView(wrapper);
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
