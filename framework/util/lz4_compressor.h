@@ -32,19 +32,19 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class Lz4Compressor : public Compressor
 {
   public:
-    Lz4Compressor() {}
+    Lz4Compressor() = default;
 
-    virtual ~Lz4Compressor() override {}
+    ~Lz4Compressor() override = default;
 
-    virtual size_t Compress(const size_t          uncompressed_size,
-                            const uint8_t*        uncompressed_data,
-                            std::vector<uint8_t>* compressed_data,
-                            size_t                compressed_data_offset) override;
+    size_t Compress(size_t                uncompressed_size,
+                    const uint8_t*        uncompressed_data,
+                    std::vector<uint8_t>* compressed_data,
+                    size_t                compressed_data_offset) const override;
 
-    virtual size_t Decompress(const size_t                compressed_size,
-                              const std::vector<uint8_t>& compressed_data,
-                              const size_t                expected_uncompressed_size,
-                              std::vector<uint8_t>*       uncompressed_data) override;
+    size_t Decompress(size_t                      compressed_size,
+                      const std::vector<uint8_t>& compressed_data,
+                      size_t                      expected_uncompressed_size,
+                      std::vector<uint8_t>*       uncompressed_data) const override;
 };
 
 GFXRECON_END_NAMESPACE(util)

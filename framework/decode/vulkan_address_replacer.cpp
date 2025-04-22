@@ -333,21 +333,24 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     {
         auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
         GFXRECON_ASSERT(pipeline_info != nullptr);
-        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+        if (pipeline_info != nullptr)
         {
-            if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
+            for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
             {
-                // find addresses in push-constant memory and replace in-place.
-                auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
-                                                                   buffer_ref_info.buffer_offset);
-
-                auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
-                if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                 {
-                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
-                                           "mismatching buffer-device-addresses in push-constants");
-                    uint32_t address_offset = *address - buffer_info->capture_address;
-                    *address                = buffer_info->replay_address + address_offset;
+                    // find addresses in push-constant memory and replace in-place.
+                    auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
+                                                                       buffer_ref_info.buffer_offset);
+
+                    auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+                    if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                    {
+                        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
+                                               "mismatching buffer-device-addresses in push-constants");
+                        uint32_t address_offset = *address - buffer_info->capture_address;
+                        *address                = buffer_info->replay_address + address_offset;
+                    }
                 }
             }
         }
@@ -1366,6 +1369,9 @@ bool VulkanAddressReplacer::init_queue_assets()
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-buffer creation failed");
         return false;
     }
+
+    // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+    *reinterpret_cast<void**>(command_buffer_) = *reinterpret_cast<void**>(device_);
 
     VkFenceCreateInfo fence_create_info;
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
