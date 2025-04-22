@@ -230,7 +230,11 @@ jobs:
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
-        path: ${{matrix.config.build_dir}}/darwin/universal/output/test
+        path: |
+          ${{matrix.config.build_dir}}/darwin/universal/output/test
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk.zip
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/VulkanSDK
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
