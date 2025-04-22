@@ -497,10 +497,23 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         image_resource.dst_format           = dst_format;
         image_resource.all_layers_per_level = false;
 
+        scaling_supported[i] = resource_util.IsScalingSupported(image_resource.format,
+                                                                image_resource.tiling,
+                                                                dst_format,
+                                                                image_resource.type,
+                                                                image_resource.extent,
+                                                                scale);
+
+        VkExtent3D scaled_extent = {
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.height) * scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.depth) * scale, 1.0f))
+        };
+
         image_resource.resource_size = resource_util.GetImageResourceSizesOptimal(image_resource.image,
                                                                                   image_resource.format,
                                                                                   image_resource.type,
-                                                                                  image_resource.extent,
+                                                                                  scaled_extent,
                                                                                   image_resource.level_count,
                                                                                   image_resource.layer_count,
                                                                                   image_resource.tiling,
@@ -512,13 +525,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
 
         GFXRECON_ASSERT(!subresource_offsets.empty());
         GFXRECON_ASSERT(!subresource_sizes.empty());
-
-        scaling_supported[i] = resource_util.IsScalingSupported(image_resource.format,
-                                                                image_resource.tiling,
-                                                                dst_format,
-                                                                image_resource.type,
-                                                                image_resource.extent,
-                                                                scale);
 
         if (result != VK_SUCCESS)
         {
@@ -558,7 +564,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                         VkFormatToImageWriterDataFormat(dst_format);
                     assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
 
-                    VkExtent3D scaled_extent;
                     if (scale != 1.0f && scaling_supported[i])
                     {
                         scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
