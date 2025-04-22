@@ -61,10 +61,10 @@ thread_local std::atomic<uint32_t> MarkInjectedCommandsHelper::semaphore = 0;
 struct QueueSubmitHelper
 {
     const graphics::VulkanDeviceTable* device_table   = nullptr;
-    VkDevice                         device         = VK_NULL_HANDLE;
-    VkCommandBuffer                  command_buffer = VK_NULL_HANDLE;
-    VkFence                          fence          = VK_NULL_HANDLE;
-    VkQueue                          queue          = VK_NULL_HANDLE;
+    VkDevice                           device         = VK_NULL_HANDLE;
+    VkCommandBuffer                    command_buffer = VK_NULL_HANDLE;
+    VkFence                            fence          = VK_NULL_HANDLE;
+    VkQueue                            queue          = VK_NULL_HANDLE;
 
     QueueSubmitHelper()                         = default;
     QueueSubmitHelper(const QueueSubmitHelper&) = delete;
@@ -76,10 +76,10 @@ struct QueueSubmitHelper
         return *this;
     }
     QueueSubmitHelper(const graphics::VulkanDeviceTable* device_table_,
-                      VkDevice                         device_,
-                      VkCommandBuffer                  command_buffer_,
-                      VkQueue                          queue_,
-                      VkFence                          fence_) :
+                      VkDevice                           device_,
+                      VkCommandBuffer                    command_buffer_,
+                      VkQueue                            queue_,
+                      VkFence                            fence_) :
         device_table(device_table_),
         device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
@@ -222,10 +222,11 @@ decode::VulkanAddressReplacer::acceleration_structure_asset_t::~acceleration_str
 }
 
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
-                                             const encode::VulkanDeviceTable*     device_table,
-                                             const encode::VulkanInstanceTable*   instance_table,
+                                             const graphics::VulkanDeviceTable*   device_table,
+                                             const graphics::VulkanInstanceTable* instance_table,
                                              const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table), object_table_(&object_table)
+    device_table_(device_table),
+    object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
     physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
