@@ -503,6 +503,9 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                                                                 image_resource.type,
                                                                 image_resource.extent,
                                                                 scale);
+        bool blit_supported  = resource_util.IsBlitSupported(image_resource.format, image_resource.tiling, dst_format);
+        bool use_blit        = (image_resource.format != dst_format && blit_supported) ||
+                        (image_resource.scale != 1.0f && scaling_supported[i]);
 
         VkExtent3D scaled_extent = {
             static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
@@ -510,18 +513,19 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
             static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.depth) * scale, 1.0f))
         };
 
-        image_resource.resource_size = resource_util.GetImageResourceSizesOptimal(image_resource.image,
-                                                                                  image_resource.format,
-                                                                                  image_resource.type,
-                                                                                  scaled_extent,
-                                                                                  image_resource.level_count,
-                                                                                  image_resource.layer_count,
-                                                                                  image_resource.tiling,
-                                                                                  aspect,
-                                                                                  &subresource_offsets,
-                                                                                  &subresource_sizes,
-                                                                                  image_resource.all_layers_per_level);
-        VkResult result              = resource_util.ReadImageResource(image_resource, data);
+        image_resource.resource_size =
+            resource_util.GetImageResourceSizesOptimal(image_resource.image,
+                                                       use_blit ? dst_format : image_resource.format,
+                                                       image_resource.type,
+                                                       use_blit ? scaled_extent : image_resource.extent,
+                                                       image_resource.level_count,
+                                                       image_resource.layer_count,
+                                                       image_resource.tiling,
+                                                       aspect,
+                                                       &subresource_offsets,
+                                                       &subresource_sizes,
+                                                       image_resource.all_layers_per_level);
+        VkResult result = resource_util.ReadImageResource(image_resource, data);
 
         GFXRECON_ASSERT(!subresource_offsets.empty());
         GFXRECON_ASSERT(!subresource_sizes.empty());
