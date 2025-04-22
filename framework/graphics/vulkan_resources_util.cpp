@@ -1779,7 +1779,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       &tmp_data[i].resolve_memory);
                 if (result != VK_SUCCESS)
                 {
-                    tmp_data[i].resource_size = 0;
+                    // free temporary resource, continue
+                    tmp_data[i] = {};
                     continue;
                 }
             }
@@ -1913,7 +1914,10 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         for (uint32_t i = start_idx; i < end_idx; ++i)
         {
             const auto& img = image_resources[i];
-            auto* out_ptr   = reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + tmp_data[i].staging_offset;
+            auto*       out_ptr =
+                tmp_data[i].resource_size > 0
+                          ? reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + tmp_data[i].staging_offset
+                          : nullptr;
             if (call_back)
             {
                 call_back(img, out_ptr, tmp_data[i].resource_size);
@@ -1940,9 +1944,12 @@ VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::Image
     return ReadImageResources(
         { image_resource },
         [&out_data](const ImageResource& img, const void* data, size_t num_bytes) {
-            const auto* ptr = reinterpret_cast<const uint8_t*>(data);
-            out_data.clear();
-            out_data.insert(out_data.end(), ptr, ptr + num_bytes);
+            if (data != nullptr)
+            {
+                const auto* ptr = reinterpret_cast<const uint8_t*>(data);
+                out_data.clear();
+                out_data.insert(out_data.end(), ptr, ptr + num_bytes);
+            }
         },
         0);
 }

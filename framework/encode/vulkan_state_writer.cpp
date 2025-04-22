@@ -2298,16 +2298,19 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
     image_resources.reserve(image_snapshot_infos.size());
 
     auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
-        command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
-                                          device_wrapper->handle_id,
-                                          img.handle_id,
-                                          img.aspect,
-                                          img.layout,
-                                          img.level_count,
-                                          *img.level_sizes,
-                                          num_bytes,
-                                          data);
-        ++blocks_written_;
+        if (data != nullptr)
+        {
+            command_writer_.WriteInitImageCmd(format::ApiFamilyId::ApiFamily_Vulkan,
+                                              device_wrapper->handle_id,
+                                              img.handle_id,
+                                              img.aspect,
+                                              img.layout,
+                                              img.level_count,
+                                              *img.level_sizes,
+                                              num_bytes,
+                                              data);
+            ++blocks_written_;
+        }
     };
 
     size_t num_staging_bytes = 0;
