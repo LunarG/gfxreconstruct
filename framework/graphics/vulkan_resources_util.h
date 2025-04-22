@@ -158,7 +158,7 @@ class VulkanResourcesUtil
      * @param   buffer_resources    an array of BufferResource-structs
      * @param   callback            a callback-function, consuming data from staging-buffer
      * @param   staging_buffer_size target size for the staging-buffer in bytes. we might allocate a larger buffer,
-     *                                   depending on largest resource-size
+     *                              depending on largest resource-size
      */
     void ReadBufferResources(const std::vector<BufferResource>&   buffer_resources,
                              const ReadBufferResourcesCallbackFn& callback,

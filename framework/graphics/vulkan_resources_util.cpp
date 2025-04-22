@@ -1828,7 +1828,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
                 if (result != VK_SUCCESS)
                 {
-                    tmp_data[i].resource_size = 0;
+                    // free temporary resource, continue
+                    tmp_data[i] = {};
                     continue;
                 }
             }

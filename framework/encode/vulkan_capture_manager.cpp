@@ -2012,6 +2012,8 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
             WriteEndResourceInitCmd(device_wrapper->handle_id);
         };
 
+    uint32_t num_staging_bytes = 0;
+
     for (auto aspect : aspects)
     {
         auto& image_resource                = image_resources.emplace_back();
@@ -2031,10 +2033,12 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.aspect               = aspect;
         image_resource.external_format      = image_wrapper->external_format;
         image_resource.all_layers_per_level = true;
+
+        num_staging_bytes += image_wrapper->size;
     }
 
-    // batch process image-downloads requiring staging, use 32MB staging-mem
-    constexpr uint32_t staging_buffer_size = 32U << 20U;
+    // batch process image-downloads requiring staging, use <32MB staging-mem
+    size_t staging_buffer_size = std::min<size_t>(32U << 20U, num_staging_bytes);
     resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
