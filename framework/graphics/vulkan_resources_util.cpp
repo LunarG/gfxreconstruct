@@ -777,8 +777,8 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
 
 VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
                                          VkPhysicalDevice                        physical_device,
-                                         const encode::VulkanDeviceTable&        device_table,
-                                         const encode::VulkanInstanceTable&      instance_table,
+                                         const graphics::VulkanDeviceTable&      device_table,
+                                         const graphics::VulkanInstanceTable&    instance_table,
                                          const VkPhysicalDeviceMemoryProperties& memory_properties) :
     device_(device),
     device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
@@ -823,7 +823,10 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
                                                            std::vector<uint64_t>* subresource_sizes,
                                                            bool                   all_layers_per_level)
 {
-    GFXRECON_ASSERT(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    if (mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))))
+    {
+        GFXRECON_LOG_WARNING_ONCE("%s(): too many mip_levels for extent", __func__);
+    }
 
     if (subresource_sizes != nullptr)
     {
@@ -1614,8 +1617,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         VkImageAspectFlags        transition_aspect   = VK_IMAGE_ASPECT_NONE;
         std::vector<VkDeviceSize> level_sizes;
 
-        VkDevice                         device       = VK_NULL_HANDLE;
-        const encode::VulkanDeviceTable* device_table = nullptr;
+        VkDevice                           device       = VK_NULL_HANDLE;
+        const graphics::VulkanDeviceTable* device_table = nullptr;
 
         image_resource_tmp_data_t& operator=(image_resource_tmp_data_t other)
         {

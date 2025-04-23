@@ -48,8 +48,8 @@ class VulkanResourcesUtil
 
     VulkanResourcesUtil(VkDevice                                device,
                         VkPhysicalDevice                        physical_device,
-                        const VulkanDeviceTable&        device_table,
-                        const VulkanInstanceTable&      instance_table,
+                        const VulkanDeviceTable&                device_table,
+                        const VulkanInstanceTable&              instance_table,
                         const VkPhysicalDeviceMemoryProperties& memory_properties);
 
     ~VulkanResourcesUtil();

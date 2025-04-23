@@ -2147,7 +2147,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
     GFXRECON_ASSERT(device_wrapper != nullptr);
     GFXRECON_ASSERT(asset_file_stream_ != nullptr);
 
-    const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
     using BufferResource = graphics::VulkanResourcesUtil::BufferResource;
     std::vector<BufferResource> buffer_resources;
