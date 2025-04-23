@@ -699,13 +699,13 @@ class DrawCallsDumpingContext
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
-    VkCommandBuffer                         aux_command_buffer_;
-    VkFence                                 aux_fence_;
-    bool                                    must_backup_resources_;
-    DumpResourcesCommandBufferLevel         command_buffer_level_;
+    VkCommandBuffer                 aux_command_buffer_;
+    VkFence                         aux_fence_;
+    bool                            must_backup_resources_;
+    DumpResourcesCommandBufferLevel command_buffer_level_;
 
-    const graphics::VulkanDeviceTable*        device_table_;
-    const graphics::VulkanInstanceTable*      instance_table_;
+    const graphics::VulkanDeviceTable*      device_table_;
+    const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
 
