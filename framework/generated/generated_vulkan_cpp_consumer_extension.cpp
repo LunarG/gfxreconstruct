@@ -2033,6 +2033,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderBfloat16FeaturesKHR(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -4333,6 +4343,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceTileShadingFeaturesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceTileShadingFeaturesQCOM(out,
+                                                        casted_struct,
+                                                        decoded_struct,
+                                                        consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceTileShadingPropertiesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceTileShadingPropertiesQCOM(out,
+                                                          casted_struct,
+                                                          decoded_struct,
+                                                          consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkRenderPassTileShadingCreateInfoQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkRenderPassTileShadingCreateInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkRenderPassTileShadingCreateInfoQCOM(out,
+                                                      casted_struct,
+                                                      decoded_struct,
+                                                      consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV: {
                 auto casted_struct = reinterpret_cast<const VkQueryLowLatencySupportNV*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkQueryLowLatencySupportNV*>(pnext_meta_data->GetMetaStructPointer());
@@ -5093,33 +5133,33 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM(out,
-                                                                     casted_struct,
-                                                                     decoded_struct,
-                                                                     consumer);
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT(out,
+                                                                    casted_struct,
+                                                                    decoded_struct,
+                                                                    consumer);
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM(out,
-                                                                       casted_struct,
-                                                                       decoded_struct,
-                                                                       consumer);
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT(out,
+                                                                      casted_struct,
+                                                                      decoded_struct,
+                                                                      consumer);
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM: {
-                auto casted_struct = reinterpret_cast<const VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkSubpassFragmentDensityMapOffsetEndInfoQCOM(out,
-                                                             casted_struct,
-                                                             decoded_struct,
-                                                             consumer);
+            case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(out,
+                                                               casted_struct,
+                                                               decoded_struct,
+                                                               consumer);
 
                 break;
             }
@@ -5810,6 +5850,56 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                        casted_struct,
                                                                        decoded_struct,
                                                                        consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkTileMemoryBindInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkTileMemoryBindInfoQCOM(out,
+                                         casted_struct,
+                                         decoded_struct,
+                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkTileMemoryRequirementsQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkTileMemoryRequirementsQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkTileMemoryRequirementsQCOM(out,
+                                             casted_struct,
+                                             decoded_struct,
+                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkTileMemorySizeInfoQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkTileMemorySizeInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkTileMemorySizeInfoQCOM(out,
+                                         casted_struct,
+                                         decoded_struct,
+                                         consumer);
 
                 break;
             }

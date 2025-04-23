@@ -615,6 +615,9 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlotEXT(VkDevice, const
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlot, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyPrivateDataSlotEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDispatchTileQCOM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(VkCommandBuffer, const VkPerTileBeginInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginPerTileExecutionQCOM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(VkCommandBuffer, const VkPerTileEndInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndPerTileExecutionQCOM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(VkCommandBuffer, VkFragmentShadingRateNV, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetFragmentShadingRateEnumNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultInfoEXT(VkDevice, VkDeviceFaultCountsEXT*, VkDeviceFaultInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceFaultInfoEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetVertexInputEXT(VkCommandBuffer, uint32_t, const VkVertexInputBindingDescription2EXT*, uint32_t, const VkVertexInputAttributeDescription2EXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetVertexInputEXT was called, resulting in no-op behavior."); }
@@ -707,6 +710,7 @@ inline VKAPI_ATTR void VKAPI_CALL vkSetLatencyMarkerNV(VkDevice, VkSwapchainKHR,
 inline VKAPI_ATTR void VKAPI_CALL vkGetLatencyTimingsNV(VkDevice, VkSwapchainKHR, VkGetLatencyMarkerInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetLatencyTimingsNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(VkQueue, const VkOutOfBandQueueTypeInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkQueueNotifyOutOfBandNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(VkCommandBuffer, VkImageAspectFlags) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetAttachmentFeedbackLoopEnableEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdBindTileMemoryQCOM(VkCommandBuffer, const VkTileMemoryBindInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindTileMemoryQCOM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetPartitionedAccelerationStructuresBuildSizesNV(VkDevice, const VkPartitionedAccelerationStructureInstancesInputNV*, VkAccelerationStructureBuildSizesInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPartitionedAccelerationStructuresBuildSizesNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBuildPartitionedAccelerationStructuresNV(VkCommandBuffer, const VkBuildPartitionedAccelerationStructureInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBuildPartitionedAccelerationStructuresNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsEXT(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoEXT*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGeneratedCommandsMemoryRequirementsEXT was called, resulting in no-op behavior."); }
@@ -720,6 +724,7 @@ inline VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetPipelineEXT(VkDevi
 inline VKAPI_ATTR void VKAPI_CALL vkUpdateIndirectExecutionSetShaderEXT(VkDevice, VkIndirectExecutionSetEXT, uint32_t, const VkWriteIndirectExecutionSetShaderEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUpdateIndirectExecutionSetShaderEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(VkDevice, const VkMemoryGetMetalHandleInfoEXT*, void**) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryMetalHandleEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryMetalHandlePropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryMetalHandlePropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer, const VkRenderingEndInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndRendering2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
@@ -1307,6 +1312,9 @@ struct VulkanDeviceTable
     PFN_vkDestroyPrivateDataSlotEXT DestroyPrivateDataSlotEXT{ noop::vkDestroyPrivateDataSlotEXT };
     PFN_vkSetPrivateDataEXT SetPrivateDataEXT{ noop::vkSetPrivateDataEXT };
     PFN_vkGetPrivateDataEXT GetPrivateDataEXT{ noop::vkGetPrivateDataEXT };
+    PFN_vkCmdDispatchTileQCOM CmdDispatchTileQCOM{ noop::vkCmdDispatchTileQCOM };
+    PFN_vkCmdBeginPerTileExecutionQCOM CmdBeginPerTileExecutionQCOM{ noop::vkCmdBeginPerTileExecutionQCOM };
+    PFN_vkCmdEndPerTileExecutionQCOM CmdEndPerTileExecutionQCOM{ noop::vkCmdEndPerTileExecutionQCOM };
     PFN_vkCmdSetFragmentShadingRateEnumNV CmdSetFragmentShadingRateEnumNV{ noop::vkCmdSetFragmentShadingRateEnumNV };
     PFN_vkGetDeviceFaultInfoEXT GetDeviceFaultInfoEXT{ noop::vkGetDeviceFaultInfoEXT };
     PFN_vkCmdSetVertexInputEXT CmdSetVertexInputEXT{ noop::vkCmdSetVertexInputEXT };
@@ -1399,6 +1407,7 @@ struct VulkanDeviceTable
     PFN_vkGetLatencyTimingsNV GetLatencyTimingsNV{ noop::vkGetLatencyTimingsNV };
     PFN_vkQueueNotifyOutOfBandNV QueueNotifyOutOfBandNV{ noop::vkQueueNotifyOutOfBandNV };
     PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT CmdSetAttachmentFeedbackLoopEnableEXT{ noop::vkCmdSetAttachmentFeedbackLoopEnableEXT };
+    PFN_vkCmdBindTileMemoryQCOM CmdBindTileMemoryQCOM{ noop::vkCmdBindTileMemoryQCOM };
     PFN_vkGetPartitionedAccelerationStructuresBuildSizesNV GetPartitionedAccelerationStructuresBuildSizesNV{ noop::vkGetPartitionedAccelerationStructuresBuildSizesNV };
     PFN_vkCmdBuildPartitionedAccelerationStructuresNV CmdBuildPartitionedAccelerationStructuresNV{ noop::vkCmdBuildPartitionedAccelerationStructuresNV };
     PFN_vkGetGeneratedCommandsMemoryRequirementsEXT GetGeneratedCommandsMemoryRequirementsEXT{ noop::vkGetGeneratedCommandsMemoryRequirementsEXT };
@@ -1412,6 +1421,7 @@ struct VulkanDeviceTable
     PFN_vkUpdateIndirectExecutionSetShaderEXT UpdateIndirectExecutionSetShaderEXT{ noop::vkUpdateIndirectExecutionSetShaderEXT };
     PFN_vkGetMemoryMetalHandleEXT GetMemoryMetalHandleEXT{ noop::vkGetMemoryMetalHandleEXT };
     PFN_vkGetMemoryMetalHandlePropertiesEXT GetMemoryMetalHandlePropertiesEXT{ noop::vkGetMemoryMetalHandlePropertiesEXT };
+    PFN_vkCmdEndRendering2EXT CmdEndRendering2EXT{ noop::vkCmdEndRendering2EXT };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::vkCreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::vkDestroyAccelerationStructureKHR };
     PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::vkCmdBuildAccelerationStructuresKHR };
@@ -2006,6 +2016,9 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkDestroyPrivateDataSlotEXT", &table->DestroyPrivateDataSlotEXT);
     LoadVulkanFunction(gpa, device, "vkSetPrivateDataEXT", &table->SetPrivateDataEXT);
     LoadVulkanFunction(gpa, device, "vkGetPrivateDataEXT", &table->GetPrivateDataEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdDispatchTileQCOM", &table->CmdDispatchTileQCOM);
+    LoadVulkanFunction(gpa, device, "vkCmdBeginPerTileExecutionQCOM", &table->CmdBeginPerTileExecutionQCOM);
+    LoadVulkanFunction(gpa, device, "vkCmdEndPerTileExecutionQCOM", &table->CmdEndPerTileExecutionQCOM);
     LoadVulkanFunction(gpa, device, "vkCmdSetFragmentShadingRateEnumNV", &table->CmdSetFragmentShadingRateEnumNV);
     LoadVulkanFunction(gpa, device, "vkGetDeviceFaultInfoEXT", &table->GetDeviceFaultInfoEXT);
     LoadVulkanFunction(gpa, device, "vkCmdSetVertexInputEXT", &table->CmdSetVertexInputEXT);
@@ -2098,6 +2111,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetLatencyTimingsNV", &table->GetLatencyTimingsNV);
     LoadVulkanFunction(gpa, device, "vkQueueNotifyOutOfBandNV", &table->QueueNotifyOutOfBandNV);
     LoadVulkanFunction(gpa, device, "vkCmdSetAttachmentFeedbackLoopEnableEXT", &table->CmdSetAttachmentFeedbackLoopEnableEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdBindTileMemoryQCOM", &table->CmdBindTileMemoryQCOM);
     LoadVulkanFunction(gpa, device, "vkGetPartitionedAccelerationStructuresBuildSizesNV", &table->GetPartitionedAccelerationStructuresBuildSizesNV);
     LoadVulkanFunction(gpa, device, "vkCmdBuildPartitionedAccelerationStructuresNV", &table->CmdBuildPartitionedAccelerationStructuresNV);
     LoadVulkanFunction(gpa, device, "vkGetGeneratedCommandsMemoryRequirementsEXT", &table->GetGeneratedCommandsMemoryRequirementsEXT);
@@ -2111,6 +2125,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkUpdateIndirectExecutionSetShaderEXT", &table->UpdateIndirectExecutionSetShaderEXT);
     LoadVulkanFunction(gpa, device, "vkGetMemoryMetalHandleEXT", &table->GetMemoryMetalHandleEXT);
     LoadVulkanFunction(gpa, device, "vkGetMemoryMetalHandlePropertiesEXT", &table->GetMemoryMetalHandlePropertiesEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdEndRendering2EXT", &table->CmdEndRendering2EXT);
     LoadVulkanFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadVulkanFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadVulkanFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);

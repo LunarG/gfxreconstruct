@@ -373,6 +373,8 @@ void MapStructHandles(Decoded_VkShaderCreateInfoEXT* wrapper, const CommonObject
 
 void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkTileMemoryBindInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkIndirectExecutionSetPipelineInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
