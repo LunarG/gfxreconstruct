@@ -525,10 +525,13 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                                                        &subresource_offsets,
                                                        &subresource_sizes,
                                                        image_resource.all_layers_per_level);
-        VkResult result = resource_util.ReadImageResource(image_resource, data);
 
-        GFXRECON_ASSERT(!subresource_offsets.empty());
-        GFXRECON_ASSERT(!subresource_sizes.empty());
+        if (subresource_offsets.empty() || subresource_sizes.empty())
+        {
+            return VK_ERROR_INITIALIZATION_FAILED;
+        }
+
+        VkResult result = resource_util.ReadImageResource(image_resource, data);
 
         if (result != VK_SUCCESS)
         {

@@ -823,7 +823,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
                                                            std::vector<uint64_t>* subresource_sizes,
                                                            bool                   all_layers_per_level)
 {
-    if (mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))))
+    if (mip_levels > 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))))
     {
         GFXRECON_LOG_WARNING_ONCE("%s(): too many mip_levels for extent", __func__);
     }
