@@ -1978,61 +1978,68 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::GetFormatAspects(image_wrapper->format, &aspects);
 
-    for (auto aspect : aspects)
-    {
-        std::vector<uint8_t>  data;
-        std::vector<uint64_t> subresource_offsets;
-        std::vector<uint64_t> subresource_sizes;
-        bool                  scaling_supported;
+    using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
+    std::vector<ImageResource> image_resources;
 
-        VkResult result = resource_util.ReadFromImageResourceStaging(image,
-                                                                     image_wrapper->format,
-                                                                     image_wrapper->image_type,
-                                                                     image_wrapper->extent,
-                                                                     image_wrapper->mip_levels,
-                                                                     image_wrapper->array_layers,
-                                                                     image_wrapper->tiling,
-                                                                     image_wrapper->samples,
-                                                                     image_wrapper->current_layout,
-                                                                     image_wrapper->queue_family_index,
-                                                                     image_wrapper->external_format,
-                                                                     image_wrapper->size,
-                                                                     aspect,
-                                                                     data,
-                                                                     subresource_offsets,
-                                                                     subresource_sizes,
-                                                                     scaling_supported,
-                                                                     true);
-        if (result == VK_SUCCESS)
-        {
+    auto write_init_image_cmd =
+        [this, &resource_util, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
             // Combined size of all layers in a mip level.
             std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(image_wrapper->handle,
-                                                                                image_wrapper->format,
-                                                                                image_wrapper->image_type,
-                                                                                image_wrapper->extent,
-                                                                                image_wrapper->mip_levels,
-                                                                                image_wrapper->array_layers,
-                                                                                image_wrapper->tiling,
-                                                                                aspect,
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
+                                                                                img.format,
+                                                                                img.type,
+                                                                                img.extent,
+                                                                                img.level_count,
+                                                                                img.layer_count,
+                                                                                img.tiling,
+                                                                                img.aspect,
                                                                                 nullptr,
                                                                                 &level_sizes,
                                                                                 true);
+            GFXRECON_ASSERT(resource_size == num_bytes);
 
             WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
             GetCommandWriter()->WriteInitImageCmd(api_family_,
                                                   device_wrapper->handle_id,
-                                                  image_wrapper->handle_id,
-                                                  aspect,
-                                                  image_wrapper->current_layout,
-                                                  image_wrapper->mip_levels,
+                                                  img.handle_id,
+                                                  img.aspect,
+                                                  img.layout,
+                                                  img.level_count,
                                                   level_sizes,
                                                   resource_size,
-                                                  data.data());
+                                                  data);
             WriteEndResourceInitCmd(device_wrapper->handle_id);
-        }
+        };
+
+    uint32_t num_staging_bytes = 0;
+
+    for (auto aspect : aspects)
+    {
+        auto& image_resource                = image_resources.emplace_back();
+        image_resource.handle_id            = image_wrapper->handle_id;
+        image_resource.image                = image_wrapper->handle;
+        image_resource.format               = image_wrapper->format;
+        image_resource.type                 = image_wrapper->image_type;
+        image_resource.extent               = image_wrapper->extent;
+        image_resource.level_count          = image_wrapper->mip_levels;
+        image_resource.layer_count          = image_wrapper->array_layers;
+        image_resource.tiling               = image_wrapper->tiling;
+        image_resource.sample_count         = image_wrapper->samples;
+        image_resource.layout               = image_wrapper->current_layout;
+        image_resource.queue_family_index   = image_wrapper->queue_family_index;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.size                 = image_wrapper->size;
+        image_resource.aspect               = aspect;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.all_layers_per_level = true;
+
+        num_staging_bytes += image_wrapper->size;
     }
+
+    // batch process image-downloads requiring staging, use <32MB staging-mem
+    size_t staging_buffer_size = std::min<size_t>(32U << 20U, num_staging_bytes);
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
 void VulkanCaptureManager::PostProcess_vkBindBufferMemory(
