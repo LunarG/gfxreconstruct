@@ -29,6 +29,7 @@
 #include "encode/handle_unwrap_memory.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_util.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "util/defines.h"
@@ -545,6 +546,10 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     bool                                              release_full_screen_exclusive_mode{ false };
     bool                                              using_local_dimming_AMD{ false };
     VkBool32                                          local_dimming_enable_AMD{ false };
+
+    // This's for checking if WaitForPresent should or shouldn't be written. Its QueuePresent could be not written since
+    // it's before trim frame range. In this case, skip writing the WaitForPresent.
+    std::unordered_set<graphics::PresentId> record_queue_present_ids_not_written;
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
