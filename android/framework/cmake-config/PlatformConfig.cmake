@@ -86,3 +86,7 @@ set(SPIRV_REFLECT_STATIC_LIB ON CACHE INTERNAL "create spirv-reflect-static libr
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW CACHE INTERNAL "set a cmake policy for spirv_reflect" FORCE)
 add_subdirectory("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect" EXCLUDE_FROM_ALL "${CMAKE_BINARY_DIR}/external/SPIRV-Reflect")
 include_directories("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect")
+
+# Export ANativeActivity_onCreate(),
+# Refer to: https://github.com/android-ndk/ndk/issues/381.
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
