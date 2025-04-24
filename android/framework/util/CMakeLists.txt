@@ -1,7 +1,19 @@
+
+add_library(native_app_glue STATIC
+            ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+
+target_include_directories(native_app_glue
+                           PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue)
+
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/intent.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/intent.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
@@ -70,6 +82,7 @@ target_compile_definitions(gfxrecon_util
 
 target_include_directories(gfxrecon_util
                            PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
                                ${GFXRECON_SOURCE_DIR}/framework)
@@ -80,11 +93,13 @@ if (OPENXR_SUPPORT_ENABLED)
 endif()
 
 target_link_libraries(gfxrecon_util
-                          platform_specific
-                          vulkan_registry
-                          spirv_registry
-                          spirv-reflect-static
-                          nlohmann_json::nlohmann_json
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
-                          z)
+                      platform_specific
+                      vulkan_registry
+                      spirv_registry
+                      spirv-reflect-static
+                      nlohmann_json::nlohmann_json
+                      android
+                      log
+                      ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
+                      ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
+                      z)
