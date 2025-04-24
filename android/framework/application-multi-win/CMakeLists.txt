@@ -25,13 +25,13 @@ endif()
 
 target_include_directories(gfxrecon_application_multiwin
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/framework
-                               ${ANDROID_NDK}/sources/android/native_app_glue)
+                               ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_application_multiwin
                       gfxrecon_decode
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
+                      native_app_glue
                       vulkan_registry
                       platform_specific)

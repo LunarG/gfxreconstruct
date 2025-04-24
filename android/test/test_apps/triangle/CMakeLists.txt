@@ -14,14 +14,7 @@ set(CMAKE_MODULE_PATH "${GFXRECON_SOURCE_DIR}/cmake" "${GFXRECON_SOURCE_DIR}/ext
 
 project(gfxrecon-testapp-triangle)
 
-add_library(native_app_glue STATIC
-        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-
 add_subdirectory(../common ${CMAKE_SOURCE_DIR}/../common/build/testapps/triangle/${ANDROID_ABI})
-
-# Export ANativeActivity_onCreate(),
-# Refer to: https://github.com/android-ndk/ndk/issues/381.
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 include(../../../framework/cmake-config/PlatformConfig.cmake)
 
@@ -31,16 +24,12 @@ add_library(gfxrecon-testapp-triangle
 
 target_include_directories(gfxrecon-testapp-triangle
                            PUBLIC
-                               ${ANDROID_NDK}/sources/android/native_app_glue
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
 target_link_libraries(
         gfxrecon-testapp-triangle
-        gfxrecon-testapp-base
-        native_app_glue
-        android
-        log)
+        gfxrecon-testapp-base)
 
 target_link_options(gfxrecon-testapp-triangle
     PRIVATE

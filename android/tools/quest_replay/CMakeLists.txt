@@ -21,13 +21,6 @@ else()
     message(FATAL_ERROR "Failed to find OpenXR headers for support.  Continuing with it disabled!")
 endif()
 
-add_library(native_app_glue STATIC
-        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-
-# Export ANativeActivity_onCreate(),
-# Refer to: https://github.com/android-ndk/ndk/issues/381.
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
-
 add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/quest_replay/${ANDROID_ABI})
@@ -45,7 +38,6 @@ add_library(gfxrecon-quest-replay
 
 target_include_directories(gfxrecon-quest-replay
                            PUBLIC
-                               ${ANDROID_NDK}/sources/android/native_app_glue
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
@@ -59,11 +51,7 @@ target_link_libraries(
         gfxrecon_decode
         gfxrecon_graphics
         gfxrecon_format
-        gfxrecon_util
         platform_specific
-        native_app_glue
-        android
-        log
         OpenXR::openxr_loader)
 
 target_link_options(gfxrecon-quest-replay
