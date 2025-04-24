@@ -239,12 +239,15 @@ Options](./USAGE_android.md#capture-options) section.
 
   1. Open Android Studio 
   2. Connect the headset to your development
+
     machine using a USB plug
     a. Make sure the headset is detected by Android Studio
   3. Select the headset in the target 
   4. Make sure "app-openxr-vulkan"
+
     is selected 
   5. Press the "Play" triangle to run
+
     a. You may have to first select to enable commands from the host
     system on the headset
 
@@ -395,3 +398,7 @@ Run the replay using the `gfxrecon.py` script:
 ```bash
 python3 android/scripts/gfxrecon.py replay /sdcard/Download/{capture_file_name}
 ```
+
+## OpenXR Capture Known Limitations
+
+The current implementation has been written to cover the OpenXR API entry points and usage based on a limited number of test applications (listed in issue below).  It is possible that meaningful omissions or errors in capture and/or replay may exist outside the usage tested.  The current set of known limitations is maintained in [GitHub/LunarG/gfxreconstruct issue 2145](https://github.com/LunarG/gfxreconstruct/issues/2145). 
