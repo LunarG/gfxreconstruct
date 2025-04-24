@@ -104,8 +104,8 @@ Render pass indices are required only for draw calls. All render pass indices wh
 The index of the `vkQueueSubmit` (or `vkQueueSubmit2`) in which the command buffer that includes the desired commands are submitted needs to be provided.
 
 4. **ExecuteCommands**
-Dumping resources from commands that are recorded in secondary command buffers require different handling. The secondary's `BeginCommandBuffer` index must be
-specified like with the primary command buffers. The index of the `vkCmdExecuteCommands` from which the specific commands is desired to be dump needs to be specified in the `ExecuteCommands` json array along with `BeginCommandBuffer` of the secondary that is desired to be dumped.
+Dumping resources from commands that are recorded in secondary command buffers requires different handling. The secondary's `BeginCommandBuffer` index must be
+specified like with the primary command buffers. The index of the `vkCmdExecuteCommands` from which the specific commands should be dumped needs to be specified in the `ExecuteCommands` json array along with `BeginCommandBuffer` of the secondary that is desired to be dumped.
 
 ### Simple examples
 
@@ -158,7 +158,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
     "BeginCommandBuffer": [ 754, 736 ],
     "Draw": [ [ 761 ], [ ] ],
     "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
-    "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ]
+    "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ],
     "QueueSubmit": [ 3952 ]
 }
 ```
