@@ -40,7 +40,6 @@ target_link_libraries(gfxrecon-testapp-external-memory-fd-export
         gfxrecon_decode
         gfxrecon_graphics
         gfxrecon_format
-        gfxrecon_util
         gfxrecon-testapp-base
         platform_specific)
 
