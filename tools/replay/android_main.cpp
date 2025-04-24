@@ -39,13 +39,15 @@
 #endif
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "util/android/activity.h"
+#include "util/android/intent.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "parse_dump_resources_cli.h"
 #include "replay_pre_processing.h"
+#include "util/android/intent.h"
 
-#include <android_native_app_glue.h>
 #include <android/log.h>
 #include <android/window.h>
 
@@ -62,10 +64,8 @@ const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
-std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
-void        DestroyActivity(struct android_app* app);
 
 static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
@@ -90,7 +90,7 @@ void android_main(struct android_app* app)
     // Keep screen on while window is active.
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 
-    std::string                    args = GetIntentExtra(app, kArgsExtentKey);
+    std::string                    args = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
 
     app->onAppCmd     = ProcessAppCmd;
@@ -270,59 +270,8 @@ void android_main(struct android_app* app)
 
     gfxrecon::util::Log::Release();
 
-    DestroyActivity(app);
+    gfxrecon::util::DestroyActivity(app);
     raise(SIGTERM);
-}
-
-// Retrieve the program argument string from the intent extras
-std::string GetIntentExtra(struct android_app* app, const char* key)
-{
-    std::string value;
-    JavaVM*     jni_vm       = nullptr;
-    jobject     jni_activity = nullptr;
-    JNIEnv*     env          = nullptr;
-
-    if ((app != nullptr) && (app->activity != nullptr))
-    {
-        jni_vm       = app->activity->vm;
-        jni_activity = app->activity->clazz;
-    }
-
-    if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK))
-    {
-        jclass    activity_class = env->GetObjectClass(jni_activity);
-        jmethodID get_intent     = env->GetMethodID(activity_class, "getIntent", "()Landroid/content/Intent;");
-        jobject   intent         = env->CallObjectMethod(jni_activity, get_intent);
-
-        if (intent)
-        {
-            jclass    intent_class = env->GetObjectClass(intent);
-            jmethodID get_string_extra =
-                env->GetMethodID(intent_class, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
-
-            jvalue extra_key;
-            extra_key.l = env->NewStringUTF(key);
-
-            jstring extra = static_cast<jstring>(env->CallObjectMethodA(intent, get_string_extra, &extra_key));
-
-            if (extra)
-            {
-                const char* utf_chars = env->GetStringUTFChars(extra, nullptr);
-
-                value = utf_chars;
-
-                env->ReleaseStringUTFChars(extra, utf_chars);
-                env->DeleteLocalRef(extra);
-            }
-
-            env->DeleteLocalRef(extra_key.l);
-            env->DeleteLocalRef(intent);
-        }
-
-        jni_vm->DetachCurrentThread();
-    }
-
-    return value;
 }
 
 void ProcessAppCmd(struct android_app* app, int32_t cmd)
@@ -460,26 +409,4 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     }
 
     return 0;
-}
-
-void DestroyActivity(struct android_app* app)
-{
-    ANativeActivity_finish(app->activity);
-
-    // Wait for APP_CMD_DESTROY
-    while (app->destroyRequested == 0)
-    {
-        struct android_poll_source* source = nullptr;
-        int                         events = 0;
-        int                         result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
-
-        if ((result >= 0) && (source))
-        {
-            source->process(app, source);
-        }
-        else
-        {
-            break;
-        }
-    }
 }
