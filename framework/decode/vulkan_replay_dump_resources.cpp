@@ -2273,6 +2273,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
 
         if (primary_context->ShouldHandleExecuteCommands(call_info.index))
         {
+            uint32_t finalized_primaries = 0;
             for (uint32_t i = 0; i < commandBufferCount; ++i)
             {
                 const DrawCallsDumpingContext* secondary_context = FindDrawCallCommandBufferContext(pCommandBuffers[i]);
@@ -2281,16 +2282,26 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     const std::vector<VkCommandBuffer>& secondarys_command_buffers =
                         secondary_context->GetCommandBuffers();
 
-                    GFXRECON_ASSERT(secondarys_command_buffers.size() <= primary_last - primary_first);
+                    GFXRECON_ASSERT(secondarys_command_buffers.size() <=
+                                    primary_last - (primary_first + finalized_primaries));
                     for (size_t scb = 0; scb < secondarys_command_buffers.size(); ++scb)
                     {
-                        func(*(primary_first + scb), 1, &secondarys_command_buffers[scb]);
+                        func(*(primary_first + finalized_primaries), 1, &secondarys_command_buffers[scb]);
                         primary_context->FinalizeCommandBuffer();
+                        ++finalized_primaries;
+                    }
+
+                    // All primaries have been finalized. Nothing else to do
+                    if (finalized_primaries == primary_last - primary_first)
+                    {
+                        break;
                     }
                 }
                 else
                 {
-                    for (CommandBufferIterator primary_it = primary_first; primary_it < primary_last; ++primary_it)
+                    for (CommandBufferIterator primary_it = (primary_first + finalized_primaries);
+                         primary_it < primary_last;
+                         ++primary_it)
                     {
                         func(*primary_it, 1, &pCommandBuffers[i]);
                     }
