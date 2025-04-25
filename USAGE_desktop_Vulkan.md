@@ -661,7 +661,8 @@ Optional arguments:
                         vkGetPipelineCacheData (same as
                         --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are: auto,win32,xlib,xcb,wayland
+                        Available platforms are:
+                        auto,display,headless,metal,wayland,win32,xcb,xlib
   --surface-index <N>   Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).
