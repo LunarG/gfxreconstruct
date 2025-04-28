@@ -1459,6 +1459,23 @@ void Process_vkCmdSetDepthBias2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkDepthBiasInfoEXT*                   pDepthBiasInfo);
 
+void Process_vkCmdDispatchTileQCOM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdDispatchTileQCOM                   func,
+    VkCommandBuffer                             commandBuffer);
+
+void Process_vkCmdBeginPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBeginPerTileExecutionQCOM          func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPerTileBeginInfoQCOM*               pPerTileBeginInfo);
+
+void Process_vkCmdEndPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndPerTileExecutionQCOM            func,
+    VkCommandBuffer                             commandBuffer,
+    const VkPerTileEndInfoQCOM*                 pPerTileEndInfo);
+
 void Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetFragmentShadingRateEnumNV       func,
@@ -1830,6 +1847,12 @@ void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
 
+void Process_vkCmdBindTileMemoryQCOM(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindTileMemoryQCOM                 func,
+    VkCommandBuffer                             commandBuffer,
+    const VkTileMemoryBindInfoQCOM*             pTileMemoryBindInfo);
+
 void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBuildPartitionedAccelerationStructuresNV func,
@@ -1849,6 +1872,12 @@ void Process_vkCmdExecuteGeneratedCommandsEXT(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo);
+
+void Process_vkCmdEndRendering2EXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndRendering2EXT                   func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingEndInfoEXT*                pRenderingEndInfo);
 
 void Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,

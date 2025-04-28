@@ -197,6 +197,7 @@ struct VkSubpassDescriptionFlags_t { };
 struct VkSurfaceCounterFlagsEXT_t { };
 struct VkSurfaceTransformFlagsKHR_t { };
 struct VkSwapchainCreateFlagsKHR_t { };
+struct VkTileShadingRenderPassFlagsQCOM_t { };
 struct VkToolPurposeFlags_t { };
 struct VkValidationCacheCreateFlagsEXT_t { };
 struct VkViSurfaceCreateFlagsNN_t { };
@@ -513,6 +514,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceTransformFlagBits
 void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkSystemAllocationScope& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkTessellationDomainOrigin& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFlagBitsQCOM& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkToolPurposeFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCacheHeaderVersionEXT& value, const util::JsonOptions& options = util::JsonOptions());
@@ -705,6 +707,7 @@ void FieldToJson(VkSubpassDescriptionFlags_t, nlohmann::ordered_json& jdata, con
 void FieldToJson(VkSurfaceCounterFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkSurfaceTransformFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(VkTileShadingRenderPassFlagsQCOM_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkToolPurposeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkValidationCacheCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(VkViSurfaceCreateFlagsNN_t, nlohmann::ordered_json& jdata, const VkFlags flags, const util::JsonOptions& options = util::JsonOptions());

@@ -5673,6 +5673,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneCapabilities2KH
     EncodeStruct(encoder, value.capabilities);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderBfloat16FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderBFloat16Type);
+    encoder->EncodeUInt32Value(value.shaderBFloat16DotProduct);
+    encoder->EncodeUInt32Value(value.shaderBFloat16CooperativeMatrix);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePortabilitySubsetFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8622,6 +8631,62 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCrea
     encoder->EncodeFlagsValue(value.flags);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTileShadingFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.tileShading);
+    encoder->EncodeUInt32Value(value.tileShadingFragmentStage);
+    encoder->EncodeUInt32Value(value.tileShadingColorAttachments);
+    encoder->EncodeUInt32Value(value.tileShadingDepthAttachments);
+    encoder->EncodeUInt32Value(value.tileShadingStencilAttachments);
+    encoder->EncodeUInt32Value(value.tileShadingInputAttachments);
+    encoder->EncodeUInt32Value(value.tileShadingSampledAttachments);
+    encoder->EncodeUInt32Value(value.tileShadingPerTileDraw);
+    encoder->EncodeUInt32Value(value.tileShadingPerTileDispatch);
+    encoder->EncodeUInt32Value(value.tileShadingDispatchTile);
+    encoder->EncodeUInt32Value(value.tileShadingApron);
+    encoder->EncodeUInt32Value(value.tileShadingAnisotropicApron);
+    encoder->EncodeUInt32Value(value.tileShadingAtomicOps);
+    encoder->EncodeUInt32Value(value.tileShadingImageProcessing);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTileShadingPropertiesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxApronSize);
+    encoder->EncodeUInt32Value(value.preferNonCoherent);
+    EncodeStruct(encoder, value.tileGranularity);
+    EncodeStruct(encoder, value.maxTileShadingRate);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassTileShadingCreateInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    EncodeStruct(encoder, value.tileApronSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPerTileBeginInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPerTileEndInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDispatchTileInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -9535,21 +9600,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassStripeSubmitInfoA
     EncodeStructArray(encoder, value.pStripeSemaphoreInfos, value.stripeSemaphoreInfoCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.fragmentDensityMapOffset);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     EncodeStruct(encoder, value.fragmentDensityOffsetGranularity);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassFragmentDensityMapOffsetEndInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
@@ -10375,6 +10440,43 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorPoo
     encoder->EncodeUInt32Value(value.descriptorPoolOverallocation);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.tileMemoryHeap);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.queueSubmitBoundary);
+    encoder->EncodeUInt32Value(value.tileBufferTransfers);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTileMemoryRequirementsQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.size);
+    encoder->EncodeUInt64Value(value.alignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTileMemoryBindInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceMemoryWrapper>(value.memory);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTileMemorySizeInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.size);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplaySurfaceStereoCreateInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -10828,6 +10930,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentMeteri
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.presentMetering);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderingEndInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

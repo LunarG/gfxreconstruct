@@ -420,6 +420,7 @@ template <> constexpr VkStructureType GetSType<VkDisplayPlaneProperties2KHR>(){ 
 template <> constexpr VkStructureType GetSType<VkDisplayModeProperties2KHR>(){ return VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR; }
 template <> constexpr VkStructureType GetSType<VkDisplayPlaneInfo2KHR>(){ return VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR; }
 template <> constexpr VkStructureType GetSType<VkDisplayPlaneCapabilities2KHR>(){ return VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderBfloat16FeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePortabilitySubsetFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePortabilitySubsetPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderClockFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR; }
@@ -726,6 +727,12 @@ template <> constexpr VkStructureType GetSType<VkSurfaceCapabilitiesPresentBarri
 template <> constexpr VkStructureType GetSType<VkSwapchainPresentBarrierCreateInfoNV>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDiagnosticsConfigFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkDeviceDiagnosticsConfigCreateInfoNV>(){ return VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceTileShadingFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceTileShadingPropertiesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM; }
+template <> constexpr VkStructureType GetSType<VkRenderPassTileShadingCreateInfoQCOM>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPerTileBeginInfoQCOM>(){ return VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPerTileEndInfoQCOM>(){ return VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM; }
+template <> constexpr VkStructureType GetSType<VkDispatchTileInfoQCOM>(){ return VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkQueryLowLatencySupportNV>(){ return VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT; }
@@ -823,9 +830,9 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRenderPassStriped
 template <> constexpr VkStructureType GetSType<VkRenderPassStripeInfoARM>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM; }
 template <> constexpr VkStructureType GetSType<VkRenderPassStripeBeginInfoARM>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM; }
 template <> constexpr VkStructureType GetSType<VkRenderPassStripeSubmitInfoARM>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM; }
-template <> constexpr VkStructureType GetSType<VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM; }
-template <> constexpr VkStructureType GetSType<VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM; }
-template <> constexpr VkStructureType GetSType<VkSubpassFragmentDensityMapOffsetEndInfoQCOM>(){ return VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkRenderPassFragmentDensityMapOffsetEndInfoEXT>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_COMPUTE_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkComputePipelineIndirectBufferInfoNV>(){ return VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV; }
 template <> constexpr VkStructureType GetSType<VkPipelineIndirectDeviceAddressInfoNV>(){ return VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV; }
@@ -913,6 +920,11 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCubicClampFeature
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredDriverPropertiesMSFT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_DRIVER_PROPERTIES_MSFT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceTileMemoryHeapFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceTileMemoryHeapPropertiesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM; }
+template <> constexpr VkStructureType GetSType<VkTileMemoryRequirementsQCOM>(){ return VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM; }
+template <> constexpr VkStructureType GetSType<VkTileMemoryBindInfoQCOM>(){ return VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM; }
+template <> constexpr VkStructureType GetSType<VkTileMemorySizeInfoQCOM>(){ return VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkDisplaySurfaceStereoCreateInfoNV>(){ return VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV; }
 template <> constexpr VkStructureType GetSType<VkDisplayModeStereoPropertiesNV>(){ return VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRawAccessChainsFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV; }
@@ -958,6 +970,7 @@ template <> constexpr VkStructureType GetSType<VkMemoryGetMetalHandleInfoEXT>(){
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkSetPresentConfigNV>(){ return VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePresentMeteringFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkRenderingEndInfoEXT>(){ return VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryTrianglesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryAabbsDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryInstancesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR; }

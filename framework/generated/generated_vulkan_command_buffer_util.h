@@ -261,6 +261,8 @@ void TrackCmdOpticalFlowExecuteNVHandles(vulkan_wrappers::CommandBufferWrapper* 
 
 void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders);
 
+void TrackCmdBindTileMemoryQCOMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo);
+
 void TrackCmdPreprocessGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo, VkCommandBuffer stateCommandBuffer);
 
 void TrackCmdExecuteGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo);

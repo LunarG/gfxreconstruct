@@ -96,7 +96,8 @@ const char* const kVulkanUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEU
                                                            VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
                                                            VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
                                                            VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
-                                                           VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME };
+                                                           VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+                                                           VK_NV_EXTERNAL_COMPUTE_QUEUE_EXTENSION_NAME };
 
 static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
                              const char* const                   screenedExtensions[],

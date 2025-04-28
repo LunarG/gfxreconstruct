@@ -3686,6 +3686,20 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            privateDataSlot,
         PointerDecoder<uint64_t>*                   pData) override;
 
+    virtual void Process_vkCmdDispatchTileQCOM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer) override;
+
+    virtual void Process_vkCmdBeginPerTileExecutionQCOM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM>* pPerTileBeginInfo) override;
+
+    virtual void Process_vkCmdEndPerTileExecutionQCOM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo) override;
+
     virtual void Process_vkCmdSetFragmentShadingRateEnumNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -4314,6 +4328,11 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         VkImageAspectFlags                          aspectMask) override;
 
+    virtual void Process_vkCmdBindTileMemoryQCOM(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo) override;
+
     virtual void Process_vkGetPartitionedAccelerationStructuresBuildSizesNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -4406,6 +4425,11 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         VkExternalMemoryHandleTypeFlagBits          handleType,
         uint64_t                                    pHandle,
         StructPointerDecoder<Decoded_VkMemoryMetalHandlePropertiesEXT>* pMemoryMetalHandleProperties) override;
+
+    virtual void Process_vkCmdEndRendering2EXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingEndInfoEXT>* pRenderingEndInfo) override;
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,

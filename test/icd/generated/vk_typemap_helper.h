@@ -6004,50 +6004,70 @@ template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREAT
     typedef VkDeviceDiagnosticsConfigCreateInfoNV Type;
 };
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 // Map type VkCudaModuleCreateInfoNV to id VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV
 template <> struct LvlTypeMap<VkCudaModuleCreateInfoNV> {
     static const VkStructureType kSType = VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_CUDA_MODULE_CREATE_INFO_NV> {
     typedef VkCudaModuleCreateInfoNV Type;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 // Map type VkCudaFunctionCreateInfoNV to id VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV
 template <> struct LvlTypeMap<VkCudaFunctionCreateInfoNV> {
     static const VkStructureType kSType = VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_CUDA_FUNCTION_CREATE_INFO_NV> {
     typedef VkCudaFunctionCreateInfoNV Type;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 // Map type VkCudaLaunchInfoNV to id VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV
 template <> struct LvlTypeMap<VkCudaLaunchInfoNV> {
     static const VkStructureType kSType = VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_CUDA_LAUNCH_INFO_NV> {
     typedef VkCudaLaunchInfoNV Type;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 // Map type VkPhysicalDeviceCudaKernelLaunchFeaturesNV to id VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV
 template <> struct LvlTypeMap<VkPhysicalDeviceCudaKernelLaunchFeaturesNV> {
     static const VkStructureType kSType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_FEATURES_NV> {
     typedef VkPhysicalDeviceCudaKernelLaunchFeaturesNV Type;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 // Map type VkPhysicalDeviceCudaKernelLaunchPropertiesNV to id VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV
 template <> struct LvlTypeMap<VkPhysicalDeviceCudaKernelLaunchPropertiesNV> {
     static const VkStructureType kSType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV;
 };
+#endif
 
+#ifdef VK_ENABLE_BETA_EXTENSIONS
 template <> struct LvlSTypeMap<VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUDA_KERNEL_LAUNCH_PROPERTIES_NV> {
     typedef VkPhysicalDeviceCudaKernelLaunchPropertiesNV Type;
 };
+#endif
 
 // Map type VkQueryLowLatencySupportNV to id VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV
 template <> struct LvlTypeMap<VkQueryLowLatencySupportNV> {

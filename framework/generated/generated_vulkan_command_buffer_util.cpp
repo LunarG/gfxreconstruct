@@ -43,6 +43,22 @@ void TrackBeginCommandBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
     {
         if (pBeginInfo->pInheritanceInfo != nullptr)
         {
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBeginInfo->pInheritanceInfo->pNext);
+            while (pnext_header)
+            {
+                switch (pnext_header->sType)
+                {
+                    default:
+                        break;
+                    case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
+                    {
+                        auto pnext_value = reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(pnext_header);
+                        if(pnext_value->memory != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DeviceMemoryHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(pnext_value->memory));
+                        break;
+                    }
+                }
+                pnext_header = pnext_header->pNext;
+            }
             if(pBeginInfo->pInheritanceInfo->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pBeginInfo->pInheritanceInfo->renderPass));
             if(pBeginInfo->pInheritanceInfo->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pBeginInfo->pInheritanceInfo->framebuffer));
         }
@@ -1837,6 +1853,16 @@ void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
         {
             if(pShaders[pShaders_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ShaderEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ShaderEXTWrapper>(pShaders[pShaders_index]));
         }
+    }
+}
+
+void TrackCmdBindTileMemoryQCOMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pTileMemoryBindInfo != nullptr)
+    {
+        if(pTileMemoryBindInfo->memory != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DeviceMemoryHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(pTileMemoryBindInfo->memory));
     }
 }
 

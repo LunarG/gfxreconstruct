@@ -763,6 +763,11 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPartitionedAccelerationStructuresBuildSizesNV                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1316),
     ApiCall_vkGetMemoryMetalHandlePropertiesEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1317),
     ApiCall_vkGetMemoryMetalHandleEXT                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1318),
+    ApiCall_vkCmdDispatchTileQCOM                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1319),
+    ApiCall_vkCmdBeginPerTileExecutionQCOM                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x131a),
+    ApiCall_vkCmdEndPerTileExecutionQCOM                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x131b),
+    ApiCall_vkCmdBindTileMemoryQCOM                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x131c),
+    ApiCall_vkCmdEndRendering2EXT                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x131d),
 
     ApiCall_VulkanLast,
 

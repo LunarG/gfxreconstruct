@@ -8809,6 +8809,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapa
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceShaderBfloat16FeaturesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderBFloat16Type"] = static_cast<bool>(decoded_value.shaderBFloat16Type);
+        jdata["shaderBFloat16DotProduct"] = static_cast<bool>(decoded_value.shaderBFloat16DotProduct);
+        jdata["shaderBFloat16CooperativeMatrix"] = static_cast<bool>(decoded_value.shaderBFloat16CooperativeMatrix);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13770,6 +13785,98 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDiagnostic
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceTileShadingFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["tileShading"] = static_cast<bool>(decoded_value.tileShading);
+        jdata["tileShadingFragmentStage"] = static_cast<bool>(decoded_value.tileShadingFragmentStage);
+        jdata["tileShadingColorAttachments"] = static_cast<bool>(decoded_value.tileShadingColorAttachments);
+        jdata["tileShadingDepthAttachments"] = static_cast<bool>(decoded_value.tileShadingDepthAttachments);
+        jdata["tileShadingStencilAttachments"] = static_cast<bool>(decoded_value.tileShadingStencilAttachments);
+        jdata["tileShadingInputAttachments"] = static_cast<bool>(decoded_value.tileShadingInputAttachments);
+        jdata["tileShadingSampledAttachments"] = static_cast<bool>(decoded_value.tileShadingSampledAttachments);
+        jdata["tileShadingPerTileDraw"] = static_cast<bool>(decoded_value.tileShadingPerTileDraw);
+        jdata["tileShadingPerTileDispatch"] = static_cast<bool>(decoded_value.tileShadingPerTileDispatch);
+        jdata["tileShadingDispatchTile"] = static_cast<bool>(decoded_value.tileShadingDispatchTile);
+        jdata["tileShadingApron"] = static_cast<bool>(decoded_value.tileShadingApron);
+        jdata["tileShadingAnisotropicApron"] = static_cast<bool>(decoded_value.tileShadingAnisotropicApron);
+        jdata["tileShadingAtomicOps"] = static_cast<bool>(decoded_value.tileShadingAtomicOps);
+        jdata["tileShadingImageProcessing"] = static_cast<bool>(decoded_value.tileShadingImageProcessing);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceTileShadingPropertiesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["maxApronSize"], decoded_value.maxApronSize, options);
+        jdata["preferNonCoherent"] = static_cast<bool>(decoded_value.preferNonCoherent);
+        FieldToJson(jdata["tileGranularity"], meta_struct.tileGranularity, options);
+        FieldToJson(jdata["maxTileShadingRate"], meta_struct.maxTileShadingRate, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassTileShadingCreateInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkRenderPassTileShadingCreateInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkRenderPassTileShadingCreateInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkTileShadingRenderPassFlagsQCOM_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["tileApronSize"], meta_struct.tileApronSize, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerTileBeginInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPerTileBeginInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPerTileBeginInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerTileEndInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPerTileEndInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPerTileEndInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDispatchTileInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDispatchTileInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkDispatchTileInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencySupportNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15331,12 +15438,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripe
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM& meta_struct = *data;
+        const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT& meta_struct = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["fragmentDensityMapOffset"] = static_cast<bool>(decoded_value.fragmentDensityMapOffset);
@@ -15344,12 +15451,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM& meta_struct = *data;
+        const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT& meta_struct = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["fragmentDensityOffsetGranularity"], meta_struct.fragmentDensityOffsetGranularity, options);
@@ -15357,12 +15464,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const VkSubpassFragmentDensityMapOffsetEndInfoQCOM& decoded_value = *data->decoded_value;
-        const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM& meta_struct = *data;
+        const VkRenderPassFragmentDensityMapOffsetEndInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT& meta_struct = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["fragmentDensityOffsetCount"], decoded_value.fragmentDensityOffsetCount, options);
@@ -16753,6 +16860,73 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["tileMemoryHeap"] = static_cast<bool>(decoded_value.tileMemoryHeap);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["queueSubmitBoundary"] = static_cast<bool>(decoded_value.queueSubmitBoundary);
+        jdata["tileBufferTransfers"] = static_cast<bool>(decoded_value.tileBufferTransfers);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemoryRequirementsQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkTileMemoryRequirementsQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkTileMemoryRequirementsQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["alignment"], decoded_value.alignment, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemoryBindInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkTileMemoryBindInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkTileMemoryBindInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        HandleToJson(jdata["memory"], meta_struct.memory, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemorySizeInfoQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkTileMemorySizeInfoQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkTileMemorySizeInfoQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplaySurfaceStereoCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -17534,6 +17708,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["presentMetering"] = static_cast<bool>(decoded_value.presentMetering);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingEndInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkRenderingEndInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkRenderingEndInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -19453,16 +19639,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_EXT:
             {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM*>(data->GetMetaStructPointer());
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -20468,6 +20654,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_BFLOAT16_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR*>(data->GetMetaStructPointer());
@@ -20776,9 +20969,37 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_PROPERTIES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_PROPERTIES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -21357,6 +21578,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassInputAttachmentAspectCreateInfo*>(data->GetMetaStructPointer());
@@ -21395,6 +21623,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_RENDER_PASS_TILE_SHADING_CREATE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkRenderPassTileShadingCreateInfoQCOM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -21539,13 +21774,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext, options);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkSubpassResolvePerformanceQueryEXT*>(data->GetMetaStructPointer());
@@ -21675,6 +21903,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkTextureLODGatherFormatPropertiesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkTileMemoryBindInfoQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_REQUIREMENTS_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkTileMemoryRequirementsQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkTileMemorySizeInfoQCOM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
