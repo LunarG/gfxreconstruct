@@ -24,7 +24,7 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <test_app_base.h>
+#include <triangle_app.h>
 
 #ifdef __ANDROID__
 #include <android_native_app_glue.h>
@@ -40,40 +40,6 @@ namespace test_app
 
 namespace triangle
 {
-
-const size_t MAX_FRAMES_IN_FLIGHT = 2;
-
-class App : public gfxrecon::test::TestAppBase
-{
-  public:
-    App() = default;
-
-  private:
-    VkQueue graphics_queue_;
-    VkQueue present_queue_;
-
-    std::vector<VkFramebuffer> framebuffers_;
-
-    VkRenderPass     render_pass_;
-    VkPipelineLayout pipeline_layout_;
-    VkPipeline       graphics_pipeline_;
-
-    VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
-
-    size_t current_frame_ = 0;
-
-    gfxrecon::test::Sync sync_;
-
-    void create_render_pass();
-    void create_graphics_pipeline();
-    void create_framebuffers();
-    void recreate_swapchain();
-    void cleanup() override;
-    bool frame(const int frame_num) override;
-    void setup() override;
-
-    void configure_instance_builder(gfxrecon::test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
-};
 
 void App::configure_instance_builder(gfxrecon::test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
@@ -504,36 +470,3 @@ void App::setup()
 } // namespace test_app
 
 } // namespace gfxrecon
-
-#if defined(__ANDROID__)
-void android_main(struct android_app* android_app)
-{
-    try
-    {
-        gfxrecon::test_app::triangle::App app{};
-        app.set_android_app(android_app);
-        app.run("triangle");
-        return;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return;
-    }
-}
-#else
-int main(int argc, char* argv[])
-{
-    try
-    {
-        gfxrecon::test_app::triangle::App app{};
-        app.run("triangle");
-        return 0;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
-}
-#endif
