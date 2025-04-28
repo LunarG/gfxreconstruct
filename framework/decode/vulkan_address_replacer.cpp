@@ -1424,7 +1424,7 @@ bool VulkanAddressReplacer::init_queue_assets()
     }
 
     // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
-    *reinterpret_cast<void**>(command_buffer_) = *reinterpret_cast<void**>(device_);
+    graphics::copy_dispatch_table_from_device(device_, command_buffer_);
 
     VkFenceCreateInfo fence_create_info;
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
