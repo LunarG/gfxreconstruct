@@ -32,10 +32,10 @@
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
-#if defined(WIN32)
+#if defined(D3D12_SUPPORT)
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "generated/generated_dx12_struct_decoders_forward.h"
-#endif
+#endif // defined(D3D12_SUPPORT)
 
 #include <cassert>
 #include <memory>
