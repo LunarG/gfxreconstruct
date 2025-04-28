@@ -21,22 +21,36 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for Android triangle test app
+# Description: CMake script for Test launcher app
 ###############################################################################
 
+cmake_minimum_required(VERSION 3.4.1)
+
 get_filename_component(GFXRECON_SOURCE_DIR ../../../.. ABSOLUTE)
+set(GFXRECON_ANDROID_DIR ${GFXRECON_SOURCE_DIR}/android)
+include(${GFXRECON_ANDROID_DIR}/framework/cmake-config/PlatformConfig.cmake)
 
-set(TRIANGLE_DIR ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle)
-add_library(gfxrecon-testapp-triangle
-            STATIC
-                ${TRIANGLE_DIR}/app.cpp)
+project(gfxrecon-test-launcher)
 
-target_include_directories(gfxrecon-testapp-triangle
+set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+set(COMMON_DIR ${GFXRECON_ANDROID_TEST_APPS_DIR}/common)
+add_subdirectory(${COMMON_DIR} ${COMMON_DIR}/build/${ANDROID_ABI})
+
+
+add_library(${PROJECT_NAME}
+            SHARED
+                ${GFXRECON_SOURCE_DIR}/test/test_apps/launcher/test_launcher.cpp)
+
+target_include_directories(${PROJECT_NAME}
                            PUBLIC
-                               ${TRIANGLE_DIR}
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
-target_link_libraries(gfxrecon-testapp-triangle
-                      PUBLIC
-                          gfxrecon-testapp-base)
+target_link_libraries(${PROJECT_NAME}
+                      gfxrecon_util
+                      gfxrecon-testapp-triangle)
+
+target_link_options(${PROJECT_NAME}
+    PRIVATE
+        LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.map)
