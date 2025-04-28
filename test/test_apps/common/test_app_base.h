@@ -47,6 +47,8 @@
 #include <android_native_app_glue.h>
 #endif
 
+#include <util/defines.h>
+
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
 #elif defined(VK_MAKE_VERSION)
@@ -69,24 +71,20 @@
 #define VKB_VK_API_VERSION_1_0 VKB_MAKE_VK_VERSION(0, 1, 0, 0)
 #endif
 
-namespace vkmock
-{
+GFXRECON_BEGIN_NAMESPACE(vkmock)
 struct TestConfig;
-}
+GFXRECON_END_NAMESPACE(vkmock)
 
-namespace gfxrecon
-{
-
-namespace test
-{
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test)
 
 std::runtime_error vulkan_exception(const char* message, VkResult result);
 #ifndef __ANDROID__
 std::runtime_error sdl_exception();
 #endif
 
-namespace detail
-{
+GFXRECON_BEGIN_NAMESPACE(detail)
+
 struct GenericFeaturesPNextNode
 {
 
@@ -138,7 +136,7 @@ struct GenericFeatureChain
     void combine(GenericFeatureChain const& right) noexcept;
 };
 
-} // namespace detail
+GFXRECON_END_NAMESPACE(detail)
 
 enum class InstanceError
 {
@@ -1107,6 +1105,8 @@ void recreate_init_swapchain(InitInfo& init, bool wait_for_idle = true);
 class TestAppBase
 {
   public:
+    virtual ~TestAppBase();
+
     void run(const std::string& window_name);
 
 #ifdef __ANDROID__
@@ -1114,7 +1114,6 @@ class TestAppBase
 #endif
   protected:
     TestAppBase()                              = default;
-    ~TestAppBase()                             = default;
     TestAppBase(const TestAppBase&)            = delete;
     TestAppBase& operator=(const TestAppBase&) = delete;
     TestAppBase(TestAppBase&&)                 = delete;
@@ -1138,8 +1137,7 @@ class TestAppBase
     InitInfo init;
 };
 
-} // namespace test
-
-} // namespace gfxrecon
+GFXRECON_END_NAMESPACE(test)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_TEST_APP_BASE_H

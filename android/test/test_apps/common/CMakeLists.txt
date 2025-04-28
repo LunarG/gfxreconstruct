@@ -9,12 +9,16 @@ target_include_directories(gfxrecon-testapp-base
                                ${GFXRECON_SOURCE_DIR}/test/test_apps/common
                                ${GFXRECON_SOURCE_DIR}/test/icd)
 
-set(FRAMEWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../framework)
-add_subdirectory(${FRAMEWORK_DIR}/util ${CMAKE_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
+set(FRAMEWORK_DIR ${GFXRECON_ANDROID_DIR}/framework)
+set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
+add_subdirectory(${FRAMEWORK_DIR}/util ${FRAMEWORK_DIR}/util/build/${ANDROID_ABI})
 
 target_link_libraries(gfxrecon-testapp-base
-                      gfxrecon_util
-                      native_app_glue
-                      SDL3::SDL3-static
-                      vulkan_registry)
+    gfxrecon_util
+    native_app_glue
+    SDL3::SDL3-static
+    vulkan_registry)
+
+set(TRIANGLE_DIR ${GFXRECON_ANDROID_TEST_APPS_DIR}/triangle)
+add_subdirectory(${TRIANGLE_DIR} ${TRIANGLE_DIR}/build/${ANDROID_ABI})
 
