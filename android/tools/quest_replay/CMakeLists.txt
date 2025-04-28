@@ -1,3 +1,7 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+project(gfxrecon-quest-replay)
+
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 option(GFXRECON_ENABLE_OPENXR "Enable OpenXR support." ON)

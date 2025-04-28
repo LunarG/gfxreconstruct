@@ -3067,6 +3067,8 @@ void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init
     init.swapchain_image_views = init.swapchain.get_image_views();
 }
 
+TestAppBase::~TestAppBase() {}
+
 void TestAppBase::run(const std::string& window_name)
 {
     device_initialization_phase_1(window_name, init);

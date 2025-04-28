@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 33
-    namespace 'com.lunarg.gfxreconstruct.test.test_apps.triangle'
+    namespace 'com.lunarg.gfxreconstruct.test.test_apps.test_launcher'
     ndkVersion '22.1.7171670'
     defaultConfig {
-        applicationId "com.lunarg.gfxreconstruct.test.test_apps.triangle"
+        applicationId "com.lunarg.gfxreconstruct.test.test_apps.test_launcher"
         minSdkVersion 26
         targetSdkVersion 33
         versionCode 1
@@ -36,14 +36,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main {
-            assets.srcDirs = ['../../../../test/test_apps/triangle']
-        }
-    }
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../../../test/test_apps/triangle/']
         }
     }
 }

@@ -1,4 +1,4 @@
-##############################################################################
+###############################################################################
 # Copyright (c) 2025 LunarG, Inc.
 # All rights reserved
 #
@@ -21,22 +21,36 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for Android triangle test app
+# Description: CMake script for Test Launcher
 ###############################################################################
 
-get_filename_component(GFXRECON_SOURCE_DIR ../../../.. ABSOLUTE)
+set(TARGET_NAME gfxrecon-test-launcher)
+add_executable(${TARGET_NAME} "")
 
-set(TRIANGLE_DIR ${GFXRECON_SOURCE_DIR}/test/test_apps/triangle)
-add_library(gfxrecon-testapp-triangle
-            STATIC
-                ${TRIANGLE_DIR}/app.cpp)
+target_sources(${TARGET_NAME}
+               PRIVATE
+               ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
 
-target_include_directories(gfxrecon-testapp-triangle
-                           PUBLIC
-                               ${TRIANGLE_DIR}
-                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
-                               ${CMAKE_BINARY_DIR})
+target_include_directories(${TARGET_NAME} PUBLIC
+        ${CMAKE_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(gfxrecon-testapp-triangle
-                      PUBLIC
-                          gfxrecon-testapp-base)
+
+target_link_libraries(${TARGET_NAME}
+                      gfxrecon-testapp-triangle)
+
+common_build_directives(${TARGET_NAME})
+
+add_custom_command(
+        TARGET ${TARGET_NAME}
+        POST_BUILD
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+if (WIN32)
+    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${TARGET_NAME}> $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND_EXPAND_LISTS)
+endif ()
+
+install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/launcher)
+
+add_dependencies(gfxrecon-testapps ${TARGET_NAME})
