@@ -24,7 +24,7 @@
 #ifndef GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_WRAPPERS_H
 #define GFXRECON_OPEXNR_ENCODE_CUSTOM_STRUCT_WRAPPERS_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/openxr_handle_wrapper_util.h"
 #include "format/platform_types.h"

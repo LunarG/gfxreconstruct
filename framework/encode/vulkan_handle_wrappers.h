@@ -29,6 +29,7 @@
 #include "encode/handle_unwrap_memory.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_util.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "util/defines.h"
@@ -128,7 +129,7 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
-    VulkanInstanceTable*             layer_table_ref{ nullptr };
+    graphics::VulkanInstanceTable*   layer_table_ref{ nullptr };
     std::vector<DisplayKHRWrapper*>  child_displays;
     graphics::VulkanInstanceUtilInfo instance_info{};
 
@@ -150,7 +151,7 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
-    VulkanInstanceTable                 layer_table;
+    graphics::VulkanInstanceTable       layer_table;
     std::vector<PhysicalDeviceWrapper*> child_physical_devices;
     bool                                have_device_properties{ false };
     uint32_t                            api_version{ VK_MAKE_VERSION(1, 0, 0) };
@@ -158,12 +159,12 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
-    VulkanDeviceTable* layer_table_ref{ nullptr };
+    graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
-    VulkanDeviceTable          layer_table;
+    graphics::VulkanDeviceTable layer_table;
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
 
@@ -394,7 +395,7 @@ struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
-    VulkanDeviceTable* layer_table_ref{ nullptr };
+    graphics::VulkanDeviceTable* layer_table_ref{ nullptr };
 
     // Members for general wrapper support.
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
@@ -545,6 +546,10 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     bool                                              release_full_screen_exclusive_mode{ false };
     bool                                              using_local_dimming_AMD{ false };
     VkBool32                                          local_dimming_enable_AMD{ false };
+
+    // This's for checking if WaitForPresent should or shouldn't be written. Its QueuePresent could be not written since
+    // it's before trim frame range. In this case, skip writing the WaitForPresent.
+    std::unordered_set<graphics::PresentId> record_queue_present_ids_not_written;
 };
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>

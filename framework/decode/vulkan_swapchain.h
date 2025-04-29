@@ -62,18 +62,18 @@ class VulkanSwapchain
 
     void SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
 
-    virtual VkResult CreateSurface(VkResult                            original_result,
-                                   VulkanInstanceInfo*                 instance_info,
-                                   const std::string&                  wsi_extension,
-                                   VkFlags                             flags,
-                                   HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::VulkanInstanceTable*  instance_table,
-                                   application::Application*           application,
-                                   const int32_t                       xpos,
-                                   const int32_t                       ypos,
-                                   const uint32_t                      width,
-                                   const uint32_t                      height,
-                                   bool                                force_windowed = false);
+    virtual VkResult CreateSurface(VkResult                             original_result,
+                                   VulkanInstanceInfo*                  instance_info,
+                                   const std::string&                   wsi_extension,
+                                   VkFlags                              flags,
+                                   HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   application::Application*            application,
+                                   const int32_t                        xpos,
+                                   const int32_t                        ypos,
+                                   const uint32_t                       width,
+                                   const uint32_t                       height,
+                                   bool                                 force_windowed = false);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const VulkanInstanceInfo*    instance_info,
@@ -86,7 +86,7 @@ class VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::VulkanDeviceTable*      device_table) = 0;
+                                        const graphics::VulkanDeviceTable*    device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR     func,
                                      const VulkanDeviceInfo*       device_info,
@@ -176,8 +176,8 @@ class VulkanSwapchain
   protected:
     typedef std::unordered_set<Window*> ActiveWindows;
 
-    const encode::VulkanInstanceTable* instance_table_{ nullptr };
-    const encode::VulkanDeviceTable*   device_table_{ nullptr };
+    const graphics::VulkanInstanceTable* instance_table_{ nullptr };
+    const graphics::VulkanDeviceTable*   device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;

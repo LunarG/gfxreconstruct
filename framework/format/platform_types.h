@@ -27,7 +27,7 @@
 #include "util/logging.h"
 #include "VK_ANDROID_frame_boundary.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
 #endif
 
@@ -1351,7 +1351,7 @@ extern "C"
 
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #if defined(XR_USE_PLATFORM_ANDROID)
 #include "jni.h"

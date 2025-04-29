@@ -37,6 +37,7 @@ const std::string DUMP_ARG_END_RENDER_PASS      = "EndRenderPass";
 const std::string DUMP_ARG_DISPATCH             = "Dispatch";
 const std::string DUMP_ARG_TRACE_RAYS           = "TraceRays";
 const std::string DUMP_ARG_QUEUE_SUBMIT         = "QueueSubmit";
+const std::string DUMP_ARG_EXECUTE_COMMANDS     = "ExecuteCommands";
 
 enum class VkDumpDrawCallType
 {

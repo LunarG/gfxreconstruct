@@ -171,7 +171,7 @@ class OpenXrBaseGeneratorOptions(KhronosBaseGeneratorOptions):
             extra_manual_commands=extra_manual_commands,
         )
 
-        self.begin_end_file_data.guards.append(('ifdef', 'ENABLE_OPENXR_SUPPORT'))
+        self.begin_end_file_data.guards.append(('if', 'ENABLE_OPENXR_SUPPORT'))
         self.begin_end_file_data.common_api_headers = [
             'format/platform_types.h',
             '',

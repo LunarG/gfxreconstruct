@@ -31,7 +31,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_detection_consumer.h"
 #include "decode/openxr_stats_consumer.h"
 #include "generated/generated_openxr_decoder.h"
@@ -372,7 +372,7 @@ void GatherAndPrintExeInfo(const std::string& input_filename)
     }
 }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
                       const ApiAgnosticStats&                      api_agnostic_stats,
@@ -857,7 +857,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
         file_processor.AddDecoder(&dx12_decoder);
 #endif
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
         gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer;
         gfxrecon::decode::OpenXrStatsConsumer     openxr_stats_consumer;
         gfxrecon::decode::OpenXrDecoder           openxr_decoder;
@@ -909,7 +909,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
                 PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
             }
 #endif
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
             if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
             {
                 PrintOpenXrStats(file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder);

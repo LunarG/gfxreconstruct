@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_DECODER_H
 #define  GFXRECON_GENERATED_OPENXR_DECODER_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_decoder_base.h"
 #include "util/defines.h"

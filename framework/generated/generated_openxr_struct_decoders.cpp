@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "decode/custom_dx12_struct_decoders.h"
 #include "decode/custom_openxr_struct_decoders.h"

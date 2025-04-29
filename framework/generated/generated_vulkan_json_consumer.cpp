@@ -9010,6 +9010,46 @@ void VulkanExportJsonConsumer::Process_vkGetPrivateDataEXT(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdDispatchTileQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdDispatchTileQCOM");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdBeginPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM>* pPerTileBeginInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBeginPerTileExecutionQCOM");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pPerTileBeginInfo"], pPerTileBeginInfo, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdEndPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdEndPerTileExecutionQCOM");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pPerTileEndInfo"], pPerTileEndInfo, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -10621,6 +10661,20 @@ void VulkanExportJsonConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdBindTileMemoryQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdBindTileMemoryQCOM");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pTileMemoryBindInfo"], pTileMemoryBindInfo, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkGetPartitionedAccelerationStructuresBuildSizesNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
@@ -10849,6 +10903,20 @@ void VulkanExportJsonConsumer::Process_vkGetMemoryMetalHandlePropertiesEXT(
         FieldToJson(args["handleType"], handleType, json_options);
         FieldToJson(args["pHandle"], pHandle, json_options);
         FieldToJson(args["pMemoryMetalHandleProperties"], pMemoryMetalHandleProperties, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdEndRendering2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingEndInfoEXT>* pRenderingEndInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdEndRendering2EXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pRenderingEndInfo"], pRenderingEndInfo, json_options);
     WriteBlockEnd();
 }
 

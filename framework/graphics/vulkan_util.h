@@ -40,6 +40,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+typedef uint64_t PresentId;
+
 const std::vector<std::string> kLoaderLibNames = {
 #if defined(WIN32)
     "vulkan-1.dll"

@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "generated_openxr_struct_to_json.h"
 #include "generated_vulkan_struct_to_json.h"

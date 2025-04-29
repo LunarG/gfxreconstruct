@@ -57,7 +57,6 @@ class OpenXrStructEncodersBodyGeneratorOptions(OpenXrBaseGeneratorOptions):
             'generated/generated_openxr_struct_encoders.h',
             'generated/generated_vulkan_api_call_encoders.h',
             '',
-            'encode/custom_dx12_struct_encoders.h',
             'encode/custom_openxr_struct_encoders.h',
             'encode/custom_vulkan_struct_encoders.h',
             'encode/parameter_encoder.h',

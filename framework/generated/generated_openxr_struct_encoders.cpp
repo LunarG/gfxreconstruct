@@ -27,12 +27,11 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "generated/generated_openxr_struct_encoders.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 
-#include "encode/custom_dx12_struct_encoders.h"
 #include "encode/custom_openxr_struct_encoders.h"
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"

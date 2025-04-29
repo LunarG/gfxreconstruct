@@ -76,7 +76,8 @@ _remove_extensions = [
     "VK_NV_memory_decompression",
     "VK_QNX_external_memory_screen_buffer",
     "VK_NV_cuda_kernel_launch",
-    "VK_NV_cluster_acceleration_structure"
+    "VK_NV_cluster_acceleration_structure",
+    "VK_NV_external_compute_queue"
 ]
 
 # Turn lists of names/patterns into matching regular expressions.

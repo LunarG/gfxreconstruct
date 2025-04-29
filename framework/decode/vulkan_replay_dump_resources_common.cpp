@@ -132,7 +132,7 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 }
 
 VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
-                    const encode::VulkanDeviceTable*        device_table,
+                    const graphics::VulkanDeviceTable*      device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                     const VulkanImageInfo*                  image_info,
                     VkImage*                                new_image,
@@ -203,7 +203,7 @@ VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
 }
 
 VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
-                     const encode::VulkanDeviceTable*        device_table,
+                     const graphics::VulkanDeviceTable*      device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                      const VulkanBufferInfo*                 buffer_info,
                      VkBuffer*                               new_buffer,
@@ -431,19 +431,19 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     }
 }
 
-VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
-                         const VulkanDeviceInfo*            device_info,
-                         const encode::VulkanDeviceTable*   device_table,
-                         const encode::VulkanInstanceTable* instance_table,
-                         CommonObjectInfoTable&             object_info_table,
-                         const std::vector<std::string>&    filenames,
-                         float                              scale,
-                         std::vector<bool>&                 scaling_supported,
-                         util::ScreenshotFormat             image_file_format,
-                         bool                               dump_all_subresources,
-                         bool                               dump_image_raw,
-                         bool                               dump_separate_alpha,
-                         VkImageLayout                      layout)
+VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
+                         const VulkanDeviceInfo*              device_info,
+                         const graphics::VulkanDeviceTable*   device_table,
+                         const graphics::VulkanInstanceTable* instance_table,
+                         CommonObjectInfoTable&               object_info_table,
+                         const std::vector<std::string>&      filenames,
+                         float                                scale,
+                         std::vector<bool>&                   scaling_supported,
+                         util::ScreenshotFormat               image_file_format,
+                         bool                                 dump_all_subresources,
+                         bool                                 dump_image_raw,
+                         bool                                 dump_separate_alpha,
+                         VkImageLayout                        layout)
 {
     assert(image_info != nullptr);
     assert(device_info != nullptr);
@@ -477,41 +477,68 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
-        bool                  scaled;
 
-        VkResult res = resource_util.ReadFromImageResourceStaging(
-            image_info->handle,
-            image_info->format,
-            image_info->type,
-            image_info->extent,
-            image_info->level_count,
-            image_info->layer_count,
-            image_info->tiling,
-            image_info->sample_count,
-            (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout,
-            image_info->queue_family_index,
-            image_info->external_format,
-            image_info->size,
-            aspect,
-            data,
-            subresource_offsets,
-            subresource_sizes,
-            scaled,
-            false,
-            scale,
-            dst_format);
+        graphics::VulkanResourcesUtil::ImageResource image_resource = {};
+        image_resource.image                                        = image_info->handle;
+        image_resource.format                                       = image_info->format;
+        image_resource.type                                         = image_info->type;
+        image_resource.extent                                       = image_info->extent;
+        image_resource.level_count                                  = image_info->level_count;
+        image_resource.layer_count                                  = image_info->layer_count;
+        image_resource.tiling                                       = image_info->tiling;
+        image_resource.sample_count                                 = image_info->sample_count;
+        image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
+        image_resource.queue_family_index   = image_info->queue_family_index;
+        image_resource.external_format      = image_info->external_format;
+        image_resource.size                 = image_info->size;
+        image_resource.level_sizes          = &subresource_sizes;
+        image_resource.aspect               = aspect;
+        image_resource.scale                = scale;
+        image_resource.dst_format           = dst_format;
+        image_resource.all_layers_per_level = false;
 
-        assert(!subresource_offsets.empty());
-        assert(!subresource_sizes.empty());
+        scaling_supported[i] = resource_util.IsScalingSupported(image_resource.format,
+                                                                image_resource.tiling,
+                                                                dst_format,
+                                                                image_resource.type,
+                                                                image_resource.extent,
+                                                                scale);
+        bool blit_supported  = resource_util.IsBlitSupported(image_resource.format, image_resource.tiling, dst_format);
+        bool use_blit        = (image_resource.format != dst_format && blit_supported) ||
+                        (image_resource.scale != 1.0f && scaling_supported[i]);
 
-        scaling_supported[i] = scaled;
+        VkExtent3D scaled_extent = {
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.height) * scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.depth) * scale, 1.0f))
+        };
 
-        if (res != VK_SUCCESS)
+        image_resource.resource_size =
+            resource_util.GetImageResourceSizesOptimal(image_resource.image,
+                                                       use_blit ? dst_format : image_resource.format,
+                                                       image_resource.type,
+                                                       use_blit ? scaled_extent : image_resource.extent,
+                                                       image_resource.level_count,
+                                                       image_resource.layer_count,
+                                                       image_resource.tiling,
+                                                       aspect,
+                                                       &subresource_offsets,
+                                                       &subresource_sizes,
+                                                       image_resource.all_layers_per_level);
+
+        if (subresource_offsets.empty() || subresource_sizes.empty())
+        {
+            return VK_ERROR_INITIALIZATION_FAILED;
+        }
+
+        VkResult result = resource_util.ReadImageResource(image_resource, data);
+
+        if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
                                image_info->capture_id,
-                               util::ToString<VkResult>(res).c_str())
-            return res;
+                               util::ToString<VkResult>(result).c_str())
+            return result;
         }
 
         const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
@@ -528,7 +555,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
             {
-                std::string filename = filenames[f++];
+                const std::string& filename = filenames[f++];
 
                 // We don't support stencil output yet
                 if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
@@ -544,8 +571,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
                         VkFormatToImageWriterDataFormat(dst_format);
                     assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
 
-                    VkExtent3D scaled_extent;
-                    if (scale != 1.0f && scaled)
+                    if (scale != 1.0f && scaling_supported[i])
                     {
                         scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
                         scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
@@ -634,7 +660,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*             image_info,
     }
 
     assert(f == total_files);
-
     return VK_SUCCESS;
 }
 
@@ -693,7 +718,7 @@ std::string IndexTypeToStr(VkIndexType type)
 }
 
 VkResult CreateVkBuffer(VkDeviceSize                            size,
-                        const encode::VulkanDeviceTable*        device_table,
+                        const graphics::VulkanDeviceTable*      device_table,
                         VkDevice                                parent_device,
                         VkBaseInStructure*                      pNext,
                         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
@@ -775,15 +800,15 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspec
     }
 }
 
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*            device_info,
-                                       const encode::VulkanDeviceTable*   device_table,
-                                       const encode::VulkanInstanceTable* instance_table,
-                                       VulkanObjectInfoTable&             object_info_table,
-                                       VkFormat                           src_format,
-                                       VkImageTiling                      src_image_tiling,
-                                       VkImageType                        type,
-                                       util::ScreenshotFormat             image_file_format,
-                                       bool                               dump_raw)
+DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
+                                       const graphics::VulkanDeviceTable*   device_table,
+                                       const graphics::VulkanInstanceTable* instance_table,
+                                       VulkanObjectInfoTable&               object_info_table,
+                                       VkFormat                             src_format,
+                                       VkImageTiling                        src_image_tiling,
+                                       VkImageType                          type,
+                                       util::ScreenshotFormat               image_file_format,
+                                       bool                                 dump_raw)
 {
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);

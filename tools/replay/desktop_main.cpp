@@ -33,7 +33,7 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_tracked_object_info_table.h"
 #include "generated/generated_openxr_decoder.h"
 #include "generated/generated_openxr_replay_consumer.h"

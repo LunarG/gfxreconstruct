@@ -29,8 +29,10 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
 
+#include <cstdint>
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -49,6 +51,14 @@ enum class SkipGetFenceStatus
     SkipAll,
     COUNT
 };
+
+using Index                 = uint64_t;
+using DrawCallIndices       = std::vector<Index>;
+using RenderPassIndices     = std::vector<std::vector<Index>>;
+using DispatchIndices       = std::vector<Index>;
+using TraceRaysIndices      = std::vector<Index>;
+using ExecuteCommandIndices = std::vector<Index>;
+using ExecuteCommands       = std::unordered_map<uint64_t, ExecuteCommandIndices>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -71,16 +81,21 @@ struct VulkanReplayOptions : public ReplayOptions
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
+    VkDebugUtilsMessageSeverityFlagBitsEXT debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT };
 
     // Dumping resources related configurable replay options
-    std::vector<uint64_t>                           BeginCommandBuffer_Indices;
-    std::vector<std::vector<uint64_t>>              Draw_Indices;
-    std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
-    std::vector<std::vector<uint64_t>>              Dispatch_Indices;
-    std::vector<std::vector<uint64_t>>              TraceRays_Indices;
-    std::vector<uint64_t>                           QueueSubmit_Indices;
-    std::string                                     dump_resources_block_indices;
-    util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
+    std::vector<decode::Index>     BeginCommandBuffer_Indices;
+    std::vector<DrawCallIndices>   Draw_Indices;
+    std::vector<RenderPassIndices> RenderPass_Indices;
+    std::vector<DispatchIndices>   Dispatch_Indices;
+    std::vector<TraceRaysIndices>  TraceRays_Indices;
+    std::vector<decode::Index>     QueueSubmit_Indices;
+
+    // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
+    std::vector<ExecuteCommands> ExecuteCommands_Indices;
+
+    std::string            dump_resources_block_indices;
+    util::ScreenshotFormat dump_resources_image_format{ util::ScreenshotFormat::kBmp };
 
     // Flag to quickly check whether the feature is enabled or not
     bool  dumping_resources{ false };

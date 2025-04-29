@@ -33,6 +33,7 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstdint>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -43,19 +44,21 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DrawCallsDumpingContext
 {
   public:
-    DrawCallsDumpingContext(const std::vector<uint64_t>&              dc_indices,
-                            const std::vector<std::vector<uint64_t>>& rp_indices,
-                            CommonObjectInfoTable&                    object_info_table,
-                            const VulkanReplayOptions&                options,
-                            VulkanDumpResourcesDelegate&              delegate);
+    DrawCallsDumpingContext(const DrawCallIndices*       dc_indices_,
+                            const RenderPassIndices*     rp_indices,
+                            CommonObjectInfoTable&       object_info_table,
+                            const VulkanReplayOptions&   options,
+                            VulkanDumpResourcesDelegate& delegate);
 
     ~DrawCallsDumpingContext();
 
-    bool IsRecording() const { return current_cb_index < command_buffers.size(); }
+    bool IsRecording() const { return current_cb_index_ < command_buffers_.size(); }
 
     bool MustDumpDrawCall(uint64_t index) const;
 
     bool ShouldHandleRenderPass(uint64_t index) const;
+
+    bool ShouldHandleExecuteCommands(uint64_t index) const;
 
     void BindDescriptorSets(VkPipelineBindPoint                                pipeline_bind_point,
                             uint32_t                                           first_set,
@@ -65,9 +68,10 @@ class DrawCallsDumpingContext
 
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
-    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*           orig_cmd_buf_info,
-                                const encode::VulkanDeviceTable*   dev_table,
-                                const encode::VulkanInstanceTable* inst_table);
+    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+                                const graphics::VulkanDeviceTable*   dev_table,
+                                const graphics::VulkanInstanceTable* inst_table,
+                                const VkCommandBufferBeginInfo*      begin_info);
 
     VkResult CloneRenderPass(const VulkanRenderPassInfo* original_render_pass, const VulkanFramebufferInfo* fb_info);
 
@@ -177,6 +181,14 @@ class DrawCallsDumpingContext
 
     void Release();
 
+    const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
+
+    void AssignSecondary(uint64_t execute_commands_index, DrawCallsDumpingContext* secondary_context);
+
+    uint32_t RecaclulateCommandBuffers();
+
+    void UpdateSecondaries();
+
   private:
     void SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
                           VulkanImageInfo*                     depth_att_img,
@@ -202,23 +214,25 @@ class DrawCallsDumpingContext
 
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
 
-    VulkanCommandBufferInfo*           original_command_buffer_info;
-    std::vector<VkCommandBuffer>       command_buffers;
-    size_t                             current_cb_index;
-    std::vector<uint64_t>              dc_indices;
-    std::vector<std::vector<uint64_t>> RP_indices;
-    const VulkanRenderPassInfo*        active_renderpass;
-    const VulkanFramebufferInfo*       active_framebuffer;
-    const VulkanPipelineInfo*          bound_gr_pipeline;
-    uint32_t                           current_renderpass;
-    uint32_t                           current_subpass;
-    uint32_t                           n_subpasses;
-    bool                               dump_resources_before;
-    VulkanDumpResourcesDelegate&       delegate_;
-    bool                               dump_depth;
-    int32_t                            color_attachment_to_dump;
-    bool                               dump_vertex_index_buffers;
-    bool                               dump_immutable_resources;
+    VulkanCommandBufferInfo*     original_command_buffer_info_;
+    std::vector<VkCommandBuffer> command_buffers_;
+    size_t                       current_cb_index_;
+    DrawCallIndices              dc_indices_;
+    RenderPassIndices            RP_indices_;
+    const VulkanRenderPassInfo*  active_renderpass_;
+    const VulkanFramebufferInfo* active_framebuffer_;
+    const VulkanPipelineInfo*    bound_gr_pipeline_;
+    uint32_t                     current_renderpass_;
+    uint32_t                     current_subpass_;
+    bool                         dump_resources_before_;
+    VulkanDumpResourcesDelegate& delegate_;
+    bool                         dump_depth_;
+    int32_t                      color_attachment_to_dump_;
+    bool                         dump_vertex_index_buffers_;
+    bool                         dump_immutable_resources_;
+
+    // Execute commands block index : DrawCallContexts
+    std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
 
     enum RenderPassType
     {
@@ -227,9 +241,9 @@ class DrawCallsDumpingContext
         kDynamicRendering
     };
 
-    RenderPassType current_render_pass_type;
+    RenderPassType current_render_pass_type_;
 
-    std::vector<std::vector<VkRenderPass>> render_pass_clones;
+    std::vector<std::vector<VkRenderPass>> render_pass_clones_;
 
     struct RenderPassAttachmentLayouts
     {
@@ -238,7 +252,7 @@ class DrawCallsDumpingContext
         VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
     };
 
-    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts;
+    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts_;
 
   public:
     struct RenderTargets
@@ -252,13 +266,13 @@ class DrawCallsDumpingContext
   private:
     // render_targets is basically a 2d array (vector of vectors). It is indexed like render_targets[rp][sp]
     // where rp specifies the render pass and sp the subpass.
-    std::vector<std::vector<RenderTargets>> render_targets;
+    std::vector<std::vector<RenderTargets>> render_targets_;
 
     // Render area is constant between subpasses so this array will be single dimension array
-    std::vector<VkRect2D> render_area;
+    std::vector<VkRect2D> render_area_;
 
     // One entry per descriptor set
-    std::unordered_map<uint32_t, VulkanDescriptorSetInfo> bound_descriptor_sets_gr;
+    BoundDescriptorSets bound_descriptor_sets_gr_;
 
   public:
     struct VertexInputState
@@ -272,7 +286,7 @@ class DrawCallsDumpingContext
 
   private:
     // Keep track of CmdSetVertexInputEXT
-    VertexInputState dynamic_vertex_input_state;
+    VertexInputState dynamic_vertex_input_state_;
 
   public:
     // Keep track of bound vertex buffers
@@ -307,7 +321,7 @@ class DrawCallsDumpingContext
     };
 
   private:
-    BoundVertexBuffersInfo bound_vertex_buffers;
+    BoundVertexBuffersInfo bound_vertex_buffers_;
 
   public:
     // Keep track of bound index buffer
@@ -337,7 +351,7 @@ class DrawCallsDumpingContext
     };
 
   private:
-    BoundIndexBuffer bound_index_buffer;
+    BoundIndexBuffer bound_index_buffer_;
 
   public:
     enum DrawCallTypes
@@ -447,7 +461,7 @@ class DrawCallsDumpingContext
         }
     }
 
-    struct DrawCallParameters
+    struct DrawCallParams
     {
         static constexpr uint64_t INVALID_BLOCK_INDEX = std::numeric_limits<uint64_t>::max();
 
@@ -561,52 +575,56 @@ class DrawCallsDumpingContext
         } dc_params_union;
 
         // Constructor for vkCmdDraw
-        DrawCallParameters(DrawCallTypes type,
-                           uint32_t      vertex_count,
-                           uint32_t      instance_count,
-                           uint32_t      first_vertex,
-                           uint32_t      first_instance) :
+        DrawCallParams(DrawCallTypes type,
+                       uint32_t      vertex_count,
+                       uint32_t      instance_count,
+                       uint32_t      first_vertex,
+                       uint32_t      first_instance) :
             dc_params_union(vertex_count, instance_count, first_vertex, first_instance),
-            type(type)
+            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
+            updated_bound_index_buffer(false)
         {
             assert(type == DrawCallTypes::kDraw);
         }
 
         // Constructor for vkCmdDrawIndexed*
-        DrawCallParameters(DrawCallTypes type,
-                           uint32_t      index_count,
-                           uint32_t      instance_count,
-                           uint32_t      first_index,
-                           int32_t       vertex_offset,
-                           uint32_t      first_instance) :
+        DrawCallParams(DrawCallTypes type,
+                       uint32_t      index_count,
+                       uint32_t      instance_count,
+                       uint32_t      first_index,
+                       int32_t       vertex_offset,
+                       uint32_t      first_instance) :
             dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance),
-            type(type)
+            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
+            updated_bound_index_buffer(false)
         {
             assert(type == DrawCallTypes::kDrawIndexed);
         }
 
         // Constructor for vkCmdDraw*Indirect
-        DrawCallParameters(DrawCallTypes           type,
-                           const VulkanBufferInfo* params_buffer_info,
-                           VkDeviceSize            offset,
-                           uint32_t                draw_count,
-                           uint32_t                stride) :
+        DrawCallParams(DrawCallTypes           type,
+                       const VulkanBufferInfo* params_buffer_info,
+                       VkDeviceSize            offset,
+                       uint32_t                draw_count,
+                       uint32_t                stride) :
             dc_params_union(params_buffer_info, offset, draw_count, stride),
-            type(type)
+            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
+            updated_bound_index_buffer(false)
         {
             assert(type == DrawCallTypes::kDrawIndirect || type == DrawCallTypes::kDrawIndexedIndirect);
         }
 
         // Constructor for vkCmdDraw*IndirectCount*
-        DrawCallParameters(DrawCallTypes           type,
-                           const VulkanBufferInfo* buffer_info,
-                           VkDeviceSize            offset,
-                           const VulkanBufferInfo* count_buffer_info,
-                           VkDeviceSize            count_buffer_offset,
-                           uint32_t                max_draw_count,
-                           uint32_t                stride) :
+        DrawCallParams(DrawCallTypes           type,
+                       const VulkanBufferInfo* buffer_info,
+                       VkDeviceSize            offset,
+                       const VulkanBufferInfo* count_buffer_info,
+                       VkDeviceSize            count_buffer_offset,
+                       uint32_t                max_draw_count,
+                       uint32_t                stride) :
             dc_params_union(buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride),
-            type(type)
+            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
+            updated_bound_index_buffer(false)
         {
             assert(type == DrawCallTypes::kDrawIndirectCount || type == DrawCallTypes::kDrawIndexedIndirectCount ||
                    type == DrawCallTypes::kDrawIndirectCountKHR || type == DrawCallTypes::kDrawIndexedIndirectCountKHR);
@@ -641,17 +659,22 @@ class DrawCallsDumpingContext
             };
             std::unordered_map<uint32_t, VertexBufferBindingInfo> vertex_bindings_info;
         } json_output_info;
+
+        // Need to keep track if a draw call context from a secondary command buffer has been updated with information
+        // that might be available only from the primary command buffer
+        bool updated_bound_vertex_buffers;
+        bool updated_bound_index_buffer;
+        bool updated_referenced_descriptors;
     };
 
   private:
     // One entry for each draw call
-    std::unordered_map<uint64_t, DrawCallParameters> draw_call_params;
+    using DrawCallParameters = std::unordered_map<uint64_t, std::unique_ptr<DrawCallParams>>;
+    DrawCallParameters draw_call_params_;
 
-    void SnapshotState(DrawCallParameters& dc_params);
-
-    void CopyVertexInputStateInfo(DrawCallParameters& dc_params);
-
-    VkResult CopyDrawIndirectParameters(DrawCallParameters& dc_params);
+    DrawCallParameters&    GetDrawCallParameters() { return draw_call_params_; }
+    DrawCallIndices&       GetDrawCallIndices() { return dc_indices_; }
+    const DrawCallIndices& GetDrawCallIndices() const { return dc_indices_; }
 
     struct
     {
@@ -662,7 +685,7 @@ class DrawCallsDumpingContext
         std::vector<const VulkanBufferInfo*> original_buffers;
         std::vector<VkBuffer>                buffers;
         std::vector<VkDeviceMemory>          buffer_memories;
-    } mutable_resource_backups;
+    } mutable_resource_backups_;
 
     // Gather here all descriptors referenced by draw calls that have been dumped
     // in order to avoid dumping descriptors referenced from multiple shader stages,
@@ -674,16 +697,27 @@ class DrawCallsDumpingContext
         std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
     };
 
-    std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors;
+    std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
-    VkCommandBuffer aux_command_buffer;
-    VkFence         aux_fence;
-    bool            must_backup_resources;
+    VkCommandBuffer                 aux_command_buffer_;
+    VkFence                         aux_fence_;
+    bool                            must_backup_resources_;
+    DumpResourcesCommandBufferLevel command_buffer_level_;
 
-    const encode::VulkanDeviceTable*        device_table;
-    const encode::VulkanInstanceTable*      instance_table;
-    CommonObjectInfoTable&                  object_info_table;
-    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
+    const graphics::VulkanDeviceTable*      device_table_;
+    const graphics::VulkanInstanceTable*    instance_table_;
+    CommonObjectInfoTable&                  object_info_table_;
+    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
+
+    void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
+                                           const BoundVertexBuffersInfo& vertex_buffers,
+                                           const BoundIndexBuffer&       index_buffer,
+                                           const VertexInputState&       dynamic_vertex_input_state_,
+                                           const BoundDescriptorSets&    descriptor_sets);
+
+    void SnapshotState(DrawCallParams& dc_params);
+
+    VkResult CopyDrawIndirectParameters(DrawCallParams& dc_params);
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -68,33 +68,32 @@ class VulkanDeviceUtil
     // Incoming create_info data will be modified. Use RestoreModifiedPhysicalDeviceFeatures
     // to revert incoming data to original values (e.g., prior to writing to the capture file).
     // feature_* property_* members store the state of the features/properties after this call.
-    VulkanDevicePropertyFeatureInfo
-    EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                         const encode::VulkanInstanceTable* instance_table,
-                                         const VkPhysicalDevice             physical_device,
-                                         const VkDeviceCreateInfo*          create_info);
+    VulkanDevicePropertyFeatureInfo EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                                         const VulkanInstanceTable*    instance_table,
+                                                                         const VkPhysicalDevice        physical_device,
+                                                                         const VkDeviceCreateInfo*     create_info);
 
     // Restore any incoming values that were modified in EnableRequiredPhysicalDeviceFeatures
     void RestoreModifiedPhysicalDeviceFeatures();
 
     // Populates various property-structs in the provided replay_device_info
-    static void GetReplayDeviceProperties(const VulkanInstanceUtilInfo&      instance_info,
-                                          const encode::VulkanInstanceTable* instance_table,
-                                          VkPhysicalDevice                   physical_device,
-                                          decode::VulkanReplayDeviceInfo*    replay_device_info);
+    static void GetReplayDeviceProperties(const VulkanInstanceUtilInfo&   instance_info,
+                                          const VulkanInstanceTable*      instance_table,
+                                          VkPhysicalDevice                physical_device,
+                                          decode::VulkanReplayDeviceInfo* replay_device_info);
 
   private:
     template <typename T>
-    VkBool32 EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                                       const encode::VulkanInstanceTable* instance_table,
-                                                       const VkPhysicalDevice             physical_device,
-                                                       T*                                 feature_struct);
+    VkBool32 EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                       const VulkanInstanceTable*    instance_table,
+                                                       const VkPhysicalDevice        physical_device,
+                                                       T*                            feature_struct);
 
     template <typename T>
-    VkBool32 EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo&      instance_info,
-                                                  const encode::VulkanInstanceTable* instance_table,
-                                                  const VkPhysicalDevice             physical_device,
-                                                  T*                                 feature_struct);
+    VkBool32 EnableSamplerYcbcrConversionFeatures(const VulkanInstanceUtilInfo&        instance_info,
+                                                  const graphics::VulkanInstanceTable* instance_table,
+                                                  const VkPhysicalDevice               physical_device,
+                                                  T*                                   feature_struct);
 
   private:
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay

@@ -9817,6 +9817,31 @@ size_t vulkan_struct_deep_copy(const VkDisplayPlaneCapabilities2KHR* structs, ui
 }
 
 template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceShaderBfloat16FeaturesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDevicePortabilitySubsetFeaturesKHR* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -17615,6 +17640,156 @@ size_t vulkan_struct_deep_copy(const VkDeviceDiagnosticsConfigCreateInfoNV* stru
 }
 
 template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceTileShadingFeaturesQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceTileShadingPropertiesQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkRenderPassTileShadingCreateInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPerTileBeginInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPerTileEndInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkDispatchTileInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
 size_t vulkan_struct_deep_copy(const VkQueryLowLatencySupportNV* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -20032,7 +20207,7 @@ size_t vulkan_struct_deep_copy(const VkRenderPassStripeSubmitInfoARM* structs, u
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* structs, uint32_t count, uint8_t* out_data)
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);
@@ -20057,7 +20232,7 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetFea
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* structs, uint32_t count, uint8_t* out_data)
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);
@@ -20082,7 +20257,7 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceFragmentDensityMapOffsetPro
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkSubpassFragmentDensityMapOffsetEndInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+size_t vulkan_struct_deep_copy(const VkRenderPassFragmentDensityMapOffsetEndInfoEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);
@@ -22326,6 +22501,131 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceDescriptorPoolOverallocatio
 }
 
 template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkTileMemoryRequirementsQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkTileMemoryBindInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkTileMemorySizeInfoQCOM* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
 size_t vulkan_struct_deep_copy(const VkDisplaySurfaceStereoCreateInfoNV* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -23438,6 +23738,31 @@ size_t vulkan_struct_deep_copy(const VkSetPresentConfigNV* structs, uint32_t cou
 
 template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDevicePresentMeteringFeaturesNV* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkRenderingEndInfoEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);

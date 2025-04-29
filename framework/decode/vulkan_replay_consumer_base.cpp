@@ -116,24 +116,30 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
 {
     GFXRECON_UNREFERENCED_PARAMETER(pUserData);
 
-    if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr) &&
-        (pCallbackData->pMessage != nullptr))
+    // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
+    const char* message_id_name = "(nullptr)";
+    if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr))
+    {
+        message_id_name = pCallbackData->pMessageIdName;
+    }
+
+    if ((pCallbackData != nullptr) && (pCallbackData->pMessage != nullptr))
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
         {
-            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
         else
         {
-            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
         }
     }
 
@@ -1274,43 +1280,43 @@ void VulkanReplayConsumerBase::InitializeLoader()
 
 void VulkanReplayConsumerBase::AddInstanceTable(VkInstance instance)
 {
-    encode::VulkanDispatchKey dispatch_key = encode::GetVulkanDispatchKey(instance);
+    graphics::VulkanDispatchKey dispatch_key = graphics::GetVulkanDispatchKey(instance);
 
     get_device_proc_addrs_[dispatch_key] =
         reinterpret_cast<PFN_vkGetDeviceProcAddr>(get_instance_proc_addr_(instance, "vkGetDeviceProcAddr"));
     create_device_procs_[dispatch_key] =
         reinterpret_cast<PFN_vkCreateDevice>(get_instance_proc_addr_(instance, "vkCreateDevice"));
 
-    encode::VulkanInstanceTable& table = instance_tables_[dispatch_key];
-    encode::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
+    graphics::VulkanInstanceTable& table = instance_tables_[dispatch_key];
+    graphics::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
 }
 
 void VulkanReplayConsumerBase::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
-    encode::VulkanDeviceTable& table = device_tables_[encode::GetVulkanDispatchKey(device)];
-    encode::LoadVulkanDeviceTable(gpa, device, &table);
+    graphics::VulkanDeviceTable& table = device_tables_[graphics::GetVulkanDispatchKey(device)];
+    graphics::LoadVulkanDeviceTable(gpa, device, &table);
 }
 
 PFN_vkGetDeviceProcAddr VulkanReplayConsumerBase::GetDeviceAddrProc(VkPhysicalDevice physical_device)
 {
-    return get_device_proc_addrs_[encode::GetVulkanDispatchKey(physical_device)];
+    return get_device_proc_addrs_[graphics::GetVulkanDispatchKey(physical_device)];
 }
 
 PFN_vkCreateDevice VulkanReplayConsumerBase::GetCreateDeviceProc(VkPhysicalDevice physical_device)
 {
-    return create_device_procs_[encode::GetVulkanDispatchKey(physical_device)];
+    return create_device_procs_[graphics::GetVulkanDispatchKey(physical_device)];
 }
 
-const encode::VulkanInstanceTable* VulkanReplayConsumerBase::GetInstanceTable(const void* handle) const
+const graphics::VulkanInstanceTable* VulkanReplayConsumerBase::GetInstanceTable(const void* handle) const
 {
-    auto table = instance_tables_.find(encode::GetVulkanDispatchKey(handle));
+    auto table = instance_tables_.find(graphics::GetVulkanDispatchKey(handle));
     assert(table != instance_tables_.end());
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-const encode::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(const void* handle) const
+const graphics::VulkanDeviceTable* VulkanReplayConsumerBase::GetDeviceTable(const void* handle) const
 {
-    auto table = device_tables_.find(encode::GetVulkanDispatchKey(handle));
+    auto table = device_tables_.find(graphics::GetVulkanDispatchKey(handle));
     assert(table != device_tables_.end());
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }
@@ -2650,7 +2656,10 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     {
         const auto current_extension    = replay_create_info->ppEnabledExtensionNames[i];
         const bool is_surface_extension = kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
-        if (!util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+        const bool is_forced =
+            util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0 ||
+            util::platform::StringCompare(current_extension, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
+        if (is_forced)
         {
             // Will always be added if available
             continue;
@@ -2717,6 +2726,42 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                              "extension availability.");
     }
 
+    // We want to create a debug messenger unconditionally so that
+    // debug messages from layers are displayed during replay.
+    // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
+    // in the pNext chain, those messengers will also be created.
+    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    {
+        modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+        // Set pfnUserCallback for all debug messengers down the pNext chain
+        VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
+            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
+        while (pnext_callback_info != nullptr)
+        {
+            pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
+            pnext_callback_info =
+                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
+        }
+
+        create_state.messenger_create_info             = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+        create_state.messenger_create_info.pNext       = modified_create_info.pNext;
+        create_state.messenger_create_info.flags       = 0;
+        create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
+        create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
+        create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+        create_state.messenger_create_info.pUserData       = nullptr;
+
+        // We chain the debug messenger create info here to catch debug messages
+        // emitted during vkCreateInstance()/vkDestroyInstance()
+        modified_create_info.pNext = &create_state.messenger_create_info;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to create debug utils callback. "
+                             "VK_EXT_debug_utils extension is not available for the replay instance.");
+    }
+
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
     if (options_.enable_validation_layer)
     {
@@ -2726,33 +2771,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
             {
                 modified_layers.push_back(kValidationLayerName);
-
-                // Create a debug util messenger if replay was run with the enable_validation_layer option and the
-                // VK_EXT_debug_utils extension is available. Note that if the app also included one or more
-                // VkDebugUtilsMessengerCreateInfoEXT structs in the pNext chain, those messengers will also be
-                // created.
-                if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
-                {
-                    modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
-                    create_state.messenger_create_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-                    create_state.messenger_create_info.pNext       = modified_create_info.pNext;
-                    create_state.messenger_create_info.flags       = 0;
-                    create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                                                     VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                    create_state.messenger_create_info.messageSeverity =
-                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                    create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-                    create_state.messenger_create_info.pUserData       = nullptr;
-
-                    modified_create_info.pNext = &create_state.messenger_create_info;
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING(
-                        "Failed to create debug utils callback for the validation layer enabled by replay option "
-                        "'--validate'. VK_EXT_debug_utils extension is not available for the replay instance.");
-                }
             }
             else
             {
@@ -2847,6 +2865,17 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
         assert(instance_info);
         PostCreateInstanceUpdateState(*replay_instance, create_state.modified_create_info, *instance_info);
+
+        // Register debug callback here to catch all messages that are
+        // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
+        if (create_state.messenger_create_info.pfnUserCallback != nullptr)
+        {
+            GetInstanceTable(*replay_instance)
+                ->CreateDebugUtilsMessengerEXT(*replay_instance,
+                                               &create_state.messenger_create_info,
+                                               GetAllocationCallbacks(pAllocator),
+                                               &debug_messenger_);
+        }
     }
 
     return result;
@@ -8994,7 +9023,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
         res = resource_dumper_->CloneCommandBuffer(
-            index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent));
+            index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent), begin_info);
     }
 
     if (res == VK_SUCCESS)

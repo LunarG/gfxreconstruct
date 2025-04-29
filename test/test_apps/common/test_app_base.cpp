@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2612,6 +2612,15 @@ SwapchainBuilder& SwapchainBuilder::set_old_swapchain(Swapchain const& swapchain
     info.old_swapchain = swapchain.swapchain;
     return *this;
 }
+bool SwapchainBuilder::get_destroy_old_swapchain() const
+{
+    return info.destroy_old_swapchain;
+}
+SwapchainBuilder& SwapchainBuilder::set_destroy_old_swapchain(bool destroy)
+{
+    info.destroy_old_swapchain = destroy;
+    return *this;
+}
 SwapchainBuilder& SwapchainBuilder::set_desired_extent(uint32_t width, uint32_t height)
 {
     info.desired_width  = width;
@@ -2782,7 +2791,10 @@ create_surface_headless(VkInstance instance, vkb::InstanceDispatchTable& disp, V
 void create_swapchain(SwapchainBuilder& swapchain_builder, Swapchain& swapchain)
 {
     auto new_swapchain = swapchain_builder.set_old_swapchain(swapchain).build();
-    destroy_swapchain(swapchain);
+    if (swapchain_builder.get_destroy_old_swapchain())
+    {
+        destroy_swapchain(swapchain);
+    }
     swapchain = new_swapchain;
 }
 
@@ -2892,7 +2904,7 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 }
 #endif
 
-std::exception vulkan_exception(const char* message, VkResult result)
+std::runtime_error vulkan_exception(const char* message, VkResult result)
 {
     std::string error_message;
     error_message.append(message);
@@ -2902,7 +2914,7 @@ std::exception vulkan_exception(const char* message, VkResult result)
 }
 
 #ifndef __ANDROID__
-std::exception sdl_exception()
+std::runtime_error sdl_exception()
 {
     return std::runtime_error(SDL_GetError());
 }
@@ -3164,6 +3176,23 @@ void TestAppBase::configure_device_builder(DeviceBuilder&        device_builder,
 {}
 
 void TestAppBase::configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config) {}
+
+uint32_t TestAppBase::find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags)
+{
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    init.inst_disp.getPhysicalDeviceMemoryProperties(init.physical_device, &memory_properties);
+
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        if ((memoryTypeBits & (1 << i)) && (memory_properties.memoryTypes[i].propertyFlags & memory_property_flags) > 0)
+        {
+            return i;
+            break;
+        }
+    }
+
+    throw std::runtime_error("failed to find memory type");
+}
 
 bool DeviceBuilder::enable_extension_if_present(const char* extension)
 {

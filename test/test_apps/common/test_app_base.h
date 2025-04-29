@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -80,9 +80,9 @@ namespace gfxrecon
 namespace test
 {
 
-std::exception vulkan_exception(const char* message, VkResult result);
+std::runtime_error vulkan_exception(const char* message, VkResult result);
 #ifndef __ANDROID__
-std::exception sdl_exception();
+std::runtime_error sdl_exception();
 #endif
 
 namespace detail
@@ -904,6 +904,10 @@ class SwapchainBuilder
     SwapchainBuilder& set_old_swapchain(VkSwapchainKHR old_swapchain);
     SwapchainBuilder& set_old_swapchain(Swapchain const& swapchain);
 
+    bool get_destroy_old_swapchain() const;
+    // Specify what to do with the old swapchain after creating a new swapchain.
+    SwapchainBuilder& set_destroy_old_swapchain(bool destroy);
+
     // Desired size of the swapchain. By default, the swapchain will use the size
     // of the window being drawn to.
     SwapchainBuilder& set_desired_extent(uint32_t width, uint32_t height);
@@ -1016,9 +1020,10 @@ class SwapchainBuilder
         VkCompositeAlphaFlagBitsKHR composite_alpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 #endif
         std::vector<VkPresentModeKHR> desired_present_modes;
-        bool                          clipped              = true;
-        VkSwapchainKHR                old_swapchain        = VK_NULL_HANDLE;
-        VkAllocationCallbacks*        allocation_callbacks = VK_NULL_HANDLE;
+        bool                          clipped               = true;
+        VkSwapchainKHR                old_swapchain         = VK_NULL_HANDLE;
+        bool                          destroy_old_swapchain = true;
+        VkAllocationCallbacks*        allocation_callbacks  = VK_NULL_HANDLE;
     } info;
 };
 
@@ -1067,19 +1072,19 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::string& filename);
 #endif
 
-#define VERIFY_VK_RESULT(message, result)                                             \
-    {                                                                                 \
+#define VERIFY_VK_RESULT(message, result)                                               \
+    {                                                                                   \
         VkResult verify_vk_result_result = (result);                                    \
-        if (verify_vk_result_result != VK_SUCCESS)                                    \
+        if (verify_vk_result_result != VK_SUCCESS)                                      \
             throw gfxrecon::test::vulkan_exception((message), verify_vk_result_result); \
     }
 
 struct InitInfo
 {
 #ifdef __ANDROID__
-    android_app*               android_app;
+    android_app* android_app;
 #else
-    SDL_Window*                window;
+    SDL_Window* window;
 #endif
     Instance                   instance;
     vkb::InstanceDispatchTable inst_disp;
@@ -1121,9 +1126,14 @@ class TestAppBase
     virtual bool frame(const int frame_num) = 0;
     virtual void cleanup();
     virtual void configure_instance_builder(InstanceBuilder& instance_builder, vkmock::TestConfig* test_config);
-    virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig* test_config);
-    virtual void configure_device_builder(DeviceBuilder& device_builder, PhysicalDevice const& physical_device, vkmock::TestConfig* test_config);
+    virtual void configure_physical_device_selector(PhysicalDeviceSelector& phys_device_selector,
+                                                    vkmock::TestConfig*     test_config);
+    virtual void configure_device_builder(DeviceBuilder&        device_builder,
+                                          PhysicalDevice const& physical_device,
+                                          vkmock::TestConfig*   test_config);
     virtual void configure_swapchain_builder(SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config);
+
+    uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
 
     InitInfo init;
 };

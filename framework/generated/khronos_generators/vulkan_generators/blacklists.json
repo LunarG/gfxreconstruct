@@ -15,7 +15,10 @@
     "vkCmdPushDescriptorSetWithTemplate2KHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR",
+    "vkCreateExternalComputeQueueNV",
+    "vkDestroyExternalComputeQueueNV",
+    "vkGetExternalComputeQueueDataNV"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",

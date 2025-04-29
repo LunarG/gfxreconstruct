@@ -30,8 +30,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool DefaultVulkanDumpResourcesDelegate::IsImageDumpable(const encode::VulkanInstanceTable* instance_table,
-                                                         const VulkanImageInfo*             image_info)
+bool DefaultVulkanDumpResourcesDelegate::IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
+                                                         const VulkanImageInfo*               image_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(image_info != nullptr);
@@ -60,8 +60,8 @@ bool DefaultVulkanDumpResourcesDelegate::IsImageDumpable(const encode::VulkanIns
     return true;
 }
 
-void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo&      draw_call_info,
-                                                          const encode::VulkanInstanceTable* instance_table)
+void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDumpDrawCallInfo&        draw_call_info,
+                                                          const graphics::VulkanInstanceTable* instance_table)
 {
     switch (draw_call_info.type)
     {
@@ -410,8 +410,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateBufferDescriptorFilename(const Vulka
 {
     std::stringstream filename;
 
-    filename << capture_filename_ << "_" << "buffer_" << resource_info.buffer_info->capture_id << "_qs_"
-             << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_rp_" << resource_info.rp << ".bin";
+    filename << capture_filename_ << "_"
+             << "buffer_" << resource_info.buffer_info->capture_id << "_qs_" << resource_info.qs_index << "_bcb_"
+             << resource_info.bcb_index << "_rp_" << resource_info.rp << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -431,9 +432,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateInlineUniformBufferDescr
     const VulkanDumpResourceInfo& resource_info) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_" << "inlineUniformBlock_set_" << resource_info.set << "_binding_"
-             << resource_info.binding << "_qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index
-             << ".bin";
+    filename << capture_filename_ << "_"
+             << "inlineUniformBlock_set_" << resource_info.set << "_binding_" << resource_info.binding << "_qs_"
+             << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -452,9 +453,10 @@ std::string
 DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const VulkanDumpResourceInfo& resource_info) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_" << "vertexBuffers_" << "qs_" << resource_info.qs_index << "_bcb_"
-             << resource_info.bcb_index << "_dc_" << resource_info.cmd_index << "_binding_" << resource_info.binding
-             << ".bin";
+    filename << capture_filename_ << "_"
+             << "vertexBuffers_"
+             << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
+             << resource_info.cmd_index << "_binding_" << resource_info.binding << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -475,7 +477,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const VulkanDump
     std::stringstream filename;
     filename << capture_filename_ << "_";
     std::string index_type_name = IndexTypeToStr(resource_info.index_type);
-    filename << "indexBuffer_" << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
+    filename << "indexBuffer_"
+             << "qs_" << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_dc_"
              << resource_info.cmd_index << index_type_name << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -484,7 +487,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const VulkanDump
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
-    const VulkanDumpDrawCallInfo& draw_call_info, const encode::VulkanInstanceTable* instance_table)
+    const VulkanDumpDrawCallInfo& draw_call_info, const graphics::VulkanInstanceTable* instance_table)
 {
     if (options_.dump_resources_json_per_command)
     {
@@ -1131,8 +1134,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
     if (resource_info.before_cmd)
     {
         filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
-                 << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_" << "set_"
-                 << resource_info.set << "_binding_" << resource_info.binding << "_index_" << resource_info.array_index;
+                 << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_"
+                 << "set_" << resource_info.set << "_binding_" << resource_info.binding << "_index_"
+                 << resource_info.array_index;
         if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
@@ -1182,9 +1186,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferF
     if (resource_info.before_cmd)
     {
         filename << (resource_info.is_dispatch ? "dispatch_" : "traceRays_") << resource_info.cmd_index << "_qs_"
-                 << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_" << "set_"
-                 << resource_info.set << "_binding_" << resource_info.binding << "_index_" << resource_info.array_index
-                 << "_buffer.bin";
+                 << resource_info.qs_index << "_bcb_" << resource_info.bcb_index << "_before_"
+                 << "set_" << resource_info.set << "_binding_" << resource_info.binding << "_index_"
+                 << resource_info.array_index << "_buffer.bin";
     }
     else
     {
@@ -1359,7 +1363,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
-    const VulkanDumpDrawCallInfo& draw_call_info, const encode::VulkanInstanceTable* instance_table)
+    const VulkanDumpDrawCallInfo& draw_call_info, const graphics::VulkanInstanceTable* instance_table)
 {
     if (draw_call_info.disp_param == nullptr)
     {
@@ -1835,7 +1839,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
-    const VulkanDumpDrawCallInfo& draw_call_info, const encode::VulkanInstanceTable* instance_table)
+    const VulkanDumpDrawCallInfo& draw_call_info, const graphics::VulkanInstanceTable* instance_table)
 {
     if (draw_call_info.tr_param == nullptr)
     {

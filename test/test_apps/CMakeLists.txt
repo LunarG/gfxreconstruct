@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +37,8 @@ add_subdirectory(pipeline-binaries)
 add_subdirectory(host-image-copy)
 add_subdirectory(shader-objects)
 add_subdirectory(sparse-resources)
+add_subdirectory(acquired-image)
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
     add_subdirectory(external-memory-fd)
+    add_subdirectory(wait-for-present)
 endif()

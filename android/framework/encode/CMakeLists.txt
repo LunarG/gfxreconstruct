@@ -65,7 +65,6 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_encoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp

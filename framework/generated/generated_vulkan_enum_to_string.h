@@ -424,6 +424,8 @@ template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(const VkSwapchain
 template <> std::string ToString<VkSwapchainCreateFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkSystemAllocationScope>(const VkSystemAllocationScope& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkTessellationDomainOrigin>(const VkTessellationDomainOrigin& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkTileShadingRenderPassFlagBitsQCOM>(const VkTileShadingRenderPassFlagBitsQCOM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkTileShadingRenderPassFlagBitsQCOM>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkTimeDomainKHR>(const VkTimeDomainKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkToolPurposeFlagBits>(const VkToolPurposeFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkToolPurposeFlagBits>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

@@ -61,8 +61,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-VulkanCaptureManager* VulkanCaptureManager::singleton_ = nullptr;
-VulkanLayerTable      VulkanCaptureManager::vulkan_layer_table_;
+VulkanCaptureManager*      VulkanCaptureManager::singleton_ = nullptr;
+graphics::VulkanLayerTable VulkanCaptureManager::vulkan_layer_table_;
 
 bool VulkanCaptureManager::CreateInstance()
 {
@@ -164,7 +164,7 @@ void VulkanCaptureManager::InitVkInstance(VkInstance* instance, PFN_vkGetInstanc
         GetUniqueId);
 
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(*instance);
-    LoadVulkanInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
+    graphics::LoadVulkanInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
 void VulkanCaptureManager::InitVkDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
@@ -177,7 +177,7 @@ void VulkanCaptureManager::InitVkDevice(VkDevice* device, PFN_vkGetDeviceProcAdd
         VK_NULL_HANDLE, vulkan_wrappers::NoParentWrapper::kHandleValue, device, GetUniqueId);
 
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(*device);
-    LoadVulkanDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
+    graphics::LoadVulkanDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
 void VulkanCaptureManager::WriteResizeWindowCmd2(format::HandleId              surface_id,
@@ -635,7 +635,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     assert(pCreateInfo_unwrapped != nullptr);
 
-    const VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
+    const graphics::VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
     auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
 
     graphics::VulkanDeviceUtil                device_util;
@@ -908,9 +908,9 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
                                                              const VkAllocationCallbacks*                pAllocator,
                                                              VkAccelerationStructureKHR* pAccelerationStructureKHR)
 {
-    auto                     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice                 device_unwrapped = device_wrapper->handle;
-    const VulkanDeviceTable* device_table     = vulkan_wrappers::GetDeviceTable(device);
+    auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    VkDevice device_unwrapped = device_wrapper->handle;
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
 
     std::unique_ptr<uint8_t[]>            struct_memory;
     VkAccelerationStructureCreateInfoKHR* modified_create_info =
@@ -970,7 +970,7 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
     {
         state_tracker_->TrackAccelerationStructureBuildCommand(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
     }
-    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
     device_table->CmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
 }
 
@@ -981,7 +981,7 @@ void VulkanCaptureManager::OverrideCmdCopyAccelerationStructureKHR(VkCommandBuff
     {
         state_tracker_->TrackAccelerationStructureCopyCommand(command_buffer, pInfo);
     }
-    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(command_buffer);
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(command_buffer);
     device_table->CmdCopyAccelerationStructureKHR(command_buffer, pInfo);
 }
 
@@ -999,7 +999,7 @@ void VulkanCaptureManager::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
             commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
     }
 
-    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(commandBuffer);
     device_table->CmdWriteAccelerationStructuresPropertiesKHR(
         commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
 }
@@ -1276,9 +1276,9 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                            const VkAllocationCallbacks*             pAllocator,
                                                            VkPipeline*                              pPipelines)
 {
-    auto                     device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    const VulkanDeviceTable* device_table   = vulkan_wrappers::GetDeviceTable(device);
-    auto                     deferred_operation_wrapper =
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+    auto                               deferred_operation_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
 
     HandleUnwrapMemory* handle_unwrap_memory = nullptr;
@@ -1466,8 +1466,8 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
     VkResult                          result = VK_SUCCESS;
     auto                              deferred_operation_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
-    auto                     device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    const VulkanDeviceTable* device_table   = vulkan_wrappers::GetDeviceTable(device);
+    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
 
     GFXRECON_ASSERT(device_table != nullptr);
 
@@ -1742,7 +1742,8 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
 
             if (physical_device != VK_NULL_HANDLE)
             {
-                const VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physical_device);
+                const graphics::VulkanInstanceTable* instance_table =
+                    vulkan_wrappers::GetInstanceTable(physical_device);
                 assert(instance_table != nullptr);
 
                 auto physical_device_wrapper =
@@ -1977,61 +1978,68 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::GetFormatAspects(image_wrapper->format, &aspects);
 
-    for (auto aspect : aspects)
-    {
-        std::vector<uint8_t>  data;
-        std::vector<uint64_t> subresource_offsets;
-        std::vector<uint64_t> subresource_sizes;
-        bool                  scaling_supported;
+    using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
+    std::vector<ImageResource> image_resources;
 
-        VkResult result = resource_util.ReadFromImageResourceStaging(image,
-                                                                     image_wrapper->format,
-                                                                     image_wrapper->image_type,
-                                                                     image_wrapper->extent,
-                                                                     image_wrapper->mip_levels,
-                                                                     image_wrapper->array_layers,
-                                                                     image_wrapper->tiling,
-                                                                     image_wrapper->samples,
-                                                                     image_wrapper->current_layout,
-                                                                     image_wrapper->queue_family_index,
-                                                                     image_wrapper->external_format,
-                                                                     image_wrapper->size,
-                                                                     aspect,
-                                                                     data,
-                                                                     subresource_offsets,
-                                                                     subresource_sizes,
-                                                                     scaling_supported,
-                                                                     true);
-        if (result == VK_SUCCESS)
-        {
+    auto write_init_image_cmd =
+        [this, &resource_util, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
             // Combined size of all layers in a mip level.
             std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(image_wrapper->handle,
-                                                                                image_wrapper->format,
-                                                                                image_wrapper->image_type,
-                                                                                image_wrapper->extent,
-                                                                                image_wrapper->mip_levels,
-                                                                                image_wrapper->array_layers,
-                                                                                image_wrapper->tiling,
-                                                                                aspect,
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
+                                                                                img.format,
+                                                                                img.type,
+                                                                                img.extent,
+                                                                                img.level_count,
+                                                                                img.layer_count,
+                                                                                img.tiling,
+                                                                                img.aspect,
                                                                                 nullptr,
                                                                                 &level_sizes,
                                                                                 true);
+            GFXRECON_ASSERT(resource_size == num_bytes);
 
             WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
             GetCommandWriter()->WriteInitImageCmd(api_family_,
                                                   device_wrapper->handle_id,
-                                                  image_wrapper->handle_id,
-                                                  aspect,
-                                                  image_wrapper->current_layout,
-                                                  image_wrapper->mip_levels,
+                                                  img.handle_id,
+                                                  img.aspect,
+                                                  img.layout,
+                                                  img.level_count,
                                                   level_sizes,
                                                   resource_size,
-                                                  data.data());
+                                                  data);
             WriteEndResourceInitCmd(device_wrapper->handle_id);
-        }
+        };
+
+    uint32_t num_staging_bytes = 0;
+
+    for (auto aspect : aspects)
+    {
+        auto& image_resource                = image_resources.emplace_back();
+        image_resource.handle_id            = image_wrapper->handle_id;
+        image_resource.image                = image_wrapper->handle;
+        image_resource.format               = image_wrapper->format;
+        image_resource.type                 = image_wrapper->image_type;
+        image_resource.extent               = image_wrapper->extent;
+        image_resource.level_count          = image_wrapper->mip_levels;
+        image_resource.layer_count          = image_wrapper->array_layers;
+        image_resource.tiling               = image_wrapper->tiling;
+        image_resource.sample_count         = image_wrapper->samples;
+        image_resource.layout               = image_wrapper->current_layout;
+        image_resource.queue_family_index   = image_wrapper->queue_family_index;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.size                 = image_wrapper->size;
+        image_resource.aspect               = aspect;
+        image_resource.external_format      = image_wrapper->external_format;
+        image_resource.all_layers_per_level = true;
+
+        num_staging_bytes += image_wrapper->size;
     }
+
+    // batch process image-downloads requiring staging, use <32MB staging-mem
+    size_t staging_buffer_size = std::min<size_t>(32U << 20U, num_staging_bytes);
+    resource_util.ReadImageResources(image_resources, write_init_image_cmd, staging_buffer_size);
 }
 
 void VulkanCaptureManager::PostProcess_vkBindBufferMemory(
@@ -2287,6 +2295,124 @@ void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult            
             }
         }
     }
+}
+
+// Performs a subset of the state tracking performed by VulkanStateTracker::TrackAcquireImage,
+// only storing values needed for non-tracking capture.
+void TrackAcquireImageSubset(VkSwapchainKHR swapchain, size_t image_index)
+{
+    auto* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+    GFXRECON_ASSERT(wrapper != nullptr);
+    if (wrapper != nullptr)
+    {
+        if (image_index >= wrapper->image_acquired_info.size())
+        {
+            wrapper->image_acquired_info.resize(image_index + 1);
+        }
+        wrapper->image_acquired_info[image_index].is_acquired = true;
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkAcquireNextImageKHR(VkResult       result,
+                                                             VkDevice       device,
+                                                             VkSwapchainKHR swapchain,
+                                                             uint64_t       timeout,
+                                                             VkSemaphore    semaphore,
+                                                             VkFence        fence,
+                                                             uint32_t*      index)
+{
+    VkAcquireNextImageInfoKHR acquire_info{};
+    acquire_info.sType      = VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR;
+    acquire_info.pNext      = nullptr;
+    acquire_info.swapchain  = swapchain;
+    acquire_info.timeout    = timeout;
+    acquire_info.semaphore  = semaphore;
+    acquire_info.fence      = fence;
+    acquire_info.deviceMask = 0;
+    PostProcess_vkAcquireNextImage2KHR(result, device, &acquire_info, index);
+}
+
+void VulkanCaptureManager::PostProcess_vkAcquireNextImage2KHR(VkResult result,
+                                                              VkDevice,
+                                                              const VkAcquireNextImageInfoKHR* pAcquireInfo,
+                                                              uint32_t*                        index)
+{
+
+    if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
+    {
+        if (IsCaptureModeTrack())
+        {
+            GFXRECON_ASSERT((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(pAcquireInfo->semaphore);
+            state_tracker_->TrackAcquireImage(*index,
+                                              pAcquireInfo->swapchain,
+                                              pAcquireInfo->semaphore,
+                                              pAcquireInfo->fence,
+                                              pAcquireInfo->deviceMask);
+        }
+        else
+        {
+            TrackAcquireImageSubset(pAcquireInfo->swapchain, *index);
+        }
+    }
+}
+
+// Performs a subset of the state tracking performed by VulkanStateTracker::TrackPresentedImages,
+// only storing values needed for non-tracking capture.
+void TrackPresentedImagesSubset(uint32_t count, const VkSwapchainKHR* swapchains, const uint32_t* image_indices)
+{
+    GFXRECON_ASSERT((count > 0) && (swapchains != nullptr) && (image_indices != nullptr));
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        auto*    wrapper     = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchains[i]);
+        uint32_t image_index = image_indices[i];
+        GFXRECON_ASSERT(wrapper != nullptr);
+        if (wrapper != nullptr && image_index < wrapper->image_acquired_info.size())
+        {
+            wrapper->image_acquired_info[image_index].is_acquired = false;
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkQueuePresentKHR(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    VkResult                                               result,
+    VkQueue                                                queue,
+    const VkPresentInfoKHR*                                pPresentInfo)
+{
+    if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
+    {
+        if (IsCaptureModeTrack())
+        {
+            GFXRECON_ASSERT((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(
+                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
+            state_tracker_->TrackPresentedImages(
+                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
+        }
+        else
+        {
+            TrackPresentedImagesSubset(
+                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices);
+        }
+    }
+
+    if (IsCaptureModeTrack())
+    {
+        if (auto* present_ids = graphics::vulkan_struct_get_pnext<VkPresentIdKHR>(pPresentInfo))
+        {
+            for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i)
+            {
+                auto wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pPresentInfo->pSwapchains[i]);
+                GFXRECON_ASSERT(wrapper);
+
+                wrapper->record_queue_present_ids_not_written.insert(present_ids->pPresentIds[i]);
+            }
+        }
+    }
+
+    EndFrame(current_lock);
 }
 
 void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
@@ -3112,7 +3238,7 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
     }
 }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 void VulkanCaptureManager::PreProcess_vkDestroyFence(VkDevice                     device,
                                                      VkFence                      fence,
                                                      const VkAllocationCallbacks* pAllocator)
@@ -3806,7 +3932,7 @@ void VulkanCaptureManager::PostProcess_vkSetDebugUtilsObjectTagEXT(VkResult     
     }
 }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 void VulkanCaptureManager::PostProcess_vkCreateFence(VkResult                     result,
                                                      VkDevice                     device,
                                                      const VkFenceCreateInfo*     pCreateInfo,

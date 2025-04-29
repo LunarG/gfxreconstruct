@@ -27,7 +27,7 @@
 **
 */
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_encoder_commands.h"
 #include "encode/custom_openxr_struct_handle_wrappers.h"

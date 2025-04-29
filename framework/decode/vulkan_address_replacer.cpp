@@ -50,17 +50,17 @@ struct MarkInjectedCommandsHelper
 //! RAII helper submit a command-buffer to a queue and synchronize via fence
 struct QueueSubmitHelper
 {
-    const encode::VulkanDeviceTable* device_table   = nullptr;
+    const graphics::VulkanDeviceTable* device_table   = nullptr;
     VkDevice                         device         = VK_NULL_HANDLE;
     VkCommandBuffer                  command_buffer = VK_NULL_HANDLE;
     VkFence                          fence          = VK_NULL_HANDLE;
     VkQueue                          queue          = VK_NULL_HANDLE;
 
-    QueueSubmitHelper(const encode::VulkanDeviceTable* device_table_,
-                      VkDevice                         device_,
-                      VkCommandBuffer                  command_buffer_,
-                      VkQueue                          queue_,
-                      VkFence                          fence_) :
+    QueueSubmitHelper(const graphics::VulkanDeviceTable* device_table_,
+                      VkDevice                           device_,
+                      VkCommandBuffer                    command_buffer_,
+                      VkQueue                            queue_,
+                      VkFence                            fence_) :
         device_table(device_table_),
         device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
@@ -172,10 +172,11 @@ decode::VulkanAddressReplacer::acceleration_structure_asset_t::~acceleration_str
 }
 
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
-                                             const encode::VulkanDeviceTable*     device_table,
-                                             const encode::VulkanInstanceTable*   instance_table,
+                                             const graphics::VulkanDeviceTable*   device_table,
+                                             const graphics::VulkanInstanceTable* instance_table,
                                              const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table), object_table_(&object_table)
+    device_table_(device_table),
+    object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
     physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
@@ -333,21 +334,24 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     {
         auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
         GFXRECON_ASSERT(pipeline_info != nullptr);
-        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+        if (pipeline_info != nullptr)
         {
-            if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
+            for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
             {
-                // find addresses in push-constant memory and replace in-place.
-                auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
-                                                                   buffer_ref_info.buffer_offset);
-
-                auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
-                if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                 {
-                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
-                                           "mismatching buffer-device-addresses in push-constants");
-                    uint32_t address_offset = *address - buffer_info->capture_address;
-                    *address                = buffer_info->replay_address + address_offset;
+                    // find addresses in push-constant memory and replace in-place.
+                    auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
+                                                                       buffer_ref_info.buffer_offset);
+
+                    auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+                    if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                    {
+                        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
+                                               "mismatching buffer-device-addresses in push-constants");
+                        uint32_t address_offset = *address - buffer_info->capture_address;
+                        *address                = buffer_info->replay_address + address_offset;
+                    }
                 }
             }
         }
@@ -1366,6 +1370,9 @@ bool VulkanAddressReplacer::init_queue_assets()
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-buffer creation failed");
         return false;
     }
+
+    // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+    *reinterpret_cast<void**>(command_buffer_) = *reinterpret_cast<void**>(device_);
 
     VkFenceCreateInfo fence_create_info;
     fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;

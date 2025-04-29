@@ -2891,6 +2891,17 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(
     VkPrivateDataSlot                           privateDataSlot,
     uint64_t*                                   pData);
 
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(
+    VkCommandBuffer                             commandBuffer);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(
+    VkCommandBuffer                             commandBuffer,
+    const VkPerTileBeginInfoQCOM*               pPerTileBeginInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(
+    VkCommandBuffer                             commandBuffer,
+    const VkPerTileEndInfoQCOM*                 pPerTileEndInfo);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(
     VkCommandBuffer                             commandBuffer,
     VkFragmentShadingRateNV                     shadingRate,
@@ -3389,6 +3400,10 @@ VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
 
+VKAPI_ATTR void VKAPI_CALL vkCmdBindTileMemoryQCOM(
+    VkCommandBuffer                             commandBuffer,
+    const VkTileMemoryBindInfoQCOM*             pTileMemoryBindInfo);
+
 VKAPI_ATTR void VKAPI_CALL vkGetPartitionedAccelerationStructuresBuildSizesNV(
     VkDevice                                    device,
     const VkPartitionedAccelerationStructureInstancesInputNV* pInfo,
@@ -3462,6 +3477,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(
     VkExternalMemoryHandleTypeFlagBits          handleType,
     const void*                                 pHandle,
     VkMemoryMetalHandlePropertiesEXT*           pMemoryMetalHandleProperties);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingEndInfoEXT*                pRenderingEndInfo);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     VkDevice                                    device,

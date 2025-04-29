@@ -414,10 +414,10 @@ VkExtent2D XcbWindow::GetSize() const
     return { width_, height_ };
 }
 
-VkResult XcbWindow::CreateSurface(const encode::VulkanInstanceTable* table,
-                                  VkInstance                         instance,
-                                  VkFlags                            flags,
-                                  VkSurfaceKHR*                      pSurface)
+VkResult XcbWindow::CreateSurface(const graphics::VulkanInstanceTable* table,
+                                  VkInstance                           instance,
+                                  VkFlags                              flags,
+                                  VkSurfaceKHR*                        pSurface)
 {
     if (table != nullptr)
     {
@@ -431,7 +431,7 @@ VkResult XcbWindow::CreateSurface(const encode::VulkanInstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void XcbWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void XcbWindow::DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -546,9 +546,9 @@ void XcbWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                                VkPhysicalDevice                   physical_device,
-                                                                uint32_t                           queue_family_index)
+VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                                VkPhysicalDevice                     physical_device,
+                                                                uint32_t                             queue_family_index)
 {
     xcb_connection_t* connection = xcb_context_->GetConnection();
     xcb_screen_t*     screen     = xcb_context_->GetScreen();

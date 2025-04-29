@@ -5221,6 +5221,15 @@ struct Decoded_VkDisplayPlaneCapabilities2KHR
     Decoded_VkDisplayPlaneCapabilitiesKHR* capabilities{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderBfloat16FeaturesKHR;
+
+    VkPhysicalDeviceShaderBfloat16FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR
 {
     using struct_type = VkPhysicalDevicePortabilitySubsetFeaturesKHR;
@@ -8447,6 +8456,63 @@ struct Decoded_VkDeviceDiagnosticsConfigCreateInfoNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileShadingFeaturesQCOM;
+
+    VkPhysicalDeviceTileShadingFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileShadingPropertiesQCOM;
+
+    VkPhysicalDeviceTileShadingPropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* tileGranularity{ nullptr };
+    Decoded_VkExtent2D* maxTileShadingRate{ nullptr };
+};
+
+struct Decoded_VkRenderPassTileShadingCreateInfoQCOM
+{
+    using struct_type = VkRenderPassTileShadingCreateInfoQCOM;
+
+    VkRenderPassTileShadingCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* tileApronSize{ nullptr };
+};
+
+struct Decoded_VkPerTileBeginInfoQCOM
+{
+    using struct_type = VkPerTileBeginInfoQCOM;
+
+    VkPerTileBeginInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPerTileEndInfoQCOM
+{
+    using struct_type = VkPerTileEndInfoQCOM;
+
+    VkPerTileEndInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDispatchTileInfoQCOM
+{
+    using struct_type = VkDispatchTileInfoQCOM;
+
+    VkDispatchTileInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkQueryLowLatencySupportNV
 {
     using struct_type = VkQueryLowLatencySupportNV;
@@ -9463,30 +9529,30 @@ struct Decoded_VkRenderPassStripeSubmitInfoARM
     StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* pStripeSemaphoreInfos{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM
+struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT
 {
-    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
+    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT;
 
-    VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* decoded_value{ nullptr };
+    VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM
+struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT
 {
-    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
+    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT;
 
-    VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* decoded_value{ nullptr };
+    VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
     Decoded_VkExtent2D* fragmentDensityOffsetGranularity{ nullptr };
 };
 
-struct Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM
+struct Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT
 {
-    using struct_type = VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
+    using struct_type = VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 
-    VkSubpassFragmentDensityMapOffsetEndInfoQCOM* decoded_value{ nullptr };
+    VkRenderPassFragmentDensityMapOffsetEndInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkOffset2D>* pFragmentDensityOffsets{ nullptr };
@@ -10371,6 +10437,52 @@ struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileMemoryHeapFeaturesQCOM;
+
+    VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileMemoryHeapPropertiesQCOM;
+
+    VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTileMemoryRequirementsQCOM
+{
+    using struct_type = VkTileMemoryRequirementsQCOM;
+
+    VkTileMemoryRequirementsQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTileMemoryBindInfoQCOM
+{
+    using struct_type = VkTileMemoryBindInfoQCOM;
+
+    VkTileMemoryBindInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkTileMemorySizeInfoQCOM
+{
+    using struct_type = VkTileMemorySizeInfoQCOM;
+
+    VkTileMemorySizeInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDisplaySurfaceStereoCreateInfoNV
 {
     using struct_type = VkDisplaySurfaceStereoCreateInfoNV;
@@ -10868,6 +10980,15 @@ struct Decoded_VkPhysicalDevicePresentMeteringFeaturesNV
     using struct_type = VkPhysicalDevicePresentMeteringFeaturesNV;
 
     VkPhysicalDevicePresentMeteringFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderingEndInfoEXT
+{
+    using struct_type = VkRenderingEndInfoEXT;
+
+    VkRenderingEndInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -11598,6 +11719,12 @@ typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDe
 typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesEXT;
 
 typedef Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
+
+typedef Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
+
+typedef Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
 
 typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 

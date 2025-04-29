@@ -685,7 +685,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>
     }
 };
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>
 {

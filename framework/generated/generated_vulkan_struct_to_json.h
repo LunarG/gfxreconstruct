@@ -561,6 +561,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneProp
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeProperties2KHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneInfo2KHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapabilities2KHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
@@ -898,6 +899,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentBarrierCreateInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDiagnosticsConfigCreateInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassTileShadingCreateInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerTileBeginInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerTileEndInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDispatchTileInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencySupportNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1006,9 +1013,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRe
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeInfoARM* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeBeginInfoARM* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeSubmitInfoARM* data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineIndirectBufferInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineIndirectDeviceAddressInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1103,6 +1110,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCu
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemoryRequirementsQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemoryBindInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemorySizeInfoQCOM* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplaySurfaceStereoCreateInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeStereoPropertiesNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1158,6 +1170,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetMetalHa
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetPresentConfigNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePresentMeteringFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingEndInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryAabbsDataKHR* data, const util::JsonOptions& options = util::JsonOptions());

@@ -393,6 +393,11 @@ void MapStructHandles(Decoded_VkCommandBufferInheritanceInfo* wrapper, const Com
     {
         VkCommandBufferInheritanceInfo* value = wrapper->decoded_value;
 
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+
         value->renderPass = handle_mapping::MapHandle<VulkanRenderPassInfo>(wrapper->renderPass, object_info_table, &CommonObjectInfoTable::GetVkRenderPassInfo);
 
         value->framebuffer = handle_mapping::MapHandle<VulkanFramebufferInfo>(wrapper->framebuffer, object_info_table, &CommonObjectInfoTable::GetVkFramebufferInfo);
@@ -1862,6 +1867,16 @@ void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const CommonObjectI
     }
 }
 
+void MapStructHandles(Decoded_VkTileMemoryBindInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkTileMemoryBindInfoQCOM* value = wrapper->decoded_value;
+
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &CommonObjectInfoTable::GetVkDeviceMemoryInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -2164,6 +2179,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
             break;
         case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkSwapchainPresentFenceInfoEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
+            MapStructHandles(reinterpret_cast<Decoded_VkTileMemoryBindInfoQCOM*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkVideoEncodeQuantizationMapInfoKHR*>(wrapper), object_info_table);

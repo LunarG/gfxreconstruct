@@ -237,13 +237,13 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
     else
     {
         // The AHB is not CPU-readable, copy the data into a host visible buffer on the GPU
-        format::HandleId           device_id               = device_wrapper->handle_id;
-        VkDevice                   device                  = device_wrapper->handle;
-        auto                       physical_device_wrapper = device_wrapper->physical_device;
-        auto                       physical_device         = physical_device_wrapper->handle;
-        const VulkanInstanceTable* instance_table          = vulkan_wrappers::GetInstanceTable(physical_device);
-        auto                       device_table            = vulkan_wrappers::GetDeviceTable(device);
-        auto                       memory_properties       = &physical_device_wrapper->memory_properties;
+        format::HandleId                     device_id               = device_wrapper->handle_id;
+        VkDevice                             device                  = device_wrapper->handle;
+        auto                                 physical_device_wrapper = device_wrapper->physical_device;
+        auto                                 physical_device         = physical_device_wrapper->handle;
+        const graphics::VulkanInstanceTable* instance_table    = vulkan_wrappers::GetInstanceTable(physical_device);
+        auto                                 device_table      = vulkan_wrappers::GetDeviceTable(device);
+        auto                                 memory_properties = &physical_device_wrapper->memory_properties;
 
         uint32_t device_queue_index = -1;
         uint32_t queue_family_index = -1;

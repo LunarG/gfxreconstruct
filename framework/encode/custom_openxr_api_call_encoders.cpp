@@ -44,6 +44,23 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+static void RequireVulkanCaptureEnabled()
+{
+    // If Vulkan Capture has not been enabled, various encode calls such as
+    // encode::vkEnumeratePhysicalDevices and vulkan_wrappers::CreateWrappedHandle
+    // will crash, as no VulkanCaptureManager exists to support them.
+    //
+    // API call encoders which make these calls must check that the needed
+    // capture manager is present before making those calls.
+    VulkanCaptureManager* vulkan_capture_manager = VulkanCaptureManager::Get();
+    if (!vulkan_capture_manager)
+    {
+        GFXRECON_LOG_FATAL(
+            "Capture configuration error. Attempting OpenXR capture without Vulkan graphics API capture enabled.");
+    }
+    GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -142,6 +159,10 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(XrInstance        in
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
 
+    // GetVulkanGraphicsDevice requires a valid Vulkan Instance
+    // Thus if capture isn't enabled by the beginning of this call, OpenXR capture will likely fail
+    RequireVulkanCaptureEnabled(); // Will FATAL error and assert
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::PreLockReentrant(
         manager, instance, systemId, vkInstance, vkPhysicalDevice);
     CommonCaptureManager::CaptureMode save_capture_mode;
@@ -212,6 +233,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance             
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
 
+    // NOTE: RequireVulkanCaptureEnabled is called post dispatch.
+
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::PreLockReentrant(
         manager, instance, createInfo, vulkanInstance, vulkanResult);
     CommonCaptureManager::CaptureMode save_capture_mode;
@@ -232,6 +255,10 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance             
 
     if (result >= 0)
     {
+        // We check for the requirement *after* the CreateVulkanInstance, as it is possible that Vulkan
+        // Capture wasn't enabled before the down-chain call (unlikely, but possible)
+        RequireVulkanCaptureEnabled(); // Will FATAL error and assert
+
         // Only create a new handle if one doesn't already exist for this Vulkan instance
         if (format::kNullHandleId == vulkan_wrappers::GetWrappedId<vulkan_wrappers::InstanceWrapper>(*vulkanInstance))
         {
@@ -280,6 +307,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance               
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+
+    // CreateVulkanDevice requires a valid Vulkan Instance and physical device.
+    // Thus if capture isn't enabled by the beginning of this call, OpenXR capture will likely fail
+    RequireVulkanCaptureEnabled(); // Will FATAL error and assert
+
     HandleUnwrapMemory*                handle_unwrap_memory = nullptr;
     const XrVulkanDeviceCreateInfoKHR* createInfo_unwrapped = nullptr;
 
@@ -349,6 +381,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance         
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+
+    // GetVulkanGraphicsDevice requires a valid Vulkan Instance
+    // Thus if capture isn't enabled by the beginning of this call, OpenXR capture will likely fail
+    RequireVulkanCaptureEnabled(); // Will FATAL error and assert
+
     HandleUnwrapMemory*                     handle_unwrap_memory = nullptr;
     const XrVulkanGraphicsDeviceGetInfoKHR* getInfo_unwrapped    = nullptr;
 
@@ -618,6 +655,8 @@ static void ForceVulkanEnumeratePhysicalDevices(VkInstance vkInstance)
     // device handle mapping it will need.  Xr can't create that handle mapping because it has a different *wrapped*
     // handle from the loader and cannot determine the mapping from the wrapped physical device it has to the
     // unwrapped physical devices
+    //
+    // NOTE: Despite the naming these are calls to encode::vkEnumeratePhysicalDevices not API/down-layer calls
     uint32_t device_count = 0;
     vkEnumeratePhysicalDevices(vkInstance, &device_count, nullptr);
     std::vector<VkPhysicalDevice> vk_devices(device_count);

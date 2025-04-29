@@ -30,13 +30,13 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_vulkan_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_layer_func_table.h"
 #endif
 #include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr_loader_negotiation.h"
 #endif
 
@@ -96,7 +96,8 @@ const char* const kVulkanUnsupportedDeviceExtensions[] = { VK_AMDX_SHADER_ENQUEU
                                                            VK_NV_MEMORY_DECOMPRESSION_EXTENSION_NAME,
                                                            VK_VALVE_DESCRIPTOR_SET_HOST_MAPPING_EXTENSION_NAME,
                                                            VK_NV_CUDA_KERNEL_LAUNCH_EXTENSION_NAME,
-                                                           VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME };
+                                                           VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+                                                           VK_NV_EXTERNAL_COMPUTE_QUEUE_EXTENSION_NAME };
 
 static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
                              const char* const                   screenedExtensions[],
@@ -148,13 +149,13 @@ static void AddInstanceHandle(VkInstance instance)
 {
     // Store the instance for use with vkCreateDevice.
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    vulkan_instance_handles[encode::GetVulkanDispatchKey(instance)] = instance;
+    vulkan_instance_handles[graphics::GetVulkanDispatchKey(instance)] = instance;
 }
 
 static VkInstance GetInstanceHandle(const void* handle)
 {
     std::lock_guard<std::mutex> lock(vulkan_instance_handles_lock);
-    auto                        entry = vulkan_instance_handles.find(encode::GetVulkanDispatchKey(handle));
+    auto                        entry = vulkan_instance_handles.find(graphics::GetVulkanDispatchKey(handle));
     return (entry != vulkan_instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
@@ -563,7 +564,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
 
 GFXRECON_END_NAMESPACE(vulkan_entry)
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 GFXRECON_BEGIN_NAMESPACE(openxr_entry)
 
 const XrApiLayerProperties kLayerProps = {
@@ -798,7 +799,7 @@ extern "C"
         return gfxrecon::vulkan_entry::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
     GFXR_EXPORT XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(
         const XrNegotiateLoaderInfo* loaderInfo, const char* layerName, XrNegotiateApiLayerRequest* apiLayerRequest)
     {

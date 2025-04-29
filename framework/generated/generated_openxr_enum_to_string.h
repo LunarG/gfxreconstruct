@@ -30,7 +30,7 @@
 #ifndef  GFXRECON_GENERATED_OPENXR_ENUM_TO_STRING_H
 #define  GFXRECON_GENERATED_OPENXR_ENUM_TO_STRING_H
 
-#ifdef ENABLE_OPENXR_SUPPORT
+#if ENABLE_OPENXR_SUPPORT
 
 #include "format/platform_types.h"
 #include "util/to_string.h"

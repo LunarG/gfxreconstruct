@@ -68,7 +68,7 @@ inline void WriteImageFile(const std::string&     filename,
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
                                    const VulkanDeviceInfo*                 device_info,
-                                   const encode::VulkanDeviceTable*        device_table,
+                                   const graphics::VulkanDeviceTable*      device_table,
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
                                    VkImage                                 image,
@@ -432,7 +432,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const encode::VulkanDeviceTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
 {
     auto entry = copy_resources_.find(device);
     if (entry != copy_resources_.end())
@@ -498,11 +498,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                         device,
-                                                  const encode::VulkanDeviceTable* device_table,
-                                                  VkFormat                         format,
-                                                  uint32_t                         width,
-                                                  uint32_t                         height) const
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                           device,
+                                                  const graphics::VulkanDeviceTable* device_table,
+                                                  VkFormat                           format,
+                                                  uint32_t                           width,
+                                                  uint32_t                           height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -538,7 +538,7 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
 }
 
 VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
-                                               const encode::VulkanDeviceTable*        device_table,
+                                               const graphics::VulkanDeviceTable*      device_table,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                VkDeviceSize                            buffer_size,
                                                VkFormat                                image_format,
