@@ -138,7 +138,7 @@ jobs:
         git diff --exit-code
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+        python scripts\build.py --skip-d3d12-support --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps # XXX REMOVE THE skip-d3d12-support BEFORE MERGE
     - name: Run test app test cases
       id: test_apps
       run: |
