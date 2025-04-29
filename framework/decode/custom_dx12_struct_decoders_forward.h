@@ -88,7 +88,7 @@ struct Decoded_D3D12_SHADER_NODE;
 struct Decoded_D3D12_NODE;
 struct Decoded_D3D12_SET_PROGRAM_DESC;
 struct Decoded_D3D12_DISPATCH_GRAPH_DESC;
-struct Decoded_D3D12_GENERIC_PROGRAM_DESC;
+// struct Decoded_D3D12_GENERIC_PROGRAM_DESC;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STATE_OBJECT_DESC* wrapper);
