@@ -44,14 +44,14 @@ struct VulkanDumpDrawCallInfo
     uint64_t qs_index;  // queue submit
     uint64_t bcb_index; // begin command buffer
 
-    uint64_t                                           rp;       // render pass
-    uint64_t                                           sp;       // subpass
-    const DrawCallsDumpingContext::DrawCallParameters* dc_param; // draw call
-    const DrawCallsDumpingContext::RenderTargets*      render_targets;
+    uint64_t                                       rp;       // render pass
+    uint64_t                                       sp;       // subpass
+    const DrawCallsDumpingContext::DrawCallParams* dc_param; // draw call
+    const DrawCallsDumpingContext::RenderTargets*  render_targets;
 
-    const DispatchTraceRaysDumpingContext::DispatchParameters* disp_param; // dispatch
+    const DispatchTraceRaysDumpingContext::DispatchParams* disp_param; // dispatch
 
-    const DispatchTraceRaysDumpingContext::TraceRaysParameters* tr_param; // trace rays
+    const DispatchTraceRaysDumpingContext::TraceRaysParams* tr_param; // trace rays
 };
 
 struct VulkanDumpResourceInfo

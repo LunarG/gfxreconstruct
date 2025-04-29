@@ -185,7 +185,7 @@ class KhronosReplayConsumerBodyGenerator():
                             dump_resource_arglist += val.name + '->GetPointer()'
                     elif self.is_handle(val.base_type):
                         if val.is_pointer:
-                            if is_dr_override:
+                            if is_dr_override and val.base_type != "VkCommandBuffer":
                                 dump_resource_arglist += val.name
                             else:
                                 dump_resource_arglist += val.name + '->GetHandlePointer()'
