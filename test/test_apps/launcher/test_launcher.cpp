@@ -24,6 +24,7 @@
 #include <external_memory_fd_export_app.h>
 #include <external_memory_fd_import_app.h>
 #include <host_image_copy_app.h>
+#include <pipeline_binaries_app.h>
 #include <triangle_app.h>
 
 #include <algorithm>
@@ -43,7 +44,8 @@ const char kHelpLongOption[]  = "--help";
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
-    "external-memory-fd-export", "external-memory-fd-import", "host-image-copy", "multisample-depth", "triangle",
+    "external-memory-fd-export", "external-memory-fd-import", "host-image-copy",
+    "multisample-depth",         "pipeline-binaries",         "triangle",
 };
 
 void PrintUsage(const char* exe_name)
@@ -120,6 +122,10 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     else if (app_name == "multisample-depth")
     {
         app = std::make_unique<gfxrecon::test_app::multisample_depth::App>();
+    }
+    else if (app_name == "pipeline-binaries")
+    {
+        app = std::make_unique<gfxrecon::test_app::pipeline_binaries::App>();
     }
 
 #if defined(__ANDROID__)
