@@ -193,10 +193,22 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, co
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #endif
+
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
 
