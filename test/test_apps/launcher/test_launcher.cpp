@@ -26,6 +26,7 @@
 #include <host_image_copy_app.h>
 #include <pipeline_binaries_app.h>
 #include <shader_objects_app.h>
+#include <sparse_resources_app.h>
 #include <triangle_app.h>
 
 #include <algorithm>
@@ -45,13 +46,10 @@ const char kHelpLongOption[]  = "--help";
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
-    "external-memory-fd-export",
-    "external-memory-fd-import",
-    "host-image-copy",
-    "multisample-depth",
-    "pipeline-binaries",
-    "shader-objects",
-    "triangle",
+    "external-memory-fd-export", "external-memory-fd-import",
+    "host-image-copy",           "multisample-depth",
+    "pipeline-binaries",         "shader-objects",
+    "sparse-resources",          "triangle",
 };
 
 void PrintUsage(const char* exe_name)
@@ -136,6 +134,10 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     else if (app_name == "shader-objects")
     {
         app = std::make_unique<gfxrecon::test_app::shader_objects::App>();
+    }
+    else if (app_name == "sparse-resources")
+    {
+        app = std::make_unique<gfxrecon::test_app::sparse_resources::App>();
     }
 
 #if defined(__ANDROID__)

@@ -24,7 +24,9 @@
 # Description: CMake script for sparse-resources test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-sparse-resources app.cpp)
+add_library(gfxrecon-testapp-sparse-resources app.cpp)
+
+target_include_directories(gfxrecon-testapp-sparse-resources PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-sparse-resources gfxrecon-testapp-base)
 

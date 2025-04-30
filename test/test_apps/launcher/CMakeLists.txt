@@ -42,6 +42,7 @@ target_link_libraries(${TARGET_NAME}
                       gfxrecon-testapp-multisample-depth
                       gfxrecon-testapp-pipeline-binaries
                       gfxrecon-testapp-shader-objects
+                      gfxrecon-testapp-sparse-resources
                       gfxrecon-testapp-triangle)
 
 common_build_directives(${TARGET_NAME})
