@@ -81,7 +81,6 @@ void App::configure_instance_builder(gfxrecon::test::InstanceBuilder& instance_b
     {
         test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
     }
-
     TestAppBase::configure_instance_builder(instance_builder, test_config);
 }
 
