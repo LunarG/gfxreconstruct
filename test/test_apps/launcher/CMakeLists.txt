@@ -35,10 +35,10 @@ target_include_directories(${TARGET_NAME} PUBLIC
         ${CMAKE_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR})
 
-
 target_link_libraries(${TARGET_NAME}
                       gfxrecon-testapp-external-memory-fd-export
                       gfxrecon-testapp-external-memory-fd-import
+                      gfxrecon-testapp-host-image-copy
                       gfxrecon-testapp-triangle)
 
 common_build_directives(${TARGET_NAME})

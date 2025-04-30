@@ -25,61 +25,13 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <test_app_base.h>
-
 #include <SDL3/SDL_main.h>
 
-namespace gfxrecon
-{
+#include "host_image_copy_app.h"
 
-namespace test_app
-{
-
-namespace host_image_copy
-{
-
-class App : public gfxrecon::test::TestAppBase
-{
-  public:
-    App() = default;
-
-  private:
-    VkPhysicalDeviceHostImageCopyFeaturesEXT host_image_copy_features_;
-
-    VkQueue  queue_;
-    uint32_t queue_index_;
-
-    const uint32_t image_width_  = 256u;
-    const uint32_t image_height_ = 256u;
-    const uint32_t buffer_size_  = image_width_ * image_height_ * 4u;
-
-    VkBuffer       src_buffer_;
-    VkDeviceMemory src_buffer_memory_;
-    VkBuffer       dst_buffer_;
-    VkDeviceMemory dst_buffer_memory_;
-    VkImage        src_image_;
-    VkDeviceMemory src_image_memory_;
-    VkImage        dst_image_;
-    VkDeviceMemory dst_image_memory_;
-
-    VkCommandPool   command_pool_;
-    VkCommandBuffer command_buffer_;
-    VkFence         fence_;
-
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
-                                            vkmock::TestConfig*) override;
-
-    void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device,
-                                  vkmock::TestConfig*) override;
-
-    uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
-    void     create_buffers_and_images();
-    void     allocate_command_buffer();
-    void     cleanup() override;
-    bool     frame(const int frame_num) override;
-    void     setup() override;
-};
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(host_image_copy)
 
 void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector, vkmock::TestConfig*)
 {
@@ -476,23 +428,6 @@ void App::setup()
     init.disp.createFence(&fence_create_info, nullptr, &fence_);
 }
 
-} // namespace host_image_copy
-
-} // namespace test_app
-
-} // namespace gfxrecon
-
-int main(int argc, char* argv[])
-{
-    try
-    {
-        gfxrecon::test_app::host_image_copy::App app{};
-        app.run("host image copy");
-        return 0;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
-}
+GFXRECON_END_NAMESPACE(host_image_copy)
+GFXRECON_END_NAMESPACE(test_app)
+GFXRECON_END_NAMESPACE(gfxrecon)
