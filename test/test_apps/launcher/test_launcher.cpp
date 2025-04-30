@@ -31,6 +31,8 @@
 #include <util/android/intent.h>
 #endif
 
+#include <external_memory_fd_export_app.h>
+#include <external_memory_fd_import_app.h>
 #include <triangle_app.h>
 
 const char kHelpShortOption[] = "-h";
@@ -39,6 +41,8 @@ const char kHelpLongOption[]  = "--help";
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
+    "external-memory-fd-export",
+    "external-memory-fd-import",
     "triangle",
 };
 
@@ -100,6 +104,14 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     if (app_name == "triangle")
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
+    }
+    else if (app_name == "external-memory-fd-export")
+    {
+        app = std::make_unique<gfxrecon::test_app::external_memory_fd_export::App>();
+    }
+    else if (app_name == "external-memory-fd-import")
+    {
+        app = std::make_unique<gfxrecon::test_app::external_memory_fd_import::App>();
     }
 
 #if defined(__ANDROID__)

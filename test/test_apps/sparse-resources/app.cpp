@@ -105,7 +105,7 @@ class App : public gfxrecon::test::TestAppBase
 
 void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
-    instance_builder.desire_api_version(VK_MAKE_VERSION(1, 3, 0));
+    instance_builder.require_api_version(VK_MAKE_VERSION(1, 3, 0));
 }
 
 void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
