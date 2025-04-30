@@ -39,6 +39,7 @@ target_link_libraries(${TARGET_NAME}
                       gfxrecon-testapp-external-memory-fd-export
                       gfxrecon-testapp-external-memory-fd-import
                       gfxrecon-testapp-host-image-copy
+                      gfxrecon-testapp-multisample-depth
                       gfxrecon-testapp-triangle)
 
 common_build_directives(${TARGET_NAME})
