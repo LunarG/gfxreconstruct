@@ -20,6 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include <multisample_depth_app.h>
+#include <external_memory_fd_export_app.h>
+#include <external_memory_fd_import_app.h>
+#include <host_image_copy_app.h>
+#include <triangle_app.h>
+
 #include <algorithm>
 
 #include <util/logging.h>
@@ -31,21 +37,13 @@
 #include <util/android/intent.h>
 #endif
 
-#include <external_memory_fd_export_app.h>
-#include <external_memory_fd_import_app.h>
-#include <host_image_copy_app.h>
-#include <triangle_app.h>
-
 const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
-    "external-memory-fd-export",
-    "external-memory-fd-import",
-    "host-image-copy",
-    "triangle",
+    "external-memory-fd-export", "external-memory-fd-import", "host-image-copy", "multisample-depth", "triangle",
 };
 
 void PrintUsage(const char* exe_name)
@@ -118,6 +116,10 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     else if (app_name == "host-image-copy")
     {
         app = std::make_unique<gfxrecon::test_app::host_image_copy::App>();
+    }
+    else if (app_name == "multisample-depth")
+    {
+        app = std::make_unique<gfxrecon::test_app::multisample_depth::App>();
     }
 
 #if defined(__ANDROID__)

@@ -5,7 +5,6 @@ target_include_directories(gfxrecon-testapp-base PRIVATE ${PROJECT_SOURCE_DIR}/e
 target_include_directories(gfxrecon-testapp-base PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../../icd)
 target_link_libraries(gfxrecon-testapp-base
     PUBLIC
-        vulkan_registry
         SDL3::SDL3-static
         gfxrecon_util
 )
