@@ -21,61 +21,17 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "shader_objects_app.h"
+
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
 
-#include <test_app_base.h>
-
 #include <SDL3/SDL_main.h>
 
-namespace gfxrecon
-{
-
-namespace test_app
-{
-
-namespace shader_objects
-{
-
-const size_t MAX_FRAMES_IN_FLIGHT = 2;
-
-class App : public gfxrecon::test::TestAppBase
-{
-  public:
-    App() = default;
-
-  private:
-    VkQueue graphics_queue_;
-    VkQueue present_queue_;
-
-    VkCommandPool   command_pool_;
-    VkCommandBuffer command_buffers_[MAX_FRAMES_IN_FLIGHT];
-
-    VkShaderEXT shaders_[5];
-
-    size_t current_frame_ = 0;
-
-    gfxrecon::test::Sync sync_;
-
-    VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_features_;
-    VkPhysicalDeviceShaderObjectFeaturesEXT  shader_object_features_;
-    VkPhysicalDeviceFeatures2                features2_;
-
-    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
-
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
-                                            vkmock::TestConfig*) override;
-
-    void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device,
-                                  vkmock::TestConfig*) override;
-
-    void create_shader_objects();
-    void cleanup() override;
-    bool frame(const int frame_num) override;
-    void setup() override;
-};
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(shader_objects)
 
 void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
@@ -476,23 +432,6 @@ void App::setup()
     init.disp.allocateCommandBuffers(&command_buffer_allocate_info, command_buffers_);
 }
 
-} // namespace shader_objects
-
-} // namespace test_app
-
-} // namespace gfxrecon
-
-int main(int argc, char* argv[])
-{
-    try
-    {
-        gfxrecon::test_app::shader_objects::App app{};
-        app.run("shader objects");
-        return 0;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
-}
+GFXRECON_END_NAMESPACE(shader_objects)
+GFXRECON_END_NAMESPACE(test_app)
+GFXRECON_END_NAMESPACE(gfxrecon)
