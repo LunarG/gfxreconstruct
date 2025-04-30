@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2024 LunarG, Inc.
+# Copyright (c) 2024-2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,47 +24,19 @@
 # Description: CMake script for VK_KHR_external_memory_fd import test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-external-memory-fd-import "")
+add_library(gfxrecon-testapp-external-memory-fd-import ${CMAKE_CURRENT_LIST_DIR}/app.cpp)
 
-target_sources(gfxrecon-testapp-external-memory-fd-import
-               PRIVATE
-               ${CMAKE_CURRENT_LIST_DIR}/app.cpp
-               ${CMAKE_CURRENT_LIST_DIR}/../../common/test_app_base.cpp)
-
-target_include_directories(gfxrecon-testapp-external-memory-fd-import PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/../../common)
+target_include_directories(gfxrecon-testapp-external-memory-fd-import
+                           PUBLIC
+                               ${CMAKE_CURRENT_LIST_DIR})
 
 target_link_libraries(gfxrecon-testapp-external-memory-fd-import
-        gfxrecon_application
-        gfxrecon_decode
-        gfxrecon_graphics
-        gfxrecon_format
-        platform_specific
-        gfxrecon-testapp-base)
-
-if (MSVC)
-    # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else()
-        target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif()
-endif()
+                      PUBLIC
+                          gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-external-memory-fd-import)
 
-add_custom_command(
-        TARGET gfxrecon-testapp-external-memory-fd-import
-        POST_BUILD
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-if (WIN32)
-add_custom_command(TARGET gfxrecon-testapp-external-memory-fd-import POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:gfxrecon-testapp-external-memory-fd-import> $<TARGET_FILE_DIR:gfxrecon-testapp-external-memory-fd-import>
-        COMMAND_EXPAND_LISTS)
-endif ()
-
-install(TARGETS gfxrecon-testapp-external-memory-fd-import RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd)
+install(TARGETS gfxrecon-testapp-external-memory-fd-import
+        RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd)
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-external-memory-fd-import)
