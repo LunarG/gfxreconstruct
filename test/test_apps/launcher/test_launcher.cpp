@@ -21,14 +21,18 @@
 */
 
 #include <multisample_depth_app.h>
-#include <external_memory_fd_export_app.h>
-#include <external_memory_fd_import_app.h>
+
 #include <host_image_copy_app.h>
 #include <pipeline_binaries_app.h>
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
-#include <wait_for_present_app.h>
 #include <triangle_app.h>
+
+#ifdef __linux__
+#include <external_memory_fd_export_app.h>
+#include <external_memory_fd_import_app.h>
+#include <wait_for_present_app.h>
+#endif
 
 #include <algorithm>
 
@@ -47,9 +51,13 @@ const char kHelpLongOption[]  = "--help";
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
-    "external-memory-fd-export", "external-memory-fd-import", "host-image-copy",
-    "multisample-depth",         "pipeline-binaries",         "shader-objects",
-    "sparse-resources",          "wait-for-present",          "triangle",
+    "host-image-copy",           "multisample-depth",
+    "pipeline-binaries",         "shader-objects",
+    "sparse-resources",          "triangle",
+#ifdef __linux__
+    "external-memory-fd-export", "external-memory-fd-import",
+    "wait-for-present",
+#endif
 };
 
 void PrintUsage(const char* exe_name)
@@ -111,14 +119,7 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
     }
-    else if (app_name == "external-memory-fd-export")
-    {
-        app = std::make_unique<gfxrecon::test_app::external_memory_fd_export::App>();
-    }
-    else if (app_name == "external-memory-fd-import")
-    {
-        app = std::make_unique<gfxrecon::test_app::external_memory_fd_import::App>();
-    }
+
     else if (app_name == "host-image-copy")
     {
         app = std::make_unique<gfxrecon::test_app::host_image_copy::App>();
@@ -139,10 +140,20 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     {
         app = std::make_unique<gfxrecon::test_app::sparse_resources::App>();
     }
+#ifdef __linux__
+    else if (app_name == "external-memory-fd-export")
+    {
+        app = std::make_unique<gfxrecon::test_app::external_memory_fd_export::App>();
+    }
+    else if (app_name == "external-memory-fd-import")
+    {
+        app = std::make_unique<gfxrecon::test_app::external_memory_fd_import::App>();
+    }
     else if (app_name == "wait-for-present")
     {
         app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
     }
+#endif // __linux__
 
 #if defined(__ANDROID__)
     app->set_android_app(android_app);
