@@ -35,6 +35,6 @@ target_link_libraries(gfxrecon-testapp-triangle
 common_build_directives(gfxrecon-testapp-triangle)
 
 install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
+install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/triangle DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)

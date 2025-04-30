@@ -88,8 +88,8 @@ void App::create_render_pass()
 
 void App::create_graphics_pipeline()
 {
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "tri.vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "tri.frag.spv");
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/tri.vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/tri.frag.spv");
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
