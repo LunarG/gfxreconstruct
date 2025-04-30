@@ -35,16 +35,24 @@ target_include_directories(${TARGET_NAME} PUBLIC
         ${CMAKE_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
+    gfxrecon-testapp-host-image-copy
+    gfxrecon-testapp-multisample-depth
+    gfxrecon-testapp-pipeline-binaries
+    gfxrecon-testapp-shader-objects
+    gfxrecon-testapp-sparse-resources
+    gfxrecon-testapp-triangle)
+
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
+    list(APPEND GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
+            gfxrecon-testapp-external-memory-fd-export
+            gfxrecon-testapp-external-memory-fd-import
+            gfxrecon-testapp-wait-for-present)
+endif()
+
 target_link_libraries(${TARGET_NAME}
-                      gfxrecon-testapp-external-memory-fd-export
-                      gfxrecon-testapp-external-memory-fd-import
-                      gfxrecon-testapp-host-image-copy
-                      gfxrecon-testapp-multisample-depth
-                      gfxrecon-testapp-pipeline-binaries
-                      gfxrecon-testapp-shader-objects
-                      gfxrecon-testapp-sparse-resources
-                      gfxrecon-testapp-wait-for-present
-                      gfxrecon-testapp-triangle)
+                      ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})
 
 common_build_directives(${TARGET_NAME})
 
