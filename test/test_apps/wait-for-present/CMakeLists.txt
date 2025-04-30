@@ -21,10 +21,12 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for triangle test app
+# Description: CMake script for wait for present test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-wait-for-present app.cpp)
+add_library(gfxrecon-testapp-wait-for-present app.cpp)
+
+target_include_directories(gfxrecon-testapp-wait-for-present PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-wait-for-present gfxrecon-testapp-base)
 

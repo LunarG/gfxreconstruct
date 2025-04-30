@@ -43,6 +43,7 @@ target_link_libraries(${TARGET_NAME}
                       gfxrecon-testapp-pipeline-binaries
                       gfxrecon-testapp-shader-objects
                       gfxrecon-testapp-sparse-resources
+                      gfxrecon-testapp-wait-for-present
                       gfxrecon-testapp-triangle)
 
 common_build_directives(${TARGET_NAME})
