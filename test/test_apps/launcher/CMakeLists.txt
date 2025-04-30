@@ -37,6 +37,8 @@ target_include_directories(${TARGET_NAME} PUBLIC
 
 
 target_link_libraries(${TARGET_NAME}
+                      gfxrecon-testapp-external-memory-fd-export
+                      gfxrecon-testapp-external-memory-fd-import
                       gfxrecon-testapp-triangle)
 
 common_build_directives(${TARGET_NAME})
