@@ -34,8 +34,9 @@ Use of the *TestAppBase* is optional.
 
 ## **Building Test Apps**
 
-Test apps are built as part of the default build CMAKE build process. In order to stop test apps from building, set the
-**GFXRECON_INCLUDE_TEST_APPS** CMake variable to OFF, e.g. provide `-DGFXRECON_INCLUDE_TEST_APPS=OFF` in your cmake command line.
+Test apps are not built as part of the default build CMAKE build process. In order to build test apps, set the
+**GFXRECON_INCLUDE_TEST_APPS** CMake variable to ON, e.g. provide `-DGFXRECON_INCLUDE_TEST_APPS=ON` in your cmake command line.
+If using `/scripts/build.py`, use the `--test-apps` options.  This option is automatically passed for GH CI builds.
 
 ## **Test App Verification**
 
