@@ -26,7 +26,11 @@
 # Description: CMake script for host-image-copy test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-host-image-copy app.cpp)
+add_library(gfxrecon-testapp-host-image-copy app.cpp)
+
+target_include_directories(gfxrecon-testapp-host-image-copy
+                           PUBLIC
+                               ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-host-image-copy gfxrecon-testapp-base)
 
