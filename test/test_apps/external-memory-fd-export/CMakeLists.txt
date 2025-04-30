@@ -41,6 +41,7 @@ target_link_libraries(gfxrecon-testapp-external-memory-fd-export
 common_build_directives(gfxrecon-testapp-external-memory-fd-export)
 
 install(TARGETS gfxrecon-testapp-external-memory-fd-export
-        RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd)
+        RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd-export)
+install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/external-memory-fd-export DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-external-memory-fd-export)

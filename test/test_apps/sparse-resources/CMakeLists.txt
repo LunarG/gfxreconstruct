@@ -33,6 +33,6 @@ target_link_libraries(gfxrecon-testapp-sparse-resources gfxrecon-testapp-base)
 common_build_directives(gfxrecon-testapp-sparse-resources)
 
 install(TARGETS gfxrecon-testapp-sparse-resources RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/sparse-resources)
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/sparse-resources)
+install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/sparse-resources DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 
 add_dependencies(gfxrecon-testapps gfxrecon-testapp-sparse-resources)
