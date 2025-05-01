@@ -2589,7 +2589,7 @@ void DrawCallsDumpingContext::BindVertexBuffers2(uint64_t                       
         const uint32_t binding = static_cast<uint32_t>(first_binding + i);
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
-        bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].stride      = pStrides[i];
+        bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].stride = pStrides != nullptr ? pStrides[i] : 0;
         if (pSizes != nullptr)
         {
             bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].size = buffer_size;
