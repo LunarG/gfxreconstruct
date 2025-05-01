@@ -399,16 +399,6 @@ inline void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrap
 }
 
 template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12Heap_GetDesc(args...);
-    }
-};
-
-template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
 {
     template <typename... Args>

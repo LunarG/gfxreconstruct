@@ -453,8 +453,6 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
 
-    void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
-
     void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
         std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
         ID3D12CommandQueue_Wrapper*                            wrapper,
@@ -691,6 +689,8 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     HRESULT OverrideID3D12Device1_CreatePipelineLibrary(
         ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library);
+
+    D3D12_HEAP_DESC OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper);
 
     HRESULT OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
                                                               LPCWSTR                                  name,

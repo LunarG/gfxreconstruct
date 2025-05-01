@@ -1391,7 +1391,9 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
             manager,
             this);
 
-        result = GetWrappedObjectAs<ID3D12Heap>()->GetDesc();
+        result = D3D12CaptureManager::Get()->OverrideID3D12Heap_GetDesc(
+            this
+);
 
         Encode_ID3D12Heap_GetDesc(
             this,

@@ -1740,28 +1740,6 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-
-    if (IsPageGuardMemoryModeExternal())
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        if (info->has_write_watch)
-        {
-            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
-            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
-
-            // Replace the custom heap properties that were set at heapcreation.
-            desc.Properties.Type                 = info->heap_type;
-            desc.Properties.CPUPageProperty      = info->page_property;
-            desc.Properties.MemoryPoolPreference = info->memory_pool;
-        }
-    }
-}
-
 void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
     std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
     ID3D12CommandQueue_Wrapper*                            wrapper,
@@ -2142,6 +2120,29 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device1_CreatePipelineLibrary(
 
     auto device1 = wrapper->GetWrappedObjectAs<ID3D12Device1>();
     return device1->CreatePipelineLibrary(library_blob, blob_length, riid, library);
+}
+
+D3D12_HEAP_DESC D3D12CaptureManager::OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper)
+{
+    auto heap = wrapper->GetWrappedObjectAs<ID3D12Heap>();
+    auto desc = heap->GetDesc();
+
+    if (IsPageGuardMemoryModeExternal())
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+        if (info->has_write_watch)
+        {
+            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
+            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
+            // Replace the custom heap properties that were set at heapcreation.
+            desc.Properties.Type                 = info->heap_type;
+            desc.Properties.CPUPageProperty      = info->page_property;
+            desc.Properties.MemoryPoolPreference = info->memory_pool;
+        }
+    }
+    return desc;
 }
 
 HRESULT
