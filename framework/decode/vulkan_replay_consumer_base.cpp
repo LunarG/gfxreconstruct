@@ -2697,7 +2697,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     std::vector<VkExtensionProperties> available_extensions;
     if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
-        // Always enable portability enumeration if available
+        // Always enable portability enumeration if on Mac
+        #ifdef __APPLE__
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
         for (const VkExtensionProperties& extension : available_extensions)
         {
@@ -2707,6 +2708,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
         }
+        #endif
 
         // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
         // otherwise always enable it if available.
