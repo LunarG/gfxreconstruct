@@ -2052,15 +2052,22 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  o
     // Inform the original command buffer about the new image layouts
     for (const auto& att_ref : original_render_pass->subpass_refs[0].color_att_refs)
     {
-        const VulkanImageViewInfo* att_img_view_info =
-            object_info_table_.GetVkImageViewInfo(fb_info->attachment_image_view_ids[att_ref.attachment]);
-        assert(att_img_view_info != nullptr);
+        if (att_ref.attachment < fb_info->attachment_image_view_ids.size())
+        {
+            const VulkanImageViewInfo* att_img_view_info =
+                object_info_table_.GetVkImageViewInfo(fb_info->attachment_image_view_ids[att_ref.attachment]);
+            assert(att_img_view_info != nullptr);
 
-        original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
+            original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
 
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(att_img_view_info->image_id);
-        assert(img_info != nullptr);
-        img_info->intermediate_layout = att_ref.layout;
+            VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(att_img_view_info->image_id);
+            assert(img_info != nullptr);
+            img_info->intermediate_layout = att_ref.layout;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("something fishy with attachment_image_view_ids in %s", __func__);
+        }
     }
 
     // Create new render passes
@@ -2266,14 +2273,21 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     {
         const uint32_t att_idx = att_ref.attachment;
 
-        const VulkanImageViewInfo* img_view_info =
-            object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
-        assert(img_view_info);
+        if (att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            const VulkanImageViewInfo* img_view_info =
+                object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
+            GFXRECON_ASSERT(img_view_info);
 
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
-        assert(img_info);
+            VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
+            GFXRECON_ASSERT(img_info);
 
-        color_att_imgs.push_back(img_info);
+            color_att_imgs.push_back(img_info);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("something fishy with color_att_refs in %s", __func__);
+        }
     }
 
     VulkanImageInfo* depth_img_info;
@@ -2281,12 +2295,20 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     if (active_renderpass_->subpass_refs[current_subpass_].has_depth)
     {
         const uint32_t depth_att_idx = active_renderpass_->subpass_refs[current_subpass_].depth_att_ref.attachment;
-        const VulkanImageViewInfo* depth_img_view_info =
-            object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-        assert(depth_img_view_info);
 
-        depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
-        assert(depth_img_info);
+        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            const VulkanImageViewInfo* depth_img_view_info =
+                object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+            assert(depth_img_view_info);
+
+            depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
+            assert(depth_img_info);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("something fishy with depth_att_ref in %s", __func__);
+        }
     }
     else
     {
