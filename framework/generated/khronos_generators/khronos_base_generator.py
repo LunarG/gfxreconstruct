@@ -2255,7 +2255,7 @@ class KhronosBaseGenerator(OutputGenerator):
             membername = noneStr(member.find('name').text)
 
             # We only care about structures with an sType, which can be included in a pNext chain.
-            if membername == 'sType':
+            if membername == self.get_struct_type_var_name():
                 # Check for value in the XML element.
                 values = member.attrib.get('values')
 

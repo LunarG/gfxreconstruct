@@ -5822,6 +5822,22 @@ void VulkanReplayConsumer::Process_vkGetPipelineExecutableInternalRepresentation
     uint32_t* out_pInternalRepresentationCount = pInternalRepresentationCount->IsNull() ? nullptr : pInternalRepresentationCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanDeviceInfo>("vkGetPipelineExecutableInternalRepresentationsKHR", returnValue, device, kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR, pInternalRepresentationCount, pInternalRepresentations, &CommonObjectInfoTable::GetVkDeviceInfo));
     VkPipelineExecutableInternalRepresentationKHR* out_pInternalRepresentations = pInternalRepresentations->IsNull() ? nullptr : pInternalRepresentations->AllocateOutputData(*out_pInternalRepresentationCount, VkPipelineExecutableInternalRepresentationKHR{ VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR, nullptr });
 
+    // We have to create allocated space for the pInternalRepresentations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_pInternalRepresentations != nullptr)
+    {
+        VkPipelineExecutableInternalRepresentationKHR* in_pInternalRepresentations = pInternalRepresentations->GetPointer();
+        Decoded_VkPipelineExecutableInternalRepresentationKHR* meta_pInternalRepresentations = pInternalRepresentations->GetMetaStructPointer();
+
+        out_pInternalRepresentations->dataSize = in_pInternalRepresentations->dataSize;
+        out_pInternalRepresentations->pData = nullptr;
+        if (in_pInternalRepresentations->dataSize > 0 && in_pInternalRepresentations->pData != nullptr)
+        {
+            out_pInternalRepresentations->pData =
+                meta_pInternalRepresentations->pData.AllocateOutputData(out_pInternalRepresentations->dataSize);
+        }
+    }
+
     VkResult replay_result = GetDeviceTable(in_device)->GetPipelineExecutableInternalRepresentationsKHR(in_device, in_pExecutableInfo, out_pInternalRepresentationCount, out_pInternalRepresentations);
     CheckResult("vkGetPipelineExecutableInternalRepresentationsKHR", returnValue, replay_result, call_info);
 
@@ -10686,6 +10702,22 @@ void VulkanReplayConsumer::Process_vkGetLatencyTimingsNV(
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
     VkGetLatencyMarkerInfoNV* out_pLatencyMarkerInfo = pLatencyMarkerInfo->IsNull() ? nullptr : pLatencyMarkerInfo->AllocateOutputData(1, { VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV, nullptr });
     InitializeOutputStructPNext(pLatencyMarkerInfo);
+
+    // We have to create allocated space for the pLatencyMarkerInfo data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_pLatencyMarkerInfo != nullptr)
+    {
+        VkGetLatencyMarkerInfoNV* in_pLatencyMarkerInfo = pLatencyMarkerInfo->GetPointer();
+        Decoded_VkGetLatencyMarkerInfoNV* meta_pLatencyMarkerInfo = pLatencyMarkerInfo->GetMetaStructPointer();
+
+        out_pLatencyMarkerInfo->timingCount = in_pLatencyMarkerInfo->timingCount;
+        out_pLatencyMarkerInfo->pTimings = nullptr;
+        if (in_pLatencyMarkerInfo->timingCount > 0 && in_pLatencyMarkerInfo->pTimings != nullptr)
+        {
+            out_pLatencyMarkerInfo->pTimings =
+                meta_pLatencyMarkerInfo->pTimings->AllocateOutputData(out_pLatencyMarkerInfo->timingCount);
+        }
+    }
 
     GetDeviceTable(in_device)->GetLatencyTimingsNV(in_device, in_swapchain, out_pLatencyMarkerInfo);
 }

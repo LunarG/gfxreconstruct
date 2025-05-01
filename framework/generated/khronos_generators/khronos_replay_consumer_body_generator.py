@@ -1093,4 +1093,97 @@ class KhronosReplayConsumerBodyGenerator():
                     'InitializeOutputStruct{}({});'.
                     format(api_data.extended_struct_func_prefix, need_initialize_output_pnext_struct)
                 )
+
+            # Handle output structs with members that are arrays. We need to make sure
+            # that they have space allocated for us to fill content into.
+            if (
+                self.is_struct(value.base_type) and value.is_pointer and
+                (not self.is_input_pointer(value))
+            ) and (not value.base_type in self.PLATFORM_STRUCTS):
+                struct_has_arrays = False
+                actual_type = value.base_type
+                if value.base_type in self.all_struct_aliases:
+                    actual_type = self.all_struct_aliases[value.base_type]
+                for member in self.all_struct_members[actual_type]:
+                    if (
+                        not (self.is_handle(member.base_type))
+                        and member.is_pointer and member.is_array
+                        and member.is_dynamic
+                        and member.array_length_value is not None
+                    ):
+                        struct_has_arrays = True
+                if struct_has_arrays:
+                    preexpr.append('')
+                    preexpr.append(
+                        '// We have to create allocated space for the {} data to be written to, otherwise,'
+                        .format(value.name)
+                    )
+                    preexpr.append(
+                        '// it will try to write to a non-existent output location.'
+                    )
+                    preexpr.append('if (out_{} != nullptr)'.format(value.name))
+                    preexpr.append('{')
+                    preexpr.append(
+                        '    {0}* in_{1} = {1}->GetPointer();'.format(
+                            value.base_type, value.name
+                        )
+                    )
+                    preexpr.append(
+                        '    Decoded_{0}* meta_{1} = {1}->GetMetaStructPointer();\n'
+                        .format(value.base_type, value.name)
+                    )
+
+                    for member in self.all_struct_members[actual_type]:
+                        if (
+                            not (self.is_handle(member.base_type))
+                            and member.is_pointer and member.is_array
+                            and member.is_dynamic
+                            and member.array_length_value is not None
+                        ):
+                            length = member.array_length_value.name
+                            preexpr.append(
+                                '    out_{0}->{1} = in_{0}->{1};'.format(
+                                    value.name, length
+                                )
+                            )
+                            preexpr.append(
+                                '    out_{}->{} = nullptr;'.format(
+                                    value.name, member.name
+                                )
+                            )
+                            preexpr.append(
+                                '    if (in_{0}->{1} > 0 && in_{0}->{2} != nullptr)'
+                                .format(value.name, length, member.name)
+                            )
+                            preexpr.append('    {')
+                            if member.base_type == 'char':
+                                preexpr.append(
+                                    '        out_{0}->{1} = new char[in_{0}->{2}];'.format(
+                                        value.name, member.name, length
+                                    )
+                                )
+                                postexpr.append('if (out_{0} != nullptr && out_{0}->{1} != nullptr)'.format(value.name, member.name))
+                                postexpr.append('{')
+                                postexpr.append('    delete[] out_{}->{};'.format(value.name, member.name))
+                                postexpr.append('}')
+                            else:
+                                member_access = '.'
+                                if self.is_struct(member.base_type):
+                                    member_access = '->'
+                                preexpr.append(
+                                    '        out_{}->{} ='.format(
+                                        value.name, member.name
+                                    )
+                                )
+                                preexpr.append(
+                                    '            meta_{0}->{1}{3}AllocateOutputData(out_{0}->{2});'
+                                    .format(
+                                        value.name, member.name, length,
+                                        member_access
+                                    )
+                                )
+                            preexpr.append('    }')
+
+                    preexpr.append('}')
+
         return args, preexpr, postexpr

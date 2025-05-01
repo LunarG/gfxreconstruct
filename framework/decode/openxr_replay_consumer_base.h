@@ -157,30 +157,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                     format::HandleId                              session,
                                     StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
 
-    virtual void Process_xrLocateSpaces(const ApiCallInfo&                                call_info,
-                                        XrResult                                          returnValue,
-                                        format::HandleId                                  session,
-                                        StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
-                                        StructPointerDecoder<Decoded_XrSpaceLocations>*   spaceLocations) override;
-
-    virtual void
-    Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
-                                  XrResult                                                 returnValue,
-                                  format::HandleId                                         handTracker,
-                                  StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
-                                  StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations) override;
-
-    virtual void Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
-                                         XrResult                                            returnValue,
-                                         format::HandleId                                    handTracker,
-                                         StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
-
-    virtual void Process_xrLocateBodyJointsFB(const ApiCallInfo&                                      call_info,
-                                              XrResult                                                returnValue,
-                                              format::HandleId                                        bodyTracker,
-                                              StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
-                                              StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations) override;
-
     virtual void
     Process_xrCreateDebugUtilsMessengerEXT(const ApiCallInfo& call_info,
                                            XrResult           returnValue,

@@ -831,6 +831,40 @@ void OpenXrReplayConsumer::Process_xrStopHapticFeedback(
     CustomProcess<format::ApiCallId::ApiCall_xrStopHapticFeedback>::UpdateState(this, call_info, returnValue, session, hapticActionInfo, replay_result);
 }
 
+void OpenXrReplayConsumer::Process_xrLocateSpaces(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+    StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrSpacesLocateInfo* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrSpaceLocations* out_spaceLocations = spaceLocations->IsNull() ? nullptr : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
+    InitializeOutputStructNext(spaceLocations);
+
+    // We have to create allocated space for the spaceLocations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_spaceLocations != nullptr)
+    {
+        XrSpaceLocations* in_spaceLocations = spaceLocations->GetPointer();
+        Decoded_XrSpaceLocations* meta_spaceLocations = spaceLocations->GetMetaStructPointer();
+
+        out_spaceLocations->locationCount = in_spaceLocations->locationCount;
+        out_spaceLocations->locations = nullptr;
+        if (in_spaceLocations->locationCount > 0 && in_spaceLocations->locations != nullptr)
+        {
+            out_spaceLocations->locations =
+                meta_spaceLocations->locations->AllocateOutputData(out_spaceLocations->locationCount);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_session)->LocateSpaces(in_session, in_locateInfo, out_spaceLocations);
+    CheckResult("xrLocateSpaces", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateSpaces>::UpdateState(this, call_info, returnValue, session, locateInfo, spaceLocations, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrSetAndroidApplicationThreadKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1042,6 +1076,29 @@ void OpenXrReplayConsumer::Process_xrGetVisibilityMaskKHR(
     XrVisibilityMaskKHR* out_visibilityMask = visibilityMask->IsNull() ? nullptr : visibilityMask->AllocateOutputData(1, { XR_TYPE_VISIBILITY_MASK_KHR, nullptr });
     InitializeOutputStructNext(visibilityMask);
 
+    // We have to create allocated space for the visibilityMask data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_visibilityMask != nullptr)
+    {
+        XrVisibilityMaskKHR* in_visibilityMask = visibilityMask->GetPointer();
+        Decoded_XrVisibilityMaskKHR* meta_visibilityMask = visibilityMask->GetMetaStructPointer();
+
+        out_visibilityMask->vertexCapacityInput = in_visibilityMask->vertexCapacityInput;
+        out_visibilityMask->vertices = nullptr;
+        if (in_visibilityMask->vertexCapacityInput > 0 && in_visibilityMask->vertices != nullptr)
+        {
+            out_visibilityMask->vertices =
+                meta_visibilityMask->vertices->AllocateOutputData(out_visibilityMask->vertexCapacityInput);
+        }
+        out_visibilityMask->indexCapacityInput = in_visibilityMask->indexCapacityInput;
+        out_visibilityMask->indices = nullptr;
+        if (in_visibilityMask->indexCapacityInput > 0 && in_visibilityMask->indices != nullptr)
+        {
+            out_visibilityMask->indices =
+                meta_visibilityMask->indices.AllocateOutputData(out_visibilityMask->indexCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_session)->GetVisibilityMaskKHR(in_session, viewConfigurationType, viewIndex, visibilityMaskType, out_visibilityMask);
     CheckResult("xrGetVisibilityMaskKHR", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR>::UpdateState(this, call_info, returnValue, session, viewConfigurationType, viewIndex, visibilityMaskType, visibilityMask, replay_result);
@@ -1158,6 +1215,22 @@ void OpenXrReplayConsumer::Process_xrLocateSpacesKHR(
     MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSpaceLocations* out_spaceLocations = spaceLocations->IsNull() ? nullptr : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
     InitializeOutputStructNext(spaceLocations);
+
+    // We have to create allocated space for the spaceLocations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_spaceLocations != nullptr)
+    {
+        XrSpaceLocations* in_spaceLocations = spaceLocations->GetPointer();
+        Decoded_XrSpaceLocations* meta_spaceLocations = spaceLocations->GetMetaStructPointer();
+
+        out_spaceLocations->locationCount = in_spaceLocations->locationCount;
+        out_spaceLocations->locations = nullptr;
+        if (in_spaceLocations->locationCount > 0 && in_spaceLocations->locations != nullptr)
+        {
+            out_spaceLocations->locations =
+                meta_spaceLocations->locations->AllocateOutputData(out_spaceLocations->locationCount);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->LocateSpacesKHR(in_session, in_locateInfo, out_spaceLocations);
     CheckResult("xrLocateSpacesKHR", returnValue, replay_result, call_info);
@@ -1531,6 +1604,40 @@ void OpenXrReplayConsumer::Process_xrDestroyHandTrackerEXT(
     RemoveHandle(handTracker, &CommonObjectInfoTable::RemoveXrHandTrackerEXTInfo);
 }
 
+void OpenXrReplayConsumer::Process_xrLocateHandJointsEXT(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            handTracker,
+    StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
+    StructPointerDecoder<Decoded_XrHandJointLocationsEXT>* locations)
+{
+    XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
+    const XrHandJointsLocateInfoEXT* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrHandJointLocationsEXT* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_HAND_JOINT_LOCATIONS_EXT, nullptr });
+    InitializeOutputStructNext(locations);
+
+    // We have to create allocated space for the locations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_locations != nullptr)
+    {
+        XrHandJointLocationsEXT* in_locations = locations->GetPointer();
+        Decoded_XrHandJointLocationsEXT* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->jointCount = in_locations->jointCount;
+        out_locations->jointLocations = nullptr;
+        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr)
+        {
+            out_locations->jointLocations =
+                meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
+    CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::UpdateState(this, call_info, returnValue, handTracker, locateInfo, locations, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrCreateHandMeshSpaceMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1619,6 +1726,22 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelPropertiesMSFT(
     XrControllerModelPropertiesMSFT* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_CONTROLLER_MODEL_PROPERTIES_MSFT, nullptr });
     InitializeOutputStructNext(properties);
 
+    // We have to create allocated space for the properties data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_properties != nullptr)
+    {
+        XrControllerModelPropertiesMSFT* in_properties = properties->GetPointer();
+        Decoded_XrControllerModelPropertiesMSFT* meta_properties = properties->GetMetaStructPointer();
+
+        out_properties->nodeCapacityInput = in_properties->nodeCapacityInput;
+        out_properties->nodeProperties = nullptr;
+        if (in_properties->nodeCapacityInput > 0 && in_properties->nodeProperties != nullptr)
+        {
+            out_properties->nodeProperties =
+                meta_properties->nodeProperties->AllocateOutputData(out_properties->nodeCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelPropertiesMSFT(in_session, in_modelKey, out_properties);
     CheckResult("xrGetControllerModelPropertiesMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT>::UpdateState(this, call_info, returnValue, session, modelKey, properties, replay_result);
@@ -1635,6 +1758,22 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelStateMSFT(
     XrControllerModelKeyMSFT in_modelKey = MapHandle<OpenXrControllerModelKeyMSFTInfo>(modelKey, &CommonObjectInfoTable::GetXrControllerModelKeyMSFTInfo);
     XrControllerModelStateMSFT* out_state = state->IsNull() ? nullptr : state->AllocateOutputData(1, { XR_TYPE_CONTROLLER_MODEL_STATE_MSFT, nullptr });
     InitializeOutputStructNext(state);
+
+    // We have to create allocated space for the state data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_state != nullptr)
+    {
+        XrControllerModelStateMSFT* in_state = state->GetPointer();
+        Decoded_XrControllerModelStateMSFT* meta_state = state->GetMetaStructPointer();
+
+        out_state->nodeCapacityInput = in_state->nodeCapacityInput;
+        out_state->nodeStates = nullptr;
+        if (in_state->nodeCapacityInput > 0 && in_state->nodeStates != nullptr)
+        {
+            out_state->nodeStates =
+                meta_state->nodeStates->AllocateOutputData(out_state->nodeCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelStateMSFT(in_session, in_modelKey, out_state);
     CheckResult("xrGetControllerModelStateMSFT", returnValue, replay_result, call_info);
@@ -1762,6 +1901,40 @@ void OpenXrReplayConsumer::Process_xrDestroyBodyTrackerFB(
     RemoveHandle(bodyTracker, &CommonObjectInfoTable::RemoveXrBodyTrackerFBInfo);
 }
 
+void OpenXrReplayConsumer::Process_xrLocateBodyJointsFB(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            bodyTracker,
+    StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
+    StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations)
+{
+    XrBodyTrackerFB in_bodyTracker = MapHandle<OpenXrBodyTrackerFBInfo>(bodyTracker, &CommonObjectInfoTable::GetXrBodyTrackerFBInfo);
+    const XrBodyJointsLocateInfoFB* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrBodyJointLocationsFB* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_BODY_JOINT_LOCATIONS_FB, nullptr });
+    InitializeOutputStructNext(locations);
+
+    // We have to create allocated space for the locations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_locations != nullptr)
+    {
+        XrBodyJointLocationsFB* in_locations = locations->GetPointer();
+        Decoded_XrBodyJointLocationsFB* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->jointCount = in_locations->jointCount;
+        out_locations->jointLocations = nullptr;
+        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr)
+        {
+            out_locations->jointLocations =
+                meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_bodyTracker)->LocateBodyJointsFB(in_bodyTracker, in_locateInfo, out_locations);
+    CheckResult("xrLocateBodyJointsFB", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::UpdateState(this, call_info, returnValue, bodyTracker, locateInfo, locations, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrGetBodySkeletonFB(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1771,6 +1944,22 @@ void OpenXrReplayConsumer::Process_xrGetBodySkeletonFB(
     XrBodyTrackerFB in_bodyTracker = MapHandle<OpenXrBodyTrackerFBInfo>(bodyTracker, &CommonObjectInfoTable::GetXrBodyTrackerFBInfo);
     XrBodySkeletonFB* out_skeleton = skeleton->IsNull() ? nullptr : skeleton->AllocateOutputData(1, { XR_TYPE_BODY_SKELETON_FB, nullptr });
     InitializeOutputStructNext(skeleton);
+
+    // We have to create allocated space for the skeleton data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_skeleton != nullptr)
+    {
+        XrBodySkeletonFB* in_skeleton = skeleton->GetPointer();
+        Decoded_XrBodySkeletonFB* meta_skeleton = skeleton->GetMetaStructPointer();
+
+        out_skeleton->jointCount = in_skeleton->jointCount;
+        out_skeleton->joints = nullptr;
+        if (in_skeleton->jointCount > 0 && in_skeleton->joints != nullptr)
+        {
+            out_skeleton->joints =
+                meta_skeleton->joints->AllocateOutputData(out_skeleton->jointCount);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_bodyTracker)->GetBodySkeletonFB(in_bodyTracker, out_skeleton);
     CheckResult("xrGetBodySkeletonFB", returnValue, replay_result, call_info);
@@ -1905,6 +2094,22 @@ void OpenXrReplayConsumer::Process_xrGetSceneComponentsMSFT(
     XrSceneComponentsMSFT* out_components = components->IsNull() ? nullptr : components->AllocateOutputData(1, { XR_TYPE_SCENE_COMPONENTS_MSFT, nullptr });
     InitializeOutputStructNext(components);
 
+    // We have to create allocated space for the components data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_components != nullptr)
+    {
+        XrSceneComponentsMSFT* in_components = components->GetPointer();
+        Decoded_XrSceneComponentsMSFT* meta_components = components->GetMetaStructPointer();
+
+        out_components->componentCapacityInput = in_components->componentCapacityInput;
+        out_components->components = nullptr;
+        if (in_components->componentCapacityInput > 0 && in_components->components != nullptr)
+        {
+            out_components->components =
+                meta_components->components->AllocateOutputData(out_components->componentCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_scene)->GetSceneComponentsMSFT(in_scene, in_getInfo, out_components);
     CheckResult("xrGetSceneComponentsMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::UpdateState(this, call_info, returnValue, scene, getInfo, components, replay_result);
@@ -1922,6 +2127,22 @@ void OpenXrReplayConsumer::Process_xrLocateSceneComponentsMSFT(
     MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSceneComponentLocationsMSFT* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_SCENE_COMPONENT_LOCATIONS_MSFT, nullptr });
     InitializeOutputStructNext(locations);
+
+    // We have to create allocated space for the locations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_locations != nullptr)
+    {
+        XrSceneComponentLocationsMSFT* in_locations = locations->GetPointer();
+        Decoded_XrSceneComponentLocationsMSFT* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->locationCount = in_locations->locationCount;
+        out_locations->locations = nullptr;
+        if (in_locations->locationCount > 0 && in_locations->locations != nullptr)
+        {
+            out_locations->locations =
+                meta_locations->locations->AllocateOutputData(out_locations->locationCount);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_scene)->LocateSceneComponentsMSFT(in_scene, in_locateInfo, out_locations);
     CheckResult("xrLocateSceneComponentsMSFT", returnValue, replay_result, call_info);
@@ -2118,6 +2339,93 @@ void OpenXrReplayConsumer::Process_xrSetColorSpaceFB(
     XrResult replay_result = GetInstanceTable(in_session)->SetColorSpaceFB(in_session, colorSpace);
     CheckResult("xrSetColorSpaceFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrSetColorSpaceFB>::UpdateState(this, call_info, returnValue, session, colorSpace, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrGetHandMeshFB(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            handTracker,
+    StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh)
+{
+    XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
+    XrHandTrackingMeshFB* out_mesh = mesh->IsNull() ? nullptr : mesh->AllocateOutputData(1, { XR_TYPE_HAND_TRACKING_MESH_FB, nullptr });
+    InitializeOutputStructNext(mesh);
+
+    // We have to create allocated space for the mesh data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_mesh != nullptr)
+    {
+        XrHandTrackingMeshFB* in_mesh = mesh->GetPointer();
+        Decoded_XrHandTrackingMeshFB* meta_mesh = mesh->GetMetaStructPointer();
+
+        out_mesh->jointCapacityInput = in_mesh->jointCapacityInput;
+        out_mesh->jointBindPoses = nullptr;
+        if (in_mesh->jointCapacityInput > 0 && in_mesh->jointBindPoses != nullptr)
+        {
+            out_mesh->jointBindPoses =
+                meta_mesh->jointBindPoses->AllocateOutputData(out_mesh->jointCapacityInput);
+        }
+        out_mesh->jointCapacityInput = in_mesh->jointCapacityInput;
+        out_mesh->jointRadii = nullptr;
+        if (in_mesh->jointCapacityInput > 0 && in_mesh->jointRadii != nullptr)
+        {
+            out_mesh->jointRadii =
+                meta_mesh->jointRadii.AllocateOutputData(out_mesh->jointCapacityInput);
+        }
+        out_mesh->jointCapacityInput = in_mesh->jointCapacityInput;
+        out_mesh->jointParents = nullptr;
+        if (in_mesh->jointCapacityInput > 0 && in_mesh->jointParents != nullptr)
+        {
+            out_mesh->jointParents =
+                meta_mesh->jointParents.AllocateOutputData(out_mesh->jointCapacityInput);
+        }
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexPositions = nullptr;
+        if (in_mesh->vertexCapacityInput > 0 && in_mesh->vertexPositions != nullptr)
+        {
+            out_mesh->vertexPositions =
+                meta_mesh->vertexPositions->AllocateOutputData(out_mesh->vertexCapacityInput);
+        }
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexNormals = nullptr;
+        if (in_mesh->vertexCapacityInput > 0 && in_mesh->vertexNormals != nullptr)
+        {
+            out_mesh->vertexNormals =
+                meta_mesh->vertexNormals->AllocateOutputData(out_mesh->vertexCapacityInput);
+        }
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexUVs = nullptr;
+        if (in_mesh->vertexCapacityInput > 0 && in_mesh->vertexUVs != nullptr)
+        {
+            out_mesh->vertexUVs =
+                meta_mesh->vertexUVs->AllocateOutputData(out_mesh->vertexCapacityInput);
+        }
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexBlendIndices = nullptr;
+        if (in_mesh->vertexCapacityInput > 0 && in_mesh->vertexBlendIndices != nullptr)
+        {
+            out_mesh->vertexBlendIndices =
+                meta_mesh->vertexBlendIndices->AllocateOutputData(out_mesh->vertexCapacityInput);
+        }
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexBlendWeights = nullptr;
+        if (in_mesh->vertexCapacityInput > 0 && in_mesh->vertexBlendWeights != nullptr)
+        {
+            out_mesh->vertexBlendWeights =
+                meta_mesh->vertexBlendWeights->AllocateOutputData(out_mesh->vertexCapacityInput);
+        }
+        out_mesh->indexCapacityInput = in_mesh->indexCapacityInput;
+        out_mesh->indices = nullptr;
+        if (in_mesh->indexCapacityInput > 0 && in_mesh->indices != nullptr)
+        {
+            out_mesh->indices =
+                meta_mesh->indices.AllocateOutputData(out_mesh->indexCapacityInput);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_handTracker)->GetHandMeshFB(in_handTracker, out_mesh);
+    CheckResult("xrGetHandMeshFB", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrGetHandMeshFB>::UpdateState(this, call_info, returnValue, handTracker, mesh, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFB(
@@ -2561,6 +2869,22 @@ void OpenXrReplayConsumer::Process_xrLoadRenderModelFB(
     MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
     XrRenderModelBufferFB* out_buffer = buffer->IsNull() ? nullptr : buffer->AllocateOutputData(1, { XR_TYPE_RENDER_MODEL_BUFFER_FB, nullptr });
     InitializeOutputStructNext(buffer);
+
+    // We have to create allocated space for the buffer data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_buffer != nullptr)
+    {
+        XrRenderModelBufferFB* in_buffer = buffer->GetPointer();
+        Decoded_XrRenderModelBufferFB* meta_buffer = buffer->GetMetaStructPointer();
+
+        out_buffer->bufferCapacityInput = in_buffer->bufferCapacityInput;
+        out_buffer->buffer = nullptr;
+        if (in_buffer->bufferCapacityInput > 0 && in_buffer->buffer != nullptr)
+        {
+            out_buffer->buffer =
+                meta_buffer->buffer.AllocateOutputData(out_buffer->bufferCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->LoadRenderModelFB(in_session, in_info, out_buffer);
     CheckResult("xrLoadRenderModelFB", returnValue, replay_result, call_info);
@@ -3159,6 +3483,22 @@ void OpenXrReplayConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     XrSpaceQueryResultsFB* out_results = results->IsNull() ? nullptr : results->AllocateOutputData(1, { XR_TYPE_SPACE_QUERY_RESULTS_FB, nullptr });
     InitializeOutputStructNext(results);
 
+    // We have to create allocated space for the results data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_results != nullptr)
+    {
+        XrSpaceQueryResultsFB* in_results = results->GetPointer();
+        Decoded_XrSpaceQueryResultsFB* meta_results = results->GetMetaStructPointer();
+
+        out_results->resultCapacityInput = in_results->resultCapacityInput;
+        out_results->results = nullptr;
+        if (in_results->resultCapacityInput > 0 && in_results->results != nullptr)
+        {
+            out_results->results =
+                meta_results->results->AllocateOutputData(out_results->resultCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_session)->RetrieveSpaceQueryResultsFB(in_session, in_requestId, out_results);
     CheckResult("xrRetrieveSpaceQueryResultsFB", returnValue, replay_result, call_info);
 
@@ -3298,8 +3638,28 @@ void OpenXrReplayConsumer::Process_xrGetSpaceSemanticLabelsFB(
     XrSemanticLabelsFB* out_semanticLabelsOutput = semanticLabelsOutput->IsNull() ? nullptr : semanticLabelsOutput->AllocateOutputData(1, { XR_TYPE_SEMANTIC_LABELS_FB, nullptr });
     InitializeOutputStructNext(semanticLabelsOutput);
 
+    // We have to create allocated space for the semanticLabelsOutput data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_semanticLabelsOutput != nullptr)
+    {
+        XrSemanticLabelsFB* in_semanticLabelsOutput = semanticLabelsOutput->GetPointer();
+        Decoded_XrSemanticLabelsFB* meta_semanticLabelsOutput = semanticLabelsOutput->GetMetaStructPointer();
+
+        out_semanticLabelsOutput->bufferCapacityInput = in_semanticLabelsOutput->bufferCapacityInput;
+        out_semanticLabelsOutput->buffer = nullptr;
+        if (in_semanticLabelsOutput->bufferCapacityInput > 0 && in_semanticLabelsOutput->buffer != nullptr)
+        {
+            out_semanticLabelsOutput->buffer = new char[in_semanticLabelsOutput->bufferCapacityInput];
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceSemanticLabelsFB(in_session, in_space, out_semanticLabelsOutput);
     CheckResult("xrGetSpaceSemanticLabelsFB", returnValue, replay_result, call_info);
+
+    if (out_semanticLabelsOutput != nullptr && out_semanticLabelsOutput->buffer != nullptr)
+    {
+        delete[] out_semanticLabelsOutput->buffer;
+    }
     CustomProcess<format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB>::UpdateState(this, call_info, returnValue, session, space, semanticLabelsOutput, replay_result);
 }
 
@@ -3314,6 +3674,22 @@ void OpenXrReplayConsumer::Process_xrGetSpaceBoundary2DFB(
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     XrBoundary2DFB* out_boundary2DOutput = boundary2DOutput->IsNull() ? nullptr : boundary2DOutput->AllocateOutputData(1, { XR_TYPE_BOUNDARY_2D_FB, nullptr });
     InitializeOutputStructNext(boundary2DOutput);
+
+    // We have to create allocated space for the boundary2DOutput data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_boundary2DOutput != nullptr)
+    {
+        XrBoundary2DFB* in_boundary2DOutput = boundary2DOutput->GetPointer();
+        Decoded_XrBoundary2DFB* meta_boundary2DOutput = boundary2DOutput->GetMetaStructPointer();
+
+        out_boundary2DOutput->vertexCapacityInput = in_boundary2DOutput->vertexCapacityInput;
+        out_boundary2DOutput->vertices = nullptr;
+        if (in_boundary2DOutput->vertexCapacityInput > 0 && in_boundary2DOutput->vertices != nullptr)
+        {
+            out_boundary2DOutput->vertices =
+                meta_boundary2DOutput->vertices->AllocateOutputData(out_boundary2DOutput->vertexCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceBoundary2DFB(in_session, in_space, out_boundary2DOutput);
     CheckResult("xrGetSpaceBoundary2DFB", returnValue, replay_result, call_info);
@@ -3331,6 +3707,22 @@ void OpenXrReplayConsumer::Process_xrGetSpaceRoomLayoutFB(
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     XrRoomLayoutFB* out_roomLayoutOutput = roomLayoutOutput->IsNull() ? nullptr : roomLayoutOutput->AllocateOutputData(1, { XR_TYPE_ROOM_LAYOUT_FB, nullptr });
     InitializeOutputStructNext(roomLayoutOutput);
+
+    // We have to create allocated space for the roomLayoutOutput data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_roomLayoutOutput != nullptr)
+    {
+        XrRoomLayoutFB* in_roomLayoutOutput = roomLayoutOutput->GetPointer();
+        Decoded_XrRoomLayoutFB* meta_roomLayoutOutput = roomLayoutOutput->GetMetaStructPointer();
+
+        out_roomLayoutOutput->wallUuidCapacityInput = in_roomLayoutOutput->wallUuidCapacityInput;
+        out_roomLayoutOutput->wallUuids = nullptr;
+        if (in_roomLayoutOutput->wallUuidCapacityInput > 0 && in_roomLayoutOutput->wallUuids != nullptr)
+        {
+            out_roomLayoutOutput->wallUuids =
+                meta_roomLayoutOutput->wallUuids->AllocateOutputData(out_roomLayoutOutput->wallUuidCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceRoomLayoutFB(in_session, in_space, out_roomLayoutOutput);
     CheckResult("xrGetSpaceRoomLayoutFB", returnValue, replay_result, call_info);
@@ -3381,6 +3773,22 @@ void OpenXrReplayConsumer::Process_xrGetSpaceContainerFB(
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     XrSpaceContainerFB* out_spaceContainerOutput = spaceContainerOutput->IsNull() ? nullptr : spaceContainerOutput->AllocateOutputData(1, { XR_TYPE_SPACE_CONTAINER_FB, nullptr });
     InitializeOutputStructNext(spaceContainerOutput);
+
+    // We have to create allocated space for the spaceContainerOutput data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_spaceContainerOutput != nullptr)
+    {
+        XrSpaceContainerFB* in_spaceContainerOutput = spaceContainerOutput->GetPointer();
+        Decoded_XrSpaceContainerFB* meta_spaceContainerOutput = spaceContainerOutput->GetMetaStructPointer();
+
+        out_spaceContainerOutput->uuidCapacityInput = in_spaceContainerOutput->uuidCapacityInput;
+        out_spaceContainerOutput->uuids = nullptr;
+        if (in_spaceContainerOutput->uuidCapacityInput > 0 && in_spaceContainerOutput->uuids != nullptr)
+        {
+            out_spaceContainerOutput->uuids =
+                meta_spaceContainerOutput->uuids->AllocateOutputData(out_spaceContainerOutput->uuidCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceContainerFB(in_session, in_space, out_spaceContainerOutput);
     CheckResult("xrGetSpaceContainerFB", returnValue, replay_result, call_info);
@@ -3447,6 +3855,29 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeightsFB(
     const XrFaceExpressionInfoFB* in_expressionInfo = expressionInfo->GetPointer();
     XrFaceExpressionWeightsFB* out_expressionWeights = expressionWeights->IsNull() ? nullptr : expressionWeights->AllocateOutputData(1, { XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB, nullptr });
     InitializeOutputStructNext(expressionWeights);
+
+    // We have to create allocated space for the expressionWeights data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_expressionWeights != nullptr)
+    {
+        XrFaceExpressionWeightsFB* in_expressionWeights = expressionWeights->GetPointer();
+        Decoded_XrFaceExpressionWeightsFB* meta_expressionWeights = expressionWeights->GetMetaStructPointer();
+
+        out_expressionWeights->weightCount = in_expressionWeights->weightCount;
+        out_expressionWeights->weights = nullptr;
+        if (in_expressionWeights->weightCount > 0 && in_expressionWeights->weights != nullptr)
+        {
+            out_expressionWeights->weights =
+                meta_expressionWeights->weights.AllocateOutputData(out_expressionWeights->weightCount);
+        }
+        out_expressionWeights->confidenceCount = in_expressionWeights->confidenceCount;
+        out_expressionWeights->confidences = nullptr;
+        if (in_expressionWeights->confidenceCount > 0 && in_expressionWeights->confidences != nullptr)
+        {
+            out_expressionWeights->confidences =
+                meta_expressionWeights->confidences.AllocateOutputData(out_expressionWeights->confidenceCount);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->GetFaceExpressionWeightsFB(in_faceTracker, in_expressionInfo, out_expressionWeights);
     CheckResult("xrGetFaceExpressionWeightsFB", returnValue, replay_result, call_info);
@@ -3662,6 +4093,22 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardModelAnimationStatesMETA(
     XrVirtualKeyboardModelAnimationStatesMETA* out_animationStates = animationStates->IsNull() ? nullptr : animationStates->AllocateOutputData(1, { XR_TYPE_VIRTUAL_KEYBOARD_MODEL_ANIMATION_STATES_META, nullptr });
     InitializeOutputStructNext(animationStates);
 
+    // We have to create allocated space for the animationStates data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_animationStates != nullptr)
+    {
+        XrVirtualKeyboardModelAnimationStatesMETA* in_animationStates = animationStates->GetPointer();
+        Decoded_XrVirtualKeyboardModelAnimationStatesMETA* meta_animationStates = animationStates->GetMetaStructPointer();
+
+        out_animationStates->stateCapacityInput = in_animationStates->stateCapacityInput;
+        out_animationStates->states = nullptr;
+        if (in_animationStates->stateCapacityInput > 0 && in_animationStates->states != nullptr)
+        {
+            out_animationStates->states =
+                meta_animationStates->states->AllocateOutputData(out_animationStates->stateCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardModelAnimationStatesMETA(in_keyboard, out_animationStates);
     CheckResult("xrGetVirtualKeyboardModelAnimationStatesMETA", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA>::UpdateState(this, call_info, returnValue, keyboard, animationStates, replay_result);
@@ -3694,6 +4141,22 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardTextureDataMETA(
     XrVirtualKeyboardMETA in_keyboard = MapHandle<OpenXrVirtualKeyboardMETAInfo>(keyboard, &CommonObjectInfoTable::GetXrVirtualKeyboardMETAInfo);
     XrVirtualKeyboardTextureDataMETA* out_textureData = textureData->IsNull() ? nullptr : textureData->AllocateOutputData(1, { XR_TYPE_VIRTUAL_KEYBOARD_TEXTURE_DATA_META, nullptr });
     InitializeOutputStructNext(textureData);
+
+    // We have to create allocated space for the textureData data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_textureData != nullptr)
+    {
+        XrVirtualKeyboardTextureDataMETA* in_textureData = textureData->GetPointer();
+        Decoded_XrVirtualKeyboardTextureDataMETA* meta_textureData = textureData->GetMetaStructPointer();
+
+        out_textureData->bufferCapacityInput = in_textureData->bufferCapacityInput;
+        out_textureData->buffer = nullptr;
+        if (in_textureData->bufferCapacityInput > 0 && in_textureData->buffer != nullptr)
+        {
+            out_textureData->buffer =
+                meta_textureData->buffer.AllocateOutputData(out_textureData->bufferCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardTextureDataMETA(in_keyboard, textureId, out_textureData);
     CheckResult("xrGetVirtualKeyboardTextureDataMETA", returnValue, replay_result, call_info);
@@ -3960,6 +4423,29 @@ void OpenXrReplayConsumer::Process_xrGetSpaceTriangleMeshMETA(
     XrSpaceTriangleMeshMETA* out_triangleMeshOutput = triangleMeshOutput->IsNull() ? nullptr : triangleMeshOutput->AllocateOutputData(1, { XR_TYPE_SPACE_TRIANGLE_MESH_META, nullptr });
     InitializeOutputStructNext(triangleMeshOutput);
 
+    // We have to create allocated space for the triangleMeshOutput data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_triangleMeshOutput != nullptr)
+    {
+        XrSpaceTriangleMeshMETA* in_triangleMeshOutput = triangleMeshOutput->GetPointer();
+        Decoded_XrSpaceTriangleMeshMETA* meta_triangleMeshOutput = triangleMeshOutput->GetMetaStructPointer();
+
+        out_triangleMeshOutput->vertexCapacityInput = in_triangleMeshOutput->vertexCapacityInput;
+        out_triangleMeshOutput->vertices = nullptr;
+        if (in_triangleMeshOutput->vertexCapacityInput > 0 && in_triangleMeshOutput->vertices != nullptr)
+        {
+            out_triangleMeshOutput->vertices =
+                meta_triangleMeshOutput->vertices->AllocateOutputData(out_triangleMeshOutput->vertexCapacityInput);
+        }
+        out_triangleMeshOutput->indexCapacityInput = in_triangleMeshOutput->indexCapacityInput;
+        out_triangleMeshOutput->indices = nullptr;
+        if (in_triangleMeshOutput->indexCapacityInput > 0 && in_triangleMeshOutput->indices != nullptr)
+        {
+            out_triangleMeshOutput->indices =
+                meta_triangleMeshOutput->indices.AllocateOutputData(out_triangleMeshOutput->indexCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_space)->GetSpaceTriangleMeshMETA(in_space, in_getInfo, out_triangleMeshOutput);
     CheckResult("xrGetSpaceTriangleMeshMETA", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::UpdateState(this, call_info, returnValue, space, getInfo, triangleMeshOutput, replay_result);
@@ -4010,6 +4496,29 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeights2FB(
     const XrFaceExpressionInfo2FB* in_expressionInfo = expressionInfo->GetPointer();
     XrFaceExpressionWeights2FB* out_expressionWeights = expressionWeights->IsNull() ? nullptr : expressionWeights->AllocateOutputData(1, { XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB, nullptr });
     InitializeOutputStructNext(expressionWeights);
+
+    // We have to create allocated space for the expressionWeights data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_expressionWeights != nullptr)
+    {
+        XrFaceExpressionWeights2FB* in_expressionWeights = expressionWeights->GetPointer();
+        Decoded_XrFaceExpressionWeights2FB* meta_expressionWeights = expressionWeights->GetMetaStructPointer();
+
+        out_expressionWeights->weightCount = in_expressionWeights->weightCount;
+        out_expressionWeights->weights = nullptr;
+        if (in_expressionWeights->weightCount > 0 && in_expressionWeights->weights != nullptr)
+        {
+            out_expressionWeights->weights =
+                meta_expressionWeights->weights.AllocateOutputData(out_expressionWeights->weightCount);
+        }
+        out_expressionWeights->confidenceCount = in_expressionWeights->confidenceCount;
+        out_expressionWeights->confidences = nullptr;
+        if (in_expressionWeights->confidenceCount > 0 && in_expressionWeights->confidences != nullptr)
+        {
+            out_expressionWeights->confidences =
+                meta_expressionWeights->confidences.AllocateOutputData(out_expressionWeights->confidenceCount);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->GetFaceExpressionWeights2FB(in_faceTracker, in_expressionInfo, out_expressionWeights);
     CheckResult("xrGetFaceExpressionWeights2FB", returnValue, replay_result, call_info);
@@ -4361,6 +4870,22 @@ void OpenXrReplayConsumer::Process_xrGetPlaneDetectionsEXT(
     XrPlaneDetectorLocationsEXT* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_PLANE_DETECTOR_LOCATIONS_EXT, nullptr });
     InitializeOutputStructNext(locations);
 
+    // We have to create allocated space for the locations data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_locations != nullptr)
+    {
+        XrPlaneDetectorLocationsEXT* in_locations = locations->GetPointer();
+        Decoded_XrPlaneDetectorLocationsEXT* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->planeLocationCapacityInput = in_locations->planeLocationCapacityInput;
+        out_locations->planeLocations = nullptr;
+        if (in_locations->planeLocationCapacityInput > 0 && in_locations->planeLocations != nullptr)
+        {
+            out_locations->planeLocations =
+                meta_locations->planeLocations->AllocateOutputData(out_locations->planeLocationCapacityInput);
+        }
+    }
+
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlaneDetectionsEXT(in_planeDetector, in_info, out_locations);
     CheckResult("xrGetPlaneDetectionsEXT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT>::UpdateState(this, call_info, returnValue, planeDetector, info, locations, replay_result);
@@ -4377,6 +4902,22 @@ void OpenXrReplayConsumer::Process_xrGetPlanePolygonBufferEXT(
     XrPlaneDetectorEXT in_planeDetector = MapHandle<OpenXrPlaneDetectorEXTInfo>(planeDetector, &CommonObjectInfoTable::GetXrPlaneDetectorEXTInfo);
     XrPlaneDetectorPolygonBufferEXT* out_polygonBuffer = polygonBuffer->IsNull() ? nullptr : polygonBuffer->AllocateOutputData(1, { XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT, nullptr });
     InitializeOutputStructNext(polygonBuffer);
+
+    // We have to create allocated space for the polygonBuffer data to be written to, otherwise,
+    // it will try to write to a non-existent output location.
+    if (out_polygonBuffer != nullptr)
+    {
+        XrPlaneDetectorPolygonBufferEXT* in_polygonBuffer = polygonBuffer->GetPointer();
+        Decoded_XrPlaneDetectorPolygonBufferEXT* meta_polygonBuffer = polygonBuffer->GetMetaStructPointer();
+
+        out_polygonBuffer->vertexCapacityInput = in_polygonBuffer->vertexCapacityInput;
+        out_polygonBuffer->vertices = nullptr;
+        if (in_polygonBuffer->vertexCapacityInput > 0 && in_polygonBuffer->vertices != nullptr)
+        {
+            out_polygonBuffer->vertices =
+                meta_polygonBuffer->vertices->AllocateOutputData(out_polygonBuffer->vertexCapacityInput);
+        }
+    }
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlanePolygonBufferEXT(in_planeDetector, planeId, polygonBufferIndex, out_polygonBuffer);
     CheckResult("xrGetPlanePolygonBufferEXT", returnValue, replay_result, call_info);

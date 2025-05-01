@@ -365,6 +365,13 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            session,
         StructPointerDecoder<Decoded_XrHapticActionInfo>* hapticActionInfo) override;
 
+    virtual void Process_xrLocateSpaces(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+        StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations) override;
+
     virtual void Process_xrSetAndroidApplicationThreadKHR(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -656,6 +663,13 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            handTracker) override;
 
+    virtual void Process_xrLocateHandJointsEXT(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            handTracker,
+        StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
+        StructPointerDecoder<Decoded_XrHandJointLocationsEXT>* locations) override;
+
     virtual void Process_xrCreateHandMeshSpaceMSFT(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -747,6 +761,13 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
         format::HandleId                            bodyTracker) override;
+
+    virtual void Process_xrLocateBodyJointsFB(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            bodyTracker,
+        StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
+        StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations) override;
 
     virtual void Process_xrGetBodySkeletonFB(
         const ApiCallInfo&                          call_info,
@@ -894,6 +915,12 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            session,
         XrColorSpaceFB                              colorSpace) override;
+
+    virtual void Process_xrGetHandMeshFB(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            handTracker,
+        StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
 
     virtual void Process_xrCreateSpatialAnchorFB(
         const ApiCallInfo&                          call_info,
