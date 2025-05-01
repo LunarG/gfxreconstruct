@@ -47,7 +47,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-
 #include "util/platform.h"
 
 #include "vulkan/vulkan.h"
