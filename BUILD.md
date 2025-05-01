@@ -393,13 +393,13 @@ codesign -dvvv libVkLayer_gfxreconstruct.dylib`
 Apple's developer information about code-signing can be found here:
 https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html
 
-### Disabling OpenXR Inclusing For Desktop Builds
+### Disabling OpenXR Inclusion For Desktop Builds
 
 If there are any concerns about using the OpenXR content in the resulting components of GFXReconstruct,
 it may be disabled during CMake build target generation by setting the following CMake option:
 
 ```bash
--DOPENXR_SUPPORT_ENABLED=OFF
+-DGFXRECON_ENABLE_OPENXR=OFF
 ```
 
 This causes the code generation to skip over any OpenXR specific files, and not define the
