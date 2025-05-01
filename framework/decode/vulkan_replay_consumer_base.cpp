@@ -2747,7 +2747,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         create_state.messenger_create_info             = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
         create_state.messenger_create_info.pNext       = modified_create_info.pNext;
         create_state.messenger_create_info.flags       = 0;
-        create_state.messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
+        create_state.messenger_create_info.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
         create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
         create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
         create_state.messenger_create_info.pUserData       = nullptr;
