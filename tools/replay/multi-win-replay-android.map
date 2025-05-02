@@ -1,6 +1,7 @@
 {
   global:
     ANativeActivity_onCreate;
+    Java_com_lunarg_gfxreconstruct_replay_ReplayActivity_setSurface;
     MainGetCurrentBlockIndex;
     MainGetLoadingTrimmedState;
     SetInjectedCommandCallbacks;
