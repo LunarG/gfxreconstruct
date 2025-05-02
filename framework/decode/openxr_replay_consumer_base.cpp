@@ -1592,30 +1592,6 @@ openxr::GraphicsBinding OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_Xr
     return openxr::GraphicsBinding();
 }
 
-// Override the handling of the XrSpaceVelocities structure when found in a 'next' chain.
-// The problem is that it is an output structure, but it needs initialization done for it to be
-// properly filled in by the API.  This includes, setting proper array sizes, and creating
-// storage space for those arrays.
-XrBaseOutStructure* OverrideOutputStructNext_XrSpaceVelocities(const XrBaseInStructure* in_next,
-                                                               XrBaseOutStructure*      output_struct)
-{
-    XrSpaceVelocities* out_space_velocities = DecodeAllocator::Allocate<XrSpaceVelocities>();
-    if (out_space_velocities != nullptr)
-    {
-        const XrSpaceVelocities* in_space_velocities = reinterpret_cast<const XrSpaceVelocities*>(in_next);
-        out_space_velocities->velocityCount          = in_space_velocities->velocityCount;
-        if (out_space_velocities->velocityCount > 0)
-        {
-            out_space_velocities->velocities =
-                DecodeAllocator::Allocate<XrSpaceVelocityData>(in_space_velocities->velocityCount);
-            memcpy(out_space_velocities->velocities,
-                   in_space_velocities->velocities,
-                   sizeof(XrSpaceVelocityData) * in_space_velocities->velocityCount);
-        }
-    }
-    return reinterpret_cast<XrBaseOutStructure*>(out_space_velocities);
-}
-
 // Override the handling of the XrBindingModificationsKHR structure when found in a 'next' chain.
 // The problem is that it is an output structure, but it needs initialization done for it to be
 // properly filled in by the API.  This includes, setting proper array sizes, and creating
@@ -1976,31 +1952,6 @@ XrBaseOutStructure* OverrideOutputStructNext_XrBindingModificationsKHR(const XrB
         }
     }
     return reinterpret_cast<XrBaseOutStructure*>(out_binding_mod_parent);
-}
-
-// Override the handling of the XrHandJointVelocitiesEXT structure when found in a 'next' chain.
-// The problem is that it is an output structure, but it needs initialization done for it to be
-// properly filled in by the API.  This includes, setting proper array sizes, and creating
-// storage space for those arrays.
-XrBaseOutStructure* OverrideOutputStructNext_XrHandJointVelocitiesEXT(const XrBaseInStructure* in_next,
-                                                                      XrBaseOutStructure*      output_struct)
-{
-    XrHandJointVelocitiesEXT* out_hand_joint_velocities = DecodeAllocator::Allocate<XrHandJointVelocitiesEXT>();
-    if (out_hand_joint_velocities != nullptr)
-    {
-        const XrHandJointVelocitiesEXT* in_hand_joint_velocities =
-            reinterpret_cast<const XrHandJointVelocitiesEXT*>(in_next);
-        out_hand_joint_velocities->jointCount = in_hand_joint_velocities->jointCount;
-        if (out_hand_joint_velocities->jointCount > 0)
-        {
-            out_hand_joint_velocities->jointVelocities =
-                DecodeAllocator::Allocate<XrHandJointVelocityEXT>(in_hand_joint_velocities->jointCount);
-            memcpy(out_hand_joint_velocities->jointVelocities,
-                   in_hand_joint_velocities->jointVelocities,
-                   sizeof(XrHandJointVelocityEXT) * in_hand_joint_velocities->jointCount);
-        }
-    }
-    return reinterpret_cast<XrBaseOutStructure*>(out_hand_joint_velocities);
 }
 
 GFXRECON_END_NAMESPACE(decode)

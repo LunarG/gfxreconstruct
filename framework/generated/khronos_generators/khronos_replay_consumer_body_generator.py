@@ -284,6 +284,144 @@ class KhronosReplayConsumerBodyGenerator():
 
             write(cmddef, file=self.outFile)
 
+    def generate_extended_child_array_handling(self, api_data, indent, array_index_name, actual_type, in_var, out_var):
+        for member in self.all_struct_members[actual_type]:
+            if ((not self.is_handle(member.base_type) or not member.is_const or member.base_type in self.children_structs)
+                and member.is_pointer and member.is_array and member.is_dynamic):
+                member_type = member.base_type
+                if member_type == 'void':
+                    member_type = 'uint8_t'
+
+                write('', file=self.outFile)
+                write(
+                    '{0}{3}->{1} = {2}->{1};'
+                    .format(indent, member.array_length_value.name, in_var, out_var),
+                    file=self.outFile
+                )
+                write(
+                    '{}if ({}->{} > 0)'.
+                    format(indent, out_var, member.array_length_value.name),
+                    file=self.outFile
+                )
+                write('{}{{'.format(indent), file=self.outFile)
+
+                if member.base_type in self.children_structs and member.pointer_count > 1:
+                    trimmed_var_name = self.make_simple_var_name(member.base_type)
+                    if len(trimmed_var_name) > 32:
+                        trimmed_var_name = trimmed_var_name[0:31]
+                    in_child_array_var = 'in_{}_child_array'.format(trimmed_var_name)
+                    out_child_array_var = 'out_{}_child_array'.format(trimmed_var_name)
+                    write('{}    {}** {} ='.format(indent, member.base_type, out_child_array_var), file=self.outFile)
+                    write('{}        DecodeAllocator::Allocate<{}*>('.format(indent, member.base_type), file=self.outFile)
+                    write('{}            {}->{});'.format(indent, in_var, member.array_length_value.name), file=self.outFile)
+                    write('{}    const {}* const* {} ='.format(indent, member.base_type, in_child_array_var), file=self.outFile)
+                    write('{}        {}->{};'.format(indent, in_var, member.name), file=self.outFile)
+                    write('{0}    for (uint32_t {1} = 0; {1} < {2}->{3}; ++{1})'.format(indent, array_index_name, in_var, member.array_length_value.name), file=self.outFile)
+                    write('{}    {{'.format(indent), file=self.outFile)
+                    write('{}        switch ({}[{}]->{})'.format(indent, in_child_array_var, array_index_name,api_data.struct_type_variable), file=self.outFile)
+                    write('{}        {{'.format(indent), file=self.outFile)
+                    write('{}            default:'.format(indent), file=self.outFile)
+                    write('{}                {}[{}] = DecodeAllocator::Allocate<{}>();'.format(indent, out_child_array_var, array_index_name, member.base_type), file=self.outFile)
+                    write('{0}                {1}[{2}]->{3} = {4}[iii]->{3};'.format(indent, out_child_array_var, array_index_name, api_data.struct_type_variable, in_child_array_var), file=self.outFile)
+                    write('{}                GFXRECON_LOG_ERROR("Unknown {} structure type %u for {} index %u",'.format(indent, member.name, actual_type), file=self.outFile)
+                    write('{}                    {}[{}]->{},'.format(indent, in_child_array_var, array_index_name, api_data.struct_type_variable), file=self.outFile)
+                    write('{}                    {});'.format(indent, array_index_name), file=self.outFile)
+                    write('{}                break;'.format(indent), file=self.outFile)
+
+                    for child_struct in self.children_structs[member.base_type]:
+                        struct_type_name = self.struct_type_names[child_struct]
+                        write('{}            case {}:'.format(indent, struct_type_name), file=self.outFile)
+                        write('{}            {{'.format(indent), file=self.outFile)
+
+                        child_in_var = 'in_{}'.format(child_struct.lower())
+                        child_out_var = 'out_{}'.format(child_struct.lower())
+                        child_indent = indent + '                '
+
+                        write(
+                            '{0}{1}* {2} ='
+                            .format(child_indent, child_struct, child_out_var),
+                            file=self.outFile
+                        )
+                        write(
+                            '{0}    DecodeAllocator::Allocate<{1}>();'
+                            .format(child_indent, child_struct, child_out_var),
+                            file=self.outFile
+                        )
+                        write(
+                            '{0}const {1}* {2} ='
+                            .format(child_indent, child_struct, child_in_var),
+                            file=self.outFile
+                        )
+                        write(
+                            '{0}    reinterpret_cast<const {1}*>({2}[{3}]);'
+                            .format(child_indent, child_struct, out_child_array_var, array_index_name),
+                            file=self.outFile
+                        )
+
+                        child_actual_type = child_struct
+                        if child_struct in self.all_struct_aliases:
+                            child_actual_type = self.all_struct_aliases[child_struct]
+                        has_array_data = False
+                        for member in self.all_struct_members[child_actual_type]:
+                            if ((not self.is_handle(member.base_type) or member.base_type in self.children_structs)
+                                and member.is_pointer):
+                                has_array_data = True
+                                break
+
+                        child_in_var = 'in_{}'.format(child_struct.lower())
+                        child_out_var = 'out_{}'.format(child_struct.lower())
+                        child_indent = indent + '                '
+
+                        if has_array_data:
+                            self.generate_extended_child_array_handling(api_data, child_indent, array_index_name + 'i', child_actual_type, child_in_var, child_out_var)
+                        else:
+                            write('{}memcpy({}, {}, sizeof({}));'.format(child_indent, child_out_var, child_in_var, child_struct), file=self.outFile)
+
+                        write('{}                break;'.format(indent), file=self.outFile)
+                        write('{}            }}'.format(indent), file=self.outFile)
+
+                    write('{}        }}'.format(indent), file=self.outFile)
+                    write('{}    }}'.format(indent), file=self.outFile)
+                    write('{}    {}->{} ='.format(indent, out_var, member.name), file=self.outFile)
+                    write('{}        reinterpret_cast<const {}* const*>({});'.format(indent, member.base_type, out_child_array_var), file=self.outFile)
+                else:
+                    write('{}    {}->{} ='.
+                        format(indent, out_var, member.name),
+                        file=self.outFile
+                    )
+                    reinterp_string_prefix = ''
+                    reinterp_string_suffic = ''
+                    if member_type != member.base_type:
+                        reinterp_string_prefix = 'reinterpret_cast<{0}*>('.format(member.base_type)
+                        reinterp_string_suffic = ')'
+                    write('{}        {}DecodeAllocator::Allocate<{}>({}->{}){};'
+                        .format(
+                            indent,
+                            reinterp_string_prefix,
+                            member_type,
+                            in_var,
+                            member.array_length_value.name,
+                            reinterp_string_suffic
+                        ),
+                        file=self.outFile
+                    )
+
+                    write('{}    memcpy({}->{},'.format(indent, out_var, member.name),
+                        file=self.outFile
+                    )
+                    write('{}        {}->{},'.
+                        format(indent, in_var, member.name),
+                        file=self.outFile
+                    )
+                    write('{}        sizeof({}) * {}->{});'
+                        .format(
+                            indent, member_type, in_var, member.array_length_value.name
+                        ),
+                        file=self.outFile
+                    )
+
+                write('{}}}'.format(indent), file=self.outFile)
+
     def generate_extended_struct_handling(self, api_data):
         var_name = 'in_' + api_data.extended_struct_variable.lower()
 

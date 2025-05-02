@@ -114,9 +114,7 @@ class OpenXrReplayConsumerBodyGenerator(
         # These structures require a customized manager when they are an output struct
         # in a `Next` chain
         self.OUTPUT_NEXT_OVERRIDES = [
-            'XrSpaceVelocities',
             'XrBindingModificationsKHR',
-            'XrHandJointVelocitiesEXT',
         ]
         self.NOT_SKIP_FUNCTIONS_OFFSCREEN = []
         self.SKIP_FUNCTIONS_OFFSCREEN = []

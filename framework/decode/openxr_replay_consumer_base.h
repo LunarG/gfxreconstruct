@@ -656,12 +656,8 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrDestroySwapchain>
     }
 };
 
-XrBaseOutStructure* OverrideOutputStructNext_XrSpaceVelocities(const XrBaseInStructure* in_next,
-                                                               XrBaseOutStructure*      output_struct);
 XrBaseOutStructure* OverrideOutputStructNext_XrBindingModificationsKHR(const XrBaseInStructure* in_next,
                                                                        XrBaseOutStructure*      output_struct);
-XrBaseOutStructure* OverrideOutputStructNext_XrHandJointVelocitiesEXT(const XrBaseInStructure* in_next,
-                                                                      XrBaseOutStructure*      output_struct);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -5234,7 +5234,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_SPACE_VELOCITIES:
             {
-                output_struct->next = OverrideOutputStructNext_XrSpaceVelocities(in_next, output_struct);
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSpaceVelocities>());
                 break;
             }
             case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
@@ -5534,7 +5534,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_HAND_JOINT_VELOCITIES_EXT:
             {
-                output_struct->next = OverrideOutputStructNext_XrHandJointVelocitiesEXT(in_next, output_struct);
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrHandJointVelocitiesEXT>());
                 break;
             }
             case XR_TYPE_SYSTEM_HAND_TRACKING_MESH_PROPERTIES_MSFT:
