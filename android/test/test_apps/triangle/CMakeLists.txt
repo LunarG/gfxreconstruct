@@ -41,3 +41,7 @@ target_link_libraries(
         native_app_glue
         android
         log)
+
+target_link_options(gfxrecon-testapp-triangle
+    PRIVATE
+        LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/triangle.map)

@@ -65,6 +65,10 @@ target_link_libraries(
         android
         log
         OpenXR::openxr_loader)
+
+target_link_options(gfxrecon-quest-replay
+    PRIVATE
+        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/tools/replay/replay-android.map)
 else()
     message(WARNING "OpenXR support disabled!")
 endif()
