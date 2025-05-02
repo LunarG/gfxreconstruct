@@ -443,11 +443,6 @@ class D3D12CaptureManager : public ApiCaptureManager
                                          UINT                    subresource,
                                          const D3D12_RANGE*      written_range);
 
-    void PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
-                                                      HRESULT                 result,
-                                                      D3D12_HEAP_PROPERTIES*  heap_properties,
-                                                      D3D12_HEAP_FLAGS*       heap_flags);
-
     void PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
                                                          D3D12_GPU_VIRTUAL_ADDRESS result);
 
@@ -691,6 +686,10 @@ class D3D12CaptureManager : public ApiCaptureManager
         ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library);
 
     D3D12_HEAP_DESC OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper);
+
+    HRESULT OverrideID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                     D3D12_HEAP_PROPERTIES*  pHeapProperties,
+                                                     D3D12_HEAP_FLAGS*       pHeapFlags);
 
     HRESULT OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
                                                               LPCWSTR                                  name,

@@ -33,6 +33,9 @@
     "ID3D12Heap": {
       "GetDesc": "D3D12CaptureManager::Get()->OverrideID3D12Heap_GetDesc"
     },
+    "ID3D12Resource": {
+      "GetHeapProperties": "D3D12CaptureManager::Get()->OverrideID3D12Resource_GetHeapProperties"
+    },
     "ID3D12PipelineLibrary": {
       "LoadComputePipeline": "D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadComputePipeline",
       "LoadGraphicsPipeline": "D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadGraphicsPipeline"
