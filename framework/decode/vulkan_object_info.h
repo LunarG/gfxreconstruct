@@ -265,6 +265,8 @@ struct VulkanInstanceInfo : public VulkanObjectInfo<VkInstance>
     std::vector<VkPhysicalDevice> replay_devices;
 
     std::unordered_map<VkPhysicalDevice, VulkanReplayDeviceInfo> replay_device_info;
+
+    VkDebugUtilsMessengerEXT debug_messenger{ VK_NULL_HANDLE };
 };
 
 struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>

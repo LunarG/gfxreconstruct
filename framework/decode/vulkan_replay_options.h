@@ -81,7 +81,8 @@ struct VulkanReplayOptions : public ReplayOptions
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
-    VkDebugUtilsMessageSeverityFlagBitsEXT debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT };
+    VkFlags                      debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options
     std::vector<decode::Index>     BeginCommandBuffer_Indices;
