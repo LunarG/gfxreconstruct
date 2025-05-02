@@ -2879,8 +2879,9 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     if (result != VK_SUCCESS)
     {
         // Assume we weren't able to create instance because of VK_KHR_portability_enumeration
-        GFXRECON_LOG_WARNING("Unable to create instance due to VK_KHR_portability_enumeration. Attempting creation "
-                             "without that extension...");
+        GFXRECON_LOG_WARNING(
+            "Assuming unable to create instance due to VK_KHR_portability_enumeration. Attempting creation "
+            "without that extension...");
         create_state.modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
         std::vector<const char*>& modified_extensions = create_state.modified_extensions;
