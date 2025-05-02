@@ -74,9 +74,9 @@ static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)
 #endif
 
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define GFXR_EXPORT __attribute__((visibility("default")))
+#define GFXRECON_EXPORT __attribute__((visibility("default")))
 #else
-#define GFXR_EXPORT
+#define GFXRECON_EXPORT
 #endif
 
 #endif // GFXRECON_UTIL_DEFINES_H
