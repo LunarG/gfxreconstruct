@@ -2697,8 +2697,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     std::vector<VkExtensionProperties> available_extensions;
     if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
-        // Always enable portability enumeration if on Mac
-        #ifdef __APPLE__
+        // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
         for (const VkExtensionProperties& extension : available_extensions)
         {
@@ -2708,7 +2707,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
         }
-        #endif
 
         // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
         // otherwise always enable it if available.
@@ -2877,6 +2875,33 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
     VkResult result =
         create_instance_proc_(&create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+
+    if (result != VK_SUCCESS)
+    {
+        // Assume we weren't able to create instance because of VK_KHR_portability_enumeration
+        GFXRECON_LOG_WARNING("Unable to create instance due to VK_KHR_portability_enumeration. Attempting creation "
+                             "without that extension...");
+        create_state.modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+        std::vector<const char*>& modified_extensions = create_state.modified_extensions;
+        for (int i = 0; i < modified_extensions.size(); ++i)
+        {
+            const char* name = modified_extensions[i];
+            if (!util::platform::StringCompare(name, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+            {
+                const size_t last_idx         = modified_extensions.size() - 1;
+                modified_extensions[i]        = modified_extensions[last_idx];
+                modified_extensions[last_idx] = name;
+                break;
+            }
+        }
+        create_state.modified_extensions.pop_back();
+        create_state.modified_create_info.enabledExtensionCount -= 1;
+
+        // Try to create instance again
+        result = create_instance_proc_(
+            &create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+    }
 
     if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
     {
