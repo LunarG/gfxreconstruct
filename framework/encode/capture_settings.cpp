@@ -81,6 +81,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define SCREENSHOT_FORMAT_UPPER                              "SCREENSHOT_FORMAT"
 #define SCREENSHOT_FRAMES_LOWER                              "screenshot_frames"
 #define SCREENSHOT_FRAMES_UPPER                              "SCREENSHOT_FRAMES"
+#define SCREENSHOT_INTERVAL_LOWER                            "screenshot_interval"
+#define SCREENSHOT_INTERVAL_UPPER                            "SCREENSHOT_INTERVAL"
 #define CAPTURE_FRAMES_LOWER                                 "capture_frames"
 #define CAPTURE_FRAMES_UPPER                                 "CAPTURE_FRAMES"
 #define CAPTURE_DRAW_CALLS_LOWER                             "capture_draw_calls"
@@ -186,6 +188,7 @@ const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_OPTION_S
 const char kScreenshotDirEnvVar[]                            = GFXRECON_OPTION_STR(SCREENSHOT_DIR);
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FORMAT);
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FRAMES);
+const char kScreenshotIntervalEnvVar[]                       = GFXRECON_OPTION_STR(SCREENSHOT_INTERVAL);
 const char kCaptureFramesEnvVar[]                            = GFXRECON_OPTION_STR(CAPTURE_FRAMES);
 const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_OPTION_STR(CAPTURE_DRAW_CALLS);
 const char kQuitAfterFramesEnvVar[]                          = GFXRECON_OPTION_STR(QUIT_AFTER_CAPTURE_FRAMES);
@@ -245,6 +248,7 @@ const std::string kOptionKeyMemoryTrackingMode                       = std::stri
 const std::string kOptionKeyScreenshotDir                            = std::string(kSettingsFilter) + std::string(SCREENSHOT_DIR_LOWER);
 const std::string kOptionKeyScreenshotFormat                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FORMAT_LOWER);
 const std::string kOptionKeyScreenshotFrames                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
+const std::string kOptionKeyScreenshotInterval                       = std::string(kSettingsFilter) + std::string(SCREENSHOT_INTERVAL_LOWER);
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureDrawCalls                         = std::string(kSettingsFilter) + std::string(CAPTURE_DRAW_CALLS_LOWER);
 const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
@@ -427,6 +431,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);
     LoadSingleOptionEnvVar(options, kScreenshotFormatEnvVar, kOptionKeyScreenshotFormat);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
+    LoadSingleOptionEnvVar(options, kScreenshotIntervalEnvVar, kOptionKeyScreenshotInterval);
 
     // DirectX environment variables
     LoadSingleOptionEnvVar(options, kDisableDxrEnvVar, kOptionDisableDxr);
@@ -626,6 +631,14 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     ParseUintRangeList(FindOption(options, kOptionKeyScreenshotFrames),
                        &settings->trace_settings_.screenshot_ranges,
                        "screenshot frames");
+    settings->trace_settings_.screenshot_interval = ParseIntegerString(
+        FindOption(options, kOptionKeyScreenshotInterval), settings->trace_settings_.screenshot_interval);
+    if (settings->trace_settings_.screenshot_interval == 0)
+    {
+        GFXRECON_LOG_WARNING(
+            "A screenshot interval of 0 has been specified, which is invalid. An interval of 1 will be used.");
+        settings->trace_settings_.screenshot_interval = 1;
+    }
     settings->trace_settings_.screenshot_format = ParseScreenshotFormatString(
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
 

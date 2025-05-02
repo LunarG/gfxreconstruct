@@ -706,6 +706,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version]
                           [--paused] [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
                           [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
+                          [--screenshot-interval INTERVAL]
                           [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
                           [--surface-index N] [--sync] [--remove-unsupported]
                           [--mfr START-END] [--replace-shaders <dir>]
@@ -780,6 +781,12 @@ optional arguments:
               numbering is 1-based (i.e. the first frame is frame
               1). Example: 200,301-305 will generate six screenshots
               (forwarded to replay tool)
+  --screenshot-interval INTERVAL
+              Specifies the number of frames between two screenshots
+              twithin a screenshot range.
+              Example: If screenshot range is 10-15 and interval is 2,
+              screenshot will be generated for frames 10, 12 and 14.
+              Default is 1.
   --screenshot-format FORMAT
               Image file format to use for screenshot generation.
               Available formats are:

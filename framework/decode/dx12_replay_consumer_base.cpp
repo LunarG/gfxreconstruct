@@ -3580,8 +3580,8 @@ void Dx12ReplayConsumerBase::InitializeScreenshotHandler()
     {
         screenshot_file_prefix_ = util::filepath::Join(options_.screenshot_dir, screenshot_file_prefix_);
     }
-    screenshot_handler_ =
-        std::make_unique<ScreenshotHandlerBase>(options_.screenshot_format, options_.screenshot_ranges);
+    screenshot_handler_ = std::make_unique<ScreenshotHandlerBase>(
+        options_.screenshot_format, options_.screenshot_ranges, options_.screenshot_interval);
 }
 
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
