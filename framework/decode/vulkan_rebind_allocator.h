@@ -369,6 +369,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkImageTiling    tiling{};
         uint32_t         height{ 0 };
         bool             uses_extensions{ false };
+        VkFormat         format{ VK_FORMAT_UNDEFINED };
 
         std::string          debug_utils_name;
         std::vector<uint8_t> debug_utils_tag;
