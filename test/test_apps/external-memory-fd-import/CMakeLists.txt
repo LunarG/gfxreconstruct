@@ -36,8 +36,7 @@ target_link_libraries(gfxrecon-testapp-external-memory-fd-import
 
 common_build_directives(gfxrecon-testapp-external-memory-fd-import)
 
-install(TARGETS gfxrecon-testapp-external-memory-fd-import
-        RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd-import)
-install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/external-memory-fd-import DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-external-memory-fd-import)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-external-memory-fd-import
+            RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd-import)
+endif()
