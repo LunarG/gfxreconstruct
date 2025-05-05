@@ -1563,38 +1563,6 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
-                                                                       HRESULT                 result,
-                                                                       D3D12_HEAP_PROPERTIES*  heap_properties,
-                                                                       D3D12_HEAP_FLAGS*       heap_flags)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-    GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
-
-    if (SUCCEEDED(result) && (heap_flags != nullptr) && (IsPageGuardMemoryModeExternal()))
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        if (info->has_write_watch)
-        {
-            if (heap_flags != nullptr)
-            {
-                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
-                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
-            }
-
-            if (heap_properties != nullptr)
-            {
-                // Replace the custom heap properties that were set at resource creation.
-                heap_properties->Type                 = info->heap_type;
-                heap_properties->CPUPageProperty      = info->page_property;
-                heap_properties->MemoryPoolPreference = info->memory_pool;
-            }
-        }
-    }
-}
-
 void D3D12CaptureManager::PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
                                                                           D3D12_GPU_VIRTUAL_ADDRESS result)
 {
@@ -1736,28 +1704,6 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
                 std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_resources_.erase(wrapper);
             }
-        }
-    }
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-
-    if (IsPageGuardMemoryModeExternal())
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        if (info->has_write_watch)
-        {
-            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
-            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
-
-            // Replace the custom heap properties that were set at heapcreation.
-            desc.Properties.Type                 = info->heap_type;
-            desc.Properties.CPUPageProperty      = info->page_property;
-            desc.Properties.MemoryPoolPreference = info->memory_pool;
         }
     }
 }
@@ -2142,6 +2088,62 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device1_CreatePipelineLibrary(
 
     auto device1 = wrapper->GetWrappedObjectAs<ID3D12Device1>();
     return device1->CreatePipelineLibrary(library_blob, blob_length, riid, library);
+}
+
+D3D12_HEAP_DESC D3D12CaptureManager::OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper)
+{
+    auto heap = wrapper->GetWrappedObjectAs<ID3D12Heap>();
+    auto desc = heap->GetDesc();
+
+    if (IsPageGuardMemoryModeExternal())
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+        if (info->has_write_watch)
+        {
+            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
+            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
+            // Replace the custom heap properties that were set at heapcreation.
+            desc.Properties.Type                 = info->heap_type;
+            desc.Properties.CPUPageProperty      = info->page_property;
+            desc.Properties.MemoryPoolPreference = info->memory_pool;
+        }
+    }
+    return desc;
+}
+
+HRESULT D3D12CaptureManager::OverrideID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                                      D3D12_HEAP_PROPERTIES*  heap_properties,
+                                                                      D3D12_HEAP_FLAGS*       heap_flags)
+{
+    auto resource = wrapper->GetWrappedObjectAs<ID3D12Resource>();
+    auto result   = resource->GetHeapProperties(heap_properties, heap_flags);
+
+    if (SUCCEEDED(result) && (heap_flags != nullptr) && (IsPageGuardMemoryModeExternal()))
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+
+        if (info->has_write_watch)
+        {
+            if (heap_flags != nullptr)
+            {
+                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
+                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+            }
+
+            if (heap_properties != nullptr)
+            {
+                // Replace the custom heap properties that were set at resource creation.
+                heap_properties->Type                 = info->heap_type;
+                heap_properties->CPUPageProperty      = info->page_property;
+                heap_properties->MemoryPoolPreference = info->memory_pool;
+            }
+        }
+    }
+
+    return result;
 }
 
 HRESULT

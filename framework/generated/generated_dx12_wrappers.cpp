@@ -1391,7 +1391,9 @@ D3D12_HEAP_DESC STDMETHODCALLTYPE ID3D12Heap_Wrapper::GetDesc()
             manager,
             this);
 
-        result = GetWrappedObjectAs<ID3D12Heap>()->GetDesc();
+        result = D3D12CaptureManager::Get()->OverrideID3D12Heap_GetDesc(
+            this
+);
 
         Encode_ID3D12Heap_GetDesc(
             this,
@@ -1823,7 +1825,8 @@ HRESULT STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetHeapProperties(
             pHeapProperties,
             pHeapFlags);
 
-        result = GetWrappedObjectAs<ID3D12Resource>()->GetHeapProperties(
+        result = D3D12CaptureManager::Get()->OverrideID3D12Resource_GetHeapProperties(
+            this,
             pHeapProperties,
             pHeapFlags);
 
