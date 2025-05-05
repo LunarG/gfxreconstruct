@@ -2032,13 +2032,15 @@ void DrawCallsDumpingContext::BindDescriptorSets(
     assert((dynamic_offset_index == dynamicOffsetCount && pDynamicOffsets != nullptr) || (!dynamic_offset_index));
 }
 
-VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  original_render_pass,
-                                                  const VulkanFramebufferInfo* fb_info)
+VkResult DrawCallsDumpingContext::CloneRenderPass(
+    const VulkanRenderPassInfo*                         original_render_pass,
+    const VulkanFramebufferInfo*                        fb_info,
+    const std::optional<std::vector<format::HandleId>>& override_attachment_image_views)
 {
-    std::vector<VkAttachmentDescription> modified_attachemnts = original_render_pass->attachment_descs;
+    std::vector<VkAttachmentDescription> modified_attachments = original_render_pass->attachment_descs;
 
     // Fix storeOps and final layouts
-    for (auto& att : modified_attachemnts)
+    for (auto& att : modified_attachments)
     {
         att.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
         att.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -2052,21 +2054,33 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  o
     // Inform the original command buffer about the new image layouts
     for (const auto& att_ref : original_render_pass->subpass_refs[0].color_att_refs)
     {
-        const VulkanImageViewInfo* att_img_view_info =
-            object_info_table_.GetVkImageViewInfo(fb_info->attachment_image_view_ids[att_ref.attachment]);
-        assert(att_img_view_info != nullptr);
-
-        original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
-
+        const VulkanImageViewInfo* att_img_view_info = nullptr;
+        if (att_ref.attachment < fb_info->attachment_image_view_ids.size())
+        {
+            att_img_view_info =
+                object_info_table_.GetVkImageViewInfo(fb_info->attachment_image_view_ids[att_ref.attachment]);
+            original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
+        }
+        else if (override_attachment_image_views && att_ref.attachment < override_attachment_image_views->size())
+        {
+            att_img_view_info =
+                object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[att_ref.attachment]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
+            continue;
+        }
+        GFXRECON_ASSERT(att_img_view_info != nullptr);
         VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(att_img_view_info->image_id);
-        assert(img_info != nullptr);
+        GFXRECON_ASSERT(img_info != nullptr);
         img_info->intermediate_layout = att_ref.layout;
     }
 
     // Create new render passes
-    render_pass_clones_.emplace_back(std::vector<VkRenderPass>());
+    render_pass_clones_.emplace_back();
     std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.back();
-    assert(original_render_pass->subpass_refs.size());
+    GFXRECON_ASSERT(!original_render_pass->subpass_refs.empty());
     new_render_pass.resize(original_render_pass->subpass_refs.size());
 
     // Do one quick pass over the subpass references in order to check if the render pass
@@ -2191,8 +2205,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  o
         VkRenderPassCreateInfo ci;
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         ci.flags           = VkRenderPassCreateFlags(0);
-        ci.attachmentCount = modified_attachemnts.size();
-        ci.pAttachments    = modified_attachemnts.size() ? modified_attachemnts.data() : nullptr;
+        ci.attachmentCount = modified_attachments.size();
+        ci.pAttachments    = modified_attachments.size() ? modified_attachments.data() : nullptr;
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
@@ -2243,15 +2257,16 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VulkanRenderPassInfo*  o
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
-                                                  uint32_t                     clear_value_count,
-                                                  const VkClearValue*          p_clear_values,
-                                                  const VulkanFramebufferInfo* framebuffer_info,
-                                                  const VkRect2D&              render_area,
-                                                  VkSubpassContents            contents)
+VkResult DrawCallsDumpingContext::BeginRenderPass(
+    const VulkanRenderPassInfo*                         render_pass_info,
+    const VulkanFramebufferInfo*                        framebuffer_info,
+    const VkRenderPassBeginInfo*                        renderpass_begin_info,
+    VkSubpassContents                                   contents,
+    const std::optional<std::vector<format::HandleId>>& override_attachment_image_views)
 {
-    assert(render_pass_info);
-    assert(framebuffer_info);
+    GFXRECON_ASSERT(render_pass_info != nullptr);
+    GFXRECON_ASSERT(framebuffer_info != nullptr);
+    GFXRECON_ASSERT(renderpass_begin_info != nullptr);
 
     std::vector<VulkanImageInfo*> color_att_imgs;
 
@@ -2261,43 +2276,63 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     active_framebuffer_       = framebuffer_info;
 
     // Parse color attachments
-    uint32_t i = 0;
     for (const auto& att_ref : active_renderpass_->subpass_refs[current_subpass_].color_att_refs)
     {
-        const uint32_t att_idx = att_ref.attachment;
+        const uint32_t             att_idx       = att_ref.attachment;
+        const VulkanImageViewInfo* img_view_info = nullptr;
 
-        const VulkanImageViewInfo* img_view_info =
-            object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
-        assert(img_view_info);
-
+        if (att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            img_view_info = object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
+        }
+        else if (override_attachment_image_views && att_idx < override_attachment_image_views->size())
+        {
+            img_view_info = object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[att_idx]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
+            continue;
+        }
+        GFXRECON_ASSERT(img_view_info != nullptr);
         VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
-        assert(img_info);
+        GFXRECON_ASSERT(img_info != nullptr);
 
         color_att_imgs.push_back(img_info);
     }
 
-    VulkanImageInfo* depth_img_info;
+    VulkanImageInfo*           depth_img_info      = nullptr;
+    const VulkanImageViewInfo* depth_img_view_info = nullptr;
 
     if (active_renderpass_->subpass_refs[current_subpass_].has_depth)
     {
         const uint32_t depth_att_idx = active_renderpass_->subpass_refs[current_subpass_].depth_att_ref.attachment;
-        const VulkanImageViewInfo* depth_img_view_info =
-            object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
-        assert(depth_img_view_info);
 
-        depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
-        assert(depth_img_info);
+        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            depth_img_view_info =
+                object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+        }
+        else if (override_attachment_image_views && depth_att_idx < override_attachment_image_views->size())
+        {
+            depth_img_view_info =
+                object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[depth_att_idx]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing depth-attachment in %s", __func__);
+        }
     }
-    else
-    {
-        depth_img_info = nullptr;
-    }
+    GFXRECON_ASSERT(depth_img_view_info != nullptr);
 
-    SetRenderTargets(std::move(color_att_imgs), depth_img_info, true);
+    depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
+    GFXRECON_ASSERT(depth_img_info != nullptr);
 
-    SetRenderArea(render_area);
+    SetRenderTargets(color_att_imgs, depth_img_info, true);
 
-    VkResult res = CloneRenderPass(render_pass_info, framebuffer_info);
+    SetRenderArea(renderpass_begin_info->renderArea);
+
+    VkResult res = CloneRenderPass(render_pass_info, framebuffer_info, override_attachment_image_views);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed cloning render pass (%s).", util::ToString<VkResult>(res).c_str())
@@ -2308,13 +2343,8 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
 
-    VkRenderPassBeginInfo bi;
-    bi.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    bi.pNext           = nullptr;
-    bi.clearValueCount = clear_value_count;
-    bi.pClearValues    = p_clear_values;
-    bi.framebuffer     = framebuffer_info->handle;
-    bi.renderArea      = render_area;
+    // copy original begin-info
+    VkRenderPassBeginInfo modified_renderpass_begin_info = *renderpass_begin_info;
 
     size_t cmd_buf_idx = current_cb_index_;
     for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
@@ -2333,7 +2363,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
             {
                 // Command buffers / Draw calls outside this specific render pass should get
                 // assigned the original render pass
-                bi.renderPass = render_pass_info->handle;
+                modified_renderpass_begin_info.renderPass = render_pass_info->handle;
             }
             else
             {
@@ -2341,7 +2371,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
                 // render pass
                 assert(rp < render_pass_clones_.size());
                 assert(sp < render_pass_clones_[rp].size());
-                bi.renderPass = render_pass_clones_[rp][sp];
+                modified_renderpass_begin_info.renderPass = render_pass_clones_[rp][sp];
             }
         }
         else
@@ -2354,7 +2384,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
                 {
                     // Command buffers / Draw calls outside this specific render pass should get
                     // assigned the original render pass
-                    bi.renderPass = render_pass_info->handle;
+                    modified_renderpass_begin_info.renderPass = render_pass_info->handle;
                 }
                 else
                 {
@@ -2362,12 +2392,11 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
                     // render pass
                     assert(rp < render_pass_clones_.size());
                     assert(sp < render_pass_clones_[rp].size());
-                    bi.renderPass = render_pass_clones_[rp][sp];
+                    modified_renderpass_begin_info.renderPass = render_pass_clones_[rp][sp];
                 }
             }
         }
-
-        device_table_->CmdBeginRenderPass(*it, &bi, contents);
+        device_table_->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
 
     auto new_entry = dynamic_rendering_attachment_layouts_.emplace(
@@ -2567,7 +2596,7 @@ void DrawCallsDumpingContext::BindVertexBuffers2(uint64_t                       
         const uint32_t binding = static_cast<uint32_t>(first_binding + i);
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
-        bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].stride      = pStrides[i];
+        bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].stride = pStrides != nullptr ? pStrides[i] : 0;
         if (pSizes != nullptr)
         {
             bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].size = buffer_size;

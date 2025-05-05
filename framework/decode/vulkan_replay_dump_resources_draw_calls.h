@@ -73,14 +73,15 @@ class DrawCallsDumpingContext
                                 const graphics::VulkanInstanceTable* inst_table,
                                 const VkCommandBufferBeginInfo*      begin_info);
 
-    VkResult CloneRenderPass(const VulkanRenderPassInfo* original_render_pass, const VulkanFramebufferInfo* fb_info);
+    VkResult CloneRenderPass(const VulkanRenderPassInfo*                         original_render_pass,
+                             const VulkanFramebufferInfo*                        fb_info,
+                             const std::optional<std::vector<format::HandleId>>& override_attachment_image_views);
 
-    VkResult BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
-                             uint32_t                     clear_value_count,
-                             const VkClearValue*          p_clear_values,
-                             const VulkanFramebufferInfo* framebuffer_info,
-                             const VkRect2D&              render_area,
-                             VkSubpassContents            contents);
+    VkResult BeginRenderPass(const VulkanRenderPassInfo*                         render_pass_info,
+                             const VulkanFramebufferInfo*                        framebuffer_info,
+                             const VkRenderPassBeginInfo*                        renderpass_begin_info,
+                             VkSubpassContents                                   contents,
+                             const std::optional<std::vector<format::HandleId>>& override_attachment_image_views);
 
     void NextSubpass(VkSubpassContents contents);
 

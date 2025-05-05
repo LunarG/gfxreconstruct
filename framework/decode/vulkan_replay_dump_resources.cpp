@@ -834,14 +834,30 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
         const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
+        // optional: override the image-attachments stored in framebuffer-info
+        // when using VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
+        std::optional<std::vector<format::HandleId>> override_attachment_image_views;
+
+        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
+            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
+        {
+            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
+            const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
+                pRenderPassBegin->GetMetaStructPointer()->pNext);
+            GFXRECON_ASSERT(attachment_begin_info);
+
+            uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+            const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
+
+            GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
+            override_attachment_image_views = { handle_ids, handle_ids + num_attachments };
+        }
+
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
         // It will be handled by DrawCallsDumpingContext::BeginRenderPass
-        VkResult res = dc_context->BeginRenderPass(render_pass_info,
-                                                   pRenderPassBegin->GetPointer()->clearValueCount,
-                                                   pRenderPassBegin->GetPointer()->pClearValues,
-                                                   framebuffer_info,
-                                                   pRenderPassBegin->GetPointer()->renderArea,
-                                                   contents);
+        const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
+        VkResult    res                   = dc_context->BeginRenderPass(
+            render_pass_info, framebuffer_info, renderpass_begin_info, contents, override_attachment_image_views);
         assert(res == VK_SUCCESS);
     }
     else if (dc_context != nullptr)
@@ -883,14 +899,33 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
         const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
+        // optional: override the image-attachments stored in framebuffer-info
+        // when using VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
+        std::optional<std::vector<format::HandleId>> override_attachment_image_views;
+
+        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
+            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
+        {
+            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
+            const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
+                pRenderPassBegin->GetMetaStructPointer()->pNext);
+            GFXRECON_ASSERT(attachment_begin_info);
+
+            uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+            const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
+
+            GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
+            override_attachment_image_views = { handle_ids, handle_ids + num_attachments };
+        }
+
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
         // It will be handled by DrawCallsDumpingContext::BeginRenderPass
-        VkResult res = dc_context->BeginRenderPass(render_pass_info,
-                                                   pRenderPassBegin->GetPointer()->clearValueCount,
-                                                   pRenderPassBegin->GetPointer()->pClearValues,
+        const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
+        VkResult    res                   = dc_context->BeginRenderPass(render_pass_info,
                                                    framebuffer_info,
-                                                   pRenderPassBegin->GetPointer()->renderArea,
-                                                   pSubpassBeginInfo->GetPointer()->contents);
+                                                   renderpass_begin_info,
+                                                   pSubpassBeginInfo->GetPointer()->contents,
+                                                   override_attachment_image_views);
 
         assert(res == VK_SUCCESS);
     }
@@ -2221,9 +2256,9 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
         {
             const uint32_t          library_count = pl_info->pLibraries.GetLength();
             const format::HandleId* ppl_ids       = pl_info->pLibraries.GetPointer();
-            for (uint32_t i = 0; i < library_count; ++i)
+            for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
             {
-                const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[i]);
+                const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[lib_idx]);
                 if ((gpl_ppl->gpl_flags & VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT) ==
                     VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT)
                 {
