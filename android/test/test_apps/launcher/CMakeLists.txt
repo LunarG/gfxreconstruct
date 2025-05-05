@@ -47,9 +47,20 @@ target_include_directories(${PROJECT_NAME}
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
+set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
+    gfxrecon-testapp-acquired-image
+    gfxrecon-testapp-host-image-copy
+    gfxrecon-testapp-multisample-depth
+    gfxrecon-testapp-pipeline-binaries
+    gfxrecon-testapp-shader-objects
+    gfxrecon-testapp-sparse-resources
+    gfxrecon-testapp-triangle
+    gfxrecon-testapp-external-memory-fd-export
+    gfxrecon-testapp-external-memory-fd-import
+    gfxrecon-testapp-wait-for-present)
+
 target_link_libraries(${PROJECT_NAME}
-                      gfxrecon_util
-                      gfxrecon-testapp-triangle)
+                      ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})
 
 target_link_options(${PROJECT_NAME}
     PRIVATE

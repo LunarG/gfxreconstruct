@@ -19,6 +19,22 @@ target_link_libraries(gfxrecon-testapp-base
     SDL3::SDL3-static
     vulkan_registry)
 
-set(TRIANGLE_DIR ${GFXRECON_ANDROID_TEST_APPS_DIR}/triangle)
-add_subdirectory(${TRIANGLE_DIR} ${TRIANGLE_DIR}/build/${ANDROID_ABI})
 
+macro(common_build_directives TARGET)
+endmacro()
+
+macro(add_test_app TEST_NAME)
+    add_subdirectory(${GFXRECON_SOURCE_DIR}/test/test_apps/${TEST_NAME}
+                     ${GFXRECON_ANDROID_TEST_APPS_DIR}/${TEST_NAME}/build/${ANDROID_ABI})
+endmacro()
+
+add_test_app(acquired-image)
+add_test_app(external-memory-fd-export)
+add_test_app(external-memory-fd-import)
+add_test_app(host-image-copy)
+add_test_app(multisample-depth)
+add_test_app(pipeline-binaries)
+add_test_app(triangle)
+add_test_app(shader-objects)
+add_test_app(sparse-resources)
+add_test_app(wait-for-present)
