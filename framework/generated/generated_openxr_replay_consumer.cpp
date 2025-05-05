@@ -5414,7 +5414,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_BINDING_MODIFICATIONS_KHR:
             {
-                output_struct->next = OverrideOutputStructNext_XrBindingModificationsKHR(in_next, output_struct);
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrBindingModificationsKHR>());
                 break;
             }
             case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:

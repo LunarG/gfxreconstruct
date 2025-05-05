@@ -111,11 +111,6 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrEnumerateEnvironmentBlendModes',
         ]
 
-        # These structures require a customized manager when they are an output struct
-        # in a `Next` chain
-        self.OUTPUT_NEXT_OVERRIDES = [
-            'XrBindingModificationsKHR',
-        ]
         self.NOT_SKIP_FUNCTIONS_OFFSCREEN = []
         self.SKIP_FUNCTIONS_OFFSCREEN = []
         self.types_treated_as_struct = set(['LARGE_INTEGER'])
@@ -168,24 +163,6 @@ class OpenXrReplayConsumerBodyGenerator(
     def check_skip_extended_struct_handling(self, struct, struct_type):
         """ OpenXR Base header don't appear on next chains """
         return  'BASE_HEADER' in struct_type
-
-    def generate_custom_extended_struct_handling(self, struct, struct_type):
-        """ Method may be overriden.
-            None implies no customization
-        """
-
-        if struct not in self.OUTPUT_NEXT_OVERRIDES:
-            return None
-
-        content = []
-        indent = 12*' '
-        add = lambda x: content.append(indent + x)
-        add(f'case {struct_type}:')
-        add('{')
-        add(f'    output_struct->next = OverrideOutputStructNext_{struct}(in_next, output_struct);')
-        add(f'    break;')
-        add('}')
-        return '\n'.join(content)
 
     def endFile(self):
         """Method override."""
