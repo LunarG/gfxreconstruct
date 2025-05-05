@@ -22,6 +22,7 @@
 
 #include <multisample_depth_app.h>
 
+#include <acquired_image_app.h>
 #include <host_image_copy_app.h>
 #include <pipeline_binaries_app.h>
 #include <shader_objects_app.h>
@@ -51,11 +52,16 @@ const char kHelpLongOption[]  = "--help";
 const char kOptions[] = "-h|--help";
 
 static const char* kAppNames[] = {
-    "host-image-copy",           "multisample-depth",
-    "pipeline-binaries",         "shader-objects",
-    "sparse-resources",          "triangle",
+    "acquired-image",
+    "host-image-copy",
+    "multisample-depth",
+    "pipeline-binaries",
+    "shader-objects",
+    "sparse-resources",
+    "triangle",
 #ifdef __linux__
-    "external-memory-fd-export", "external-memory-fd-import",
+    "external-memory-fd-export",
+    "external-memory-fd-import",
     "wait-for-present",
 #endif
 };
@@ -115,11 +121,14 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     // Now instantiate the app
     std::unique_ptr<gfxrecon::test::TestAppBase> app;
 
-    if (app_name == "triangle")
+    if (app_name == "acquired-image")
+    {
+        app = std::make_unique<gfxrecon::test_app::acquired_image::App>();
+    }
+    else if (app_name == "triangle")
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
     }
-
     else if (app_name == "host-image-copy")
     {
         app = std::make_unique<gfxrecon::test_app::host_image_copy::App>();
