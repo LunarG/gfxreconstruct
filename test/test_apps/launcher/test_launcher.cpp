@@ -46,6 +46,8 @@
 #include <util/android/intent.h>
 #endif
 
+#include <SDL3/SDL_main.h>
+
 const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 

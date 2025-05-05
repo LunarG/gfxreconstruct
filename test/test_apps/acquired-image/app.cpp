@@ -26,8 +26,6 @@
 
 #include <test_app_base.h>
 
-#include <SDL3/SDL_main.h>
-
 #include <util/logging.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
