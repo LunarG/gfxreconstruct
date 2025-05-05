@@ -27,8 +27,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <SDL3/SDL_main.h>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(shader_objects)
