@@ -118,8 +118,6 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // clang-format off
     blocks_written_ = 0;
 
-    auto started = std::chrono::high_resolution_clock::now();
-
     format::Marker marker;
     marker.header.size = sizeof(marker.marker_type) + sizeof(marker.frame_number);
     marker.header.type = format::kStateMarkerBlock;
@@ -237,13 +235,6 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // For the EndMarker meta command
     ++blocks_written_;
-
-    auto done = std::chrono::high_resolution_clock::now();
-    uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
-    GFXRECON_LOG_INFO("--------------------------------------")
-    GFXRECON_LOG_INFO("%s()", __func__)
-    GFXRECON_LOG_INFO("  saved in %u ms", time);
-    GFXRECON_LOG_INFO("--------------------------------------")
 
     return blocks_written_;
     // clang-format on
@@ -2898,8 +2889,6 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     VkDeviceSize         max_resource_size     = 0;
     VkDeviceSize         max_staging_copy_size = 0;
 
-    auto started = std::chrono::high_resolution_clock::now();
-
     WriteBufferMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size, write_memory_state);
     WriteImageMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size, write_memory_state);
 
@@ -2973,14 +2962,6 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
             GFXRECON_LOG_ERROR("Failed to create a staging buffer to process trim state");
         }
     }
-
-    auto     done = std::chrono::high_resolution_clock::now();
-    uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
-
-    GFXRECON_LOG_INFO("--------------------------------------")
-    GFXRECON_LOG_INFO("%s()", __func__)
-    GFXRECON_LOG_INFO("  saved in %u ms", time);
-    GFXRECON_LOG_INFO("--------------------------------------")
 }
 
 void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_table)
