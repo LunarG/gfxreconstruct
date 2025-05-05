@@ -25,7 +25,9 @@
 ###############################################################################
 
 set(TEST_NAME acquired-image)
-add_executable(gfxrecon-testapp-${TEST_NAME} app.cpp)
+add_library(gfxrecon-testapp-${TEST_NAME} app.cpp)
+
+target_include_directories(gfxrecon-testapp-${TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-${TEST_NAME} gfxrecon-testapp-base gfxrecon_util)
 
