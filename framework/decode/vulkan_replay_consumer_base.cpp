@@ -2744,9 +2744,10 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
         }
 
-        create_state.messenger_create_info             = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-        create_state.messenger_create_info.pNext       = modified_create_info.pNext;
-        create_state.messenger_create_info.flags       = 0;
+        create_state.messenger_create_info       = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+        create_state.messenger_create_info.pNext = modified_create_info.pNext;
+        create_state.messenger_create_info.flags = 0;
+
         create_state.messenger_create_info.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
         create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
         create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
@@ -2870,15 +2871,40 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
         if (create_state.messenger_create_info.pfnUserCallback != nullptr)
         {
+            decode::BeginInjectedCommands();
             GetInstanceTable(*replay_instance)
                 ->CreateDebugUtilsMessengerEXT(*replay_instance,
                                                &create_state.messenger_create_info,
                                                GetAllocationCallbacks(pAllocator),
-                                               &debug_messenger_);
+                                               &instance_info->debug_messenger);
+            decode::EndInjectedCommands();
         }
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyInstance(
+    PFN_vkDestroyInstance                                      func,
+    const VulkanInstanceInfo*                                  instance_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkInstance instance = VK_NULL_HANDLE;
+
+    if (instance_info != nullptr)
+    {
+        instance = instance_info->handle;
+
+        if (instance_info->debug_messenger != VK_NULL_HANDLE)
+        {
+            decode::BeginInjectedCommands();
+            GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(
+                instance, instance_info->debug_messenger, GetAllocationCallbacks(pAllocator));
+            decode::EndInjectedCommands();
+        }
+    }
+
+    func(instance, GetAllocationCallbacks(pAllocator));
 }
 
 void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(

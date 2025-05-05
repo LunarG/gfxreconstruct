@@ -63,10 +63,9 @@ void VulkanReplayConsumer::Process_vkDestroyInstance(
     format::HandleId                            instance,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
 
-    GetInstanceTable(in_instance)->DestroyInstance(in_instance, in_pAllocator);
+    OverrideDestroyInstance(GetInstanceTable(in_instance->handle)->DestroyInstance, in_instance, pAllocator);
     RemoveHandle(instance, &CommonObjectInfoTable::RemoveVkInstanceInfo);
 }
 

@@ -1,6 +1,7 @@
 {
   "functions": {
     "vkCreateInstance": "OverrideCreateInstance",
+    "vkDestroyInstance": "OverrideDestroyInstance",
     "vkCreateDevice": "OverrideCreateDevice",
     "vkDestroyDevice": "OverrideDestroyDevice",
     "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",
@@ -137,16 +138,16 @@
     "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
     "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
-    "vkCmdCopyAccelerationStructureKHR" : "OverrideCmdCopyAccelerationStructureKHR",
-    "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
-    "vkCmdBindPipeline" : "OverrideCmdBindPipeline",
-    "vkCmdPushConstants" : "OverrideCmdPushConstants",
-    "vkCmdBindDescriptorSets" : "OverrideCmdBindDescriptorSets",
-    "vkCmdBindDescriptorSets2KHR" : "OverrideCmdBindDescriptorSets2",
-    "vkCmdBindDescriptorSets2" : "OverrideCmdBindDescriptorSets2",
-    "vkCmdExecuteCommands" : "OverrideCmdExecuteCommands",
+    "vkCmdCopyAccelerationStructureKHR": "OverrideCmdCopyAccelerationStructureKHR",
+    "vkCmdWriteAccelerationStructuresPropertiesKHR": "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
+    "vkCmdBindPipeline": "OverrideCmdBindPipeline",
+    "vkCmdPushConstants": "OverrideCmdPushConstants",
+    "vkCmdBindDescriptorSets": "OverrideCmdBindDescriptorSets",
+    "vkCmdBindDescriptorSets2KHR": "OverrideCmdBindDescriptorSets2",
+    "vkCmdBindDescriptorSets2": "OverrideCmdBindDescriptorSets2",
+    "vkCmdExecuteCommands": "OverrideCmdExecuteCommands",
     "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
     "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR",
-    "vkCreatePipelineLayout" : "OverrideCreatePipelineLayout"
+    "vkCreatePipelineLayout": "OverrideCreatePipelineLayout"
   }
 }
