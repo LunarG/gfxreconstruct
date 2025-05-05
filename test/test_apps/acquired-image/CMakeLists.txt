@@ -33,6 +33,6 @@ target_link_libraries(gfxrecon-testapp-${TEST_NAME} gfxrecon-testapp-base gfxrec
 
 common_build_directives(gfxrecon-testapp-${TEST_NAME})
 
-install(TARGETS gfxrecon-testapp-${TEST_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/${TEST_NAME})
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-${TEST_NAME})
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-${TEST_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/${TEST_NAME})
+endif()

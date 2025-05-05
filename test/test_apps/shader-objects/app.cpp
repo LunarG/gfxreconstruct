@@ -70,11 +70,19 @@ void App::configure_device_builder(test::DeviceBuilder&        device_builder,
 
 void App::create_shader_objects()
 {
+#ifdef __ANDROID__
+    auto vert_shader = gfxrecon::test::readFile("shaders/green.vspv", init.android_app);
+    auto tesc_shader = gfxrecon::test::readFile("shaders/green.tcspv", init.android_app);
+    auto tese_shader = gfxrecon::test::readFile("shaders/green.tespv", init.android_app);
+    auto geom_shader = gfxrecon::test::readFile("shaders/green.gspv", init.android_app);
+    auto frag_shader = gfxrecon::test::readFile("shaders/green.fspv", init.android_app);
+#else
     auto vert_shader = gfxrecon::test::readFile("shaders/green.vspv");
     auto tesc_shader = gfxrecon::test::readFile("shaders/green.tcspv");
     auto tese_shader = gfxrecon::test::readFile("shaders/green.tespv");
     auto geom_shader = gfxrecon::test::readFile("shaders/green.gspv");
     auto frag_shader = gfxrecon::test::readFile("shaders/green.fspv");
+#endif
 
     VkShaderCreateInfoEXT shader_create_infos[5];
     shader_create_infos[0].sType                  = VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT;
