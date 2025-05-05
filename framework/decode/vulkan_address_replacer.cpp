@@ -1295,7 +1295,7 @@ bool VulkanAddressReplacer::init_pipeline()
     VkPushConstantRange push_constant_range = {};
     push_constant_range.stageFlags          = VK_SHADER_STAGE_COMPUTE_BIT;
     push_constant_range.offset              = 0;
-    push_constant_range.size                = sizeof(replacer_params_sbt_t);
+    push_constant_range.size                = std::max(sizeof(replacer_params_sbt_t), sizeof(replacer_params_bda_t));
 
     VkPipelineLayoutCreateInfo pipeline_layout_info = {};
     pipeline_layout_info.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
