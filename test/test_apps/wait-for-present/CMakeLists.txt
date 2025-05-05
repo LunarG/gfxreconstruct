@@ -32,7 +32,8 @@ target_link_libraries(gfxrecon-testapp-wait-for-present gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-wait-for-present)
 
-install(TARGETS gfxrecon-testapp-wait-for-present RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
-install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/wait-for-present DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-wait-for-present)
+# Gradle is taking care of copying the resources in the APK
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-wait-for-present RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
+    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/wait-for-present DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
+endif()

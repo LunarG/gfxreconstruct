@@ -44,7 +44,6 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-sparse-resources
     gfxrecon-testapp-triangle)
 
-
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
     list(APPEND GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
             gfxrecon-testapp-external-memory-fd-export
@@ -67,6 +66,6 @@ if (WIN32)
         COMMAND_EXPAND_LISTS)
 endif ()
 
-install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/launcher)
-
-add_dependencies(gfxrecon-testapps ${TARGET_NAME})
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/launcher)
+endif()
