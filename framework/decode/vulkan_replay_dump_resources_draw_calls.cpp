@@ -735,9 +735,11 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
                         barrier.oldLayout           = cat->intermediate_layout;
                         barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                         barrier.image               = cat->handle;
-                        barrier.subresourceRange    = {
-                               VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
-                        };
+                        barrier.subresourceRange    = { graphics::GetFormatAspectMask(cat->format),
+                                                        0,
+                                                        VK_REMAINING_MIP_LEVELS,
+                                                        0,
+                                                        VK_REMAINING_ARRAY_LAYERS };
 
                         device_table_->CmdPipelineBarrier(current_command_buffer,
                                                           VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -1014,6 +1016,8 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     if (dump_depth_ && render_targets_[rp][sp].depth_att_img != nullptr)
     {
         VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
+
+        img_barrier.subresourceRange.aspectMask = graphics::GetFormatAspectMask(image_info->format);
 
         img_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         img_barrier.newLayout     = entry->second.depth_attachment_layout;

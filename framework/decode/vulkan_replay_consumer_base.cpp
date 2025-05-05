@@ -42,6 +42,7 @@
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "graphics/vulkan_struct_extract_handles.h"
@@ -560,28 +561,37 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                 if (vk_result == VK_SUCCESS)
                     vk_result = device_table->BindImageMemory(device, ahb_image, image_memory, 0);
 
-                VkBufferImageCopy copy_region = {};
-                copy_region.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-                copy_region.imageExtent       = { desc.width, desc.height, 1 };
-
                 ProcessBeginResourceInitCommand(buffer_info.device_id, size, size);
 
                 VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
-                initializer->InitializeImage(size,
-                                             data,
-                                             0,
-                                             ahb_image,
-                                             image_info.imageType,
-                                             VK_FORMAT_R8G8B8A8_UNORM,
-                                             image_info.extent,
-                                             VK_IMAGE_ASPECT_COLOR_BIT,
-                                             image_info.samples,
-                                             image_info.usage,
-                                             image_info.initialLayout,
-                                             final_layout,
-                                             image_info.arrayLayers,
-                                             1,
-                                             &copy_region);
+
+                std::vector<VkImageAspectFlagBits> aspects;
+                graphics::GetFormatAspects(image_info.format, &aspects);
+
+                for (auto aspect : aspects)
+                {
+                    VkImageAspectFlags aspect_flags = aspect;
+
+                    VkBufferImageCopy copy_region = {};
+                    copy_region.imageSubresource  = { aspect_flags, 0, 0, 1 };
+                    copy_region.imageExtent       = { desc.width, desc.height, 1 };
+
+                    initializer->InitializeImage(size,
+                                                 data,
+                                                 0,
+                                                 ahb_image,
+                                                 image_info.imageType,
+                                                 image_info.format,
+                                                 image_info.extent,
+                                                 aspect,
+                                                 image_info.samples,
+                                                 image_info.usage,
+                                                 image_info.initialLayout,
+                                                 final_layout,
+                                                 image_info.arrayLayers,
+                                                 1,
+                                                 &copy_region);
+                }
 
                 ProcessEndResourceInitCommand(buffer_info.device_id);
 

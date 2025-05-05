@@ -59,6 +59,7 @@
 #include "util/alignment_utils.h"
 #include "util/platform.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -1678,37 +1679,23 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(
                     "Ignoring potential mip maps/array layers in staging buffer to image copy: support "
                     "not yet implemented");
 
-                VkImageAspectFlags aspect{};
-                switch (resource_alloc_info->format)
+                std::vector<VkImageAspectFlagBits> aspects;
+                graphics::GetFormatAspects(resource_alloc_info->format, &aspects);
+
+                for (auto aspect : aspects)
                 {
-                    case VK_FORMAT_D16_UNORM:
-                    case VK_FORMAT_X8_D24_UNORM_PACK32:
-                    case VK_FORMAT_D32_SFLOAT:
-                        aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-                        break;
-                    case VK_FORMAT_S8_UINT:
-                        aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
-                        break;
-                    case VK_FORMAT_D16_UNORM_S8_UINT:
-                    case VK_FORMAT_D24_UNORM_S8_UINT:
-                    case VK_FORMAT_D32_SFLOAT_S8_UINT:
-                        aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-                        break;
-                    default:
-                        aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-                        break;
+                    VkImageAspectFlags aspect_flags = aspect;
+
+                    VkBufferImageCopy region{};
+                    region.bufferOffset      = 0;
+                    region.bufferRowLength   = 0;
+                    region.bufferImageHeight = 0;
+                    region.imageSubresource  = { aspect_flags, 0, 0, 1 };
+                    region.imageOffset       = { 0, 0, 0 };
+                    region.imageExtent       = { 1, 1, 1 };
+                    functions_.cmd_copy_buffer_to_image(
+                        cmd_buffer_, staging_buf, original_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 }
-
-                VkBufferImageCopy region{};
-                region.bufferOffset      = 0;
-                region.bufferRowLength   = 0;
-                region.bufferImageHeight = 0;
-                region.imageSubresource  = { aspect, 0, 0, 1 };
-                region.imageOffset       = { 0, 0, 0 };
-                region.imageExtent       = { 1, 1, 1 };
-
-                functions_.cmd_copy_buffer_to_image(
-                    cmd_buffer_, staging_buf, original_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
                 result = functions_.end_command_buffer(cmd_buffer_);
             }
         }
