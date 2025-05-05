@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <iostream>
+#include "acquired_image_app.h"
 
 #include <vulkan/vulkan_core.h>
 
@@ -33,42 +33,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(acquired_image)
-
-const size_t MAX_FRAMES_IN_FLIGHT = 2;
-
-class App : public gfxrecon::test::TestAppBase
-{
-  public:
-    App() = default;
-
-  private:
-    VkQueue graphics_queue_;
-    VkQueue present_queue_;
-
-    VkCommandPool command_pools_[MAX_FRAMES_IN_FLIGHT];
-
-    size_t current_frame_ = 0;
-
-    std::vector<VkSwapchainKHR> old_swapchains_;
-    VkSemaphore                 initial_semaphore_ = VK_NULL_HANDLE;
-    test::Sync                  sync_;
-
-    uint32_t       staging_memory_size_ = 0;
-    VkDeviceMemory staging_memory_      = VK_NULL_HANDLE;
-    VkBuffer       staging_buffer_      = VK_NULL_HANDLE;
-
-    VkCommandBuffer create_and_begin_command_buffer();
-    void            recreate_swapchain();
-    void            cleanup() override;
-    bool            frame(const int frame_num) override;
-    void            setup() override;
-
-    void create_staging_buffer();
-    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
-
-    void configure_swapchain_builder(test::SwapchainBuilder& swapchain_builder,
-                                     vkmock::TestConfig*     test_config) override;
-};
 
 void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
@@ -415,18 +379,3 @@ void App::setup()
 GFXRECON_END_NAMESPACE(acquired_image)
 GFXRECON_END_NAMESPACE(test_app)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-int main(int argc, char* argv[])
-{
-    try
-    {
-        gfxrecon::test_app::acquired_image::App app{};
-        app.run("acquired-image");
-        return 0;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
-}
