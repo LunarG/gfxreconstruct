@@ -25,8 +25,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include <SDL3/SDL_main.h>
-
 #include "host_image_copy_app.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
