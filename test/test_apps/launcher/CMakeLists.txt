@@ -36,6 +36,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
+    gfxrecon-testapp-acquired-image
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
