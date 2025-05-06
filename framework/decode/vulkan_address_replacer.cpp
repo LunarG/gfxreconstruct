@@ -845,8 +845,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
     for (uint32_t i = 0; i < info_count; ++i)
     {
-        auto& build_geometry_info = build_geometry_infos[i];
-        auto  range_info          = build_range_infos[i];
+        auto&       build_geometry_info = build_geometry_infos[i];
+        const auto* range_infos         = build_range_infos[i];
 
         const VulkanBufferInfo* scratch_buffer_info =
             address_tracker.GetBufferByCaptureDeviceAddress(build_geometry_info.scratchData.deviceAddress);
@@ -863,7 +863,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 std::vector<uint32_t> primitive_counts(build_geometry_info.geometryCount);
                 for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
                 {
-                    primitive_counts[j] = range_info->primitiveCount;
+                    primitive_counts[j] = range_infos[j].primitiveCount;
                 }
 
                 MarkInjectedCommandsHelper mark_injected_commands_helper;
@@ -1002,7 +1002,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     address_remap(instances.data.deviceAddress);
 
                     // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
-                    for (uint32_t k = 0; k < range_info->primitiveCount; ++k)
+                    for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
                     {
                         VkDeviceAddress accel_structure_reference =
                             instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
