@@ -35,6 +35,8 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
             if (depth == 1 && parsed.contains("meta"))
                 return false;
             break;
+        default:
+            break;
     }
 
     return true;
