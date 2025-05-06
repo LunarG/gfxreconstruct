@@ -56,15 +56,15 @@ target_link_libraries(${TARGET_NAME}
 
 common_build_directives(${TARGET_NAME})
 
-add_custom_command(
-        TARGET ${TARGET_NAME}
-        POST_BUILD
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-if (WIN32)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${TARGET_NAME}> $<TARGET_FILE_DIR:${TARGET_NAME}>
-        COMMAND_EXPAND_LISTS)
-endif ()
+#add_custom_command(
+#        TARGET ${TARGET_NAME}
+#        POST_BUILD
+#        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+#if (WIN32)
+#    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${TARGET_NAME}> $<TARGET_FILE_DIR:${TARGET_NAME}>
+#        COMMAND_EXPAND_LISTS)
+#endif ()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/launcher)
