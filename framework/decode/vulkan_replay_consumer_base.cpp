@@ -295,6 +295,10 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     swapchain_->Clean();
 
+    // Cleanup internal instance resources before destroying instances
+    object_info_table_->VisitVkInstanceInfo(
+        [this](const VulkanInstanceInfo* info) { DestroyInternalInstanceResources(info); });
+
     // Finally destroy vkInstances
     object_cleanup::FreeAllLiveInstances(
         object_info_table_,
@@ -2889,21 +2893,11 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
     const VulkanInstanceInfo*                                  instance_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkInstance instance = VK_NULL_HANDLE;
+    decode::BeginInjectedCommands();
+    DestroyInternalInstanceResources(instance_info);
+    decode::EndInjectedCommands();
 
-    if (instance_info != nullptr)
-    {
-        instance = instance_info->handle;
-
-        if (instance_info->debug_messenger != VK_NULL_HANDLE)
-        {
-            decode::BeginInjectedCommands();
-            GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(
-                instance, instance_info->debug_messenger, GetAllocationCallbacks(pAllocator));
-            decode::EndInjectedCommands();
-        }
-    }
-
+    VkInstance instance = instance_info->handle;
     func(instance, GetAllocationCallbacks(pAllocator));
 }
 
@@ -11377,6 +11371,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineLayout(
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::DestroyInternalInstanceResources(const VulkanInstanceInfo* info)
+{
+    GFXRECON_ASSERT(info != nullptr);
+
+    VkInstance instance       = info->handle;
+    const auto instance_table = GetInstanceTable(instance);
+
+    GFXRECON_ASSERT(instance_table != nullptr);
+
+    if (info->debug_messenger != VK_NULL_HANDLE)
+    {
+        instance_table->DestroyDebugUtilsMessengerEXT(instance, info->debug_messenger, nullptr);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
