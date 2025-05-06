@@ -250,8 +250,8 @@ void android_main(struct android_app* android_app)
     raise(SIGTERM);
 }
 #else
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
-    exit(inner_main(argc, argv));
+    exit(inner_main(argc, const_cast<const char**>(argv)));
 }
 #endif
