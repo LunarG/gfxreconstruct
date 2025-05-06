@@ -3002,10 +3002,21 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         replay_next          = replay_next->pNext;
     }
 
+    // Filter out portability subset if not on MoltenVK
+    bool on_moltenvk = false;
+    if (physical_device_info->replay_device_info->driver_properties)
+    {
+        on_moltenvk = physical_device_info->replay_device_info->driver_properties->driverID == VK_DRIVER_ID_MOLTENVK;
+    }
+
     // Copy requested extensions to modified_extensions
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
-        modified_extensions.push_back(replay_create_info->ppEnabledExtensionNames[i]);
+        const char* name = replay_create_info->ppEnabledExtensionNames[i];
+        if (!on_moltenvk || util::platform::StringCompare(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, name) != 0)
+        {
+            modified_extensions.push_back(name);
+        }
     }
 
     // Enable extensions used for loading resources during initial state setup for trimmed files.
