@@ -8826,19 +8826,9 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     // retrieve replay-time device-address
     VkDeviceAddress replay_device_address = func(device, address_info);
 
-    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
-    {
-        // TODO: make this warning obsolete by re-mapping addresses (and fix addresses stored in buffers)
-        // TODO: remove TODO/warning when issue #1526 is solved
-        GFXRECON_LOG_WARNING_ONCE(
-            "The captured application used vkGetBufferDeviceAddress. The specified replay option '-m rebind' may not "
-            "support the replay of captured device addresses, so replay may fail.");
-    }
-    else
-    {
-        // opaque device-addresses are expected to match
-        GFXRECON_ASSERT(original_result == replay_device_address)
-    }
+    // if supported, opaque device-addresses are expected to match
+    GFXRECON_ASSERT(!device_info->allocator->SupportsOpaqueDeviceAddresses() ||
+                    original_result == replay_device_address)
 
     // keep track of old/new addresses in any case
     format::HandleId  buffer      = pInfo->GetMetaStructPointer()->buffer;

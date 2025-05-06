@@ -1124,7 +1124,7 @@ VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_
         }
 
         // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
-        *reinterpret_cast<void**>(command_asset.command_buffer) = *reinterpret_cast<void**>(device_);
+        graphics::copy_dispatch_table_from_device(device_, command_asset.command_buffer);
 
         if (set_debug_utils_object_name_fn_ != nullptr)
         {
