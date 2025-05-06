@@ -6,6 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
 
+#include <util/logging.h>
+
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
     switch (event)
@@ -119,6 +121,14 @@ struct Paths
         full_app_directory.append("test_apps");
         working_directory = full_app_directory;
         working_directory.append(test_name);
+
+        if (!std::filesystem::exists(working_directory))
+        {
+            if (!std::filesystem::create_directories(working_directory))
+            {
+                GFXRECON_LOG_ERROR("Failed to create working directory: %s", working_directory.c_str());
+            }
+        }
 
         full_app_directory.append("launcher");
         full_executable_path = full_app_directory;
