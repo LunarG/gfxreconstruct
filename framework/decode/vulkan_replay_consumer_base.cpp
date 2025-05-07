@@ -77,10 +77,12 @@ const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
 
 const std::unordered_set<std::string> kSurfaceExtensions = {
-    VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
-    VK_KHR_MIR_SURFACE_EXTENSION_NAME,     VK_NN_VI_SURFACE_EXTENSION_NAME,   VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
-    VK_EXT_METAL_SURFACE_EXTENSION_NAME,
+    VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,  VK_MVK_IOS_SURFACE_EXTENSION_NAME,
+    VK_MVK_MACOS_SURFACE_EXTENSION_NAME,    VK_KHR_MIR_SURFACE_EXTENSION_NAME,
+    VK_NN_VI_SURFACE_EXTENSION_NAME,        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    VK_KHR_XLIB_SURFACE_EXTENSION_NAME,     VK_EXT_METAL_SURFACE_EXTENSION_NAME,
+    VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME,
 };
 
 // Device extensions to enable for trimming state setup, when available.
@@ -2700,6 +2702,20 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         else
         {
             modified_extensions.push_back(current_extension);
+        }
+    }
+
+    // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
+    // extension without having VK_KHR_surface. Check for that and fix that.
+    if (!feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+    {
+        for (const std::string& current_extension : modified_extensions)
+        {
+            if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+            {
+                modified_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+                break;
+            }
         }
     }
 
