@@ -136,9 +136,8 @@ void android_main(struct android_app* app)
             }
             else
             {
-                auto application =
-                    std::make_shared<gfxrecon::application::Application>(kApplicationName, file_processor.get());
-                application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
+                auto application = std::make_shared<gfxrecon::application::Application>(
+                    kApplicationName, file_processor.get(), VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
