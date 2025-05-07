@@ -2876,7 +2876,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     VkResult result =
         create_instance_proc_(&create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
 
-    if (result != VK_SUCCESS)
+    if (result == VK_ERROR_EXTENSION_NOT_PRESENT)
     {
         // Assume we weren't able to create instance because of VK_KHR_portability_enumeration
         GFXRECON_LOG_WARNING(
