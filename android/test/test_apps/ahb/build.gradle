@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 33
-    namespace 'com.lunarg.gfxreconstruct.test.test_apps.triangle'
+    namespace 'com.lunarg.gfxreconstruct.test.test_apps.ahb'
     ndkVersion '22.1.7171670'
     defaultConfig {
-        applicationId "com.lunarg.gfxreconstruct.test.test_apps.triangle"
+        applicationId "com.lunarg.gfxreconstruct.test.test_apps.ahb"
         minSdkVersion 26
         targetSdkVersion 33
         versionCode 1
@@ -36,11 +36,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main {
-            assets.srcDirs = ['../../../../test/test_apps/triangle']
-        }
-    }
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
@@ -48,13 +43,13 @@ android {
     }
     sourceSets {
         main {
-            assets.srcDirs = ['../../../../test/test_apps/triangle/']
+            assets.srcDirs = ['../../../../test/test_apps/ahb/']
         }
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }
