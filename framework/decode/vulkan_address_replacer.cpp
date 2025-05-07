@@ -1894,7 +1894,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
                 hashmap_storage_bda_binary_.buffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_ACCESS_TRANSFER_WRITE_BIT,
-                VK_SHADER_STAGE_COMPUTE_BIT,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 
         auto& current_control_block    = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
