@@ -57,5 +57,57 @@ format::ThreadId ThreadData::GetThreadId()
     return id;
 }
 
+std::string ThreadData::GetSkipReasonString(SkipReason reason)
+{
+    switch (reason)
+    {
+        case SkipReason::kNone:
+            return "none";
+        case SkipReason::kInvalidHandles:
+            return "invalid handles";
+        case SkipReason::kDispatchCall:
+            return "dispatch call";
+        case SkipReason::kDispatchReturn:
+            return "dispatch return";
+        case SkipReason::kReentryControl:
+            return "reentry control";
+    }
+    return "INVALID REASON ENUM";
+}
+
+void ThreadData::SetSkipState(SkipReason reason)
+{
+#if ENABLE_OPENXR_SUPPORT
+    if (skip_reason_ == SkipReason::kInvalidHandles)
+        return; // invalid handles is a sticky state
+
+    if ((reason == SkipReason::kNone) || (reason == SkipReason::kDispatchReturn))
+    {
+        // Dispatch return maps to none
+        GFXRECON_LOG_DEBUG("WriteToFile: Removing thread 0x%x from skip list for reason: %s",
+                           thread_id_,
+                           GetSkipReasonString(reason).c_str());
+        skip_reason_ = SkipReason::kNone;
+    }
+    else
+    {
+        // Dispatch call maps to reentry control
+        GFXRECON_LOG_DEBUG("WriteToFile: Adding thread 0x%x to skip list for reason %s:",
+                           thread_id_,
+                           GetSkipReasonString(reason).c_str());
+        skip_reason_ = (reason == SkipReason::kDispatchCall) ? SkipReason::kReentryControl : reason;
+    }
+#endif // ENABLE_OPENXR_SUPPORT
+}
+
+ThreadData::SkipReason ThreadData::GetSkipState() const
+{
+#if ENABLE_OPENXR_SUPPORT
+    return skip_reason_;
+#else
+    return SkipReason::kNone;
+#endif // ENABLE_OPENXR_SUPPORT
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
