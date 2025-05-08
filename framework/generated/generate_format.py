@@ -31,12 +31,17 @@ util_script_dir = os.path.join(SCRIPT_DIR, 'util_generators')
 sys.path.append(util_script_dir)
 
 from generate_api_call_id_strings import write_call_id_strings
-framework_format_dir = os.path.normpath(os.path.join(SCRIPT_DIR, '..', '..', 'framework', 'format'))
+
+framework_format_dir = os.path.normpath(
+    os.path.join(SCRIPT_DIR, '..', '..', 'framework', 'format')
+)
 api_call_id_h = os.path.join(framework_format_dir, 'api_call_id.h')
 
 if __name__ == '__main__':
     # Simplest wrapper for this generator
     with open(api_call_id_h) as input_file:
-        generated= os.path.join(SCRIPT_DIR, 'generated_api_call_id_string_pairs.h')
+        generated = os.path.join(
+            SCRIPT_DIR, 'generated_api_call_id_string_pairs.h'
+        )
         with open(generated, 'w') as output_file:
             write_call_id_strings(input_file, output_file)

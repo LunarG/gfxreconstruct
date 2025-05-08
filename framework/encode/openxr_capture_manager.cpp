@@ -194,6 +194,103 @@ void OpenXrCaptureManager::EndFramePreDispatch(XrSession session, const XrFrameE
     WriteViewRelativeLocationMetadata(session, *frameEndInfo);
 }
 
+OpenXrCaptureManager::OpenXrCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_OpenXR)
+{
+    // Select the reentry control mode:
+    // TODO: make this configurable from environment/properties in future?
+    //
+    // kGlobalDisable
+    //     -- has known race conditions that corrupt capture state for multi-thread OpenXR
+    //     -- is the mode for first release of openxr-experimental
+    //     -- included for regression testing
+    // kGlobalDisableAtomic
+    //     -- fixes "corrupt capture state" issues of kGlobalDisable
+    //     -- has potential "fail to capture" issues for multi-thread OpenXR
+    // kThreadDisable
+    //     -- fixes "corrupt capture state" issues of kGlobalDisable
+    //     -- does not have "fail to capture" issues (at least theoretically)
+    //     -- test as functional on Windows for multiple apps
+    //     -- doesn't work on Android (non-replayable files),
+#if defined(__ANDROID__)
+    // kThreadDisable doesn't work on Android
+    reentry_state_.reentry_mode = ReentryMode::kGlobalDisableAtomic;
+#else
+    reentry_state_.reentry_mode = ReentryMode::kThreadDisable;
+#endif
+
+    reentry_state_.manager      = this;
+    reentry_state_.atomic_depth = 0;
+}
+
+OpenXrCaptureManager::ReentryState OpenXrCaptureManager::MakeReentryState(format::ApiCallId call_id)
+{
+    return ReentryState(reentry_state_, call_id);
+}
+
+void OpenXrCaptureManager::ReentryState::PreDispatch()
+{
+    ManagerReentryState& state = manager_reentry_state_;
+    switch (state.reentry_mode)
+    {
+        case ReentryMode::kGlobalDisable:
+            saved_capture_mode_ = state.manager->GetCaptureMode();
+            state.manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+            break;
+        case ReentryMode::kGlobalDisableAtomic:
+        {
+            CommonCaptureManager::ApiCallLock guard(CommonCaptureManager::ApiCallLock::Type::kExclusive,
+                                                    state.reentry_mutex);
+            if (state.atomic_depth == 0)
+            {
+                state.atomic_saved_capture_mode = state.manager->GetCaptureMode();
+                state.manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+            }
+            state.atomic_depth++;
+            break;
+        }
+
+        case ReentryMode::kThreadDisable:
+            state.manager->WriteDispatchMessage(call_id_, "PreDispatch");
+            state.manager->common_manager_->SetThreadSkipState(ThreadSkipReason::kDispatchCall);
+            break;
+    };
+}
+
+void OpenXrCaptureManager::WriteDispatchMessage(format::ApiCallId call_id, std::string op_string)
+{
+    std::stringstream stream;
+    stream << "ThreadId: " << GetThreadData()->thread_id_ << " Reentry control : " << op_string << " "
+           << format::GetApiCallFamilyName(call_id) << " ApiCall " << format::GetApiCallName(call_id) << " ID (0x"
+           << std::hex << static_cast<uint32_t>(call_id) << ") ";
+    WriteDisplayMessageCmd(stream.str().c_str());
+}
+
+void OpenXrCaptureManager::ReentryState::PostDispatch()
+{
+    ManagerReentryState& state = manager_reentry_state_;
+    switch (state.reentry_mode)
+    {
+        case ReentryMode::kGlobalDisable:
+            state.manager->SetCaptureMode(saved_capture_mode_);
+            break;
+        case ReentryMode::kGlobalDisableAtomic:
+        {
+            CommonCaptureManager::ApiCallLock guard(CommonCaptureManager::ApiCallLock::Type::kExclusive,
+                                                    state.reentry_mutex);
+            state.atomic_depth--;
+            if (state.atomic_depth == 0)
+            {
+                state.manager->SetCaptureMode(state.atomic_saved_capture_mode);
+            }
+            break;
+        }
+        case ReentryMode::kThreadDisable:
+            state.manager->WriteDispatchMessage(call_id_, "PostDispatch");
+            state.manager->common_manager_->SetThreadSkipState(ThreadSkipReason::kDispatchReturn);
+            break;
+    };
+}
+
 void OpenXrCaptureManager::WriteViewRelativeLocationMetadata(const XrSession       session,
                                                              const XrFrameEndInfo& frameEndInfo)
 {

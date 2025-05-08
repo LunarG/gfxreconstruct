@@ -39,27 +39,19 @@ class ThreadData
 
     std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
 
-#if ENABLE_OPENXR_SUPPORT
-    void EnableSkipCurrentThreadInFuture()
+    // NOTE: Command Record skipping is only active during OpenXr Capture
+    enum class SkipReason
     {
-        // If not already in the list, add this thread ID to the list of IDs we
-        // will skip content for.
-        if (skip_threads_.find(thread_id_) == skip_threads_.end())
-        {
-            GFXRECON_LOG_INFO("WriteToFile: Adding thread 0x%x to skip list", thread_id_);
-            skip_threads_.insert(thread_id_);
-        }
-    }
+        kNone,
+        kInvalidHandles, // kInvalidHandles is sticky once set
+        kDispatchCall,   // Sets state to kReentryControl
+        kDispatchReturn, // Sets state to kNone
+        kReentryControl,
+    };
+    std::string GetSkipReasonString(SkipReason reason);
 
-    bool SkipCurrentThread() const
-    {
-        if (skip_threads_.find(thread_id_) != skip_threads_.end())
-        {
-            return true;
-        }
-        return false;
-    }
-#endif
+    void       SetSkipState(SkipReason reason);
+    SkipReason GetSkipState() const;
 
     const format::ThreadId                    thread_id_;
     format::ApiCallId                         call_id_;
@@ -80,8 +72,9 @@ class ThreadData
     std::vector<uint8_t> scratch_buffer_;
 
 #if ENABLE_OPENXR_SUPPORT
-    // Used to skip threads we have determined have bad data
-    std::set<format::ThreadId> skip_threads_;
+    // Used to skip threads we have determined have bad data, or want to suppress
+    // for reentry control
+    SkipReason skip_reason_ = SkipReason::kNone;
 #endif
 };
 

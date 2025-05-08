@@ -60,7 +60,6 @@ class ApiCaptureManager
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
     bool                IsCaptureModeWrite() const { return common_manager_->IsCaptureModeWrite(); }
     bool                IsCaptureModeDisabled() const { return common_manager_->IsCaptureModeDisabled(); }
-    bool IsCaptureSkippingCurrentThread() const { return common_manager_->IsCaptureSkippingCurrentThread(); }
 
     bool IsPageGuardMemoryModeDisabled() const
     {

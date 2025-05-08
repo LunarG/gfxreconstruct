@@ -98,69 +98,12 @@ class CommonCaptureManager
         return &thread_data->handle_unwrap_memory_;
     }
 
-    ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
-    {
-        if (capture_mode_ != kModeDisabled)
-        {
-            return InitApiCallCapture(call_id);
-        }
+    using ThreadSkipReason = util::ThreadData::SkipReason;
+    void WriteSkipThreadMessage(format::ApiCallId call_id);
 
-        return nullptr;
-    }
+    ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id);
 
-    ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
-    {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
-        {
-#if ENABLE_OPENXR_SUPPORT
-            if (IsCaptureSkippingCurrentThread())
-            {
-                uint32_t            call_id_uint = static_cast<uint32_t>(call_id);
-                format::ApiFamilyId family  = static_cast<format::ApiFamilyId>(format::GetApiCallFamily(call_id_uint));
-                std::string         message = "Skipping ";
-
-                switch (family)
-                {
-                    default:
-                        break;
-                    case format::ApiFamily_Vulkan:
-                        message += "Vulkan ";
-                        break;
-                    case format::ApiFamily_Dxgi:
-                        message += "Dxgi ";
-                        break;
-                    case format::ApiFamily_D3D12:
-                        message += "D3D12 ";
-                        break;
-                    case format::ApiFamily_AGS:
-                        message += "AGS ";
-                        break;
-                    case format::ApiFamily_D3D11:
-                        message += "D3D11 ";
-                        break;
-                    case format::ApiFamily_D3D11On12:
-                        message += "D3D11On12 ";
-                        break;
-                    case format::ApiFamily_OpenXR:
-                        message += "OpenXR ";
-                        break;
-                }
-                std::stringstream stream;
-                stream << std::hex << call_id_uint;
-                message += "ApiCall ID 0x";
-                message += stream.str();
-                message += " because it occurred in a thread with invalid data";
-                WriteDisplayMessageCmd(family, message.c_str());
-            }
-            else
-#endif // ENABLE_OPENXR_SUPPORT
-            {
-                return InitApiCallCapture(call_id);
-            }
-        }
-
-        return nullptr;
-    }
+    ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id);
 
     ParameterEncoder* BeginTrackedMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
@@ -279,7 +222,9 @@ class CommonCaptureManager
     bool              IsCaptureModeTrack() const;
     bool              IsCaptureModeWrite() const;
     bool              IsCaptureModeDisabled() const;
-    bool              IsCaptureSkippingCurrentThread() const;
+    ThreadSkipReason  GetThreadSkipState() const;
+    bool              IsThreadCaptureSkipping() const;
+    void              SetThreadSkipState(ThreadSkipReason reason);
 
     void DestroyInstance(ApiCaptureManager* singleton);
 
