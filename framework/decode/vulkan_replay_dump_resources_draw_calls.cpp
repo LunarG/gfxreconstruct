@@ -2325,13 +2325,14 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(
             GFXRECON_LOG_WARNING("unhandled missing depth-attachment in %s", __func__);
         }
     }
-    GFXRECON_ASSERT(depth_img_view_info != nullptr);
 
-    depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
-    GFXRECON_ASSERT(depth_img_info != nullptr);
+    if (depth_img_view_info != nullptr)
+    {
+        depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
+        GFXRECON_ASSERT(depth_img_info != nullptr);
+    }
 
     SetRenderTargets(color_att_imgs, depth_img_info, true);
-
     SetRenderArea(renderpass_begin_info->renderArea);
 
     VkResult res = CloneRenderPass(render_pass_info, framebuffer_info, override_attachment_image_views);
