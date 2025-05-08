@@ -634,11 +634,7 @@ static void CopyVertexInputStateInfo(DrawCallsDumpingContext::DrawCallParams&   
 
     // If VK_DYNAMIC_STATE_VERTEX_INPUT_EXT is enabled then get all vertex input state from
     // vkCmdSetVertexInputEXT
-    // TODO: we need to check two conditions here, figure out why bound_pipeline->dynamic_vertex_input is not set.
-    bool has_dynamic_vertex_input =
-        bound_pipeline->dynamic_vertex_input || (!dynamic_vertex_input_state.vertex_input_binding_map.empty() &&
-                                                 !dynamic_vertex_input_state.vertex_input_attribute_map.empty());
-    if (bound_pipeline == nullptr || has_dynamic_vertex_input)
+    if (bound_pipeline == nullptr || bound_pipeline->dynamic_vertex_input)
     {
         dc_params.vertex_input_state = dynamic_vertex_input_state;
     }
