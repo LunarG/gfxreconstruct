@@ -1308,6 +1308,7 @@ void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        
     assert(option_list != nullptr);
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
+    option_list->push_back({ format::FileOption::kPipelineLibraryEnabled, enabled_options.pipeline_library_enabled });
 }
 
 void CommonCaptureManager::WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message)
