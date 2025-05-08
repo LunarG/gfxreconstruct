@@ -35,7 +35,8 @@
       "CreateComputePipelineState": "OverrideCreateComputePipelineState",
       "CreateCommandSignature": "OverrideCreateCommandSignature",
       "CreateCommandList": "OverrideCreateCommandList",
-      "CreateRootSignature": "OverrideCreateRootSignature"
+      "CreateRootSignature": "OverrideCreateRootSignature",
+      "OpenSharedHandle": "OverrideOpenSharedHandle"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"
