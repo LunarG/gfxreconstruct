@@ -2243,27 +2243,33 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
             }
         }
 
-        // Graphics pipeline library
-        const auto gpl_info =
+        // handle optional VkGraphicsPipelineLibraryCreateInfoEXT
+        const auto* gpl_info =
             graphics::vulkan_struct_get_pnext<VkGraphicsPipelineLibraryCreateInfoEXT>(in_p_create_infos);
         if (gpl_info != nullptr)
         {
             pipeline_info->gpl_flags = gpl_info->flags;
         }
 
-        const auto pl_info = GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
-        if (pl_info != nullptr)
+        // handle optional VkPipelineLibraryCreateInfoKHR
+        const auto* pipeline_library_info =
+            GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
+        if (pipeline_library_info != nullptr)
         {
-            const uint32_t          library_count = pl_info->pLibraries.GetLength();
-            const format::HandleId* ppl_ids       = pl_info->pLibraries.GetPointer();
+            const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
+            const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+
             for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
             {
                 const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[lib_idx]);
+
                 if ((gpl_ppl->gpl_flags & VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT) ==
                     VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT)
                 {
-                    pipeline_info->vertex_input_attribute_map = gpl_ppl->vertex_input_attribute_map;
-                    pipeline_info->vertex_input_binding_map   = gpl_ppl->vertex_input_binding_map;
+                    pipeline_info->vertex_input_attribute_map    = gpl_ppl->vertex_input_attribute_map;
+                    pipeline_info->vertex_input_binding_map      = gpl_ppl->vertex_input_binding_map;
+                    pipeline_info->dynamic_vertex_input          = gpl_ppl->dynamic_vertex_input;
+                    pipeline_info->dynamic_vertex_binding_stride = gpl_ppl->dynamic_vertex_binding_stride;
                 }
             }
         }
