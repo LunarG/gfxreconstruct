@@ -31,6 +31,7 @@
 #include "vulkan/vulkan_core.h"
 
 #include <vector>
+#include <functional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
