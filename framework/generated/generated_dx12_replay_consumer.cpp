@@ -5877,7 +5877,8 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
             this,
             call_info,
             replay_object);
-        auto replay_result = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object->object)->GetSerializedSize();
+        auto replay_result = OverrideGetSerializedSize(replay_object,
+                                                       return_value);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_GetSerializedSize>::Dispatch(
             this,
             call_info,
@@ -5907,8 +5908,10 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
         {
             pData->AllocateOutputData(DataSizeInBytes);
         }
-        auto replay_result = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object->object)->Serialize(pData->GetOutputPointer(),
-                                                                                                        DataSizeInBytes);
+        auto replay_result = OverrideSerialize(replay_object,
+                                               return_value,
+                                               pData,
+                                               DataSizeInBytes);
         CheckReplayResult("ID3D12PipelineLibrary_Serialize", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize>::Dispatch(
             this,

@@ -472,6 +472,7 @@ struct D3D12PipelineLibraryInfo : DxObjectExtraInfo
     D3D12PipelineLibraryInfo() : DxObjectExtraInfo(kType) {}
 
     std::unique_ptr<uint8_t[]> cache_data;
+    size_t                     replay_cache_data_size{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -2913,6 +2913,22 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
     return replay_result;
 }
 
+SIZE_T Dx12ReplayConsumerBase::OverrideGetSerializedSize(DxObjectInfo* replay_object_info, SIZE_T original_result)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_size = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object_info->object)->GetSerializedSize();
+
+    auto pipeline_library_info = GetExtraInfo<D3D12PipelineLibraryInfo>(replay_object_info);
+    GFXRECON_ASSERT(pipeline_library_info != nullptr);
+
+    pipeline_library_info->replay_cache_data_size = static_cast<size_t>(replay_size);
+
+    return replay_size;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
     DxObjectInfo*                                                     replay_object_info,
     HRESULT                                                           original_result,
@@ -3037,6 +3053,30 @@ Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*   replay_object_info,
 
         return replay_result;
     }
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideSerialize(DxObjectInfo*            replay_object_info,
+                                                  HRESULT                  original_result,
+                                                  PointerDecoder<uint8_t>* data,
+                                                  SIZE_T                   data_size_in_bytes)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (data != nullptr));
+
+    auto pipeline_library_info = GetExtraInfo<D3D12PipelineLibraryInfo>(replay_object_info);
+    GFXRECON_ASSERT(pipeline_library_info != nullptr);
+
+    auto replay_size = pipeline_library_info->replay_cache_data_size;
+
+    if (replay_size > data_size_in_bytes)
+    {
+        // Reallocate output array for replay data size.
+        data->AllocateOutputData(replay_size);
+    }
+
+    auto replay_object = static_cast<ID3D12PipelineLibrary1*>(replay_object_info->object);
+    return replay_object->Serialize(data->GetOutputPointer(), replay_size);
 }
 
 void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*            replay_object_info,

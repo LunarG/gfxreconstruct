@@ -795,6 +795,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                    PointerDecoder<UINT>*            node_mask,
                                    HandlePointerDecoder<IUnknown*>* present_queue);
 
+    SIZE_T OverrideGetSerializedSize(DxObjectInfo* replay_object_info, SIZE_T original_result);
+
     HRESULT OverrideLoadGraphicsPipeline(DxObjectInfo*   replay_object_info,
                                          HRESULT         original_result,
                                          WStringDecoder* name,
@@ -815,6 +817,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                  StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* desc,
                                  Decoded_GUID                                                    riid,
                                  HandlePointerDecoder<void*>*                                    state);
+
+    HRESULT OverrideSerialize(DxObjectInfo*            replay_object_info,
+                              HRESULT                  original_result,
+                              PointerDecoder<uint8_t>* data,
+                              SIZE_T                   data_size_in_bytes);
 
     void* OverrideGetShaderIdentifier(DxObjectInfo*            replay_object_info,
                                       PointerDecoder<uint8_t>* original_result,
