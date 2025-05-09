@@ -2885,19 +2885,14 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         create_state.modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
         std::vector<const char*>& modified_extensions = create_state.modified_extensions;
-        for (int i = 0; i < modified_extensions.size(); ++i)
-        {
-            const char* name = modified_extensions[i];
-            if (!util::platform::StringCompare(name, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
-            {
-                const size_t last_idx         = modified_extensions.size() - 1;
-                modified_extensions[i]        = modified_extensions[last_idx];
-                modified_extensions[last_idx] = name;
-                break;
-            }
-        }
-        create_state.modified_extensions.pop_back();
-        create_state.modified_create_info.enabledExtensionCount -= 1;
+        modified_extensions.erase(std::remove_if(modified_extensions.begin(),
+                                                 modified_extensions.end(),
+                                                 [](const char* ext) -> bool {
+                                                     return !util::platform::StringCompare(
+                                                         ext, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+                                                 }),
+                                  modified_extensions.end());
+        create_state.modified_create_info.enabledExtensionCount = modified_extensions.size();
 
         // Try to create instance again
         result = create_instance_proc_(
