@@ -69,25 +69,26 @@ void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t hei
         if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
             (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
         {
-            const std::array<AndroidContext::ScreenOrientation, 2> kOrientations{
-                AndroidContext::ScreenOrientation::kLandscape, AndroidContext::ScreenOrientation::kPortrait
-            };
-
-            uint32_t orientation_index = 0;
+            auto orientation = AndroidContext::ScreenOrientation::kLandscape;
 
             if (height > width)
             {
-                orientation_index = 1;
+                orientation = AndroidContext::ScreenOrientation::kPortrait;
             }
 
-            // Toggle orientation between landscape and portrait for 90 and 270 degree pre-transform values.
+            // Pre-transform is a different story. Supposing identity transform of capture and
+            // replay device match and it is portrait, then the following holds true.
             if ((pre_transform == format::ResizeWindowPreTransform::kPreTransform90) ||
                 (pre_transform == format::ResizeWindowPreTransform::kPreTransform270))
             {
-                orientation_index ^= 1;
+                orientation = AndroidContext::ScreenOrientation::kLandscape;
+            }
+            else if (pre_transform == format::ResizeWindowPreTransform::kPreTransform180)
+            {
+                orientation = AndroidContext::ScreenOrientation::kPortrait;
             }
 
-            android_context_->SetOrientation(kOrientations[orientation_index]);
+            android_context_->SetOrientation(orientation);
         }
 
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
