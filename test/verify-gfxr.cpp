@@ -239,16 +239,16 @@ void run_in_background(const char* test_name)
     run_command(paths.working_directory, paths.full_executable_path, { test_name, "&" });
 }
 
-void run_trimming_app(const Paths& paths, char const* trimming_frames)
+void run_trimming_app(const Paths& paths, const char* test_name, char const* trimming_frames)
 {
     EnvironmentVariables env_vars;
 
     // To not affect the other tests, set env var programmatically, and unset it when it isn't needed.
     env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
 
-    auto result = run_command(paths.full_app_directory, paths.full_executable_path, {});
+    auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
-                         << paths.full_app_directory;
+                         << paths.working_directory;
 
     env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
 
@@ -309,6 +309,6 @@ void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const*
 
     if (trimming_frames)
     {
-        run_trimming_app(paths, trimming_frames);
+        run_trimming_app(paths, test_name, trimming_frames);
     }
 }
