@@ -993,6 +993,94 @@ void OpenXrReplayConsumerBase::Process_xrEnumerateEnvironmentBlendModes(
     }
 }
 
+void OpenXrReplayConsumerBase::Process_xrEnumerateDisplayRefreshRatesFB(
+    const ApiCallInfo&        call_info,
+    XrResult                  returnValue,
+    format::HandleId          session,
+    uint32_t                  displayRefreshRateCapacityInput,
+    PointerDecoder<uint32_t>* displayRefreshRateCountOutput,
+    PointerDecoder<float>*    displayRefreshRates)
+{
+    XrResult  replay_result = XR_SUCCESS;
+    XrSession in_session    = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    uint32_t* out_displayRefreshRateCountOutput =
+        displayRefreshRateCountOutput->IsNull()
+            ? nullptr
+            : displayRefreshRateCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
+    float* out_displayRefreshRates = nullptr;
+    if (!displayRefreshRates->IsNull() && (returnValue == XR_SUCCESS || returnValue == XR_ERROR_SIZE_INSUFFICIENT))
+    {
+        auto pfn_enum_dis_refresh_rates_fb = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB;
+
+        // First get the actual count for the replay
+        uint32_t replay_count = 0;
+        replay_result         = pfn_enum_dis_refresh_rates_fb(in_session, 0, &replay_count, nullptr);
+
+        if (replay_result == XR_SUCCESS || replay_result == XR_ERROR_SIZE_INSUFFICIENT)
+        {
+            if (replay_count < displayRefreshRateCapacityInput)
+            {
+                GFXRECON_LOG_FATAL(
+                    "xrEnumerateDisplayRefreshRatesFB failed to find as many items during replay as during capture");
+                return;
+            }
+
+            // Allocate the blend mode array and get all the values
+            std::vector<float> display_refresh_rates;
+            display_refresh_rates.resize(replay_count);
+            replay_result = pfn_enum_dis_refresh_rates_fb(
+                in_session, replay_count, out_displayRefreshRateCountOutput, display_refresh_rates.data());
+
+            // We are comparing against success, but the original replay may have had an incomplete
+            CheckResult("xrEnumerateEnvironmentBlendModes", XR_SUCCESS, replay_result, call_info);
+
+            // Now loop through and make sure we find each item in the original list in the replay
+            float* original_refresh_rates = displayRefreshRates->GetPointer();
+            for (uint32_t iii = 0; iii < displayRefreshRateCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (display_refresh_rates[jjj] == original_refresh_rates[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateDisplayRefreshRatesFB failed to find environment blend mode %d "
+                                       "which was present in capture",
+                                       original_refresh_rates[iii]);
+                }
+            }
+        }
+        else
+        {
+            CheckResult("xrEnumerateDisplayRefreshRatesFB", returnValue, replay_result, call_info);
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)
+                            ->EnumerateDisplayRefreshRatesFB(in_session,
+                                                             displayRefreshRateCapacityInput,
+                                                             out_displayRefreshRateCountOutput,
+                                                             out_displayRefreshRates);
+        CheckResult("xrEnumerateDisplayRefreshRatesFB", returnValue, replay_result, call_info);
+        CustomProcess<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::UpdateState(
+            this,
+            call_info,
+            returnValue,
+            session,
+            displayRefreshRateCapacityInput,
+            displayRefreshRateCountOutput,
+            displayRefreshRates,
+            replay_result);
+    }
+}
+
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     const ApiCallInfo&                                 call_info,
     XrResult                                           returnValue,

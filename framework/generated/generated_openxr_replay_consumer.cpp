@@ -1978,23 +1978,6 @@ void OpenXrReplayConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
     CustomProcess<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::UpdateState(this, call_info, returnValue, scene, getInfo, countInput, readOutput, buffer, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            session,
-    uint32_t                                    displayRefreshRateCapacityInput,
-    PointerDecoder<uint32_t>*                   displayRefreshRateCountOutput,
-    PointerDecoder<float>*                      displayRefreshRates)
-{
-    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    uint32_t* out_displayRefreshRateCountOutput = displayRefreshRateCountOutput->IsNull() ? nullptr : displayRefreshRateCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
-    float* out_displayRefreshRates = displayRefreshRates->IsNull() ? nullptr : displayRefreshRates->AllocateOutputData(displayRefreshRateCapacityInput);
-
-    XrResult replay_result = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB(in_session, displayRefreshRateCapacityInput, out_displayRefreshRateCountOutput, out_displayRefreshRates);
-    CheckResult("xrEnumerateDisplayRefreshRatesFB", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::UpdateState(this, call_info, returnValue, session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrGetDisplayRefreshRateFB(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

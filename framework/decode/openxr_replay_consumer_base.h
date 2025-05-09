@@ -198,6 +198,13 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                              PointerDecoder<uint32_t>*               environmentBlendModeCountOutput,
                                              PointerDecoder<XrEnvironmentBlendMode>* environmentBlendModes) override;
 
+    void Process_xrEnumerateDisplayRefreshRatesFB(const ApiCallInfo&        call_info,
+                                                  XrResult                  returnValue,
+                                                  format::HandleId          session,
+                                                  uint32_t                  displayRefreshRateCapacityInput,
+                                                  PointerDecoder<uint32_t>* displayRefreshRateCountOutput,
+                                                  PointerDecoder<float>*    displayRefreshRates) override;
+
     void UpdateState_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo&                      call_info,
                                                   XrResult                                returnValue,
                                                   format::HandleId                        instance,

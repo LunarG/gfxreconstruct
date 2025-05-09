@@ -835,14 +835,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         PointerDecoder<uint32_t>*                   readOutput,
         PointerDecoder<uint8_t>*                    buffer) override;
 
-    virtual void Process_xrEnumerateDisplayRefreshRatesFB(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            session,
-        uint32_t                                    displayRefreshRateCapacityInput,
-        PointerDecoder<uint32_t>*                   displayRefreshRateCountOutput,
-        PointerDecoder<float>*                      displayRefreshRates) override;
-
     virtual void Process_xrGetDisplayRefreshRateFB(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
