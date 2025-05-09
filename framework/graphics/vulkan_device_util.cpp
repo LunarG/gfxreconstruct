@@ -345,13 +345,18 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&  
     if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         // pNext-chaining
-        VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties;
+        VkPhysicalDeviceDriverProperties driver_properties = {};
+        driver_properties.sType                            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+
+        VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties = {};
         raytracing_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
-        raytracing_properties.pNext = nullptr;
+
+        raytracing_properties.pNext = &driver_properties;
         device_properties2.pNext    = &raytracing_properties;
 
         instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties2);
         replay_device_info->raytracing_properties = raytracing_properties;
+        replay_device_info->driver_properties     = driver_properties;
     }
     else
     {
