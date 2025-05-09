@@ -697,6 +697,7 @@ def make_gen_opts(args):
                 'xrCreateApiLayerInstance',
                 'xrCreateDebugUtilsMessengerEXT',
                 'xrEnumerateEnvironmentBlendModes',
+                'xrEnumerateDisplayRefreshRatesFB'
             ]
         )
     ]
