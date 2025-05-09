@@ -1,13 +1,12 @@
 #ifndef GFXRECONSTRUCT_VERIFY_GFXR_H
 #define GFXRECONSTRUCT_VERIFY_GFXR_H
 
-void run_in_background(char const* app_directory, char const* app_executable);
+void run_in_background(const char* test_name);
 
 /*
  * Run an application with capture enabled, and compare the resulting gfxr file to a known good gfxr
  *
- * app_run_directory - the directory to run the application from,  relative to test_apps folder
- * app_path          - the path to the application, relative to app_run_directory
+ * test_name         - the name of the test to launch
  * known_gfxr_path   - path to the known good gfxr file, relative to the known_good folder
  * trimming_frames   - It's not nullptr if it needs to run trimming app. frame info ex: "10" or "10-100"
  * 
@@ -20,9 +19,6 @@ void run_in_background(char const* app_directory, char const* app_executable);
  * GFXRECON_CAPTURE_FILE_TIMESTAMP=false
  * GFXRECON_CAPTURE_FILE=actual.gfxr
  */
-void verify_gfxr(char const* app_directory,
-                 char const* app_executable,
-                 char const* known_gfxr_path,
-                 char const* trimming_frames = nullptr);
+void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const* trimming_frames = nullptr);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H
