@@ -2824,7 +2824,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             // Write memory requirements query before bind command.
             if (write_memory_state)
             {
-                VkMemoryRequirements     memory_requirements;
+                VkMemoryRequirements               memory_requirements;
                 const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
                 assert(device_table != nullptr);
 
@@ -2867,86 +2867,86 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                         WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
                     }
                 }
-            }
-            else
-            {
-                const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
-                const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
-                assert((device_wrapper != nullptr) && (device_table != nullptr));
-
-                const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
-
-                GFXRECON_ASSERT((wrapper->sparse_bind_queue != VK_NULL_HANDLE) &&
-                                (sparse_bind_queue_wrapper != nullptr));
-
-                if ((wrapper->sparse_opaque_memory_bind_map.size() != 0) ||
-                    (wrapper->sparse_subresource_memory_bind_map.size() != 0))
+                else
                 {
-                    std::vector<VkSparseMemoryBind>   sparse_memory_binds;
-                    VkSparseImageOpaqueMemoryBindInfo image_opaque_memory_bind_info = {};
+                    const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+                    const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
+                    assert((device_wrapper != nullptr) && (device_table != nullptr));
 
-                    for (auto& item : wrapper->sparse_opaque_memory_bind_map)
+                    const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+
+                    GFXRECON_ASSERT((wrapper->sparse_bind_queue != VK_NULL_HANDLE) &&
+                                    (sparse_bind_queue_wrapper != nullptr));
+
+                    if ((wrapper->sparse_opaque_memory_bind_map.size() != 0) ||
+                        (wrapper->sparse_subresource_memory_bind_map.size() != 0))
                     {
-                        sparse_memory_binds.push_back(item.second);
-                    }
+                        std::vector<VkSparseMemoryBind>   sparse_memory_binds;
+                        VkSparseImageOpaqueMemoryBindInfo image_opaque_memory_bind_info = {};
 
-                    image_opaque_memory_bind_info.image     = wrapper->handle;
-                    image_opaque_memory_bind_info.bindCount = sparse_memory_binds.size();
-                    image_opaque_memory_bind_info.pBinds =
-                        (sparse_memory_binds.size() == 0) ? nullptr : sparse_memory_binds.data();
-
-                    std::vector<VkSparseImageMemoryBind> sparse_image_memory_binds;
-                    VkSparseImageMemoryBindInfo          image_memory_bind_info = {};
-
-                    for (auto& subresource_bind_map : wrapper->sparse_subresource_memory_bind_map)
-                    {
-                        auto& offset_3d_to_memory_range_map = subresource_bind_map.second;
-
-                        for (auto& item : offset_3d_to_memory_range_map)
+                        for (auto& item : wrapper->sparse_opaque_memory_bind_map)
                         {
-                            sparse_image_memory_binds.push_back(item.second);
+                            sparse_memory_binds.push_back(item.second);
                         }
+
+                        image_opaque_memory_bind_info.image     = wrapper->handle;
+                        image_opaque_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        image_opaque_memory_bind_info.pBinds =
+                            (sparse_memory_binds.size() == 0) ? nullptr : sparse_memory_binds.data();
+
+                        std::vector<VkSparseImageMemoryBind> sparse_image_memory_binds;
+                        VkSparseImageMemoryBindInfo          image_memory_bind_info = {};
+
+                        for (auto& subresource_bind_map : wrapper->sparse_subresource_memory_bind_map)
+                        {
+                            auto& offset_3d_to_memory_range_map = subresource_bind_map.second;
+
+                            for (auto& item : offset_3d_to_memory_range_map)
+                            {
+                                sparse_image_memory_binds.push_back(item.second);
+                            }
+                        }
+
+                        image_memory_bind_info.image     = wrapper->handle;
+                        image_memory_bind_info.bindCount = sparse_image_memory_binds.size();
+                        image_memory_bind_info.pBinds =
+                            (sparse_image_memory_binds.size() == 0) ? nullptr : sparse_image_memory_binds.data();
+
+                        VkBindSparseInfo bind_sparse_info{};
+
+                        bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+                        bind_sparse_info.pNext                = nullptr;
+                        bind_sparse_info.waitSemaphoreCount   = 0;
+                        bind_sparse_info.pWaitSemaphores      = nullptr;
+                        bind_sparse_info.bufferBindCount      = 0;
+                        bind_sparse_info.pBufferBinds         = nullptr;
+                        bind_sparse_info.imageOpaqueBindCount = (image_opaque_memory_bind_info.bindCount == 0) ? 0 : 1;
+                        bind_sparse_info.pImageOpaqueBinds =
+                            (image_opaque_memory_bind_info.bindCount == 0) ? nullptr : &image_opaque_memory_bind_info;
+                        bind_sparse_info.imageBindCount = (image_memory_bind_info.bindCount == 0) ? 0 : 1;
+                        bind_sparse_info.pImageBinds =
+                            (image_memory_bind_info.bindCount == 0) ? nullptr : &image_memory_bind_info;
+                        bind_sparse_info.signalSemaphoreCount = 0;
+                        bind_sparse_info.pSignalSemaphores    = nullptr;
+
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+                        encoder_.EncodeUInt32Value(1);
+                        EncodeStructArray(&encoder_, &bind_sparse_info, 1);
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+                        WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
+
+                        parameter_stream_.Clear();
+
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
                     }
-
-                    image_memory_bind_info.image     = wrapper->handle;
-                    image_memory_bind_info.bindCount = sparse_image_memory_binds.size();
-                    image_memory_bind_info.pBinds =
-                        (sparse_image_memory_binds.size() == 0) ? nullptr : sparse_image_memory_binds.data();
-
-                    VkBindSparseInfo bind_sparse_info{};
-
-                    bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
-                    bind_sparse_info.pNext                = nullptr;
-                    bind_sparse_info.waitSemaphoreCount   = 0;
-                    bind_sparse_info.pWaitSemaphores      = nullptr;
-                    bind_sparse_info.bufferBindCount      = 0;
-                    bind_sparse_info.pBufferBinds         = nullptr;
-                    bind_sparse_info.imageOpaqueBindCount = (image_opaque_memory_bind_info.bindCount == 0) ? 0 : 1;
-                    bind_sparse_info.pImageOpaqueBinds =
-                        (image_opaque_memory_bind_info.bindCount == 0) ? nullptr : &image_opaque_memory_bind_info;
-                    bind_sparse_info.imageBindCount = (image_memory_bind_info.bindCount == 0) ? 0 : 1;
-                    bind_sparse_info.pImageBinds =
-                        (image_memory_bind_info.bindCount == 0) ? nullptr : &image_memory_bind_info;
-                    bind_sparse_info.signalSemaphoreCount = 0;
-                    bind_sparse_info.pSignalSemaphores    = nullptr;
-
-                    encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
-                    encoder_.EncodeUInt32Value(1);
-                    EncodeStructArray(&encoder_, &bind_sparse_info, 1);
-                    encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
-                    WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
-
-                    parameter_stream_.Clear();
-
-                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
-
-                    WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
                 }
+                parameter_stream_.Clear();
             }
-            parameter_stream_.Clear();
 
             VkMemoryPropertyFlags memory_properties = 0;
             if (memory_wrapper != nullptr)
