@@ -2323,9 +2323,10 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         const uint8_t*                              bytes          = nullptr;
         std::vector<uint8_t>                        data;
 
-        GFXRECON_ASSERT((image_wrapper != nullptr) &&
-                        ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
-                         (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
+        GFXRECON_ASSERT(
+            (image_wrapper != nullptr) &&
+            (((image_wrapper->is_swapchain_image || image_wrapper->is_sparse_image) && memory_wrapper == nullptr) ||
+             ((!image_wrapper->is_swapchain_image && !image_wrapper->is_sparse_image) && memory_wrapper != nullptr)));
 
         GFXRECON_ASSERT(snapshot_entry.resource_size > 0);
 
@@ -2359,7 +2360,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             image_resources.emplace_back(image_resource);
             num_staging_bytes += image_resource.resource_size;
         }
-        else if (!image_wrapper->is_swapchain_image)
+        else if (!image_wrapper->is_swapchain_image && !image_wrapper->is_sparse_image)
         {
             assert((memory_wrapper != nullptr) &&
                    ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
