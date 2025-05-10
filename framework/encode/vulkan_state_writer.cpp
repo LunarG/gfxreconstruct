@@ -2613,49 +2613,52 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
             if (memory_wrapper != nullptr)
             {
-                // Write memory requirements query before bind command.
-                VkMemoryRequirements     memory_requirements;
-                const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
-                assert(device_table != nullptr);
-
-                device_table->GetBufferMemoryRequirements(
-                    device_wrapper->handle, wrapper->handle, &memory_requirements);
-
-                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                EncodeStructPtr(&encoder_, &memory_requirements);
-
-                WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
-                parameter_stream_.Clear();
-
-                // Write memory bind command.
-                if (wrapper->bind_pnext == nullptr)
+                if (write_memory_state)
                 {
+                    // Write memory requirements query before bind command.
+                    VkMemoryRequirements               memory_requirements;
+                    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+                    assert(device_table != nullptr);
+
+                    device_table->GetBufferMemoryRequirements(
+                        device_wrapper->handle, wrapper->handle, &memory_requirements);
+
                     encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                     encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                    encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                    encoder_.EncodeUInt64Value(wrapper->bind_offset);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    EncodeStructPtr(&encoder_, &memory_requirements);
 
-                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                    WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+                    parameter_stream_.Clear();
+
+                    // Write memory bind command.
+                    if (wrapper->bind_pnext == nullptr)
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                        encoder_.EncodeUInt64Value(wrapper->bind_offset);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                    }
+                    else
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeUInt32Value(1);
+
+                        VkBindBufferMemoryInfo info = {};
+                        info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+                        info.pNext                  = wrapper->bind_pnext;
+                        info.buffer                 = wrapper->handle;
+                        info.memory                 = memory_wrapper->handle;
+                        info.memoryOffset           = wrapper->bind_offset;
+                        EncodeStructArray(&encoder_, &info, 1);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
+                    }
+                    parameter_stream_.Clear();
                 }
-                else
-                {
-                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeUInt32Value(1);
-
-                    VkBindBufferMemoryInfo info = {};
-                    info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
-                    info.pNext                  = wrapper->bind_pnext;
-                    info.buffer                 = wrapper->handle;
-                    info.memory                 = memory_wrapper->handle;
-                    info.memoryOffset           = wrapper->bind_offset;
-                    EncodeStructArray(&encoder_, &info, 1);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
-
-                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
-                }
-                parameter_stream_.Clear();
 
                 // Group buffers with memory bindings by device for memory snapshot.
                 ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
@@ -2687,80 +2690,83 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
             GFXRECON_ASSERT((device_wrapper != nullptr) && (device_table != nullptr));
 
-            // We do not need to use sparse_resource_mutex for the access to the following sparse resource maps, as the
-            // writing states operation is included in the trim start handling, which is protected by an exclusive lock.
-            // No other API capturing handling occurs concurrently.
-            if (wrapper->sparse_memory_bind_map.size() != 0)
+            if (write_memory_state)
             {
-                std::vector<VkSparseMemoryBind> sparse_memory_binds;
-                VkSparseBufferMemoryBindInfo    buffer_memory_bind_info = {};
-
-                // Write memory requirements query before vkQueueBindSparse command. For sparse buffer, the alignment of
-                // VkMemoryRequirements is the sparse block size in bytes which represents both the memory alignment
-                // requirement and the binding granularity (in bytes) for sparse buffer.
-                VkMemoryRequirements memory_requirements;
-
-                device_table->GetBufferMemoryRequirements(
-                    device_wrapper->handle, wrapper->handle, &memory_requirements);
-
-                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                EncodeStructPtr(&encoder_, &memory_requirements);
-
-                WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
-                parameter_stream_.Clear();
-
-                const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
-                    vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
-
-                if ((wrapper->sparse_bind_queue != VK_NULL_HANDLE) && (sparse_bind_queue_wrapper != nullptr))
+                // We do not need to use sparse_resource_mutex for the access to the following sparse resource maps, as
+                // the writing states operation is included in the trim start handling, which is protected by an
+                // exclusive lock. No other API capturing handling occurs concurrently.
+                if (wrapper->sparse_memory_bind_map.size() != 0)
                 {
-                    for (auto& item : wrapper->sparse_memory_bind_map)
-                    {
-                        sparse_memory_binds.push_back(item.second);
-                    }
+                    std::vector<VkSparseMemoryBind> sparse_memory_binds;
+                    VkSparseBufferMemoryBindInfo    buffer_memory_bind_info = {};
 
-                    buffer_memory_bind_info.buffer    = wrapper->handle;
-                    buffer_memory_bind_info.bindCount = sparse_memory_binds.size();
-                    buffer_memory_bind_info.pBinds    = sparse_memory_binds.data();
+                    // Write memory requirements query before vkQueueBindSparse command. For sparse buffer, the
+                    // alignment of VkMemoryRequirements is the sparse block size in bytes which represents both the
+                    // memory alignment requirement and the binding granularity (in bytes) for sparse buffer.
+                    VkMemoryRequirements memory_requirements;
 
-                    VkBindSparseInfo bind_sparse_info{};
-                    bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
-                    bind_sparse_info.pNext                = nullptr;
-                    bind_sparse_info.waitSemaphoreCount   = 0;
-                    bind_sparse_info.pWaitSemaphores      = nullptr;
-                    bind_sparse_info.bufferBindCount      = 1;
-                    bind_sparse_info.pBufferBinds         = &buffer_memory_bind_info;
-                    bind_sparse_info.imageOpaqueBindCount = 0;
-                    bind_sparse_info.pImageOpaqueBinds    = nullptr;
-                    bind_sparse_info.imageBindCount       = 0;
-                    bind_sparse_info.pImageBinds          = nullptr;
-                    bind_sparse_info.signalSemaphoreCount = 0;
-                    bind_sparse_info.pSignalSemaphores    = nullptr;
-
-                    encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
-                    encoder_.EncodeUInt32Value(1);
-                    EncodeStructArray(&encoder_, &bind_sparse_info, 1);
-                    encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
-                    WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
-
-                    parameter_stream_.Clear();
+                    device_table->GetBufferMemoryRequirements(
+                        device_wrapper->handle, wrapper->handle, &memory_requirements);
 
                     encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                    EncodeStructPtr(&encoder_, &memory_requirements);
 
-                    WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
+                    WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+                    parameter_stream_.Clear();
+
+                    const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+
+                    if ((wrapper->sparse_bind_queue != VK_NULL_HANDLE) && (sparse_bind_queue_wrapper != nullptr))
+                    {
+                        for (auto& item : wrapper->sparse_memory_bind_map)
+                        {
+                            sparse_memory_binds.push_back(item.second);
+                        }
+
+                        buffer_memory_bind_info.buffer    = wrapper->handle;
+                        buffer_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        buffer_memory_bind_info.pBinds    = sparse_memory_binds.data();
+
+                        VkBindSparseInfo bind_sparse_info{};
+                        bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+                        bind_sparse_info.pNext                = nullptr;
+                        bind_sparse_info.waitSemaphoreCount   = 0;
+                        bind_sparse_info.pWaitSemaphores      = nullptr;
+                        bind_sparse_info.bufferBindCount      = 1;
+                        bind_sparse_info.pBufferBinds         = &buffer_memory_bind_info;
+                        bind_sparse_info.imageOpaqueBindCount = 0;
+                        bind_sparse_info.pImageOpaqueBinds    = nullptr;
+                        bind_sparse_info.imageBindCount       = 0;
+                        bind_sparse_info.pImageBinds          = nullptr;
+                        bind_sparse_info.signalSemaphoreCount = 0;
+                        bind_sparse_info.pSignalSemaphores    = nullptr;
+
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+                        encoder_.EncodeUInt32Value(1);
+                        EncodeStructArray(&encoder_, &bind_sparse_info, 1);
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+                        WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
+
+                        parameter_stream_.Clear();
+
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Unable to generate vkQueueBindSparse for the sparse buffer (id = %d) due to "
+                            "the related sparse bind queue or its wrapper is invalid.",
+                            wrapper->handle_id);
+                    }
                 }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Unable to generate vkQueueBindSparse for the sparse buffer (id = %d) due to "
-                                         "the related sparse bind queue or its wrapper is invalid.",
-                                         wrapper->handle_id);
-                }
+                parameter_stream_.Clear();
             }
-
-            parameter_stream_.Clear();
 
             // Group buffers with memory bindings by device for memory snapshot.
             ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
