@@ -32,6 +32,7 @@
 
 #include <vector>
 #include <functional>
+#include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -299,6 +300,76 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
                          uint32_t*                               found_index,
                          VkMemoryPropertyFlags*                  found_flags);
 
+struct VkOffset3DComparator
+{
+    bool operator()(const VkOffset3D& l, const VkOffset3D& r) const
+    {
+        bool result = (l.x < r.x);
+
+        if (l.x == r.x)
+        {
+            result = (l.y < r.y);
+
+            if (l.y == r.y)
+            {
+                result = (l.z < r.z);
+            }
+        }
+
+        return result;
+    }
+};
+
+typedef std::map<VkOffset3D, VkSparseImageMemoryBind, gfxrecon::graphics::VkOffset3DComparator>
+    VulkanOffset3DSparseImageMemoryBindMap;
+
+struct VkImageSubresourceComparator
+{
+    bool operator()(const VkImageSubresource& l, const VkImageSubresource& r) const
+    {
+        bool result = (l.arrayLayer < r.arrayLayer);
+
+        if (l.arrayLayer == r.arrayLayer)
+        {
+            result = (l.mipLevel < r.mipLevel);
+
+            if (l.mipLevel == r.mipLevel)
+            {
+                result = (l.aspectMask < r.aspectMask);
+            }
+        }
+
+        return result;
+    }
+};
+
+typedef std::
+    map<VkImageSubresource, VulkanOffset3DSparseImageMemoryBindMap, gfxrecon::graphics::VkImageSubresourceComparator>
+        VulkanSubresourceSparseImageMemoryBindMap;
+
+// Get the intersection of the new bind range and the existing bind range for sparse buffer or sparse image (opaque
+// bind).
+// If the intersection range exists, further get the remaining ranges for the existing bind range after removing
+// the intersection range. For instance, if the new/existing bind range (offset, size)  are (196608, 327680) and (0,
+// 655360) respectively, the old range (0, 655360) completely covers the new range (196608, 327680). The intersection
+// range is (196608, 327680), and the remaining ranges for the existing bind are (0, 196608) and (524288, 131072). So
+// for the return of the function, remaining_resource_offsets will be a std::vector of [0, 524288], and
+// remaining_resource_sizes will be [196608, 131072].
+//
+bool GetIntersectForSparseMemoryBind(uint32_t               new_bind_resource_offset,
+                                     uint32_t               new_bind_resource_size,
+                                     uint32_t               existing_bind_resource_offset,
+                                     uint32_t               existing_bind_resource_size,
+                                     uint32_t&              intersection_resource_offset,
+                                     uint32_t&              intersection_resource_size,
+                                     std::vector<uint32_t>& remaining_resource_offsets,
+                                     std::vector<uint32_t>& remaining_resource_sizes,
+                                     bool&                  new_bind_range_include_existing_bind_tange,
+                                     bool&                  existing_bind_range_include_new_bind_tange);
+
+void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& sparse_memory_bind_map,
+                               const VkSparseMemoryBind&                   new_sparse_memory_bind);
+
 bool GetImageTexelSize(VkFormat      format,
                        VkDeviceSize* texel_size,
                        bool*         is_texel_block_size,
@@ -342,7 +413,7 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
                              uint32_t&         z,
                              uint32_t&         layer);
 
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
-GFXRECON_END_NAMESPACE(encode)
 
 #endif /* GFXRECON_GRAPHICS_VULKAN_RESOURCES_UTIL_H */
