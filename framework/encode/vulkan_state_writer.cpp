@@ -2080,7 +2080,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
     {
         const vulkan_wrappers::BufferWrapper*       buffer_wrapper = snapshot_entry.buffer_wrapper;
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper = snapshot_entry.memory_wrapper;
-        GFXRECON_ASSERT((buffer_wrapper != nullptr) && (memory_wrapper != nullptr));
+        GFXRECON_ASSERT(buffer_wrapper != nullptr);
 
         BufferResource buffer_resource;
         buffer_resource.handle_id          = buffer_wrapper->handle_id;
@@ -2096,6 +2096,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         }
         else
         {
+            GFXRECON_ASSERT(memory_wrapper != nullptr);
             GFXRECON_ASSERT((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
             const uint8_t* bytes  = nullptr;
             VkResult       result = VK_SUCCESS;
@@ -2322,9 +2323,10 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         const uint8_t*                              bytes          = nullptr;
         std::vector<uint8_t>                        data;
 
-        GFXRECON_ASSERT((image_wrapper != nullptr) &&
-                        ((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
-                         (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr)));
+        GFXRECON_ASSERT(
+            (image_wrapper != nullptr) &&
+            (((image_wrapper->is_swapchain_image || image_wrapper->is_sparse_image) && memory_wrapper == nullptr) ||
+             ((!image_wrapper->is_swapchain_image && !image_wrapper->is_sparse_image) && memory_wrapper != nullptr)));
 
         GFXRECON_ASSERT(snapshot_entry.resource_size > 0);
 
@@ -2358,7 +2360,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             image_resources.emplace_back(image_resource);
             num_staging_bytes += image_resource.resource_size;
         }
-        else if (!image_wrapper->is_swapchain_image)
+        else if (!image_wrapper->is_swapchain_image && !image_wrapper->is_sparse_image)
         {
             assert((memory_wrapper != nullptr) &&
                    ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
@@ -2598,63 +2600,171 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                                                VkDeviceSize*           max_staging_copy_size,
                                                bool                    write_memory_state)
 {
-    assert((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
+    GFXRECON_ASSERT((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* wrapper) {
-        assert(wrapper != nullptr);
-
-        // Perform memory binding.
-        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
-            state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
-
-        if (memory_wrapper != nullptr)
+        GFXRECON_ASSERT(wrapper != nullptr);
+        if (!wrapper->is_sparse_buffer)
         {
             const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
             assert(device_wrapper != nullptr);
+            // Perform memory binding for non-sparse buffer.
+            const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
+                state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
+
+            if (memory_wrapper != nullptr)
+            {
+                if (write_memory_state)
+                {
+                    // Write memory requirements query before bind command.
+                    VkMemoryRequirements               memory_requirements;
+                    const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
+                    assert(device_table != nullptr);
+
+                    device_table->GetBufferMemoryRequirements(
+                        device_wrapper->handle, wrapper->handle, &memory_requirements);
+
+                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                    encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                    EncodeStructPtr(&encoder_, &memory_requirements);
+
+                    WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+                    parameter_stream_.Clear();
+
+                    // Write memory bind command.
+                    if (wrapper->bind_pnext == nullptr)
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                        encoder_.EncodeUInt64Value(wrapper->bind_offset);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                    }
+                    else
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeUInt32Value(1);
+
+                        VkBindBufferMemoryInfo info = {};
+                        info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+                        info.pNext                  = wrapper->bind_pnext;
+                        info.buffer                 = wrapper->handle;
+                        info.memory                 = memory_wrapper->handle;
+                        info.memoryOffset           = wrapper->bind_offset;
+                        EncodeStructArray(&encoder_, &info, 1);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
+                    }
+                    parameter_stream_.Clear();
+                }
+
+                // Group buffers with memory bindings by device for memory snapshot.
+                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
+                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+
+                BufferSnapshotInfo snapshot_info;
+                snapshot_info.buffer_wrapper    = wrapper;
+                snapshot_info.memory_wrapper    = memory_wrapper;
+                snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
+                snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
+
+                if ((*max_resource_size) < wrapper->created_size)
+                {
+                    (*max_resource_size) = wrapper->created_size;
+                }
+
+                if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->created_size))
+                {
+                    (*max_staging_copy_size) = wrapper->created_size;
+                }
+
+                snapshot_entry.buffers.emplace_back(snapshot_info);
+            }
+        }
+        else
+        {
+            // Perform memory binding for sparse buffer.
+            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
+            GFXRECON_ASSERT((device_wrapper != nullptr) && (device_table != nullptr));
 
             if (write_memory_state)
             {
-                // Write memory requirements query before bind command.
-                VkMemoryRequirements     memory_requirements;
-                const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
-                assert(device_table != nullptr);
-
-                device_table->GetBufferMemoryRequirements(
-                    device_wrapper->handle, wrapper->handle, &memory_requirements);
-
-                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                EncodeStructPtr(&encoder_, &memory_requirements);
-
-                WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
-                parameter_stream_.Clear();
-
-                // Write memory bind command.
-                if (wrapper->bind_pnext == nullptr)
+                // We do not need to use sparse_resource_mutex for the access to the following sparse resource maps, as
+                // the writing states operation is included in the trim start handling, which is protected by an
+                // exclusive lock. No other API capturing handling occurs concurrently.
+                if (wrapper->sparse_memory_bind_map.size() != 0)
                 {
+                    std::vector<VkSparseMemoryBind> sparse_memory_binds;
+                    VkSparseBufferMemoryBindInfo    buffer_memory_bind_info = {};
+
+                    // Write memory requirements query before vkQueueBindSparse command. For sparse buffer, the
+                    // alignment of VkMemoryRequirements is the sparse block size in bytes which represents both the
+                    // memory alignment requirement and the binding granularity (in bytes) for sparse buffer.
+                    VkMemoryRequirements memory_requirements;
+
+                    device_table->GetBufferMemoryRequirements(
+                        device_wrapper->handle, wrapper->handle, &memory_requirements);
+
                     encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                     encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                    encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                    encoder_.EncodeUInt64Value(wrapper->bind_offset);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    EncodeStructPtr(&encoder_, &memory_requirements);
 
-                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
-                }
-                else
-                {
-                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeUInt32Value(1);
+                    WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+                    parameter_stream_.Clear();
 
-                    VkBindBufferMemoryInfo info = {};
-                    info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
-                    info.pNext                  = wrapper->bind_pnext;
-                    info.buffer                 = wrapper->handle;
-                    info.memory                 = memory_wrapper->handle;
-                    info.memoryOffset           = wrapper->bind_offset;
-                    EncodeStructArray(&encoder_, &info, 1);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
 
-                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
+                    if ((wrapper->sparse_bind_queue != VK_NULL_HANDLE) && (sparse_bind_queue_wrapper != nullptr))
+                    {
+                        for (auto& item : wrapper->sparse_memory_bind_map)
+                        {
+                            sparse_memory_binds.push_back(item.second);
+                        }
+
+                        buffer_memory_bind_info.buffer    = wrapper->handle;
+                        buffer_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        buffer_memory_bind_info.pBinds    = sparse_memory_binds.data();
+
+                        VkBindSparseInfo bind_sparse_info{};
+                        bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+                        bind_sparse_info.pNext                = nullptr;
+                        bind_sparse_info.waitSemaphoreCount   = 0;
+                        bind_sparse_info.pWaitSemaphores      = nullptr;
+                        bind_sparse_info.bufferBindCount      = 1;
+                        bind_sparse_info.pBufferBinds         = &buffer_memory_bind_info;
+                        bind_sparse_info.imageOpaqueBindCount = 0;
+                        bind_sparse_info.pImageOpaqueBinds    = nullptr;
+                        bind_sparse_info.imageBindCount       = 0;
+                        bind_sparse_info.pImageBinds          = nullptr;
+                        bind_sparse_info.signalSemaphoreCount = 0;
+                        bind_sparse_info.pSignalSemaphores    = nullptr;
+
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+                        encoder_.EncodeUInt32Value(1);
+                        EncodeStructArray(&encoder_, &bind_sparse_info, 1);
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+                        WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
+
+                        parameter_stream_.Clear();
+
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Unable to generate vkQueueBindSparse for the sparse buffer (id = %d) due to "
+                            "the related sparse bind queue or its wrapper is invalid.",
+                            wrapper->handle_id);
+                    }
                 }
                 parameter_stream_.Clear();
             }
@@ -2664,10 +2774,16 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
 
             BufferSnapshotInfo snapshot_info;
-            snapshot_info.buffer_wrapper    = wrapper;
-            snapshot_info.memory_wrapper    = memory_wrapper;
-            snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
-            snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
+            snapshot_info.buffer_wrapper = wrapper;
+            snapshot_info.memory_wrapper = nullptr;
+
+            // We enforce the memory properties to be `VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT`, and we set
+            // `need_staging_copy` to true for sparse buffers. When dumping buffer data, there are two distinct code
+            // paths: one involves a staging copy, while the other requires mapping host-visible memory. This latter
+            // method requires the buffer to be bound to a single range of a single memory, which is not applicable for
+            // sparse buffers. Therefore, we set the two values to use staging copy for dumping sparse buffers.
+            snapshot_info.memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            snapshot_info.need_staging_copy = true; // Staging copy is needed for sparse buffer.
 
             if ((*max_resource_size) < wrapper->size)
             {
@@ -2700,7 +2816,8 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             state_table.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
 
         if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
-            (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
+            (!wrapper->is_swapchain_image && memory_wrapper != nullptr) ||
+            (!wrapper->is_swapchain_image && wrapper->is_sparse_image && wrapper->bind_device != nullptr))
         {
             const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
             assert(device_wrapper != nullptr);
@@ -2708,7 +2825,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             // Write memory requirements query before bind command.
             if (write_memory_state)
             {
-                VkMemoryRequirements     memory_requirements;
+                VkMemoryRequirements               memory_requirements;
                 const graphics::VulkanDeviceTable* device_table = &device_wrapper->layer_table;
                 assert(device_table != nullptr);
 
@@ -2722,31 +2839,112 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 parameter_stream_.Clear();
 
                 // Write memory bind command.
-                if (wrapper->bind_pnext == nullptr)
+                if (!wrapper->is_sparse_image)
                 {
-                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                    encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                    encoder_.EncodeUInt64Value(wrapper->bind_offset);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    if (wrapper->bind_pnext == nullptr)
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                        encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                        encoder_.EncodeUInt64Value(wrapper->bind_offset);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
 
-                    WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+                        WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+                    }
+                    else
+                    {
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeUInt32Value(1);
+
+                        VkBindImageMemoryInfo info = {};
+                        info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
+                        info.pNext                 = wrapper->bind_pnext;
+                        info.image                 = wrapper->handle;
+                        info.memory                = memory_wrapper->handle;
+                        info.memoryOffset          = wrapper->bind_offset;
+                        EncodeStructArray(&encoder_, &info, 1);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
+                    }
                 }
                 else
                 {
-                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                    encoder_.EncodeUInt32Value(1);
+                    const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+                    const graphics::VulkanDeviceTable*    device_table   = &device_wrapper->layer_table;
+                    assert((device_wrapper != nullptr) && (device_table != nullptr));
 
-                    VkBindImageMemoryInfo info = {};
-                    info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
-                    info.pNext                 = wrapper->bind_pnext;
-                    info.image                 = wrapper->handle;
-                    info.memory                = memory_wrapper->handle;
-                    info.memoryOffset          = wrapper->bind_offset;
-                    EncodeStructArray(&encoder_, &info, 1);
-                    encoder_.EncodeEnumValue(VK_SUCCESS);
+                    const vulkan_wrappers::QueueWrapper* sparse_bind_queue_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
 
-                    WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
+                    GFXRECON_ASSERT((wrapper->sparse_bind_queue != VK_NULL_HANDLE) &&
+                                    (sparse_bind_queue_wrapper != nullptr));
+
+                    if ((wrapper->sparse_opaque_memory_bind_map.size() != 0) ||
+                        (wrapper->sparse_subresource_memory_bind_map.size() != 0))
+                    {
+                        std::vector<VkSparseMemoryBind>   sparse_memory_binds;
+                        VkSparseImageOpaqueMemoryBindInfo image_opaque_memory_bind_info = {};
+
+                        for (auto& item : wrapper->sparse_opaque_memory_bind_map)
+                        {
+                            sparse_memory_binds.push_back(item.second);
+                        }
+
+                        image_opaque_memory_bind_info.image     = wrapper->handle;
+                        image_opaque_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        image_opaque_memory_bind_info.pBinds =
+                            (sparse_memory_binds.size() == 0) ? nullptr : sparse_memory_binds.data();
+
+                        std::vector<VkSparseImageMemoryBind> sparse_image_memory_binds;
+                        VkSparseImageMemoryBindInfo          image_memory_bind_info = {};
+
+                        for (auto& subresource_bind_map : wrapper->sparse_subresource_memory_bind_map)
+                        {
+                            auto& offset_3d_to_memory_range_map = subresource_bind_map.second;
+
+                            for (auto& item : offset_3d_to_memory_range_map)
+                            {
+                                sparse_image_memory_binds.push_back(item.second);
+                            }
+                        }
+
+                        image_memory_bind_info.image     = wrapper->handle;
+                        image_memory_bind_info.bindCount = sparse_image_memory_binds.size();
+                        image_memory_bind_info.pBinds =
+                            (sparse_image_memory_binds.size() == 0) ? nullptr : sparse_image_memory_binds.data();
+
+                        VkBindSparseInfo bind_sparse_info{};
+
+                        bind_sparse_info.sType                = VK_STRUCTURE_TYPE_BIND_SPARSE_INFO;
+                        bind_sparse_info.pNext                = nullptr;
+                        bind_sparse_info.waitSemaphoreCount   = 0;
+                        bind_sparse_info.pWaitSemaphores      = nullptr;
+                        bind_sparse_info.bufferBindCount      = 0;
+                        bind_sparse_info.pBufferBinds         = nullptr;
+                        bind_sparse_info.imageOpaqueBindCount = (image_opaque_memory_bind_info.bindCount == 0) ? 0 : 1;
+                        bind_sparse_info.pImageOpaqueBinds =
+                            (image_opaque_memory_bind_info.bindCount == 0) ? nullptr : &image_opaque_memory_bind_info;
+                        bind_sparse_info.imageBindCount = (image_memory_bind_info.bindCount == 0) ? 0 : 1;
+                        bind_sparse_info.pImageBinds =
+                            (image_memory_bind_info.bindCount == 0) ? nullptr : &image_memory_bind_info;
+                        bind_sparse_info.signalSemaphoreCount = 0;
+                        bind_sparse_info.pSignalSemaphores    = nullptr;
+
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::QueueWrapper>(wrapper->sparse_bind_queue);
+                        encoder_.EncodeUInt32Value(1);
+                        EncodeStructArray(&encoder_, &bind_sparse_info, 1);
+                        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::FenceWrapper>(VK_NULL_HANDLE);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+                        WriteFunctionCall(format::ApiCall_vkQueueBindSparse, &parameter_stream_);
+
+                        parameter_stream_.Clear();
+
+                        encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                        encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                        WriteFunctionCall(format::ApiCall_vkDeviceWaitIdle, &parameter_stream_);
+                    }
                 }
                 parameter_stream_.Clear();
             }
@@ -2763,6 +2961,13 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 (wrapper->tiling == VK_IMAGE_TILING_LINEAR) &&
                 ((memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
+            if (wrapper->is_sparse_image)
+            {
+                // The process for dumping host-visible image data requires binding the entire image to a single memory
+                // range. Since this is not applicable to sparse images, we set is_writable to false.
+                is_writable = false;
+            }
+
             // If an image is not host writable and has not been transitioned from the undefined or preinitialized
             // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
             if (is_transitioned || is_writable)
@@ -2776,7 +2981,11 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                             *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->physical_device->memory_properties);
 
-                bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
+                // Sparse images require staging copy for the following process because dumping image data with mapping
+                // memory needs binding the entire image to a single memory range. Sparse image opaque binding allows
+                // binding to multiple memory objects and various memory ranges.
+                bool need_staging_copy =
+                    !IsImageReadable(memory_properties, memory_wrapper, wrapper) || wrapper->is_sparse_image;
 
                 std::vector<VkImageAspectFlagBits> aspects;
                 bool                               combined_depth_stencil;

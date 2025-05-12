@@ -608,6 +608,13 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
+    wrapper->created_size = create_info->size;
+
+    if ((create_info->flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) != 0)
+    {
+        wrapper->is_sparse_buffer = true;
+    }
+
     // TODO: Do we need to track the queue family that the buffer is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
     {
@@ -640,6 +647,11 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     wrapper->array_layers = create_info->arrayLayers;
     wrapper->samples      = create_info->samples;
     wrapper->tiling       = create_info->tiling;
+
+    if ((create_info->flags & VK_IMAGE_CREATE_SPARSE_BINDING_BIT) != 0)
+    {
+        wrapper->is_sparse_image = true;
+    }
 
     // TODO: Do we need to track the queue family that the image is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
