@@ -449,7 +449,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     bool IsUsedByAsyncTask(uint64_t handle) const { return async_tracked_handles_.count(handle) > 0; }
 
     //! returns true if asynchronous operations should be used at all
-    bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0 && !options_.dumping_resources; }
+    bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0; }
 
     //! returns a thread-safe queue, that is polled on the main-thread, at the beginning of a new block
     util::ThreadPool& MainThreadQueue() { return main_thread_queue_; }
