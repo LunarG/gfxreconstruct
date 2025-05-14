@@ -141,6 +141,7 @@ class ApiData():
         opaque_func_name_mod        - The name used to indicate a function is processing opaque
         return_type_enum            - The name of the enum type used to return common return values
         return_type_success_value   - The value of a successs
+        insufficient_list_size_error - The error code returned for an insufficient size of get/enum calls
         instance_type               - The name of the type used to store an instance
         get_instance_proc_addr      - The name of the function to get instance proc addresses
         create_instance_app_func    - The name of the function to create an instance through an application
@@ -187,6 +188,7 @@ class ApiData():
             opaque_func_name_mod,
             return_type_enum,
             return_type_success_value,
+            insufficient_list_size_error,
             instance_type,
             get_instance_proc_addr,
             create_instance_app_func,
@@ -231,6 +233,7 @@ class ApiData():
         self.opaque_func_name_mod  = opaque_func_name_mod
         self.return_type_enum = return_type_enum
         self.return_type_success_value  = return_type_success_value
+        self.insufficient_list_size_error = insufficient_list_size_error
         self.instance_type = instance_type
         self.get_instance_proc_addr = get_instance_proc_addr
         self.create_instance_app_func = create_instance_app_func
@@ -527,6 +530,7 @@ class KhronosBaseGenerator(OutputGenerator):
         self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
 
         self.all_cmd_params = OrderedDict()                    # Map of cmd names to lists of per-parameter ValueInfo
+        self.all_cmd_errors = OrderedDict()                    # Map of cmd names to lists of error messages the command can receive
         self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
 
         self.structs_with_handles = OrderedDict(
@@ -573,6 +577,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 opaque_func_name_mod='',
                 return_type_enum='VkResult',
                 return_type_success_value='VK_SUCCESS',
+                insufficient_list_size_error='VK_INCOMPLETE',
                 instance_type='VkInstance',
                 get_instance_proc_addr='vkGetInstanceProcAddr',
                 create_instance_app_func='vkCreateInstance',
@@ -621,6 +626,7 @@ class KhronosBaseGenerator(OutputGenerator):
                 opaque_func_name_mod='Opaque',
                 return_type_enum='XrResult',
                 return_type_success_value='XR_SUCCESS',
+                insufficient_list_size_error='XR_ERROR_SIZE_INSUFFICIENT',
                 instance_type='XrInstance',
                 get_instance_proc_addr='xrGetInstanceProcAddr',
                 create_instance_app_func='xrCreateInstance',
@@ -1635,6 +1641,15 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # Create the declaration for the function prototype
         proto = cmdinfo.elem.find('proto')
+
+        # If there are error codes, add them to the list for this command
+        errorcodes = cmdinfo.elem.get('errorcodes')
+        if errorcodes is not None:
+            errors = []
+            for error in errorcodes.split(','):
+                errors.append(error)
+            self.all_cmd_errors[name] = errors
+
         proto_decl = self.genOpts.apicall + noneStr(proto.text)
         for elem in proto:
             text = noneStr(elem.text)
