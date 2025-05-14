@@ -30,39 +30,35 @@ class KhronosLayerFuncTableGenerator():
     Generates C++ function table for Khronos Vulkan API calls exported by the layer.
     """
 
-    def write_layer_func_table_contents(self, skip_func_list, align_col, table_name_suffix=''):
+    def write_layer_func_table_contents(self, skip_func_list, align_col, table_name_suffix='', skip_var_definition=False):
         api_data = self.get_api_data()
 
         table_name = '{}_func_table'.format(api_data.api_name.lower())
+        get_table_name = 'Get{}FuncTable'.format(api_data.api_name)
+
         skip_func_namespace = '{}_entry'.format(api_data.api_name.lower())
         if(table_name_suffix):
-            table_name += '_{}'.format(table_name_suffix)
-            skip_func_namespace += '_{}'.format(table_name_suffix)
+            table_name += '_{}'.format(table_name_suffix.lower())
+            skip_func_namespace += '_{}'.format(table_name_suffix.lower())
+            get_table_name += '{}'.format(table_name_suffix)
 
+        # Write the static function to get the table.
         write(
-            'const std::unordered_map<std::string, {}>'.
-            format(api_data.void_func_pointer_type),
-            file=self.outFile
-        )
-        write('#if !defined(WIN32)', file=self.outFile)
-        write('  // Ensure function table is initialized before __attribute__((constructor)) static void create_trace_layer()', file=self.outFile)
-        write('  __attribute__ ((init_priority (101))) ', file=self.outFile)
-        write('#endif // !defined(WIN32)', file=self.outFile)
-        write(
-            '  {} = {{'.
-            format(table_name),
-            file=self.outFile
-        )
+            'static const std::unordered_map<std::string, {}> {}() {{'.format(
+                api_data.void_func_pointer_type, get_table_name),
+            file=self.outFile)
+
+        write('    return {', file=self.outFile)
 
         for cmd in self.get_all_filtered_cmd_names():
             align = align_col - len(cmd)
             if (cmd in skip_func_list):
-                body = '    {{ "{}",{}reinterpret_cast<{}>({}::{}) }},'.format(
+                body = '        {{ "{}",{}reinterpret_cast<{}>({}::{}) }},'.format(
                     cmd, (' ' * align), api_data.void_func_pointer_type,
                     skip_func_namespace, cmd[2:]
                 )
             else:
-                body = '    {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
+                body = '        {{ "{}",{}reinterpret_cast<{}>(encode::{}) }},'.format(
                     cmd, (' ' * align), api_data.void_func_pointer_type,
                     cmd
                 )
@@ -70,7 +66,15 @@ class KhronosLayerFuncTableGenerator():
 
         self.write_custom_layer_func_table_contents(api_data, align_col)
 
-        write('};', file=self.outFile)
+        write('    };', file=self.outFile)
+        write('}', file=self.outFile)
+
+        if not skip_var_definition:
+            # Create the global static var using the above function.
+            self.newline()
+            write('static const auto {} = {}();'.format(
+                table_name, get_table_name),
+                  file=self.outFile)
 
     def write_custom_layer_func_table_contents(self, api_data, align_col):
         """ May be overridden """
