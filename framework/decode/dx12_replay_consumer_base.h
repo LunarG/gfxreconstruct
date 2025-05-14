@@ -560,28 +560,33 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
         auto resource_object_info = GetObjectInfo(*resource->GetPointer());
 
-        GFXRECON_ASSERT(resource_object_info != nullptr);
-
-        if (resource_object_info->extra_info == nullptr)
+        // GetObjectInfo() can return a null pointer if resource creation succeeded at replay but failed at capture. For
+        // this case, the created resource will not have a valid capture ID and will be released instead of being added
+        // to the object table.
+        if (resource_object_info != nullptr)
         {
-            auto resource_info               = std::make_unique<D3D12ResourceInfo>();
-            resource_object_info->extra_info = std::move(resource_info);
+
+            if (resource_object_info->extra_info == nullptr)
+            {
+                auto resource_info               = std::make_unique<D3D12ResourceInfo>();
+                resource_object_info->extra_info = std::move(resource_info);
+            }
+
+            auto extra_info = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
+
+            extra_info->desc.Dimension        = desc->GetPointer()->Dimension;
+            extra_info->desc.Alignment        = desc->GetPointer()->Alignment;
+            extra_info->desc.Width            = desc->GetPointer()->Width;
+            extra_info->desc.Height           = desc->GetPointer()->Height;
+            extra_info->desc.DepthOrArraySize = desc->GetPointer()->DepthOrArraySize;
+            extra_info->desc.MipLevels        = desc->GetPointer()->MipLevels;
+            extra_info->desc.Format           = desc->GetPointer()->Format;
+            extra_info->desc.SampleDesc       = desc->GetPointer()->SampleDesc;
+            extra_info->desc.Layout           = desc->GetPointer()->Layout;
+            extra_info->desc.Flags            = desc->GetPointer()->Flags;
+
+            SetResourceSamplerFeedbackMipRegion(extra_info->desc, desc->GetPointer());
         }
-
-        auto extra_info = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
-
-        extra_info->desc.Dimension        = desc->GetPointer()->Dimension;
-        extra_info->desc.Alignment        = desc->GetPointer()->Alignment;
-        extra_info->desc.Width            = desc->GetPointer()->Width;
-        extra_info->desc.Height           = desc->GetPointer()->Height;
-        extra_info->desc.DepthOrArraySize = desc->GetPointer()->DepthOrArraySize;
-        extra_info->desc.MipLevels        = desc->GetPointer()->MipLevels;
-        extra_info->desc.Format           = desc->GetPointer()->Format;
-        extra_info->desc.SampleDesc       = desc->GetPointer()->SampleDesc;
-        extra_info->desc.Layout           = desc->GetPointer()->Layout;
-        extra_info->desc.Flags            = desc->GetPointer()->Flags;
-
-        SetResourceSamplerFeedbackMipRegion(extra_info->desc, desc->GetPointer());
     };
 
     HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
