@@ -10626,7 +10626,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     VkPipelineCache override_pipeline_cache = in_pipeline_cache;
 
     // If there is no pipeline cache and we want to create a new one
-
     if (in_pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
     {
         override_pipeline_cache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
@@ -10656,7 +10655,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
                                   out_pipelines);
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
-
     if (in_pipeline_cache != override_pipeline_cache && replay_result == VK_SUCCESS)
     {
         TrackNewPipelineCache(device_info,
@@ -10957,6 +10955,14 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     VkPipelineCache                     pipeline_cache_handle =
         (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
+    auto override_pipeline_cache = pipeline_cache_handle;
+
+    // If there is no pipeline cache and we want to create a new one
+    if (pipeline_cache_handle == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    {
+        override_pipeline_cache = CreateNewPipelineCache(device_info, *pPipelines->GetPointer());
+    }
+
     // populate VulkanPipelineInfo structs with information related to shader-modules
     graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
 
@@ -10970,14 +10976,14 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
-    std::vector<format::HandleId> pipelines(createInfoCount);
+    std::vector<format::HandleId> pipeline_ids(createInfoCount);
 
     // extract handle-dependencies and track those
     auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
     std::function<void()> sync_fn;
     if (pPipelines != nullptr && createInfoCount > 0)
     {
-        std::copy_n(pPipelines->GetPointer(), createInfoCount, pipelines.begin());
+        std::copy_n(pPipelines->GetPointer(), createInfoCount, pipeline_ids.begin());
 
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
@@ -10987,8 +10993,9 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
-                 device_handle,
+                 device_info,
                  pipeline_cache_handle,
+                 override_pipeline_cache,
                  func,
                  returnValue,
                  call_info,
@@ -10996,22 +11003,44 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
-                 pipelines        = std::move(pipelines)]() mutable -> handle_create_result_t<VkPipeline> {
+                 pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto                    create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
 
         std::vector<std::unique_ptr<char[]>> replaced_file_code;
         if (returnValue >= 0 && !options_.replace_shader_dir.empty())
         {
-            replaced_file_code = ReplaceShaders(createInfoCount, create_infos, pipelines.data());
+            replaced_file_code = ReplaceShaders(createInfoCount, create_infos, pipeline_ids.data());
         }
 
-        VkResult replay_result = func(
-            device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
+        VkResult replay_result = func(device_info->handle,
+                                      override_pipeline_cache,
+                                      createInfoCount,
+                                      create_infos,
+                                      in_pAllocator,
+                                      out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
 
         // schedule dependency-clear on main-thread
-        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        MainThreadQueue().post([this,
+                                device_info,
+                                replay_result,
+                                handle_deps = std::move(handle_deps),
+                                pipeline_cache_handle,
+                                override_pipeline_cache,
+                                pipeline_id      = pipeline_ids.front(),
+                                pipeline_handles = out_pipelines.data(),
+                                num_pipelines    = out_pipelines.size()] {
+            // asynchronous operation is done. clear tracked handles, call deferred deletes
+            ClearAsyncHandles(handle_deps);
+
+            // if a pipeline cache was created, track it to know when to destroy it/save it to file
+            if (pipeline_cache_handle != override_pipeline_cache && replay_result == VK_SUCCESS)
+            {
+                TrackNewPipelineCache(
+                    device_info, pipeline_id, override_pipeline_cache, pipeline_handles, num_pipelines);
+            }
+        });
         return { replay_result, std::move(out_pipelines) };
     };
     return task;
