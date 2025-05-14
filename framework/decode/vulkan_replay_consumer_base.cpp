@@ -10614,15 +10614,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     const VkGraphicsPipelineCreateInfo* in_p_create_infos         = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*        in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
     VkPipeline*                         out_pipelines             = pPipelines->GetHandlePointer();
-    VkPipelineCache in_pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
-    VkPipelineCache override_pipeline_cache = in_pipeline_cache;
+    VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
-    if (in_pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    if (pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
     {
         cache_pipeline_id = *pPipelines->GetPointer();
-        override_pipeline_cache = CreateNewPipelineCache(device_info, cache_pipeline_id);
+        pipeline_cache    = CreateNewPipelineCache(device_info, cache_pipeline_id);
     }
 
     std::vector<uint8_t>                 create_info_data;
@@ -10642,7 +10641,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     }
 
     VkResult replay_result = func(in_device,
-                                  override_pipeline_cache,
+                                  pipeline_cache,
                                   create_info_count,
                                   maybe_replaced_create_infos,
                                   in_p_allocation_callbacks,
@@ -10651,11 +10650,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
     if (cache_pipeline_id != format::kNullHandleId)
     {
-        TrackNewPipelineCache(device_info,
-                              cache_pipeline_id,
-                              override_pipeline_cache,
-                              pPipelines->GetHandlePointer(),
-                              create_info_count);
+        TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, out_pipelines, create_info_count);
     }
 
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
@@ -10691,32 +10686,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     const VkComputePipelineCreateInfo* in_p_create_infos         = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*       in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
     VkPipeline*                        out_pipelines             = pPipelines->GetHandlePointer();
-    VkPipelineCache in_pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
-    VkPipelineCache override_pipeline_cache = in_pipeline_cache;
+    VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
-    if (in_pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
+    if (pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
     {
         cache_pipeline_id = *pPipelines->GetPointer();
-        override_pipeline_cache = CreateNewPipelineCache(device_info, cache_pipeline_id);
+        pipeline_cache    = CreateNewPipelineCache(device_info, cache_pipeline_id);
     }
 
-    VkResult replay_result = func(in_device,
-                                  override_pipeline_cache,
-                                  create_info_count,
-                                  in_p_create_infos,
-                                  in_p_allocation_callbacks,
-                                  out_pipelines);
+    VkResult replay_result =
+        func(in_device, pipeline_cache, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_pipelines);
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
-    if (in_pipeline_cache != override_pipeline_cache && replay_result == VK_SUCCESS)
+    if (cache_pipeline_id != format::kNullHandleId)
     {
-        TrackNewPipelineCache(device_info,
-                              *pPipelines->GetPointer(),
-                              override_pipeline_cache,
-                              pPipelines->GetHandlePointer(),
-                              create_info_count);
+        TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, out_pipelines, create_info_count);
     }
 
     if (replay_result == VK_SUCCESS)
