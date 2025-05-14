@@ -65,6 +65,28 @@ class KhronosReplayConsumerBodyGenerator():
 
         return None
 
+    def is_enum_with_insfficient(self, api_data, cmd_name, values):
+        """
+        Method to determine if this is a command that enumerates a list
+        of items, but can return an insufficient error as well.
+        """
+        if 'Get' in cmd_name or 'Enumerate' in cmd_name:
+            if (
+                cmd_name in self.all_cmd_errors
+                and api_data.insufficient_list_size_error
+                in self.all_cmd_errors[cmd_name] and len(values) > 3
+            ):
+                if (
+                    values[-1].is_array
+                    and values[-1].array_length_value is not None
+                    and values[-1].array_length_value.name == values[-3].name
+                    and values[-2].base_type == 'uint32_t'
+                    and values[-3].is_optional
+                    and values[-3].base_type == 'uint32_t'
+                ):
+                    return True
+        return False
+
     def handle_instance_device_items(self):
         """Method may be overriden. """
         return '', []
@@ -166,8 +188,102 @@ class KhronosReplayConsumerBodyGenerator():
                 body += '    }\n'
                 postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
 
-            body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
+
+            if not is_override and self.is_enum_with_insfficient(
+                api_data, name, values
+            ) and not self.is_struct(
+                values[-1].base_type
+            ) and not self.is_handle_like(values[-1].base_type):
+                body += '    {} replay_result = {};\n'.format(
+                    api_data.return_type_enum,
+                    api_data.return_type_success_value
+                )
+                body += '    if (!{}->IsNull() && returnValue == {})\n'.format(
+                    values[-1].name, api_data.return_type_success_value
+                )
+                body += '    {\n'
+
+                no_count_list = list(args[:-3])
+                count_check_list = list(no_count_list)
+                count_check_list.append('0')
+                count_check_list.append('&replay_count')
+                count_check_list.append('nullptr')
+                count_arg_list = ', '.join(count_check_list)
+                count_call = '{}({})'.format(dispatchfunc, count_arg_list)
+                body += '        // Get actual count from replay\n'
+                body += '        uint32_t replay_count = 0;\n'
+                body += '        replay_result = {};\n'.format(count_call)
+                body += '        if (replay_result != {} || replay_count < {})\n'.format(
+                    api_data.return_type_success_value, args[-3]
+                )
+                body += '        {\n'
+                body += '            GFXRECON_LOG_FATAL("{} failed to find as many items during replay as during capture");\n'.format(
+                    name
+                )
+                body += '            return;\n'
+                body += '        }\n\n'
+                vector_name = 'temp_{}'.format(values[-1].name)
+                body += '        // Allocate a temporary array to get all the replay values to compare against the capture values.\n'
+                body += '        std::vector<{}> {}(replay_count);\n'.format(
+                    values[-1].base_type, vector_name
+                )
+                new_count_check_list = list(no_count_list)
+                new_count_check_list.append('{}.size()'.format(vector_name))
+                new_count_check_list.append('{}'.format(args[-2]))
+                new_count_check_list.append('{}.data()'.format(vector_name))
+                new_count_arg_list = ', '.join(new_count_check_list)
+                new_count_call = '{}({})'.format(
+                    dispatchfunc, new_count_arg_list
+                )
+                body += '        replay_result = {};\n'.format(new_count_call)
+                body += '        if (replay_result == {})\n'.format(
+                    api_data.return_type_success_value
+                )
+                body += '        {\n'
+                body += '            // Now loop through and make sure we find each item in the original list in the replay\n'
+
+                original_vector_name = 'original_{0}'.format(values[-1].name)
+                body += '            {}* {} = {}->GetPointer();\n'.format(
+                    values[-1].base_type, original_vector_name, values[-1].name
+                )
+                body += '            for (uint32_t iii = 0; iii < {}; ++iii)\n'.format(
+                    values[-3].name
+                )
+                body += '            {\n'
+                body += '                bool found = false;\n'
+                body += '                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)\n'
+                body += '                {\n'
+                body += '                    if ({}[jjj] == {}[iii])\n'.format(
+                    vector_name, original_vector_name
+                )
+                body += '                    {\n'
+                body += '                        found = true;\n'
+                body += '                        break;\n'
+                body += '                    }\n'
+                body += '                }\n\n'
+                body += '                if (!found)\n'
+                body += '                {\n'
+                body += '                    GFXRECON_LOG_ERROR("{} failed to find a value of %d during replay",\n'.format(
+                    name
+                )
+                body += '                        {}[iii]);\n'.format(
+                    original_vector_name
+                )
+                body += '                }\n'
+                body += '             }\n'
+                body += '        }\n'
+                body += '    }\n'
+                body += '    else\n'
+                body += '    {\n'
+                body += '        replay_result = {};\n'.format(call_expr)
+                body += '    }\n'
+            else:
+                body += '    {} replay_result = {};\n'.format(
+                    api_data.return_type_enum, call_expr
+                )
+            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
+                name
+            )
         else:
             body += '    {};\n'.format(call_expr)
 

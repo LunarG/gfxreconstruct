@@ -146,6 +146,68 @@ void OpenXrReplayConsumer::Process_xrGetSystemProperties(
     CustomProcess<format::ApiCallId::ApiCall_xrGetSystemProperties>::UpdateState(this, call_info, returnValue, instance, systemId, properties, replay_result);
 }
 
+void OpenXrReplayConsumer::Process_xrEnumerateEnvironmentBlendModes(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            instance,
+    format::HandleId                            systemId,
+    XrViewConfigurationType                     viewConfigurationType,
+    uint32_t                                    environmentBlendModeCapacityInput,
+    PointerDecoder<uint32_t>*                   environmentBlendModeCountOutput,
+    PointerDecoder<XrEnvironmentBlendMode>*     environmentBlendModes)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    XrSystemId in_systemId = MapHandle<OpenXrSystemIdInfo>(systemId, &CommonObjectInfoTable::GetXrSystemIdInfo);
+    uint32_t* out_environmentBlendModeCountOutput = environmentBlendModeCountOutput->IsNull() ? nullptr : environmentBlendModeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
+    XrEnvironmentBlendMode* out_environmentBlendModes = environmentBlendModes->IsNull() ? nullptr : environmentBlendModes->AllocateOutputData(environmentBlendModeCapacityInput);
+
+    XrResult replay_result = XR_SUCCESS;
+    if (!environmentBlendModes->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes(in_instance, in_systemId, viewConfigurationType, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < environmentBlendModeCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateEnvironmentBlendModes failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrEnvironmentBlendMode> temp_environmentBlendModes(replay_count);
+        replay_result = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes(in_instance, in_systemId, viewConfigurationType, temp_environmentBlendModes.size(), out_environmentBlendModeCountOutput, temp_environmentBlendModes.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrEnvironmentBlendMode* original_environmentBlendModes = environmentBlendModes->GetPointer();
+            for (uint32_t iii = 0; iii < environmentBlendModeCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_environmentBlendModes[jjj] == original_environmentBlendModes[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateEnvironmentBlendModes failed to find a value of %d during replay",
+                        original_environmentBlendModes[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes(in_instance, in_systemId, viewConfigurationType, environmentBlendModeCapacityInput, out_environmentBlendModeCountOutput, out_environmentBlendModes);
+    }
+    CheckResult("xrEnumerateEnvironmentBlendModes", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::UpdateState(this, call_info, returnValue, instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrCreateSession(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -193,7 +255,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateReferenceSpaces(
     uint32_t* out_spaceCountOutput = spaceCountOutput->IsNull() ? nullptr : spaceCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrReferenceSpaceType* out_spaces = spaces->IsNull() ? nullptr : spaces->AllocateOutputData(spaceCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_session)->EnumerateReferenceSpaces(in_session, spaceCapacityInput, out_spaceCountOutput, out_spaces);
+    XrResult replay_result = XR_SUCCESS;
+    if (!spaces->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_session)->EnumerateReferenceSpaces(in_session, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < spaceCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateReferenceSpaces failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrReferenceSpaceType> temp_spaces(replay_count);
+        replay_result = GetInstanceTable(in_session)->EnumerateReferenceSpaces(in_session, temp_spaces.size(), out_spaceCountOutput, temp_spaces.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrReferenceSpaceType* original_spaces = spaces->GetPointer();
+            for (uint32_t iii = 0; iii < spaceCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_spaces[jjj] == original_spaces[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateReferenceSpaces failed to find a value of %d during replay",
+                        original_spaces[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)->EnumerateReferenceSpaces(in_session, spaceCapacityInput, out_spaceCountOutput, out_spaces);
+    }
     CheckResult("xrEnumerateReferenceSpaces", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>::UpdateState(this, call_info, returnValue, session, spaceCapacityInput, spaceCountOutput, spaces, replay_result);
 }
@@ -301,7 +405,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateViewConfigurations(
     uint32_t* out_viewConfigurationTypeCountOutput = viewConfigurationTypeCountOutput->IsNull() ? nullptr : viewConfigurationTypeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrViewConfigurationType* out_viewConfigurationTypes = viewConfigurationTypes->IsNull() ? nullptr : viewConfigurationTypes->AllocateOutputData(viewConfigurationTypeCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurations(in_instance, in_systemId, viewConfigurationTypeCapacityInput, out_viewConfigurationTypeCountOutput, out_viewConfigurationTypes);
+    XrResult replay_result = XR_SUCCESS;
+    if (!viewConfigurationTypes->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurations(in_instance, in_systemId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < viewConfigurationTypeCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateViewConfigurations failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrViewConfigurationType> temp_viewConfigurationTypes(replay_count);
+        replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurations(in_instance, in_systemId, temp_viewConfigurationTypes.size(), out_viewConfigurationTypeCountOutput, temp_viewConfigurationTypes.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrViewConfigurationType* original_viewConfigurationTypes = viewConfigurationTypes->GetPointer();
+            for (uint32_t iii = 0; iii < viewConfigurationTypeCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_viewConfigurationTypes[jjj] == original_viewConfigurationTypes[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateViewConfigurations failed to find a value of %d during replay",
+                        original_viewConfigurationTypes[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurations(in_instance, in_systemId, viewConfigurationTypeCapacityInput, out_viewConfigurationTypeCountOutput, out_viewConfigurationTypes);
+    }
     CheckResult("xrEnumerateViewConfigurations", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateViewConfigurations>::UpdateState(this, call_info, returnValue, instance, systemId, viewConfigurationTypeCapacityInput, viewConfigurationTypeCountOutput, viewConfigurationTypes, replay_result);
 }
@@ -356,7 +502,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateSwapchainFormats(
     uint32_t* out_formatCountOutput = formatCountOutput->IsNull() ? nullptr : formatCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     int64_t* out_formats = formats->IsNull() ? nullptr : formats->AllocateOutputData(formatCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_session)->EnumerateSwapchainFormats(in_session, formatCapacityInput, out_formatCountOutput, out_formats);
+    XrResult replay_result = XR_SUCCESS;
+    if (!formats->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_session)->EnumerateSwapchainFormats(in_session, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < formatCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateSwapchainFormats failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<int64_t> temp_formats(replay_count);
+        replay_result = GetInstanceTable(in_session)->EnumerateSwapchainFormats(in_session, temp_formats.size(), out_formatCountOutput, temp_formats.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            int64_t* original_formats = formats->GetPointer();
+            for (uint32_t iii = 0; iii < formatCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_formats[jjj] == original_formats[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateSwapchainFormats failed to find a value of %d during replay",
+                        original_formats[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)->EnumerateSwapchainFormats(in_session, formatCapacityInput, out_formatCountOutput, out_formats);
+    }
     CheckResult("xrEnumerateSwapchainFormats", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>::UpdateState(this, call_info, returnValue, session, formatCapacityInput, formatCountOutput, formats, replay_result);
 }
@@ -794,7 +982,49 @@ void OpenXrReplayConsumer::Process_xrGetInputSourceLocalizedName(
     uint32_t* out_bufferCountOutput = bufferCountOutput->IsNull() ? nullptr : bufferCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     char* out_buffer = buffer->GetPointer();
 
-    XrResult replay_result = GetInstanceTable(in_session)->GetInputSourceLocalizedName(in_session, in_getInfo, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_session)->GetInputSourceLocalizedName(in_session, in_getInfo, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < bufferCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetInputSourceLocalizedName failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<char> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_session)->GetInputSourceLocalizedName(in_session, in_getInfo, temp_buffer.size(), out_bufferCountOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            char* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < bufferCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetInputSourceLocalizedName failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)->GetInputSourceLocalizedName(in_session, in_getInfo, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    }
     CheckResult("xrGetInputSourceLocalizedName", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>::UpdateState(this, call_info, returnValue, session, getInfo, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
@@ -916,7 +1146,49 @@ void OpenXrReplayConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
     uint32_t* out_bufferCountOutput = bufferCountOutput->IsNull() ? nullptr : bufferCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     char* out_buffer = buffer->GetPointer();
 
-    XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanInstanceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->GetVulkanInstanceExtensionsKHR(in_instance, in_systemId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < bufferCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetVulkanInstanceExtensionsKHR failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<char> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_instance)->GetVulkanInstanceExtensionsKHR(in_instance, in_systemId, temp_buffer.size(), out_bufferCountOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            char* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < bufferCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetVulkanInstanceExtensionsKHR failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->GetVulkanInstanceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    }
     CheckResult("xrGetVulkanInstanceExtensionsKHR", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR>::UpdateState(this, call_info, returnValue, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
@@ -935,7 +1207,49 @@ void OpenXrReplayConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
     uint32_t* out_bufferCountOutput = bufferCountOutput->IsNull() ? nullptr : bufferCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     char* out_buffer = buffer->GetPointer();
 
-    XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanDeviceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->GetVulkanDeviceExtensionsKHR(in_instance, in_systemId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < bufferCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetVulkanDeviceExtensionsKHR failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<char> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_instance)->GetVulkanDeviceExtensionsKHR(in_instance, in_systemId, temp_buffer.size(), out_bufferCountOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            char* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < bufferCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetVulkanDeviceExtensionsKHR failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->GetVulkanDeviceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    }
     CheckResult("xrGetVulkanDeviceExtensionsKHR", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR>::UpdateState(this, call_info, returnValue, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
@@ -1695,7 +2009,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateReprojectionModesMSFT(
     uint32_t* out_modeCountOutput = modeCountOutput->IsNull() ? nullptr : modeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrReprojectionModeMSFT* out_modes = modes->IsNull() ? nullptr : modes->AllocateOutputData(modeCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_instance)->EnumerateReprojectionModesMSFT(in_instance, in_systemId, viewConfigurationType, modeCapacityInput, out_modeCountOutput, out_modes);
+    XrResult replay_result = XR_SUCCESS;
+    if (!modes->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->EnumerateReprojectionModesMSFT(in_instance, in_systemId, viewConfigurationType, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < modeCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateReprojectionModesMSFT failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrReprojectionModeMSFT> temp_modes(replay_count);
+        replay_result = GetInstanceTable(in_instance)->EnumerateReprojectionModesMSFT(in_instance, in_systemId, viewConfigurationType, temp_modes.size(), out_modeCountOutput, temp_modes.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrReprojectionModeMSFT* original_modes = modes->GetPointer();
+            for (uint32_t iii = 0; iii < modeCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_modes[jjj] == original_modes[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateReprojectionModesMSFT failed to find a value of %d during replay",
+                        original_modes[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->EnumerateReprojectionModesMSFT(in_instance, in_systemId, viewConfigurationType, modeCapacityInput, out_modeCountOutput, out_modes);
+    }
     CheckResult("xrEnumerateReprojectionModesMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT>::UpdateState(this, call_info, returnValue, instance, systemId, viewConfigurationType, modeCapacityInput, modeCountOutput, modes, replay_result);
 }
@@ -1791,7 +2147,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
     uint32_t* out_featureCountOutput = featureCountOutput->IsNull() ? nullptr : featureCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrSceneComputeFeatureMSFT* out_features = features->IsNull() ? nullptr : features->AllocateOutputData(featureCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_instance)->EnumerateSceneComputeFeaturesMSFT(in_instance, in_systemId, featureCapacityInput, out_featureCountOutput, out_features);
+    XrResult replay_result = XR_SUCCESS;
+    if (!features->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_instance)->EnumerateSceneComputeFeaturesMSFT(in_instance, in_systemId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < featureCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateSceneComputeFeaturesMSFT failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrSceneComputeFeatureMSFT> temp_features(replay_count);
+        replay_result = GetInstanceTable(in_instance)->EnumerateSceneComputeFeaturesMSFT(in_instance, in_systemId, temp_features.size(), out_featureCountOutput, temp_features.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrSceneComputeFeatureMSFT* original_features = features->GetPointer();
+            for (uint32_t iii = 0; iii < featureCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_features[jjj] == original_features[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateSceneComputeFeaturesMSFT failed to find a value of %d during replay",
+                        original_features[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_instance)->EnumerateSceneComputeFeaturesMSFT(in_instance, in_systemId, featureCapacityInput, out_featureCountOutput, out_features);
+    }
     CheckResult("xrEnumerateSceneComputeFeaturesMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT>::UpdateState(this, call_info, returnValue, instance, systemId, featureCapacityInput, featureCountOutput, features, replay_result);
 }
@@ -1973,9 +2371,110 @@ void OpenXrReplayConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
     uint32_t* out_readOutput = readOutput->IsNull() ? nullptr : readOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     uint8_t* out_buffer = buffer->IsNull() ? nullptr : buffer->AllocateOutputData(countInput);
 
-    XrResult replay_result = GetInstanceTable(in_scene)->GetSerializedSceneFragmentDataMSFT(in_scene, in_getInfo, countInput, out_readOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_scene)->GetSerializedSceneFragmentDataMSFT(in_scene, in_getInfo, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < countInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetSerializedSceneFragmentDataMSFT failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<uint8_t> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_scene)->GetSerializedSceneFragmentDataMSFT(in_scene, in_getInfo, temp_buffer.size(), out_readOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            uint8_t* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < countInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetSerializedSceneFragmentDataMSFT failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_scene)->GetSerializedSceneFragmentDataMSFT(in_scene, in_getInfo, countInput, out_readOutput, out_buffer);
+    }
     CheckResult("xrGetSerializedSceneFragmentDataMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::UpdateState(this, call_info, returnValue, scene, getInfo, countInput, readOutput, buffer, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            session,
+    uint32_t                                    displayRefreshRateCapacityInput,
+    PointerDecoder<uint32_t>*                   displayRefreshRateCountOutput,
+    PointerDecoder<float>*                      displayRefreshRates)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    uint32_t* out_displayRefreshRateCountOutput = displayRefreshRateCountOutput->IsNull() ? nullptr : displayRefreshRateCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
+    float* out_displayRefreshRates = displayRefreshRates->IsNull() ? nullptr : displayRefreshRates->AllocateOutputData(displayRefreshRateCapacityInput);
+
+    XrResult replay_result = XR_SUCCESS;
+    if (!displayRefreshRates->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB(in_session, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < displayRefreshRateCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateDisplayRefreshRatesFB failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<float> temp_displayRefreshRates(replay_count);
+        replay_result = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB(in_session, temp_displayRefreshRates.size(), out_displayRefreshRateCountOutput, temp_displayRefreshRates.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            float* original_displayRefreshRates = displayRefreshRates->GetPointer();
+            for (uint32_t iii = 0; iii < displayRefreshRateCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_displayRefreshRates[jjj] == original_displayRefreshRates[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateDisplayRefreshRatesFB failed to find a value of %d during replay",
+                        original_displayRefreshRates[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB(in_session, displayRefreshRateCapacityInput, out_displayRefreshRateCountOutput, out_displayRefreshRates);
+    }
+    CheckResult("xrEnumerateDisplayRefreshRatesFB", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::UpdateState(this, call_info, returnValue, session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetDisplayRefreshRateFB(
@@ -2085,7 +2584,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateColorSpacesFB(
     uint32_t* out_colorSpaceCountOutput = colorSpaceCountOutput->IsNull() ? nullptr : colorSpaceCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrColorSpaceFB* out_colorSpaces = colorSpaces->IsNull() ? nullptr : colorSpaces->AllocateOutputData(colorSpaceCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_session)->EnumerateColorSpacesFB(in_session, colorSpaceCapacityInput, out_colorSpaceCountOutput, out_colorSpaces);
+    XrResult replay_result = XR_SUCCESS;
+    if (!colorSpaces->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_session)->EnumerateColorSpacesFB(in_session, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < colorSpaceCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateColorSpacesFB failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrColorSpaceFB> temp_colorSpaces(replay_count);
+        replay_result = GetInstanceTable(in_session)->EnumerateColorSpacesFB(in_session, temp_colorSpaces.size(), out_colorSpaceCountOutput, temp_colorSpaces.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrColorSpaceFB* original_colorSpaces = colorSpaces->GetPointer();
+            for (uint32_t iii = 0; iii < colorSpaceCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_colorSpaces[jjj] == original_colorSpaces[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateColorSpacesFB failed to find a value of %d during replay",
+                        original_colorSpaces[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_session)->EnumerateColorSpacesFB(in_session, colorSpaceCapacityInput, out_colorSpaceCountOutput, out_colorSpaces);
+    }
     CheckResult("xrEnumerateColorSpacesFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB>::UpdateState(this, call_info, returnValue, session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces, replay_result);
 }
@@ -2149,7 +2690,49 @@ void OpenXrReplayConsumer::Process_xrEnumerateSpaceSupportedComponentsFB(
     uint32_t* out_componentTypeCountOutput = componentTypeCountOutput->IsNull() ? nullptr : componentTypeCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrSpaceComponentTypeFB* out_componentTypes = componentTypes->IsNull() ? nullptr : componentTypes->AllocateOutputData(componentTypeCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_space)->EnumerateSpaceSupportedComponentsFB(in_space, componentTypeCapacityInput, out_componentTypeCountOutput, out_componentTypes);
+    XrResult replay_result = XR_SUCCESS;
+    if (!componentTypes->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_space)->EnumerateSpaceSupportedComponentsFB(in_space, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < componentTypeCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrEnumerateSpaceSupportedComponentsFB failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<XrSpaceComponentTypeFB> temp_componentTypes(replay_count);
+        replay_result = GetInstanceTable(in_space)->EnumerateSpaceSupportedComponentsFB(in_space, temp_componentTypes.size(), out_componentTypeCountOutput, temp_componentTypes.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            XrSpaceComponentTypeFB* original_componentTypes = componentTypes->GetPointer();
+            for (uint32_t iii = 0; iii < componentTypeCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_componentTypes[jjj] == original_componentTypes[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrEnumerateSpaceSupportedComponentsFB failed to find a value of %d during replay",
+                        original_componentTypes[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_space)->EnumerateSpaceSupportedComponentsFB(in_space, componentTypeCapacityInput, out_componentTypeCountOutput, out_componentTypes);
+    }
     CheckResult("xrEnumerateSpaceSupportedComponentsFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB>::UpdateState(this, call_info, returnValue, space, componentTypeCapacityInput, componentTypeCountOutput, componentTypes, replay_result);
 }
@@ -3087,7 +3670,49 @@ void OpenXrReplayConsumer::Process_xrGetSceneMarkerRawDataMSFT(
     uint32_t* out_bufferCountOutput = bufferCountOutput->IsNull() ? nullptr : bufferCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     uint8_t* out_buffer = buffer->IsNull() ? nullptr : buffer->AllocateOutputData(bufferCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_scene)->GetSceneMarkerRawDataMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerRawDataMSFT(in_scene, in_markerId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < bufferCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetSceneMarkerRawDataMSFT failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<uint8_t> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerRawDataMSFT(in_scene, in_markerId, temp_buffer.size(), out_bufferCountOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            uint8_t* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < bufferCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetSceneMarkerRawDataMSFT failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerRawDataMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    }
     CheckResult("xrGetSceneMarkerRawDataMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT>::UpdateState(this, call_info, returnValue, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
@@ -3106,7 +3731,49 @@ void OpenXrReplayConsumer::Process_xrGetSceneMarkerDecodedStringMSFT(
     uint32_t* out_bufferCountOutput = bufferCountOutput->IsNull() ? nullptr : bufferCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     char* out_buffer = buffer->GetPointer();
 
-    XrResult replay_result = GetInstanceTable(in_scene)->GetSceneMarkerDecodedStringMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    XrResult replay_result = XR_SUCCESS;
+    if (!buffer->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerDecodedStringMSFT(in_scene, in_markerId, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < bufferCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetSceneMarkerDecodedStringMSFT failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<char> temp_buffer(replay_count);
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerDecodedStringMSFT(in_scene, in_markerId, temp_buffer.size(), out_bufferCountOutput, temp_buffer.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            char* original_buffer = buffer->GetPointer();
+            for (uint32_t iii = 0; iii < bufferCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_buffer[jjj] == original_buffer[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetSceneMarkerDecodedStringMSFT failed to find a value of %d during replay",
+                        original_buffer[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_scene)->GetSceneMarkerDecodedStringMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
+    }
     CheckResult("xrGetSceneMarkerDecodedStringMSFT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT>::UpdateState(this, call_info, returnValue, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
@@ -3662,7 +4329,49 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardDirtyTexturesMETA(
     uint32_t* out_textureIdCountOutput = textureIdCountOutput->IsNull() ? nullptr : textureIdCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     uint64_t* out_textureIds = textureIds->IsNull() ? nullptr : textureIds->AllocateOutputData(textureIdCapacityInput);
 
-    XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardDirtyTexturesMETA(in_keyboard, textureIdCapacityInput, out_textureIdCountOutput, out_textureIds);
+    XrResult replay_result = XR_SUCCESS;
+    if (!textureIds->IsNull() && returnValue == XR_SUCCESS)
+    {
+        // Get actual count from replay
+        uint32_t replay_count = 0;
+        replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardDirtyTexturesMETA(in_keyboard, 0, &replay_count, nullptr);
+        if (replay_result != XR_SUCCESS || replay_count < textureIdCapacityInput)
+        {
+            GFXRECON_LOG_FATAL("xrGetVirtualKeyboardDirtyTexturesMETA failed to find as many items during replay as during capture");
+            return;
+        }
+
+        // Allocate a temporary array to get all the replay values to compare against the capture values.
+        std::vector<uint64_t> temp_textureIds(replay_count);
+        replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardDirtyTexturesMETA(in_keyboard, temp_textureIds.size(), out_textureIdCountOutput, temp_textureIds.data());
+        if (replay_result == XR_SUCCESS)
+        {
+            // Now loop through and make sure we find each item in the original list in the replay
+            uint64_t* original_textureIds = textureIds->GetPointer();
+            for (uint32_t iii = 0; iii < textureIdCapacityInput; ++iii)
+            {
+                bool found = false;
+                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)
+                {
+                    if (temp_textureIds[jjj] == original_textureIds[iii])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    GFXRECON_LOG_ERROR("xrGetVirtualKeyboardDirtyTexturesMETA failed to find a value of %d during replay",
+                        original_textureIds[iii]);
+                }
+             }
+        }
+    }
+    else
+    {
+        replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardDirtyTexturesMETA(in_keyboard, textureIdCapacityInput, out_textureIdCountOutput, out_textureIds);
+    }
     CheckResult("xrGetVirtualKeyboardDirtyTexturesMETA", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA>::UpdateState(this, call_info, returnValue, keyboard, textureIdCapacityInput, textureIdCountOutput, textureIds, replay_result);
 }

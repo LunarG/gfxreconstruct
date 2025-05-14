@@ -188,23 +188,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                            StructPointerDecoder<Decoded_XrDebugUtilsMessengerCreateInfoEXT>* createInfo,
                                            HandlePointerDecoder<XrDebugUtilsMessengerEXT>* messenger) override;
 
-    void
-    Process_xrEnumerateEnvironmentBlendModes(const ApiCallInfo&                      call_info,
-                                             XrResult                                returnValue,
-                                             format::HandleId                        instance,
-                                             format::HandleId                        systemId,
-                                             XrViewConfigurationType                 viewConfigurationType,
-                                             uint32_t                                environmentBlendModeCapacityInput,
-                                             PointerDecoder<uint32_t>*               environmentBlendModeCountOutput,
-                                             PointerDecoder<XrEnvironmentBlendMode>* environmentBlendModes) override;
-
-    void Process_xrEnumerateDisplayRefreshRatesFB(const ApiCallInfo&        call_info,
-                                                  XrResult                  returnValue,
-                                                  format::HandleId          session,
-                                                  uint32_t                  displayRefreshRateCapacityInput,
-                                                  PointerDecoder<uint32_t>* displayRefreshRateCountOutput,
-                                                  PointerDecoder<float>*    displayRefreshRates) override;
-
     void UpdateState_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo&                      call_info,
                                                   XrResult                                returnValue,
                                                   format::HandleId                        instance,
