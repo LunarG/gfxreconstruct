@@ -70,7 +70,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 __attribute__((constructor)) static void create_trace_layer()
 {
     gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton(
-        gfxrecon::vulkan_entry_layer::vulkan_func_table_layer);
+        gfxrecon::vulkan_entry_layer::GetVulkanFuncTableLayer());
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry_layer::dispatch_CreateInstance,
                                                           gfxrecon::vulkan_entry_layer::dispatch_CreateDevice);
 #if ENABLE_OPENXR_SUPPORT
