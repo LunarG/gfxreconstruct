@@ -217,8 +217,12 @@ class KhronosReplayConsumerBodyGenerator():
                     api_data.return_type_success_value, args[-3]
                 )
                 body += '        {\n'
-                body += '            GFXRECON_LOG_FATAL("{} failed to find as many items during replay as during capture");\n'.format(
+                body += '            GFXRECON_LOG_FATAL("{} replay size %d is smaller than capture size %d",\n'.format(
                     name
+                )
+                body += '                replay_count,\n'
+                body += '                {});\n'.format(
+                    args[-3]
                 )
                 body += '            return;\n'
                 body += '        }\n\n'
@@ -236,42 +240,55 @@ class KhronosReplayConsumerBodyGenerator():
                     dispatchfunc, new_count_arg_list
                 )
                 body += '        replay_result = {};\n'.format(new_count_call)
-                body += '        if (replay_result == {})\n'.format(
-                    api_data.return_type_success_value
-                )
-                body += '        {\n'
-                body += '            // Now loop through and make sure we find each item in the original list in the replay\n'
 
-                original_vector_name = 'original_{0}'.format(values[-1].name)
-                body += '            {}* {} = {}->GetPointer();\n'.format(
-                    values[-1].base_type, original_vector_name, values[-1].name
-                )
-                body += '            for (uint32_t iii = 0; iii < {}; ++iii)\n'.format(
-                    values[-3].name
-                )
-                body += '            {\n'
-                body += '                bool found = false;\n'
-                body += '                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)\n'
-                body += '                {\n'
-                body += '                    if ({}[jjj] == {}[iii])\n'.format(
-                    vector_name, original_vector_name
-                )
-                body += '                    {\n'
-                body += '                        found = true;\n'
-                body += '                        break;\n'
-                body += '                    }\n'
-                body += '                }\n\n'
-                body += '                if (!found)\n'
-                body += '                {\n'
-                body += '                    GFXRECON_LOG_ERROR("{} failed to find a value of %d during replay",\n'.format(
-                    name
-                )
-                body += '                        {}[iii]);\n'.format(
-                    original_vector_name
-                )
-                body += '                }\n'
-                body += '             }\n'
-                body += '        }\n'
+                # If not just a string, we need to check the values of the original with the new values to make sure
+                # all the original contents are present in the new enumerate
+                if not (values[-1].base_type == 'char' and values[-1].pointer_count <= 1):
+                    body += '        if (replay_result == {})\n'.format(
+                        api_data.return_type_success_value
+                    )
+                    body += '        {\n'
+                    body += '            // Now loop through and make sure we find each item in the original list in the replay\n'
+
+                    original_vector_name = 'original_{0}'.format(values[-1].name)
+                    body += '            {}* {} = {}->GetPointer();\n'.format(
+                        values[-1].base_type, original_vector_name, values[-1].name
+                    )
+                    body += '            for (uint32_t iii = 0; iii < {}; ++iii)\n'.format(
+                        values[-3].name
+                    )
+                    body += '            {\n'
+                    body += '                bool found = false;\n'
+                    body += '                for (uint32_t jjj = 0; jjj < replay_count; ++jjj)\n'
+                    body += '                {\n'
+                    body += '                    if ({}[jjj] == {}[iii])\n'.format(
+                        vector_name, original_vector_name
+                    )
+                    body += '                    {\n'
+                    body += '                        found = true;\n'
+                    body += '                        break;\n'
+                    body += '                    }\n'
+                    body += '                }\n\n'
+                    body += '                if (!found)\n'
+                    body += '                {\n'
+                    if values[-1].base_type == 'float' or values[-1].base_type == 'double':
+                        body += '                    GFXRECON_LOG_ERROR("{} failed to find a value of %f during replay",\n'.format(
+                            name
+                        )
+                    elif values[-1].base_type == 'char':
+                        body += '                    GFXRECON_LOG_ERROR("{} failed to find a value of %s during replay",\n'.format(
+                            name
+                        )
+                    else:
+                        body += '                    GFXRECON_LOG_ERROR("{} failed to find a value of %d during replay",\n'.format(
+                            name
+                        )
+                    body += '                        {}[iii]);\n'.format(
+                        original_vector_name
+                    )
+                    body += '                }\n'
+                    body += '             }\n'
+                    body += '        }\n'
                 body += '    }\n'
                 body += '    else\n'
                 body += '    {\n'
