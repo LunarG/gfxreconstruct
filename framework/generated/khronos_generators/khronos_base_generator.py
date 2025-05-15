@@ -1645,10 +1645,7 @@ class KhronosBaseGenerator(OutputGenerator):
         # If there are error codes, add them to the list for this command
         errorcodes = cmdinfo.elem.get('errorcodes')
         if errorcodes is not None:
-            errors = []
-            for error in errorcodes.split(','):
-                errors.append(error)
-            self.all_cmd_errors[name] = errors
+            self.all_cmd_errors[name] = errorcodes.split(',')
 
         proto_decl = self.genOpts.apicall + noneStr(proto.text)
         for elem in proto:

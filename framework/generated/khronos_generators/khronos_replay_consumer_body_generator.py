@@ -65,7 +65,7 @@ class KhronosReplayConsumerBodyGenerator():
 
         return None
 
-    def is_enum_with_insfficient(self, api_data, cmd_name, values):
+    def is_enum_with_insufficient(self, api_data, cmd_name, values):
         """
         Method to determine if this is a command that enumerates a list
         of items, but can return an insufficient error as well.
@@ -189,7 +189,7 @@ class KhronosReplayConsumerBodyGenerator():
                 postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
 
 
-            if not is_override and self.is_enum_with_insfficient(
+            if not is_override and self.is_enum_with_insufficient(
                 api_data, name, values
             ) and not self.is_struct(
                 values[-1].base_type
