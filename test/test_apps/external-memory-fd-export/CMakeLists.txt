@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2024 LunarG, Inc.
+# Copyright (c) 2024-2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,8 +21,27 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for VK_KHR_external_memory_fd tests
+# Description: CMake script for VK_KHR_external_memory_fd export test app
 ###############################################################################
 
-add_subdirectory(export)
-add_subdirectory(import)
+add_library(gfxrecon-testapp-external-memory-fd-export "")
+
+target_sources(gfxrecon-testapp-external-memory-fd-export
+               PRIVATE
+               ${CMAKE_CURRENT_LIST_DIR}/app.cpp)
+
+target_include_directories(gfxrecon-testapp-external-memory-fd-export PUBLIC
+                           PUBLIC
+                               ${CMAKE_CURRENT_LIST_DIR})
+
+target_link_libraries(gfxrecon-testapp-external-memory-fd-export
+                      PUBLIC
+                          gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-external-memory-fd-export)
+
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-external-memory-fd-export
+            RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/external-memory-fd-export)
+endif()

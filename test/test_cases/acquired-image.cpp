@@ -43,5 +43,5 @@ char const* const KNOWN_GFXR_PATH = TEST_APP_NAME ".gfxr";
 
 TEST(AcquiredImage, CorrectGFXR)
 {
-    verify_gfxr(APP_RUN_DIRECTORY, APP_PATH, KNOWN_GFXR_PATH);
+    verify_gfxr(TEST_APP_NAME, KNOWN_GFXR_PATH);
 }

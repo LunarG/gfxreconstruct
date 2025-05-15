@@ -21,16 +21,19 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for triangle test app
+# Description: CMake script for wait for present test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-wait-for-present app.cpp)
+add_library(gfxrecon-testapp-wait-for-present app.cpp)
+
+target_include_directories(gfxrecon-testapp-wait-for-present PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-wait-for-present gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-wait-for-present)
 
-install(TARGETS gfxrecon-testapp-wait-for-present RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-wait-for-present)
+# Gradle is taking care of copying the resources in the APK
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-wait-for-present RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/wait-for-present)
+    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/wait-for-present DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
+endif()

@@ -194,7 +194,6 @@ endif()
 target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${ANDROID_NDK}/sources/android/native_app_glue
                                ${GFXRECON_SOURCE_DIR}/framework
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include)
 
