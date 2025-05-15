@@ -980,12 +980,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                         HandlePointerDecoder<VkShaderModule>*                         pShaderModule);
 
-    VkResult OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData     func,
-                                          VkResult                       original_result,
-                                          const VulkanDeviceInfo*        device_info,
-                                          const VulkanPipelineCacheInfo* pipeline_cache_info,
-                                          PointerDecoder<size_t>*        pDataSize,
-                                          PointerDecoder<uint8_t>*       pData);
+    VkResult OverrideGetPipelineCacheData(PFN_vkGetPipelineCacheData func,
+                                          VkResult                   original_result,
+                                          const VulkanDeviceInfo*    device_info,
+                                          VulkanPipelineCacheInfo*   pipeline_cache_info,
+                                          PointerDecoder<size_t>*    pDataSize,
+                                          PointerDecoder<uint8_t>*   pData);
 
     VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                                      func,
                                          VkResult                                                       original_result,
@@ -1656,7 +1656,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                       VkShaderCreateInfoEXT*  create_infos,
                                                                       const format::HandleId* shaders) const;
 
-    void LoadPipelineCache(format::HandleId id, std::vector<char>& pipelineCacheData);
+    void LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
     void SavePipelineCache(format::HandleId id, const VulkanDeviceInfo* device_info, VkPipelineCache pipelineCache);
     VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
     void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
@@ -1771,15 +1771,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //       at least one vkCreatePipelineCache call with valid initial pipeline cache data and
     //       the initial cache data has no corresponding replay time cache data.
     bool omitted_pipeline_cache_data_;
-
-    // Temporary data used by pipeline cache data handling
-    // The following capture time data used for calling VisitPipelineCacheInfo as input parameters
-    // , replay time data used as output result.
-    uint32_t             capture_pipeline_cache_data_hash_ = 0;
-    uint32_t             capture_pipeline_cache_data_size_ = 0;
-    void*                capture_pipeline_cache_data_;
-    bool                 matched_replay_cache_data_exist_ = false;
-    std::vector<uint8_t> matched_replay_cache_data_;
 
     std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
     std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
