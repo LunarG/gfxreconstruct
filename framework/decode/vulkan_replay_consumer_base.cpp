@@ -6566,8 +6566,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 
             GFXRECON_ASSERT(replay_result == VK_SUCCESS);
 
-            bool     new_cache_data  = true;
-            auto     cache_data_size = *pDataSize->GetPointer();
+            bool new_cache_data  = true;
+            auto cache_data_size = *pDataSize->GetPointer();
             auto capture_pipeline_cache_data_hash =
                 gfxrecon::util::hash::GenerateCheckSum<uint32_t>(pData->GetPointer(), cache_data_size);
 
@@ -6713,6 +6713,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     }
 
     // compare pipelineCacheUUID for replay-device and cache-data
+    if (!CheckPipelineCacheUUID(device_info, &override_create_info))
+    {
+        GFXRECON_LOG_WARNING("%s(): Trying to override pipeline-cache-data, but pipelineCacheUUIDs do not match",
+                             __func__);
+        override_create_info.pInitialData    = nullptr;
+        override_create_info.initialDataSize = 0;
+        omitted_pipeline_cache_data_         = true;
+    }
+
+    // compare pipelineCacheUUID for replay-device and cache-data
     if (override_create_info.pInitialData != nullptr && override_create_info.initialDataSize != 0)
     {
         bool        uuid_match           = false;
@@ -6737,7 +6747,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             omitted_pipeline_cache_data_         = true;
         }
     }
-
     // Actual pipeline cache creation call
     VkResult result = func(device_info->handle,
                            &override_create_info,
@@ -11275,6 +11284,31 @@ void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
     main_thread_queue_.poll();
 }
 
+bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*          device_info,
+                                                      const VkPipelineCacheCreateInfo* create_info)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(create_info != nullptr);
+
+    // compare pipelineCacheUUID for replay-device and cache-data
+    if (create_info->pInitialData != nullptr && create_info->initialDataSize >= sizeof(VkPipelineCacheHeaderVersionOne))
+    {
+        bool        uuid_match           = false;
+        const auto* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+
+        if (physical_device_info != nullptr && physical_device_info->replay_device_info->properties)
+        {
+            // compare pipelineCacheUUID for device and blob
+            auto* cache_header = reinterpret_cast<const VkPipelineCacheHeaderVersionOne*>(create_info->pInitialData);
+            uuid_match         = memcmp(cache_header->pipelineCacheUUID,
+                                physical_device_info->replay_device_info->properties->pipelineCacheUUID,
+                                VK_UUID_SIZE) == 0;
+        }
+        return uuid_match;
+    }
+    return true;
+}
+
 void VulkanReplayConsumerBase::LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData)
 {
     FILE*   file  = nullptr;
@@ -11379,6 +11413,15 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
         {
             pipelineCacheCreateInfo.initialDataSize = pipelineCacheData.size();
             pipelineCacheCreateInfo.pInitialData    = pipelineCacheData.data();
+        }
+
+        // compare pipelineCacheUUID for replay-device and cache-data
+        if (!CheckPipelineCacheUUID(device_info, &pipelineCacheCreateInfo))
+        {
+            GFXRECON_LOG_WARNING("%s(): Trying to load pipeline-cache-data, but pipelineCacheUUIDs do not match",
+                                 __func__);
+            pipelineCacheCreateInfo.initialDataSize = 0;
+            pipelineCacheCreateInfo.pInitialData    = nullptr;
         }
     }
 
