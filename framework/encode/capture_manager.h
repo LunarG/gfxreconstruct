@@ -51,6 +51,13 @@
 #include <vector>
 #include "util/file_path.h"
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <dirent.h>
+#elif defined(WIN32)
+#include <windows.h>
+#include <TlHelp32.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -68,7 +75,21 @@ class CommonCaptureManager
     using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
     static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
     static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
-
+    static bool IsCaptureApp()
+    {
+        int32_t pid = -1;
+#if defined(__linux__) || defined(__APPLE__)
+        pid = getpid();
+#elif defined(WIN32)
+        pid = GetCurrentProcessId();
+#else
+        GFXRECON_LOG_ERROR_ONCE("Can not use capture app detection on this platform");
+        return false;
+#endif
+        if (CommonCaptureManager::progress_id_ == INT32_MAX || pid == CommonCaptureManager::progress_id_)
+            return true;
+        return false;
+    }
     class ApiCallLock
     {
       public:
@@ -254,7 +275,7 @@ class CommonCaptureManager
     {
         return CreateInstance(Derived::InitSingleton(), Derived::DestroySingleton);
     }
-
+    static int32_t GetPidFromPackageName(const char* progress_name);
     CommonCaptureManager();
 
     enum CaptureModeFlags : uint32_t
@@ -397,6 +418,7 @@ class CommonCaptureManager
     static void AtExit();
 
   private:
+    static int32_t                                        progress_id_;
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
