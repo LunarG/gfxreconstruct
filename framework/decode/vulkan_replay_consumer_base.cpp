@@ -2876,6 +2876,29 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     VkResult result =
         create_instance_proc_(&create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
 
+    if (result == VK_ERROR_EXTENSION_NOT_PRESENT)
+    {
+        // Assume we weren't able to create instance because of VK_KHR_portability_enumeration
+        GFXRECON_LOG_WARNING(
+            "Assuming unable to create instance due to VK_KHR_portability_enumeration. Attempting creation "
+            "without that extension...");
+        create_state.modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+
+        std::vector<const char*>& modified_extensions = create_state.modified_extensions;
+        modified_extensions.erase(std::remove_if(modified_extensions.begin(),
+                                                 modified_extensions.end(),
+                                                 [](const char* ext) -> bool {
+                                                     return !util::platform::StringCompare(
+                                                         ext, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+                                                 }),
+                                  modified_extensions.end());
+        create_state.modified_create_info.enabledExtensionCount = modified_extensions.size();
+
+        // Try to create instance again
+        result = create_instance_proc_(
+            &create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+    }
+
     if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
     {
         auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
@@ -2974,10 +2997,21 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         replay_next          = replay_next->pNext;
     }
 
+    // Filter out portability subset if not on MoltenVK
+    bool on_moltenvk = false;
+    if (physical_device_info->replay_device_info->driver_properties)
+    {
+        on_moltenvk = physical_device_info->replay_device_info->driver_properties->driverID == VK_DRIVER_ID_MOLTENVK;
+    }
+
     // Copy requested extensions to modified_extensions
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
-        modified_extensions.push_back(replay_create_info->ppEnabledExtensionNames[i]);
+        const char* name = replay_create_info->ppEnabledExtensionNames[i];
+        if (!on_moltenvk || util::platform::StringCompare(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, name) != 0)
+        {
+            modified_extensions.push_back(name);
+        }
     }
 
     // Enable extensions used for loading resources during initial state setup for trimmed files.
