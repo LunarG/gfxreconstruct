@@ -477,12 +477,29 @@ util::ThreadData* CommonCaptureManager::GetThreadData()
     return thread_data_.get();
 }
 
-bool CommonCaptureManager::IsCaptureSkippingCurrentThread() const
+CommonCaptureManager::ThreadSkipReason CommonCaptureManager::GetThreadSkipState() const
 {
 #if ENABLE_OPENXR_SUPPORT
-    return GetSkipThreadsWithInvalidData() && thread_data_ && thread_data_->SkipCurrentThread();
+    return (thread_data_) ? thread_data_->GetSkipState() : ThreadSkipReason::kNone;
+#else
+    return ThreadSkipReason::kNone;
 #endif
+}
+
+bool CommonCaptureManager::IsThreadCaptureSkipping() const
+{
+#if ENABLE_OPENXR_SUPPORT
+    return GetThreadSkipState() != ThreadSkipReason::kNone;
+#else
     return false;
+#endif
+}
+
+void CommonCaptureManager::SetThreadSkipState(ThreadSkipReason reason)
+{
+#if ENABLE_OPENXR_SUPPORT
+    GetThreadData()->SetSkipState(reason);
+#endif
 }
 
 bool CommonCaptureManager::IsCaptureModeTrack() const
@@ -533,6 +550,57 @@ CommonCaptureManager::ApiCallLock CommonCaptureManager::AcquireCallLock() const
     {
         return ApiCallLock(ApiCallLock::Type::kShared, api_call_mutex_);
     }
+}
+
+void CommonCaptureManager::WriteSkipThreadMessage(format::ApiCallId call_id)
+{
+    const std::string api_name = format::GetApiCallFamilyName(call_id);
+    ThreadSkipReason  reason   = GetThreadSkipState();
+
+    // NOTE: filter verbosity of skipped call logging here
+    if (reason != ThreadSkipReason::kInvalidHandles)
+        return;
+
+    std::stringstream stream;
+    stream << "Thread ID: " << GetThreadData()->thread_id_ << " Skipping " << format::GetApiCallFamilyName(call_id)
+           << " ApiCall " << format::GetApiCallName(call_id) << " ID (0x" << std::hex << static_cast<uint32_t>(call_id)
+           << ") "
+           << "for reason: " << GetThreadData()->util::ThreadData::GetSkipReasonString(reason);
+    WriteDisplayMessageCmd(GetApiCallFamily(call_id), stream.str().c_str());
+}
+
+ParameterEncoder* CommonCaptureManager::BeginTrackedApiCallCapture(format::ApiCallId call_id)
+{
+    if (capture_mode_ != kModeDisabled)
+    {
+        if (IsThreadCaptureSkipping())
+        {
+            WriteSkipThreadMessage(call_id);
+        }
+        else
+        {
+            return InitApiCallCapture(call_id);
+        }
+    }
+
+    return nullptr;
+}
+
+ParameterEncoder* CommonCaptureManager::BeginApiCallCapture(format::ApiCallId call_id)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        if (IsThreadCaptureSkipping())
+        {
+            WriteSkipThreadMessage(call_id);
+        }
+        else
+        {
+            return InitApiCallCapture(call_id);
+        }
+    }
+
+    return nullptr;
 }
 
 void CommonCaptureManager::EndApiCallCapture()
