@@ -298,6 +298,29 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance             
     return result;
 }
 
+// NOTE: This is a work around for the observed behavior of certain OpenXR support libraries, details in caller
+bool IsDeviceHandleKnown(VkDevice device)
+{
+    // Google Style Guide doesn't allow for static duration containers
+    using Set = std::set<format::HandleId>;
+    static std::unique_ptr<Set> known_device_handles;
+    static std::once_flag       create_set;
+    std::call_once(create_set, [&]() { known_device_handles = std::make_unique<Set>(); });
+
+    auto extant_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    bool known_device_handle   = false;
+    if (extant_device_wrapper)
+    {
+        auto insert_pair = known_device_handles->insert(extant_device_wrapper->handle_id);
+        if (!insert_pair.second)
+        {
+            known_device_handle = true;
+        }
+    }
+
+    return known_device_handle;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance                         instance,
                                                        const XrVulkanDeviceCreateInfoKHR* createInfo,
                                                        VkDevice*                          vulkanDevice,
@@ -338,17 +361,32 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance               
 
     if (result >= 0)
     {
-        // Record the instance based on the gipa returned
-        auto       instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
-        VkInstance vulkanInstance   = instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr];
+        // NOTE: This is a work around for the observed behavior of certain OpenXR support libraries
+        //       observed behavior is to sometime return the same handle from xrCreateVulkanDevice as
+        //       was returned from an earlier call.  This is illegal w.r.t. both the OpenXR and Vulkan
+        //       spec is concerned.
+        //
+        //       The mechanism for this behavior is the XrVulkanInstanceCreateInfoKHR::pfnGetInstanceProcAddr,
+        //       which returns a vkCreateDevice proc addr that, when called returns a duplicate of an existing
+        //       VkDevice, which is not a valid behavior for a vkDevice implementation.
+        if (!IsDeviceHandleKnown(*vulkanDevice))
+        {
+            // Record the instance based on the gipa returned
+            auto       instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+            VkInstance vulkanInstance   = instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr];
 
-        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
-                                             vulkan_wrappers::NoParentWrapper,
-                                             vulkan_wrappers::DeviceWrapper>(
-            vulkanInstance,
-            vulkan_wrappers::NoParentWrapper::kHandleValue,
-            vulkanDevice,
-            VulkanCaptureManager::GetUniqueId);
+            vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
+                                                 vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::DeviceWrapper>(
+                vulkanInstance,
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vulkanDevice,
+                VulkanCaptureManager::GetUniqueId);
+        }
+        else
+        {
+            omit_output_data = true;
+        }
     }
     else
     {
