@@ -106,5 +106,59 @@ std::string GetCompressionTypeName(CompressionType type)
     return "";
 }
 
+static std::unordered_map<ApiCallId, const char*> api_id_map = {
+#include "generated/generated_api_call_id_string_pairs.h"
+};
+
+std::string GetApiCallName(ApiCallId call_id)
+{
+    auto name_it = api_id_map.find(call_id);
+    if (name_it != api_id_map.end())
+        return name_it->second;
+
+    GFXRECON_ASSERT("INVALID CALL ID");
+    return "INVALID_CALL_ID";
+}
+
+std::string GetApiFamilyName(ApiFamilyId family_id)
+{
+    std::string family_name;
+    switch (family_id)
+    {
+        default:
+            GFXRECON_ASSERT("INVALID FAMILY ID");
+            family_name = "INVALID_FAMILY_ID";
+            break;
+        case format::ApiFamily_Vulkan:
+            family_name = "Vulkan ";
+            break;
+        case format::ApiFamily_Dxgi:
+            family_name = "Dxgi ";
+            break;
+        case format::ApiFamily_D3D12:
+            family_name = "D3D12 ";
+            break;
+        case format::ApiFamily_AGS:
+            family_name = "AGS ";
+            break;
+        case format::ApiFamily_D3D11:
+            family_name = "D3D11 ";
+            break;
+        case format::ApiFamily_D3D11On12:
+            family_name = "D3D11On12 ";
+            break;
+        case format::ApiFamily_OpenXR:
+            family_name = "OpenXR ";
+            break;
+    }
+
+    return family_name;
+}
+
+std::string GetApiCallFamilyName(ApiCallId call_id)
+{
+    return GetApiFamilyName(GetApiCallFamily(call_id));
+}
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
