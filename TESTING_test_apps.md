@@ -69,6 +69,11 @@ In order to add a test app to the test-launcher, make sure to modify `test_launc
    }
    ```
 
+Finally, make sure to add your test app library to the `GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES` list in the following CMakeLists files:
+
+- `android/test/test_apps/launcher/CMakeLists.txt`
+- `test/test_apps/launcher/CMakeLists.txt`
+
 ## **Building Test Apps**
 
 Test apps are built as part of the default build CMAKE build process. In order to stop test apps from building, set the
