@@ -35,5 +35,4 @@ common_build_directives(gfxrecon-testapp-multisample-depth)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-multisample-depth RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/multisample-depth )
-    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/multisample-depth DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 endif()

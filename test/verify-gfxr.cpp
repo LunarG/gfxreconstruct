@@ -120,9 +120,9 @@ struct Paths
 
     Paths(char const* test_name, char const* known_gfxr_path, char const* trimming_frames)
     {
-        full_app_directory.append("test_apps");
         working_directory = full_app_directory;
         working_directory.append("res");
+        full_app_directory.append("test_apps");
 
         full_app_directory.append("launcher");
         full_executable_path = full_app_directory;
@@ -273,6 +273,9 @@ void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const*
 {
     Paths paths{ test_name, known_gfxr_path, trimming_frames };
     int   result;
+
+    bool workind_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(workind_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
     // run app
     setenv("GFXRECON_CAPTURE_FILE", paths.capture_path.c_str(), 1);
