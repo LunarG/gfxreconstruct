@@ -43,7 +43,7 @@ android {
     }
     sourceSets {
         main {
-            assets.srcDirs = ['../../../../test/test_apps/res/triangle']
+            assets.srcDirs = ['../../../../test/test_apps/res']
         }
     }
 }
