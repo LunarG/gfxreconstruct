@@ -34,5 +34,4 @@ common_build_directives(gfxrecon-testapp-sparse-resources)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-sparse-resources RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/sparse-resources)
-    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/sparse-resources DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 endif()

@@ -35,5 +35,4 @@ common_build_directives(gfxrecon-testapp-shader-objects)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(TARGETS gfxrecon-testapp-shader-objects RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
-    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR}/shader-objects DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR})
 endif()
