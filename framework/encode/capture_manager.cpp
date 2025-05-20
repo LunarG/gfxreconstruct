@@ -55,6 +55,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 const uint32_t kFirstFrame           = 1;
 const size_t   kFileStreamBufferSize = 256 * 1024;
 
+int32_t                                        CommonCaptureManager::progress_id_ = INT32_MAX;
 CommonCaptureManager*                          CommonCaptureManager::singleton_;
 std::mutex                                     CommonCaptureManager::instance_lock_;
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
@@ -138,7 +139,12 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
 
         CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
-
+        std::string                    capture_package_name = trace_settings.capture_package_name;
+        GFXRECON_LOG_INFO("capture_package_name = %s", capture_package_name.c_str());
+        if (!capture_package_name.empty())
+        {
+            progress_id_ = GetPidFromPackageName(capture_package_name.c_str());
+        }
         // Initialize capture manager with default settings.
         success = Initialize(api_capture_singleton->GetApiFamily(), base_filename, trace_settings);
         if (!success)
@@ -210,6 +216,70 @@ void CommonCaptureManager::DestroyInstance(ApiCaptureManager* api_capture_manage
             singleton_ = nullptr;
         }
     }
+}
+
+int32_t CommonCaptureManager::GetPidFromPackageName(const char* progress_name)
+{
+    int32_t pid = -1;
+#if defined(__linux__) || defined(__APPLE__)
+    int            id            = 0;
+    DIR*           dir           = nullptr;
+    FILE*          fp            = nullptr;
+    struct dirent* entry         = nullptr;
+    char           filename[256] = { 0 };
+    char           cmdline[256]  = { 0 };
+
+    if (progress_name == nullptr)
+    {
+        return pid;
+    }
+    dir = opendir("/proc");
+    if (dir == nullptr)
+    {
+        return pid;
+    }
+    while ((entry = readdir(dir)) != NULL)
+    {
+        id = atoi(entry->d_name);
+        if (id != 0)
+        {
+            snprintf(filename, 255, "/proc/%d/cmdline", id);
+            fp = fopen(filename, "r");
+            if (fp)
+            {
+                char* str = fgets(cmdline, sizeof(cmdline), fp);
+                fclose(fp);
+                if (str != nullptr && strcmp(progress_name, cmdline) == 0)
+                {
+                    pid = id;
+                    break;
+                }
+            }
+        }
+    }
+    closedir(dir);
+#elif defined(WIN32)
+    HANDLE         hSnapShot = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 pe        = { 0 };
+    pe.dwSize                = sizeof(PROCESSENTRY32);
+    BOOL bSuccess            = ::Process32First(hSnapShot, &pe);
+    if (!bSuccess)
+    {
+        ::CloseHandle(hSnapShot);
+        return pid;
+    }
+    while (bSuccess)
+    {
+        if (strcmp(pe.szExeFile, progress_name) == 0)
+        {
+            pid = pe.th32ProcessID;
+            break;
+        }
+        bSuccess = ::Process32Next(hSnapShot, &pe);
+    }
+    ::CloseHandle(hSnapShot);
+#endif
+    return pid;
 }
 
 std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges, uint32_t interval)
@@ -900,6 +970,10 @@ bool CommonCaptureManager::ShouldTriggerScreenshot()
 
 void CommonCaptureManager::WriteFrameMarker(format::MarkerType marker_type)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         format::Marker marker_cmd;
@@ -1076,6 +1150,10 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
 
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
 {
+    if (!IsCaptureApp())
+    {
+        return true;
+    }
     bool success      = true;
     capture_filename_ = base_filename;
 
@@ -1283,6 +1361,10 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
 
 void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     std::vector<format::FileOptionPair> option_list;
 
     BuildOptionList(file_options_, &option_list);
@@ -1312,6 +1394,10 @@ void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        
 
 void CommonCaptureManager::WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         auto                                thread_data    = GetThreadData();
@@ -1334,6 +1420,10 @@ void CommonCaptureManager::WriteDisplayMessageCmd(format::ApiFamilyId api_family
 void CommonCaptureManager::WriteExeFileInfo(format::ApiFamilyId                       api_family,
                                             const gfxrecon::util::filepath::FileInfo& info)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     auto                     thread_data     = GetThreadData();
     size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header = {};
@@ -1367,6 +1457,10 @@ void CommonCaptureManager::ForcedWriteAnnotation(const format::AnnotationType ty
 
 void CommonCaptureManager::WriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         ForcedWriteAnnotation(type, label, data);
@@ -1378,6 +1472,10 @@ void CommonCaptureManager::WriteResizeWindowCmd(format::ApiFamilyId api_family,
                                                 uint32_t            width,
                                                 uint32_t            height)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         auto                        thread_data = GetThreadData();
@@ -1399,6 +1497,10 @@ void CommonCaptureManager::WriteResizeWindowCmd(format::ApiFamilyId api_family,
 void CommonCaptureManager::WriteFillMemoryCmd(
     format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
@@ -1458,7 +1560,7 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
                                                      format::HandleId    device_id,
                                                      uint64_t            max_resource_size)
 {
-    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    if (!IsCaptureApp() || (capture_mode_ & kModeWrite) != kModeWrite)
     {
         return;
     }
@@ -1484,7 +1586,7 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
 
 void CommonCaptureManager::WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id)
 {
-    if ((capture_mode_ & kModeWrite) != kModeWrite)
+    if (!IsCaptureApp() || (capture_mode_ & kModeWrite) != kModeWrite)
     {
         return;
     }
@@ -1508,6 +1610,10 @@ void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_
                                                         uint64_t            allocation_id,
                                                         uint64_t            allocation_size)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     if (IsCaptureModeWrite())
     {
         format::CreateHeapAllocationCommand allocation_cmd;
@@ -1529,6 +1635,10 @@ void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_
 
 void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     file_stream ? file_stream->Write(data, size) : file_stream_->Write(data, size);
 
     // Increment block index
@@ -1550,6 +1660,10 @@ void CommonCaptureManager::AtExit()
 
 void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation)
 {
+    if (!IsCaptureApp())
+    {
+        return;
+    }
     CaptureSettings::TraceSettings default_settings = default_settings_.GetTraceSettings();
     std::string                    buffer;
 

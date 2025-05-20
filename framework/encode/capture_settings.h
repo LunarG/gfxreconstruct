@@ -114,6 +114,7 @@ class CaptureSettings
         std::string                  trim_key;
         uint32_t                     trim_key_frames{ 0 };
         RuntimeTriggerState          runtime_capture_trigger{ kNotUsed };
+        std::string                  capture_package_name{ "" };
         bool                         runtime_write_assets{ false };
         int                          page_guard_signal_handler_watcher_max_restores{ 1 };
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
