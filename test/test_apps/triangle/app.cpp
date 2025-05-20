@@ -87,11 +87,11 @@ void App::create_render_pass()
 void App::create_graphics_pipeline()
 {
 #ifdef __ANDROID__
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv", init.android_app);
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv", init.android_app);
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/vert.spv", init.android_app);
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/frag.spv", init.android_app);
 #else
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "triangle/shaders/frag.spv");
 #endif
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};

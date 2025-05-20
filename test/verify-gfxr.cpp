@@ -122,15 +122,7 @@ struct Paths
     {
         full_app_directory.append("test_apps");
         working_directory = full_app_directory;
-        working_directory.append(test_name);
-
-        if (!std::filesystem::exists(working_directory))
-        {
-            if (!std::filesystem::create_directories(working_directory))
-            {
-                GFXRECON_LOG_ERROR("Failed to create working directory: %s", working_directory.c_str());
-            }
-        }
+        working_directory.append("res");
 
         full_app_directory.append("launcher");
         full_executable_path = full_app_directory;
@@ -145,7 +137,8 @@ struct Paths
 
         capture_path.append("test_apps");
         capture_path.append(test_name);
-        capture_path.append("actual.gfxr");
+        std::string gfxr_file_name = test_name + std::string(".gfxr");
+        capture_path.append(gfxr_file_name);
 
         known_good_path.append("known_good");
         known_good_path.append(known_gfxr_path);
@@ -282,6 +275,7 @@ void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const*
     int   result;
 
     // run app
+    setenv("GFXRECON_CAPTURE_FILE", paths.capture_path.c_str(), 1);
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
