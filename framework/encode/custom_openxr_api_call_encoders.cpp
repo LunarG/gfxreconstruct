@@ -70,7 +70,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
     HandleUnwrapMemory*   handle_unwrap_memory   = nullptr;
     const XrFrameEndInfo* frameEndInfo_unwrapped = nullptr;
 
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrEndFrame);
     {
         auto call_lock = manager->AcquireCallLock();
 
@@ -78,14 +79,13 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
         handle_unwrap_memory   = manager->GetHandleUnwrapMemory();
         frameEndInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
 
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndFrame);
     if (encoder)
@@ -165,21 +165,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(XrInstance        in
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::PreLockReentrant(
         manager, instance, systemId, vkInstance, vkPhysicalDevice);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::Dispatch(
             manager, instance, systemId, vkInstance, vkPhysicalDevice);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDeviceKHR(
         instance, systemId, vkInstance, vkPhysicalDevice);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result >= 0)
     {
@@ -237,21 +237,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance             
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::PreLockReentrant(
         manager, instance, createInfo, vulkanInstance, vulkanResult);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(
             manager, instance, createInfo, vulkanInstance, vulkanResult);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanInstanceKHR(
         instance, createInfo, vulkanInstance, vulkanResult);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result >= 0)
     {
@@ -298,6 +298,29 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance             
     return result;
 }
 
+// NOTE: This is a work around for the observed behavior of certain OpenXR support libraries, details in caller
+bool IsDeviceHandleKnown(VkDevice device)
+{
+    // Google Style Guide doesn't allow for static duration containers
+    using Set = std::set<format::HandleId>;
+    static std::unique_ptr<Set> known_device_handles;
+    static std::once_flag       create_set;
+    std::call_once(create_set, [&]() { known_device_handles = std::make_unique<Set>(); });
+
+    auto extant_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    bool known_device_handle   = false;
+    if (extant_device_wrapper)
+    {
+        auto insert_pair = known_device_handles->insert(extant_device_wrapper->handle_id);
+        if (!insert_pair.second)
+        {
+            known_device_handle = true;
+        }
+    }
+
+    return known_device_handle;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance                         instance,
                                                        const XrVulkanDeviceCreateInfoKHR* createInfo,
                                                        VkDevice*                          vulkanDevice,
@@ -317,7 +340,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance               
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::PreLockReentrant(
         manager, instance, createInfo, vulkanDevice, vulkanResult);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR);
     {
         auto call_lock = manager->AcquireCallLock();
 
@@ -326,29 +350,43 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance               
         handle_unwrap_memory = manager->GetHandleUnwrapMemory();
         createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
 
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanDeviceKHR(
         instance, createInfo_unwrapped, vulkanDevice, vulkanResult);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result >= 0)
     {
-        // Record the instance based on the gipa returned
-        auto       instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
-        VkInstance vulkanInstance   = instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr];
+        // NOTE: This is a work around for the observed behavior of certain OpenXR support libraries
+        //       observed behavior is to sometime return the same handle from xrCreateVulkanDevice as
+        //       was returned from an earlier call.  This is illegal w.r.t. both the OpenXR and Vulkan
+        //       spec is concerned.
+        //
+        //       The mechanism for this behavior is the XrVulkanInstanceCreateInfoKHR::pfnGetInstanceProcAddr,
+        //       which returns a vkCreateDevice proc addr that, when called returns a duplicate of an existing
+        //       VkDevice, which is not a valid behavior for a vkDevice implementation.
+        if (!IsDeviceHandleKnown(*vulkanDevice))
+        {
+            // Record the instance based on the gipa returned
+            auto       instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+            VkInstance vulkanInstance   = instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr];
 
-        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
-                                             vulkan_wrappers::NoParentWrapper,
-                                             vulkan_wrappers::DeviceWrapper>(
-            vulkanInstance,
-            vulkan_wrappers::NoParentWrapper::kHandleValue,
-            vulkanDevice,
-            VulkanCaptureManager::GetUniqueId);
+            vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
+                                                 vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::DeviceWrapper>(
+                vulkanInstance,
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vulkanDevice,
+                VulkanCaptureManager::GetUniqueId);
+        }
+        else
+        {
+            omit_output_data = true;
+        }
     }
     else
     {
@@ -391,7 +429,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance         
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::PreLockReentrant(
         manager, instance, getInfo, vulkanPhysicalDevice);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR);
     {
         auto call_lock = manager->AcquireCallLock();
 
@@ -400,15 +439,14 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance         
         handle_unwrap_memory = manager->GetHandleUnwrapMemory();
         getInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
 
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDevice2KHR(
         instance, getInfo_unwrapped, vulkanPhysicalDevice);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result >= 0)
     {
@@ -461,21 +499,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                 
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateTriangleMeshFB>::PreLockReentrant(
         manager, session, createInfo, outTriangleMesh);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrCreateTriangleMeshFB);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateTriangleMeshFB>::Dispatch(
             manager, session, createInfo, outTriangleMesh);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result =
         openxr_wrappers::GetInstanceTable(session)->CreateTriangleMeshFB(session, createInfo, outTriangleMesh);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result >= 0)
     {
@@ -519,20 +557,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyTriangleMeshFB(XrTriangleMeshFB mesh)
     GFXRECON_ASSERT(manager != nullptr);
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB>::PreLockReentrant(manager, mesh);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB>::Dispatch(manager, mesh);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult          result = openxr_wrappers::GetInstanceTable(mesh)->DestroyTriangleMeshFB(mesh);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB);
     if (encoder)
@@ -557,20 +595,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetVertexBufferFB(XrTriangleMeshFB 
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetVertexBufferFB>::PreLockReentrant(
         manager, mesh, outVertexBuffer);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrTriangleMeshGetVertexBufferFB);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetVertexBufferFB>::Dispatch(
             manager, mesh, outVertexBuffer);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshGetVertexBufferFB(mesh, outVertexBuffer);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result < 0)
     {
@@ -605,20 +643,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB>::PreLockReentrant(
         manager, mesh, outIndexBuffer);
-    CommonCaptureManager::CaptureMode save_capture_mode;
+    OpenXrCaptureManager::ReentryState reentry_control =
+        manager->MakeReentryState(format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB);
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB>::Dispatch(
             manager, mesh, outIndexBuffer);
-        save_capture_mode = manager->GetCaptureMode();
-        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+        reentry_control.PreDispatch();
     }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshGetIndexBufferFB(mesh, outIndexBuffer);
 
     auto call_lock = manager->AcquireCallLock();
-    manager->SetCaptureMode(save_capture_mode);
+    reentry_control.PostDispatch();
 
     if (result < 0)
     {
