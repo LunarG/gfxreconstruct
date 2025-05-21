@@ -22,6 +22,7 @@
 */
 
 #include "util/logging.h"
+#include "util/date_time.h"
 
 #include <cstdarg>
 #include <string>
@@ -163,6 +164,12 @@ void Log::LogMessage(
         // Only add a string prefix if this isn't a string that always outputs.
         prefix += "[";
         prefix += process_tag;
+        if (settings_.min_severity <= kDebugSeverity)
+        {
+            prefix += "]";
+            prefix += "[";
+            prefix += std::to_string(util::datetime::GetBootTime());
+        }
         prefix += "] ";
         prefix += SeverityToString(severity);
         if (settings_.output_detailed_log_info)
