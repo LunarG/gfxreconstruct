@@ -46,7 +46,10 @@ class Application final
   public:
     Application(const std::string& name, decode::FileProcessor* file_processor);
 
-    Application(const std::string& name, const std::string& cli_wsi_extension, decode::FileProcessor* file_processor);
+    Application(const std::string&     name,
+                decode::FileProcessor* file_processor,
+                const std::string&     cli_wsi_extension,
+                void*                  platform_specific_wsi_data);
 
     ~Application();
 
