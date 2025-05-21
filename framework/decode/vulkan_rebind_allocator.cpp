@@ -837,7 +837,7 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocate_info.pNext           = &dedicatedAllocateInfo;
-    allocate_info.allocationSize  = memory_alloc_info->allocation_size;
+    allocate_info.allocationSize  = memoryRequirements.size;
     allocate_info.memoryTypeIndex = replay_memory_properties_.memoryTypeCount;
     for (uint32_t i = 0; i < replay_memory_properties_.memoryTypeCount; ++i)
     {
