@@ -111,9 +111,7 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrLocateBodyJointsFB',
             'xrCreateVulkanInstanceKHR',
             'xrCreateVulkanDeviceKHR',
-            'xrCreateDebugUtilsMessengerEXT',
-            'xrEnumerateEnvironmentBlendModes',
-            'xrEnumerateDisplayRefreshRatesFB'
+            'xrCreateDebugUtilsMessengerEXT'
         ]
 
         # These structures require a customized manager when they are an output struct
