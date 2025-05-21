@@ -52,6 +52,7 @@ struct ReplayOptions
     bool                         sync_queue_submissions{ false };
     bool                         enable_debug_device_lost{ false };
     bool                         create_dummy_allocations{ false };
+    bool                         omit_pipeline_cache_data{ false };
     bool                         omit_null_hardware_buffers{ false };
     bool                         quit_after_measurement_frame_range{ false };
     bool                         quit_after_frame{ false };
