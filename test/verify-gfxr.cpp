@@ -135,8 +135,6 @@ struct Paths
 
         convert_path.append(CONVERT_FILENAME);
 
-        capture_path.append("test_apps");
-        capture_path.append(test_name);
         std::string gfxr_file_name = test_name + std::string(".gfxr");
         capture_path.append(gfxr_file_name);
 
