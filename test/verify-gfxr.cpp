@@ -266,6 +266,8 @@ void run_trimming_app(const Paths& paths, const char* test_name, char const* tri
 
 void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const* trimming_frames)
 {
+    EnvironmentVariables env_vars;
+
     Paths paths{ test_name, known_gfxr_path, trimming_frames };
     int   result;
 
@@ -273,7 +275,7 @@ void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const*
     ASSERT_TRUE(workind_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
     // run app
-    setenv("GFXRECON_CAPTURE_FILE", paths.capture_path.c_str(), 1);
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
     result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
                          << paths.working_directory;
