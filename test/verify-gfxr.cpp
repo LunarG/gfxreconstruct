@@ -96,11 +96,8 @@ struct Paths
             trimming_suffix += range_end;
         }
 
-        std::string capture_trimming_file = "actual";
-        capture_trimming_file += trimming_suffix;
+        std::string capture_trimming_file = test_name + trimming_suffix;
         capture_trimming_file += ".gfxr";
-        capture_trimming_path.append("test_apps");
-        capture_trimming_path.append(test_name);
         capture_trimming_path.append(capture_trimming_file);
 
         std::string s_known_gfxr_path        = known_gfxr_path;
