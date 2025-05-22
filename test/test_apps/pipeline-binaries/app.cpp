@@ -67,8 +67,10 @@ void App::configure_device_builder(test::DeviceBuilder&        device_builder,
 void App::create_graphics_pipeline()
 {
 #ifdef __ANDROID__
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/vert.spv", init.android_app);
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/frag.spv", init.android_app);
+    auto vert_module =
+        gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/vert.spv", init.android_app);
+    auto frag_module =
+        gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/frag.spv", init.android_app);
 #else
     auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/vert.spv");
     auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/frag.spv");
