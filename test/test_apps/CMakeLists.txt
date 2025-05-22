@@ -24,11 +24,8 @@
 # Description: CMake script for test apps
 ###############################################################################
 
-find_package(SDL3)
-
 SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
 set(GFXRECON_TESTAPPS_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
-
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR} DESTINATION ${GFXRECON_INSTALL_TESTDIR})

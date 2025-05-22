@@ -42,17 +42,14 @@
 #include <util/strings.h>
 #include <util/argument_parser.h>
 
+#include <tools/tool_settings.h>
+
 #if defined(__ANDROID__)
 #include <ahb_app.h>
 
 #include <util/android/activity.h>
 #include <util/android/intent.h>
 #endif
-
-#include <SDL3/SDL_main.h>
-
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
 
 const char kOptions[] = "-h|--help";
 
@@ -94,22 +91,12 @@ void PrintUsage(const char* exe_name)
     }
 }
 
-bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
+std::unique_ptr<gfxrecon::test::TestAppBase>
+CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
 #if defined(__ANDROID__)
-    struct android_app* android_app,
+              struct android_app* android_app,
 #endif
-    const std::string& app_name)
+              const std::string& app_name)
 {
     // Make sure the app name is within the options
     bool found = false;
@@ -184,6 +171,8 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     app->set_android_app(android_app);
 #endif // __ANDROID__
 
+    app->SetApplication(std::move(application));
+
     return app;
 }
 
@@ -213,11 +202,20 @@ int inner_main(
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     const auto& app_name             = positional_arguments[0];
 
-    std::unique_ptr<gfxrecon::test::TestAppBase> app = CreateTestApp(
-#if defined(__ANDROID__)
-        android_app,
+#ifdef __ANDROID__
+    auto application = std::make_unique<gfxrecon::application::Application>(kApplicationName, nullptr);
+    application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, android_app);
+#else
+    // Select WSI context based on CLI
+    std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
+    auto        application   = std::make_unique<gfxrecon::application::Application>(app_name, wsi_extension, nullptr);
 #endif
-        app_name);
+
+    std::unique_ptr<gfxrecon::test::TestAppBase> app = CreateTestApp(std::move(application),
+#if defined(__ANDROID__)
+                                                                     android_app,
+#endif
+                                                                     app_name);
     if (app == nullptr)
     {
         GFXRECON_LOG_ERROR("Failed to create test app with name: %s", app_name.c_str());

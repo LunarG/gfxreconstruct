@@ -32,10 +32,6 @@ GFXRECON_BEGIN_NAMESPACE(host_image_copy)
 
 class App : public gfxrecon::test::TestAppBase
 {
-  public:
-    App() = default;
-
-  private:
     VkPhysicalDeviceHostImageCopyFeaturesEXT host_image_copy_features_;
 
     VkQueue  queue_;

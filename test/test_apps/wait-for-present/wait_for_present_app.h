@@ -33,10 +33,6 @@ const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 class App : public gfxrecon::test::TestAppBase
 {
-  public:
-    App() = default;
-
-  private:
     VkPhysicalDevicePresentIdFeaturesKHR   present_id_features_;
     VkPhysicalDevicePresentWaitFeaturesKHR present_wait_features_;
 
