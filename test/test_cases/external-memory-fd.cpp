@@ -11,7 +11,6 @@ TEST(ExternalMemoryFD, CorrectGFXR)
     run_in_background("external-memory-fd-export");
     // setenv("GFXRECON_CAPTURE_FILE", actual_gfxr, 1);
 
-    
     // Wait for the exporter to be ready
     sleep(1);
     verify_gfxr("external-memory-fd-import", KNOWN_GFXR_PATH);
