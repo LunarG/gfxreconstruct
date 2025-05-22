@@ -46,14 +46,12 @@
 #include <android/looper.h>
 #endif
 
-namespace gfxrecon
-{
+#include <application/application.h>
+#include <util/defines.h>
 
-namespace test
-{
-
-namespace detail
-{
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test)
+GFXRECON_BEGIN_NAMESPACE(detail)
 
 GenericFeaturesPNextNode::GenericFeaturesPNextNode()
 {
@@ -364,7 +362,7 @@ auto get_vector_noerror(F&& f, Ts&&... ts) -> std::vector<T>
     return results;
 }
 
-} // namespace detail
+GFXRECON_END_NAMESPACE(detail)
 
 const char* to_string_message_severity(VkDebugUtilsMessageSeverityFlagBitsEXT s)
 {
@@ -442,8 +440,7 @@ void destroy_debug_utils_messenger(VkInstance               instance,
     }
 }
 
-namespace detail
-{
+GFXRECON_BEGIN_NAMESPACE(detail)
 
 bool check_layer_supported(std::vector<VkLayerProperties> const& available_layers, const char* layer_name)
 {
@@ -514,7 +511,7 @@ void setup_pNext_chain(T& structure, std::vector<VkBaseOutStructure*> const& str
 }
 const char* validation_layer_name = "VK_LAYER_KHRONOS_validation";
 
-} // namespace detail
+GFXRECON_END_NAMESPACE(detail)
 
 #define CASE_TO_STRING(CATEGORY, TYPE) \
     case CATEGORY::TYPE:               \
@@ -1156,8 +1153,7 @@ void destroy_debug_messenger(VkInstance const instance, VkDebugUtilsMessengerEXT
 
 // ---- Physical Device ---- //
 
-namespace detail
-{
+GFXRECON_BEGIN_NAMESPACE(detail)
 
 std::vector<std::string> check_device_extension_support(std::vector<std::string> const& available_extensions,
                                                         std::vector<std::string> const& desired_extensions)
@@ -1371,7 +1367,7 @@ std::optional<uint32_t> get_present_queue_index(VkPhysicalDevice const          
     return {};
 }
 
-} // namespace detail
+GFXRECON_END_NAMESPACE(detail)
 
 PhysicalDevice
 PhysicalDeviceSelector::populate_device_details(VkPhysicalDevice                   vk_phys_device,
@@ -2180,8 +2176,7 @@ DeviceBuilder& DeviceBuilder::set_allocation_callbacks(VkAllocationCallbacks* ca
 
 // ---- Swapchain ---- //
 
-namespace detail
-{
+GFXRECON_BEGIN_NAMESPACE(detail)
 
 struct SurfaceSupportDetails
 {
@@ -2326,7 +2321,7 @@ VkExtent2D find_extent(VkSurfaceCapabilitiesKHR const& capabilities, uint32_t de
     }
 }
 
-} // namespace detail
+GFXRECON_END_NAMESPACE(detail)
 
 void destroy_swapchain(Swapchain const& swapchain)
 {
@@ -2742,37 +2737,30 @@ VkSurfaceKHR create_surface_android(VkInstance instance, vkb::InstanceDispatchTa
     return surface;
 }
 #else
-SDL_Window* create_window_sdl(const char* window_name, bool resizable, int width, int height)
+decode::Window* create_window(application::Application& app, bool resizable, int width, int height)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO))
-        throw sdl_exception();
+    // auto select WSI extension
+    auto wsi_context = app.GetWsiContext("", true);
+    GFXRECON_ASSERT(wsi_context);
+    auto window_factory = wsi_context->GetWindowFactory();
+    GFXRECON_ASSERT(window_factory);
 
-    SDL_WindowFlags flags = 0;
-    flags |= SDL_WINDOW_VULKAN;
-    if (resizable)
-        flags |= SDL_WINDOW_RESIZABLE;
-
-    auto window = SDL_CreateWindow(window_name, width, height, flags);
-    if (window == nullptr)
-        throw sdl_exception();
+    // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
+    // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
+    // behavior will change, and replay will instead render in windowed mode.
+    auto window = window_factory->Create(0, 0, width, height);
 
     return window;
 }
 
-void destroy_window_sdl(SDL_Window* window)
+VkSurfaceKHR create_surface(InitInfo& init)
 {
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAllocationCallbacks* allocator)
-{
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
-    if (!SDL_Vulkan_CreateSurface(window, instance, allocator, &surface))
-    {
-        surface = VK_NULL_HANDLE;
-        throw sdl_exception();
-    }
+    VkSurfaceKHR                  surface = VK_NULL_HANDLE;
+    graphics::VulkanInstanceTable inst_table;
+    auto                          gpa = detail::vulkan_functions().ptr_vkGetInstanceProcAddr;
+    graphics::LoadVulkanInstanceTable(gpa, init.instance, &inst_table);
+    VkResult result = init.window->CreateSurface(&inst_table, init.instance, 0, &surface);
+    VERIFY_VK_RESULT("failed to create surface", result);
     return surface;
 }
 #endif
@@ -2916,11 +2904,11 @@ std::runtime_error vulkan_exception(const char* message, VkResult result)
 #ifndef __ANDROID__
 std::runtime_error sdl_exception()
 {
-    return std::runtime_error(SDL_GetError());
+    return std::runtime_error("TODO");
 }
 #endif
 
-void device_initialization_phase_1(const std::string& window_name, InitInfo& init)
+void device_initialization_phase_1(application::Application& app, InitInfo& init)
 {
     if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)
     {
@@ -2936,12 +2924,14 @@ void device_initialization_phase_1(const std::string& window_name, InitInfo& ini
             }
         }
 #else
-        init.window = create_window_sdl(window_name.data(), true, 1024, 1024);
+        init.window = create_window(app, true, 1024, 1024);
 #endif
     }
 }
 
-void device_initialization_phase_2(InstanceBuilder const& instance_builder, InitInfo& init)
+void device_initialization_phase_2(InstanceBuilder const&    instance_builder,
+                                   application::Application& app,
+                                   InitInfo&                 init)
 {
     init.instance = instance_builder.build();
 
@@ -2954,7 +2944,7 @@ void device_initialization_phase_2(InstanceBuilder const& instance_builder, Init
 #ifdef __ANDROID__
             init.surface = create_surface_android(init.instance, init.inst_disp, init.android_app);
 #else
-            init.surface = create_surface_sdl(init.instance, init.window);
+            init.surface = create_surface(init);
 #endif
         }
         else
@@ -3017,29 +3007,6 @@ static vkmock::TestConfig* try_load_test_config()
     return getTestConfig();
 }
 
-InitInfo device_initialization(const std::string& window_name)
-{
-    InitInfo init;
-
-    device_initialization_phase_1(window_name, init);
-
-    init.test_config = try_load_test_config();
-
-    InstanceBuilder instance_builder;
-    device_initialization_phase_2(instance_builder, init);
-
-    PhysicalDeviceSelector phys_device_selector(init.instance);
-    init.physical_device = device_initialization_phase_3(phys_device_selector, init);
-
-    DeviceBuilder device_builder{ init.physical_device };
-    device_initialization_phase_4(device_builder, init);
-
-    SwapchainBuilder swapchain_builder{ init.device };
-    device_initialization_phase_5(swapchain_builder, init);
-
-    return init;
-}
-
 void cleanup_init(InitInfo& init)
 {
     init.swapchain.destroy_image_views(init.swapchain_image_views);
@@ -3048,10 +3015,6 @@ void cleanup_init(InitInfo& init)
     destroy_device(init.device);
     destroy_surface(init.instance, init.surface);
     destroy_instance(init.instance);
-#ifndef __ANDROID__
-    if (init.window != nullptr)
-        destroy_window_sdl(init.window);
-#endif
 }
 
 void recreate_init_swapchain(SwapchainBuilder& swapchain_builder, InitInfo& init, bool wait_for_idle)
@@ -3071,13 +3034,13 @@ TestAppBase::~TestAppBase() {}
 
 void TestAppBase::run(const std::string& window_name)
 {
-    device_initialization_phase_1(window_name, init);
+    device_initialization_phase_1(*app, init);
 
     init.test_config = try_load_test_config();
 
     InstanceBuilder instance_builder;
     configure_instance_builder(instance_builder, init.test_config);
-    device_initialization_phase_2(instance_builder, init);
+    device_initialization_phase_2(instance_builder, *app, init);
 
     PhysicalDeviceSelector phys_device_selector(init.instance);
     configure_physical_device_selector(phys_device_selector, init.test_config);
@@ -3100,49 +3063,10 @@ void TestAppBase::run(const std::string& window_name)
     int  frame_num = 0;
     while (running)
     {
-#ifdef __ANDROID__
-        while (running)
-        {
-            int                         result = 0;
-            int                         events = 0;
-            struct android_poll_source* source = nullptr;
+        app->ProcessEvents(false);
 
-            result = ALooper_pollAll(0, nullptr, &events, reinterpret_cast<void**>(&source));
-
-            if (result >= 0)
-            {
-                if (source)
-                {
-                    source->process(init.android_app, source);
-                }
-
-                if (init.android_app->destroyRequested != 0)
-                {
-                    running = false;
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-#else
-        SDL_Event windowEvent;
-        while (running && SDL_PollEvent(&windowEvent))
-        {
-            if (windowEvent.type == SDL_EVENT_QUIT)
-            {
-                running = false;
-            }
-        }
-#endif
-
-        if (running)
-        {
-            running = frame(frame_num);
-            ++frame_num;
-        }
+        running = frame(frame_num);
+        ++frame_num;
     }
 
     init.disp.deviceWaitIdle();
@@ -3211,6 +3135,7 @@ bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& f
     return physical_device.enable_features_if_present(features_to_enable);
 }
 
+
 #ifdef __ANDROID__
 void TestAppBase::set_android_app(struct android_app* app)
 {
@@ -3218,6 +3143,6 @@ void TestAppBase::set_android_app(struct android_app* app)
 }
 #endif
 
-} // namespace test
 
-} // namespace gfxrecon
+GFXRECON_END_NAMESPACE(test)
+GFXRECON_END_NAMESPACE(gfxrecon)
