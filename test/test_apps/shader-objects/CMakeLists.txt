@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -26,13 +26,13 @@
 # Description: CMake script for shader-objects test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-shader-objects app.cpp)
+add_library(gfxrecon-testapp-shader-objects app.cpp)
 
+target_include_directories(gfxrecon-testapp-shader-objects PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(gfxrecon-testapp-shader-objects gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-shader-objects)
 
-install(TARGETS gfxrecon-testapp-shader-objects RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-shader-objects)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-shader-objects RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/shader-objects)
+endif()

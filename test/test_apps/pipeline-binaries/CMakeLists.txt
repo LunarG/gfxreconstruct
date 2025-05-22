@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -26,13 +26,14 @@
 # Description: CMake script for pipeline-binaries test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-pipeline-binaries app.cpp)
+add_library(gfxrecon-testapp-pipeline-binaries app.cpp)
+
+target_include_directories(gfxrecon-testapp-pipeline-binaries PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-pipeline-binaries gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-pipeline-binaries)
 
-install(TARGETS gfxrecon-testapp-pipeline-binaries RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries )
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries)
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-pipeline-binaries)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-pipeline-binaries RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/pipeline-binaries )
+endif()

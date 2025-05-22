@@ -26,12 +26,16 @@
 # Description: CMake script for host-image-copy test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-host-image-copy app.cpp)
+add_library(gfxrecon-testapp-host-image-copy app.cpp)
+
+target_include_directories(gfxrecon-testapp-host-image-copy
+                           PUBLIC
+                               ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(gfxrecon-testapp-host-image-copy gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-host-image-copy)
 
-install(TARGETS gfxrecon-testapp-host-image-copy RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/host-image-copy )
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-host-image-copy)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-host-image-copy RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/host-image-copy )
+endif()

@@ -6,6 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <stdlib.h>
 
+#include <util/logging.h>
+
 bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::json& parsed)
 {
     switch (event)
@@ -33,6 +35,8 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
             if (depth == 1 && parsed.contains("meta"))
                 return false;
             break;
+        default:
+            break;
     }
 
     return true;
@@ -47,6 +51,7 @@ static char const* CONVERT_FILENAME = "gfxrecon-convert.exe";
 struct Paths
 {
     std::filesystem::path base_path{ std::filesystem::current_path() };
+    std::filesystem::path working_directory{ base_path };
     std::filesystem::path full_app_directory{ base_path };
     std::filesystem::path full_executable_path;
     std::filesystem::path convert_path{ base_path };
@@ -60,9 +65,7 @@ struct Paths
     std::filesystem::path app_trimming_json_path;
     std::filesystem::path known_good_trimming_json_path;
 
-    void trimming_paths(char const* app_directory,
-                        char const* known_gfxr_path,
-                        char const* trimming_frames)
+    void trimming_paths(char const* test_name, char const* known_gfxr_path, char const* trimming_frames)
     {
         // Trimming suffix is like "_frame_10" or "_frames_10_through_100"
         std::string s_trimming_frames = trimming_frames;
@@ -93,11 +96,8 @@ struct Paths
             trimming_suffix += range_end;
         }
 
-        std::string capture_trimming_file = "actual";
-        capture_trimming_file += trimming_suffix;
+        std::string capture_trimming_file = test_name + trimming_suffix;
         capture_trimming_file += ".gfxr";
-        capture_trimming_path.append("test_apps");
-        capture_trimming_path.append(app_directory);
         capture_trimming_path.append(capture_trimming_file);
 
         std::string s_known_gfxr_path        = known_gfxr_path;
@@ -115,22 +115,25 @@ struct Paths
         known_good_trimming_json_path.replace_extension(".json");
     }
 
-    Paths(char const* app_directory,
-          char const* app_executable,
-          char const* known_gfxr_path,
-          char const* trimming_frames)
+    Paths(char const* test_name, char const* known_gfxr_path, char const* trimming_frames)
     {
+        working_directory = full_app_directory;
+        working_directory.append("res");
         full_app_directory.append("test_apps");
-        full_app_directory.append(app_directory);
 
-        full_executable_path = std::filesystem::path{ full_app_directory };
-        full_executable_path.append(app_executable);
+        full_app_directory.append("launcher");
+        full_executable_path = full_app_directory;
+
+#ifdef WIN32
+        full_executable_path.append("gfxrecon-test-launcher.exe");
+#else
+        full_executable_path.append("gfxrecon-test-launcher");
+#endif
 
         convert_path.append(CONVERT_FILENAME);
 
-        capture_path.append("test_apps");
-        capture_path.append(app_directory);
-        capture_path.append("actual.gfxr");
+        std::string gfxr_file_name = test_name + std::string(".gfxr");
+        capture_path.append(gfxr_file_name);
 
         known_good_path.append("known_good");
         known_good_path.append(known_gfxr_path);
@@ -143,7 +146,7 @@ struct Paths
 
         if (trimming_frames)
         {
-            trimming_paths(app_directory, known_gfxr_path, trimming_frames);
+            trimming_paths(test_name, known_gfxr_path, trimming_frames);
         }
     }
 };
@@ -170,7 +173,7 @@ class EnvironmentVariables
         env_vars.clear();
     }
 
-void SetEnv(const char* env_name, const char* env_var)
+    void SetEnv(const char* env_name, const char* env_var)
     {
 #if defined(__linux__) || defined(__APPLE__)
         ASSERT_EQ(setenv(env_name, env_var, 1), 0) << "set env var: " << env_name << ": " << env_var << " failed.";
@@ -218,22 +221,22 @@ int run_command(std::filesystem::path const& working_directory,
     return result;
 }
 
-void run_in_background(char const* app_directory, char const* app_executable)
+void run_in_background(const char* test_name)
 {
-    Paths paths{ app_directory, app_executable, "", nullptr };
-    run_command(paths.full_app_directory, paths.full_executable_path, { "&" });
+    Paths paths{ test_name, "", nullptr };
+    run_command(paths.working_directory, paths.full_executable_path, { test_name, "&" });
 }
 
-void run_trimming_app(const Paths& paths, char const* trimming_frames)
+void run_trimming_app(const Paths& paths, const char* test_name, char const* trimming_frames)
 {
     EnvironmentVariables env_vars;
 
     // To not affect the other tests, set env var programmatically, and unset it when it isn't needed.
     env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
 
-    auto result = run_command(paths.full_app_directory, paths.full_executable_path, {});
+    auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
-                         << paths.full_app_directory;
+                         << paths.working_directory;
 
     env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
 
@@ -261,17 +264,21 @@ void run_trimming_app(const Paths& paths, char const* trimming_frames)
     ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
 }
 
-void verify_gfxr(char const* app_directory,
-                 char const* app_executable,
-                 char const* known_gfxr_path,
-                 char const* trimming_frames)
+void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const* trimming_frames)
 {
-    Paths paths{ app_directory, app_executable, known_gfxr_path, trimming_frames };
-    int result;
+    EnvironmentVariables env_vars;
+
+    Paths paths{ test_name, known_gfxr_path, trimming_frames };
+    int   result;
+
+    bool workind_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(workind_directory_exists) << "working directory does not exist: " << paths.working_directory;
 
     // run app
-    result = run_command(paths.full_app_directory, paths.full_executable_path, {});
-    ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " in path " << paths.full_app_directory;
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
 
     // convert actual gfxr
     result = run_command(paths.base_path, paths.convert_path, { paths.capture_path.string() });
@@ -296,6 +303,6 @@ void verify_gfxr(char const* app_directory,
 
     if (trimming_frames)
     {
-        run_trimming_app(paths, trimming_frames);
+        run_trimming_app(paths, test_name, trimming_frames);
     }
 }
