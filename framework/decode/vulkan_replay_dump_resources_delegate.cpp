@@ -608,6 +608,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
         case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCount:
         case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCountKHR:
+        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCountAMD:
         {
             const auto& dc_params = draw_call_info.dc_param->dc_params_union.draw_indirect_count;
 

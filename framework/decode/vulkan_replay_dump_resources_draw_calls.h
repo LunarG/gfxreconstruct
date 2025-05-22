@@ -361,10 +361,12 @@ class DrawCallsDumpingContext
         kDrawIndirect,
         kDrawIndirectCount,
         kDrawIndirectCountKHR,
+        kDrawIndirectCountAMD,
         kDrawIndexed,
         kDrawIndexedIndirect,
         kDrawIndexedIndirectCount,
-        kDrawIndexedIndirectCountKHR
+        kDrawIndexedIndirectCountKHR,
+        kDrawIndexedIndirectCountAMD
     };
 
     static const char* DrawCallTypeToStr(DrawCallTypes type)
@@ -379,6 +381,8 @@ class DrawCallsDumpingContext
                 return "vkCmdDrawIndirectCount";
             case kDrawIndirectCountKHR:
                 return "vkCmdDrawIndirectCountKHR";
+            case kDrawIndirectCountAMD:
+                return "vkCmdDrawIndirectCountAMD";
             case kDrawIndexed:
                 return "vkCmdDrawIndexed";
             case kDrawIndexedIndirect:
@@ -387,6 +391,8 @@ class DrawCallsDumpingContext
                 return "vkCmdDrawIndexedIndirectCount";
             case kDrawIndexedIndirectCountKHR:
                 return "vkCmdDrawIndexedIndirectCountKHR";
+            case kDrawIndexedIndirectCountAMD:
+                return "vkCmdDrawIndexedIndirectCountAMD";
             default:
                 assert(0);
                 return "Unrecognized draw call type";
@@ -401,12 +407,14 @@ class DrawCallsDumpingContext
             case kDrawIndirect:
             case kDrawIndirectCount:
             case kDrawIndirectCountKHR:
+            case kDrawIndirectCountAMD:
                 return false;
 
             case kDrawIndexed:
             case kDrawIndexedIndirect:
             case kDrawIndexedIndirectCount:
             case kDrawIndexedIndirectCountKHR:
+            case kDrawIndexedIndirectCountAMD:
                 return true;
 
             default:
@@ -427,9 +435,11 @@ class DrawCallsDumpingContext
             case kDrawIndirect:
             case kDrawIndirectCount:
             case kDrawIndirectCountKHR:
+            case kDrawIndirectCountAMD:
             case kDrawIndexedIndirect:
             case kDrawIndexedIndirectCount:
             case kDrawIndexedIndirectCountKHR:
+            case kDrawIndexedIndirectCountAMD:
                 return true;
 
             default:
@@ -627,8 +637,10 @@ class DrawCallsDumpingContext
             type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
             updated_bound_index_buffer(false)
         {
-            assert(type == DrawCallTypes::kDrawIndirectCount || type == DrawCallTypes::kDrawIndexedIndirectCount ||
-                   type == DrawCallTypes::kDrawIndirectCountKHR || type == DrawCallTypes::kDrawIndexedIndirectCountKHR);
+            GFXRECON_ASSERT(
+                type == DrawCallTypes::kDrawIndirectCount || type == DrawCallTypes::kDrawIndexedIndirectCount ||
+                type == DrawCallTypes::kDrawIndirectCountKHR || type == DrawCallTypes::kDrawIndexedIndirectCountKHR ||
+                type == DrawCallTypes::kDrawIndirectCountAMD || type == DrawCallTypes::kDrawIndexedIndirectCountAMD);
         }
 
         DrawCallTypes type;
