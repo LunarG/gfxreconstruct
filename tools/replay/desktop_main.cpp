@@ -288,6 +288,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
             gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
             openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+            openxr_replay_consumer.SetFpsInfo(&fps_info);
             openxr_decoder.AddConsumer(&openxr_replay_consumer);
             file_processor->AddDecoder(&openxr_decoder);
 #endif
