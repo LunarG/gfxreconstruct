@@ -2437,7 +2437,8 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
         return ((call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ||
                 (call_id == format::ApiCallId::ApiCall_vkFrameBoundaryANDROID) ||
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain_Present) ||
-                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1));
+                (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1) ||
+                (call_id == format::ApiCallId::ApiCall_xrEndFrame));
     }
 }
 
