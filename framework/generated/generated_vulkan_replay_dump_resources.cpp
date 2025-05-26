@@ -3394,30 +3394,16 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountAMD               func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
-        }
+        OverrideCmdDrawIndirectCountAMD(call_info, func, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -3425,30 +3411,16 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCountAMD        func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
-        }
+        OverrideCmdDrawIndexedIndirectCountAMD(call_info, func, commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
     }
 }
 

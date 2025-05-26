@@ -527,7 +527,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     dc_params_json_entry["drawCallType"] = DrawCallsDumpingContext::DrawCallTypeToStr(draw_call_info.dc_param->type);
     switch (draw_call_info.dc_param->type)
     {
-        case DrawCallsDumpingContext::DrawCallTypes::kDraw:
+        case DrawCallsDumpingContext::DrawCallType::kDraw:
         {
             const VkDrawIndirectCommand& dc_params = draw_call_info.dc_param->dc_params_union.draw;
 
@@ -538,7 +538,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
         break;
 
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexed:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndexed:
         {
             const VkDrawIndexedIndirectCommand& dc_params = draw_call_info.dc_param->dc_params_union.draw_indexed;
 
@@ -550,7 +550,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
         break;
 
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndirect:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndirect:
         {
             const auto& dc_params = draw_call_info.dc_param->dc_params_union.draw_indirect;
 
@@ -568,7 +568,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
         break;
 
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirect:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirect:
         {
             const auto& dc_params = draw_call_info.dc_param->dc_params_union.draw_indirect;
 
@@ -587,8 +587,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
         break;
 
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndirectCount:
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndirectCountKHR:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndirectCount:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndirectCountKHR:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndirectCountAMD:
         {
             const auto& dc_params = draw_call_info.dc_param->dc_params_union.draw_indirect_count;
 
@@ -606,9 +607,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
         break;
 
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCount:
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCountKHR:
-        case DrawCallsDumpingContext::DrawCallTypes::kDrawIndexedIndirectCountAMD:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirectCount:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirectCountKHR:
+        case DrawCallsDumpingContext::DrawCallType::kDrawIndexedIndirectCountAMD:
         {
             const auto& dc_params = draw_call_info.dc_param->dc_params_union.draw_indirect_count;
 

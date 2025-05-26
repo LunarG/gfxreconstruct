@@ -1101,9 +1101,9 @@ void Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountAMD               func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);
@@ -1112,9 +1112,9 @@ void Process_vkCmdDrawIndexedIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCountAMD        func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    VkBuffer                                    countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);

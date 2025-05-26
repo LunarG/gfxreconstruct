@@ -6813,7 +6813,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectCountAMD(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDrawIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper_->Process_vkCmdDrawIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCountAMD, in_commandBuffer, GetObjectInfoTable().GetVkBufferInfo(buffer), offset, GetObjectInfoTable().GetVkBufferInfo(countBuffer), countBufferOffset, maxDrawCount, stride);
     }
 }
 
@@ -6835,7 +6835,7 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountAMD(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDrawIndexedIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountAMD, in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
+        resource_dumper_->Process_vkCmdDrawIndexedIndirectCountAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountAMD, in_commandBuffer, GetObjectInfoTable().GetVkBufferInfo(buffer), offset, GetObjectInfoTable().GetVkBufferInfo(countBuffer), countBufferOffset, maxDrawCount, stride);
     }
 }
 
