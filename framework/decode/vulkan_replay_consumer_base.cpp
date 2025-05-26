@@ -6715,38 +6715,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     // compare pipelineCacheUUID for replay-device and cache-data
     if (!CheckPipelineCacheUUID(device_info, &override_create_info))
     {
-        GFXRECON_LOG_WARNING("%s(): Trying to override pipeline-cache-data, but pipelineCacheUUIDs do not match",
+        GFXRECON_LOG_WARNING("%s(): PipelineCache data was provided, but pipelineCacheUUIDs did not match. This "
+                             "requires a pipeline-recompilation and may cause unexpected delays.",
                              __func__);
         override_create_info.pInitialData    = nullptr;
         override_create_info.initialDataSize = 0;
         omitted_pipeline_cache_data_         = true;
     }
 
-    // compare pipelineCacheUUID for replay-device and cache-data
-    if (override_create_info.pInitialData != nullptr && override_create_info.initialDataSize != 0)
-    {
-        bool        uuid_match           = false;
-        const auto* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
-
-        if (physical_device_info != nullptr && physical_device_info->replay_device_info->properties)
-        {
-            // compare pipelineCacheUUID for device and blob
-            auto* cache_header =
-                reinterpret_cast<const VkPipelineCacheHeaderVersionOne*>(override_create_info.pInitialData);
-            uuid_match = memcmp(cache_header->pipelineCacheUUID,
-                                physical_device_info->replay_device_info->properties->pipelineCacheUUID,
-                                VK_UUID_SIZE) == 0;
-        }
-
-        if (!uuid_match)
-        {
-            GFXRECON_LOG_WARNING("%s(): Trying to override pipeline-cache-data, but pipelineCacheUUIDs do not match",
-                                 __func__);
-            override_create_info.pInitialData    = nullptr;
-            override_create_info.initialDataSize = 0;
-            omitted_pipeline_cache_data_         = true;
-        }
-    }
     // Actual pipeline cache creation call
     VkResult result = func(device_info->handle,
                            &override_create_info,
@@ -11418,8 +11394,11 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
         // compare pipelineCacheUUID for replay-device and cache-data
         if (!CheckPipelineCacheUUID(device_info, &pipelineCacheCreateInfo))
         {
-            GFXRECON_LOG_WARNING("%s(): Trying to load pipeline-cache-data, but pipelineCacheUUIDs do not match",
-                                 __func__);
+            GFXRECON_LOG_WARNING(
+                "%s(): Trying to load externally provided pipeline-cache-data (%s), but pipelineCacheUUIDs do not "
+                "match. This requires a pipeline-recompilation and may cause unexpected delays.",
+                __func__,
+                options_.load_pipeline_cache_filename.c_str());
             pipelineCacheCreateInfo.initialDataSize = 0;
             pipelineCacheCreateInfo.pInitialData    = nullptr;
         }
