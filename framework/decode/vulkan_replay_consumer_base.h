@@ -1656,7 +1656,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                       VkShaderCreateInfoEXT*  create_infos,
                                                                       const format::HandleId* shaders) const;
 
-    // return true if create_info contains either no data, or data with matching pipelineCacheUUID for current device
+    /**
+     * @brief   CheckPipelineCacheUUID returns true if provided 'create_info' contains no data
+     *          (VkPipelineCacheCreateInfo::pInitialData is null),
+     *          or data with matching pipelineCacheUUID for current replay-device.
+     *
+     * @param   device_info     a VulkanDeviceInfo wrapper-struct
+     * @param   create_info     a VkPipelineCacheCreateInfo struct
+     * @return  false if data was provided but the pipelineCacheUUID did not match, true otherwise.
+     */
     bool CheckPipelineCacheUUID(const VulkanDeviceInfo* device_info, const VkPipelineCacheCreateInfo* create_info);
 
     void LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
