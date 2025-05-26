@@ -6715,9 +6715,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     // compare pipelineCacheUUID for replay-device and cache-data
     if (!CheckPipelineCacheUUID(device_info, &override_create_info))
     {
-        GFXRECON_LOG_WARNING("%s(): PipelineCache data was provided, but pipelineCacheUUIDs did not match. This "
-                             "requires a pipeline-recompilation and may cause unexpected delays.",
-                             __func__);
+        GFXRECON_LOG_WARNING_ONCE("%s(): PipelineCache data was provided, but pipelineCacheUUIDs did not match. This "
+                                  "requires a pipeline-recompilation and may cause unexpected delays.",
+                                  __func__);
         override_create_info.pInitialData    = nullptr;
         override_create_info.initialDataSize = 0;
         omitted_pipeline_cache_data_         = true;
@@ -11394,7 +11394,7 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
         // compare pipelineCacheUUID for replay-device and cache-data
         if (!CheckPipelineCacheUUID(device_info, &pipelineCacheCreateInfo))
         {
-            GFXRECON_LOG_WARNING(
+            GFXRECON_LOG_WARNING_ONCE(
                 "%s(): Trying to load externally provided pipeline-cache-data (%s), but pipelineCacheUUIDs do not "
                 "match. This requires a pipeline-recompilation and may cause unexpected delays.",
                 __func__,
