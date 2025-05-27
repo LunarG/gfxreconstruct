@@ -25,6 +25,8 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
                 return false;
             if (key == "\"ppData\"")
                 return false;
+            if (key == "\"fd\"")
+                return false;
         }
         break;
         case nlohmann::json::parse_event_t::object_end:
