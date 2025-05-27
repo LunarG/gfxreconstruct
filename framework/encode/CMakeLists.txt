@@ -186,6 +186,13 @@ target_link_libraries(gfxrecon_encode
                       OpenXR
                       platform_specific)
 
+if (BSD)
+
+find_library(LIBBSD_LIBRARY NAMES bsd PATHS /usr/lib/x86_64-linux-gnu)
+target_link_libraries(gfxrecon_encode ${LIBBSD_LIBRARY})
+
+endif()
+
 common_build_directives(gfxrecon_encode)
 
 if (${RUN_TESTS})

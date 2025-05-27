@@ -153,8 +153,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define SKIP_THREADS_WITH_INVALID_DATA_UPPER                 "SKIP_THREADS_WITH_INVALID_DATA"
 #define CAPTURE_ENVIRONMENT_LOWER                            "capture_environment"
 #define CAPTURE_ENVIRONMENT_UPPER                            "CAPTURE_ENVIRONMENT"
-#define CAPTURE_PACKAGE_NAME_LOWER                           "capture_package_name"
-#define CAPTURE_PACKAGE_NAME_UPPER                           "CAPTURE_PACKAGE_NAME"
+#define CAPTURE_PROCESS_NAME_LOWER                           "capture_process_name"
+#define CAPTURE_PROCESS_NAME_UPPER                           "CAPTURE_PROCESS_NAME"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -227,7 +227,7 @@ const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_OPTION_S
 const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_OPTION_STR(IGNORE_FRAME_BOUNDARY_ANDROID);
 const char kSkipThreadsWithInvalidDataEnvVar[]               = GFXRECON_OPTION_STR(SKIP_THREADS_WITH_INVALID_DATA);
 const char kCaptureEnvironmentEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_ENVIRONMENT);
-const char kCapturePackageNameEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_PACKAGE_NAME);
+const char kCaptureProcessNameEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_PROCESS_NAME);
 
 #if defined(__ANDROID__)
 // Android-specific capture options
@@ -291,7 +291,7 @@ const std::string kOptionForceFifoPresentMode                        = std::stri
 const std::string kOptionIgnoreFrameBoundaryAndroid                  = std::string(kSettingsFilter) + std::string(IGNORE_FRAME_BOUNDARY_ANDROID_LOWER);
 const std::string kOptionSkipThreadsWithInvalidData                  = std::string(kSettingsFilter) + std::string(SKIP_THREADS_WITH_INVALID_DATA_LOWER);
 const std::string kOptionCaptureEnvironment                          = std::string(kSettingsFilter) + std::string(CAPTURE_ENVIRONMENT_LOWER);
-const std::string kOptionCapturePackageName                          = std::string(kSettingsFilter) + std::string(CAPTURE_PACKAGE_NAME_LOWER);
+const std::string kOptionCaptureProcessName                          = std::string(kSettingsFilter) + std::string(CAPTURE_PROCESS_NAME_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -469,7 +469,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kSkipThreadsWithInvalidDataEnvVar, kOptionSkipThreadsWithInvalidData);
 
     LoadSingleOptionEnvVar(options, kCaptureEnvironmentEnvVar, kOptionCaptureEnvironment);
-    LoadSingleOptionEnvVar(options, kCapturePackageNameEnvVar, kOptionCapturePackageName);
+    LoadSingleOptionEnvVar(options, kCaptureProcessNameEnvVar, kOptionCaptureProcessName);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -704,8 +704,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Capture environment variables
     settings->trace_settings_.capture_environment =
         util::strings::SplitString(FindOption(options, kOptionCaptureEnvironment), ',');
-    settings->trace_settings_.capture_package_name =
-        FindOption(options, kOptionCapturePackageName, settings->trace_settings_.capture_package_name);
+    settings->trace_settings_.capture_process_name =
+        FindOption(options, kOptionCaptureProcessName, settings->trace_settings_.capture_process_name);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
