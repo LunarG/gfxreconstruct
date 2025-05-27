@@ -3040,13 +3040,6 @@ std::runtime_error vulkan_exception(const char* message, VkResult result)
     return std::runtime_error(error_message);
 }
 
-#ifndef __ANDROID__
-std::runtime_error sdl_exception()
-{
-    return std::runtime_error("TODO");
-}
-#endif
-
 void device_initialization_phase_1(application::Application& app, InitInfo& init)
 {
     if (std::getenv("GFXRECON_TESTAPP_HEADLESS") == nullptr)

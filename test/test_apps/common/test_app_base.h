@@ -75,9 +75,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test)
 
 std::runtime_error vulkan_exception(const char* message, VkResult result);
-#ifndef __ANDROID__
-std::runtime_error sdl_exception();
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
