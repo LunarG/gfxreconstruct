@@ -700,7 +700,6 @@ class DrawCallsDumpingContext
 
     VkCommandBuffer                 aux_command_buffer_;
     VkFence                         aux_fence_;
-    bool                            must_backup_resources_;
     DumpResourcesCommandBufferLevel command_buffer_level_;
 
     const graphics::VulkanDeviceTable*      device_table_;
