@@ -74,8 +74,6 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       dr
 {
     if (draw_indices != nullptr)
     {
-        must_backup_resources_ = (draw_indices->size() > 1);
-
         const size_t n_cmd_buffs = dump_resources_before_ ? 2 * draw_indices->size() : draw_indices->size();
         command_buffers_.resize(n_cmd_buffs, VK_NULL_HANDLE);
 
@@ -191,12 +189,12 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
     uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
-    auto new_entry =
+    auto [entry_it, success] =
         draw_call_params_.insert({ index,
                                    std::make_unique<DrawCallParams>(
                                        DrawCallType::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride) });
-    GFXRECON_ASSERT(new_entry.second);
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t                index,
@@ -852,7 +850,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump immutable resources
         if (dump_immutable_resources_ && (!dump_resources_before_ || dump_resources_before_ && !(cb % 2)))
         {
-            VkResult res = DumpImmutableDescriptors(qs_index, bcb_index, dc_index, rp);
+            res = DumpImmutableDescriptors(qs_index, bcb_index, dc_index, rp);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())

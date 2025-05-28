@@ -252,8 +252,17 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
 
     mem_alloc_info.memoryTypeIndex = index;
 
+    VkMemoryAllocateFlagsInfo mem_alloc_flags_info = {};
+    mem_alloc_flags_info.sType                     = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+    if (ci.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+    {
+        mem_alloc_flags_info.flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+    }
+    mem_alloc_info.pNext = &mem_alloc_flags_info;
+
     assert(new_buffer_memory);
     res = device_table->AllocateMemory(device, &mem_alloc_info, nullptr, new_buffer_memory);
+
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateMemory failed with %s", util::ToString<VkResult>(res).c_str());
@@ -266,7 +275,6 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
         GFXRECON_LOG_ERROR("BindBufferMemory failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
-
     return VK_SUCCESS;
 }
 
