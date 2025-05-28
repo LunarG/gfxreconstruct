@@ -10648,7 +10648,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
                                   out_pipelines);
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
-    if (cache_pipeline_id != format::kNullHandleId)
+    if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
     {
         TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, out_pipelines, create_info_count);
     }
@@ -10700,7 +10700,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
         func(in_device, pipeline_cache, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_pipelines);
 
     // If a pipeline cache was created, track it to know when to destroy it/save it to file
-    if (cache_pipeline_id != format::kNullHandleId)
+    if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
     {
         TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, out_pipelines, create_info_count);
     }
@@ -11002,6 +11002,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                                 device_info,
                                 pipeline_cache,
                                 cache_pipeline_id,
+                                replay_result,
                                 pipeline_handles = out_pipelines.data(),
                                 num_pipelines    = out_pipelines.size(),
                                 handle_deps      = std::move(handle_deps)] {
@@ -11009,7 +11010,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
             ClearAsyncHandles(handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
-            if (cache_pipeline_id != format::kNullHandleId)
+            if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
                 TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
             }
@@ -11091,6 +11092,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                                 device_info,
                                 pipeline_cache,
                                 cache_pipeline_id,
+                                replay_result,
                                 pipeline_handles = out_pipelines.data(),
                                 num_pipelines    = out_pipelines.size(),
                                 handle_deps      = std::move(handle_deps)] {
@@ -11098,7 +11100,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
             ClearAsyncHandles(handle_deps);
 
             // if a pipeline cache was created, track it to know when to destroy it/save it to file
-            if (cache_pipeline_id != format::kNullHandleId)
+            if (cache_pipeline_id != format::kNullHandleId && replay_result == VK_SUCCESS)
             {
                 TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, pipeline_handles, num_pipelines);
             }
