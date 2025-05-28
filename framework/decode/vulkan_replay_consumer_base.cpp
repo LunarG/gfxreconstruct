@@ -5562,6 +5562,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
         // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
         modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+        // make sure to exclude flags incompatible with TRANSFER_SRC_BIT
+        modified_create_info.usage &= ~VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
     }
 
     // The original image might be external and it might be an unknown format, so perform any
@@ -5990,7 +5993,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
+        VulkanRenderPassInfo::SubpassReferences sp_ref;
+        sp_ref.flags               = create_info->pSubpasses[i].flags;
+        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
 
         // Copy input attachment refs
         for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
@@ -6035,8 +6040,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
         {
             sp_ref.has_depth = false;
         }
-
-        sp_ref.flags = create_info->pSubpasses[i].flags;
 
         render_pass_info->subpass_refs.push_back(std::move(sp_ref));
     }
@@ -6136,7 +6139,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
+        VulkanRenderPassInfo::SubpassReferences sp_ref;
+        sp_ref.flags               = create_info->pSubpasses[i].flags;
+        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
+
         sp_ref.color_att_refs.resize(create_info->pSubpasses[i].colorAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
         {
