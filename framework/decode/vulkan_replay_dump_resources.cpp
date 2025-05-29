@@ -580,15 +580,16 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
     }
 }
 
-void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallInfo&         call_info,
-                                                                 PFN_vkCmdDrawIndirectCount func,
-                                                                 VkCommandBuffer            original_command_buffer,
-                                                                 const VulkanBufferInfo*    buffer_info,
-                                                                 VkDeviceSize               offset,
-                                                                 const VulkanBufferInfo*    count_buffer_info,
-                                                                 VkDeviceSize               count_buffer_offset,
-                                                                 uint32_t                   max_draw_count,
-                                                                 uint32_t                   stride)
+void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo&         call_info,
+                                                               PFN_vkCmdDrawIndirectCount func,
+                                                               VkCommandBuffer            original_command_buffer,
+                                                               const VulkanBufferInfo*    buffer_info,
+                                                               VkDeviceSize               offset,
+                                                               const VulkanBufferInfo*    count_buffer_info,
+                                                               VkDeviceSize               count_buffer_offset,
+                                                               uint32_t                   max_draw_count,
+                                                               uint32_t                   stride,
+                                                               DrawCallsDumpingContext::DrawCallType drawcall_type)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -607,8 +608,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallIn
 
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewIndirectCountParameters(
-            dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
+        dc_context->InsertNewIndirectCountParameters(dc_index,
+                                                     buffer_info,
+                                                     offset,
+                                                     count_buffer_info,
+                                                     count_buffer_offset,
+                                                     max_draw_count,
+                                                     stride,
+                                                     drawcall_type);
     }
 
     CommandBufferIterator first, last;
@@ -638,15 +645,17 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallIn
     }
 }
 
-void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCount(const ApiCallInfo&                call_info,
-                                                                        PFN_vkCmdDrawIndexedIndirectCount func,
-                                                                        VkCommandBuffer         original_command_buffer,
-                                                                        const VulkanBufferInfo* buffer_info,
-                                                                        VkDeviceSize            offset,
-                                                                        const VulkanBufferInfo* count_buffer_info,
-                                                                        VkDeviceSize            count_buffer_offset,
-                                                                        uint32_t                max_draw_count,
-                                                                        uint32_t                stride)
+void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
+    const ApiCallInfo&                    call_info,
+    PFN_vkCmdDrawIndirectCountKHR         func,
+    VkCommandBuffer                       original_command_buffer,
+    const VulkanBufferInfo*               buffer_info,
+    VkDeviceSize                          offset,
+    const VulkanBufferInfo*               count_buffer_info,
+    VkDeviceSize                          count_buffer_offset,
+    uint32_t                              max_draw_count,
+    uint32_t                              stride,
+    DrawCallsDumpingContext::DrawCallType drawcall_type)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -665,124 +674,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCount(const Ap
 
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedIndirectCountParameters(
-            dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-    }
-
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
-
-    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
-    if (dr_command_buffer != VK_NULL_HANDLE)
-    {
-        func(dr_command_buffer,
-             buffer_info->handle,
-             offset,
-             count_buffer_info->handle,
-             count_buffer_offset,
-             max_draw_count,
-             stride);
-    }
-
-    if (must_dump)
-    {
-        assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
-        UpdateRecordingStatus(original_command_buffer);
-    }
-}
-
-void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCountKHR(const ApiCallInfo&            call_info,
-                                                                    PFN_vkCmdDrawIndirectCountKHR func,
-                                                                    VkCommandBuffer         original_command_buffer,
-                                                                    const VulkanBufferInfo* buffer_info,
-                                                                    VkDeviceSize            offset,
-                                                                    const VulkanBufferInfo* count_buffer_info,
-                                                                    VkDeviceSize            count_buffer_offset,
-                                                                    uint32_t                max_draw_count,
-                                                                    uint32_t                stride)
-{
-    assert(IsRecording(original_command_buffer));
-
-    const uint64_t           dc_index   = call_info.index;
-    const bool               must_dump  = MustDumpDrawCall(original_command_buffer, dc_index);
-    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (dump_resources_before_ && must_dump)
-    {
-        assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
-        UpdateRecordingStatus(original_command_buffer);
-    }
-
-    if (dc_context != nullptr && must_dump)
-    {
-        dc_context->InsertNewDrawIndirectCountKHRParameters(
-            dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
-    }
-
-    CommandBufferIterator first, last;
-    GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
-    for (CommandBufferIterator it = first; it < last; ++it)
-    {
-        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
-    }
-
-    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
-    if (dr_command_buffer != VK_NULL_HANDLE)
-    {
-        func(dr_command_buffer,
-             buffer_info->handle,
-             offset,
-             count_buffer_info->handle,
-             count_buffer_offset,
-             max_draw_count,
-             stride);
-    }
-
-    if (must_dump)
-    {
-        assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
-        UpdateRecordingStatus(original_command_buffer);
-    }
-}
-
-void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCountKHR(const ApiCallInfo& call_info,
-                                                                           PFN_vkCmdDrawIndexedIndirectCountKHR func,
-                                                                           VkCommandBuffer original_command_buffer,
-                                                                           const VulkanBufferInfo* buffer_info,
-                                                                           VkDeviceSize            offset,
-                                                                           const VulkanBufferInfo* count_buffer_info,
-                                                                           VkDeviceSize            count_buffer_offset,
-                                                                           uint32_t                max_draw_count,
-                                                                           uint32_t                stride)
-{
-    assert(IsRecording(original_command_buffer));
-
-    const uint64_t           dc_index   = call_info.index;
-    const bool               must_dump  = MustDumpDrawCall(original_command_buffer, dc_index);
-    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
-
-    // Finalize draw call command buffer before the actual draw call in order
-    // to handle dumping render targets before the draw call
-    if (dump_resources_before_ && must_dump)
-    {
-        assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
-        UpdateRecordingStatus(original_command_buffer);
-    }
-
-    if (dc_context != nullptr && must_dump)
-    {
-        dc_context->InsertNewDrawIndexedIndirectCountKHRParameters(
-            dc_index, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride);
+        dc_context->InsertNewDrawIndexedIndirectCountParameters(dc_index,
+                                                                buffer_info,
+                                                                offset,
+                                                                count_buffer_info,
+                                                                count_buffer_offset,
+                                                                max_draw_count,
+                                                                stride,
+                                                                drawcall_type);
     }
 
     CommandBufferIterator first, last;

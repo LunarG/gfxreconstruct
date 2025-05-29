@@ -100,17 +100,19 @@ class VulkanReplayDumpResourcesBase
                                       const VulkanBufferInfo*    count_buffer_info,
                                       VkDeviceSize               count_buffer_offset,
                                       uint32_t                   max_draw_count,
-                                      uint32_t                   stride);
-
-    void OverrideCmdDrawIndexedIndirectCount(const ApiCallInfo&                call_info,
-                                             PFN_vkCmdDrawIndexedIndirectCount func,
-                                             VkCommandBuffer                   original_command_buffer,
-                                             const VulkanBufferInfo*           buffer_info,
-                                             VkDeviceSize                      offset,
-                                             const VulkanBufferInfo*           count_buffer_info,
-                                             VkDeviceSize                      count_buffer_offset,
-                                             uint32_t                          max_draw_count,
-                                             uint32_t                          stride);
+                                      uint32_t                   stride)
+    {
+        HandleCmdDrawIndirectCount(call_info,
+                                   func,
+                                   original_command_buffer,
+                                   buffer_info,
+                                   offset,
+                                   count_buffer_info,
+                                   count_buffer_offset,
+                                   max_draw_count,
+                                   stride,
+                                   DrawCallsDumpingContext::kDrawIndirectCount);
+    }
 
     void OverrideCmdDrawIndirectCountKHR(const ApiCallInfo&            call_info,
                                          PFN_vkCmdDrawIndirectCountKHR func,
@@ -120,7 +122,63 @@ class VulkanReplayDumpResourcesBase
                                          const VulkanBufferInfo*       count_buffer_info,
                                          VkDeviceSize                  count_buffer_offset,
                                          uint32_t                      max_draw_count,
-                                         uint32_t                      stride);
+                                         uint32_t                      stride)
+    {
+        HandleCmdDrawIndirectCount(call_info,
+                                   func,
+                                   original_command_buffer,
+                                   buffer_info,
+                                   offset,
+                                   count_buffer_info,
+                                   count_buffer_offset,
+                                   max_draw_count,
+                                   stride,
+                                   DrawCallsDumpingContext::kDrawIndirectCountKHR);
+    }
+
+    void OverrideCmdDrawIndirectCountAMD(const ApiCallInfo&            call_info,
+                                         PFN_vkCmdDrawIndirectCountAMD func,
+                                         VkCommandBuffer               original_command_buffer,
+                                         const VulkanBufferInfo*       buffer_info,
+                                         VkDeviceSize                  offset,
+                                         const VulkanBufferInfo*       count_buffer_info,
+                                         VkDeviceSize                  count_buffer_offset,
+                                         uint32_t                      max_draw_count,
+                                         uint32_t                      stride)
+    {
+        HandleCmdDrawIndirectCount(call_info,
+                                   func,
+                                   original_command_buffer,
+                                   buffer_info,
+                                   offset,
+                                   count_buffer_info,
+                                   count_buffer_offset,
+                                   max_draw_count,
+                                   stride,
+                                   DrawCallsDumpingContext::kDrawIndirectCountAMD);
+    }
+
+    void OverrideCmdDrawIndexedIndirectCount(const ApiCallInfo&                call_info,
+                                             PFN_vkCmdDrawIndexedIndirectCount func,
+                                             VkCommandBuffer                   original_command_buffer,
+                                             const VulkanBufferInfo*           buffer_info,
+                                             VkDeviceSize                      offset,
+                                             const VulkanBufferInfo*           count_buffer_info,
+                                             VkDeviceSize                      count_buffer_offset,
+                                             uint32_t                          max_draw_count,
+                                             uint32_t                          stride)
+    {
+        HandleCmdDrawIndexedIndirectCount(call_info,
+                                          func,
+                                          original_command_buffer,
+                                          buffer_info,
+                                          offset,
+                                          count_buffer_info,
+                                          count_buffer_offset,
+                                          max_draw_count,
+                                          stride,
+                                          DrawCallsDumpingContext::kDrawIndexedIndirectCount);
+    }
 
     void OverrideCmdDrawIndexedIndirectCountKHR(const ApiCallInfo&                   call_info,
                                                 PFN_vkCmdDrawIndexedIndirectCountKHR func,
@@ -130,7 +188,41 @@ class VulkanReplayDumpResourcesBase
                                                 const VulkanBufferInfo*              count_buffer_info,
                                                 VkDeviceSize                         count_buffer_offset,
                                                 uint32_t                             max_draw_count,
-                                                uint32_t                             stride);
+                                                uint32_t                             stride)
+    {
+        HandleCmdDrawIndexedIndirectCount(call_info,
+                                          func,
+                                          original_command_buffer,
+                                          buffer_info,
+                                          offset,
+                                          count_buffer_info,
+                                          count_buffer_offset,
+                                          max_draw_count,
+                                          stride,
+                                          DrawCallsDumpingContext::kDrawIndexedIndirectCountKHR);
+    }
+
+    void OverrideCmdDrawIndexedIndirectCountAMD(const ApiCallInfo&                   call_info,
+                                                PFN_vkCmdDrawIndexedIndirectCountAMD func,
+                                                VkCommandBuffer                      original_command_buffer,
+                                                const VulkanBufferInfo*              buffer_info,
+                                                VkDeviceSize                         offset,
+                                                const VulkanBufferInfo*              count_buffer_info,
+                                                VkDeviceSize                         count_buffer_offset,
+                                                uint32_t                             max_draw_count,
+                                                uint32_t                             stride)
+    {
+        HandleCmdDrawIndexedIndirectCount(call_info,
+                                          func,
+                                          original_command_buffer,
+                                          buffer_info,
+                                          offset,
+                                          count_buffer_info,
+                                          count_buffer_offset,
+                                          max_draw_count,
+                                          stride,
+                                          DrawCallsDumpingContext::kDrawIndexedIndirectCountAMD);
+    }
 
     void OverrideCmdBeginRenderPass(const ApiCallInfo&                                   call_info,
                                     PFN_vkCmdBeginRenderPass                             func,
@@ -364,6 +456,28 @@ class VulkanReplayDumpResourcesBase
                                      const VkDeviceSize*         pOffsets,
                                      const VkDeviceSize*         pSizes,
                                      const VkDeviceSize*         pStrides);
+
+    void HandleCmdDrawIndirectCount(const ApiCallInfo&                    call_info,
+                                    PFN_vkCmdDrawIndirectCount            func,
+                                    VkCommandBuffer                       original_command_buffer,
+                                    const VulkanBufferInfo*               buffer_info,
+                                    VkDeviceSize                          offset,
+                                    const VulkanBufferInfo*               count_buffer_info,
+                                    VkDeviceSize                          count_buffer_offset,
+                                    uint32_t                              max_draw_count,
+                                    uint32_t                              stride,
+                                    DrawCallsDumpingContext::DrawCallType drawcall_type);
+
+    void HandleCmdDrawIndexedIndirectCount(const ApiCallInfo&                    call_info,
+                                           PFN_vkCmdDrawIndexedIndirectCount     func,
+                                           VkCommandBuffer                       original_command_buffer,
+                                           const VulkanBufferInfo*               buffer_info,
+                                           VkDeviceSize                          offset,
+                                           const VulkanBufferInfo*               count_buffer_info,
+                                           VkDeviceSize                          count_buffer_offset,
+                                           uint32_t                              max_draw_count,
+                                           uint32_t                              stride,
+                                           DrawCallsDumpingContext::DrawCallType drawcall_type);
 
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;

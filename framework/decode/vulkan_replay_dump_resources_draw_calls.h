@@ -44,6 +44,20 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DrawCallsDumpingContext
 {
   public:
+    enum DrawCallType
+    {
+        kDraw,
+        kDrawIndirect,
+        kDrawIndirectCount,
+        kDrawIndirectCountKHR,
+        kDrawIndirectCountAMD,
+        kDrawIndexed,
+        kDrawIndexedIndirect,
+        kDrawIndexedIndirectCount,
+        kDrawIndexedIndirectCountKHR,
+        kDrawIndexedIndirectCountAMD
+    };
+
     DrawCallsDumpingContext(const DrawCallIndices*       dc_indices_,
                             const RenderPassIndices*     rp_indices,
                             CommonObjectInfoTable&       object_info_table,
@@ -154,7 +168,8 @@ class DrawCallsDumpingContext
                                           const VulkanBufferInfo* count_buffer_info,
                                           VkDeviceSize            count_buffer_offset,
                                           uint32_t                max_draw_count,
-                                          uint32_t                stride);
+                                          uint32_t                stride,
+                                          DrawCallType            drawcall_type);
 
     void InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
                                                      const VulkanBufferInfo* buffer_info,
@@ -162,23 +177,8 @@ class DrawCallsDumpingContext
                                                      const VulkanBufferInfo* count_buffer_info,
                                                      VkDeviceSize            count_buffer_offset,
                                                      uint32_t                max_draw_count,
-                                                     uint32_t                stride);
-
-    void InsertNewDrawIndirectCountKHRParameters(uint64_t                index,
-                                                 const VulkanBufferInfo* buffer_info,
-                                                 VkDeviceSize            offset,
-                                                 const VulkanBufferInfo* count_buffer_info,
-                                                 VkDeviceSize            count_buffer_offset,
-                                                 uint32_t                max_draw_count,
-                                                 uint32_t                stride);
-
-    void InsertNewDrawIndexedIndirectCountKHRParameters(uint64_t                index,
-                                                        const VulkanBufferInfo* buffer_info,
-                                                        VkDeviceSize            offset,
-                                                        const VulkanBufferInfo* count_buffer_info,
-                                                        VkDeviceSize            count_buffer_offset,
-                                                        uint32_t                max_draw_count,
-                                                        uint32_t                stride);
+                                                     uint32_t                stride,
+                                                     DrawCallType            drawcall_type);
 
     void Release();
 
@@ -355,19 +355,7 @@ class DrawCallsDumpingContext
     BoundIndexBuffer bound_index_buffer_;
 
   public:
-    enum DrawCallTypes
-    {
-        kDraw,
-        kDrawIndirect,
-        kDrawIndirectCount,
-        kDrawIndirectCountKHR,
-        kDrawIndexed,
-        kDrawIndexedIndirect,
-        kDrawIndexedIndirectCount,
-        kDrawIndexedIndirectCountKHR
-    };
-
-    static const char* DrawCallTypeToStr(DrawCallTypes type)
+    static const char* DrawCallTypeToStr(DrawCallType type)
     {
         switch (type)
         {
@@ -379,6 +367,8 @@ class DrawCallsDumpingContext
                 return "vkCmdDrawIndirectCount";
             case kDrawIndirectCountKHR:
                 return "vkCmdDrawIndirectCountKHR";
+            case kDrawIndirectCountAMD:
+                return "vkCmdDrawIndirectCountAMD";
             case kDrawIndexed:
                 return "vkCmdDrawIndexed";
             case kDrawIndexedIndirect:
@@ -387,13 +377,15 @@ class DrawCallsDumpingContext
                 return "vkCmdDrawIndexedIndirectCount";
             case kDrawIndexedIndirectCountKHR:
                 return "vkCmdDrawIndexedIndirectCountKHR";
+            case kDrawIndexedIndirectCountAMD:
+                return "vkCmdDrawIndexedIndirectCountAMD";
             default:
                 assert(0);
                 return "Unrecognized draw call type";
         }
     }
 
-    static bool IsDrawCallIndexed(DrawCallTypes dc_type)
+    static bool IsDrawCallIndexed(DrawCallType dc_type)
     {
         switch (dc_type)
         {
@@ -401,12 +393,14 @@ class DrawCallsDumpingContext
             case kDrawIndirect:
             case kDrawIndirectCount:
             case kDrawIndirectCountKHR:
+            case kDrawIndirectCountAMD:
                 return false;
 
             case kDrawIndexed:
             case kDrawIndexedIndirect:
             case kDrawIndexedIndirectCount:
             case kDrawIndexedIndirectCountKHR:
+            case kDrawIndexedIndirectCountAMD:
                 return true;
 
             default:
@@ -416,7 +410,7 @@ class DrawCallsDumpingContext
         }
     }
 
-    static bool IsDrawCallIndirect(DrawCallTypes dc_type)
+    static bool IsDrawCallIndirect(DrawCallType dc_type)
     {
         switch (dc_type)
         {
@@ -427,9 +421,11 @@ class DrawCallsDumpingContext
             case kDrawIndirect:
             case kDrawIndirectCount:
             case kDrawIndirectCountKHR:
+            case kDrawIndirectCountAMD:
             case kDrawIndexedIndirect:
             case kDrawIndexedIndirectCount:
             case kDrawIndexedIndirectCountKHR:
+            case kDrawIndexedIndirectCountAMD:
                 return true;
 
             default:
@@ -439,7 +435,7 @@ class DrawCallsDumpingContext
         }
     }
 
-    static bool IsDrawCallIndirectCount(DrawCallTypes dc_type)
+    static bool IsDrawCallIndirectCount(DrawCallType dc_type)
     {
         switch (dc_type)
         {
@@ -576,34 +572,34 @@ class DrawCallsDumpingContext
         } dc_params_union;
 
         // Constructor for vkCmdDraw
-        DrawCallParams(DrawCallTypes type,
-                       uint32_t      vertex_count,
-                       uint32_t      instance_count,
-                       uint32_t      first_vertex,
-                       uint32_t      first_instance) :
+        DrawCallParams(DrawCallType type,
+                       uint32_t     vertex_count,
+                       uint32_t     instance_count,
+                       uint32_t     first_vertex,
+                       uint32_t     first_instance) :
             dc_params_union(vertex_count, instance_count, first_vertex, first_instance),
             type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
             updated_bound_index_buffer(false)
         {
-            assert(type == DrawCallTypes::kDraw);
+            assert(type == DrawCallType::kDraw);
         }
 
         // Constructor for vkCmdDrawIndexed*
-        DrawCallParams(DrawCallTypes type,
-                       uint32_t      index_count,
-                       uint32_t      instance_count,
-                       uint32_t      first_index,
-                       int32_t       vertex_offset,
-                       uint32_t      first_instance) :
+        DrawCallParams(DrawCallType type,
+                       uint32_t     index_count,
+                       uint32_t     instance_count,
+                       uint32_t     first_index,
+                       int32_t      vertex_offset,
+                       uint32_t     first_instance) :
             dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance),
             type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
             updated_bound_index_buffer(false)
         {
-            assert(type == DrawCallTypes::kDrawIndexed);
+            assert(type == DrawCallType::kDrawIndexed);
         }
 
         // Constructor for vkCmdDraw*Indirect
-        DrawCallParams(DrawCallTypes           type,
+        DrawCallParams(DrawCallType            type,
                        const VulkanBufferInfo* params_buffer_info,
                        VkDeviceSize            offset,
                        uint32_t                draw_count,
@@ -612,11 +608,11 @@ class DrawCallsDumpingContext
             type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
             updated_bound_index_buffer(false)
         {
-            assert(type == DrawCallTypes::kDrawIndirect || type == DrawCallTypes::kDrawIndexedIndirect);
+            assert(type == DrawCallType::kDrawIndirect || type == DrawCallType::kDrawIndexedIndirect);
         }
 
         // Constructor for vkCmdDraw*IndirectCount*
-        DrawCallParams(DrawCallTypes           type,
+        DrawCallParams(DrawCallType            type,
                        const VulkanBufferInfo* buffer_info,
                        VkDeviceSize            offset,
                        const VulkanBufferInfo* count_buffer_info,
@@ -627,11 +623,13 @@ class DrawCallsDumpingContext
             type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
             updated_bound_index_buffer(false)
         {
-            assert(type == DrawCallTypes::kDrawIndirectCount || type == DrawCallTypes::kDrawIndexedIndirectCount ||
-                   type == DrawCallTypes::kDrawIndirectCountKHR || type == DrawCallTypes::kDrawIndexedIndirectCountKHR);
+            GFXRECON_ASSERT(
+                type == DrawCallType::kDrawIndirectCount || type == DrawCallType::kDrawIndexedIndirectCount ||
+                type == DrawCallType::kDrawIndirectCountKHR || type == DrawCallType::kDrawIndexedIndirectCountKHR ||
+                type == DrawCallType::kDrawIndirectCountAMD || type == DrawCallType::kDrawIndexedIndirectCountAMD);
         }
 
-        DrawCallTypes type;
+        DrawCallType type;
 
         // Store the vertex input state taken either from the current pipeline or from
         // CmdSetVertexInputEXT/CmdBindVertexBuffers2
