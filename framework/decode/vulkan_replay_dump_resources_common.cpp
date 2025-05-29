@@ -309,9 +309,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     {
         case VK_INDEX_TYPE_UINT8_EXT:
         {
-            const uint8_t  restart_index = 0xff;
-            const uint8_t* indices       = static_cast<const uint8_t*>(index_data.data());
-            uint32_t       i             = 0;
+            const uint8_t restart_index = 0xff;
+            const auto*   indices       = static_cast<const uint8_t*>(index_data.data());
+            uint32_t      i             = 0;
             while (indices[first_index + i] == restart_index && i < index_count)
             {
                 ++i;
@@ -331,16 +331,8 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                 {
                     continue;
                 }
-
-                if (indices[first_index + i] > max)
-                {
-                    max = indices[first_index + i];
-                }
-
-                if (indices[first_index + i] < min)
-                {
-                    min = indices[first_index + i];
-                }
+                min = std::min(min, indices[first_index + i]);
+                max = std::max(max, indices[first_index + i]);
             }
 
             return MinMaxVertexIndex{ static_cast<uint32_t>(min) + vertex_offset,
@@ -350,9 +342,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
 
         case VK_INDEX_TYPE_UINT16:
         {
-            const uint16_t  restart_index = 0xffff;
-            const uint16_t* indices       = reinterpret_cast<const uint16_t*>(index_data.data());
-            uint32_t        i             = 0;
+            const uint16_t restart_index = 0xffff;
+            const auto*    indices       = reinterpret_cast<const uint16_t*>(index_data.data());
+            uint32_t       i             = 0;
             while (indices[first_index + i] == restart_index && i < index_count)
             {
                 ++i;
@@ -372,16 +364,8 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                 {
                     continue;
                 }
-
-                if (indices[first_index + i] > max)
-                {
-                    max = indices[first_index + i];
-                }
-
-                if (indices[first_index + i] < min)
-                {
-                    min = indices[first_index + i];
-                }
+                min = std::min(min, indices[first_index + i]);
+                max = std::max(max, indices[first_index + i]);
             }
 
             return MinMaxVertexIndex{ static_cast<uint32_t>(min) + vertex_offset,
@@ -391,9 +375,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
 
         case VK_INDEX_TYPE_UINT32:
         {
-            const uint32_t  restart_index = 0xffffffff;
-            const uint32_t* indices       = reinterpret_cast<const uint32_t*>(index_data.data());
-            uint32_t        i             = 0;
+            const uint32_t restart_index = 0xffffffff;
+            const auto*    indices       = reinterpret_cast<const uint32_t*>(index_data.data());
+            uint32_t       i             = 0;
             while (indices[first_index + i] == restart_index && i < index_count)
             {
                 ++i;
@@ -413,18 +397,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                 {
                     continue;
                 }
-
-                if (indices[first_index + i] > max)
-                {
-                    max = indices[first_index + i];
-                }
-
-                if (indices[first_index + i] < min)
-                {
-                    min = indices[first_index + i];
-                }
+                min = std::min(min, indices[first_index + i]);
+                max = std::max(max, indices[first_index + i]);
             }
-
             return MinMaxVertexIndex{ min + vertex_offset, max + vertex_offset };
         }
         break;
