@@ -1390,6 +1390,10 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     }
 
     result = device_table_.WaitForFences(device_, 1, &fence, VK_TRUE, ~0UL);
+
+    // TODO: re-use fence
+    device_table_.DestroyFence(device_, fence, nullptr);
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("WaitForFences returned %d while taking a resource memory snapshot", result);
