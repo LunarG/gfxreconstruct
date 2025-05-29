@@ -1641,15 +1641,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             {
                 MinMaxVertexIndex min_max_indices = FindMinMaxVertexIndices(
                     res_info.data, params.index_count, params.first_index, params.vertex_offset, index_type);
-                if (min_max_indices.min < min_max_vertex_indices.min)
-                {
-                    min_max_vertex_indices.min = min_max_indices.min;
-                }
 
-                if (min_max_indices.max > min_max_vertex_indices.max)
-                {
-                    min_max_vertex_indices.max = min_max_indices.max;
-                }
+                min_max_vertex_indices.min = std::min(min_max_indices.min, min_max_vertex_indices.min);
+                min_max_vertex_indices.max = std::max(min_max_indices.max, min_max_vertex_indices.max);
             }
         }
     }
@@ -1846,7 +1840,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 // Calculate offset including vertexOffset
                 uint32_t offset = vb_entry.offset;
-                offset += (input_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? first_vertex : first_instance) *
+                offset += (input_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX
+                               ? min_max_vertex_indices.min + first_vertex
+                               : first_instance) *
                           binding_stride;
 
                 GFXRECON_ASSERT(total_size <= vb_entry.buffer_info->size - offset);
