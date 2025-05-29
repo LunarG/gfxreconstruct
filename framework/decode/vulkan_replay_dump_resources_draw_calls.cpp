@@ -105,7 +105,7 @@ void DrawCallsDumpingContext::Release()
             object_info_table_.GetVkCommandPoolInfo(original_command_buffer_info_->pool_id);
         assert(pool_info);
 
-        if (command_buffers_.size())
+        if (!command_buffers_.empty())
         {
             device_table_->FreeCommandBuffers(
                 device, pool_info->handle, command_buffers_.size(), command_buffers_.data());
@@ -158,24 +158,22 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
                                                              int32_t  vertexOffset,
                                                              uint32_t first_instance)
 {
-    auto new_entry = draw_call_params_.insert(
+    auto [entry_it, success] = draw_call_params_.insert(
         { index,
           std::make_unique<DrawCallParams>(
               DrawCallType::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance) });
-    GFXRECON_ASSERT(new_entry.second);
-
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
     uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
-    auto new_entry = draw_call_params_.insert(
+    auto [entry_it, success] = draw_call_params_.insert(
         { index,
           std::make_unique<DrawCallParams>(DrawCallType::kDrawIndirect, buffer_info, offset, draw_count, stride) });
-    GFXRECON_ASSERT(new_entry.second);
-
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
@@ -200,12 +198,12 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
 {
     GFXRECON_ASSERT(drawcall_type == kDrawIndirectCount || drawcall_type == kDrawIndirectCountKHR ||
                     drawcall_type == kDrawIndirectCountAMD);
-    auto new_entry = draw_call_params_.insert(
+    auto [entry_it, success] = draw_call_params_.insert(
         { index,
           std::make_unique<DrawCallParams>(
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
-    GFXRECON_ASSERT(new_entry.second);
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
@@ -219,12 +217,12 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
 {
     GFXRECON_ASSERT(drawcall_type == kDrawIndexedIndirectCount || drawcall_type == kDrawIndexedIndirectCountKHR ||
                     drawcall_type == kDrawIndexedIndirectCountAMD);
-    auto new_entry = draw_call_params_.insert(
+    auto [entry_it, success] = draw_call_params_.insert(
         { index,
           std::make_unique<DrawCallParams>(
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
-    GFXRECON_ASSERT(new_entry.second);
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_params)
@@ -270,9 +268,12 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         // Inject a cmdCopyBuffer to copy the draw params into the new buffer
         {
-            std::vector<VkBufferCopy> regions(max_draw_count);
+            std::vector<VkBufferCopy> regions(1);
             if (param_buffer_stride != draw_call_params_size)
             {
+                // requires separate copies
+                regions.resize(max_draw_count);
+
                 VkDeviceSize src_offset = param_buffer_offset;
                 VkDeviceSize dst_offset = 0;
                 for (uint32_t i = 0; i < max_draw_count; ++i)
@@ -410,9 +411,12 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         // Inject a cmdCopyBuffer to copy the draw params into the new buffer
         {
-            std::vector<VkBufferCopy> regions(draw_count);
+            std::vector<VkBufferCopy> regions(1);
             if (param_buffer_stride != draw_call_params_size)
             {
+                // requires separate copies
+                regions.resize(draw_count);
+
                 VkDeviceSize src_offset = param_buffer_offset;
                 VkDeviceSize dst_offset = 0;
                 for (uint32_t i = 0; i < draw_count; ++i)
@@ -631,11 +635,7 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
     CopyVertexInputStateInfo(
         dc_params, bound_gr_pipeline_, dynamic_vertex_input_state_, bound_vertex_buffers_, bound_index_buffer_);
 
-    // Copy indirect draw params
-    if (IsDrawCallIndirect(dc_params.type))
-    {
-        CopyDrawIndirectParameters(dc_params);
-    }
+    // NOTE: for indirect draws, we defer copying the indirect command-buffer until FinalizeCommandBuffer
 }
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer()
@@ -702,6 +702,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
         }
     }
 
+    for (const auto& [draw_index, params] : draw_call_params_)
+    {
+        // Copy indirect draw params
+        if (IsDrawCallIndirect(params->type))
+        {
+            CopyDrawIndirectParameters(*params);
+        }
+    }
     device_table_->EndCommandBuffer(current_command_buffer);
 
     // Increment index of command buffer that is going to be finalized next
@@ -1883,7 +1891,7 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*   
 
     for (auto& command_buffer : command_buffers_)
     {
-        assert(command_buffers_[i] == VK_NULL_HANDLE);
+        GFXRECON_ASSERT(command_buffer == VK_NULL_HANDLE);
         VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffer);
         if (res != VK_SUCCESS)
         {
@@ -2056,7 +2064,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
     for (size_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
     {
         bool                             has_external_dependencies_post = false;
-        bool                             has_external_dependencies_pre  = false;
         std::vector<VkSubpassDependency> modified_dependencies;
         for (const auto& original_dep : original_render_pass->dependencies)
         {
@@ -2077,24 +2084,13 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
                 new_dep->dstSubpass = sub;
             }
 
-            if (new_dep->srcSubpass == VK_SUBPASS_EXTERNAL)
-            {
-                // new_dep->srcStageMask |= VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-                // new_dep->srcAccessMask |= VK_ACCESS_TRANSFER_READ_BIT;
-
-                has_external_dependencies_pre = true;
-            }
-
             if (new_dep->dstSubpass == VK_SUBPASS_EXTERNAL)
             {
-                new_dep->dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
-                new_dep->dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
                 has_external_dependencies_post = true;
             }
         }
 
-        // No post renderpass dependecy was detected
+        // No post renderpass dependency was detected
         if (!has_external_dependencies_post)
         {
             VkSubpassDependency post_dependency;
@@ -2124,22 +2120,21 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         }
 
         const VulkanRenderPassInfo::SubpassReferences& original_subp_ref = original_render_pass->subpass_refs[sub];
-        auto new_subp_desc = subpass_descs.insert(subpass_descs.end(), VkSubpassDescription());
-
-        new_subp_desc->flags                = original_subp_ref.flags;
-        new_subp_desc->pipelineBindPoint    = original_subp_ref.pipeline_bind_point;
-        new_subp_desc->inputAttachmentCount = original_subp_ref.input_att_refs.size();
-        new_subp_desc->pInputAttachments =
+        auto&                                          new_subp_desc     = subpass_descs.emplace_back();
+        new_subp_desc.flags                                              = original_subp_ref.flags;
+        new_subp_desc.pipelineBindPoint                                  = original_subp_ref.pipeline_bind_point;
+        new_subp_desc.inputAttachmentCount                               = original_subp_ref.input_att_refs.size();
+        new_subp_desc.pInputAttachments =
             original_subp_ref.input_att_refs.empty() ? nullptr : original_subp_ref.input_att_refs.data();
-        new_subp_desc->colorAttachmentCount = original_subp_ref.color_att_refs.size();
-        new_subp_desc->pColorAttachments =
+        new_subp_desc.colorAttachmentCount = original_subp_ref.color_att_refs.size();
+        new_subp_desc.pColorAttachments =
             original_subp_ref.color_att_refs.empty() ? nullptr : original_subp_ref.color_att_refs.data();
-        new_subp_desc->pResolveAttachments =
+        new_subp_desc.pResolveAttachments =
             original_subp_ref.resolve_att_refs.empty() ? nullptr : original_subp_ref.resolve_att_refs.data();
-        new_subp_desc->pDepthStencilAttachment =
+        new_subp_desc.pDepthStencilAttachment =
             original_subp_ref.has_depth ? &original_subp_ref.depth_att_ref : nullptr;
-        new_subp_desc->preserveAttachmentCount = original_subp_ref.preserve_att_refs.size();
-        new_subp_desc->pPreserveAttachments =
+        new_subp_desc.preserveAttachmentCount = original_subp_ref.preserve_att_refs.size();
+        new_subp_desc.pPreserveAttachments =
             original_subp_ref.preserve_att_refs.empty() ? nullptr : original_subp_ref.preserve_att_refs.data();
 
         VkRenderPassCreateInfo ci;
@@ -2153,7 +2148,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         ci.pSubpasses   = subpass_descs.data();
 
         ci.dependencyCount = modified_dependencies.size();
-        ci.pDependencies   = !modified_dependencies.empty() ? modified_dependencies.data() : nullptr;
+        ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
         VkRenderPassMultiviewCreateInfo renderPassMultiviewCI;
         if (original_render_pass->has_multiview)
@@ -2193,7 +2188,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
             return res;
         }
     }
-
     return VK_SUCCESS;
 }
 
