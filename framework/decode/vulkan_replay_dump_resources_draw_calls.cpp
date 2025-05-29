@@ -28,8 +28,6 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
-#include "nlohmann/json.hpp"
-#include "util/image_writer.h"
 #include "util/buffer_writer.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/logging.h"
@@ -40,18 +38,12 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
-#include <string>
-#include <sys/types.h>
+
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
-#include <utility>
-#include <sstream>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#if !defined(WIN32)
-#include <dirent.h>
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -577,7 +569,7 @@ static void CopyVertexInputStateInfo(DrawCallsDumpingContext::DrawCallParams&   
     // Pipeline has no vertex binding and/or attribute information.
     // This can be a case of shader generated vertices, or vertex buffer is bound as a UBO
     if (bound_pipeline != nullptr &&
-        (!bound_pipeline->vertex_input_attribute_map.size() && !bound_pipeline->vertex_input_attribute_map.size()) &&
+        (bound_pipeline->vertex_input_attribute_map.empty() && bound_pipeline->vertex_input_attribute_map.empty()) &&
         (!bound_pipeline->dynamic_vertex_input && !bound_pipeline->dynamic_vertex_binding_stride))
     {
         return;
@@ -911,7 +903,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     const uint64_t              rp       = RP_index.first;
     const uint64_t              sp       = RP_index.second;
 
-    if (!render_targets_[rp][sp].color_att_imgs.size() && render_targets_[rp][sp].depth_att_img == nullptr)
+    if (render_targets_[rp][sp].color_att_imgs.empty() && render_targets_[rp][sp].depth_att_img == nullptr)
     {
         return VK_SUCCESS;
     }
@@ -1050,7 +1042,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
 
     const size_t dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_index)];
 
-    if (!render_targets_[rp][sp].color_att_imgs.size() && render_targets_[rp][sp].depth_att_img == nullptr)
+    if (render_targets_[rp][sp].color_att_imgs.empty() && render_targets_[rp][sp].depth_att_img == nullptr)
     {
         return VK_SUCCESS;
     }
@@ -1085,7 +1077,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         VulkanDumpResourceInfo res_info = res_info_base;
         res_info.type                   = DumpResourceType::kRtv;
         res_info.image_info             = render_targets_[rp][sp].color_att_imgs[i];
-        res_info.attachment_index       = i;
+        res_info.attachment_index       = static_cast<int>(i);
         auto res                        = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
@@ -1482,7 +1474,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     assert(dc_params_entry != draw_call_params_.end());
     DrawCallParams& dc_params = *dc_params_entry->second;
 
-    MinMaxVertexIndex min_max_vertex_indices = MinMaxVertexIndex{ 0, 0 };
+    MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
     bool              empty_draw_call        = false;
 
     VulkanDumpResourceInfo res_info_base{};
@@ -1889,17 +1881,16 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*   
 
     const VulkanDeviceInfo* dev_info = object_info_table_.GetVkDeviceInfo(orig_cmd_buf_info->parent_id);
 
-    for (size_t i = 0; i < command_buffers_.size(); ++i)
+    for (auto& command_buffer : command_buffers_)
     {
         assert(command_buffers_[i] == VK_NULL_HANDLE);
-        VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffers_[i]);
+        VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffer);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
-
-        dev_table->BeginCommandBuffer(command_buffers_[i], begin_info);
+        dev_table->BeginCommandBuffer(command_buffer, begin_info);
     }
 
     assert(original_command_buffer_info_ == nullptr);
@@ -1963,17 +1954,15 @@ void DrawCallsDumpingContext::BindDescriptorSets(
             {
                 for (const auto& binding : descriptor_sets_infos[i]->descriptors)
                 {
-                    const uint32_t bindind_index = binding.first;
+                    const uint32_t binding_index = binding.first;
 
                     if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                         binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                     {
-                        for (size_t ai = 0;
-                             ai < bound_descriptor_sets_gr_[set_index].descriptors[bindind_index].buffer_info.size();
-                             ++ai)
+                        for (auto& [ai, buf_info] :
+                             bound_descriptor_sets_gr_[set_index].descriptors[binding_index].buffer_info)
                         {
-                            bound_descriptor_sets_gr_[set_index].descriptors[bindind_index].buffer_info[ai].offset +=
-                                pDynamicOffsets[dynamic_offset_index];
+                            buf_info.offset += pDynamicOffsets[dynamic_offset_index];
                             ++dynamic_offset_index;
                         }
                     }
@@ -2040,14 +2029,14 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
     // uses color and/or depth attachments. This information might be necessary when
     // defining the dependencies of the custom render passes
     bool has_color = false, has_depth = false;
-    for (size_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
+    for (const auto& sub_pass_ref : original_render_pass->subpass_refs)
     {
-        if (original_render_pass->subpass_refs[sub].color_att_refs.size())
+        if (!sub_pass_ref.color_att_refs.empty())
         {
             has_color = true;
         }
 
-        if (original_render_pass->subpass_refs[sub].has_depth)
+        if (sub_pass_ref.has_depth)
         {
             has_depth = true;
         }
@@ -2069,10 +2058,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         bool                             has_external_dependencies_post = false;
         bool                             has_external_dependencies_pre  = false;
         std::vector<VkSubpassDependency> modified_dependencies;
-        for (size_t d = 0; d < original_render_pass->dependencies.size(); ++d)
+        for (const auto& original_dep : original_render_pass->dependencies)
         {
-            const VkSubpassDependency& original_dep = original_render_pass->dependencies[d];
-
             if ((original_dep.srcSubpass > sub || original_dep.dstSubpass > sub) &&
                 (original_dep.srcSubpass != VK_SUBPASS_EXTERNAL && original_dep.dstSubpass != VK_SUBPASS_EXTERNAL))
             {
@@ -2143,30 +2130,30 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         new_subp_desc->pipelineBindPoint    = original_subp_ref.pipeline_bind_point;
         new_subp_desc->inputAttachmentCount = original_subp_ref.input_att_refs.size();
         new_subp_desc->pInputAttachments =
-            original_subp_ref.input_att_refs.size() ? original_subp_ref.input_att_refs.data() : nullptr;
+            original_subp_ref.input_att_refs.empty() ? nullptr : original_subp_ref.input_att_refs.data();
         new_subp_desc->colorAttachmentCount = original_subp_ref.color_att_refs.size();
         new_subp_desc->pColorAttachments =
-            original_subp_ref.color_att_refs.size() ? original_subp_ref.color_att_refs.data() : nullptr;
+            original_subp_ref.color_att_refs.empty() ? nullptr : original_subp_ref.color_att_refs.data();
         new_subp_desc->pResolveAttachments =
-            original_subp_ref.resolve_att_refs.size() ? original_subp_ref.resolve_att_refs.data() : nullptr;
+            original_subp_ref.resolve_att_refs.empty() ? nullptr : original_subp_ref.resolve_att_refs.data();
         new_subp_desc->pDepthStencilAttachment =
             original_subp_ref.has_depth ? &original_subp_ref.depth_att_ref : nullptr;
         new_subp_desc->preserveAttachmentCount = original_subp_ref.preserve_att_refs.size();
         new_subp_desc->pPreserveAttachments =
-            original_subp_ref.preserve_att_refs.size() ? original_subp_ref.preserve_att_refs.data() : nullptr;
+            original_subp_ref.preserve_att_refs.empty() ? nullptr : original_subp_ref.preserve_att_refs.data();
 
         VkRenderPassCreateInfo ci;
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         ci.flags           = VkRenderPassCreateFlags(0);
         ci.attachmentCount = modified_attachments.size();
-        ci.pAttachments    = modified_attachments.size() ? modified_attachments.data() : nullptr;
+        ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
         ci.pSubpasses   = subpass_descs.data();
 
         ci.dependencyCount = modified_dependencies.size();
-        ci.pDependencies   = modified_dependencies.size() ? modified_dependencies.data() : nullptr;
+        ci.pDependencies   = !modified_dependencies.empty() ? modified_dependencies.data() : nullptr;
 
         VkRenderPassMultiviewCreateInfo renderPassMultiviewCI;
         if (original_render_pass->has_multiview)
@@ -2301,7 +2288,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(
     VkRenderPassBeginInfo modified_renderpass_begin_info = *renderpass_begin_info;
 
     size_t cmd_buf_idx = current_cb_index_;
-    for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         const uint64_t dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
 
@@ -2375,7 +2362,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
     size_t cmd_buf_idx = current_cb_index_;
-    for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
@@ -2428,7 +2415,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
         depth_att_storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     }
 
-    SetRenderTargets(std::move(color_att_imgs), depth_img_info, false);
+    SetRenderTargets(color_att_imgs, depth_img_info, false);
 
     // Inform the original command buffer about the new image layouts
     for (const auto& att_ref : active_renderpass_->subpass_refs[current_subpass_].color_att_refs)
@@ -2462,7 +2449,7 @@ void DrawCallsDumpingContext::EndRenderPass()
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
     size_t cmd_buf_idx = current_cb_index_;
-    for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
@@ -2489,7 +2476,7 @@ void DrawCallsDumpingContext::EndRendering()
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
     size_t cmd_buf_idx = current_cb_index_;
-    for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
+    for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
         device_table_->CmdEndRendering(*it);
     }
@@ -2504,14 +2491,14 @@ void DrawCallsDumpingContext::BindVertexBuffers(uint64_t                        
                                                 const std::vector<const VulkanBufferInfo*>& buffer_infos,
                                                 const VkDeviceSize*                         pOffsets)
 {
-    if (!buffer_infos.size())
+    if (buffer_infos.empty())
     {
         return;
     }
 
     for (size_t i = 0; i < buffer_infos.size(); ++i)
     {
-        const uint32_t binding = static_cast<uint32_t>(firstBinding + i);
+        const auto binding = static_cast<uint32_t>(firstBinding + i);
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].size        = 0;
@@ -2526,7 +2513,7 @@ void DrawCallsDumpingContext::BindVertexBuffers2(uint64_t                       
                                                  const VkDeviceSize*                         pSizes,
                                                  const VkDeviceSize*                         pStrides)
 {
-    if (!buffer_infos.size())
+    if (buffer_infos.empty())
     {
         return;
     }
@@ -2547,7 +2534,7 @@ void DrawCallsDumpingContext::BindVertexBuffers2(uint64_t                       
             }
         }
 
-        const uint32_t binding = static_cast<uint32_t>(first_binding + i);
+        const auto binding = static_cast<uint32_t>(first_binding + i);
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
         bound_vertex_buffers_.bound_vertex_buffer_per_binding[binding].stride = pStrides != nullptr ? pStrides[i] : 0;
@@ -2614,7 +2601,7 @@ void DrawCallsDumpingContext::SetRenderTargets(const std::vector<VulkanImageInfo
 {
     if (new_render_pass)
     {
-        render_targets_.emplace_back(std::vector<RenderTargets>());
+        render_targets_.emplace_back();
     }
 
     auto new_render_targets = render_targets_.end() - 1;
@@ -2780,28 +2767,28 @@ void DrawCallsDumpingContext::DestroyMutableResourceBackups()
 
     VkDevice device = device_info->handle;
 
-    for (size_t i = 0; i < mutable_resource_backups_.images.size(); ++i)
+    for (const auto& image : mutable_resource_backups_.images)
     {
-        device_table_->DestroyImage(device, mutable_resource_backups_.images[i], nullptr);
+        device_table_->DestroyImage(device, image, nullptr);
     }
 
-    for (size_t i = 0; i < mutable_resource_backups_.image_memories.size(); ++i)
+    for (const auto& image_memory : mutable_resource_backups_.image_memories)
     {
-        device_table_->FreeMemory(device, mutable_resource_backups_.image_memories[i], nullptr);
+        device_table_->FreeMemory(device, image_memory, nullptr);
     }
 
     mutable_resource_backups_.images.clear();
     mutable_resource_backups_.image_memories.clear();
     mutable_resource_backups_.original_images.clear();
 
-    for (size_t i = 0; i < mutable_resource_backups_.buffers.size(); ++i)
+    for (const auto& buffer : mutable_resource_backups_.buffers)
     {
-        device_table_->DestroyBuffer(device, mutable_resource_backups_.buffers[i], nullptr);
+        device_table_->DestroyBuffer(device, buffer, nullptr);
     }
 
-    for (size_t i = 0; i < mutable_resource_backups_.buffer_memories.size(); ++i)
+    for (const auto& buffer_memory : mutable_resource_backups_.buffer_memories)
     {
-        device_table_->FreeMemory(device, mutable_resource_backups_.buffer_memories[i], nullptr);
+        device_table_->FreeMemory(device, buffer_memory, nullptr);
     }
 
     mutable_resource_backups_.buffers.clear();
@@ -2829,7 +2816,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
             {
                 if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
                 {
-                    return RenderPassSubpassPair(rp, sp);
+                    return { rp, sp };
                 }
             }
         }
@@ -2849,7 +2836,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
                     for (size_t rp = 0; rp < RP_indices_.size(); ++rp)
                     {
                         const std::vector<uint64_t>& render_pass = RP_indices_[rp];
-                        assert(render_pass.size());
+                        GFXRECON_ASSERT(!render_pass.empty());
 
                         if (execute_commands_index > render_pass[render_pass.size() - 1])
                         {
@@ -2861,7 +2848,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
                             if (execute_commands_index > render_pass[sp] &&
                                 execute_commands_index < render_pass[sp + 1])
                             {
-                                return RenderPassSubpassPair(rp, sp);
+                                return { rp, sp };
                             }
                         }
                     }
@@ -2883,7 +2870,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
                         {
                             if (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1])
                             {
-                                return RenderPassSubpassPair(rp, sp);
+                                return { rp, sp };
                             }
                         }
                     }
@@ -2897,7 +2884,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
         "It appears that there is an error with the provided Draw indices in combination with the render pass indices.")
     assert(0);
 
-    return RenderPassSubpassPair(0, 0);
+    return { 0, 0 };
 }
 
 size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) const
@@ -2921,11 +2908,9 @@ size_t DrawCallsDumpingContext::CmdBufToDCVectorIndex(size_t cmd_buf_index) cons
 uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferIterator& first,
                                                                   CommandBufferIterator& last) const
 {
-    assert(current_cb_index_ <= command_buffers_.size());
-
-    first = command_buffers_.begin() + current_cb_index_;
+    GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
+    first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
     last  = command_buffers_.end();
-
     return current_cb_index_;
 }
 
@@ -2953,13 +2938,13 @@ void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>
     SetRenderTargets(color_attachments, depth_attachment, true);
     SetRenderArea(render_area);
 
-    auto new_entry = dynamic_rendering_attachment_layouts_.emplace(
+    auto [new_entry_it, success] = dynamic_rendering_attachment_layouts_.emplace(
         std::piecewise_construct, std::forward_as_tuple(current_renderpass_), std::forward_as_tuple());
-    assert(new_entry.second);
+    GFXRECON_ASSERT(success);
 
-    new_entry.first->second.is_dynamic               = true;
-    new_entry.first->second.color_attachment_layouts = color_attachment_layouts;
-    new_entry.first->second.depth_attachment_layout  = depth_attachment_layout;
+    new_entry_it->second.is_dynamic               = true;
+    new_entry_it->second.color_attachment_layouts = color_attachment_layouts;
+    new_entry_it->second.depth_attachment_layout  = depth_attachment_layout;
 }
 
 void DrawCallsDumpingContext::AssignSecondary(uint64_t                 execute_commands_index,
