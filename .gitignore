@@ -12,3 +12,4 @@ __pycache__/
 .cache
 .DS_Store
 external/wayland-protocols/
+android/layer/assets/
