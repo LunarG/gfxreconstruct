@@ -1660,6 +1660,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         uint32_t vertex_count   = 0;
         uint32_t instance_count = 0;
         uint32_t first_vertex   = 0;
+        uint32_t first_instance = 0;
 
         if (IsDrawCallIndexed(dc_params.type))
         {
@@ -1681,6 +1682,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         for (uint32_t d = 0; d < ic_params.actual_draw_count; ++d)
                         {
                             instance_count = std::max(instance_count, ic_params.draw_indexed_params[d].instanceCount);
+                            first_instance = std::min(first_instance, ic_params.draw_indexed_params[d].firstInstance);
                         }
                     }
                 }
@@ -1696,6 +1698,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         for (uint32_t d = 0; d < i_params.draw_count; ++d)
                         {
                             instance_count = std::max(instance_count, i_params.draw_indexed_params[d].instanceCount);
+                            first_instance = std::min(first_instance, i_params.draw_indexed_params[d].firstInstance);
                         }
                     }
                 }
@@ -1703,6 +1706,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             else
             {
                 instance_count = dc_params.dc_params_union.draw_indexed.instanceCount;
+                first_instance = dc_params.dc_params_union.draw_indexed.firstInstance;
             }
         }
         else
@@ -1727,6 +1731,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 vertex_count   = std::max(vertex_count, ic_params.draw_params[d].vertexCount);
                                 instance_count = std::max(instance_count, ic_params.draw_params[d].instanceCount);
                                 first_vertex   = std::min(first_vertex, ic_params.draw_params[d].firstVertex);
+                                first_instance = std::min(first_instance, ic_params.draw_params[d].firstInstance);
                             }
                         }
                     }
@@ -1747,6 +1752,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 vertex_count   = std::max(vertex_count, i_params.draw_params[d].vertexCount);
                                 instance_count = std::max(instance_count, i_params.draw_params[d].instanceCount);
                                 first_vertex   = std::min(first_vertex, i_params.draw_params[d].firstVertex);
+                                first_instance = std::min(first_instance, i_params.draw_params[d].firstInstance);
                             }
                         }
                     }
@@ -1762,6 +1768,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 vertex_count   = dc_params.dc_params_union.draw.vertexCount;
                 instance_count = dc_params.dc_params_union.draw.instanceCount;
                 first_vertex   = dc_params.dc_params_union.draw.firstVertex;
+                first_instance = dc_params.dc_params_union.draw.firstInstance;
             }
         }
 
@@ -1769,17 +1776,20 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         {
             for (const auto& [binding, input_description] : dc_params.vertex_input_state.vertex_input_binding_map)
             {
-                auto vb_entry = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
-                assert(vb_entry != dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
+                auto vb_entry_it = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
+                GFXRECON_ASSERT(vb_entry_it !=
+                                dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
 
                 // For some reason there was no buffer bound for this binding
-                if (vb_entry == dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end())
+                if (vb_entry_it == dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end())
                 {
                     continue;
                 }
 
+                auto& vb_entry = vb_entry_it->second;
+
                 // Buffers can be NULL
-                if (vb_entry->second.buffer_info == nullptr)
+                if (vb_entry.buffer_info == nullptr)
                 {
                     continue;
                 }
@@ -1789,11 +1799,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 uint32_t total_size = 0;
                 uint32_t binding_stride;
 
-                if (vb_entry->second.size)
+                if (vb_entry.size)
                 {
                     // Exact size was provided by vkCmdBindVertexBuffers2
-                    total_size     = vb_entry->second.size;
-                    binding_stride = vb_entry->second.stride;
+                    total_size     = vb_entry.size;
+                    binding_stride = vb_entry.stride;
                 }
                 else
                 {
@@ -1810,17 +1820,18 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         // attributes that are using that binding and use that as the size of the vertex information
                         // for 1 vertex.
                         uint32_t min_offset = std::numeric_limits<uint32_t>::max();
-                        for (const auto& ppl_attr : dc_params.vertex_input_state.vertex_input_attribute_map)
+                        for (const auto& [location, input_attrib_desc] :
+                             dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
-                            if (ppl_attr.second.binding != binding)
+                            if (input_attrib_desc.binding != binding)
                             {
                                 continue;
                             }
 
-                            total_size += vkuFormatElementSize(ppl_attr.second.format);
-                            if (min_offset > ppl_attr.second.offset)
+                            total_size += vkuFormatElementSize(input_attrib_desc.format);
+                            if (min_offset > input_attrib_desc.offset)
                             {
-                                min_offset = ppl_attr.second.offset;
+                                min_offset = input_attrib_desc.offset;
                             }
                         }
 
@@ -1834,25 +1845,26 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
 
                 // Calculate offset including vertexOffset
-                const uint32_t offset =
-                    vb_entry->second.offset + ((min_max_vertex_indices.min + first_vertex) * binding_stride);
+                uint32_t offset = vb_entry.offset;
+                offset += (input_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? first_vertex : first_instance) *
+                          binding_stride;
 
-                assert(total_size <= vb_entry->second.buffer_info->size - offset);
+                GFXRECON_ASSERT(total_size <= vb_entry.buffer_info->size - offset);
                 // There is something wrong with the calculations if this is true
-                if (total_size > vb_entry->second.buffer_info->size - offset)
+                if (total_size > vb_entry.buffer_info->size - offset)
                 {
-                    total_size = vb_entry->second.buffer_info->size - offset;
+                    total_size = vb_entry.buffer_info->size - offset;
                 }
 
                 dc_params.json_output_info.vertex_bindings_info[binding] = { offset };
 
-                vb_entry->second.actual_size    = total_size;
+                vb_entry.actual_size            = total_size;
                 VulkanDumpResourceInfo res_info = res_info_base;
 
-                VkResult res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
+                VkResult res = resource_util.ReadFromBufferResource(vb_entry.buffer_info->handle,
                                                                     total_size,
                                                                     offset,
-                                                                    vb_entry->second.buffer_info->queue_family_index,
+                                                                    vb_entry.buffer_info->queue_family_index,
                                                                     res_info.data);
                 if (res != VK_SUCCESS)
                 {
