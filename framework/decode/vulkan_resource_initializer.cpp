@@ -293,15 +293,6 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                 offsetted_level_copies_[i].bufferOffset += staging_buffer_offset_;
             }
 
-            if (staging_buffer_offset_ == 0)
-            {
-                result = BeginCommandBuffer(queue_family_index);
-                if (result != VK_SUCCESS)
-                {
-                    return result;
-                }
-            }
-
             result = BufferToImageCopy(queue_family_index,
                                        staging_buffer_,
                                        image,
@@ -1231,7 +1222,7 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
 {
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
 
-    VkResult result = GetCommandExecObjects(queue_family_index, &command_buffer);
+    VkResult result = BeginCommandBuffer(queue_family_index, &command_buffer);
 
     if (result == VK_SUCCESS)
     {
@@ -1361,22 +1352,18 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
 
             if (result == VK_SUCCESS)
             {
-                result = BeginCommandBuffer(queue_family_index);
-                if (result == VK_SUCCESS)
-                {
-                    result = BufferToImageCopy(queue_family_index,
-                                               source,
-                                               staging_image,
-                                               format,
-                                               aspect,
-                                               VK_IMAGE_LAYOUT_UNDEFINED,
-                                               VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                                               layer_count,
-                                               level_count,
-                                               level_copies);
+                result = BufferToImageCopy(queue_family_index,
+                                           source,
+                                           staging_image,
+                                           format,
+                                           aspect,
+                                           VK_IMAGE_LAYOUT_UNDEFINED,
+                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                           layer_count,
+                                           level_count,
+                                           level_copies);
 
-                    result = FlushCommandBuffer(queue_family_index);
-                }
+                result = FlushCommandBuffer(queue_family_index);
 
                 if (result == VK_SUCCESS)
                 {
