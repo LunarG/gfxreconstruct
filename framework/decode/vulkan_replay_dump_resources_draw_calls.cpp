@@ -126,6 +126,18 @@ void DrawCallsDumpingContext::Release()
         DestroyMutableResourceBackups();
         ReleaseIndirectParams();
 
+        // cleanup cloned renderpasses
+        for (auto& subpasses : render_pass_clones_)
+        {
+            for (VkRenderPass renderpass : subpasses)
+            {
+                if (renderpass != VK_NULL_HANDLE)
+                {
+                    device_table_->DestroyRenderPass(device, renderpass, nullptr);
+                }
+            }
+        }
+
         original_command_buffer_info_ = nullptr;
     }
 
@@ -2028,8 +2040,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
     }
 
     // Create new render passes
-    render_pass_clones_.emplace_back();
-    std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.back();
+    std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.emplace_back();
     GFXRECON_ASSERT(!original_render_pass->subpass_refs.empty());
     new_render_pass.resize(original_render_pass->subpass_refs.size());
 

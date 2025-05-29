@@ -5374,8 +5374,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto               replay_create_info   = pCreateInfo->GetPointer();
     VkBufferCreateInfo modified_create_info = *replay_create_info;
 
-    VkExternalMemoryBufferCreateInfo* external_memory =
-        graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
 
     if (external_memory && external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
     {
@@ -5407,7 +5406,8 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto* buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
     GFXRECON_ASSERT(buffer_info != nullptr);
 
-    if (replaying_trimmed_capture_)
+    // replaying a trimmed capture or dump-resources will require us to copy from buffers
+    if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
         // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
         // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
