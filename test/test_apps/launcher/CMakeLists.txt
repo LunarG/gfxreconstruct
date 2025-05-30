@@ -29,11 +29,13 @@ add_executable(${TARGET_NAME} "")
 
 target_sources(${TARGET_NAME}
                PRIVATE
-               ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
+                   ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
 
-target_include_directories(${TARGET_NAME} PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${TARGET_NAME}
+                           PUBLIC
+                               ${CMAKE_BINARY_DIR}
+                               ${CMAKE_CURRENT_SOURCE_DIR}
+                               ${CMAKE_SOURCE_DIR})
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image

@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
                            PUBLIC
+                               ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
