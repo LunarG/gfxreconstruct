@@ -1176,15 +1176,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RaiseFatalError(const char* message) const;
 
+    uint64_t GetUniqueProxyWindowId()
+    {
+        return ++unique_proxy_window_id_counter_;
+    }
+
     HRESULT
-    CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
-                           HRESULT                                                        original_result,
-                           DxObjectInfo*                                                  device_info,
-                           uint64_t                                                       hwnd_id,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
-                           DxObjectInfo*                                                  restrict_to_output_info,
-                           HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
+    CreateSwapChainForHwnd(DxObjectInfo*                           replay_object_info,
+                           HRESULT                                 original_result,
+                           DxObjectInfo*                           device_info,
+                           uint64_t                                hwnd_id,
+                           DXGI_SWAP_CHAIN_DESC1*                  desc,
+                           DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                           DxObjectInfo*                           restrict_to_output_info,
+                           HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
     void SetSwapchainInfo(DxObjectInfo* info,
                           Window*       window,
@@ -1294,6 +1299,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::string                                           screenshot_file_prefix_;
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
+    uint64_t                                              unique_proxy_window_id_counter_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
