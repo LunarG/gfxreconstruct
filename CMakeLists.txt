@@ -170,7 +170,10 @@ if (MSVC)
     message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: " ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
 
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
-    if (CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    # Some IDEs pass -A in lowercase or in mixed case.
+    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
+    string(TOUPPER ${CMAKE_GENERATOR_PLATFORM} NORMALIZED_CMAKE_GENERATOR_PLATFORM)
+    if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
         set(GFXR_ARM_WINDOWS_BUILD TRUE)
     endif ()
 
@@ -182,7 +185,7 @@ if (MSVC)
 
     if (GFXR_ARM_WINDOWS_BUILD)
         set(PRECOMPILED_ARCH "64-arm")
-    endif ()
+    endif (GFXR_ARM_WINDOWS_BUILD)
 
     set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
@@ -230,8 +233,13 @@ if (MSVC)
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif ()
 
-    # Add option to enable/disable AGS support.
-    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
+    if(NOT ${GFXR_ARM_WINDOWS_BUILD})
+        # Add option to enable/disable AGS support. Only supported on non-ARM64 builds.
+        option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Not supported on Windows on ARM64. Ignored if D3D12_SUPPORT=OFF." ON)
+    else()
+        set(GFXRECON_AGS_SUPPORT OFF)
+        message(STATUS "GFXRECON_AGS_SUPPORT is disabled for Windows on ARM64 builds.")
+    endif()
 
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
