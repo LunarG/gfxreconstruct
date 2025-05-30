@@ -5374,8 +5374,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto               replay_create_info   = pCreateInfo->GetPointer();
     VkBufferCreateInfo modified_create_info = *replay_create_info;
 
-    VkExternalMemoryBufferCreateInfo* external_memory =
-        graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
+    auto* external_memory = graphics::vulkan_struct_get_pnext<VkExternalMemoryBufferCreateInfo>(&modified_create_info);
 
     if (external_memory && external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
     {
@@ -5407,7 +5406,8 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     auto* buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
     GFXRECON_ASSERT(buffer_info != nullptr);
 
-    if (replaying_trimmed_capture_)
+    // replaying a trimmed capture or dump-resources will require us to copy from buffers
+    if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
         // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
         // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
@@ -5553,7 +5553,10 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto              replay_create_info   = pCreateInfo->GetPointer();
     VkImageCreateInfo modified_create_info = *replay_create_info;
 
-    if (replaying_trimmed_capture_ || options_.dumping_resources)
+    // replaying a trimmed capture or dump-resources might require us to copy from images
+    // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
+    if ((replaying_trimmed_capture_ || options_.dumping_resources) &&
+        (modified_create_info.usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0)
     {
         // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
         // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
@@ -5990,7 +5993,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
+        VulkanRenderPassInfo::SubpassReferences sp_ref;
+        sp_ref.flags               = create_info->pSubpasses[i].flags;
+        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
 
         // Copy input attachment refs
         for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
@@ -6035,8 +6040,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
         {
             sp_ref.has_depth = false;
         }
-
-        sp_ref.flags = create_info->pSubpasses[i].flags;
 
         render_pass_info->subpass_refs.push_back(std::move(sp_ref));
     }
@@ -6136,7 +6139,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     render_pass_info->subpass_refs.reserve(create_info->subpassCount);
     for (uint32_t i = 0; i < create_info->subpassCount; ++i)
     {
-        struct VulkanRenderPassInfo::SubpassReferences sp_ref;
+        VulkanRenderPassInfo::SubpassReferences sp_ref;
+        sp_ref.flags               = create_info->pSubpasses[i].flags;
+        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
+
         sp_ref.color_att_refs.resize(create_info->pSubpasses[i].colorAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
         {
