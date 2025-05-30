@@ -58,7 +58,7 @@
 #include "format/format_util.h"
 #include "util/alignment_utils.h"
 #include "util/platform.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 

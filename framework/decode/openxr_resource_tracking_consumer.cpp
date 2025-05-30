@@ -23,6 +23,7 @@
 #if ENABLE_OPENXR_SUPPORT
 
 #include "decode/openxr_resource_tracking_consumer.h"
+#include "graphics/khronos_util.h"
 
 #include <algorithm>
 #include <cassert>
@@ -30,16 +31,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(WIN32)
-    "openxr-1.dll"
-#elif defined(__APPLE__)
-    "libopenxr.dylib", "libopenxr.1.dylib", "libMoltenVK.dylib"
-#else
-    "libopenxr.so", "libopenxr.so.1"
-#endif
-};
 
 OpenXrResourceTrackingConsumer::OpenXrResourceTrackingConsumer(
     const OpenXrReplayOptions& options, OpenXrTrackedObjectInfoTable* tracked_object_info_table) :
@@ -54,21 +45,17 @@ OpenXrResourceTrackingConsumer::~OpenXrResourceTrackingConsumer()
 {
     if (loader_handle_ != nullptr)
     {
-        util::platform::CloseLibrary(loader_handle_);
+        graphics::ReleaseKhronosLoader(loader_handle_);
     }
 }
 
 void OpenXrResourceTrackingConsumer::InitializeLoader()
 {
-    for (auto name : kLoaderLibNames)
+    loader_handle_ = graphics::InitializeKhronosLoader(graphics::KhronosLoader_OpenXR);
+    if (loader_handle_ != nullptr)
     {
-        loader_handle_ = util::platform::OpenLibrary(name.c_str());
-        if (loader_handle_ != nullptr)
-        {
-            get_instance_proc_addr_ = reinterpret_cast<PFN_xrGetInstanceProcAddr>(
-                util::platform::GetProcAddress(loader_handle_, "xrGetInstanceProcAddr"));
-            break;
-        }
+        get_instance_proc_addr_ = reinterpret_cast<PFN_xrGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "xrGetInstanceProcAddr"));
     }
 
     if (get_instance_proc_addr_ != nullptr)
@@ -77,9 +64,8 @@ void OpenXrResourceTrackingConsumer::InitializeLoader()
             XR_NULL_HANDLE, "xrCreateInstance", reinterpret_cast<PFN_xrVoidFunction*>(create_instance_function_));
         if (create_instance_function_ == nullptr)
         {
-            GFXRECON_LOG_FATAL("Failed to load OpenXr runtime library; please ensure that the path to the OpenXr "
-                               "loader (eg. %s) has been added to the appropriate system path",
-                               kLoaderLibNames[0].c_str());
+            GFXRECON_LOG_FATAL("Failed to load OpenXR runtime library; please ensure that the path to the OpenXR "
+                               "loader has been added to the appropriate system path");
         }
     }
 }

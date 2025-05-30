@@ -39,7 +39,7 @@
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"

@@ -32,7 +32,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "util/defines.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 
 #include <algorithm>
 #include <iterator>

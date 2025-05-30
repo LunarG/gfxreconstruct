@@ -42,6 +42,8 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/khronos_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/khronos_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.h
@@ -50,8 +52,6 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_get_pnext.h
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy.cpp
