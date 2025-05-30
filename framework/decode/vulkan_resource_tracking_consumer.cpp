@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_resource_tracking_consumer.h"
+#include "graphics/khronos_util.h"
 
 #include <algorithm>
 #include <cassert>
@@ -28,16 +29,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-const std::vector<std::string> kLoaderLibNames = {
-#if defined(WIN32)
-    "vulkan-1.dll"
-#elif defined(__APPLE__)
-    "libvulkan.dylib", "libvulkan.1.dylib", "libMoltenVK.dylib"
-#else
-    "libvulkan.so", "libvulkan.so.1"
-#endif
-};
 
 VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(
     const VulkanReplayOptions& options, VulkanTrackedObjectInfoTable* tracked_object_info_table) :
@@ -52,21 +43,17 @@ VulkanResourceTrackingConsumer::~VulkanResourceTrackingConsumer()
 {
     if (loader_handle_ != nullptr)
     {
-        util::platform::CloseLibrary(loader_handle_);
+        graphics::ReleaseKhronosLoader(loader_handle_);
     }
 }
 
 void VulkanResourceTrackingConsumer::InitializeLoader()
 {
-    for (auto name : kLoaderLibNames)
+    loader_handle_ = graphics::InitializeKhronosLoader(graphics::KhronosLoader_Vulkan);
+    if (loader_handle_ != nullptr)
     {
-        loader_handle_ = util::platform::OpenLibrary(name.c_str());
-        if (loader_handle_ != nullptr)
-        {
-            get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
-                util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
-            break;
-        }
+        get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
     }
 
     if (get_instance_proc_addr_ != nullptr)
@@ -78,8 +65,7 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
     if (create_instance_function_ == nullptr)
     {
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
-                           "loader (eg. %s) has been added to the appropriate system path",
-                           kLoaderLibNames[0].c_str());
+                           "loader has been added to the appropriate system path");
     }
 }
 

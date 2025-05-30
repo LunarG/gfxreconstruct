@@ -24,7 +24,7 @@
 #include "application/application.h"
 #include "application/headless_window.h"
 #include "decode/vulkan_feature_util.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -34,7 +34,7 @@ HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) : Wsi
     bool supported = false;
 
     // Check for headless extension support, and report initialization failure when the extension is not present.
-    auto loader_handle = graphics::InitializeLoader();
+    auto loader_handle = graphics::InitializeKhronosLoader(graphics::KhronosLoader_Vulkan);
     if (loader_handle != nullptr)
     {
         auto get_instance_proc_addr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -55,7 +55,7 @@ HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) : Wsi
             }
         }
 
-        graphics::ReleaseLoader(loader_handle);
+        graphics::ReleaseKhronosLoader(loader_handle);
     }
 
     if (supported)

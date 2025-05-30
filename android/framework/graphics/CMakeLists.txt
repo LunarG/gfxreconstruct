@@ -4,6 +4,8 @@ target_sources(gfxrecon_graphics
                PRIVATE
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/fps_info.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/fps_info.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/khronos_util.h
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/khronos_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_check_buffer_references.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_check_buffer_references.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_device_util.h
@@ -12,8 +14,6 @@ target_sources(gfxrecon_graphics
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_instance_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_resources_util.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_resources_util.cpp
-                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.h
-                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_deep_copy.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_get_pnext.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h

@@ -44,6 +44,7 @@
 #include "decode/openxr_feature_util.h"
 #include "decode/openxr_handle_mapping_util.h"
 #include "decode/vulkan_handle_mapping_util.h"
+#include "graphics/khronos_util.h"
 
 #include "openxr_replay_consumer_base.h"
 #include "vulkan_replay_consumer_base.h"
@@ -57,13 +58,21 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const OpenXrReplayOptions&                options) :
     application_(application),
-    options_(options), get_instance_proc_addr_(nullptr), fps_info_(nullptr)
+    options_(options), get_instance_proc_addr_(nullptr), fps_info_(nullptr), loader_handle_(nullptr)
 {
     assert(application_ != nullptr);
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
 }
 
-OpenXrReplayConsumerBase::~OpenXrReplayConsumerBase() {}
+OpenXrReplayConsumerBase::~OpenXrReplayConsumerBase()
+{
+    if (loader_handle_ != nullptr)
+    {
+        graphics::ReleaseKhronosLoader(loader_handle_);
+    }
+
+    CommonObjectInfoTable::ReleaseSingleton();
+}
 
 void OpenXrReplayConsumerBase::SetVulkanReplayConsumer(VulkanReplayConsumerBase* vulkan_replay_consumer)
 {
@@ -600,10 +609,15 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     XrResult                                                     returnValue,
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
+    if (loader_handle_ == nullptr)
+    {
+        InitializeLoaderLibrary();
+    }
+
     XrResult replay_result = XR_SUCCESS;
 
     PFN_xrInitializeLoaderKHR pfn_initialize_loader;
-    xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&pfn_initialize_loader);
+    get_instance_proc_addr_(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&pfn_initialize_loader);
     if (pfn_initialize_loader)
     {
 #if defined(__ANDROID__)
@@ -627,6 +641,11 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
     HandlePointerDecoder<XrInstance>*                   instance)
 {
+    if (loader_handle_ == nullptr)
+    {
+        InitializeLoaderLibrary();
+    }
+
     if (!instance->IsNull())
     {
         instance->SetHandleLength(1);
@@ -635,7 +654,8 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
 
     if (get_instance_proc_addr_ == nullptr)
     {
-        get_instance_proc_addr_ = xrGetInstanceProcAddr;
+        get_instance_proc_addr_ = reinterpret_cast<PFN_xrGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "xrGetInstanceProcAddr"));
     }
 
     XrInstanceCreateInfo* create_info = info->GetPointer();
@@ -654,7 +674,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are needed in
     // the replay application.
     PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc;
-    xrGetInstanceProcAddr(
+    get_instance_proc_addr_(
         XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", (PFN_xrVoidFunction*)&instance_extension_proc);
 
     // Sanity checks depending on extension availability
@@ -703,7 +723,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     modified_create_info.enabledExtensionCount = static_cast<uint32_t>(modified_extensions.size());
     modified_create_info.enabledExtensionNames = modified_extensions.data();
 
-    auto replay_result = xrCreateInstance(&modified_create_info, replay_instance);
+    auto replay_result = create_instance_proc_(&modified_create_info, replay_instance);
     CheckResult("xrCreateApiLayerInstance", returnValue, replay_result, call_info);
 
     AddInstanceTable(*replay_instance);
@@ -1879,6 +1899,28 @@ void OpenXrReplayConsumerBase::RaiseFatalError(const char* message) const
     }
 }
 
+void OpenXrReplayConsumerBase::InitializeLoaderLibrary()
+{
+    loader_handle_ = graphics::InitializeKhronosLoader(graphics::KhronosLoader_OpenXR);
+    if (loader_handle_ != nullptr)
+    {
+        get_instance_proc_addr_ = reinterpret_cast<PFN_xrGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "xrGetInstanceProcAddr"));
+    }
+
+    if (get_instance_proc_addr_ != nullptr)
+    {
+        get_instance_proc_addr_(
+            XR_NULL_HANDLE, "xrCreateInstance", reinterpret_cast<PFN_xrVoidFunction*>(&create_instance_proc_));
+    }
+
+    if (create_instance_proc_ == nullptr)
+    {
+        GFXRECON_LOG_FATAL("Failed to load OpenXR runtime library; please ensure that the path to the OpenXR "
+                           "loader has been added to the appropriate system path");
+        RaiseFatalError("Failed to load OpenXR runtime library");
+    }
+}
 openxr::GraphicsBinding OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info)
 {
     auto* vk_binding = gfxrecon::decode::GetNextMetaStruct<Decoded_XrGraphicsBindingVulkanKHR>(create_info->next);

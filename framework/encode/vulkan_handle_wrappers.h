@@ -29,7 +29,7 @@
 #include "encode/handle_unwrap_memory.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_resources_util.h"

@@ -419,7 +419,6 @@ target_link_libraries(gfxrecon_decode
                         platform_specific
                         spirv-reflect-static
                         nlohmann_json::nlohmann_json
-                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR::openxr_loader>
                         $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)

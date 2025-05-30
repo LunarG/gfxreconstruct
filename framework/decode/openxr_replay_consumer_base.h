@@ -482,7 +482,11 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
   private:
     void RaiseFatalError(const char* message) const;
 
+    void InitializeLoaderLibrary();
+
+    util::platform::LibraryHandle                               loader_handle_;
     PFN_xrGetInstanceProcAddr                                   get_instance_proc_addr_;
+    PFN_xrCreateInstance                                        create_instance_proc_;
     CommonObjectInfoTable*                                      object_info_table_;
     std::unordered_map<XrInstance, encode::OpenXrInstanceTable> instance_tables_;
     std::shared_ptr<application::Application>                   application_;
