@@ -51,6 +51,13 @@
 #include <vector>
 #include "util/file_path.h"
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <dirent.h>
+#elif defined(WIN32)
+#include <windows.h>
+#include <TlHelp32.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -68,7 +75,6 @@ class CommonCaptureManager
     using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
     static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
     static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
-
     class ApiCallLock
     {
       public:
@@ -254,7 +260,7 @@ class CommonCaptureManager
     {
         return CreateInstance(Derived::InitSingleton(), Derived::DestroySingleton);
     }
-
+    static int32_t GetPidFromProcessName(const char* process_name);
     CommonCaptureManager();
 
     enum CaptureModeFlags : uint32_t
