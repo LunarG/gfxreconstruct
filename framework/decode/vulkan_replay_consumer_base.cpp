@@ -5553,7 +5553,10 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto              replay_create_info   = pCreateInfo->GetPointer();
     VkImageCreateInfo modified_create_info = *replay_create_info;
 
-    if (replaying_trimmed_capture_ || options_.dumping_resources)
+    // replaying a trimmed capture or dump-resources might require us to copy from images
+    // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
+    if ((replaying_trimmed_capture_ || options_.dumping_resources) &&
+        (modified_create_info.usage & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT) == 0)
     {
         // The GFXR trimmed capture process sets VK_IMAGE_USAGE_TRANSFER_SRC_BIT flag for image VkImageCreateInfo.
         // Since image memory requirements can differ when VK_IMAGE_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
@@ -5562,9 +5565,6 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
         // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
         modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-
-        // make sure to exclude flags incompatible with TRANSFER_SRC_BIT
-        modified_create_info.usage &= ~VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
     }
 
     // The original image might be external and it might be an unknown format, so perform any
