@@ -57,7 +57,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const OpenXrReplayOptions&                options) :
     application_(application),
-    options_(options), get_instance_proc_addr_(nullptr)
+    options_(options), get_instance_proc_addr_(nullptr), fps_info_(nullptr)
 {
     assert(application_ != nullptr);
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
@@ -576,6 +576,24 @@ void OpenXrReplayConsumerBase::AssociateParent(XrEnvironmentDepthSwapchainMETA e
 }
 
 #endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
+
+void OpenXrReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
+}
+
+void OpenXrReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
+{
+    if (fps_info_ != nullptr)
+    {
+        fps_info_->ProcessStateEndMarker(frame_number);
+    }
+}
+
+void OpenXrReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
+{
+    GFXRECON_LOG_INFO("OpenXr Trace Message: %s", message.c_str());
+}
 
 void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     const ApiCallInfo&                                           call_info,
