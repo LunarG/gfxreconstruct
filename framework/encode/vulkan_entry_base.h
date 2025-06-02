@@ -78,7 +78,7 @@ class VulkanEntryBase
                                            const VkAllocationCallbacks* pAllocator,
                                            VkDevice*                    pDevice)       = 0;
 
-    // RemoveExtensions is public to enable test in layer\test\main.cpp
+    // RemoveExtensions is public to enable test in encode\test\main.cpp
     static void RemoveExtensions(std::vector<VkExtensionProperties>& extensionProps,
                                  const char* const                   screenedExtensions[],
                                  const size_t                        screenedCount);
