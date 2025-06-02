@@ -33,6 +33,7 @@
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
 
@@ -424,6 +425,29 @@ class VulkanReplayDumpResourcesBase
     void DumpGraphicsPipelineInfos(const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
                                    uint32_t                                                          createInfoCount,
                                    HandlePointerDecoder<VkPipeline>*                                 pPipelines);
+
+    template <typename DecodedCreateInfoType>
+    void DumpComputeRayTracingPipelineInfos(DecodedCreateInfoType             pCreateInfos,
+                                            uint32_t                          createInfoCount,
+                                            HandlePointerDecoder<VkPipeline>* pPipelines)
+    {
+        const auto* create_info_meta = pCreateInfos->GetMetaStructPointer();
+        if (create_info_meta != nullptr)
+        {
+            for (uint32_t i = 0; i < createInfoCount; ++i)
+            {
+                VulkanPipelineInfo* pipeline_info =
+                    reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+
+                // Copy pipeline layout information
+                const auto ppl_layout_info = object_info_table_->GetVkPipelineLayoutInfo(create_info_meta[i].layout);
+                if (ppl_layout_info != nullptr)
+                {
+                    pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
+                }
+            }
+        }
+    }
 
     void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
 
