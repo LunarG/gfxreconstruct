@@ -2061,7 +2061,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
             image_json_entry["set"]        = desc_set;
             image_json_entry["binding"]    = binding;
             image_json_entry["arrayIndex"] = array_index;
-            auto& image_json_entry_desc    = image_json_entry["image"];
+            auto& image_json_entry_desc    = image_json_entry["images"];
 
             std::vector<VkImageAspectFlagBits> aspects;
             GetFormatAspects(img_info->format, aspects);
