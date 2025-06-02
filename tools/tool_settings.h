@@ -1236,7 +1236,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
     replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
     replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
-    replay_options.deduplicate_device           = arg_parser.IsOptionSet(kDeduplicateDevice);
+    replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     return replay_options;
 }
