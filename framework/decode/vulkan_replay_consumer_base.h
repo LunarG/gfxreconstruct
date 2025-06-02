@@ -1713,6 +1713,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>            create_device_procs_;
     std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable> instance_tables_;
     std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>   device_tables_;
+    std::unordered_map<uint32_t, decode::HandlePointerDecoder<VkDevice>>           device_id_map_;
     std::function<void(const char*)>                                               fatal_error_handler_;
     std::shared_ptr<application::Application>                                      application_;
     CommonObjectInfoTable*                                                         object_info_table_;
