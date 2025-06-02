@@ -77,23 +77,7 @@ class LayerVulkanEntry : public encode::VulkanEntryBase
     LayerVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table);
     virtual ~LayerVulkanEntry();
 
-    // The following prototype declarations are required so the dispatch table can find these
-    // functions which are defined in trace_layer.cpp
     virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName) override;
-    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName) override;
-    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName) override;
-    virtual VkResult           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
-                                                                  const char*            pLayerName,
-                                                                  uint32_t*              pPropertyCount,
-                                                                  VkExtensionProperties* pProperties) override;
-    virtual VkResult           EnumerateInstanceExtensionProperties(const char*            pLayerName,
-                                                                    uint32_t*              pPropertyCount,
-                                                                    VkExtensionProperties* pProperties) override;
-    virtual VkResult           EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
-                                                                VkLayerProperties* pProperties) override;
-    virtual VkResult           EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
-                                                              uint32_t*          pPropertyCount,
-                                                              VkLayerProperties* pProperties) override;
 
     virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                              const VkAllocationCallbacks* pAllocator,
