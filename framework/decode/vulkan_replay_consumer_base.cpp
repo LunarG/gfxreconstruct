@@ -8793,6 +8793,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                               pPipelines->GetHandlePointer(),
                               createInfoCount);
     }
+
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (result == VK_SUCCESS)
+    {
+        if (options_.dumping_resources)
+        {
+            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+        }
+    }
+
     return result;
 }
 
@@ -8966,6 +8976,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesNV(
                               overridePipelineCache,
                               pPipelines->GetHandlePointer(),
                               createInfoCount);
+    }
+
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (result == VK_SUCCESS)
+    {
+        if (options_.dumping_resources)
+        {
+            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+        }
     }
 
     return result;
@@ -10737,6 +10756,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
         // populate all VulkanPipelineInfo structs with information related to shader-modules
         graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
     }
+
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (replay_result == VK_SUCCESS)
+    {
+        if (options_.dumping_resources)
+        {
+            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, create_info_count, pPipelines);
+        }
+    }
+
     return replay_result;
 }
 
