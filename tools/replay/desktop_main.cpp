@@ -153,7 +153,7 @@ int main(int argc, const char** argv)
             // Select WSI context based on CLI
             std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
             auto        application   = std::make_shared<gfxrecon::application::Application>(
-                kApplicationName, wsi_extension, file_processor.get());
+                kApplicationName, file_processor.get(), wsi_extension, nullptr);
 
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
