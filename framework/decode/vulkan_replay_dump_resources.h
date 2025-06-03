@@ -38,6 +38,7 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstdint>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -431,6 +432,15 @@ class VulkanReplayDumpResourcesBase
                                             uint32_t                          createInfoCount,
                                             HandlePointerDecoder<VkPipeline>* pPipelines)
     {
+        static_assert(
+            (std::is_same<decltype(pCreateInfos),
+                          const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>*>::value) ||
+                (std::is_same<decltype(pCreateInfos),
+                              const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>*>::value) ||
+                (std::is_same<decltype(pCreateInfos),
+                              const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>*>::value),
+            "pCreateInfos is of wrong type");
+
         const auto* create_info_meta = pCreateInfos->GetMetaStructPointer();
         if (create_info_meta != nullptr)
         {
