@@ -3182,6 +3182,9 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
             GFXRECON_LOG_INFO("Saw duplicate device!");
             *pDevice = device_id_map_[physical_device_info->capture_device_id];
             return VK_SUCCESS;
+        } else {
+            GFXRECON_LOG_INFO("Inserting device into map.");
+            device_id_map_.insert(std::pair(0, *pDevice));
         }
     }
 
