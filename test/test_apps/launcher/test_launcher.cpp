@@ -28,6 +28,7 @@
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
 #include <triangle_app.h>
+#include <triangle_extra_device_app.h>
 
 #ifdef __linux__
 #include <external_memory_fd_export_app.h>
@@ -62,6 +63,7 @@ static const char* kAppNames[] = { "acquired-image",
                                    "shader-objects",
                                    "sparse-resources",
                                    "triangle",
+                                   "triangle-extra-device",
 #ifdef __linux__
                                    "external-memory-fd-export",
                                    "external-memory-fd-import",
@@ -134,6 +136,10 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
     else if (app_name == "triangle")
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
+    }
+    else if (app_name == "triangle-extra-device")
+    {
+        app = std::make_unique<gfxrecon::test_app::triangle_extra_device::App>();
     }
     else if (app_name == "host-image-copy")
     {
