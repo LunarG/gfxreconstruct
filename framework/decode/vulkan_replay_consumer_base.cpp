@@ -3184,7 +3184,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
             return VK_SUCCESS;
         } else {
             GFXRECON_LOG_INFO("Inserting device into map.");
-            device_id_map_.insert(std::pair(0, *pDevice));
+            device_id_map_.insert(std::pair(physical_device_info->capture_device_id, *pDevice));
         }
     }
 
