@@ -670,20 +670,18 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
     assert(IsRecording());
 
     auto& bound_descriptor_sets = is_dispatch ? bound_descriptor_sets_compute_ : bound_descriptor_sets_ray_tracing_;
-    for (const auto& desc_set : bound_descriptor_sets)
+    for (const auto& [desc_set_index, desc_set_info] : bound_descriptor_sets)
     {
-        const uint32_t desc_set_index = desc_set.first;
-        for (const auto& desc : desc_set.second.descriptors)
+        for (const auto& [binding_index, desc_info] : desc_set_info.descriptors)
         {
-            const uint32_t           binding_index = desc.first;
-            const VkDescriptorType   desc_type     = desc.second.desc_type;
-            const VkShaderStageFlags stage_flags   = desc.second.stage_flags;
+            const VkDescriptorType   desc_type   = desc_info.desc_type;
+            const VkShaderStageFlags stage_flags = desc_info.stage_flags;
             switch (desc_type)
             {
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 {
                     uint32_t array_index = 0;
-                    for (const auto& img_desc : desc.second.image_info)
+                    for (const auto& img_desc : desc_info.image_info)
                     {
                         if (img_desc.second.image_view_info == nullptr)
                         {
@@ -726,7 +724,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
                     uint32_t array_index = 0;
-                    for (const auto& buf_desc : desc.second.buffer_info)
+                    for (const auto& buf_desc : desc_info.buffer_info)
                     {
                         const VulkanBufferInfo* buf_info = buf_desc.second.buffer_info;
                         if (buf_info == nullptr)
@@ -1323,20 +1321,18 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
         GFXRECON_ASSERT(disp_params_entry != dispatch_params_.end());
 
         const DispatchParams* disp_params = disp_params_entry->second.get();
-        for (const auto& desc_set : disp_params->referenced_descriptors)
+        for (const auto& [desc_set_index, desc_set_info] : disp_params->referenced_descriptors)
         {
-            const uint32_t desc_set_index = desc_set.first;
-            for (const auto& desc_binding : desc_set.second)
+            for (const auto& [desc_binding_index, desc_binding_info] : desc_set_info)
             {
-                const uint32_t desc_binding_index = desc_binding.first;
-                switch (desc_binding.second.desc_type)
+                switch (desc_binding_info.desc_type)
                 {
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        for (const auto& img_desc : desc_binding.second.image_info)
+                        for (const auto& img_desc : desc_binding_info.image_info)
                         {
                             if (img_desc.second.image_view_info != nullptr)
                             {
@@ -1360,7 +1356,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        for (const auto& buf_desc : desc_binding.second.buffer_info)
+                        for (const auto& buf_desc : desc_binding_info.buffer_info)
                         {
                             const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
                             if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
@@ -1382,15 +1378,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
 
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     {
-                        if (dumped_descriptors.inline_uniform_blocks.find(
-                                &(desc_binding.second.inline_uniform_block)) ==
+                        if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
                             dumped_descriptors.inline_uniform_blocks.end())
                         {
-                            inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
-                                desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                            inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
+                                desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
                             };
-                            dumped_descriptors.inline_uniform_blocks.insert(
-                                &(desc_binding.second.inline_uniform_block));
+                            dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
                         }
                     }
                     break;
@@ -1399,7 +1393,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                         GFXRECON_LOG_WARNING_ONCE(
                             "%s(): Descriptor type (%s) not handled",
                             __func__,
-                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
+                            util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
                         break;
                 }
             }
@@ -1411,20 +1405,18 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
         GFXRECON_ASSERT(tr_params_entry != trace_rays_params_.end());
 
         const TraceRaysParams* tr_params = tr_params_entry->second.get();
-        for (const auto& desc_set : tr_params->referenced_descriptors)
+        for (const auto& [desc_set_index, desc_set_info] : tr_params->referenced_descriptors)
         {
-            const uint32_t desc_set_index = desc_set.first;
-            for (const auto& desc_binding : desc_set.second)
+            for (const auto& [desc_binding_index, desc_binding_info] : desc_set_info)
             {
-                const uint32_t desc_binding_index = desc_binding.first;
-                switch (desc_binding.second.desc_type)
+                switch (desc_binding_info.desc_type)
                 {
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        for (const auto& img_desc : desc_binding.second.image_info)
+                        for (const auto& img_desc : desc_binding_info.image_info)
                         {
                             if (img_desc.second.image_view_info != nullptr)
                             {
@@ -1448,7 +1440,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                     {
-                        for (const auto& buf_desc : desc_binding.second.buffer_info)
+                        for (const auto& buf_desc : desc_binding_info.buffer_info)
                         {
                             const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
                             if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
@@ -1470,15 +1462,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
 
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     {
-                        if (dumped_descriptors.inline_uniform_blocks.find(
-                                &(desc_binding.second.inline_uniform_block)) ==
+                        if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
                             dumped_descriptors.inline_uniform_blocks.end())
                         {
-                            inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
-                                desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                            inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
+                                desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
                             };
-                            dumped_descriptors.inline_uniform_blocks.insert(
-                                &(desc_binding.second.inline_uniform_block));
+                            dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
                         }
                     }
                     break;
@@ -1487,7 +1477,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
                         GFXRECON_LOG_WARNING_ONCE(
                             "%s(): Descriptor type (%s) not handled",
                             __func__,
-                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
+                            util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
                         break;
                 }
             }
