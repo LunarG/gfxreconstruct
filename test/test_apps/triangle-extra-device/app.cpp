@@ -242,7 +242,7 @@ void App::recreate_swapchain()
     create_framebuffers();
 }
 
-const int NUM_FRAMES = 100;
+const int NUM_FRAMES = 300;
 #define IS_RUNNING(frame_num) frame_num < NUM_FRAMES;
 
 bool App::frame(const int frame_num)
