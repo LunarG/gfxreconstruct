@@ -3175,16 +3175,17 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     // If we're doing device deduplication, check if we've already seen this create device request
     if (options_.do_device_deduplication)
     {
-        GFXRECON_LOG_INFO("Dedup device yeehaw");
-        auto it = device_id_map_.find(physical_device_info->capture_device_id);
-        if (it != device_id_map_.end())
+        std::bitset<VK_UUID_SIZE * 8> casted_uuid;
+        util::platform::MemoryCopy(
+            &casted_uuid, format::kUuidSize, physical_device_info->capture_pipeline_cache_uuid, VK_UUID_SIZE);
+
+        auto it = device_uuid_map_.find(casted_uuid);
+        if (it != device_uuid_map_.end())
         {
-            GFXRECON_LOG_INFO("Saw duplicate device!");
-            *pDevice = device_id_map_[physical_device_info->capture_device_id];
+            *pDevice = device_uuid_map_[casted_uuid];
             return VK_SUCCESS;
         } else {
-            GFXRECON_LOG_INFO("Inserting device into map.");
-            device_id_map_.insert(std::pair(physical_device_info->capture_device_id, *pDevice));
+            device_uuid_map_.insert(std::pair(casted_uuid, *pDevice));
         }
     }
 
