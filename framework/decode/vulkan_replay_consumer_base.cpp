@@ -3184,7 +3184,9 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
         {
             *pDevice = device_uuid_map_[casted_uuid];
             return VK_SUCCESS;
-        } else {
+        }
+        else
+        {
             device_uuid_map_.insert(std::pair(casted_uuid, *pDevice));
         }
     }
