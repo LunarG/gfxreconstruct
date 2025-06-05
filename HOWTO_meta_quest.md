@@ -7,7 +7,7 @@
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2024 LunarG, Inc.
+Copyright &copy; 2024-2025 LunarG, Inc.
 
 # Meta Quest Walkthrough
 
@@ -20,33 +20,30 @@ Limitations below.
 ## Index
 
 1. [Purpose](#purpose)
-2. [Building IGL with the Capture Layer](#building-igl-with-the-capture-layer)
-3. [Capturing the IGL Content](#capturing-the-igl-content)
-4. [Replaying the IGL Content](#replaying-the-igl-content)
-5. [Capturing the Replay Content](#capturing-the-replay-content)
+2. [Building GFXReconstruct](#building-gfxreconstruct)
+3. [Attaching GFXReconstruct to an Existing Application](#attaching-gfxreconstruct-to-an-existing-appplication)
+4. [Replaying a Capture File](#replaying-a-capture-file)
+6. [Capturing the Replay Content](#capturing-the-replay-content)
+7. [OpenXR Capture Known Limitations](#openxr-capture-known-limitations)
 
 ## Purpose
-This document shows several examples of how to use the GFXReconstruct
-tools. These examples will help work through issues you may discover
-while attempting to perform the same process on your own application.
 
-**NOTE:** 
-Many of these examples are given based on using a Windows system
+This document shows several examples of how to use the GFXReconstruct
+tools for the Meta Quest headsets, in particular the Meta Quest
+Pro and Quest 3 models.
+
+These examples assume that the developer is using a Windows system
 as the build and/or host since the Meta Quest Developer Hub tools work
 on Windows and not Linux.
 
-## Building IGL with the Capture Layer
-Let's look at adding the GFXReconstruct layer as a requirement of the
-[Meta IGL](https://github.com/facebook/igl) project. These steps assume
-that you have installed all the appropriate dependencies necessary to
-build that project. Please refer to that repository to ensure these
-dependencies have been met before continuing.
+**NOTE:** This assumes the application meets the following requirements
+ * Uses Gralde (preferablly 8.0+)
+ * Builds against Android 10+
 
-### 1. Pull down the GFXReconstruct source
+## Building GFXReconstruct
 
-If you haven't already, pull down the GFXReconstruct source from GitHub
-so that it also updates any necessary submodules as part of the clone
-operation:
+First, download a version of GFXReconstruct that supports OpenXR
+using the [GFXReconstruct GitHub repo](https://github.com/LunarG/gfxreconstruct).
 
 ```bash
 git clone --recurse-submodules https://github.com/LunarG/gfxreconstruct.git
@@ -55,114 +52,91 @@ git clone --recurse-submodules https://github.com/LunarG/gfxreconstruct.git
 The full location of the `gfxreconstruct` folder generated from this
 step is to be used in all cases below for `{gfxreconstruct_root}`.
 
-### 2. Pull down the source for IGL
+Next, follow the instructions in the [BUILD.md doc](./BUILD.md)
+found in the top-level of the GFXReconstruct repo for building
+for an [Android target](./BUILD.md#building-for-android).
+
+
+## Attaching GFXReconstruct to an Existing Appplication
+
+To attach GFXReconstruct to an existing application
+will require modifying the Gradle files so that the
+application can find and build with the capture layer:
+
+
+### 1. App settings.gradle Changes
+
+Include GFXReconstruct's layer as a known project:
 
 ```bash
-git clone --recurse-submodules https://github.com/facebook/igl.git
-cd igl
+include ':VkLayer_gfxreconstruct'
+project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}\\android\\layer')
 ```
 
-Alternatively, if this is not the first time the tree is cloned,
-simply enter the folder containing the source and update to the latest,
-but also make sure that the submodules are re-initialized and updated
-(because additional submodules may have been added).
+Replacing `{gfxreconstruct_root}` with the location of your
+GFXReconstruct source pulled down from Github above in
+the [Building GFXReconstruct](#building-gfxreconstruct)
+section.
+
+**NOTE:** Even though the layer is listed as
+"Vk"Layer_gfxreconstruct (as in Vulkan),
+it also contains information for the OpenXR
+API Layer as well.
+
+
+### 2. App build.gradle Changes
+
+Add GFXReconstruct's layer as a dependency:
 
 ```bash
-cd igl
-git pull
-git submodule init
-git submodule update --recursive
+dependencies {
+    implementation project(':VkLayer_gfxreconstruct')
+}
 ```
 
-### 3. Edit the Gradle files to Find the GFXreconstruct Capture Layer
+### 3. Adjust App AndrdoidManifest
 
-#### build.gradle
+Edit the application file to add both the
+`WRITE_EXTERNAL_STORAGE` and `MANAGE_EXTERNAL_STORAGE`
+permissions so that GFXReconstruct can write the
+capture file to your system.
 
-Edit the 'build\\android\\app-openxr-vulkan\\build.gradle' file to add
-the capture layer as a dependency:
 
-```text
-@@ -82,4 +82,8 @@ android {
-     buildFeatures {
-         viewBinding true
+### 4. Building Your App
+
+Build it as normal, it should automatically include
+the necessary library files and OpenXR Implicit
+API Layer.
+
+#### Note About Release Build of App
+
+This step is not necessary for Debug builds of an
+application.
+However, for Release builds, there is some additional
+settings required.
+This is because on Android/Meta OS the Vulkan layer
+is attached at run-time using Android/Meta OS system
+settings.
+If the application does not have the `debuggable`
+flag set to `true` in the build.gradle file, the layer
+will not correctly attach at run-time.
+
+For example:
+
+```bash
+ release {
+     signingConfig signingConfigs.release
+-    debuggable false
++    debuggable true
+...
+     ndk {
+-        debuggable  false
++        debuggable  true
      }
-+
-+    dependencies {
-+        implementation project(':VkLayer_gfxreconstruct')
-+    }
  }
 ```
 
-#### settings.gradle
-
-Edit the 'build\\android\\settings.gradle' file to include the project
-location:
-
-```text
-@@ -23,3 +23,5 @@ rootProject.name = "IGL"
- include ':app'
- include ':app-openxr-vulkan'
- include ':app-openxr-gles'
-+include ':VkLayer_gfxreconstruct'
-+project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}\\android\\layer')
-```
-
-**NOTE**: Replace {gfxreconstruct_root} with the full path location of
-the source you cloned from the GFXReconstruct repo in Step 1.
-
-
-#### Add more permissions to AndroidManifest
-
-Edit the file 
-
-`shell/openxr/mobile/java/com/facebook/igl/shell/openxr/vulkan/AndroidManifest.xml`
-
-to include `MANAGE_EXTERNAL_STORAGE` permission required by Android
-10 and later:
-
-```text
-@@ -12,6 +12,7 @@
-
-   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-+  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
-   <uses-permission android:name="android.permission.INTERNET" />
-   <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
-```
-
-
-#### Update the OpenXR-SDK Usage in IGL to the latest
-
-Edit the `third-party/bootstrap-deps.json` file to use a new OpenXR-SDK
-commit.
-
-Update to at least sha1 of `be392bf6949adeeabad5082aa79d12aacbda781f`.
-
-
-### 4. Build IGL using Android Studio
-
- 1. Select "app-openxr-vulkan" target
- 2. Click on the hamburger menu (top left), select the `Build` menu and then `Rebuild` under that
-
-
-## Capturing the IGL Content
-
-The example that follows uses the Meta IGL OpenXr Vulkan Sample built
-above and assumes that you built the debug version.  The benefit of
-building the application in this way is that it will automatically
-incorporate the GFXReconstruct capture layer into the .APK file for the
-built application.
-
-**NOTE:** This assumes you have installed the Quest Development Hub with
-its version of the Android tools (such as ADB)
-
-### 1. Run Logcat
-
-```bash
-adb logcat -s IGL vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
-```
-
-### 2. Enable GFXReconstruct
+### 5. Enable GFXReconstruct Vulkan Capture
 
 Using the ADB installed from the Meta Quest Developer Hub ("C:\Program
 Files\Meta Quest Developer Hub\resources\bin\adb.exe" on some systems),
@@ -170,57 +144,103 @@ enable the GFXReconstruct layer only for the application using the
 global settings:
 
 ```bash
-
 adb shell "settings put global enable_gpu_debug_layers 1"
-adb shell "settings put global gpu_debug_app com.facebook.igl.shell.openxr.vulkan"
+adb shell "settings put global gpu_debug_app {Android applicationId}"
 adb shell "settings put global gpu_debug_layers 'VK_LAYER_LUNARG_gfxreconstruct'"
 ```
 
-**NOTE:** You can also just log into `adb shell` and execute the commands
-as they appear in the quotes if that is easier for you.
+Replacing `{Android applicationId}` with the application's Id.
+This Id typically can be found in the `build.gradle` file and
+should look something similar to the following:
 
-### 3. Set the Capture Options
+* com.facebook.igl.shell.openxr.vulkan
+* net.beyondreality.openxr_provider.finger_painting3.openxr
 
-Now, set the command to capture frames 1-500 so we can see what's
-happening and write the file to the `/sdcard/Download` folder:
+**NOTE:** If you apply an `applicationIdSuffix`, you should append it to
+the applciationId to get the full Identifier.
+
+#### What do These Commands Do?
+
+The first command setting `enable_gpu_debug_layers` to 1 tells
+the OS that you will be using Debug Vulkan Layers that will be
+attached to the application at runtime.
+
+The second command settings `gpu_debug_app` tells the OS
+which application you want the layer applied to.
+
+The third command setting `gpu_debug_layers` identifies which Debug
+Vulkan layers you want enabled.
+In this case, GFXReconstruct's Vulkan layer name
+`VK_LAYER_LUNARG_gfxreconstruct`.
+
+
+### 6. Set the Capture Options
+
+Now, set the command indicating where to record the contents
+of the capture, in this case to the `/sdcard/Download` folder:
 
 ```bash
 adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture.gfxr'"
-adb shell "setprop debug.gfxrecon.capture_frames '1-500'"
-```
-
-#### Disable Timestamp on capture file
-
-By default, in order to avoid conflicting capture file names, GFXR will
-add a timestamp onto the end of the capture file, such as:
-
-```bash
-/sdcard/Download/openxr_capture_frames_1_through_500_20240812T132918.gfxr
-```
-
-If you find GFXR adding the timestamp on the end of the capture file to
-be problematic, you can disable that with the following:
-
-```bash
 adb shell "setprop debug.gfxrecon.capture_file_timestamp 0"
 ```
 
+These two commands will result in the capture file
+`openxr_capture.gfxr` being written to the `/sdcard/Download`
+folder on the device.
+
+The second command disables adding a timestamp the name.
+If this is not set, it creates a unique filename per 
+run (which is great for CI systems or other testing).
+The file name with timestamps enabled will look
+something like `openxr_capture_20240812T132918.gfxr`.
+
+
+#### Limit to a Certian Number of Frames
+
+You can adjust how many frames are captured (instead of
+all frames until the app is completed) by defining
+the `debug.gfxrecon.capture_frames` property.
+
+For example, if you want to only capture the first
+500 frames, you do the following:
+
+```bash
+adb shell "setprop debug.gfxrecon.capture_frames '1-500'"
+```
+
+**NOTE:** This will change the name of the capture file generated.
+For example, above we set the capture file to
+`/sdcard/Download/openxr_capture.gfxr`, but with frame limitations
+enabled, it will now be named
+`/sdcard/Download/openxr_capture_frames_1_through_500.gfxr`.
+If timestamps are not disabled, the filename will look even
+more complex, like
+`/sdcard/Download/openxr_capture_frames_1_through_500_20240812T132918.gfxr`.
+
 #### Disable Re-Entrant Cases
 
-By default, GFXReconstruct attempts to filter out what we call
-"re-entrant" calls, it may still happen. A "re-entrant" call is when the
-application calls the OpenXR runtime, which then creates some graphics API
-commands (for example Vulkan commands) to perform some additional work
-like composition. If the application is also capturing Vulkan commands
-with GFXReconstruct these commands would show up, but shouldn't because
-they are not part of what is intended to be recorded. To avoid this, we
-disable recording any calls while an OpenXR command is in the process of
-being recorded and executed. However, some calls may continue to occur
-outside of these OpenXR calls. In some cases, the OpenXR runtime may
-have a separate thread waiting on VkFences that were triggered during
-an OpenXR call. These additional fences would be completely unknown to
-GFXR because they would have been created and used initially outside of
-its view. Therefore, we need to disable recording any Vulkan commands
+By default, GFXReconstruct capturing of OpenXR and Vulkan
+content simultaneously attempts to filter out what we call
+"re-entrant" calls.
+A "re-entrant" call is when the application calls the OpenXR
+runtime, which then creates some graphics API commands
+(for example Vulkan commands) to perform some additional work
+like composition.
+If the application is also performing Vulkan commands,
+which GFXReconstruct is capturing, then GFXReconstruct could
+run into the situation of capturing unnecessary Vulkan commands
+which will be re-generated by the OpenXR at replay time.
+To avoid this, we disable recording any calls while an OpenXR
+command is in the process of being recorded and executed.
+
+However, some calls may continue to occur outside of these
+OpenXR calls.
+In some cases, the OpenXR runtime may have a separate thread
+waiting on `VkFences` that were triggered during an OpenXR call.
+These additional fences would be completely unknown to
+GFXReconstruct because they would have been created and used
+initially outside of its view.
+Therefore, we need to disable recording any Vulkan commands
 that have content we don't recognize.
 
 This is done by setting the following option:
@@ -235,70 +255,59 @@ More capture options can be found in the
 [USAGE_android.md](./USAGE_android.md) under the [Capture
 Options](./USAGE_android.md#capture-options) section.
 
-### 4. Install and Run the Application
+### 7. Install and Run the Application
 
-  1. Open Android Studio 
-  2. Connect the headset to your development
+Install the application as normal and run it.
+You may have to stop and uninstall any older 
 
-    machine using a USB plug
-    a. Make sure the headset is detected by Android Studio
-  3. Select the headset in the target 
-  4. Make sure "app-openxr-vulkan"
+Then run the application as normal to capture
+the content.
 
-    is selected 
-  5. Press the "Play" triangle to run
+If the application fails to launch, review the
+`adb logcat` information for any fatal or error messages.
+Here is a useful filter for logcat messages.
 
-    a. You may have to first select to enable commands from the host
-    system on the headset
+```bash
+adb logcat -s DEBUG vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
+```
 
-This shows that you can run the application on the target.
+Once complete, if everything executed correctly, the capture
+file should be present in the `/sdcard/Download` folder.
 
-### 5. Run the Application
-
-Repeat the steps from section 2. above.
-
-This time, however, you should see a generated capture file after
-exiting the application in the `/sdcard/Download` folder called
-`openxr_capture_frames_1_to_500.gfxr` since you have selected to save
-only some of the frames.
-
-### 6. Verify the capture file
-
-Check that the above file exists:
+Check that it exists:
 
 ```bash
 adb shell ls /sdcard/Download/openxr_capture*.gfxr
 ```
 
-### 7. Disable the capture layer
-
-Disable the capture layer globally and also restore the Vulkan usage of
-the HWUI:
-
-```bash
-adb shell "setprop debug.vulkan.layers ''"
-adb shell "settings put global gpu_debug_app ''"
-adb shell "settings put global gpu_debug_layers ''"
-```
-
-## Replaying the IGL Content
+## Replaying a Capture File
 
 
 ### 1. Install the replay application
 
-Now, we need to install the Replay application that we built as part of
-the GFXReconstruct source.  Install the replay APK from the root of the
-built source tree by using the `gfxrecon.py` script:
+Install the GFXReconstrudct Quest Replay application
+that is built as part of the Android build of
+GFXReconstruct using the `gfxrecon.py` script:
+
+For example, if installing the Debug build of
+the Quest replay app:
 
 ```bash
+cd {gfxreconstruct_root}
 python3 android/scripts/gfxrecon.py install-apk android/tools/quest_replay/build/outputs/apk/debug/quest_replay-debug.apk
 ```
+
+Replacing `{gfxreconstruct_root}` with the location of your
+GFXReconstruct source pulled down from Github above in
+the [Building GFXReconstruct](#building-gfxreconstruct)
+section.
 
 ### 2. Force External Storage Permissions
 
 Even though the Quest Replay application is built enabling external
-storage access permissions in its Android Manifest file, it doesn't appear
-to always work. Because of this, just force on the permission right
+storage access permissions in its Android Manifest file,
+it doesn't always appear to stick.
+Because of this, it is best to just force on the permission right
 before attempting to run and access the files in the `/sdcard/downlaod`
 directory:
 
@@ -308,33 +317,27 @@ adb shell appops set --uid com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STOR
 
 ### 3. Run the replay
 
-First, disable the GFXReconstruct capture layers for Vulkan:
-
-```bash
-adb shell "setprop debug.vulkan.layers ''"
-adb shell "settings put global gpu_debug_app ''"
-adb shell "settings put global gpu_debug_layers ''"
-```
-
 Run the replay using the `gfxrecon.py` script:
 
 ```bash
-python3 android/scripts/gfxrecon.py replay sdcard/Download/openxr_capture_frames_1_through_500_20240812T132918.gfxr
+python3 android/scripts/gfxrecon.py replay sdcard/Download/{capture_file_name}
 ```
 
-Replacing "openxr_capture_frames_1_through_500_20240812T132918.gfxr" with
-the name of the most recent capture file discovered when performing step
-[6. Verify the capture file](#6-verify-the-capture-file) above.
+Replacing `{capture_file_name}` with the name of a
+valid capture file that was created.
+The replay should run, perform the appropriate rendering,
+and then close on completion.
 
 
 ## Capturing the Replay Content
 
-To capture a replay requires some additional changes.
+At times, capturing the Quest replay itself may be of use but
+does require some additional changes.
 
-### 1. Build this project enabling capture of the Quest replay app
+### 1. Build the Replay Enabling Capture
 
-By default, the replay does not include the necessary OpenXR
-capture layer manifest files.
+By default, the Quest replay application does not include the
+necessary OpenXR capture layer manifest files.
 Because of this, you need to pass in the `EnableOpenXRCaptureOfReplay`
 Gradle propery during build to properly define all the dependencies
 for the capture layer.
@@ -352,40 +355,41 @@ properly capture the necessary content.
 ### 2. Change the Debug app to the GFXRecon Quest replay app
 
 If you haven't already done so, first follow the instructions to enable
-the debug layer in section
-[3. Enable GFXReconstruct](#3-enable-gfxreconstruct)
-in the Capturing IGL Content section above.
+the debug layer in the
+[Enable GFXReconstruct Vulkan Capture](#5-enable-gfxreconstruct-vulkan-capture)
+section above.
 
-One change is to make sure that we:
-* Capture the correct application (here it is the replay application)
+One change is to make sure that:
+* The correct application name is used (here it is the Quest replay
+  application)
 * Adjust the capture file to use a different name than
-the one being replayed (or you will overwrite what you're reading)
+  the one being replayed (or it will overwrite what is being read)
 
 ```bash
 adb shell settings put global gpu_debug_app com.lunarg.gfxreconstruct.replay
 adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture.gfxr'"
 ```
 
-### 2. Install the Quest replay application
+### 2. Install the Quest Teplay Application
 
-(Follow instructions in section [1. Install the replay
-application](#1-install-the-replay-application)) in the Replay section
-above if you have not already done so.
+(Follow instructions in the 
+[1. Install the replay application](#1-install-the-replay-application))section above (especially if the Quest replay application was
+previously installed without re-capture enabled).
 
-As well as modifying the permissions as noted in section [2. Force
-External Storage Permissions](#2-force-external-storage-permissions)
-in the Replay section above.
+Repeat the permissions modification as noted in tje
+[2. Force External Storage Permissions](#2-force-external-storage-permissions)
+section above.
 
 ### 3. Run Logcat
 
 ```bash
-adb logcat -s IGL vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
+adb logcat -s DEBUG vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
 ```
 
 ### 4. Upload the Replay Capture
 
-If the replay capture file is not already on the device, you will need
-to push it up using:
+If the capture file that will be used to replay is not already on
+the device, push it to the device using ADB:
 
 ```bash
 adb push {capture_file_name} /sdcard/Download
@@ -401,4 +405,10 @@ python3 android/scripts/gfxrecon.py replay /sdcard/Download/{capture_file_name}
 
 ## OpenXR Capture Known Limitations
 
-The current implementation has been written to cover the OpenXR API entry points and usage based on a limited number of test applications (listed in issue below).  It is possible that meaningful omissions or errors in capture and/or replay may exist outside the usage tested.  The current set of known limitations is maintained in [GitHub/LunarG/gfxreconstruct issue 2145](https://github.com/LunarG/gfxreconstruct/issues/2145). 
+The current implementation has been written to cover the OpenXR API
+entrypoints and usage based on a limited number of test applications (listed in issue below).
+It is possible that meaningful omissions or errors in capture and/or
+replay may exist outside the usage tested.
+The current set of known limitations is maintained in
+[GitHub/LunarG/gfxreconstruct issue 2145](https://github.com/LunarG/gfxreconstruct/issues/2145). 
+
