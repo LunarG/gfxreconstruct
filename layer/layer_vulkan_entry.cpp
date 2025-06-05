@@ -122,6 +122,132 @@ LayerVulkanEntry::LayerVulkanEntry(const encode::VulkanFunctionTable& vulkan_fun
 
 LayerVulkanEntry::~LayerVulkanEntry() {}
 
+VkResult LayerVulkanEntry::EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                              const char*            pLayerName,
+                                                              uint32_t*              pPropertyCount,
+                                                              VkExtensionProperties* pProperties)
+{
+    VkResult result = VK_SUCCESS;
+
+    if ((pLayerName != nullptr) && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
+    {
+        if (pPropertyCount != nullptr)
+        {
+            uint32_t extension_count = static_cast<uint32_t>(kVulkanDeviceExtensionProps.size());
+
+            if (pProperties == nullptr)
+            {
+                *pPropertyCount = extension_count;
+            }
+            else
+            {
+                if ((*pPropertyCount) < extension_count)
+                {
+                    result          = VK_INCOMPLETE;
+                    extension_count = *pPropertyCount;
+                }
+                else if ((*pPropertyCount) > extension_count)
+                {
+                    *pPropertyCount = extension_count;
+                }
+
+                for (uint32_t i = 0; i < extension_count; ++i)
+                {
+                    pProperties[i] = kVulkanDeviceExtensionProps[i].props;
+                }
+            }
+        }
+    }
+    else
+    {
+        // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the
+        // ICD provided extensions. In order to screen out unsupported extensions, we always query the chain twice,
+        // and remove those that are present from the count.
+        auto     instance_table            = encode::vulkan_wrappers::GetInstanceTable(physicalDevice);
+        uint32_t downstream_property_count = 0;
+
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            physicalDevice, pLayerName, &downstream_property_count, nullptr);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        std::vector<VkExtensionProperties> device_extension_properties(downstream_property_count);
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            physicalDevice, pLayerName, &downstream_property_count, device_extension_properties.data());
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        RemoveExtensions(device_extension_properties,
+                         kVulkanUnsupportedDeviceExtensions.data(),
+                         std::end(kVulkanUnsupportedDeviceExtensions) - std::begin(kVulkanUnsupportedDeviceExtensions));
+
+        // Append the extensions we provide in the list to the caller if they aren't already provided
+        // downstream.
+        if (pLayerName == nullptr)
+        {
+            for (auto& provided_prop : kVulkanDeviceExtensionProps)
+            {
+                bool append_provided_prop =
+                    std::find_if(device_extension_properties.begin(),
+                                 device_extension_properties.end(),
+                                 [&provided_prop](const VkExtensionProperties& downstream_prop) {
+                                     return util::platform::StringCompare(provided_prop.props.extensionName,
+                                                                          downstream_prop.extensionName,
+                                                                          VK_MAX_EXTENSION_NAME_SIZE) == 0;
+                                 }) == device_extension_properties.end();
+                if (append_provided_prop)
+                {
+                    device_extension_properties.push_back(provided_prop.props);
+                }
+            }
+        }
+
+        // Output the reduced count or the reduced extension list:
+        if (pProperties == nullptr)
+        {
+            *pPropertyCount = static_cast<uint32_t>(device_extension_properties.size());
+        }
+        else
+        {
+            if (*pPropertyCount < static_cast<uint32_t>(device_extension_properties.size()))
+            {
+                result = VK_INCOMPLETE;
+            }
+            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(device_extension_properties.size()));
+            std::copy(device_extension_properties.begin(),
+                      device_extension_properties.begin() + *pPropertyCount,
+                      pProperties);
+        }
+    }
+
+    return result;
+}
+
+VkResult LayerVulkanEntry::EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                uint32_t*              pPropertyCount,
+                                                                VkExtensionProperties* pProperties)
+{
+    VkResult result = VK_SUCCESS;
+
+    if (pLayerName && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
+    {
+        if (pPropertyCount != nullptr)
+        {
+            *pPropertyCount = 0;
+        }
+    }
+    else
+    {
+        result = VK_ERROR_LAYER_NOT_PRESENT;
+    }
+
+    return result;
+}
+
 VkResult LayerVulkanEntry::dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                    const VkAllocationCallbacks* pAllocator,
                                                    VkInstance*                  pInstance)
