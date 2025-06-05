@@ -79,6 +79,14 @@ class LayerVulkanEntry : public encode::VulkanEntryBase
 
     virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName) override;
 
+    virtual VkResult EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                        const char*            pLayerName,
+                                                        uint32_t*              pPropertyCount,
+                                                        VkExtensionProperties* pProperties) override;
+    virtual VkResult EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                          uint32_t*              pPropertyCount,
+                                                          VkExtensionProperties* pProperties) override;
+
     virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                              const VkAllocationCallbacks* pAllocator,
                                              VkInstance*                  pInstance) override;

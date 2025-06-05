@@ -59,10 +59,10 @@ class VulkanEntryBase
     virtual VkResult           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                                   const char*            pLayerName,
                                                                   uint32_t*              pPropertyCount,
-                                                                  VkExtensionProperties* pProperties);
+                                                                  VkExtensionProperties* pProperties)   = 0;
     virtual VkResult           EnumerateInstanceExtensionProperties(const char*            pLayerName,
                                                                     uint32_t*              pPropertyCount,
-                                                                    VkExtensionProperties* pProperties);
+                                                                    VkExtensionProperties* pProperties) = 0;
     virtual VkResult EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties);
     virtual VkResult EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
                                                     uint32_t*          pPropertyCount,
