@@ -56,7 +56,7 @@ util::platform::LibraryHandle InitializeKhronosLoader(KhronosLoaderType type)
             return util::platform::OpenLibrary(kOpenXrLoaderLibNames);
         default:
 #if defined(WIN32)
-            return INVALID_HANDLE_VALUE;
+            return reinterpret_cast<void*>(INVALID_HANDLE_VALUE);
 #else
             return nullptr;
 #endif
