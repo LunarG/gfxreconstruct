@@ -24,7 +24,8 @@
 #include "encode/openxr_capture_manager.h"
 #endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
-#include "layer/trace_layer.h"
+#include "layer/vulkan_entry_layer.h"
+#include "generated/generated_vulkan_layer_func_table.h"
 
 #if defined(WIN32)
 
@@ -37,15 +38,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-            gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
-                                                                  gfxrecon::vulkan_entry::dispatch_CreateDevice);
+            gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton();
+            gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry_layer::dispatch_CreateInstance,
+                                                                  gfxrecon::vulkan_entry_layer::dispatch_CreateDevice);
 #if ENABLE_OPENXR_SUPPORT
             gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(
                 gfxrecon::openxr_entry::dispatch_CreateApiLayerInstance);
 #endif // ENABLE_OPENXR_SUPPOR
-
             break;
         case DLL_PROCESS_DETACH:
+            gfxrecon::vulkan_entry_layer::VulkanEntryLayer::DestroySingleton();
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
             //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
             //       we will need to split destroy_layer into a shutdown function, responsible for
@@ -66,8 +68,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 __attribute__((constructor)) static void create_trace_layer()
 {
-    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
-                                                          gfxrecon::vulkan_entry::dispatch_CreateDevice);
+    gfxrecon::vulkan_entry_layer::VulkanEntryLayer::InitSingleton();
+    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry_layer::dispatch_CreateInstance,
+                                                          gfxrecon::vulkan_entry_layer::dispatch_CreateDevice);
 #if ENABLE_OPENXR_SUPPORT
     gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(gfxrecon::openxr_entry::dispatch_CreateApiLayerInstance);
 #endif // ENABLE_OPENXR_SUPPORT
@@ -75,6 +78,7 @@ __attribute__((constructor)) static void create_trace_layer()
 
 __attribute__((destructor)) static void destroy_trace_layer()
 {
+    gfxrecon::vulkan_entry_layer::VulkanEntryLayer::DestroySingleton();
     // TODO: Ensure that the trace is finalized.
 }
 

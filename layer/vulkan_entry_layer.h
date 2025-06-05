@@ -21,12 +21,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_TRACE_LAYER_H
-#define GFXRECON_TRACE_LAYER_H
+#ifndef GFXRECON_VULKAN_ENTRY_LAYER_H
+#define GFXRECON_VULKAN_ENTRY_LAYER_H
+
+#include "encode/vulkan_entry_base.h"
 
 #include "util/defines.h"
+#include "util/logging.h"
 
-#include "vulkan/vulkan.h"
+#include "vulkan/vk_layer.h"
+
+#include <mutex>
+#include <unordered_map>
+#include <vector>
 
 #if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
@@ -34,10 +41,10 @@
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(vulkan_entry_layer)
 
-GFXRECON_BEGIN_NAMESPACE(vulkan_entry)
 // The following prototype declarations are required so the dispatch table can find these
-// functions which are defined in trace_layer.cpp
+// functions which are defined in the .cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName);
@@ -61,7 +68,43 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      const VkDeviceCreateInfo*    pCreateInfo,
                                                      const VkAllocationCallbacks* pAllocator,
                                                      VkDevice*                    pDevice);
-GFXRECON_END_NAMESPACE(vulkan_entry)
+
+class VulkanEntryLayer : public encode::VulkanEntryBase
+{
+  public:
+    static VulkanEntryBase* InitSingleton();
+
+    VulkanEntryLayer(const encode::VulkanFunctionTable& vulkan_function_table);
+    virtual ~VulkanEntryLayer();
+
+    // The following prototype declarations are required so the dispatch table can find these
+    // functions which are defined in trace_layer.cpp
+    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName) override;
+    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName) override;
+    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName) override;
+    virtual VkResult           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                                  const char*            pLayerName,
+                                                                  uint32_t*              pPropertyCount,
+                                                                  VkExtensionProperties* pProperties) override;
+    virtual VkResult           EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                    uint32_t*              pPropertyCount,
+                                                                    VkExtensionProperties* pProperties) override;
+    virtual VkResult           EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                VkLayerProperties* pProperties) override;
+    virtual VkResult           EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                              uint32_t*          pPropertyCount,
+                                                              VkLayerProperties* pProperties) override;
+
+    virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                             const VkAllocationCallbacks* pAllocator,
+                                             VkInstance*                  pInstance) override;
+    virtual VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
+                                           const VkDeviceCreateInfo*    pCreateInfo,
+                                           const VkAllocationCallbacks* pAllocator,
+                                           VkDevice*                    pDevice) override;
+};
+
+GFXRECON_END_NAMESPACE(vulkan_entry_layer)
 
 #if ENABLE_OPENXR_SUPPORT
 GFXRECON_BEGIN_NAMESPACE(openxr_entry)
@@ -82,4 +125,4 @@ GFXRECON_END_NAMESPACE(openxr_entry)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_TRACE_LAYER_H
+#endif // GFXRECON_VULKAN_ENTRY_LAYER_H
