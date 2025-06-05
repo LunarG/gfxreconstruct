@@ -11077,15 +11077,15 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
 }
 
 std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateComputePipelines(
-    PFN_vkCreateComputePipelines                               func,
-    VkResult                                                   returnValue,
-    const ApiCallInfo&                                         call_info,
-    const VulkanDeviceInfo*                                    device_info,
-    const VulkanPipelineCacheInfo*                             pipeline_cache_info,
-    uint32_t                                                   createInfoCount,
-    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
-    HandlePointerDecoder<VkPipeline>*                          pPipelines)
+    PFN_vkCreateComputePipelines                                     func,
+    VkResult                                                         returnValue,
+    const ApiCallInfo&                                               call_info,
+    const VulkanDeviceInfo*                                          device_info,
+    const VulkanPipelineCacheInfo*                                   pipeline_cache_info,
+    uint32_t                                                         createInfoCount,
+    const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
     // avoid async operations if an externally synchronized pipeline-cache is used
     if (pipeline_cache_info != nullptr && pipeline_cache_info->requires_external_synchronization)
@@ -11104,6 +11104,12 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     {
         cache_pipeline_id = *pPipelines->GetPointer();
         pipeline_cache    = CreateNewPipelineCache(device_info, cache_pipeline_id);
+    }
+
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (returnValue == VK_SUCCESS && options_.dumping_resources)
+    {
+        resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
     }
 
     // populate VulkanPipelineInfo structs with information related to shader-modules
