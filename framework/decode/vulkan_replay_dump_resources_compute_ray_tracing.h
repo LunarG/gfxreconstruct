@@ -133,7 +133,7 @@ class DispatchTraceRaysDumpingContext
 
     VkResult FetchIndirectParams();
 
-    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
 
     const VulkanCommandBufferInfo* original_command_buffer_info_;
     VkCommandBuffer                DR_command_buffer_;
@@ -426,7 +426,9 @@ class DispatchTraceRaysDumpingContext
 
         TraceRaysTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        using ReferencedDescriptors =
+            std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
+        ReferencedDescriptors referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
         MutableResourcesBackupContext mutable_resources_clones;
@@ -438,7 +440,9 @@ class DispatchTraceRaysDumpingContext
     };
 
   private:
-    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
+    VkResult CloneMutableResources(const TraceRaysParams::ReferencedDescriptors& referenced_descriptors,
+                                   MutableResourcesBackupContext&                backup_context,
+                                   bool                                          is_dispatch);
 
     void SnapshotDispatchState(DispatchParams& disp_params);
 
