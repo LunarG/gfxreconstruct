@@ -442,8 +442,10 @@ VkResult DispatchTraceRaysDumpingContext::CloneDispatchMutableResources(uint64_t
     GFXRECON_ASSERT(entry->second);
 
     DispatchParams& params = *entry->second.get();
-    return CloneMutableResources(
-        cloning_before_cmd ? params.mutable_resources_clones_before : params.mutable_resources_clones, true);
+    return CloneMutableResources(params.referenced_descriptors,
+                                 cloning_before_cmd ? params.mutable_resources_clones_before
+                                                    : params.mutable_resources_clones,
+                                 true);
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd)
@@ -453,8 +455,10 @@ VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_
     GFXRECON_ASSERT(entry->second);
 
     TraceRaysParams& params = *entry->second;
-    return CloneMutableResources(
-        cloning_before_cmd ? params.mutable_resources_clones_before : params.mutable_resources_clones, false);
+    return CloneMutableResources(params.referenced_descriptors,
+                                 cloning_before_cmd ? params.mutable_resources_clones_before
+                                                    : params.mutable_resources_clones,
+                                 false);
 }
 
 static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::DispatchParams& disp_params,
@@ -664,15 +668,16 @@ void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParams& tr
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResourcesBackupContext& resource_backup_context,
-                                                                bool                           is_dispatch)
+VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
+    const TraceRaysParams::ReferencedDescriptors& referenced_descriptors,
+    MutableResourcesBackupContext&                resource_backup_context,
+    bool                                          is_dispatch)
 {
     assert(IsRecording());
 
-    auto& bound_descriptor_sets = is_dispatch ? bound_descriptor_sets_compute_ : bound_descriptor_sets_ray_tracing_;
-    for (const auto& [desc_set_index, desc_set_info] : bound_descriptor_sets)
+    for (const auto& [desc_set_index, desc_set_info] : referenced_descriptors)
     {
-        for (const auto& [binding_index, desc_info] : desc_set_info.descriptors)
+        for (const auto& [binding_index, desc_info] : desc_set_info)
         {
             const VkDescriptorType   desc_type   = desc_info.desc_type;
             const VkShaderStageFlags stage_flags = desc_info.stage_flags;
@@ -1028,7 +1033,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
 
         if (dump_immutable_resources_)
         {
-            res = DumpImmutableDescriptors(qs_index, bcb_index, disp_index, true);
+            res = DumpDescriptors(qs_index, bcb_index, disp_index, true);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1070,7 +1075,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
 
         if (dump_immutable_resources_)
         {
-            res = DumpImmutableDescriptors(qs_index, bcb_index, tr_index, false);
+            res = DumpDescriptors(qs_index, bcb_index, tr_index, false);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1290,10 +1295,10 @@ bool DispatchTraceRaysDumpingContext::IsRecording() const
     return !reached_end_command_buffer_;
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_index,
-                                                                   uint64_t bcb_index,
-                                                                   uint64_t cmd_index,
-                                                                   bool     is_dispatch)
+VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
+                                                          uint64_t bcb_index,
+                                                          uint64_t cmd_index,
+                                                          bool     is_dispatch)
 {
     // Create a list of all descriptors referenced by all commands
     std::unordered_set<const VulkanImageInfo*> image_descriptors;
