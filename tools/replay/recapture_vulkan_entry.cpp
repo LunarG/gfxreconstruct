@@ -118,6 +118,106 @@ RecaptureVulkanEntry::~RecaptureVulkanEntry()
     ReleaseLoader();
 }
 
+VkResult RecaptureVulkanEntry::EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                                  const char*            pLayerName,
+                                                                  uint32_t*              pPropertyCount,
+                                                                  VkExtensionProperties* pProperties)
+{
+    VkResult result = VK_SUCCESS;
+
+    if ((pLayerName != nullptr) && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
+    {
+        if (pPropertyCount != nullptr)
+        {
+            *pPropertyCount = 0;
+        }
+    }
+    else
+    {
+        // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
+        // provided extensions.
+        // In order to screen out unsupported extensions, we always query the chain
+        // twice, and remove those that are present from the count.
+        auto     instance_table            = encode::vulkan_wrappers::GetInstanceTable(physicalDevice);
+        uint32_t downstream_property_count = 0;
+
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            physicalDevice, pLayerName, &downstream_property_count, nullptr);
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        std::vector<VkExtensionProperties> device_extension_properties(downstream_property_count);
+        result = instance_table->EnumerateDeviceExtensionProperties(
+            physicalDevice, pLayerName, &downstream_property_count, device_extension_properties.data());
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        RemoveExtensions(device_extension_properties,
+                         kVulkanUnsupportedDeviceExtensions.data(),
+                         std::end(kVulkanUnsupportedDeviceExtensions) - std::begin(kVulkanUnsupportedDeviceExtensions));
+
+        // Output the reduced count or the reduced extension list:
+        if (pProperties == nullptr)
+        {
+            *pPropertyCount = static_cast<uint32_t>(device_extension_properties.size());
+        }
+        else
+        {
+            if (*pPropertyCount < static_cast<uint32_t>(device_extension_properties.size()))
+            {
+                result = VK_INCOMPLETE;
+            }
+            *pPropertyCount = std::min(*pPropertyCount, static_cast<uint32_t>(device_extension_properties.size()));
+            std::copy(device_extension_properties.begin(),
+                      device_extension_properties.begin() + *pPropertyCount,
+                      pProperties);
+        }
+    }
+
+    return result;
+}
+
+VkResult RecaptureVulkanEntry::EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                    uint32_t*              pPropertyCount,
+                                                                    VkExtensionProperties* pProperties)
+{
+    VkResult result = VK_SUCCESS;
+
+    if ((pLayerName != nullptr) && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
+    {
+        if (pPropertyCount != nullptr)
+        {
+            *pPropertyCount = 0;
+        }
+    }
+    else if (pLayerName == nullptr)
+    {
+        // During trim, the GFXR capture code is not a layer registered with the loader, so forward the call to the
+        // loader here.
+        if (loader_handle_ != nullptr)
+        {
+            auto loader_enumerate_instance_extension_properties =
+                reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+                    util::platform::GetProcAddress(loader_handle_, "vkEnumerateInstanceExtensionProperties"));
+            result = loader_enumerate_instance_extension_properties(pLayerName, pPropertyCount, pProperties);
+        }
+        else
+        {
+            result = VK_ERROR_INITIALIZATION_FAILED;
+        }
+    }
+    else
+    {
+        result = VK_ERROR_LAYER_NOT_PRESENT;
+    }
+
+    return result;
+}
+
 // For the trim tool, this function is called by the capture manager handling for vkCreateInstance in
 // VulkanCaptureManager::OverrideCreateInstance. It needs to create the actual (not wrapped) VkInstance object.
 VkResult RecaptureVulkanEntry::dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,

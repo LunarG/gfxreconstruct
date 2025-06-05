@@ -72,6 +72,14 @@ class RecaptureVulkanEntry : public encode::VulkanEntryBase
     RecaptureVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table);
     virtual ~RecaptureVulkanEntry();
 
+    virtual VkResult EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                        const char*            pLayerName,
+                                                        uint32_t*              pPropertyCount,
+                                                        VkExtensionProperties* pProperties) override;
+    virtual VkResult EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                          uint32_t*              pPropertyCount,
+                                                          VkExtensionProperties* pProperties) override;
+
     virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                              const VkAllocationCallbacks* pAllocator,
                                              VkInstance*                  pInstance) override;
