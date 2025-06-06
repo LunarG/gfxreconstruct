@@ -377,6 +377,16 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     VkResult OverrideBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
 
+    void PostProcess_vkBeginCommandBuffer(VkResult                        result,
+                                          VkCommandBuffer                 commandBuffer,
+                                          const VkCommandBufferBeginInfo* pBeginInfo)
+    {
+        if (IsCaptureModeTrack() && result == VK_SUCCESS)
+        {
+            state_tracker_->TrackBeginCommandBuffer(commandBuffer, pBeginInfo->flags);
+        }
+    }
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
