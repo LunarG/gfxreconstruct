@@ -192,8 +192,51 @@ class OpenXrCaptureManager : public ApiCaptureManager
 
     using SpaceSet = std::unordered_set<XrSpace>;
 
+    enum class ReentryMode
+    {
+        kGlobalDisable,       // save/restore capture mode, no shared state
+        kGlobalDisableAtomic, // save/restore capture mode on depth 0
+        kThreadDisable,       // set current thread to skip
+    };
+
+    // Common state for reentry modes
+    struct ManagerReentryState
+    {
+        ReentryMode           reentry_mode;
+        OpenXrCaptureManager* manager;
+
+        // Shared state for kGlobalDisableAtomic
+        CommonCaptureManager::ApiCallMutexT reentry_mutex;
+        CommonCaptureManager::CaptureMode   atomic_saved_capture_mode;
+        uint32_t                            atomic_depth;
+    };
+
+    class ReentryState
+    {
+      public:
+        friend OpenXrCaptureManager;
+
+        void PreDispatch();
+        void PostDispatch();
+
+      private:
+        ReentryState() = delete;
+        ReentryState(ManagerReentryState& manager_reentry_state, format::ApiCallId call_id) :
+            manager_reentry_state_(manager_reentry_state), call_id_(call_id)
+        {}
+
+        // Common state
+        ManagerReentryState& manager_reentry_state_;
+        format::ApiCallId    call_id_;
+
+        // kGlobalDisable state
+        CommonCaptureManager::CaptureMode saved_capture_mode_ = 0;
+    };
+
+    ReentryState MakeReentryState(format::ApiCallId call_id);
+
   protected:
-    OpenXrCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_OpenXR) {}
+    OpenXrCaptureManager();
 
     virtual ~OpenXrCaptureManager() {}
 
@@ -219,6 +262,10 @@ class OpenXrCaptureManager : public ApiCaptureManager
     static OpenXrCaptureManager*        singleton_;
     static OpenXrLayerTable             layer_table_;
     std::unique_ptr<OpenXrStateTracker> state_tracker_;
+    ManagerReentryState                 reentry_state_;
+
+    using ThreadSkipReason = CommonCaptureManager::ThreadSkipReason;
+    void WriteDispatchMessage(format::ApiCallId call_id, std::string op_string);
 
     void WriteViewRelativeLocationMetadata(XrSession session, const XrFrameEndInfo& frameEndInfo);
 

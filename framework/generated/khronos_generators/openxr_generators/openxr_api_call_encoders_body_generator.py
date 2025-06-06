@@ -138,6 +138,7 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
         arg_list = self.make_arg_list(values)
 
         body = ''
+        api_callid = f'format::ApiCallId::ApiCall_{name}'
 
         if has_outputs or (return_type and return_type != 'void'):
             encode_after = True
@@ -161,8 +162,8 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                 # Allow customization that is unlocked and validly reentrant
                 # For example if one needs to record calls into the output stream to add context or state
                 # to allow replay time operations, or handle differences in state tracking between API's (e.g. wrapped handles)
-                body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::PreLockReentrant({}, {});\n'.format(
-                    name, capture_manager, arg_list
+                body += indent + 'CustomEncoderPreCall<{}>::PreLockReentrant({}, {});\n'.format(
+                    api_callid, capture_manager, arg_list
                 )
 
                 # Declare for handles that need unwrapping.
@@ -179,7 +180,10 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                         ]
                     )
 
-                body += indent + 'CommonCaptureManager::CaptureMode save_capture_mode;\n'
+                manager_type = 'OpenXrCaptureManager'
+                reentry_type = f'{manager_type}::ReentryState'
+                reentry_init = f' = manager->MakeReentryState({api_callid})'
+                body += f'{indent}{reentry_type} reentry_control{reentry_init};\n'
                 top_indent = indent + ' ' * self.INDENT_SIZE
                 body += indent + '{\n'
 
@@ -188,8 +192,8 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
 
         body += '\n'
 
-        body += top_indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
-            name, capture_manager, arg_list
+        body += top_indent + 'CustomEncoderPreCall<{}>::Dispatch({}, {});\n'.format(
+            api_callid, capture_manager, arg_list
         )
 
         if not encode_after:
@@ -199,7 +203,7 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
             )
 
         # Some API calls have different Success criteria for outputting data
-        emit_output_check = f'CustomCallResult<format::ApiCallId::ApiCall_{name}>::Succeeded ({capture_manager}, result)'
+        emit_output_check = f'CustomCallResult<{api_callid}>::Succeeded ({capture_manager}, result)'
 
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
@@ -228,9 +232,8 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                     ]
                 )
 
-            # Disable capture for reentrance
-            body += top_indent + 'save_capture_mode = manager->GetCaptureMode();\n'
-            body += top_indent + 'manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);\n'
+            # Configure for dispatch and potentially reentrance
+            body += top_indent + 'reentry_control.PreDispatch();\n'
 
             # Unlock above (only !is_override)
             body += indent + '}\n\n'
@@ -256,8 +259,8 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
             # Need to relock, since lock was released before dispatch
             body += '\n' + indent + lock_call
 
-            # Restore capture_mode
-            body += indent + 'manager->SetCaptureMode(save_capture_mode);\n'
+            # Configure for return from dispatch
+            body += indent + 'reentry_control.PostDispatch();\n'
 
             # Wrap newly created handles.
             wrap_expr = self.make_handle_wrapping(values, indent)
@@ -285,12 +288,12 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
 
         body += '\n'
         if return_type and return_type != 'void':
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, result, {});\n'.format(
-                name, capture_manager, arg_list
+            body += '    CustomEncoderPostCall<{}>::Dispatch({}, result, {});\n'.format(
+                api_callid, capture_manager, arg_list
             )
         else:
-            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
-                name, capture_manager, arg_list
+            body += '    CustomEncoderPostCall<{}>::Dispatch({}, {});\n'.format(
+                api_callid, capture_manager, arg_list
             )
 
         cleanup_expr = self.make_handle_cleanup(name, values, indent)
@@ -306,16 +309,17 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
 
     def make_begin_api_call(self, name, values):
         capture_manager = 'manager'
+        api_callid = f'format::ApiCallId::ApiCall_{name}'
         if name == 'xrCreateApiLayerInstance':
             capture_manager = 'OpenXrCaptureManager::Get()'
 
         if name.startswith('xrCreate') or name.startswith('xrDestroy'):
-            return 'auto encoder = {}->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_{});\n'.format(
-                capture_manager, name
+            return 'auto encoder = {}->BeginTrackedApiCallCapture({});\n'.format(
+                capture_manager, api_callid
             )
         else:
-            return 'auto encoder = {}->BeginApiCallCapture(format::ApiCallId::ApiCall_{});\n'.format(
-                capture_manager, name
+            return 'auto encoder = {}->BeginApiCallCapture({});\n'.format(
+                capture_manager, api_callid
             )
 
     def make_end_api_call(self, name, values, return_type):
