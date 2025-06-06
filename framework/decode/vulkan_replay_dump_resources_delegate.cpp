@@ -157,8 +157,8 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
         }
     }
 
-    std::vector<bool> scaling_supported(filenames.size());
-    VkResult          res = DumpImageToFile(image_info,
+    bool     scaling_supported;
+    VkResult res = DumpImageToFile(image_info,
                                    resource_info.device_info,
                                    resource_info.device_table,
                                    resource_info.instance_table,
@@ -189,7 +189,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
     // Keep track of images for which scaling failed
     for (size_t i = 0; i < filenames.size(); ++i)
     {
-        if (!scaling_supported[i])
+        if (!scaling_supported)
         {
             images_failed_scaling_.insert(filenames[i]);
         }
@@ -305,8 +305,8 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDum
         }
     }
 
-    std::vector<bool> scaling_supported(total_files);
-    VkResult          res = DumpImageToFile(image_info,
+    bool     scaling_supported;
+    VkResult res = DumpImageToFile(image_info,
                                    resource_info.device_info,
                                    resource_info.device_table,
                                    resource_info.instance_table,
@@ -337,7 +337,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDum
     // Keep track of images for which scaling failed
     for (size_t i = 0; i < filenames.size(); ++i)
     {
-        if (!scaling_supported[i])
+        if (!scaling_supported)
         {
             images_failed_scaling_.insert(filenames[i]);
         }
@@ -1074,8 +1074,8 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
         }
     }
 
-    std::vector<bool> scaling_supported(filenames.size());
-    VkResult          res = DumpImageToFile(image_info,
+    bool     scaling_supported;
+    VkResult res = DumpImageToFile(image_info,
                                    resource_info.device_info,
                                    resource_info.device_table,
                                    resource_info.instance_table,
@@ -1106,7 +1106,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
     // Keep track of images for which scaling failed
     for (size_t i = 0; i < filenames.size(); ++i)
     {
-        if (!scaling_supported[i])
+        if (!scaling_supported)
         {
             images_failed_scaling_.insert(filenames[i]);
         }
@@ -1241,8 +1241,8 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
         }
     }
 
-    std::vector<bool> scaling_supported(filenames.size());
-    VkResult          res = DumpImageToFile(image_info,
+    bool     scaling_supported;
+    VkResult res = DumpImageToFile(image_info,
                                    resource_info.device_info,
                                    resource_info.device_table,
                                    resource_info.instance_table,
@@ -1263,7 +1263,7 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
     // Keep track of images for which scaling failed
     for (size_t i = 0; i < filenames.size(); ++i)
     {
-        if (!scaling_supported[i])
+        if (scaling_supported)
         {
             images_failed_scaling_.insert(filenames[i]);
         }
