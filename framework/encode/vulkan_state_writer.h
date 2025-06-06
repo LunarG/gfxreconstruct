@@ -262,8 +262,10 @@ class VulkanStateWriter
         WriteCommandExecution(queue_id, 1, &command_buffer_id, 0, nullptr, 0, nullptr, nullptr);
     }
 
-    void WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                    const VulkanStateTable&                      state_table);
+    void WriteCommandBufferCommands(
+        const vulkan_wrappers::CommandBufferWrapper*                            wrapper,
+        const VulkanStateTable&                                                 state_table,
+        const std::unordered_set<const vulkan_wrappers::CommandBufferWrapper*>& invalid_secondaries);
 
     void WriteDescriptorUpdateCommand(format::HandleId                         device_id,
                                       const vulkan_state_info::DescriptorInfo* binding,
@@ -360,7 +362,10 @@ class VulkanStateWriter
 
     void GetFenceStatus(const vulkan_wrappers::DeviceWrapper* device_wrapper, VkFence fence, bool* result);
 
-    bool CheckCommandHandles(const vulkan_wrappers::CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
+    bool
+    CheckCommandHandles(const vulkan_wrappers::CommandBufferWrapper*                            wrapper,
+                        const VulkanStateTable&                                                 state_table,
+                        const std::unordered_set<const vulkan_wrappers::CommandBufferWrapper*>& invalid_secondaries);
 
     bool CheckCommandHandle(vulkan_state_info::CommandHandleType handle_type,
                             format::HandleId                     handle,

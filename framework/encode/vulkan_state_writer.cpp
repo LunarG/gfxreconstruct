@@ -39,6 +39,7 @@
 #include <cstdint>
 #include <limits>
 #include <unordered_map>
+#include <unordered_set>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -91,7 +92,8 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                  ou
                                      util::FileOutputStream*                  asset_file_stream,
                                      const std::string*                       asset_file_name,
                                      VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets) :
-    output_stream_(output_stream), compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
+    output_stream_(output_stream),
+    compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
     get_unique_id_(std::move(get_unique_id_fn)), asset_file_stream_(asset_file_stream),
     asset_file_offsets_(asset_file_offsets), command_writer_(CommandWriter(thread_data, output_stream, compressor_))
 {
@@ -313,8 +315,19 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_table)
 {
-    std::set<util::MemoryOutputStream*>                       processed;
-    std::vector<const vulkan_wrappers::CommandBufferWrapper*> primary;
+    std::set<util::MemoryOutputStream*>                              processed;
+    std::vector<const vulkan_wrappers::CommandBufferWrapper*>        primary;
+    std::unordered_set<const vulkan_wrappers::CommandBufferWrapper*> invalid_secondaries;
+
+    // Because secondaries can reference other secondaries we need to do a first pass over all alive command buffers
+    // to detect all invalid secondaries.
+    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) {
+        if (wrapper->level == VK_COMMAND_BUFFER_LEVEL_SECONDARY &&
+            !CheckCommandHandles(wrapper, state_table, invalid_secondaries))
+        {
+            invalid_secondaries.insert(wrapper);
+        }
+    });
 
     state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -338,14 +351,14 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
         }
         else
         {
-            WriteCommandBufferCommands(wrapper, state_table);
+            WriteCommandBufferCommands(wrapper, state_table, invalid_secondaries);
         }
     });
 
     // Initialize the primary command buffers now that secondary command buffer have been initialized.
     for (auto wrapper : primary)
     {
-        WriteCommandBufferCommands(wrapper, state_table);
+        WriteCommandBufferCommands(wrapper, state_table, invalid_secondaries);
     }
 }
 
@@ -3630,12 +3643,14 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                                   const VulkanStateTable&                      state_table)
+void VulkanStateWriter::WriteCommandBufferCommands(
+    const vulkan_wrappers::CommandBufferWrapper*                            wrapper,
+    const VulkanStateTable&                                                 state_table,
+    const std::unordered_set<const vulkan_wrappers::CommandBufferWrapper*>& invalid_secondaries)
 {
     assert(wrapper != nullptr);
 
-    if (CheckCommandHandles(wrapper, state_table))
+    if (CheckCommandHandles(wrapper, state_table, invalid_secondaries))
     {
         // Replay each of the commands that was recorded for the command buffer.
         size_t         offset    = 0;
@@ -4310,8 +4325,10 @@ void VulkanStateWriter::GetFenceStatus(const vulkan_wrappers::DeviceWrapper* dev
     (*status)       = (result == VK_SUCCESS);
 }
 
-bool VulkanStateWriter::CheckCommandHandles(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                            const VulkanStateTable&                      state_table)
+bool VulkanStateWriter::CheckCommandHandles(
+    const vulkan_wrappers::CommandBufferWrapper*                            wrapper,
+    const VulkanStateTable&                                                 state_table,
+    const std::unordered_set<const vulkan_wrappers::CommandBufferWrapper*>& invalid_secondaries)
 {
     // Ignore commands that reference destroyed objects.
     for (uint32_t i = 0; i < vulkan_state_info::CommandHandleType::NumHandleTypes; ++i)
@@ -4322,6 +4339,15 @@ bool VulkanStateWriter::CheckCommandHandles(const vulkan_wrappers::CommandBuffer
             {
                 return false;
             }
+        }
+    }
+
+    // Also check if the command buffer is referencing an invalid secondary
+    for (const auto& secondary : wrapper->secondaries)
+    {
+        if (invalid_secondaries.find(secondary) != invalid_secondaries.end())
+        {
+            return false;
         }
     }
 
