@@ -633,7 +633,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    assert(pCreateInfo_unwrapped != nullptr);
+    GFXRECON_ASSERT(pCreateInfo_unwrapped != nullptr);
 
     const graphics::VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
     auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
@@ -724,7 +724,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     if (result == VK_SUCCESS)
     {
-        assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
+        GFXRECON_ASSERT((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(*pDevice);
 
@@ -742,8 +742,8 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
-            assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                   wrapper->queue_family_creation_flags.end());
+            GFXRECON_ASSERT(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+                            wrapper->queue_family_creation_flags.end());
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
             wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
