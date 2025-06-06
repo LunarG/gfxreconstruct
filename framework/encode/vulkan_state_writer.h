@@ -262,8 +262,8 @@ class VulkanStateWriter
         WriteCommandExecution(queue_id, 1, &command_buffer_id, 0, nullptr, 0, nullptr, nullptr);
     }
 
-    void WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                    const VulkanStateTable&                      state_table);
+    void WriteCommandBufferCommands(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                    const VulkanStateTable&                state_table);
 
     void WriteDescriptorUpdateCommand(format::HandleId                         device_id,
                                       const vulkan_state_info::DescriptorInfo* binding,

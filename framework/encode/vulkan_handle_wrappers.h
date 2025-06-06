@@ -166,8 +166,8 @@ struct QueueWrapper : public HandleWrapper<VkQueue>
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     graphics::VulkanDeviceTable layer_table;
-    PhysicalDeviceWrapper*     physical_device{ nullptr };
-    std::vector<QueueWrapper*> child_queues;
+    PhysicalDeviceWrapper*      physical_device{ nullptr };
+    std::vector<QueueWrapper*>  child_queues;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo              property_feature_info;
@@ -273,7 +273,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     // This is the device which was used to allocate the memory.
     // Spec states if the memory can be mapped, the mapping device must be this device.
     // The device wrapper will be initialized when allocating the memory. Some handling
-    // like StateTracker::TrackTlasToBlasDependencies may use it before mapping
+    // like StateTracker::TrackCommandBuffersSubmision may use it before mapping
     // the memory.
     DeviceWrapper*   parent_device{ nullptr };
     const void*      mapped_data{ nullptr };
@@ -434,6 +434,20 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
     util::MemoryOutputStream   command_data;
     std::set<format::HandleId> command_handles[vulkan_state_info::CommandHandleType::NumHandleTypes];
+
+    enum CommandBufferState
+    {
+        kInitial = 0,
+        kRecording,
+        kExecutable,
+        kInvalid
+    };
+
+    CommandBufferState state{ kInitial };
+
+    // This is set to true when a command buffer is began with VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+    // Used to track command buffer life cycle
+    bool one_time_submission{ false };
 
     // Image layout info tracked for image barriers recorded to the command buffer. To be updated on calls to
     // vkCmdPipelineBarrier and vkCmdEndRenderPass and applied to the image wrapper on calls to vkQueueSubmit. To be

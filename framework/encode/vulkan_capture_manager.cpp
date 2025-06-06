@@ -2846,8 +2846,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
         {
             for (uint32_t s = 0; s < submitCount; ++s)
             {
-                state_tracker_->TrackTlasToBlasDependencies(pSubmits[s].commandBufferCount,
-                                                            pSubmits[s].pCommandBuffers);
+                state_tracker_->TrackCommandBuffersSubmision(pSubmits[s].commandBufferCount,
+                                                             pSubmits[s].pCommandBuffers);
             }
         }
     }
@@ -2892,7 +2892,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
                 }
             }
 
-            state_tracker_->TrackTlasToBlasDependencies(command_buffs.size(), command_buffs.data());
+            state_tracker_->TrackCommandBuffersSubmision(command_buffs.size(), command_buffs.data());
         }
     }
 }

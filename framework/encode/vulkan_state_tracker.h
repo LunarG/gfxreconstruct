@@ -493,7 +493,7 @@ class VulkanStateTracker
 
     void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
-    void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
+    void TrackCommandBuffersSubmision(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
     void TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
                                     VkPipelineBindPoint    pipelineBindPoint,
@@ -752,6 +752,8 @@ class VulkanStateTracker
     void TrackSetDebugUtilsObjectTagEXT(VkDevice                            device,
                                         const VkDebugUtilsObjectTagInfoEXT* pTagInfo,
                                         const util::MemoryOutputStream*     object_tag_parameter_buffer);
+
+    void TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
