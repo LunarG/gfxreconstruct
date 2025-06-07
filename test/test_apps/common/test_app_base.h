@@ -35,11 +35,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-#ifndef __ANDROID__
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
-#endif
-
 #include "test_app_dispatch.h"
 #include "mock_icd_test_config.h"
 
@@ -47,7 +42,8 @@
 #include <android_native_app_glue.h>
 #endif
 
-#include <util/defines.h>
+#include <util/argument_parser.h>
+#include <application/application.h>
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -79,9 +75,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test)
 
 std::runtime_error vulkan_exception(const char* message, VkResult result);
-#ifndef __ANDROID__
-std::runtime_error sdl_exception();
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
@@ -1025,11 +1018,6 @@ class SwapchainBuilder
     } info;
 };
 
-#ifndef __ANDROID__
-SDL_Window*  create_window_sdl(const char* window_name, bool resizable, int width, int height);
-void         destroy_window_sdl(SDL_Window* window);
-VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAllocationCallbacks* allocator = nullptr);
-#endif
 VkSurfaceKHR create_surface_headless(VkInstance                  instance,
                                      vkb::InstanceDispatchTable& disp,
                                      VkAllocationCallbacks*      callbacks = nullptr);
@@ -1080,12 +1068,11 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 struct InitInfo
 {
 #ifdef __ANDROID__
-    android_app* android_app;
-#else
-    SDL_Window* window;
+    struct android_app*               android_app;
 #endif
     Instance                   instance;
     vkb::InstanceDispatchTable inst_disp;
+    decode::Window*            window;
     VkSurfaceKHR               surface;
     PhysicalDevice             physical_device;
     Device                     device;
@@ -1096,8 +1083,6 @@ struct InitInfo
     vkmock::TestConfig*        test_config;
 };
 
-InitInfo device_initialization(const std::string& window_name);
-
 void cleanup_init(InitInfo& init);
 
 void recreate_init_swapchain(InitInfo& init, bool wait_for_idle = true);
@@ -1106,6 +1091,8 @@ class TestAppBase
 {
   public:
     virtual ~TestAppBase();
+
+    void SetApplication(std::unique_ptr<application::Application> application) { app = std::move(application); }
 
     void run(const std::string& window_name);
 
@@ -1135,6 +1122,8 @@ class TestAppBase
     uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
 
     InitInfo init;
+
+    std::unique_ptr<application::Application> app;
 };
 
 GFXRECON_END_NAMESPACE(test)

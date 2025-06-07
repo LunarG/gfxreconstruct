@@ -406,6 +406,7 @@ static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
 {
     switch (wsi_platform)
     {
+        case WsiPlatform::kAuto:
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         case WsiPlatform::kWin32:
         {
