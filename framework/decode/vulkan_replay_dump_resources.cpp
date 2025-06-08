@@ -105,23 +105,14 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::piecewise_construct,
                 std::forward_as_tuple(bcb_index),
                 std::forward_as_tuple((options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size())
-                                          ? options.Dispatch_Indices[i]
-                                          : DispatchIndices(),
+                                          ? &options.Dispatch_Indices[i]
+                                          : nullptr,
                                       (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
-                                          ? options.TraceRays_Indices[i]
-                                          : TraceRaysIndices(),
+                                          ? &options.TraceRays_Indices[i]
+                                          : nullptr,
                                       *object_info_table_,
                                       options,
                                       *active_delegate_));
-        }
-
-        if (has_secondaries && !has_draw)
-        {
-            draw_call_contexts.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(bcb_index),
-                std::forward_as_tuple(
-                    nullptr, &options.RenderPass_Indices[i], *object_info_table, options, *active_delegate_));
         }
     }
 
@@ -136,31 +127,51 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const uint64_t bcb_index = options.BeginCommandBuffer_Indices[i];
 
         DrawCallsDumpingContext* primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
-        if (primary_dc_context != nullptr)
+        for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
         {
-            for (auto& execute_commands : options.ExecuteCommands_Indices[i])
+            for (auto& secondary_bcb : secondary_bcbs)
             {
-                const uint64_t execute_commands_index = execute_commands.first;
-                for (auto& secondary_bcb : execute_commands.second)
+                DrawCallsDumpingContext* dc_secondary_context = FindDrawCallCommandBufferContext(secondary_bcb);
+                if (dc_secondary_context != nullptr)
                 {
-                    DrawCallsDumpingContext* dc_secondary_context = FindDrawCallCommandBufferContext(secondary_bcb);
-                    GFXRECON_ASSERT(dc_secondary_context != nullptr);
+                    if (primary_dc_context == nullptr)
+                    {
+                        auto new_primary =
+                            draw_call_contexts.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(bcb_index),
+                                                       std::forward_as_tuple(nullptr,
+                                                                             &options.RenderPass_Indices[i],
+                                                                             *object_info_table,
+                                                                             options,
+                                                                             *active_delegate_));
+
+                        primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
+                    }
+
                     primary_dc_context->AssignSecondary(execute_commands_index, dc_secondary_context);
                 }
             }
         }
 
         DispatchTraceRaysDumpingContext* primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
-        if (primary_disp_context != nullptr)
+        for (auto& execute_commands : options.ExecuteCommands_Indices[i])
         {
-            for (auto& execute_commands : options.ExecuteCommands_Indices[i])
+            const uint64_t execute_commands_index = execute_commands.first;
+            for (auto& secondary : execute_commands.second)
             {
-                const uint64_t execute_commands_index = execute_commands.first;
-                for (auto& secondary : execute_commands.second)
+                DispatchTraceRaysDumpingContext* disp_secondary_context =
+                    FindDispatchRaysCommandBufferContext(secondary);
+                if (disp_secondary_context != nullptr)
                 {
-                    DispatchTraceRaysDumpingContext* disp_secondary_context =
-                        FindDispatchRaysCommandBufferContext(secondary);
-                    GFXRECON_ASSERT(disp_secondary_context != nullptr)
+                    if (primary_disp_context == nullptr)
+                    {
+                        dispatch_ray_contexts.emplace(
+                            std::piecewise_construct,
+                            std::forward_as_tuple(bcb_index),
+                            std::forward_as_tuple(nullptr, nullptr, *object_info_table_, options, *active_delegate_));
+
+                        primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
+                    }
                     primary_disp_context->AssignSecondary(execute_commands_index, disp_secondary_context);
                 }
             }

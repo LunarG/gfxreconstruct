@@ -58,7 +58,7 @@ using RenderPassIndices     = std::vector<std::vector<Index>>;
 using DispatchIndices       = std::vector<Index>;
 using TraceRaysIndices      = std::vector<Index>;
 using ExecuteCommandIndices = std::vector<Index>;
-using ExecuteCommands       = std::unordered_map<uint64_t, ExecuteCommandIndices>;
+using ExecuteCommands       = std::unordered_map<Index, ExecuteCommandIndices>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
