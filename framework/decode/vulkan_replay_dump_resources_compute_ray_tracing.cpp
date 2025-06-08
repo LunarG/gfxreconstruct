@@ -49,20 +49,29 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
-                                                                 const std::vector<uint64_t>& trace_rays_indices,
+DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vector<uint64_t>* dispatch_indices,
+                                                                 const std::vector<uint64_t>* trace_rays_indices,
                                                                  CommonObjectInfoTable&       object_info_table,
                                                                  const VulkanReplayOptions&   options,
                                                                  VulkanDumpResourcesDelegate& delegate) :
     original_command_buffer_info_(nullptr),
-    DR_command_buffer_(VK_NULL_HANDLE), dispatch_indices_(dispatch_indices), trace_rays_indices_(trace_rays_indices),
-    dump_resources_before_(options.dump_resources_before), delegate_(delegate),
+    DR_command_buffer_(VK_NULL_HANDLE), dump_resources_before_(options.dump_resources_before), delegate_(delegate),
     dump_immutable_resources_(options.dump_resources_dump_immutable_resources), bound_pipeline_compute_(nullptr),
     bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
     device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
     current_trace_rays_index_(0), reached_end_command_buffer_(false)
-{}
+{
+    if (dispatch_indices != nullptr)
+    {
+        dispatch_indices_ = *dispatch_indices;
+    }
+
+    if (trace_rays_indices != nullptr)
+    {
+        trace_rays_indices_ = *trace_rays_indices;
+    }
+}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
 {
@@ -1018,10 +1027,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         return res;
     }
 
-    for (size_t i = 0; i < dispatch_indices_.size(); ++i)
+    for (const auto& [disp_index, disp_params] : dispatch_params_)
     {
-        const uint64_t disp_index = dispatch_indices_[i];
-
         GFXRECON_LOG_INFO("Dumping mutable resources for dispatch index %" PRIu64, disp_index);
 
         res = DumpMutableResources(bcb_index, qs_index, disp_index, true);
@@ -1051,18 +1058,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         draw_call_info.bcb_index                    = bcb_index;
         draw_call_info.qs_index                     = qs_index;
         draw_call_info.cmd_index                    = disp_index;
-
-        const auto& dispatch_param_entry = dispatch_params_.find(disp_index);
-        GFXRECON_ASSERT(dispatch_param_entry != dispatch_params_.end());
-        draw_call_info.disp_param = dispatch_param_entry->second.get();
+        draw_call_info.disp_param                   = disp_params.get();
 
         delegate_.DumpDrawCallInfo(draw_call_info, instance_table_);
     }
 
-    for (size_t i = 0; i < trace_rays_indices_.size(); ++i)
+    for (const auto& [tr_index, tr_params] : trace_rays_params_)
     {
-        const uint64_t tr_index = trace_rays_indices_[i];
-
         GFXRECON_LOG_INFO("Dumping mutable resources for trace rays index %" PRIu64, tr_index);
 
         res = DumpMutableResources(bcb_index, qs_index, tr_index, false);
@@ -1093,10 +1095,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
         draw_call_info.bcb_index                    = bcb_index;
         draw_call_info.qs_index                     = qs_index;
         draw_call_info.cmd_index                    = tr_index;
-
-        const auto& trace_rays_param_entry = trace_rays_params_.find(tr_index);
-        GFXRECON_ASSERT(trace_rays_param_entry != trace_rays_params_.end());
-        draw_call_info.tr_param = trace_rays_param_entry->second.get();
+        draw_call_info.tr_param                     = tr_params.get();
 
         delegate_.DumpDrawCallInfo(draw_call_info, instance_table_);
     }
