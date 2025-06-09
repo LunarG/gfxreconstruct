@@ -1768,28 +1768,39 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
         if (vertex_count)
         {
-            for (const auto& [binding, input_description] : dc_params.vertex_input_state.vertex_input_binding_map)
+            for (const auto& [attribute_index, attribute_description] :
+                 dc_params.vertex_input_state.vertex_input_attribute_map)
             {
-                auto vb_entry_it = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
-                GFXRECON_ASSERT(vb_entry_it !=
-                                dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
+                const uint32_t binding_index = attribute_description.binding;
+
+                const auto& bound_vertex_beffer_entry =
+                    dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding_index);
 
                 // For some reason there was no buffer bound for this binding
-                if (vb_entry_it == dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end())
+                if (bound_vertex_beffer_entry ==
+                    dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end())
                 {
                     continue;
                 }
 
-                auto& vb_entry = vb_entry_it->second;
-
+                auto& vb_entry = bound_vertex_beffer_entry->second;
                 // Buffers can be NULL
                 if (vb_entry.buffer_info == nullptr)
                 {
                     continue;
                 }
 
+                const auto& vertex_binding_desc_entry =
+                    dc_params.vertex_input_state.vertex_input_binding_map.find(binding_index);
+                if (vertex_binding_desc_entry == dc_params.vertex_input_state.vertex_input_binding_map.end())
+                {
+                    continue;
+                }
+
+                const auto& vertex_binding_desc = vertex_binding_desc_entry->second;
+
                 const uint32_t count =
-                    input_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
+                    vertex_binding_desc.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
                 uint32_t total_size = 0;
                 uint32_t binding_stride;
 
@@ -1801,7 +1812,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
                 else
                 {
-                    binding_stride = input_description.stride;
+                    binding_stride = vertex_binding_desc.stride;
                     if (binding_stride)
                     {
                         total_size = count * binding_stride;
@@ -1817,7 +1828,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         for (const auto& [location, input_attrib_desc] :
                              dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
-                            if (input_attrib_desc.binding != binding)
+                            if (input_attrib_desc.binding != binding_index)
                             {
                                 continue;
                             }
@@ -1840,7 +1851,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 // Calculate offset including vertexOffset
                 uint32_t offset = vb_entry.offset;
-                offset += (input_description.inputRate == VK_VERTEX_INPUT_RATE_VERTEX
+                offset += (vertex_binding_desc.inputRate == VK_VERTEX_INPUT_RATE_VERTEX
                                ? min_max_vertex_indices.min + first_vertex
                                : first_instance) *
                           binding_stride;
@@ -1852,7 +1863,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry.buffer_info->size - offset;
                 }
 
-                dc_params.json_output_info.vertex_bindings_info[binding] = { offset };
+                dc_params.json_output_info.vertex_bindings_info[binding_index] = { offset };
 
                 vb_entry.actual_size            = total_size;
                 VulkanDumpResourceInfo res_info = res_info_base;
@@ -1870,7 +1881,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
 
                 res_info.type    = DumpResourceType::kVertex;
-                res_info.binding = binding;
+                res_info.binding = binding_index;
                 res              = delegate_.DumpResource(res_info);
                 if (res != VK_SUCCESS)
                 {
