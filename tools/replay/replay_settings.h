@@ -37,7 +37,7 @@ const char kOptions[] =
     "--dump-resources-json-output-per-command,--dump-resources-dump-immutable-resources,"
     "--dump-resources-dump-all-image-subresources,--dump-resources-dump-raw-images,--dump-resources-dump-"
     "separate-alpha,--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,"
-    "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID";
+    "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID,--dump-resources-dump-unused-vertex-bindings";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -353,6 +353,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-unused-vertex-bindings");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump a vertex binding even if no vertex attributes references it.");
     GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
     GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");

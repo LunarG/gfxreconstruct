@@ -799,11 +799,19 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
             auto&    bindings_json_entry = vertex_input_state_json_entry["bindings"];
             uint32_t i                   = 0;
-            for (const auto& vb_binding : draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map)
+            for (const auto& [binding_index, vb_binding] :
+                 draw_call_info.dc_param->vertex_input_state.vertex_input_binding_map)
             {
-                bindings_json_entry[i]["binding"]   = vb_binding.first;
-                bindings_json_entry[i]["stride"]    = vb_binding.second.stride;
-                bindings_json_entry[i]["inputRate"] = util::ToString<VkVertexInputRate>(vb_binding.second.inputRate);
+                bindings_json_entry[i]["binding"]   = binding_index;
+                bindings_json_entry[i]["stride"]    = vb_binding.stride;
+                bindings_json_entry[i]["inputRate"] = util::ToString<VkVertexInputRate>(vb_binding.inputRate);
+
+                if (!options_.dump_resources_dump_unused_vertex_bindings &&
+                    !draw_call_info.dc_param->vertex_input_state.IsVertexBindingReferenced(binding_index))
+                {
+                    bindings_json_entry[i]["unused"] = true;
+                }
+
                 ++i;
             }
         }

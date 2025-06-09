@@ -152,20 +152,21 @@ const char kDxAgsMarkRenderPasses[]       = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 
-const char kDumpResourcesArgument[]               = "--dump-resources";
-const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
-const char kDumpResourcesImageFormat[]            = "--dump-resources-image-format";
-const char kDumpResourcesScaleArgument[]          = "--dump-resources-scale";
-const char kDumpResourcesDepth[]                  = "--dump-resources-dump-depth-attachment";
-const char kDumpResourcesDirArgument[]            = "--dump-resources-dir";
-const char kDumpResourcesModifiableStateOnly[]    = "--dump-resources-modifiable-state-only";
-const char kDumpResourcesColorAttIdxArg[]         = "--dump-resources-dump-color-attachment-index";
-const char kDumpResourcesDumpVertexIndexBuffers[] = "--dump-resources-dump-vertex-index-buffers";
-const char kDumpResourcesJsonPerCommand[]         = "--dump-resources-json-output-per-command";
-const char kDumpResourcesDumpImmutableResources[] = "--dump-resources-dump-immutable-resources";
-const char kDumpResourcesDumpImageSubresources[]  = "--dump-resources-dump-all-image-subresources";
-const char kDumpResourcesDumpRawImages[]          = "--dump-resources-dump-raw-images";
-const char kDumpResourcesDumpSeparateAlpha[]      = "--dump-resources-dump-separate-alpha";
+const char kDumpResourcesArgument[]                 = "--dump-resources";
+const char kDumpResourcesBeforeDrawOption[]         = "--dump-resources-before-draw";
+const char kDumpResourcesImageFormat[]              = "--dump-resources-image-format";
+const char kDumpResourcesScaleArgument[]            = "--dump-resources-scale";
+const char kDumpResourcesDepth[]                    = "--dump-resources-dump-depth-attachment";
+const char kDumpResourcesDirArgument[]              = "--dump-resources-dir";
+const char kDumpResourcesModifiableStateOnly[]      = "--dump-resources-modifiable-state-only";
+const char kDumpResourcesColorAttIdxArg[]           = "--dump-resources-dump-color-attachment-index";
+const char kDumpResourcesDumpVertexIndexBuffers[]   = "--dump-resources-dump-vertex-index-buffers";
+const char kDumpResourcesJsonPerCommand[]           = "--dump-resources-json-output-per-command";
+const char kDumpResourcesDumpImmutableResources[]   = "--dump-resources-dump-immutable-resources";
+const char kDumpResourcesDumpImageSubresources[]    = "--dump-resources-dump-all-image-subresources";
+const char kDumpResourcesDumpRawImages[]            = "--dump-resources-dump-raw-images";
+const char kDumpResourcesDumpSeparateAlpha[]        = "--dump-resources-dump-separate-alpha";
+const char kDumpResourcesDumpUnusedVertexBindings[] = "--dump-resources-dump-unused-vertex-bindigs";
 
 enum class WsiPlatform
 {
@@ -1222,6 +1223,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         arg_parser.IsOptionSet(kDumpResourcesDumpImageSubresources);
     replay_options.dump_resources_dump_raw_images     = arg_parser.IsOptionSet(kDumpResourcesDumpRawImages);
     replay_options.dump_resources_dump_separate_alpha = arg_parser.IsOptionSet(kDumpResourcesDumpSeparateAlpha);
+    replay_options.dump_resources_dump_unused_vertex_bindings =
+        arg_parser.IsOptionSet(kDumpResourcesDumpUnusedVertexBindings);
 
     std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);
     if (!dr_color_att_idx.empty())
