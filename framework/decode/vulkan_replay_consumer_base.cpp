@@ -86,6 +86,10 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
+const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
+    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
+};
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
                                                           VkDebugReportObjectTypeEXT objectType,
                                                           uint64_t                   object,
@@ -1401,7 +1405,9 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
-        if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        const bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.count(func_name);
+
+        if (!is_func_allowed_to_differ && (replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
         {
             // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
             // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
@@ -1419,7 +1425,8 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
         }
         else if (!((replay == VK_SUCCESS) &&
                    ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR) ||
-                    (original == VK_SUBOPTIMAL_KHR))))
+                    (original == VK_SUBOPTIMAL_KHR))) ||
+                 is_func_allowed_to_differ)
         {
             // Report differences between replay result and capture result, unless the replay results indicates
             // that a wait operation completed before the original or a WSI function succeeded when the original failed.
