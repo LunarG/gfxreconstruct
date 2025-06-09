@@ -1813,7 +1813,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         // (since we can't tell where the next one is located). So calculate the total size of all
                         // attributes that are using that binding and use that as the size of the vertex information
                         // for 1 vertex.
-                        uint32_t min_offset = std::numeric_limits<uint32_t>::max();
                         for (const auto& [location, input_attrib_desc] :
                              dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
@@ -1822,19 +1821,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 continue;
                             }
 
-                            total_size += vkuFormatElementSize(input_attrib_desc.format);
-                            if (min_offset > input_attrib_desc.offset)
-                            {
-                                min_offset = input_attrib_desc.offset;
-                            }
+                            total_size = std::max(
+                                total_size, vkuFormatElementSize(input_attrib_desc.format) + input_attrib_desc.offset);
                         }
 
                         if (!total_size)
                         {
                             continue;
                         }
-
-                        total_size += min_offset;
                     }
                 }
 
