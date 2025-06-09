@@ -109,6 +109,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_all_image_subresources{ false };
     bool  dump_resources_dump_raw_images{ false };
     bool  dump_resources_dump_separate_alpha{ false };
+    bool  dump_resources_dump_unused_vertex_bindings{ false };
 
     bool preload_measurement_range{ false };
 
