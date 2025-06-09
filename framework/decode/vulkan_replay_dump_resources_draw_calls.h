@@ -231,6 +231,7 @@ class DrawCallsDumpingContext
     int32_t                      color_attachment_to_dump_;
     bool                         dump_vertex_index_buffers_;
     bool                         dump_immutable_resources_;
+    bool                         dump_unused_vertex_bindings_;
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
@@ -283,6 +284,20 @@ class DrawCallsDumpingContext
 
         // One entry per location
         VulkanPipelineInfo::VertexInputAttributeMap vertex_input_attribute_map;
+
+        // Check if one of the vertex attributes references a specific vertex biding
+        bool IsVertexBindingReferenced(uint32_t binding_index) const
+        {
+            for (const auto& attrib_desc : vertex_input_attribute_map)
+            {
+                if (attrib_desc.second.binding == binding_index)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     };
 
   private:
