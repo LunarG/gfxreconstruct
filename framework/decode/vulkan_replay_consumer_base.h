@@ -1707,26 +1707,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
   private:
-    util::platform::LibraryHandle                                                             loader_handle_;
-    PFN_vkGetInstanceProcAddr                                                                 get_instance_proc_addr_;
-    PFN_vkCreateInstance                                                                      create_instance_proc_;
-    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>                  get_device_proc_addrs_;
-    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>                       create_device_procs_;
-    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable>            instance_tables_;
-    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>              device_tables_;
-    std::unordered_map<std::bitset<VK_UUID_SIZE * 8>, VkDevice>                               device_uuid_map_;
-    std::function<void(const char*)>                                                          fatal_error_handler_;
-    std::shared_ptr<application::Application>                                                 application_;
-    CommonObjectInfoTable*                                                                    object_info_table_;
-    bool                                                                                      loading_trim_state_;
-    bool                                                                                      replaying_trimmed_capture_;
-    SwapchainImageTracker                                                                     swapchain_image_tracker_;
-    HardwareBufferMap                                                                         hardware_buffers_;
-    HardwareBufferMemoryMap                                                                   hardware_buffer_memory_info_;
-    std::unique_ptr<ScreenshotHandler>                                                        screenshot_handler_;
-    std::unique_ptr<VulkanSwapchain>                                                          swapchain_;
-    std::string                                                                               screenshot_file_prefix_;
-    graphics::FpsInfo*                                                                        fps_info_;
+    util::platform::LibraryHandle                                                  loader_handle_;
+    PFN_vkGetInstanceProcAddr                                                      get_instance_proc_addr_;
+    PFN_vkCreateInstance                                                           create_instance_proc_;
+    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>       get_device_proc_addrs_;
+    std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>            create_device_procs_;
+    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>   device_tables_;
+    std::unordered_map<std::bitset<VK_UUID_SIZE * 8>, VkDevice>                    device_uuid_map_;
+    std::function<void(const char*)>                                               fatal_error_handler_;
+    std::shared_ptr<application::Application>                                      application_;
+    CommonObjectInfoTable*                                                         object_info_table_;
+    bool                                                                           loading_trim_state_;
+    bool                                                                           replaying_trimmed_capture_;
+    SwapchainImageTracker                                                          swapchain_image_tracker_;
+    HardwareBufferMap                                                              hardware_buffers_;
+    HardwareBufferMemoryMap                                                        hardware_buffer_memory_info_;
+    std::unique_ptr<ScreenshotHandler>                                             screenshot_handler_;
+    std::unique_ptr<VulkanSwapchain>                                               swapchain_;
+    std::string                                                                    screenshot_file_prefix_;
+    graphics::FpsInfo*                                                             fps_info_;
 
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker> _device_address_trackers;
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>      _device_address_replacers;
