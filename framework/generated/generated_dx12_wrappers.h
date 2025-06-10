@@ -47,7 +47,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 
 #include <mutex>
 #include <unordered_map>
@@ -4217,12 +4216,6 @@ class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
 
 /*
 ** This part is generated from windef.h in Windows SDK: 10.0.26100.0
-**
-*/
-
-
-/*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 

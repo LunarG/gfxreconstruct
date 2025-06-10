@@ -43,7 +43,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 
 #include "generated/generated_dx12_wrappers.h"
 

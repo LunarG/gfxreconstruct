@@ -53,9 +53,10 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
             /// should be used when dumping a JSON representation while following the
             /// pointers.
 
-            #include "generated/generated_dx12_struct_decoders_forward.h"
             #include "decode/custom_dx12_struct_decoders_forward.h"
-            #include "generated_dx12_enum_to_json.h"
+            #include "decode/custom_vulkan_struct_to_json.h"
+            #include "generated/generated_dx12_enum_to_json.h"
+            #include "generated/generated_dx12_struct_decoders_forward.h"
             #include "util/defines.h"
             #include "nlohmann/json.hpp"
 

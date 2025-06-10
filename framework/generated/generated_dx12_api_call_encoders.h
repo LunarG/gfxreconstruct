@@ -43,7 +43,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 
 #include "encode/parameter_encoder.h"
 #include "generated/generated_dx12_wrappers.h"
@@ -3731,12 +3730,6 @@ void EncodeStruct(ParameterEncoder* encoder, const GUID& value);
 void EncodeStruct(ParameterEncoder* encoder, const tagRECT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value);
-
-
-/*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
-**
-*/
 
 
 GFXRECON_END_NAMESPACE(encode)

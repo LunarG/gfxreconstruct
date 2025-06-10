@@ -355,7 +355,6 @@ struct Decoded_DXGI_JPEG_QUANTIZATION_TABLE;
 struct Decoded_GUID;
 struct Decoded_tagRECT;
 struct Decoded_tagPOINT;
-struct Decoded__SECURITY_ATTRIBUTES;
 struct Decoded_LARGE_INTEGER;
 
 /*
@@ -981,12 +980,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_GUID* wra
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagRECT* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagPOINT* wrapper);
-
-/*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
-**
-*/
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded__SECURITY_ATTRIBUTES* wrapper);
 
 
 

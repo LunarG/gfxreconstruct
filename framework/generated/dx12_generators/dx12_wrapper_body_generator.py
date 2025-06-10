@@ -264,7 +264,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         for param in param_info:
             value = self.get_value_info(param)
 
-            if (value.base_type != 'LARGE_INTEGER') and self.is_struct(
+            if (value.base_type not in ['LARGE_INTEGER', 'SECURITY_ATTRIBUTES']) and self.is_struct(
                 value.base_type
             ) and (value.full_type.find('_Out_') != -1):
                 if value.base_type in self.structs_with_wrap_objects:

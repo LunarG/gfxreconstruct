@@ -2575,7 +2575,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateSharedHandle(
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pObject,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
         PointerDecoder<uint64_t, void*>* pHandle)
@@ -8321,7 +8321,7 @@ void Dx12JsonConsumer::Process_IDXGIResource1_CreateSharedHandle(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         HRESULT return_value,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
         PointerDecoder<uint64_t, void*>* pHandle)

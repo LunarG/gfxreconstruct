@@ -27,10 +27,6 @@ from dx12_base_generator import Dx12BaseGenerator, write
 class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
     """Generates C++ functions responsible for encoding Dx12 API call."""
 
-    # SECURITY_ATTRIBUTES in minwinbase.h has been defined
-    # in custom_vulkan_struct_encoders.h
-    BLOCK_LIST = ['_SECURITY_ATTRIBUTES']
-
     def __init__(
         self,
         source_dict,
@@ -104,9 +100,6 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
         return ';'
 
     def write_encode_struct(self, name, properties):
-        if self.is_block('', name):
-            return
-
         code = (
             'void EncodeStruct(ParameterEncoder* encoder, const {}& value)'.
             format(name)
@@ -118,13 +111,6 @@ class Dx12ApiCallEncodersHeaderGenerator(Dx12BaseGenerator):
 
     def get_encode_function_body(self, class_name, method_info, is_result):
         return ';'
-
-    def is_block(self, class_name, method_name):
-        key = class_name
-        if key:
-            key += '_'
-        key += method_name
-        return key in self.BLOCK_LIST
 
     def write_encode_function(self, class_name, method_info):
         parameters = ''
