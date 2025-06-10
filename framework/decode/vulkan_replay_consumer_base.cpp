@@ -3185,10 +3185,10 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
         if (it != device_uuid_map_.end())
         {
             // We have seen this device before
-            HandlePointerDecoder<VkDevice>& extant_device = device_uuid_map_[casted_uuid];
+            VkDevice& extant_device                       = device_uuid_map_[casted_uuid];
             device_info->is_duplicate                     = true;
             VkDevice* replay_device                       = pDevice->GetHandlePointer();
-            *replay_device                                = *extant_device.GetHandlePointer();
+            *replay_device                                = extant_device;
             return VK_SUCCESS;
         }
     }
@@ -3228,7 +3228,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     if (options_.do_device_deduplication)
     {
         // Insert this device info into map
-        device_uuid_map_.insert(std::pair(casted_uuid, *pDevice));
+        device_uuid_map_.insert(std::pair(casted_uuid, *replay_device));
     }
 
     return result;
