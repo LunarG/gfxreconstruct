@@ -176,6 +176,7 @@ class DispatchTraceRaysDumpingContext
             const VulkanBufferInfo* original_buffer{ nullptr };
             VkBuffer                buffer{ VK_NULL_HANDLE };
             VkDeviceMemory          buffer_memory{ VK_NULL_HANDLE };
+            VkDeviceSize            cloned_size{ 0 };
             VkShaderStageFlags      stages;
             VkDescriptorType        desc_type;
             uint32_t                desc_set;
