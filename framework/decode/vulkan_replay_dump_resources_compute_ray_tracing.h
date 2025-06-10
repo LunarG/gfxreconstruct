@@ -439,7 +439,8 @@ class DispatchTraceRaysDumpingContext
     };
 
   private:
-    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
+    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context,
+                                   const BoundDescriptorSets&     bound_descriptor_sets);
 
     void SnapshotDispatchState(DispatchParams& disp_params);
 

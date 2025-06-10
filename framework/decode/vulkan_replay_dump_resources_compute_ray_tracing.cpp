@@ -436,8 +436,9 @@ VkResult DispatchTraceRaysDumpingContext::CloneDispatchMutableResources(uint64_t
     GFXRECON_ASSERT(entry->second);
 
     DispatchParams& params = *entry->second.get();
-    return CloneMutableResources(
-        cloning_before_cmd ? params.mutable_resources_clones_before : params.mutable_resources_clones, true);
+    return CloneMutableResources(cloning_before_cmd ? params.mutable_resources_clones_before
+                                                    : params.mutable_resources_clones,
+                                 params.referenced_descriptors);
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd)
@@ -447,8 +448,9 @@ VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_
     GFXRECON_ASSERT(entry->second);
 
     TraceRaysParams& params = *entry->second;
-    return CloneMutableResources(
-        cloning_before_cmd ? params.mutable_resources_clones_before : params.mutable_resources_clones, false);
+    return CloneMutableResources(cloning_before_cmd ? params.mutable_resources_clones_before
+                                                    : params.mutable_resources_clones,
+                                 params.referenced_descriptors);
 }
 
 static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::DispatchParams& disp_params,
@@ -659,11 +661,10 @@ void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParams& tr
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResourcesBackupContext& resource_backup_context,
-                                                                bool                           is_dispatch)
+                                                                const BoundDescriptorSets&     bound_descriptor_sets)
 {
     assert(IsRecording());
 
-    auto& bound_descriptor_sets = is_dispatch ? bound_descriptor_sets_compute_ : bound_descriptor_sets_ray_tracing_;
     for (const auto& [desc_set_index, desc_set] : bound_descriptor_sets)
     {
         for (const auto& [binding_index, desc] : desc_set)
