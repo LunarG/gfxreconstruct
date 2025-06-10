@@ -316,7 +316,7 @@ class DispatchTraceRaysDumpingContext
 
         DispatchTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        BoundDescriptorSets referenced_descriptors;
 
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
@@ -427,7 +427,7 @@ class DispatchTraceRaysDumpingContext
 
         TraceRaysTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        BoundDescriptorSets referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
         MutableResourcesBackupContext mutable_resources_clones;
