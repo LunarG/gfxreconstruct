@@ -4389,7 +4389,7 @@ size_t Dx12Decoder::Decode_ID3D12Device_CreateSharedHandle(format::HandleId obje
     size_t bytes_read = 0;
 
     format::HandleId pObject;
-    StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
     DWORD Access;
     WStringDecoder Name;
     PointerDecoder<uint64_t, void*> pHandle;
@@ -10396,7 +10396,7 @@ size_t Dx12Decoder::Decode_IDXGIResource1_CreateSharedHandle(format::HandleId ob
 {
     size_t bytes_read = 0;
 
-    StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
     DWORD dwAccess;
     WStringDecoder lpName;
     PointerDecoder<uint64_t, void*> pHandle;
