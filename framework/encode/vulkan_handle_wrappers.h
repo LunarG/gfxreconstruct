@@ -517,25 +517,37 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
     bool           trim_command_pool{ false };
 };
 
-// For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
 struct SurfaceCapabilities
 {
-    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
+    // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+    VkSurfaceKHR             surface{ VK_NULL_HANDLE };
+    VkSurfaceCapabilitiesKHR surface_capabilities;
 
-    VkSurfaceCapabilities2KHR  surface_capabilities;
-    std::unique_ptr<uint8_t[]> surface_capabilities_pnext_memory;
+    // For vkGetPhysicalDeviceSurfaceCapabilities2KHR
+    bool use_surface_capabilities2{ false };
+
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info2;
+    std::unique_ptr<uint8_t[]>      surface_info2_pnext_memory;
+
+    VkSurfaceCapabilities2KHR  surface_capabilities2;
+    std::unique_ptr<uint8_t[]> surface_capabilities2_pnext_memory;
 };
 
-// For vkGetPhysicalDeviceSurfaceFormatsKHR
 struct SurfaceFormats
 {
-    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
+    // For vkGetPhysicalDeviceSurfaceFormatsKHR
+    VkSurfaceKHR                    surface{ VK_NULL_HANDLE };
+    std::vector<VkSurfaceFormatKHR> surface_formats;
 
-    VkSurfaceFormat2KHR*       surface_formats;
-    uint32_t                   surface_format_count;
-    std::unique_ptr<uint8_t[]> surface_formats_memory;
+    // For vkGetPhysicalDeviceSurfaceFormats2KHR
+    bool use_surface_formats2{ false };
+
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info2;
+    std::unique_ptr<uint8_t[]>      surface_info2_pnext_memory;
+
+    VkSurfaceFormat2KHR*       surface_formats2;
+    uint32_t                   surface_format2_count;
+    std::unique_ptr<uint8_t[]> surface_formats2_memory;
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
