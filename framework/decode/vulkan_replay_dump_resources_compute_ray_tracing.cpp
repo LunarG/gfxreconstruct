@@ -191,17 +191,11 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
     {
         uint32_t set_index = first_set + i;
 
-        VulkanDescriptorSetInfo* bound_descriptor_sets;
-        if (pipeline_bind_point == VK_PIPELINE_BIND_POINT_COMPUTE)
-        {
-            bound_descriptor_sets = &bound_descriptor_sets_compute_[set_index];
-        }
-        else
-        {
-            bound_descriptor_sets = &bound_descriptor_sets_ray_tracing_[set_index];
-        }
+        VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo& bound_descriptor_sets =
+            pipeline_bind_point == VK_PIPELINE_BIND_POINT_COMPUTE ? bound_descriptor_sets_compute_[set_index]
+                                                                  : bound_descriptor_sets_ray_tracing_[set_index];
 
-        *bound_descriptor_sets = *descriptor_sets_infos[i];
+        bound_descriptor_sets = descriptor_sets_infos[i]->descriptors;
 
         if (dynamicOffsetCount && pDynamicOffsets != nullptr)
         {
@@ -212,9 +206,9 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
                 if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                     binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                 {
-                    for (size_t ai = 0; ai < bound_descriptor_sets->descriptors[bindind_index].buffer_info.size(); ++ai)
+                    for (size_t ai = 0; ai < bound_descriptor_sets[bindind_index].buffer_info.size(); ++ai)
                     {
-                        bound_descriptor_sets->descriptors[bindind_index].buffer_info[ai].offset +=
+                        bound_descriptor_sets[bindind_index].buffer_info[ai].offset +=
                             pDynamicOffsets[dynamic_offset_index];
                         ++dynamic_offset_index;
                     }
@@ -444,8 +438,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneDispatchMutableResources(uint64_t
     DispatchParams& params = *entry->second.get();
     return CloneMutableResources(params.referenced_descriptors,
                                  cloning_before_cmd ? params.mutable_resources_clones_before
-                                                    : params.mutable_resources_clones,
-                                 true);
+                                                    : params.mutable_resources_clones);
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd)
@@ -457,8 +450,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneTraceRaysMutableResources(uint64_
     TraceRaysParams& params = *entry->second;
     return CloneMutableResources(params.referenced_descriptors,
                                  cloning_before_cmd ? params.mutable_resources_clones_before
-                                                    : params.mutable_resources_clones,
-                                 false);
+                                                    : params.mutable_resources_clones);
 }
 
 static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::DispatchParams& disp_params,
@@ -481,7 +473,7 @@ static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::Di
                 continue;
             }
 
-            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            for (const auto& [desc_binding_index, binding_info] : set_info)
             {
                 // Check against pipeline layout
                 const auto layout_entry =
@@ -575,7 +567,7 @@ static void SnapshotBoundDescriptorsTraceRays(DispatchTraceRaysDumpingContext::T
                 continue;
             }
 
-            for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+            for (const auto& [desc_binding_index, binding_info] : set_info)
             {
                 // Check against pipeline layout
                 const auto layout_entry =
@@ -668,10 +660,8 @@ void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParams& tr
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
-    const TraceRaysParams::ReferencedDescriptors& referenced_descriptors,
-    MutableResourcesBackupContext&                resource_backup_context,
-    bool                                          is_dispatch)
+VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescriptorSets&     referenced_descriptors,
+                                                                MutableResourcesBackupContext& resource_backup_context)
 {
     assert(IsRecording());
 
@@ -685,16 +675,15 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
             {
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 {
-                    uint32_t array_index = 0;
-                    for (const auto& img_desc : desc_info.image_info)
+                    for (const auto& [array_index, img_desc] : desc_info.image_info)
                     {
-                        if (img_desc.second.image_view_info == nullptr)
+                        if (img_desc.image_view_info == nullptr)
                         {
                             continue;
                         }
 
                         const VulkanImageInfo* img_info =
-                            object_info_table_.GetVkImageInfo(img_desc.second.image_view_info->image_id);
+                            object_info_table_.GetVkImageInfo(img_desc.image_view_info->image_id);
                         assert(img_info);
 
                         auto& new_entry          = resource_backup_context.images.emplace_back();
@@ -703,7 +692,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
                         new_entry.desc_type      = desc_type;
                         new_entry.desc_set       = desc_set_index;
                         new_entry.desc_binding   = binding_index;
-                        new_entry.array_index    = array_index++;
+                        new_entry.array_index    = array_index;
 
                         VkResult res = CloneImage(object_info_table_,
                                                   device_table_,
@@ -728,10 +717,9 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
-                    uint32_t array_index = 0;
-                    for (const auto& buf_desc : desc_info.buffer_info)
+                    for (const auto& [array_index, buf_desc] : desc_info.buffer_info)
                     {
-                        const VulkanBufferInfo* buf_info = buf_desc.second.buffer_info;
+                        const VulkanBufferInfo* buf_info = buf_desc.buffer_info;
                         if (buf_info == nullptr)
                         {
                             continue;
@@ -743,14 +731,17 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
                         new_entry.desc_type       = desc_type;
                         new_entry.desc_set        = desc_set_index;
                         new_entry.desc_binding    = binding_index;
-                        new_entry.array_index     = array_index++;
+                        new_entry.array_index     = array_index;
+                        new_entry.cloned_size =
+                            buf_desc.range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc.offset) : buf_desc.range;
 
                         VkResult res = CloneBuffer(object_info_table_,
                                                    device_table_,
                                                    replay_device_phys_mem_props_,
                                                    buf_info,
                                                    &new_entry.buffer,
-                                                   &new_entry.buffer_memory);
+                                                   &new_entry.buffer_memory,
+                                                   new_entry.cloned_size);
 
                         if (res != VK_SUCCESS)
                         {
@@ -760,7 +751,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc.second.offset, buf_desc.second.range, new_entry.buffer);
+                        CopyBufferResource(buf_info, buf_desc.offset, buf_desc.range, new_entry.buffer);
                     }
                 }
                 break;
@@ -1205,7 +1196,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
             VulkanDumpResourceInfo res_info = res_info_base;
             VkResult res = resource_util.ReadFromBufferResource(mutable_resources_clones_before.buffers[i].buffer,
-                                                                buffer_info->size,
+                                                                mutable_resources_clones_before.buffers[i].cloned_size,
                                                                 0,
                                                                 buffer_info->queue_family_index,
                                                                 res_info.data);
