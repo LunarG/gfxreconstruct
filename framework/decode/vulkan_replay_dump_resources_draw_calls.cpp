@@ -501,7 +501,7 @@ static void SnapshotBoundDescriptors(DrawCallsDumpingContext::DrawCallParams& dc
             continue;
         }
 
-        for (const auto& [desc_binding_index, binding_info] : set_info.descriptors)
+        for (const auto& [desc_binding_index, binding_info] : set_info)
         {
             // Check against pipeline layout
             const auto layout_entry = bound_pipeline->desc_set_layouts[desc_set_index].find(desc_binding_index);
@@ -1970,7 +1970,7 @@ void DrawCallsDumpingContext::BindDescriptorSets(
 
         if (descriptor_sets_infos[i] != nullptr)
         {
-            bound_descriptor_sets_gr_[set_index] = *descriptor_sets_infos[i];
+            bound_descriptor_sets_gr_[set_index] = descriptor_sets_infos[i]->descriptors;
 
             if (dynamicOffsetCount && pDynamicOffsets != nullptr)
             {
@@ -1981,8 +1981,7 @@ void DrawCallsDumpingContext::BindDescriptorSets(
                     if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                         binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                     {
-                        for (auto& [ai, buf_info] :
-                             bound_descriptor_sets_gr_[set_index].descriptors[binding_index].buffer_info)
+                        for (auto& [ai, buf_info] : bound_descriptor_sets_gr_[set_index][binding_index].buffer_info)
                         {
                             buf_info.offset += pDynamicOffsets[dynamic_offset_index];
                             ++dynamic_offset_index;

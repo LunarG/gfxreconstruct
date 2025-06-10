@@ -640,7 +640,7 @@ class DrawCallsDumpingContext
         BoundIndexBuffer referenced_index_buffer;
 
         // Keep copies of the descriptor bindings referenced by each draw call
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        BoundDescriptorSets referenced_descriptors;
 
         // These are used to store information calculated when dumping vertex and index buffers.
         // This information is latter used when writting the output json file.
