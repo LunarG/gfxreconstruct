@@ -1719,14 +1719,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::shared_ptr<application::Application>                                                 application_;
     CommonObjectInfoTable*                                                                    object_info_table_;
     bool                                                                                      loading_trim_state_;
-    bool                               replaying_trimmed_capture_;
-    SwapchainImageTracker              swapchain_image_tracker_;
-    HardwareBufferMap                  hardware_buffers_;
-    HardwareBufferMemoryMap            hardware_buffer_memory_info_;
-    std::unique_ptr<ScreenshotHandler> screenshot_handler_;
-    std::unique_ptr<VulkanSwapchain>   swapchain_;
-    std::string                        screenshot_file_prefix_;
-    graphics::FpsInfo*                 fps_info_;
+    bool                                                                                      replaying_trimmed_capture_;
+    SwapchainImageTracker                                                                     swapchain_image_tracker_;
+    HardwareBufferMap                                                                         hardware_buffers_;
+    HardwareBufferMemoryMap                                                                   hardware_buffer_memory_info_;
+    std::unique_ptr<ScreenshotHandler>                                                        screenshot_handler_;
+    std::unique_ptr<VulkanSwapchain>                                                          swapchain_;
+    std::string                                                                               screenshot_file_prefix_;
+    graphics::FpsInfo*                                                                        fps_info_;
 
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker> _device_address_trackers;
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>      _device_address_replacers;
