@@ -3185,10 +3185,10 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
         if (it != device_uuid_map_.end())
         {
             // We have seen this device before
-            VkDevice& extant_device                       = device_uuid_map_[casted_uuid];
-            device_info->is_duplicate                     = true;
-            VkDevice* replay_device                       = pDevice->GetHandlePointer();
-            *replay_device                                = extant_device;
+            VkDevice& extant_device   = device_uuid_map_[casted_uuid];
+            device_info->is_duplicate = true;
+            VkDevice* replay_device   = pDevice->GetHandlePointer();
+            *replay_device            = extant_device;
             return VK_SUCCESS;
         }
     }
