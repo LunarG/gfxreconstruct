@@ -39,7 +39,11 @@ target_link_libraries(
         gfxrecon_decode
         gfxrecon_graphics
         gfxrecon_format
-        platform_specific)
+        gfxrecon_util
+        platform_specific
+        native_app_glue
+        android
+        log)
 
 target_link_options(gfxrecon-replay
     PRIVATE
