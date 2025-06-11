@@ -37,6 +37,9 @@ target_include_directories(gfxrecon-testapp-triangle
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
-target_link_libraries(gfxrecon-testapp-triangle
-                      PUBLIC
-                          gfxrecon-testapp-base)
+target_link_libraries(
+        gfxrecon-testapp-triangle
+        gfxrecon-testapp-base
+        native_app_glue
+        android
+        log)
