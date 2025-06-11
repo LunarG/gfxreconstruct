@@ -41,7 +41,7 @@ static PFN_BeginInjectedCommands BeginInjectCommands_fp = BeginEndInjectedComman
 static PFN_EndInjectedCommands   EndInjectCommands_fp   = BeginEndInjectedCommandsNoop;
 static void*                     InjectCommandsData_ptr = nullptr;
 
-extern "C" GFXRECON_EXPORT void
+extern "C" GFXR_EXPORT void
 SetInjectedCommandCallbacks(PFN_BeginInjectedCommands begin_fp, PFN_EndInjectedCommands end_fp, void* data)
 {
     BeginInjectCommands_fp = begin_fp != nullptr ? begin_fp : BeginEndInjectedCommandsNoop;
