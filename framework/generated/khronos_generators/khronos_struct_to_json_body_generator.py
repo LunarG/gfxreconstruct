@@ -193,7 +193,7 @@ class KhronosStructToJsonBodyGenerator():
                         if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
                                 value_type]
-                        to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
+                        to_json = '{2}ToJson(jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_enum(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_boolean_type(value_type):

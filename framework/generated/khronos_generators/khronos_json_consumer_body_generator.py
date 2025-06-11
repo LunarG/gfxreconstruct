@@ -145,7 +145,7 @@ class KhronosExportJsonConsumerBodyGenerator():
                         flagsEnumType = self.flags_type_aliases[value.base_type
                                                                 ]
                     if not (value.is_pointer or value.is_array):
-                        to_json = 'FieldToJson({2}_t(), args["{0}"], {0}, json_options)'
+                        to_json = '{2}ToJson(args["{0}"], {0}, json_options)'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(

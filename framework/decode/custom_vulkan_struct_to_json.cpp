@@ -314,7 +314,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkShaderModuleCreateFlags_t(), jdata["flags"], decoded_value.flags, options);
+        VkShaderModuleCreateFlagsToJson(jdata["flags"], decoded_value.flags, options);
         FieldToJson(jdata["codeSize"], decoded_value.codeSize, options);
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
@@ -344,7 +344,7 @@ void FieldToJson(nlohmann::ordered_json&                  jdata,
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineCacheCreateFlags_t(), jdata["flags"], decoded_value.flags, options);
+        VkPipelineCacheCreateFlagsToJson(jdata["flags"], decoded_value.flags, options);
         FieldToJson(jdata["initialDataSize"], decoded_value.initialDataSize, options);
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
         // consumer decides to dump binaries in separate files.
@@ -465,14 +465,14 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryType& data, const util::JsonOptions& options)
 {
-    FieldToJson(decode::VkMemoryPropertyFlags_t(), jdata["property_flags"], data.property_flags, options);
+    VkMemoryPropertyFlagsToJson(jdata["property_flags"], data.property_flags, options);
     FieldToJson(jdata["heap_index"], data.heap_index, options);
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryHeap& data, const util::JsonOptions& options)
 {
     FieldToJson(jdata["size"], data.size, options);
-    FieldToJson(decode::VkMemoryHeapFlags_t(), jdata["flags"], data.flags, options);
+    VkMemoryHeapFlagsToJson(jdata["flags"], data.flags, options);
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageInfo* data, const JsonOptions& options)
@@ -483,7 +483,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImag
         const Decoded_VkCopyMemoryToImageInfo& meta_struct   = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkHostImageCopyFlags_t(), jdata["flags"], decoded_value.flags, options);
+        VkHostImageCopyFlagsToJson(jdata["flags"], decoded_value.flags, options);
         HandleToJson(jdata["dstImage"], meta_struct.dstImage, options);
         FieldToJson(jdata["dstImageLayout"], decoded_value.dstImageLayout, options);
         FieldToJson(jdata["regionCount"], decoded_value.regionCount, options);
@@ -527,7 +527,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToMemor
         const Decoded_VkCopyImageToMemoryInfo& meta_struct   = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkHostImageCopyFlags_t(), jdata["flags"], decoded_value.flags, options);
+        VkHostImageCopyFlagsToJson(jdata["flags"], decoded_value.flags, options);
         HandleToJson(jdata["srcImage"], meta_struct.srcImage, options);
         FieldToJson(jdata["srcImageLayout"], decoded_value.srcImageLayout, options);
         FieldToJson(jdata["regionCount"], decoded_value.regionCount, options);

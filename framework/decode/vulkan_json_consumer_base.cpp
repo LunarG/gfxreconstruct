@@ -207,7 +207,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         HandleToJson(args["layout"], layout, json_options);
-        FieldToJson(VkShaderStageFlags_t(), args["stageFlags"], stageFlags, json_options);
+        VkShaderStageFlagsToJson(args["stageFlags"], stageFlags, json_options);
         FieldToJson(args["offset"], offset, json_options);
         FieldToJson(args["size"], size, json_options);
         FieldToJson(args["pValues"], pValues, json_options);
