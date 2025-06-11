@@ -47,8 +47,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext
 {
   public:
-    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>& dispatch_indices,
-                                    const std::vector<uint64_t>& trace_rays_indices,
+    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>* dispatch_indices,
+                                    const std::vector<uint64_t>* trace_rays_indices,
                                     CommonObjectInfoTable&       object_info_table,
                                     const VulkanReplayOptions&   options,
                                     VulkanDumpResourcesDelegate& delegate);
