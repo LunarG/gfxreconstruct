@@ -176,6 +176,7 @@ class DispatchTraceRaysDumpingContext
             const VulkanBufferInfo* original_buffer{ nullptr };
             VkBuffer                buffer{ VK_NULL_HANDLE };
             VkDeviceMemory          buffer_memory{ VK_NULL_HANDLE };
+            VkDeviceSize            cloned_size{ 0 };
             VkShaderStageFlags      stages;
             VkDescriptorType        desc_type;
             uint32_t                desc_set;
@@ -315,7 +316,7 @@ class DispatchTraceRaysDumpingContext
 
         DispatchTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        BoundDescriptorSets referenced_descriptors;
 
         MutableResourcesBackupContext mutable_resources_clones;
         MutableResourcesBackupContext mutable_resources_clones_before;
@@ -426,7 +427,7 @@ class DispatchTraceRaysDumpingContext
 
         TraceRaysTypes type;
 
-        std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo> referenced_descriptors;
+        BoundDescriptorSets referenced_descriptors;
 
         // Keep copies of all mutable resources that are changed by the dumped commands/shaders
         MutableResourcesBackupContext mutable_resources_clones;
@@ -438,7 +439,8 @@ class DispatchTraceRaysDumpingContext
     };
 
   private:
-    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context, bool is_dispatch);
+    VkResult CloneMutableResources(MutableResourcesBackupContext& backup_context,
+                                   const BoundDescriptorSets&     bound_descriptor_sets);
 
     void SnapshotDispatchState(DispatchParams& disp_params);
 

@@ -61,7 +61,7 @@ struct MinMaxVertexIndex
     uint32_t max = 0;
 };
 
-using BoundDescriptorSets = std::unordered_map<uint32_t, VulkanDescriptorSetInfo>;
+using BoundDescriptorSets = std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
 DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
                                        const graphics::VulkanDeviceTable*   device_table,
