@@ -25,7 +25,7 @@
 
 #include "decode/copy_shaders.h"
 #include "decode/decoder_util.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/khronos_util.h"
 #include "util/platform.h"
 
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"

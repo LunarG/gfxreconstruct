@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_util.h"
+#include "khronos_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/logging.h"

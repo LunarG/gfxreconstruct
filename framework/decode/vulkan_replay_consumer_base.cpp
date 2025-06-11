@@ -39,9 +39,9 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "generated/generated_vulkan_constant_maps.h"
+#include "graphics/khronos_util.h"
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
-#include "graphics/vulkan_util.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_struct_deep_copy.h"
@@ -306,7 +306,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     if (loader_handle_ != nullptr)
     {
-        graphics::ReleaseLoader(loader_handle_);
+        graphics::ReleaseKhronosLoader(loader_handle_);
     }
 
     resource_dumper_ = nullptr;
@@ -1266,7 +1266,7 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 
 void VulkanReplayConsumerBase::InitializeLoader()
 {
-    loader_handle_ = graphics::InitializeLoader();
+    loader_handle_ = graphics::InitializeKhronosLoader(graphics::KhronosLoader_Vulkan);
     if (loader_handle_ != nullptr)
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -1282,8 +1282,7 @@ void VulkanReplayConsumerBase::InitializeLoader()
     if (create_instance_proc_ == nullptr)
     {
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
-                           "loader (eg. %s) has been added to the appropriate system path",
-                           graphics::kLoaderLibNames[0].c_str());
+                           "loader has been added to the appropriate system path");
         RaiseFatalError("Failed to load Vulkan runtime library");
     }
 }
