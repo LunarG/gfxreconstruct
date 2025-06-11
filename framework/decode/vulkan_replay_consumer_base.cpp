@@ -6156,21 +6156,28 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
         sp_ref.flags               = create_info->pSubpasses[i].flags;
         sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
 
-        sp_ref.color_att_refs.resize(create_info->pSubpasses[i].colorAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
         {
-            sp_ref.color_att_refs[s].attachment = create_info->pSubpasses[i].pColorAttachments[s].attachment;
-            sp_ref.color_att_refs[s].layout     = create_info->pSubpasses[i].pColorAttachments[s].layout;
+            if (create_info->pSubpasses[i].pColorAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                sp_ref.color_att_refs.emplace_back(
+                    VkAttachmentReference{ create_info->pSubpasses[i].pColorAttachments[s].attachment,
+                                           create_info->pSubpasses[i].pColorAttachments[s].layout });
+            }
         }
 
-        sp_ref.input_att_refs.resize(create_info->pSubpasses[i].inputAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
         {
-            sp_ref.input_att_refs[s].attachment = create_info->pSubpasses[i].pInputAttachments[s].attachment;
-            sp_ref.input_att_refs[s].layout     = create_info->pSubpasses[i].pInputAttachments[s].layout;
+            if (create_info->pSubpasses[i].pInputAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                sp_ref.input_att_refs.emplace_back(
+                    VkAttachmentReference{ create_info->pSubpasses[i].pInputAttachments[s].attachment,
+                                           create_info->pSubpasses[i].pInputAttachments[s].layout });
+            }
         }
 
-        if (create_info->pSubpasses[i].pDepthStencilAttachment)
+        if (create_info->pSubpasses[i].pDepthStencilAttachment &&
+            create_info->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
         {
             sp_ref.has_depth                = true;
             sp_ref.depth_att_ref.attachment = create_info->pSubpasses[i].pDepthStencilAttachment->attachment;
