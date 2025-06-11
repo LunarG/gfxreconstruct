@@ -1,0 +1,9 @@
+LIBRARY VkLayer_gfxreconstruct
+EXPORTS
+vkGetInstanceProcAddr
+vkGetDeviceProcAddr
+vkEnumerateInstanceLayerProperties
+vkEnumerateDeviceLayerProperties
+vkEnumerateInstanceExtensionProperties
+vkEnumerateDeviceExtensionProperties
+vkNegotiateLoaderLayerInterfaceVersion

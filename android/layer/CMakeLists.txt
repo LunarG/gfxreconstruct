@@ -7,9 +7,6 @@ find_package(nlohmann_json REQUIRED)
 
 project(VkLayer_gfxreconstruct)
 
-set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
-set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
-
 include(../framework/cmake-config/PlatformConfig.cmake)
 
 # Generate the OpenXR JSON for Android so that it will get picked up and
@@ -92,6 +89,3 @@ if (GFXRECON_ENABLE_OPENXR)
     file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/assets/openxr/1/api_layers/implicit.d/XrLayer_gfxreconstruct.json CONTENT "${openxr_implicit_layer_contents}")
 endif()
 
-target_link_options(VkLayer_gfxreconstruct
-    PRIVATE
-        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/layer/VkLayer_gfxreconstruct-android.map)
