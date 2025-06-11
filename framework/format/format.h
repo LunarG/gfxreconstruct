@@ -192,8 +192,9 @@ enum CompressionType : uint32_t
 enum FileOption : uint32_t
 {
     kUnknownFileOption = 0,
-    kCompressionType   = 1, // One of the CompressionType values defining the compression algorithm used with parameter
-                            // encoding. Default = CompressionType::kNone.
+    kCompressionType   = 1,      // One of the CompressionType values defining the compression algorithm used with parameter
+                                 // encoding. Default = CompressionType::kNone.
+    kPipelineLibraryEnabled = 2  // A boolean value indicating that ID3D12PipelineLibrary support was enabled for capture.
 };
 
 enum PointerAttributes : uint32_t
@@ -227,6 +228,7 @@ enum ResizeWindowPreTransform : uint32_t
 struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
+    bool            pipeline_library_enabled{ false };
 };
 
 // Resource values are values contained in resource data that may require special handling (e.g., mapping for replay).

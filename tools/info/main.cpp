@@ -219,17 +219,8 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.error_state = file_processor.GetErrorState();
 
     // File options.
-    gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
-
     auto file_options = file_processor.GetFileOptions();
-    for (const auto& option : file_options)
-    {
-        if (option.key == gfxrecon::format::FileOption::kCompressionType)
-        {
-            compression_type = static_cast<gfxrecon::format::CompressionType>(option.value);
-        }
-    }
-    api_agnostic_stats.compression_type   = compression_type;
+    api_agnostic_stats.compression_type   = file_options.compression_type;
     api_agnostic_stats.trim_start_frame   = stat_consumer.GetTrimmedStartFrame();
     api_agnostic_stats.frame_count        = file_processor.GetCurrentFrameNumber();
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
@@ -403,19 +394,11 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
     {
         GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
-        gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
 
         auto file_options = file_processor.GetFileOptions();
-        for (const auto& option : file_options)
-        {
-            if (option.key == gfxrecon::format::FileOption::kCompressionType)
-            {
-                compression_type = static_cast<gfxrecon::format::CompressionType>(option.value);
-            }
-        }
 
         // Compression type.
-        std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(compression_type);
+        std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(file_options.compression_type);
         if (!compression_type_name.empty())
         {
             GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());

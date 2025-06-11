@@ -61,6 +61,8 @@ void CreateResourceValueTrackingConsumer(
     std::shared_ptr<application::Application>&                  application,
     const decode::Dx12OptimizationOptions&                      options)
 {
+    GFXRECON_ASSERT(file_processor != nullptr);
+
     std::string app_string = "GFXReconstruct Optimizer - analyzing file";
     if (options.optimize_resource_values_experimental)
     {
@@ -76,8 +78,11 @@ void CreateResourceValueTrackingConsumer(
     dx_replay_options.override_gpu_index = options.override_gpu_index;
 
     // Create the replay consumer.
-    dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(
-        application, dx_replay_options, options.optimize_resource_values_experimental);
+    dx12_replay_consumer =
+        std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(application,
+                                                                    dx_replay_options,
+                                                                    file_processor->GetFileOptions(),
+                                                                    options.optimize_resource_values_experimental);
     dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
     if (options.optimize_resource_values_experimental)
