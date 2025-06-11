@@ -60,7 +60,7 @@ std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
 }
 
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ChromaSamplePosition& value, const JsonOptions& options)
+void StdVideoAV1ChromaSamplePositionToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ChromaSamplePosition& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_CHROMA_SAMPLE_POSITION_UNKNOWN:
@@ -84,7 +84,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ChromaSamplePos
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ColorPrimaries& value, const JsonOptions& options)
+void StdVideoAV1ColorPrimariesToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ColorPrimaries& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_COLOR_PRIMARIES_BT_709:
@@ -132,7 +132,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ColorPrimaries&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameRestorationType& value, const JsonOptions& options)
+void StdVideoAV1FrameRestorationTypeToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameRestorationType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_FRAME_RESTORATION_TYPE_NONE:
@@ -156,7 +156,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameRestoratio
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameType& value, const JsonOptions& options)
+void StdVideoAV1FrameTypeToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_FRAME_TYPE_KEY:
@@ -180,7 +180,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1FrameType& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1InterpolationFilter& value, const JsonOptions& options)
+void StdVideoAV1InterpolationFilterToJson(nlohmann::ordered_json& jdata, const StdVideoAV1InterpolationFilter& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_INTERPOLATION_FILTER_EIGHTTAP:
@@ -207,7 +207,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1InterpolationFi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Level& value, const JsonOptions& options)
+void StdVideoAV1LevelToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Level& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_LEVEL_2_0:
@@ -291,7 +291,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Level& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1MatrixCoefficients& value, const JsonOptions& options)
+void StdVideoAV1MatrixCoefficientsToJson(nlohmann::ordered_json& jdata, const StdVideoAV1MatrixCoefficients& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_MATRIX_COEFFICIENTS_IDENTITY:
@@ -348,7 +348,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1MatrixCoefficie
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Profile& value, const JsonOptions& options)
+void StdVideoAV1ProfileToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Profile& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_PROFILE_MAIN:
@@ -369,7 +369,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1Profile& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ReferenceName& value, const JsonOptions& options)
+void StdVideoAV1ReferenceNameToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ReferenceName& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_REFERENCE_NAME_INTRA_FRAME:
@@ -405,7 +405,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1ReferenceName& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TransferCharacteristics& value, const JsonOptions& options)
+void StdVideoAV1TransferCharacteristicsToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TransferCharacteristics& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_TRANSFER_CHARACTERISTICS_RESERVED_0:
@@ -474,7 +474,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TransferCharact
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TxMode& value, const JsonOptions& options)
+void StdVideoAV1TxModeToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TxMode& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_AV1_TX_MODE_ONLY_4X4:
@@ -495,7 +495,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoAV1TxMode& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoDecodeH264FieldOrderCount& value, const JsonOptions& options)
+void StdVideoDecodeH264FieldOrderCountToJson(nlohmann::ordered_json& jdata, const StdVideoDecodeH264FieldOrderCount& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_DECODE_H264_FIELD_ORDER_COUNT_TOP:
@@ -513,7 +513,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoDecodeH264FieldOrd
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264AspectRatioIdc& value, const JsonOptions& options)
+void StdVideoH264AspectRatioIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264AspectRatioIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_ASPECT_RATIO_IDC_UNSPECIFIED:
@@ -579,7 +579,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264AspectRatioIdc
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264CabacInitIdc& value, const JsonOptions& options)
+void StdVideoH264CabacInitIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264CabacInitIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_CABAC_INIT_IDC_0:
@@ -600,7 +600,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264CabacInitIdc& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ChromaFormatIdc& value, const JsonOptions& options)
+void StdVideoH264ChromaFormatIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264ChromaFormatIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_CHROMA_FORMAT_IDC_MONOCHROME:
@@ -624,7 +624,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ChromaFormatId
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264DisableDeblockingFilterIdc& value, const JsonOptions& options)
+void StdVideoH264DisableDeblockingFilterIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264DisableDeblockingFilterIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_DISABLE_DEBLOCKING_FILTER_IDC_DISABLED:
@@ -645,7 +645,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264DisableDeblock
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264LevelIdc& value, const JsonOptions& options)
+void StdVideoH264LevelIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264LevelIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_LEVEL_IDC_1_0:
@@ -714,7 +714,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264LevelIdc& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264MemMgmtControlOp& value, const JsonOptions& options)
+void StdVideoH264MemMgmtControlOpToJson(nlohmann::ordered_json& jdata, const StdVideoH264MemMgmtControlOp& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_MEM_MGMT_CONTROL_OP_END:
@@ -747,7 +747,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264MemMgmtControl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ModificationOfPicNumsIdc& value, const JsonOptions& options)
+void StdVideoH264ModificationOfPicNumsIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264ModificationOfPicNumsIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_MODIFICATION_OF_PIC_NUMS_IDC_SHORT_TERM_SUBTRACT:
@@ -771,7 +771,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ModificationOf
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264NonVclNaluType& value, const JsonOptions& options)
+void StdVideoH264NonVclNaluTypeToJson(nlohmann::ordered_json& jdata, const StdVideoH264NonVclNaluType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_NON_VCL_NALU_TYPE_SPS:
@@ -804,7 +804,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264NonVclNaluType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264PictureType& value, const JsonOptions& options)
+void StdVideoH264PictureTypeToJson(nlohmann::ordered_json& jdata, const StdVideoH264PictureType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_PICTURE_TYPE_P:
@@ -828,7 +828,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264PictureType& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264PocType& value, const JsonOptions& options)
+void StdVideoH264PocTypeToJson(nlohmann::ordered_json& jdata, const StdVideoH264PocType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_POC_TYPE_0:
@@ -849,7 +849,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264PocType& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ProfileIdc& value, const JsonOptions& options)
+void StdVideoH264ProfileIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264ProfileIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_PROFILE_IDC_BASELINE:
@@ -873,7 +873,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264ProfileIdc& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264SliceType& value, const JsonOptions& options)
+void StdVideoH264SliceTypeToJson(nlohmann::ordered_json& jdata, const StdVideoH264SliceType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_SLICE_TYPE_P:
@@ -894,7 +894,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264SliceType& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264WeightedBipredIdc& value, const JsonOptions& options)
+void StdVideoH264WeightedBipredIdcToJson(nlohmann::ordered_json& jdata, const StdVideoH264WeightedBipredIdc& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_H264_WEIGHTED_BIPRED_IDC_DEFAULT:
@@ -915,7 +915,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH264WeightedBipred
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ColorSpace& value, const JsonOptions& options)
+void StdVideoVP9ColorSpaceToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ColorSpace& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN:
@@ -951,7 +951,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ColorSpace& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9FrameType& value, const JsonOptions& options)
+void StdVideoVP9FrameTypeToJson(nlohmann::ordered_json& jdata, const StdVideoVP9FrameType& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_FRAME_TYPE_KEY:
@@ -969,7 +969,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9FrameType& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9InterpolationFilter& value, const JsonOptions& options)
+void StdVideoVP9InterpolationFilterToJson(nlohmann::ordered_json& jdata, const StdVideoVP9InterpolationFilter& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP:
@@ -996,7 +996,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9InterpolationFi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Level& value, const JsonOptions& options)
+void StdVideoVP9LevelToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Level& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_LEVEL_1_0:
@@ -1050,7 +1050,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Level& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Profile& value, const JsonOptions& options)
+void StdVideoVP9ProfileToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Profile& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_PROFILE_0:
@@ -1074,7 +1074,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Profile& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ReferenceName& value, const JsonOptions& options)
+void StdVideoVP9ReferenceNameToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ReferenceName& value, const JsonOptions& options)
 {
     switch (value) {
         case STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME:
@@ -1098,7 +1098,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ReferenceName& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureBuildTypeKHR& value, const JsonOptions& options)
+void VkAccelerationStructureBuildTypeKHRToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureBuildTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR:
@@ -1116,7 +1116,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureBui
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCompatibilityKHR& value, const JsonOptions& options)
+void VkAccelerationStructureCompatibilityKHRToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCompatibilityKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_COMPATIBILITY_COMPATIBLE_KHR:
@@ -1131,7 +1131,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCom
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCreateFlagBitsKHR& value, const JsonOptions& options)
+void VkAccelerationStructureCreateFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCreateFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR:
@@ -1149,7 +1149,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCre
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMemoryRequirementsTypeNV& value, const JsonOptions& options)
+void VkAccelerationStructureMemoryRequirementsTypeNVToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMemoryRequirementsTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_NV:
@@ -1167,7 +1167,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMem
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMotionInstanceTypeNV& value, const JsonOptions& options)
+void VkAccelerationStructureMotionInstanceTypeNVToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMotionInstanceTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
@@ -1185,7 +1185,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMot
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureTypeKHR& value, const JsonOptions& options)
+void VkAccelerationStructureTypeKHRToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR:
@@ -1203,7 +1203,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureTyp
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits& value, const JsonOptions& options)
+void VkAccessFlagBitsToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCESS_INDIRECT_COMMAND_READ_BIT:
@@ -1299,7 +1299,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits& value, c
     }
 }
 
-void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAccessFlagBits2& value, const JsonOptions& options)
+void VkAccessFlagBits2ToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits2& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCESS_2_NONE:
@@ -1455,7 +1455,7 @@ void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAcc
     }
 }
 
-void FieldToJson(VkAccessFlagBits3KHR_t, nlohmann::ordered_json& jdata, const VkAccessFlagBits3KHR& value, const JsonOptions& options)
+void VkAccessFlagBits3KHRToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits3KHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ACCESS_3_NONE_KHR:
@@ -1467,12 +1467,12 @@ void FieldToJson(VkAccessFlagBits3KHR_t, nlohmann::ordered_json& jdata, const Vk
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAcquireProfilingLockFlagBitsKHR& value, const JsonOptions& options)
+void VkAcquireProfilingLockFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkAcquireProfilingLockFlagBitsKHR& value, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(value);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAddressCopyFlagBitsKHR& value, const JsonOptions& options)
+void VkAddressCopyFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkAddressCopyFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR:
@@ -1490,7 +1490,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAddressCopyFlagBitsKHR& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagModeAMD& value, const JsonOptions& options)
+void VkAntiLagModeAMDToJson(nlohmann::ordered_json& jdata, const VkAntiLagModeAMD& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ANTI_LAG_MODE_DRIVER_CONTROL_AMD:
@@ -1508,7 +1508,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagModeAMD& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagStageAMD& value, const JsonOptions& options)
+void VkAntiLagStageAMDToJson(nlohmann::ordered_json& jdata, const VkAntiLagStageAMD& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ANTI_LAG_STAGE_INPUT_AMD:
@@ -1523,7 +1523,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagStageAMD& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentDescriptionFlagBits& value, const JsonOptions& options)
+void VkAttachmentDescriptionFlagBitsToJson(nlohmann::ordered_json& jdata, const VkAttachmentDescriptionFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT:
@@ -1541,7 +1541,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentDescriptionFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentLoadOp& value, const JsonOptions& options)
+void VkAttachmentLoadOpToJson(nlohmann::ordered_json& jdata, const VkAttachmentLoadOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ATTACHMENT_LOAD_OP_LOAD:
@@ -1562,7 +1562,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentLoadOp& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentStoreOp& value, const JsonOptions& options)
+void VkAttachmentStoreOpToJson(nlohmann::ordered_json& jdata, const VkAttachmentStoreOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_ATTACHMENT_STORE_OP_STORE:
@@ -1580,7 +1580,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentStoreOp& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendFactor& value, const JsonOptions& options)
+void VkBlendFactorToJson(nlohmann::ordered_json& jdata, const VkBlendFactor& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BLEND_FACTOR_ZERO:
@@ -1646,7 +1646,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendFactor& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOp& value, const JsonOptions& options)
+void VkBlendOpToJson(nlohmann::ordered_json& jdata, const VkBlendOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BLEND_OP_ADD:
@@ -1808,7 +1808,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOp& value, const Js
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, const JsonOptions& options)
+void VkBlendOverlapEXTToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BLEND_OVERLAP_UNCORRELATED_EXT:
@@ -1826,7 +1826,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlendOverlapEXT& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBlockMatchWindowCompareModeQCOM& value, const JsonOptions& options)
+void VkBlockMatchWindowCompareModeQCOMToJson(nlohmann::ordered_json& jdata, const VkBlockMatchWindowCompareModeQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BLOCK_MATCH_WINDOW_COMPARE_MODE_MIN_QCOM:
@@ -1841,7 +1841,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBlockMatchWindowCompareM
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, const JsonOptions& options)
+void VkBorderColorToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK:
@@ -1874,7 +1874,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBorderColor& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlagBits& value, const JsonOptions& options)
+void VkBufferCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUFFER_CREATE_SPARSE_BINDING_BIT:
@@ -1904,7 +1904,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlagBits& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& value, const JsonOptions& options)
+void VkBufferUsageFlagBitsToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUFFER_USAGE_TRANSFER_SRC_BIT:
@@ -1994,7 +1994,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& val
     }
 }
 
-void FieldToJson(VkBufferUsageFlagBits2_t, nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2& value, const JsonOptions& options)
+void VkBufferUsageFlagBits2ToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT:
@@ -2096,7 +2096,7 @@ void FieldToJson(VkBufferUsageFlagBits2_t, nlohmann::ordered_json& jdata, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureFlagBitsKHR& value, const JsonOptions& options)
+void VkBuildAccelerationStructureFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR:
@@ -2141,7 +2141,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureModeKHR& value, const JsonOptions& options)
+void VkBuildAccelerationStructureModeKHRToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR:
@@ -2156,7 +2156,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapFlagBitsEXT& value, const JsonOptions& options)
+void VkBuildMicromapFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUILD_MICROMAP_PREFER_FAST_TRACE_BIT_EXT:
@@ -2174,7 +2174,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapFlagBitsEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapModeEXT& value, const JsonOptions& options)
+void VkBuildMicromapModeEXTToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_BUILD_MICROMAP_MODE_BUILD_EXT:
@@ -2186,7 +2186,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapModeEXT& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkChromaLocation& value, const JsonOptions& options)
+void VkChromaLocationToJson(nlohmann::ordered_json& jdata, const VkChromaLocation& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_CHROMA_LOCATION_COSITED_EVEN:
@@ -2201,7 +2201,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkChromaLocation& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCoarseSampleOrderTypeNV& value, const JsonOptions& options)
+void VkCoarseSampleOrderTypeNVToJson(nlohmann::ordered_json& jdata, const VkCoarseSampleOrderTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COARSE_SAMPLE_ORDER_TYPE_DEFAULT_NV:
@@ -2222,7 +2222,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCoarseSampleOrderTypeNV&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkColorComponentFlagBits& value, const JsonOptions& options)
+void VkColorComponentFlagBitsToJson(nlohmann::ordered_json& jdata, const VkColorComponentFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COLOR_COMPONENT_R_BIT:
@@ -2243,7 +2243,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkColorComponentFlagBits& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkColorSpaceKHR& value, const JsonOptions& options)
+void VkColorSpaceKHRToJson(nlohmann::ordered_json& jdata, const VkColorSpaceKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COLOR_SPACE_SRGB_NONLINEAR_KHR:
@@ -2300,7 +2300,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkColorSpaceKHR& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferLevel& value, const JsonOptions& options)
+void VkCommandBufferLevelToJson(nlohmann::ordered_json& jdata, const VkCommandBufferLevel& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMMAND_BUFFER_LEVEL_PRIMARY:
@@ -2315,7 +2315,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferLevel& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferResetFlagBits& value, const JsonOptions& options)
+void VkCommandBufferResetFlagBitsToJson(nlohmann::ordered_json& jdata, const VkCommandBufferResetFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT:
@@ -2327,7 +2327,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferResetFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferUsageFlagBits& value, const JsonOptions& options)
+void VkCommandBufferUsageFlagBitsToJson(nlohmann::ordered_json& jdata, const VkCommandBufferUsageFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT:
@@ -2345,7 +2345,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferUsageFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolCreateFlagBits& value, const JsonOptions& options)
+void VkCommandPoolCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkCommandPoolCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMMAND_POOL_CREATE_TRANSIENT_BIT:
@@ -2363,7 +2363,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolCreateFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolResetFlagBits& value, const JsonOptions& options)
+void VkCommandPoolResetFlagBitsToJson(nlohmann::ordered_json& jdata, const VkCommandPoolResetFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT:
@@ -2375,7 +2375,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolResetFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCompareOp& value, const JsonOptions& options)
+void VkCompareOpToJson(nlohmann::ordered_json& jdata, const VkCompareOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMPARE_OP_NEVER:
@@ -2408,7 +2408,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCompareOp& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkComponentSwizzle& value, const JsonOptions& options)
+void VkComponentSwizzleToJson(nlohmann::ordered_json& jdata, const VkComponentSwizzle& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMPONENT_SWIZZLE_IDENTITY:
@@ -2438,7 +2438,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkComponentSwizzle& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkComponentTypeKHR& value, const JsonOptions& options)
+void VkComponentTypeKHRToJson(nlohmann::ordered_json& jdata, const VkComponentTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMPONENT_TYPE_FLOAT16_KHR:
@@ -2495,7 +2495,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkComponentTypeKHR& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCompositeAlphaFlagBitsKHR& value, const JsonOptions& options)
+void VkCompositeAlphaFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkCompositeAlphaFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR:
@@ -2516,7 +2516,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCompositeAlphaFlagBitsKH
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkConditionalRenderingFlagBitsEXT& value, const JsonOptions& options)
+void VkConditionalRenderingFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkConditionalRenderingFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_CONDITIONAL_RENDERING_INVERTED_BIT_EXT:
@@ -2528,7 +2528,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkConditionalRenderingFlag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkConservativeRasterizationModeEXT& value, const JsonOptions& options)
+void VkConservativeRasterizationModeEXTToJson(nlohmann::ordered_json& jdata, const VkConservativeRasterizationModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT:
@@ -2546,7 +2546,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkConservativeRasterizatio
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCooperativeVectorMatrixLayoutNV& value, const JsonOptions& options)
+void VkCooperativeVectorMatrixLayoutNVToJson(nlohmann::ordered_json& jdata, const VkCooperativeVectorMatrixLayoutNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COOPERATIVE_VECTOR_MATRIX_LAYOUT_ROW_MAJOR_NV:
@@ -2567,7 +2567,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCooperativeVectorMatrixL
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyAccelerationStructureModeKHR& value, const JsonOptions& options)
+void VkCopyAccelerationStructureModeKHRToJson(nlohmann::ordered_json& jdata, const VkCopyAccelerationStructureModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COPY_ACCELERATION_STRUCTURE_MODE_CLONE_KHR:
@@ -2588,7 +2588,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyAccelerationStructur
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyMicromapModeEXT& value, const JsonOptions& options)
+void VkCopyMicromapModeEXTToJson(nlohmann::ordered_json& jdata, const VkCopyMicromapModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COPY_MICROMAP_MODE_CLONE_EXT:
@@ -2609,7 +2609,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCopyMicromapModeEXT& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageModulationModeNV& value, const JsonOptions& options)
+void VkCoverageModulationModeNVToJson(nlohmann::ordered_json& jdata, const VkCoverageModulationModeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COVERAGE_MODULATION_MODE_NONE_NV:
@@ -2630,7 +2630,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageModulationModeNV
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageReductionModeNV& value, const JsonOptions& options)
+void VkCoverageReductionModeNVToJson(nlohmann::ordered_json& jdata, const VkCoverageReductionModeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_COVERAGE_REDUCTION_MODE_MERGE_NV:
@@ -2645,7 +2645,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCoverageReductionModeNV&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCubicFilterWeightsQCOM& value, const JsonOptions& options)
+void VkCubicFilterWeightsQCOMToJson(nlohmann::ordered_json& jdata, const VkCubicFilterWeightsQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_CUBIC_FILTER_WEIGHTS_CATMULL_ROM_QCOM:
@@ -2666,7 +2666,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCubicFilterWeightsQCOM& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkCullModeFlagBits& value, const JsonOptions& options)
+void VkCullModeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkCullModeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_CULL_MODE_NONE:
@@ -2687,7 +2687,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkCullModeFlagBits& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphModelCacheTypeQCOM& value, const JsonOptions& options)
+void VkDataGraphModelCacheTypeQCOMToJson(nlohmann::ordered_json& jdata, const VkDataGraphModelCacheTypeQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DATA_GRAPH_MODEL_CACHE_TYPE_GENERIC_BINARY_QCOM:
@@ -2699,12 +2699,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphModelCacheTypeQ
     }
 }
 
-void FieldToJson(VkDataGraphPipelineDispatchFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkDataGraphPipelineDispatchFlagBitsARM& value, const JsonOptions& options)
+void VkDataGraphPipelineDispatchFlagBitsARMToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineDispatchFlagBitsARM& value, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(value);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelinePropertyARM& value, const JsonOptions& options)
+void VkDataGraphPipelinePropertyARMToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelinePropertyARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DATA_GRAPH_PIPELINE_PROPERTY_CREATION_LOG_ARM:
@@ -2719,7 +2719,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelinePropert
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionBindPointARM& value, const JsonOptions& options)
+void VkDataGraphPipelineSessionBindPointARMToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionBindPointARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TRANSIENT_ARM:
@@ -2731,7 +2731,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSession
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionBindPointTypeARM& value, const JsonOptions& options)
+void VkDataGraphPipelineSessionBindPointTypeARMToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionBindPointTypeARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM:
@@ -2743,7 +2743,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSession
     }
 }
 
-void FieldToJson(VkDataGraphPipelineSessionCreateFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionCreateFlagBitsARM& value, const JsonOptions& options)
+void VkDataGraphPipelineSessionCreateFlagBitsARMToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionCreateFlagBitsARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM:
@@ -2755,7 +2755,7 @@ void FieldToJson(VkDataGraphPipelineSessionCreateFlagBitsARM_t, nlohmann::ordere
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagBitsEXT& value, const JsonOptions& options)
+void VkDebugReportFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEBUG_REPORT_INFORMATION_BIT_EXT:
@@ -2779,7 +2779,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagBitsEXT& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT& value, const JsonOptions& options)
+void VkDebugReportObjectTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT:
@@ -2911,7 +2911,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverityFlagBitsEXT& value, const JsonOptions& options)
+void VkDebugUtilsMessageSeverityFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverityFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -2932,7 +2932,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFlagBitsEXT& value, const JsonOptions& options)
+void VkDebugUtilsMessageTypeFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
@@ -2953,7 +2953,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDefaultVertexAttributeValueKHR& value, const JsonOptions& options)
+void VkDefaultVertexAttributeValueKHRToJson(nlohmann::ordered_json& jdata, const VkDefaultVertexAttributeValueKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ZERO_KHR:
@@ -2968,7 +2968,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDefaultVertexAttributeVa
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& value, const JsonOptions& options)
+void VkDependencyFlagBitsToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEPENDENCY_BY_REGION_BIT:
@@ -2995,7 +2995,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthBiasRepresentationEXT& value, const JsonOptions& options)
+void VkDepthBiasRepresentationEXTToJson(nlohmann::ordered_json& jdata, const VkDepthBiasRepresentationEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEPTH_BIAS_REPRESENTATION_LEAST_REPRESENTABLE_VALUE_FORMAT_EXT:
@@ -3013,7 +3013,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthBiasRepresentationE
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthClampModeEXT& value, const JsonOptions& options)
+void VkDepthClampModeEXTToJson(nlohmann::ordered_json& jdata, const VkDepthClampModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEPTH_CLAMP_MODE_VIEWPORT_RANGE_EXT:
@@ -3028,7 +3028,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthClampModeEXT& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlagBits& value, const JsonOptions& options)
+void VkDescriptorBindingFlagBitsToJson(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT:
@@ -3049,7 +3049,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlagBits& value, const JsonOptions& options)
+void VkDescriptorPoolCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT:
@@ -3073,7 +3073,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreateFlagBits& value, const JsonOptions& options)
+void VkDescriptorSetLayoutCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT:
@@ -3103,7 +3103,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreat
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorType& value, const JsonOptions& options)
+void VkDescriptorTypeToJson(nlohmann::ordered_json& jdata, const VkDescriptorType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -3169,7 +3169,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorType& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorUpdateTemplateType& value, const JsonOptions& options)
+void VkDescriptorUpdateTemplateTypeToJson(nlohmann::ordered_json& jdata, const VkDescriptorUpdateTemplateType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET:
@@ -3184,7 +3184,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorUpdateTemplate
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingFlagBitsEXT& value, const JsonOptions& options)
+void VkDeviceAddressBindingFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_ADDRESS_BINDING_INTERNAL_OBJECT_BIT_EXT:
@@ -3196,7 +3196,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingFlag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingTypeEXT& value, const JsonOptions& options)
+void VkDeviceAddressBindingTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_ADDRESS_BINDING_TYPE_BIND_EXT:
@@ -3211,7 +3211,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceDiagnosticsConfigFlagBitsNV& value, const JsonOptions& options)
+void VkDeviceDiagnosticsConfigFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkDeviceDiagnosticsConfigFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV:
@@ -3232,7 +3232,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceDiagnosticsConfigF
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceEventTypeEXT& value, const JsonOptions& options)
+void VkDeviceEventTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceEventTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_EVENT_TYPE_DISPLAY_HOTPLUG_EXT:
@@ -3244,7 +3244,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceEventTypeEXT& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultAddressTypeEXT& value, const JsonOptions& options)
+void VkDeviceFaultAddressTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultAddressTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_FAULT_ADDRESS_TYPE_NONE_EXT:
@@ -3274,7 +3274,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultAddressTypeEX
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultVendorBinaryHeaderVersionEXT& value, const JsonOptions& options)
+void VkDeviceFaultVendorBinaryHeaderVersionEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultVendorBinaryHeaderVersionEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT:
@@ -3286,7 +3286,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceFaultVendorBinaryH
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceGroupPresentModeFlagBitsKHR& value, const JsonOptions& options)
+void VkDeviceGroupPresentModeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkDeviceGroupPresentModeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR:
@@ -3307,7 +3307,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceGroupPresentModeFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceMemoryReportEventTypeEXT& value, const JsonOptions& options)
+void VkDeviceMemoryReportEventTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDeviceMemoryReportEventTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_MEMORY_REPORT_EVENT_TYPE_ALLOCATE_EXT:
@@ -3331,7 +3331,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceMemoryReportEventT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceQueueCreateFlagBits& value, const JsonOptions& options)
+void VkDeviceQueueCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkDeviceQueueCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT:
@@ -3343,7 +3343,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceQueueCreateFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDirectDriverLoadingModeLUNARG& value, const JsonOptions& options)
+void VkDirectDriverLoadingModeLUNARGToJson(nlohmann::ordered_json& jdata, const VkDirectDriverLoadingModeLUNARG& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DIRECT_DRIVER_LOADING_MODE_EXCLUSIVE_LUNARG:
@@ -3358,7 +3358,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDirectDriverLoadingModeL
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDiscardRectangleModeEXT& value, const JsonOptions& options)
+void VkDiscardRectangleModeEXTToJson(nlohmann::ordered_json& jdata, const VkDiscardRectangleModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISCARD_RECTANGLE_MODE_INCLUSIVE_EXT:
@@ -3373,7 +3373,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDiscardRectangleModeEXT&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplacementMicromapFormatNV& value, const JsonOptions& options)
+void VkDisplacementMicromapFormatNVToJson(nlohmann::ordered_json& jdata, const VkDisplacementMicromapFormatNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISPLACEMENT_MICROMAP_FORMAT_64_TRIANGLES_64_BYTES_NV:
@@ -3391,7 +3391,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplacementMicromapForm
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayEventTypeEXT& value, const JsonOptions& options)
+void VkDisplayEventTypeEXTToJson(nlohmann::ordered_json& jdata, const VkDisplayEventTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISPLAY_EVENT_TYPE_FIRST_PIXEL_OUT_EXT:
@@ -3403,7 +3403,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayEventTypeEXT& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayPlaneAlphaFlagBitsKHR& value, const JsonOptions& options)
+void VkDisplayPlaneAlphaFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkDisplayPlaneAlphaFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISPLAY_PLANE_ALPHA_OPAQUE_BIT_KHR:
@@ -3424,7 +3424,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayPlaneAlphaFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayPowerStateEXT& value, const JsonOptions& options)
+void VkDisplayPowerStateEXTToJson(nlohmann::ordered_json& jdata, const VkDisplayPowerStateEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISPLAY_POWER_STATE_OFF_EXT:
@@ -3442,7 +3442,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayPowerStateEXT& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplaySurfaceStereoTypeNV& value, const JsonOptions& options)
+void VkDisplaySurfaceStereoTypeNVToJson(nlohmann::ordered_json& jdata, const VkDisplaySurfaceStereoTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DISPLAY_SURFACE_STEREO_TYPE_NONE_NV:
@@ -3463,7 +3463,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplaySurfaceStereoType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDriverId& value, const JsonOptions& options)
+void VkDriverIdToJson(nlohmann::ordered_json& jdata, const VkDriverId& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DRIVER_ID_AMD_PROPRIETARY:
@@ -3556,7 +3556,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDriverId& value, const J
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkDynamicState& value, const JsonOptions& options)
+void VkDynamicStateToJson(nlohmann::ordered_json& jdata, const VkDynamicState& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_DYNAMIC_STATE_VIEWPORT:
@@ -3784,7 +3784,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDynamicState& value, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkEventCreateFlagBits& value, const JsonOptions& options)
+void VkEventCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkEventCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EVENT_CREATE_DEVICE_ONLY_BIT:
@@ -3796,7 +3796,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkEventCreateFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceFeatureFlagBits& value, const JsonOptions& options)
+void VkExternalFenceFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalFenceFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT:
@@ -3811,7 +3811,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceFeatureFlag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceHandleTypeFlagBits& value, const JsonOptions& options)
+void VkExternalFenceHandleTypeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalFenceHandleTypeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT:
@@ -3832,7 +3832,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceHandleTypeF
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlagBits& value, const JsonOptions& options)
+void VkExternalMemoryFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT:
@@ -3850,7 +3850,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlagBitsNV& value, const JsonOptions& options)
+void VkExternalMemoryFeatureFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV:
@@ -3868,7 +3868,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlagBits& value, const JsonOptions& options)
+void VkExternalMemoryHandleTypeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT:
@@ -3931,7 +3931,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlagBitsNV& value, const JsonOptions& options)
+void VkExternalMemoryHandleTypeFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV:
@@ -3952,7 +3952,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreFeatureFlagBits& value, const JsonOptions& options)
+void VkExternalSemaphoreFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT:
@@ -3967,7 +3967,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreFeature
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreHandleTypeFlagBits& value, const JsonOptions& options)
+void VkExternalSemaphoreHandleTypeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreHandleTypeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT:
@@ -3994,7 +3994,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreHandleT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceCreateFlagBits& value, const JsonOptions& options)
+void VkFenceCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkFenceCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FENCE_CREATE_SIGNALED_BIT:
@@ -4006,7 +4006,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceCreateFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceImportFlagBits& value, const JsonOptions& options)
+void VkFenceImportFlagBitsToJson(nlohmann::ordered_json& jdata, const VkFenceImportFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FENCE_IMPORT_TEMPORARY_BIT:
@@ -4018,7 +4018,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceImportFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFilter& value, const JsonOptions& options)
+void VkFilterToJson(nlohmann::ordered_json& jdata, const VkFilter& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FILTER_NEAREST:
@@ -4036,7 +4036,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFilter& value, const Jso
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const JsonOptions& options)
+void VkFormatToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FORMAT_UNDEFINED:
@@ -4840,7 +4840,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits& value, const JsonOptions& options)
+void VkFormatFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT:
@@ -4942,7 +4942,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits& v
     }
 }
 
-void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits2& value, const JsonOptions& options)
+void VkFormatFeatureFlagBits2ToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits2& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT:
@@ -5113,7 +5113,7 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateCombinerOpKHR& value, const JsonOptions& options)
+void VkFragmentShadingRateCombinerOpKHRToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateCombinerOpKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRAGMENT_SHADING_RATE_COMBINER_OP_KEEP_KHR:
@@ -5137,7 +5137,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateCombi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateNV& value, const JsonOptions& options)
+void VkFragmentShadingRateNVToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRAGMENT_SHADING_RATE_1_INVOCATION_PER_PIXEL_NV:
@@ -5182,7 +5182,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateNV& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateTypeNV& value, const JsonOptions& options)
+void VkFragmentShadingRateTypeNVToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRAGMENT_SHADING_RATE_TYPE_FRAGMENT_SIZE_NV:
@@ -5197,7 +5197,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFragmentShadingRateTypeN
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagBitsEXT& value, const JsonOptions& options)
+void VkFrameBoundaryFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT:
@@ -5209,7 +5209,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagBitsEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlagBits& value, const JsonOptions& options)
+void VkFramebufferCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT:
@@ -5221,7 +5221,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFrontFace& value, const JsonOptions& options)
+void VkFrontFaceToJson(nlohmann::ordered_json& jdata, const VkFrontFace& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FRONT_FACE_COUNTER_CLOCKWISE:
@@ -5236,7 +5236,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFrontFace& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkFullScreenExclusiveEXT& value, const JsonOptions& options)
+void VkFullScreenExclusiveEXTToJson(nlohmann::ordered_json& jdata, const VkFullScreenExclusiveEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT:
@@ -5257,7 +5257,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFullScreenExclusiveEXT& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryFlagBitsKHR& value, const JsonOptions& options)
+void VkGeometryFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkGeometryFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_GEOMETRY_OPAQUE_BIT_KHR:
@@ -5272,7 +5272,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryFlagBitsKHR& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBitsKHR& value, const JsonOptions& options)
+void VkGeometryInstanceFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR:
@@ -5299,7 +5299,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value, const JsonOptions& options)
+void VkGeometryTypeKHRToJson(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
@@ -5326,7 +5326,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagBitsEXT& value, const JsonOptions& options)
+void VkGraphicsPipelineLibraryFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT:
@@ -5347,7 +5347,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryF
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& value, const JsonOptions& options)
+void VkHostImageCopyFlagBitsToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_HOST_IMAGE_COPY_MEMCPY_BIT:
@@ -5359,7 +5359,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& value, const JsonOptions& options)
+void VkImageAspectFlagBitsToJson(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_ASPECT_COLOR_BIT:
@@ -5404,7 +5404,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRateFlagBitsEXT& value, const JsonOptions& options)
+void VkImageCompressionFixedRateFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRateFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_COMPRESSION_FIXED_RATE_NONE_EXT:
@@ -5488,7 +5488,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRat
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFlagBitsEXT& value, const JsonOptions& options)
+void VkImageCompressionFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_COMPRESSION_DEFAULT_EXT:
@@ -5509,7 +5509,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCreateFlagBits& value, const JsonOptions& options)
+void VkImageCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkImageCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_CREATE_SPARSE_BINDING_BIT:
@@ -5578,7 +5578,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCreateFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageLayout& value, const JsonOptions& options)
+void VkImageLayoutToJson(nlohmann::ordered_json& jdata, const VkImageLayout& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_LAYOUT_UNDEFINED:
@@ -5683,7 +5683,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageLayout& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageTiling& value, const JsonOptions& options)
+void VkImageTilingToJson(nlohmann::ordered_json& jdata, const VkImageTiling& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_TILING_OPTIMAL:
@@ -5701,7 +5701,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageTiling& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageType& value, const JsonOptions& options)
+void VkImageTypeToJson(nlohmann::ordered_json& jdata, const VkImageType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_TYPE_1D:
@@ -5719,7 +5719,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageType& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& value, const JsonOptions& options)
+void VkImageUsageFlagBitsToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_USAGE_TRANSFER_SRC_BIT:
@@ -5803,7 +5803,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewCreateFlagBits& value, const JsonOptions& options)
+void VkImageViewCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkImageViewCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT:
@@ -5821,7 +5821,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewCreateFlagBits&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewType& value, const JsonOptions& options)
+void VkImageViewTypeToJson(nlohmann::ordered_json& jdata, const VkImageViewType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_IMAGE_VIEW_TYPE_1D:
@@ -5851,7 +5851,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewType& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndexType& value, const JsonOptions& options)
+void VkIndexTypeToJson(nlohmann::ordered_json& jdata, const VkIndexType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDEX_TYPE_UINT16:
@@ -5872,7 +5872,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndexType& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsInputModeFlagBitsEXT& value, const JsonOptions& options)
+void VkIndirectCommandsInputModeFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsInputModeFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_COMMANDS_INPUT_MODE_VULKAN_INDEX_BUFFER_EXT:
@@ -5887,7 +5887,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsInputMod
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsEXT& value, const JsonOptions& options)
+void VkIndirectCommandsLayoutUsageFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_EXT:
@@ -5902,7 +5902,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUs
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsNV& value, const JsonOptions& options)
+void VkIndirectCommandsLayoutUsageFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_COMMANDS_LAYOUT_USAGE_EXPLICIT_PREPROCESS_BIT_NV:
@@ -5920,7 +5920,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUs
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeEXT& value, const JsonOptions& options)
+void VkIndirectCommandsTokenTypeEXTToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
@@ -5974,7 +5974,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTyp
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeNV& value, const JsonOptions& options)
+void VkIndirectCommandsTokenTypeNVToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SHADER_GROUP_NV:
@@ -6016,7 +6016,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsTokenTyp
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectExecutionSetInfoTypeEXT& value, const JsonOptions& options)
+void VkIndirectExecutionSetInfoTypeEXTToJson(nlohmann::ordered_json& jdata, const VkIndirectExecutionSetInfoTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
@@ -6031,7 +6031,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectExecutionSetInfo
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectStateFlagBitsNV& value, const JsonOptions& options)
+void VkIndirectStateFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkIndirectStateFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV:
@@ -6043,7 +6043,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectStateFlagBitsNV&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkInstanceCreateFlagBits& value, const JsonOptions& options)
+void VkInstanceCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkInstanceCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR:
@@ -6055,7 +6055,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInstanceCreateFlagBits& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& value, const JsonOptions& options)
+void VkInternalAllocationTypeToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_INTERNAL_ALLOCATION_TYPE_EXECUTABLE:
@@ -6067,7 +6067,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkLatencyMarkerNV& value, const JsonOptions& options)
+void VkLatencyMarkerNVToJson(nlohmann::ordered_json& jdata, const VkLatencyMarkerNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_LATENCY_MARKER_SIMULATION_START_NV:
@@ -6112,7 +6112,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkLatencyMarkerNV& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& value, const JsonOptions& options)
+void VkLayerSettingTypeEXTToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
@@ -6145,7 +6145,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkLayeredDriverUnderlyingApiMSFT& value, const JsonOptions& options)
+void VkLayeredDriverUnderlyingApiMSFTToJson(nlohmann::ordered_json& jdata, const VkLayeredDriverUnderlyingApiMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_LAYERED_DRIVER_UNDERLYING_API_NONE_MSFT:
@@ -6160,7 +6160,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkLayeredDriverUnderlyingA
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkLineRasterizationMode& value, const JsonOptions& options)
+void VkLineRasterizationModeToJson(nlohmann::ordered_json& jdata, const VkLineRasterizationMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_LINE_RASTERIZATION_MODE_DEFAULT:
@@ -6181,7 +6181,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkLineRasterizationMode& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkLogicOp& value, const JsonOptions& options)
+void VkLogicOpToJson(nlohmann::ordered_json& jdata, const VkLogicOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_LOGIC_OP_CLEAR:
@@ -6238,7 +6238,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkLogicOp& value, const Js
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlagBits& value, const JsonOptions& options)
+void VkMemoryAllocateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_ALLOCATE_DEVICE_MASK_BIT:
@@ -6259,7 +6259,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlagBits& 
     }
 }
 
-void FieldToJson(VkMemoryDecompressionMethodFlagBitsEXT_t, nlohmann::ordered_json& jdata, const VkMemoryDecompressionMethodFlagBitsEXT& value, const JsonOptions& options)
+void VkMemoryDecompressionMethodFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkMemoryDecompressionMethodFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT:
@@ -6271,7 +6271,7 @@ void FieldToJson(VkMemoryDecompressionMethodFlagBitsEXT_t, nlohmann::ordered_jso
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryHeapFlagBits& value, const JsonOptions& options)
+void VkMemoryHeapFlagBitsToJson(nlohmann::ordered_json& jdata, const VkMemoryHeapFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_HEAP_DEVICE_LOCAL_BIT:
@@ -6289,7 +6289,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryHeapFlagBits& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryMapFlagBits& value, const JsonOptions& options)
+void VkMemoryMapFlagBitsToJson(nlohmann::ordered_json& jdata, const VkMemoryMapFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_MAP_PLACED_BIT_EXT:
@@ -6301,7 +6301,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryMapFlagBits& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryOverallocationBehaviorAMD& value, const JsonOptions& options)
+void VkMemoryOverallocationBehaviorAMDToJson(nlohmann::ordered_json& jdata, const VkMemoryOverallocationBehaviorAMD& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_OVERALLOCATION_BEHAVIOR_DEFAULT_AMD:
@@ -6319,7 +6319,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryOverallocationBeha
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryPropertyFlagBits& value, const JsonOptions& options)
+void VkMemoryPropertyFlagBitsToJson(nlohmann::ordered_json& jdata, const VkMemoryPropertyFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT:
@@ -6355,7 +6355,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryPropertyFlagBits& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryUnmapFlagBits& value, const JsonOptions& options)
+void VkMemoryUnmapFlagBitsToJson(nlohmann::ordered_json& jdata, const VkMemoryUnmapFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MEMORY_UNMAP_RESERVE_BIT_EXT:
@@ -6367,7 +6367,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryUnmapFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapCreateFlagBitsEXT& value, const JsonOptions& options)
+void VkMicromapCreateFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkMicromapCreateFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MICROMAP_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_EXT:
@@ -6379,7 +6379,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapCreateFlagBitsEX
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapTypeEXT& value, const JsonOptions& options)
+void VkMicromapTypeEXTToJson(nlohmann::ordered_json& jdata, const VkMicromapTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_MICROMAP_TYPE_OPACITY_MICROMAP_EXT:
@@ -6394,7 +6394,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapTypeEXT& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const JsonOptions& options)
+void VkObjectTypeToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OBJECT_TYPE_UNKNOWN:
@@ -6577,7 +6577,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapFormatEXT& value, const JsonOptions& options)
+void VkOpacityMicromapFormatEXTToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapFormatEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPACITY_MICROMAP_FORMAT_2_STATE_EXT:
@@ -6592,7 +6592,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapFormatEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapSpecialIndexEXT& value, const JsonOptions& options)
+void VkOpacityMicromapSpecialIndexEXTToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapSpecialIndexEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPACITY_MICROMAP_SPECIAL_INDEX_FULLY_TRANSPARENT_EXT:
@@ -6616,7 +6616,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpacityMicromapSpecialIn
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowExecuteFlagBitsNV& value, const JsonOptions& options)
+void VkOpticalFlowExecuteFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowExecuteFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_EXECUTE_DISABLE_TEMPORAL_HINTS_BIT_NV:
@@ -6628,7 +6628,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowExecuteFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowGridSizeFlagBitsNV& value, const JsonOptions& options)
+void VkOpticalFlowGridSizeFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowGridSizeFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_GRID_SIZE_UNKNOWN_NV:
@@ -6652,7 +6652,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowGridSizeFlagB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowPerformanceLevelNV& value, const JsonOptions& options)
+void VkOpticalFlowPerformanceLevelNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowPerformanceLevelNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_PERFORMANCE_LEVEL_UNKNOWN_NV:
@@ -6673,7 +6673,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowPerformanceLe
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionBindingPointNV& value, const JsonOptions& options)
+void VkOpticalFlowSessionBindingPointNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionBindingPointNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_SESSION_BINDING_POINT_UNKNOWN_NV:
@@ -6709,7 +6709,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionBindin
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionCreateFlagBitsNV& value, const JsonOptions& options)
+void VkOpticalFlowSessionCreateFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionCreateFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_SESSION_CREATE_ENABLE_HINT_BIT_NV:
@@ -6733,7 +6733,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionCreate
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagBitsNV& value, const JsonOptions& options)
+void VkOpticalFlowUsageFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OPTICAL_FLOW_USAGE_UNKNOWN_NV:
@@ -6760,7 +6760,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkOutOfBandQueueTypeNV& value, const JsonOptions& options)
+void VkOutOfBandQueueTypeNVToJson(nlohmann::ordered_json& jdata, const VkOutOfBandQueueTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV:
@@ -6775,7 +6775,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOutOfBandQueueTypeNV& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationStructureInstanceFlagBitsNV& value, const JsonOptions& options)
+void VkPartitionedAccelerationStructureInstanceFlagBitsNVToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationStructureInstanceFlagBitsNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCE_FLAG_TRIANGLE_FACING_CULL_DISABLE_BIT_NV:
@@ -6799,7 +6799,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationS
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationStructureOpTypeNV& value, const JsonOptions& options)
+void VkPartitionedAccelerationStructureOpTypeNVToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationStructureOpTypeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PARTITIONED_ACCELERATION_STRUCTURE_OP_TYPE_WRITE_INSTANCE_NV:
@@ -6817,7 +6817,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationS
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFlagBitsEXT& value, const JsonOptions& options)
+void VkPastPresentationTimingFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT:
@@ -6832,7 +6832,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlagBits& value, const JsonOptions& options)
+void VkPeerMemoryFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PEER_MEMORY_FEATURE_COPY_SRC_BIT:
@@ -6853,7 +6853,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceConfigurationTypeINTEL& value, const JsonOptions& options)
+void VkPerformanceConfigurationTypeINTELToJson(nlohmann::ordered_json& jdata, const VkPerformanceConfigurationTypeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_CONFIGURATION_TYPE_COMMAND_QUEUE_METRICS_DISCOVERY_ACTIVATED_INTEL:
@@ -6865,7 +6865,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceConfiguration
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagBitsKHR& value, const JsonOptions& options)
+void VkPerformanceCounterDescriptionFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_BIT_KHR:
@@ -6880,7 +6880,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescri
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterScopeKHR& value, const JsonOptions& options)
+void VkPerformanceCounterScopeKHRToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterScopeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_COUNTER_SCOPE_COMMAND_BUFFER_KHR:
@@ -6898,7 +6898,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterScopeK
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterStorageKHR& value, const JsonOptions& options)
+void VkPerformanceCounterStorageKHRToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterStorageKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_COUNTER_STORAGE_INT32_KHR:
@@ -6925,7 +6925,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterStorag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterUnitKHR& value, const JsonOptions& options)
+void VkPerformanceCounterUnitKHRToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterUnitKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_COUNTER_UNIT_GENERIC_KHR:
@@ -6967,7 +6967,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterUnitKH
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceOverrideTypeINTEL& value, const JsonOptions& options)
+void VkPerformanceOverrideTypeINTELToJson(nlohmann::ordered_json& jdata, const VkPerformanceOverrideTypeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_OVERRIDE_TYPE_NULL_HARDWARE_INTEL:
@@ -6982,7 +6982,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceOverrideTypeI
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceParameterTypeINTEL& value, const JsonOptions& options)
+void VkPerformanceParameterTypeINTELToJson(nlohmann::ordered_json& jdata, const VkPerformanceParameterTypeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_PARAMETER_TYPE_HW_COUNTERS_SUPPORTED_INTEL:
@@ -6997,7 +6997,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceParameterType
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceValueTypeINTEL& value, const JsonOptions& options)
+void VkPerformanceValueTypeINTELToJson(nlohmann::ordered_json& jdata, const VkPerformanceValueTypeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PERFORMANCE_VALUE_TYPE_UINT32_INTEL:
@@ -7021,7 +7021,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceValueTypeINTE
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphOperationTypeARM& value, const JsonOptions& options)
+void VkPhysicalDeviceDataGraphOperationTypeARMToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphOperationTypeARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PHYSICAL_DEVICE_DATA_GRAPH_OPERATION_TYPE_SPIRV_EXTENDED_INSTRUCTION_SET_ARM:
@@ -7039,7 +7039,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphO
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphProcessingEngineTypeARM& value, const JsonOptions& options)
+void VkPhysicalDeviceDataGraphProcessingEngineTypeARMToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphProcessingEngineTypeARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_DEFAULT_ARM:
@@ -7057,7 +7057,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceDataGraphP
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceLayeredApiKHR& value, const JsonOptions& options)
+void VkPhysicalDeviceLayeredApiKHRToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceLayeredApiKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PHYSICAL_DEVICE_LAYERED_API_VULKAN_KHR:
@@ -7081,7 +7081,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceLayeredApi
     }
 }
 
-void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, const JsonOptions& options)
+void VkPhysicalDeviceSchedulingControlsFlagBitsARMToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM:
@@ -7093,7 +7093,7 @@ void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagBitsARM_t, nlohmann::orde
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceType& value, const JsonOptions& options)
+void VkPhysicalDeviceTypeToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PHYSICAL_DEVICE_TYPE_OTHER:
@@ -7117,7 +7117,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceType& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineBindPoint& value, const JsonOptions& options)
+void VkPipelineBindPointToJson(nlohmann::ordered_json& jdata, const VkPipelineBindPoint& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_BIND_POINT_GRAPHICS:
@@ -7144,7 +7144,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineBindPoint& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineCacheCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT:
@@ -7159,7 +7159,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheCreateFlagB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheHeaderVersion& value, const JsonOptions& options)
+void VkPipelineCacheHeaderVersionToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheHeaderVersion& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_CACHE_HEADER_VERSION_ONE:
@@ -7174,7 +7174,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheHeaderVersi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineColorBlendStateCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT:
@@ -7186,12 +7186,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateC
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCompilerControlFlagBitsAMD& value, const JsonOptions& options)
+void VkPipelineCompilerControlFlagBitsAMDToJson(nlohmann::ordered_json& jdata, const VkPipelineCompilerControlFlagBitsAMD& value, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(value);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT:
@@ -7293,7 +7293,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& 
     }
 }
 
-void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2& value, const JsonOptions& options)
+void VkPipelineCreateFlagBits2ToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT:
@@ -7419,7 +7419,7 @@ void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreationFeedbackFlagBits& value, const JsonOptions& options)
+void VkPipelineCreationFeedbackFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineCreationFeedbackFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT:
@@ -7437,7 +7437,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreationFeedback
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDepthStencilStateCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineDepthStencilStateCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineDepthStencilStateCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_EXT:
@@ -7452,7 +7452,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDepthStencilStat
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineExecutableStatisticFormatKHR& value, const JsonOptions& options)
+void VkPipelineExecutableStatisticFormatKHRToJson(nlohmann::ordered_json& jdata, const VkPipelineExecutableStatisticFormatKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_EXECUTABLE_STATISTIC_FORMAT_BOOL32_KHR:
@@ -7473,7 +7473,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineExecutableStatis
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineLayoutCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineLayoutCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineLayoutCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT:
@@ -7485,7 +7485,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineLayoutCreateFlag
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessBufferBehavior& value, const JsonOptions& options)
+void VkPipelineRobustnessBufferBehaviorToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessBufferBehavior& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_ROBUSTNESS_BUFFER_BEHAVIOR_DEVICE_DEFAULT:
@@ -7506,7 +7506,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessBuffer
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessImageBehavior& value, const JsonOptions& options)
+void VkPipelineRobustnessImageBehaviorToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessImageBehavior& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_ROBUSTNESS_IMAGE_BEHAVIOR_DEVICE_DEFAULT:
@@ -7527,7 +7527,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRobustnessImageB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineShaderStageCreateFlagBits& value, const JsonOptions& options)
+void VkPipelineShaderStageCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineShaderStageCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT:
@@ -7542,7 +7542,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineShaderStageCreat
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits& value, const JsonOptions& options)
+void VkPipelineStageFlagBitsToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT:
@@ -7632,7 +7632,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits& v
     }
 }
 
-void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits2& value, const JsonOptions& options)
+void VkPipelineStageFlagBits2ToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits2& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PIPELINE_STAGE_2_NONE:
@@ -7779,7 +7779,7 @@ void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPointClippingBehavior& value, const JsonOptions& options)
+void VkPointClippingBehaviorToJson(nlohmann::ordered_json& jdata, const VkPointClippingBehavior& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES:
@@ -7794,7 +7794,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPointClippingBehavior& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPolygonMode& value, const JsonOptions& options)
+void VkPolygonModeToJson(nlohmann::ordered_json& jdata, const VkPolygonMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_POLYGON_MODE_FILL:
@@ -7815,7 +7815,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPolygonMode& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentGravityFlagBitsKHR& value, const JsonOptions& options)
+void VkPresentGravityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkPresentGravityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRESENT_GRAVITY_MIN_BIT_KHR:
@@ -7833,7 +7833,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentGravityFlagBitsKH
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentModeKHR& value, const JsonOptions& options)
+void VkPresentModeKHRToJson(nlohmann::ordered_json& jdata, const VkPresentModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRESENT_MODE_IMMEDIATE_KHR:
@@ -7863,7 +7863,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentModeKHR& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentScalingFlagBitsKHR& value, const JsonOptions& options)
+void VkPresentScalingFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkPresentScalingFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR:
@@ -7881,7 +7881,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentScalingFlagBitsKH
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentStageFlagBitsEXT& value, const JsonOptions& options)
+void VkPresentStageFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkPresentStageFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT:
@@ -7902,7 +7902,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentStageFlagBitsEXT&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagBitsEXT& value, const JsonOptions& options)
+void VkPresentTimingInfoFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT:
@@ -7917,7 +7917,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value, const JsonOptions& options)
+void VkPrimitiveTopologyToJson(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PRIMITIVE_TOPOLOGY_POINT_LIST:
@@ -7959,7 +7959,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkProvokingVertexModeEXT& value, const JsonOptions& options)
+void VkProvokingVertexModeEXTToJson(nlohmann::ordered_json& jdata, const VkProvokingVertexModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_PROVOKING_VERTEX_MODE_FIRST_VERTEX_EXT:
@@ -7974,7 +7974,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkProvokingVertexModeEXT& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryControlFlagBits& value, const JsonOptions& options)
+void VkQueryControlFlagBitsToJson(nlohmann::ordered_json& jdata, const VkQueryControlFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_CONTROL_PRECISE_BIT:
@@ -7986,7 +7986,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryControlFlagBits& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFlagBits& value, const JsonOptions& options)
+void VkQueryPipelineStatisticFlagBitsToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT:
@@ -8037,7 +8037,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlagBits& value, const JsonOptions& options)
+void VkQueryPoolCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_POOL_CREATE_RESET_BIT_KHR:
@@ -8049,7 +8049,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlagBits&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolSamplingModeINTEL& value, const JsonOptions& options)
+void VkQueryPoolSamplingModeINTELToJson(nlohmann::ordered_json& jdata, const VkQueryPoolSamplingModeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL:
@@ -8061,7 +8061,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolSamplingModeINT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultFlagBits& value, const JsonOptions& options)
+void VkQueryResultFlagBitsToJson(nlohmann::ordered_json& jdata, const VkQueryResultFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_RESULT_64_BIT:
@@ -8085,7 +8085,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultStatusKHR& value, const JsonOptions& options)
+void VkQueryResultStatusKHRToJson(nlohmann::ordered_json& jdata, const VkQueryResultStatusKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_RESULT_STATUS_ERROR_KHR:
@@ -8106,7 +8106,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultStatusKHR& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryType& value, const JsonOptions& options)
+void VkQueryTypeToJson(nlohmann::ordered_json& jdata, const VkQueryType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUERY_TYPE_OCCLUSION:
@@ -8166,7 +8166,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryType& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueFlagBits& value, const JsonOptions& options)
+void VkQueueFlagBitsToJson(nlohmann::ordered_json& jdata, const VkQueueFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUEUE_GRAPHICS_BIT:
@@ -8202,7 +8202,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueFlagBits& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueGlobalPriority& value, const JsonOptions& options)
+void VkQueueGlobalPriorityToJson(nlohmann::ordered_json& jdata, const VkQueueGlobalPriority& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_QUEUE_GLOBAL_PRIORITY_LOW:
@@ -8223,7 +8223,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueGlobalPriority& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRasterizationOrderAMD& value, const JsonOptions& options)
+void VkRasterizationOrderAMDToJson(nlohmann::ordered_json& jdata, const VkRasterizationOrderAMD& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RASTERIZATION_ORDER_STRICT_AMD:
@@ -8238,7 +8238,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRasterizationOrderAMD& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingInvocationReorderModeEXT& value, const JsonOptions& options)
+void VkRayTracingInvocationReorderModeEXTToJson(nlohmann::ordered_json& jdata, const VkRayTracingInvocationReorderModeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RAY_TRACING_INVOCATION_REORDER_MODE_NONE_EXT:
@@ -8253,7 +8253,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingInvocationReor
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssIndexingModeNV& value, const JsonOptions& options)
+void VkRayTracingLssIndexingModeNVToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssIndexingModeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RAY_TRACING_LSS_INDEXING_MODE_LIST_NV:
@@ -8268,7 +8268,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssIndexingMod
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssPrimitiveEndCapsModeNV& value, const JsonOptions& options)
+void VkRayTracingLssPrimitiveEndCapsModeNVToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssPrimitiveEndCapsModeNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RAY_TRACING_LSS_PRIMITIVE_END_CAPS_MODE_NONE_NV:
@@ -8283,7 +8283,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingLssPrimitiveEn
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingShaderGroupTypeKHR& value, const JsonOptions& options)
+void VkRayTracingShaderGroupTypeKHRToJson(nlohmann::ordered_json& jdata, const VkRayTracingShaderGroupTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR:
@@ -8301,7 +8301,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRayTracingShaderGroupTyp
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderPassCreateFlagBits& value, const JsonOptions& options)
+void VkRenderPassCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkRenderPassCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM:
@@ -8316,7 +8316,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderPassCreateFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingAttachmentFlagBitsKHR& value, const JsonOptions& options)
+void VkRenderingAttachmentFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkRenderingAttachmentFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RENDERING_ATTACHMENT_INPUT_ATTACHMENT_FEEDBACK_BIT_KHR:
@@ -8334,7 +8334,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingAttachmentFlagB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingFlagBits& value, const JsonOptions& options)
+void VkRenderingFlagBitsToJson(nlohmann::ordered_json& jdata, const VkRenderingFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT:
@@ -8370,7 +8370,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingFlagBits& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveImageFlagBitsKHR& value, const JsonOptions& options)
+void VkResolveImageFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkResolveImageFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RESOLVE_IMAGE_SKIP_TRANSFER_FUNCTION_BIT_KHR:
@@ -8385,7 +8385,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveImageFlagBitsKHR&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveModeFlagBits& value, const JsonOptions& options)
+void VkResolveModeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkResolveModeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_RESOLVE_MODE_NONE:
@@ -8415,7 +8415,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveModeFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkResult& value, const JsonOptions& options)
+void VkResultToJson(nlohmann::ordered_json& jdata, const VkResult& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUCCESS:
@@ -8574,7 +8574,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResult& value, const Jso
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSampleCountFlagBits& value, const JsonOptions& options)
+void VkSampleCountFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSampleCountFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLE_COUNT_1_BIT:
@@ -8604,7 +8604,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSampleCountFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerAddressMode& value, const JsonOptions& options)
+void VkSamplerAddressModeToJson(nlohmann::ordered_json& jdata, const VkSamplerAddressMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_ADDRESS_MODE_REPEAT:
@@ -8628,7 +8628,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerAddressMode& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerCreateFlagBits& value, const JsonOptions& options)
+void VkSamplerCreateFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSamplerCreateFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT:
@@ -8652,7 +8652,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerCreateFlagBits& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerMipmapMode& value, const JsonOptions& options)
+void VkSamplerMipmapModeToJson(nlohmann::ordered_json& jdata, const VkSamplerMipmapMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_MIPMAP_MODE_NEAREST:
@@ -8667,7 +8667,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerMipmapMode& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerReductionMode& value, const JsonOptions& options)
+void VkSamplerReductionModeToJson(nlohmann::ordered_json& jdata, const VkSamplerReductionMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE:
@@ -8688,7 +8688,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerReductionMode& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrModelConversion& value, const JsonOptions& options)
+void VkSamplerYcbcrModelConversionToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrModelConversion& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY:
@@ -8712,7 +8712,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrModelConvers
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrRange& value, const JsonOptions& options)
+void VkSamplerYcbcrRangeToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrRange& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SAMPLER_YCBCR_RANGE_ITU_FULL:
@@ -8727,7 +8727,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerYcbcrRange& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkScopeKHR& value, const JsonOptions& options)
+void VkScopeKHRToJson(nlohmann::ordered_json& jdata, const VkScopeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SCOPE_DEVICE_KHR:
@@ -8748,7 +8748,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkScopeKHR& value, const J
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreImportFlagBits& value, const JsonOptions& options)
+void VkSemaphoreImportFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSemaphoreImportFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SEMAPHORE_IMPORT_TEMPORARY_BIT:
@@ -8760,7 +8760,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreImportFlagBits&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreType& value, const JsonOptions& options)
+void VkSemaphoreTypeToJson(nlohmann::ordered_json& jdata, const VkSemaphoreType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SEMAPHORE_TYPE_BINARY:
@@ -8775,7 +8775,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreType& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreWaitFlagBits& value, const JsonOptions& options)
+void VkSemaphoreWaitFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSemaphoreWaitFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SEMAPHORE_WAIT_ANY_BIT:
@@ -8787,7 +8787,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreWaitFlagBits& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCodeTypeEXT& value, const JsonOptions& options)
+void VkShaderCodeTypeEXTToJson(nlohmann::ordered_json& jdata, const VkShaderCodeTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_CODE_TYPE_BINARY_EXT:
@@ -8802,12 +8802,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCodeTypeEXT& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCorePropertiesFlagBitsAMD& value, const JsonOptions& options)
+void VkShaderCorePropertiesFlagBitsAMDToJson(nlohmann::ordered_json& jdata, const VkShaderCorePropertiesFlagBitsAMD& value, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(value);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagBitsEXT& value, const JsonOptions& options)
+void VkShaderCreateFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_CREATE_LINK_STAGE_BIT_EXT:
@@ -8843,7 +8843,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagBitsEXT&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderFloatControlsIndependence& value, const JsonOptions& options)
+void VkShaderFloatControlsIndependenceToJson(nlohmann::ordered_json& jdata, const VkShaderFloatControlsIndependence& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_FLOAT_CONTROLS_INDEPENDENCE_32_BIT_ONLY:
@@ -8861,7 +8861,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderFloatControlsIndep
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderGroupShaderKHR& value, const JsonOptions& options)
+void VkShaderGroupShaderKHRToJson(nlohmann::ordered_json& jdata, const VkShaderGroupShaderKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_GROUP_SHADER_GENERAL_KHR:
@@ -8882,7 +8882,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderGroupShaderKHR& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderInfoTypeAMD& value, const JsonOptions& options)
+void VkShaderInfoTypeAMDToJson(nlohmann::ordered_json& jdata, const VkShaderInfoTypeAMD& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_INFO_TYPE_STATISTICS_AMD:
@@ -8900,7 +8900,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderInfoTypeAMD& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderStageFlagBits& value, const JsonOptions& options)
+void VkShaderStageFlagBitsToJson(nlohmann::ordered_json& jdata, const VkShaderStageFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADER_STAGE_VERTEX_BIT:
@@ -8963,7 +8963,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderStageFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkShadingRatePaletteEntryNV& value, const JsonOptions& options)
+void VkShadingRatePaletteEntryNVToJson(nlohmann::ordered_json& jdata, const VkShadingRatePaletteEntryNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHADING_RATE_PALETTE_ENTRY_NO_INVOCATIONS_NV:
@@ -9008,7 +9008,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShadingRatePaletteEntryN
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSharingMode& value, const JsonOptions& options)
+void VkSharingModeToJson(nlohmann::ordered_json& jdata, const VkSharingMode& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SHARING_MODE_EXCLUSIVE:
@@ -9023,7 +9023,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSharingMode& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseImageFormatFlagBits& value, const JsonOptions& options)
+void VkSparseImageFormatFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSparseImageFormatFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SPARSE_IMAGE_FORMAT_SINGLE_MIPTAIL_BIT:
@@ -9041,7 +9041,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseImageFormatFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlagBits& value, const JsonOptions& options)
+void VkSparseMemoryBindFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SPARSE_MEMORY_BIND_METADATA_BIT:
@@ -9053,7 +9053,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkStencilFaceFlagBits& value, const JsonOptions& options)
+void VkStencilFaceFlagBitsToJson(nlohmann::ordered_json& jdata, const VkStencilFaceFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_STENCIL_FACE_FRONT_BIT:
@@ -9071,7 +9071,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStencilFaceFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkStencilOp& value, const JsonOptions& options)
+void VkStencilOpToJson(nlohmann::ordered_json& jdata, const VkStencilOp& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_STENCIL_OP_KEEP:
@@ -9104,7 +9104,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStencilOp& value, const 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, const JsonOptions& options)
+void VkStructureTypeToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_STRUCTURE_TYPE_APPLICATION_INFO:
@@ -12536,7 +12536,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSubgroupFeatureFlagBits& value, const JsonOptions& options)
+void VkSubgroupFeatureFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSubgroupFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUBGROUP_FEATURE_BASIC_BIT:
@@ -12578,7 +12578,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubgroupFeatureFlagBits&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSubmitFlagBits& value, const JsonOptions& options)
+void VkSubmitFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSubmitFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUBMIT_PROTECTED_BIT:
@@ -12590,7 +12590,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubmitFlagBits& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassContents& value, const JsonOptions& options)
+void VkSubpassContentsToJson(nlohmann::ordered_json& jdata, const VkSubpassContents& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUBPASS_CONTENTS_INLINE:
@@ -12608,7 +12608,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassContents& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassDescriptionFlagBits& value, const JsonOptions& options)
+void VkSubpassDescriptionFlagBitsToJson(nlohmann::ordered_json& jdata, const VkSubpassDescriptionFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUBPASS_DESCRIPTION_PER_VIEW_ATTRIBUTES_BIT_NVX:
@@ -12644,7 +12644,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassDescriptionFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassMergeStatusEXT& value, const JsonOptions& options)
+void VkSubpassMergeStatusEXTToJson(nlohmann::ordered_json& jdata, const VkSubpassMergeStatusEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SUBPASS_MERGE_STATUS_MERGED_EXT:
@@ -12695,7 +12695,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassMergeStatusEXT& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceCounterFlagBitsEXT& value, const JsonOptions& options)
+void VkSurfaceCounterFlagBitsEXTToJson(nlohmann::ordered_json& jdata, const VkSurfaceCounterFlagBitsEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SURFACE_COUNTER_VBLANK_BIT_EXT:
@@ -12707,7 +12707,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceCounterFlagBitsEX
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceTransformFlagBitsKHR& value, const JsonOptions& options)
+void VkSurfaceTransformFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkSurfaceTransformFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
@@ -12743,7 +12743,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceTransformFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsKHR& value, const JsonOptions& options)
+void VkSwapchainCreateFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR:
@@ -12773,7 +12773,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsK
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkSystemAllocationScope& value, const JsonOptions& options)
+void VkSystemAllocationScopeToJson(nlohmann::ordered_json& jdata, const VkSystemAllocationScope& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_SYSTEM_ALLOCATION_SCOPE_COMMAND:
@@ -12797,7 +12797,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSystemAllocationScope& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkTessellationDomainOrigin& value, const JsonOptions& options)
+void VkTessellationDomainOriginToJson(nlohmann::ordered_json& jdata, const VkTessellationDomainOrigin& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT:
@@ -12812,7 +12812,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkTessellationDomainOrigin
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFlagBitsQCOM& value, const JsonOptions& options)
+void VkTileShadingRenderPassFlagBitsQCOMToJson(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFlagBitsQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_TILE_SHADING_RENDER_PASS_ENABLE_BIT_QCOM:
@@ -12827,7 +12827,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, const JsonOptions& options)
+void VkTimeDomainKHRToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_TIME_DOMAIN_DEVICE_KHR:
@@ -12854,7 +12854,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkToolPurposeFlagBits& value, const JsonOptions& options)
+void VkToolPurposeFlagBitsToJson(nlohmann::ordered_json& jdata, const VkToolPurposeFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_TOOL_PURPOSE_VALIDATION_BIT:
@@ -12884,7 +12884,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkToolPurposeFlagBits& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCacheHeaderVersionEXT& value, const JsonOptions& options)
+void VkValidationCacheHeaderVersionEXTToJson(nlohmann::ordered_json& jdata, const VkValidationCacheHeaderVersionEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT:
@@ -12896,7 +12896,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCacheHeaderVer
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCheckEXT& value, const JsonOptions& options)
+void VkValidationCheckEXTToJson(nlohmann::ordered_json& jdata, const VkValidationCheckEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VALIDATION_CHECK_ALL_EXT:
@@ -12911,7 +12911,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCheckEXT& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureDisableEXT& value, const JsonOptions& options)
+void VkValidationFeatureDisableEXTToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureDisableEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VALIDATION_FEATURE_DISABLE_ALL_EXT:
@@ -12944,7 +12944,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureDisable
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureEnableEXT& value, const JsonOptions& options)
+void VkValidationFeatureEnableEXTToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureEnableEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT:
@@ -12968,7 +12968,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationFeatureEnableE
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVendorId& value, const JsonOptions& options)
+void VkVendorIdToJson(nlohmann::ordered_json& jdata, const VkVendorId& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VENDOR_ID_KHRONOS:
@@ -13001,7 +13001,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVendorId& value, const J
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVertexInputRate& value, const JsonOptions& options)
+void VkVertexInputRateToJson(nlohmann::ordered_json& jdata, const VkVertexInputRate& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VERTEX_INPUT_RATE_VERTEX:
@@ -13016,7 +13016,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVertexInputRate& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCapabilityFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoCapabilityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoCapabilityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR:
@@ -13031,7 +13031,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCapabilityFlagBitsK
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoChromaSubsamplingFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoChromaSubsamplingFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoChromaSubsamplingFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_KHR:
@@ -13055,7 +13055,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoChromaSubsamplingFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodecOperationFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoCodecOperationFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoCodecOperationFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_CODEC_OPERATION_NONE_KHR:
@@ -13088,7 +13088,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodecOperationFlagB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodingControlFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoCodingControlFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoCodingControlFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR:
@@ -13106,7 +13106,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodingControlFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoComponentBitDepthFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoComponentBitDepthFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoComponentBitDepthFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR:
@@ -13127,7 +13127,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoComponentBitDepthFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeCapabilityFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoDecodeCapabilityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeCapabilityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR:
@@ -13142,7 +13142,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeCapabilityFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeH264PictureLayoutFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoDecodeH264PictureLayoutFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeH264PictureLayoutFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_PROGRESSIVE_KHR:
@@ -13160,7 +13160,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeH264PictureLa
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoDecodeUsageFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_DECODE_USAGE_DEFAULT_KHR:
@@ -13181,7 +13181,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1CapabilityFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1CapabilityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1CapabilityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_CAPABILITY_PER_RATE_CONTROL_GROUP_MIN_MAX_Q_INDEX_BIT_KHR:
@@ -13208,7 +13208,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1Capability
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1PredictionModeKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1PredictionModeKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1PredictionModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_PREDICTION_MODE_INTRA_ONLY_KHR:
@@ -13229,7 +13229,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1Prediction
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateControlFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1RateControlFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateControlFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_REGULAR_GOP_BIT_KHR:
@@ -13250,7 +13250,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateContro
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateControlGroupKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1RateControlGroupKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateControlGroupKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_RATE_CONTROL_GROUP_INTRA_KHR:
@@ -13268,7 +13268,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateContro
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1StdFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1StdFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1StdFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_STD_UNIFORM_TILE_SPACING_FLAG_SET_BIT_KHR:
@@ -13289,7 +13289,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1StdFlagBit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeAV1SuperblockSizeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1SuperblockSizeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_AV1_SUPERBLOCK_SIZE_64_BIT_KHR:
@@ -13304,7 +13304,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1Superblock
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeCapabilityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_CAPABILITY_PRECEDING_EXTERNALLY_ENCODED_BYTES_BIT_KHR:
@@ -13325,7 +13325,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFla
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeContentFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_CONTENT_DEFAULT_KHR:
@@ -13346,7 +13346,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeFeedbackFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_FEEDBACK_BITSTREAM_BUFFER_OFFSET_BIT_KHR:
@@ -13364,7 +13364,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagB
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_INTRA_REFRESH_BIT_KHR:
@@ -13382,7 +13382,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFlagBitsKHR& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264CapabilityFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeH264CapabilityFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264CapabilityFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_H264_CAPABILITY_HRD_COMPLIANCE_BIT_KHR:
@@ -13424,7 +13424,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264Capabilit
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateControlFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeH264RateControlFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateControlFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_H264_RATE_CONTROL_ATTEMPT_HRD_COMPLIANCE_BIT_KHR:
@@ -13448,7 +13448,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateContr
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeH264StdFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_H264_STD_SEPARATE_COLOR_PLANE_FLAG_SET_BIT_KHR:
@@ -13517,7 +13517,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CtbSizeFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeH265CtbSizeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CtbSizeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_H265_CTB_SIZE_16_BIT_KHR:
@@ -13535,7 +13535,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CtbSizeFl
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeIntraRefreshModeFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeIntraRefreshModeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeIntraRefreshModeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_INTRA_REFRESH_MODE_NONE_KHR:
@@ -13559,7 +13559,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeIntraRefreshM
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlModeFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeRateControlModeFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlModeFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_RATE_CONTROL_MODE_DEFAULT_KHR:
@@ -13580,7 +13580,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlMo
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbChromaOffsetFlagBitsVALVE& value, const JsonOptions& options)
+void VkVideoEncodeRgbChromaOffsetFlagBitsVALVEToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbChromaOffsetFlagBitsVALVE& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE:
@@ -13595,7 +13595,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbChromaOffs
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbModelConversionFlagBitsVALVE& value, const JsonOptions& options)
+void VkVideoEncodeRgbModelConversionFlagBitsVALVEToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbModelConversionFlagBitsVALVE& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE:
@@ -13619,7 +13619,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbModelConve
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbRangeCompressionFlagBitsVALVE& value, const JsonOptions& options)
+void VkVideoEncodeRgbRangeCompressionFlagBitsVALVEToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbRangeCompressionFlagBitsVALVE& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE:
@@ -13634,7 +13634,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbRangeCompr
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeTuningModeKHR& value, const JsonOptions& options)
+void VkVideoEncodeTuningModeKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeTuningModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_TUNING_MODE_DEFAULT_KHR:
@@ -13658,7 +13658,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeTuningModeKHR
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeUsageFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoEncodeUsageFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeUsageFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_ENCODE_USAGE_DEFAULT_KHR:
@@ -13682,7 +13682,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeUsageFlagBits
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionCreateFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoSessionCreateFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoSessionCreateFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR:
@@ -13709,7 +13709,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionCreateFlagBi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionParametersCreateFlagBitsKHR& value, const JsonOptions& options)
+void VkVideoSessionParametersCreateFlagBitsKHRToJson(nlohmann::ordered_json& jdata, const VkVideoSessionParametersCreateFlagBitsKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIDEO_SESSION_PARAMETERS_CREATE_QUANTIZATION_MAP_COMPATIBLE_BIT_KHR:
@@ -13721,7 +13721,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionParametersCr
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const VkViewportCoordinateSwizzleNV& value, const JsonOptions& options)
+void VkViewportCoordinateSwizzleNVToJson(nlohmann::ordered_json& jdata, const VkViewportCoordinateSwizzleNV& value, const JsonOptions& options)
 {
     switch (value) {
         case VK_VIEWPORT_COORDINATE_SWIZZLE_POSITIVE_X_NV:
@@ -13754,7 +13754,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkViewportCoordinateSwizzl
     }
 }
 
-void FieldToJson(VkAccelerationStructureCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAccelerationStructureCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -13776,17 +13776,17 @@ void FieldToJson(VkAccelerationStructureCreateFlagsKHR_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkAccelerationStructureMotionInfoFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAccelerationStructureMotionInfoFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkAccelerationStructureMotionInstanceFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAccelerationStructureMotionInstanceFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkAccessFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAccessFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -13860,7 +13860,7 @@ void FieldToJson(VkAccessFlags_t, nlohmann::ordered_json& jdata, const VkFlags f
     });
 }
 
-void FieldToJson(VkAccessFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkAccessFlags2ToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -13974,7 +13974,7 @@ void FieldToJson(VkAccessFlags2_t, nlohmann::ordered_json& jdata, const VkFlags6
     });
 }
 
-void FieldToJson(VkAccessFlags3KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkAccessFlags3KHRToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -13992,12 +13992,12 @@ void FieldToJson(VkAccessFlags3KHR_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkAcquireProfilingLockFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAcquireProfilingLockFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkAddressCopyFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAddressCopyFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14019,12 +14019,12 @@ void FieldToJson(VkAddressCopyFlagsKHR_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkAndroidSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAndroidSurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkAttachmentDescriptionFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkAttachmentDescriptionFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14046,7 +14046,7 @@ void FieldToJson(VkAttachmentDescriptionFlags_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkBufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkBufferCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14076,7 +14076,7 @@ void FieldToJson(VkBufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkBufferUsageFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14146,7 +14146,7 @@ void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkBufferUsageFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkBufferUsageFlags2ToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14224,12 +14224,12 @@ void FieldToJson(VkBufferUsageFlags2_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkBufferViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkBufferViewCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkBuildAccelerationStructureFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14269,7 +14269,7 @@ void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkBuildMicromapFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkBuildMicromapFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14291,7 +14291,7 @@ void FieldToJson(VkBuildMicromapFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkColorComponentFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkColorComponentFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14315,7 +14315,7 @@ void FieldToJson(VkColorComponentFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkCommandBufferResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCommandBufferResetFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14333,7 +14333,7 @@ void FieldToJson(VkCommandBufferResetFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkCommandBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCommandBufferUsageFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14355,7 +14355,7 @@ void FieldToJson(VkCommandBufferUsageFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkCommandPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCommandPoolCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14377,7 +14377,7 @@ void FieldToJson(VkCommandPoolCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkCommandPoolResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCommandPoolResetFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14395,12 +14395,12 @@ void FieldToJson(VkCommandPoolResetFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkCommandPoolTrimFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCommandPoolTrimFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkCompositeAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCompositeAlphaFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14424,7 +14424,7 @@ void FieldToJson(VkCompositeAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkConditionalRenderingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkConditionalRenderingFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14442,7 +14442,7 @@ void FieldToJson(VkConditionalRenderingFlagsEXT_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkCullModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkCullModeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14466,12 +14466,12 @@ void FieldToJson(VkCullModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags
     });
 }
 
-void FieldToJson(VkDataGraphPipelineDispatchFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkDataGraphPipelineDispatchFlagsARMToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDataGraphPipelineSessionCreateFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkDataGraphPipelineSessionCreateFlagsARMToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14489,7 +14489,7 @@ void FieldToJson(VkDataGraphPipelineSessionCreateFlagsARM_t, nlohmann::ordered_j
     });
 }
 
-void FieldToJson(VkDebugReportFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDebugReportFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14515,7 +14515,7 @@ void FieldToJson(VkDebugReportFlagsEXT_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDebugUtilsMessageSeverityFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14539,7 +14539,7 @@ void FieldToJson(VkDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDebugUtilsMessageTypeFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14563,17 +14563,17 @@ void FieldToJson(VkDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkDebugUtilsMessengerCallbackDataFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDebugUtilsMessengerCallbackDataFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDebugUtilsMessengerCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDebugUtilsMessengerCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDependencyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDependencyFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14601,7 +14601,7 @@ void FieldToJson(VkDependencyFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkDescriptorBindingFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDescriptorBindingFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14625,7 +14625,7 @@ void FieldToJson(VkDescriptorBindingFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkDescriptorPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDescriptorPoolCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14651,12 +14651,12 @@ void FieldToJson(VkDescriptorPoolCreateFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkDescriptorPoolResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDescriptorPoolResetFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDescriptorSetLayoutCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDescriptorSetLayoutCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14686,12 +14686,12 @@ void FieldToJson(VkDescriptorSetLayoutCreateFlags_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDescriptorUpdateTemplateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDescriptorUpdateTemplateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDeviceAddressBindingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceAddressBindingFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14709,12 +14709,12 @@ void FieldToJson(VkDeviceAddressBindingFlagsEXT_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkDeviceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDeviceDiagnosticsConfigFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceDiagnosticsConfigFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14738,7 +14738,7 @@ void FieldToJson(VkDeviceDiagnosticsConfigFlagsNV_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDeviceGroupPresentModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceGroupPresentModeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14762,12 +14762,12 @@ void FieldToJson(VkDeviceGroupPresentModeFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDeviceMemoryReportFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceMemoryReportFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDeviceQueueCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDeviceQueueCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14785,22 +14785,22 @@ void FieldToJson(VkDeviceQueueCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkDirectDriverLoadingFlagsLUNARG_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDirectDriverLoadingFlagsLUNARGToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDirectFBSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDirectFBSurfaceCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDisplayModeCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDisplayModeCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkDisplayPlaneAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDisplayPlaneAlphaFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14824,12 +14824,12 @@ void FieldToJson(VkDisplayPlaneAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkDisplaySurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkDisplaySurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkEventCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkEventCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14847,7 +14847,7 @@ void FieldToJson(VkEventCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkExternalFenceFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalFenceFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14867,7 +14867,7 @@ void FieldToJson(VkExternalFenceFeatureFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkExternalFenceHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalFenceHandleTypeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14891,7 +14891,7 @@ void FieldToJson(VkExternalFenceHandleTypeFlags_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkExternalMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalMemoryFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14913,7 +14913,7 @@ void FieldToJson(VkExternalMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkExternalMemoryFeatureFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalMemoryFeatureFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14935,7 +14935,7 @@ void FieldToJson(VkExternalMemoryFeatureFlagsNV_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkExternalMemoryHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalMemoryHandleTypeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -14987,7 +14987,7 @@ void FieldToJson(VkExternalMemoryHandleTypeFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalMemoryHandleTypeFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15011,7 +15011,7 @@ void FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkExternalSemaphoreFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalSemaphoreFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15031,7 +15031,7 @@ void FieldToJson(VkExternalSemaphoreFeatureFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkExternalSemaphoreHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkExternalSemaphoreHandleTypeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15059,7 +15059,7 @@ void FieldToJson(VkExternalSemaphoreHandleTypeFlags_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(VkFenceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkFenceCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15077,7 +15077,7 @@ void FieldToJson(VkFenceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkFenceImportFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkFenceImportFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15095,7 +15095,7 @@ void FieldToJson(VkFenceImportFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkFormatFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkFormatFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15173,7 +15173,7 @@ void FieldToJson(VkFormatFeatureFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkFormatFeatureFlags2ToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15297,7 +15297,7 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkFrameBoundaryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkFrameBoundaryFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15315,7 +15315,7 @@ void FieldToJson(VkFrameBoundaryFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkFramebufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkFramebufferCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15333,7 +15333,7 @@ void FieldToJson(VkFramebufferCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkGeometryFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkGeometryFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15353,7 +15353,7 @@ void FieldToJson(VkGeometryFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkGeometryInstanceFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15381,7 +15381,7 @@ void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkGraphicsPipelineLibraryFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15405,12 +15405,12 @@ void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkHeadlessSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkHeadlessSurfaceCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkHostImageCopyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkHostImageCopyFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15428,12 +15428,12 @@ void FieldToJson(VkHostImageCopyFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkIOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkIOSSurfaceCreateFlagsMVKToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkImageAspectFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageAspectFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15473,7 +15473,7 @@ void FieldToJson(VkImageAspectFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkImageCompressionFixedRateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageCompressionFixedRateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15539,7 +15539,7 @@ void FieldToJson(VkImageCompressionFixedRateFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkImageCompressionFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageCompressionFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15563,7 +15563,7 @@ void FieldToJson(VkImageCompressionFlagsEXT_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkImageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15619,12 +15619,12 @@ void FieldToJson(VkImageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkImagePipeSurfaceCreateFlagsFUCHSIA_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImagePipeSurfaceCreateFlagsFUCHSIAToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageUsageFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15690,7 +15690,7 @@ void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkImageViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkImageViewCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15712,7 +15712,7 @@ void FieldToJson(VkImageViewCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkIndirectCommandsInputModeFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15732,7 +15732,7 @@ void FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkIndirectCommandsLayoutUsageFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15752,7 +15752,7 @@ void FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkIndirectCommandsLayoutUsageFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkIndirectCommandsLayoutUsageFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15774,7 +15774,7 @@ void FieldToJson(VkIndirectCommandsLayoutUsageFlagsNV_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkIndirectStateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkIndirectStateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15792,7 +15792,7 @@ void FieldToJson(VkIndirectStateFlagsNV_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkInstanceCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15810,12 +15810,12 @@ void FieldToJson(VkInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMacOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMacOSSurfaceCreateFlagsMVKToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkMemoryAllocateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMemoryAllocateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15839,7 +15839,7 @@ void FieldToJson(VkMemoryAllocateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMemoryDecompressionMethodFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkMemoryDecompressionMethodFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15857,7 +15857,7 @@ void FieldToJson(VkMemoryDecompressionMethodFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkMemoryHeapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMemoryHeapFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15879,7 +15879,7 @@ void FieldToJson(VkMemoryHeapFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkMemoryMapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMemoryMapFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15897,7 +15897,7 @@ void FieldToJson(VkMemoryMapFlags_t, nlohmann::ordered_json& jdata, const VkFlag
     });
 }
 
-void FieldToJson(VkMemoryPropertyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMemoryPropertyFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15931,7 +15931,7 @@ void FieldToJson(VkMemoryPropertyFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMemoryUnmapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMemoryUnmapFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15949,12 +15949,12 @@ void FieldToJson(VkMemoryUnmapFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkMetalSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMetalSurfaceCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkMicromapCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkMicromapCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15972,7 +15972,7 @@ void FieldToJson(VkMicromapCreateFlagsEXT_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkOpticalFlowExecuteFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkOpticalFlowExecuteFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -15990,7 +15990,7 @@ void FieldToJson(VkOpticalFlowExecuteFlagsNV_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkOpticalFlowGridSizeFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkOpticalFlowGridSizeFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16016,7 +16016,7 @@ void FieldToJson(VkOpticalFlowGridSizeFlagsNV_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkOpticalFlowSessionCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkOpticalFlowSessionCreateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16042,7 +16042,7 @@ void FieldToJson(VkOpticalFlowSessionCreateFlagsNV_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkOpticalFlowUsageFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkOpticalFlowUsageFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16070,7 +16070,7 @@ void FieldToJson(VkOpticalFlowUsageFlagsNV_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkPartitionedAccelerationStructureInstanceFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPartitionedAccelerationStructureInstanceFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16096,7 +16096,7 @@ void FieldToJson(VkPartitionedAccelerationStructureInstanceFlagsNV_t, nlohmann::
     });
 }
 
-void FieldToJson(VkPastPresentationTimingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPastPresentationTimingFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16116,7 +16116,7 @@ void FieldToJson(VkPastPresentationTimingFlagsEXT_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkPeerMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPeerMemoryFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16140,12 +16140,12 @@ void FieldToJson(VkPeerMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPerformanceCounterDescriptionFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPerformanceCounterDescriptionFlagsARMToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPerformanceCounterDescriptionFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPerformanceCounterDescriptionFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16165,7 +16165,7 @@ void FieldToJson(VkPerformanceCounterDescriptionFlagsKHR_t, nlohmann::ordered_js
     });
 }
 
-void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkPhysicalDeviceSchedulingControlsFlagsARMToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16183,7 +16183,7 @@ void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagsARM_t, nlohmann::ordered
     });
 }
 
-void FieldToJson(VkPipelineCacheCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCacheCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16203,7 +16203,7 @@ void FieldToJson(VkPipelineCacheCreateFlags_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkPipelineColorBlendStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineColorBlendStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16221,27 +16221,27 @@ void FieldToJson(VkPipelineColorBlendStateCreateFlags_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkPipelineCompilerControlFlagsAMD_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCompilerControlFlagsAMDToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineCoverageModulationStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCoverageModulationStateCreateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineCoverageReductionStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCoverageReductionStateCreateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineCoverageToColorStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCoverageToColorStateCreateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16319,7 +16319,7 @@ void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkPipelineCreateFlags2ToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16413,7 +16413,7 @@ void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkPipelineCreationFeedbackFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineCreationFeedbackFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16435,7 +16435,7 @@ void FieldToJson(VkPipelineCreationFeedbackFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkPipelineDepthStencilStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineDepthStencilStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16455,22 +16455,22 @@ void FieldToJson(VkPipelineDepthStencilStateCreateFlags_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkPipelineDiscardRectangleStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineDiscardRectangleStateCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineDynamicStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineDynamicStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineInputAssemblyStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineInputAssemblyStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineLayoutCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineLayoutCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16488,32 +16488,32 @@ void FieldToJson(VkPipelineLayoutCreateFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkPipelineMultisampleStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineMultisampleStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineRasterizationConservativeStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineRasterizationConservativeStateCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineRasterizationDepthClipStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineRasterizationDepthClipStateCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineRasterizationStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineRasterizationStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineRasterizationStateStreamCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineRasterizationStateStreamCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineShaderStageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineShaderStageCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16533,7 +16533,7 @@ void FieldToJson(VkPipelineShaderStageCreateFlags_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkPipelineStageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineStageFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16603,7 +16603,7 @@ void FieldToJson(VkPipelineStageFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
+void VkPipelineStageFlags2ToJson(nlohmann::ordered_json& jdata, const VkFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16711,27 +16711,27 @@ void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkPipelineTessellationStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineTessellationStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineVertexInputStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineVertexInputStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineViewportStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineViewportStateCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPipelineViewportSwizzleStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPipelineViewportSwizzleStateCreateFlagsNVToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkPresentGravityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPresentGravityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16753,7 +16753,7 @@ void FieldToJson(VkPresentGravityFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPresentScalingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPresentScalingFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16775,7 +16775,7 @@ void FieldToJson(VkPresentScalingFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPresentStageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPresentStageFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16799,7 +16799,7 @@ void FieldToJson(VkPresentStageFlagsEXT_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkPresentTimingInfoFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPresentTimingInfoFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16819,12 +16819,12 @@ void FieldToJson(VkPresentTimingInfoFlagsEXT_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkPrivateDataSlotCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkPrivateDataSlotCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkQueryControlFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkQueryControlFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16842,7 +16842,7 @@ void FieldToJson(VkQueryControlFlags_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkQueryPipelineStatisticFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkQueryPipelineStatisticFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16886,7 +16886,7 @@ void FieldToJson(VkQueryPipelineStatisticFlags_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkQueryPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkQueryPoolCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16904,7 +16904,7 @@ void FieldToJson(VkQueryPoolCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkQueryResultFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkQueryResultFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16930,7 +16930,7 @@ void FieldToJson(VkQueryResultFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkQueueFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkQueueFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16964,7 +16964,7 @@ void FieldToJson(VkQueueFlags_t, nlohmann::ordered_json& jdata, const VkFlags fl
     });
 }
 
-void FieldToJson(VkRenderPassCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkRenderPassCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -16984,7 +16984,7 @@ void FieldToJson(VkRenderPassCreateFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkRenderingAttachmentFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkRenderingAttachmentFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17006,7 +17006,7 @@ void FieldToJson(VkRenderingAttachmentFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkRenderingFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17040,7 +17040,7 @@ void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlag
     });
 }
 
-void FieldToJson(VkResolveImageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkResolveImageFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17060,7 +17060,7 @@ void FieldToJson(VkResolveImageFlagsKHR_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkResolveModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkResolveModeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17090,7 +17090,7 @@ void FieldToJson(VkResolveModeFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSampleCountFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSampleCountFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17120,7 +17120,7 @@ void FieldToJson(VkSampleCountFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSamplerCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSamplerCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17146,17 +17146,17 @@ void FieldToJson(VkSamplerCreateFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkScreenSurfaceCreateFlagsQNX_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkScreenSurfaceCreateFlagsQNXToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkSemaphoreCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSemaphoreCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkSemaphoreImportFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSemaphoreImportFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17174,7 +17174,7 @@ void FieldToJson(VkSemaphoreImportFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkSemaphoreWaitFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSemaphoreWaitFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17192,12 +17192,12 @@ void FieldToJson(VkSemaphoreWaitFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkShaderCorePropertiesFlagsAMD_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkShaderCorePropertiesFlagsAMDToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkShaderCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17231,12 +17231,12 @@ void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkShaderModuleCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkShaderModuleCreateFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkShaderStageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkShaderStageFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17288,7 +17288,7 @@ void FieldToJson(VkShaderStageFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSparseImageFormatFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSparseImageFormatFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17310,7 +17310,7 @@ void FieldToJson(VkSparseImageFormatFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkSparseMemoryBindFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSparseMemoryBindFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17328,7 +17328,7 @@ void FieldToJson(VkSparseMemoryBindFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkStencilFaceFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkStencilFaceFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17350,12 +17350,12 @@ void FieldToJson(VkStencilFaceFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkStreamDescriptorSurfaceCreateFlagsGGP_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkStreamDescriptorSurfaceCreateFlagsGGPToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkSubgroupFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSubgroupFeatureFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17393,7 +17393,7 @@ void FieldToJson(VkSubgroupFeatureFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkSubmitFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSubmitFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17411,7 +17411,7 @@ void FieldToJson(VkSubmitFlags_t, nlohmann::ordered_json& jdata, const VkFlags f
     });
 }
 
-void FieldToJson(VkSubpassDescriptionFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSubpassDescriptionFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17445,7 +17445,7 @@ void FieldToJson(VkSubpassDescriptionFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkSurfaceCounterFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSurfaceCounterFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17463,7 +17463,7 @@ void FieldToJson(VkSurfaceCounterFlagsEXT_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkSurfaceTransformFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSurfaceTransformFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17497,7 +17497,7 @@ void FieldToJson(VkSurfaceTransformFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkSwapchainCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17527,7 +17527,7 @@ void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkTileShadingRenderPassFlagsQCOM_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkTileShadingRenderPassFlagsQCOMToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17547,7 +17547,7 @@ void FieldToJson(VkTileShadingRenderPassFlagsQCOM_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkToolPurposeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkToolPurposeFlagsToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17577,22 +17577,22 @@ void FieldToJson(VkToolPurposeFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkValidationCacheCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkValidationCacheCreateFlagsEXTToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkViSurfaceCreateFlagsNN_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkViSurfaceCreateFlagsNNToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkVideoBeginCodingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoBeginCodingFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkVideoCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoCapabilityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17612,7 +17612,7 @@ void FieldToJson(VkVideoCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkVideoChromaSubsamplingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoChromaSubsamplingFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17638,7 +17638,7 @@ void FieldToJson(VkVideoChromaSubsamplingFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoCodecOperationFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoCodecOperationFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17670,7 +17670,7 @@ void FieldToJson(VkVideoCodecOperationFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkVideoCodingControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoCodingControlFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17692,7 +17692,7 @@ void FieldToJson(VkVideoCodingControlFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoComponentBitDepthFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoComponentBitDepthFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17716,7 +17716,7 @@ void FieldToJson(VkVideoComponentBitDepthFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoDecodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoDecodeCapabilityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17736,12 +17736,12 @@ void FieldToJson(VkVideoDecodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkVideoDecodeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoDecodeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkVideoDecodeH264PictureLayoutFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoDecodeH264PictureLayoutFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17763,7 +17763,7 @@ void FieldToJson(VkVideoDecodeH264PictureLayoutFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoDecodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoDecodeUsageFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17787,7 +17787,7 @@ void FieldToJson(VkVideoDecodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1CapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeAV1CapabilityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17815,7 +17815,7 @@ void FieldToJson(VkVideoEncodeAV1CapabilityFlagsKHR_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1RateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeAV1RateControlFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17839,7 +17839,7 @@ void FieldToJson(VkVideoEncodeAV1RateControlFlagsKHR_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1StdFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeAV1StdFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17863,7 +17863,7 @@ void FieldToJson(VkVideoEncodeAV1StdFlagsKHR_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1SuperblockSizeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeAV1SuperblockSizeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17883,7 +17883,7 @@ void FieldToJson(VkVideoEncodeAV1SuperblockSizeFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoEncodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeCapabilityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17907,7 +17907,7 @@ void FieldToJson(VkVideoEncodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkVideoEncodeContentFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeContentFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17931,7 +17931,7 @@ void FieldToJson(VkVideoEncodeContentFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoEncodeFeedbackFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeFeedbackFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17953,7 +17953,7 @@ void FieldToJson(VkVideoEncodeFeedbackFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkVideoEncodeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -17975,7 +17975,7 @@ void FieldToJson(VkVideoEncodeFlagsKHR_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkVideoEncodeH264CapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeH264CapabilityFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18013,7 +18013,7 @@ void FieldToJson(VkVideoEncodeH264CapabilityFlagsKHR_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkVideoEncodeH264RateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeH264RateControlFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18039,7 +18039,7 @@ void FieldToJson(VkVideoEncodeH264RateControlFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkVideoEncodeH264StdFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeH264StdFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18095,7 +18095,7 @@ void FieldToJson(VkVideoEncodeH264StdFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoEncodeH265CtbSizeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeH265CtbSizeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18117,7 +18117,7 @@ void FieldToJson(VkVideoEncodeH265CtbSizeFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoEncodeIntraRefreshModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeIntraRefreshModeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18143,12 +18143,12 @@ void FieldToJson(VkVideoEncodeIntraRefreshModeFlagsKHR_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkVideoEncodeRateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeRateControlFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkVideoEncodeRateControlModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeRateControlModeFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18172,7 +18172,7 @@ void FieldToJson(VkVideoEncodeRateControlModeFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeRgbChromaOffsetFlagsVALVEToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18192,7 +18192,7 @@ void FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeRgbModelConversionFlagsVALVEToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18218,7 +18218,7 @@ void FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t, nlohmann::ordered_
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeRgbRangeCompressionFlagsVALVEToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18238,7 +18238,7 @@ void FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t, nlohmann::ordered
     });
 }
 
-void FieldToJson(VkVideoEncodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEncodeUsageFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18264,12 +18264,12 @@ void FieldToJson(VkVideoEncodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkVideoEndCodingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoEndCodingFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkVideoSessionCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoSessionCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18297,7 +18297,7 @@ void FieldToJson(VkVideoSessionCreateFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoSessionParametersCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkVideoSessionParametersCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -18315,22 +18315,22 @@ void FieldToJson(VkVideoSessionParametersCreateFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkWaylandSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkWaylandSurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkWin32SurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkWin32SurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkXcbSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkXcbSurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(VkXlibSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+void VkXlibSurfaceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
