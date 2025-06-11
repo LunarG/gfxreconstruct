@@ -313,7 +313,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     {
         const auto& decoded_value = *data->decoded_value;
         const auto& meta_struct   = *data;
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        VkStructureTypeToJson(jdata["sType"], decoded_value.sType, options);
         VkShaderModuleCreateFlagsToJson(jdata["flags"], decoded_value.flags, options);
         FieldToJson(jdata["codeSize"], decoded_value.codeSize, options);
         // Use "[Binary data]" as placeholder. It will be replaced with a file path if the JSON
