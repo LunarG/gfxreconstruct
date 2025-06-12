@@ -37,6 +37,7 @@ void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vk
     if (test_config)
     {
         test_config->device_api_version_override = VK_MAKE_API_VERSION(0, 1, 3, 296);
+        test_config->map_addr_override           = mock_memory_;
     }
     instance_builder.enable_extension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
 }
@@ -57,6 +58,7 @@ void App::configure_physical_device_selector(test::PhysicalDeviceSelector& phys_
 void App::configure_swapchain_builder(test::SwapchainBuilder& swapchain_builder, vkmock::TestConfig* test_config)
 {
     swapchain_builder.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    swapchain_builder.set_desired_extent(WIDTH, HEIGHT);
 }
 
 void App::recreate_swapchain()
@@ -377,7 +379,7 @@ void App::fill_ahb_image()
     // fill staging buffer
     {
         void* staging_ptr = nullptr;
-        result            = init.disp.mapMemory(staging_memory, 0, ahb_size_, 0, &staging_ptr);
+        result = init.disp.mapMemory(staging_memory, 0, ahb_size_, 0, reinterpret_cast<void**>(&staging_ptr));
         VERIFY_VK_RESULT("failed to map staging memory", result);
 
         const uint32_t channel_count = 4; // RGBA
