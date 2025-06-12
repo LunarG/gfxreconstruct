@@ -1,9 +1,0 @@
-{
-  global:
-    ANativeActivity_onCreate;
-    MainGetCurrentBlockIndex;
-    MainGetLoadingTrimmedState;
-    SetInjectedCommandCallbacks;
-  local:
-    *;
-};
