@@ -31,6 +31,9 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     set(GFXRECON_INSTALL_TESTDIR ${CMAKE_INSTALL_PREFIX}/test)
 
     add_subdirectory(icd)
+    if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+        add_subdirectory(android_mock)
+    endif()
     add_subdirectory(test_apps)
 
     enable_testing()
@@ -39,6 +42,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     include(GoogleTest)
 
     set(GFXRECON_TESTCASES
+        test_cases/ahb.cpp
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
         test_cases/shader-objects.cpp
@@ -50,10 +54,6 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
         list(APPEND GFXRECON_TESTCASES test_cases/external-memory-fd.cpp)
         list(APPEND GFXRECON_TESTCASES test_cases/wait-for-present.cpp)
-    endif()
-
-    if(CMAKE_SYSTEM_NAME MATCHES "Android")
-        list(APPEND GFXRECON_TESTCASES test_cases/ahb.cpp)
     endif()
 
     add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})

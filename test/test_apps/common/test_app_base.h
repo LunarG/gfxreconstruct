@@ -35,12 +35,12 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "test_app_dispatch.h"
-#include "mock_icd_test_config.h"
-
-#if defined(__ANDROID__)
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <android_native_app_glue.h>
 #endif
+
+#include "test_app_dispatch.h"
+#include "mock_icd_test_config.h"
 
 #include <util/argument_parser.h>
 #include <application/application.h>
@@ -1067,7 +1067,7 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 
 struct InitInfo
 {
-#ifdef __ANDROID__
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
     struct android_app* android_app = nullptr;
 #endif
     Instance                   instance;
@@ -1097,7 +1097,7 @@ class TestAppBase
 
     void run(const std::string& window_name);
 
-#ifdef __ANDROID__
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
     void set_android_app(struct android_app*);
 #endif
   protected:

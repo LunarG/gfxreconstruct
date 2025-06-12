@@ -3056,7 +3056,7 @@ bool DeviceBuilder::enable_features_if_present(const VkPhysicalDeviceFeatures& f
     return physical_device.enable_features_if_present(features_to_enable);
 }
 
-#ifdef __ANDROID__
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void TestAppBase::set_android_app(struct android_app* app)
 {
     init.android_app = app;
