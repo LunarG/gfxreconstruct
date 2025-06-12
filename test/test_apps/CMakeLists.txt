@@ -36,6 +36,7 @@ endif()
 
 add_subdirectory(common)
 add_subdirectory(triangle)
+add_subdirectory(triangle-extra-device)
 add_subdirectory(multisample-depth)
 add_subdirectory(pipeline-binaries)
 add_subdirectory(host-image-copy)

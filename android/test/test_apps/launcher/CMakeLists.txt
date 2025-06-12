@@ -55,6 +55,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-shader-objects
     gfxrecon-testapp-sparse-resources
     gfxrecon-testapp-triangle
+    gfxrecon-testapp-triangle-extra-device
     gfxrecon-testapp-external-memory-fd-export
     gfxrecon-testapp-external-memory-fd-import
     gfxrecon-testapp-wait-for-present

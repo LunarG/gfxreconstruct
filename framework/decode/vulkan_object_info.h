@@ -327,6 +327,9 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     std::vector<bool>                                      queue_family_index_enabled;
 
     std::vector<VkPhysicalDevice> replay_device_group;
+
+    // For use with device deduplication
+    bool is_duplicate{ false };
 };
 
 struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
