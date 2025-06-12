@@ -127,7 +127,7 @@ void VulkanExportJsonConsumerBase::Process_vkCreateShaderModule(
 {
     const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCreateShaderModule", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameReturn()], returnValue, json_options);
+        VkResultToJson(function[NameReturn()], returnValue, json_options);
         auto& args = function[NameArgs()];
         HandleToJson(args["device"], device, json_options);
         FieldToJson(args["pCreateInfo"], pCreateInfo, json_options);
@@ -207,7 +207,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         HandleToJson(args["layout"], layout, json_options);
-        FieldToJson(VkShaderStageFlags_t(), args["stageFlags"], stageFlags, json_options);
+        VkShaderStageFlagsToJson(args["stageFlags"], stageFlags, json_options);
         FieldToJson(args["offset"], offset, json_options);
         FieldToJson(args["size"], size, json_options);
         FieldToJson(args["pValues"], pValues, json_options);

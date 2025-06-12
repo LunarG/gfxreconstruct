@@ -62,7 +62,7 @@ std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
 }
 
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrActionType& value, const JsonOptions& options)
+void XrActionTypeToJson(nlohmann::ordered_json& jdata, const XrActionType& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_ACTION_TYPE_BOOLEAN_INPUT:
@@ -86,7 +86,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrActionType& value, const
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& value, const JsonOptions& options)
+void XrAndroidThreadTypeKHRToJson(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR:
@@ -107,7 +107,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value, const JsonOptions& options)
+void XrBlendFactorFBToJson(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_BLEND_FACTOR_ZERO_FB:
@@ -134,7 +134,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointFB& value, const JsonOptions& options)
+void XrBodyJointFBToJson(nlohmann::ordered_json& jdata, const XrBodyJointFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_BODY_JOINT_ROOT_FB:
@@ -359,7 +359,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointFB& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointSetFB& value, const JsonOptions& options)
+void XrBodyJointSetFBToJson(nlohmann::ordered_json& jdata, const XrBodyJointSetFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_BODY_JOINT_SET_DEFAULT_FB:
@@ -371,7 +371,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointSetFB& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value, const JsonOptions& options)
+void XrColorSpaceFBToJson(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_COLOR_SPACE_UNMANAGED_FB:
@@ -404,7 +404,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompareOpFB& value, const JsonOptions& options)
+void XrCompareOpFBToJson(nlohmann::ordered_json& jdata, const XrCompareOpFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_COMPARE_OP_NEVER_FB:
@@ -437,7 +437,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrCompareOpFB& value, cons
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& value, const JsonOptions& options)
+void XrEnvironmentBlendModeToJson(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_ENVIRONMENT_BLEND_MODE_OPAQUE:
@@ -455,7 +455,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedToDeviceOCULUS& value, const JsonOptions& options)
+void XrExternalCameraAttachedToDeviceOCULUSToJson(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedToDeviceOCULUS& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_NONE_OCULUS:
@@ -476,7 +476,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedTo
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& value, const JsonOptions& options)
+void XrEyeCalibrationStatusMLToJson(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_EYE_CALIBRATION_STATUS_UNKNOWN_ML:
@@ -497,7 +497,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value, const JsonOptions& options)
+void XrEyeExpressionHTCToJson(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_EYE_EXPRESSION_LEFT_BLINK_HTC:
@@ -548,7 +548,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyePositionFB& value, const JsonOptions& options)
+void XrEyePositionFBToJson(nlohmann::ordered_json& jdata, const XrEyePositionFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_EYE_POSITION_LEFT_FB:
@@ -566,7 +566,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyePositionFB& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeVisibility& value, const JsonOptions& options)
+void XrEyeVisibilityToJson(nlohmann::ordered_json& jdata, const XrEyeVisibility& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_EYE_VISIBILITY_BOTH:
@@ -584,7 +584,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeVisibility& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value, const JsonOptions& options)
+void XrFaceConfidence2FBToJson(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_CONFIDENCE2_LOWER_FACE_FB:
@@ -602,7 +602,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value, const JsonOptions& options)
+void XrFaceConfidenceFBToJson(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_CONFIDENCE_LOWER_FACE_FB:
@@ -620,7 +620,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value, const JsonOptions& options)
+void XrFaceExpression2FBToJson(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_EXPRESSION2_BROW_LOWERER_L_FB:
@@ -842,7 +842,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value, const JsonOptions& options)
+void XrFaceExpressionFBToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_BROW_LOWERER_L_FB:
@@ -1043,7 +1043,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSet2FB& value, const JsonOptions& options)
+void XrFaceExpressionSet2FBToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSet2FB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_SET2_DEFAULT_FB:
@@ -1055,7 +1055,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSet2FB& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSetFB& value, const JsonOptions& options)
+void XrFaceExpressionSetFBToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSetFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_SET_DEFAULT_FB:
@@ -1067,7 +1067,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSetFB& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2FB& value, const JsonOptions& options)
+void XrFaceTrackingDataSource2FBToJson(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2FB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACE_TRACKING_DATA_SOURCE2_VISUAL_FB:
@@ -1082,7 +1082,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2F
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& value, const JsonOptions& options)
+void XrFacialTrackingTypeHTCToJson(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FACIAL_TRACKING_TYPE_EYE_DEFAULT_HTC:
@@ -1097,7 +1097,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocationMNDX& value, const JsonOptions& options)
+void XrForceFeedbackCurlLocationMNDXToJson(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocationMNDX& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FORCE_FEEDBACK_CURL_LOCATION_THUMB_CURL_MNDX:
@@ -1121,7 +1121,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocatio
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFormFactor& value, const JsonOptions& options)
+void XrFormFactorToJson(nlohmann::ordered_json& jdata, const XrFormFactor& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY:
@@ -1136,7 +1136,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFormFactor& value, const
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& value, const JsonOptions& options)
+void XrFoveationDynamicFBToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FOVEATION_DYNAMIC_DISABLED_FB:
@@ -1151,7 +1151,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value, const JsonOptions& options)
+void XrFoveationLevelFBToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FOVEATION_LEVEL_NONE_FB:
@@ -1172,7 +1172,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value, const JsonOptions& options)
+void XrFoveationLevelHTCToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FOVEATION_LEVEL_NONE_HTC:
@@ -1193,7 +1193,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value, const JsonOptions& options)
+void XrFoveationModeHTCToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FOVEATION_MODE_DISABLE_HTC:
@@ -1214,7 +1214,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value, const JsonOptions& options)
+void XrFutureStateEXTToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_FUTURE_STATE_PENDING_EXT:
@@ -1229,7 +1229,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value, c
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value, const JsonOptions& options)
+void XrHandEXTToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_LEFT_EXT:
@@ -1244,7 +1244,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value, const Js
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEAP& value, const JsonOptions& options)
+void XrHandForearmJointULTRALEAPToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEAP& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_FOREARM_JOINT_PALM_ULTRALEAP:
@@ -1334,7 +1334,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEA
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value, const JsonOptions& options)
+void XrHandJointEXTToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_JOINT_PALM_EXT:
@@ -1421,7 +1421,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value, const JsonOptions& options)
+void XrHandJointSetEXTToJson(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_JOINT_SET_DEFAULT_EXT:
@@ -1436,7 +1436,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT& value, const JsonOptions& options)
+void XrHandJointsMotionRangeEXTToJson(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_JOINTS_MOTION_RANGE_UNOBSTRUCTED_EXT:
@@ -1451,7 +1451,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value, const JsonOptions& options)
+void XrHandPoseTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_POSE_TYPE_TRACKED_MSFT:
@@ -1466,7 +1466,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEXT& value, const JsonOptions& options)
+void XrHandTrackingDataSourceEXTToJson(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HAND_TRACKING_DATA_SOURCE_UNOBSTRUCTED_EXT:
@@ -1481,7 +1481,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEX
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& value, const JsonOptions& options)
+void XrHeadsetFitStatusMLToJson(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_HEADSET_FIT_STATUS_UNKNOWN_ML:
@@ -1502,7 +1502,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value, const JsonOptions& options)
+void XrLipExpressionHTCToJson(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LIP_EXPRESSION_JAW_RIGHT_HTC:
@@ -1622,7 +1622,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& value, const JsonOptions& options)
+void XrLoaderInterfaceStructsToJson(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LOADER_INTERFACE_STRUCT_UNINTIALIZED:
@@ -1649,7 +1649,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& value, const JsonOptions& options)
+void XrLocalDimmingModeMETAToJson(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LOCAL_DIMMING_MODE_OFF_META:
@@ -1664,7 +1664,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenceML& value, const JsonOptions& options)
+void XrLocalizationMapConfidenceMLToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenceML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_CONFIDENCE_POOR_ML:
@@ -1685,7 +1685,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenc
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& value, const JsonOptions& options)
+void XrLocalizationMapStateMLToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_STATE_NOT_LOCALIZED_ML:
@@ -1706,7 +1706,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& value, const JsonOptions& options)
+void XrLocalizationMapTypeMLToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_TYPE_ON_DEVICE_ML:
@@ -1721,7 +1721,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& value, const JsonOptions& options)
+void XrMarkerAprilTagDictMLToJson(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_APRIL_TAG_DICT_16H5_ML:
@@ -1742,7 +1742,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value, const JsonOptions& options)
+void XrMarkerArucoDictMLToJson(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_ARUCO_DICT_4X4_50_ML:
@@ -1799,7 +1799,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& value, const JsonOptions& options)
+void XrMarkerDetectorCameraMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_CAMERA_RGB_CAMERA_ML:
@@ -1814,7 +1814,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefineMethodML& value, const JsonOptions& options)
+void XrMarkerDetectorCornerRefineMethodMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefineMethodML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_CORNER_REFINE_METHOD_NONE_ML:
@@ -1835,7 +1835,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefi
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& value, const JsonOptions& options)
+void XrMarkerDetectorFpsMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_FPS_LOW_ML:
@@ -1856,7 +1856,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalysisIntervalML& value, const JsonOptions& options)
+void XrMarkerDetectorFullAnalysisIntervalMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalysisIntervalML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_FULL_ANALYSIS_INTERVAL_MAX_ML:
@@ -1877,7 +1877,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalys
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML& value, const JsonOptions& options)
+void XrMarkerDetectorProfileMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_PROFILE_DEFAULT_ML:
@@ -1904,7 +1904,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolutionML& value, const JsonOptions& options)
+void XrMarkerDetectorResolutionMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolutionML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_RESOLUTION_LOW_ML:
@@ -1922,7 +1922,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolution
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& value, const JsonOptions& options)
+void XrMarkerDetectorStatusMLToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_STATUS_PENDING_ML:
@@ -1940,7 +1940,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value, const JsonOptions& options)
+void XrMarkerTypeMLToJson(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MARKER_TYPE_ARUCO_ML:
@@ -1967,7 +1967,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& value, const JsonOptions& options)
+void XrMeshComputeLodMSFTToJson(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_MESH_COMPUTE_LOD_COARSE_MSFT:
@@ -1988,7 +1988,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrObjectType& value, const JsonOptions& options)
+void XrObjectTypeToJson(nlohmann::ordered_json& jdata, const XrObjectType& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_OBJECT_TYPE_UNKNOWN:
@@ -2096,7 +2096,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrObjectType& value, const
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChannelsMETA& value, const JsonOptions& options)
+void XrPassthroughColorLutChannelsMETAToJson(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChannelsMETA& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PASSTHROUGH_COLOR_LUT_CHANNELS_RGB_META:
@@ -2111,7 +2111,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChann
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& value, const JsonOptions& options)
+void XrPassthroughFormHTCToJson(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PASSTHROUGH_FORM_PLANAR_HTC:
@@ -2126,7 +2126,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeFB& value, const JsonOptions& options)
+void XrPassthroughLayerPurposeFBToJson(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PASSTHROUGH_LAYER_PURPOSE_RECONSTRUCTION_FB:
@@ -2147,7 +2147,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeF
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& value, const JsonOptions& options)
+void XrPerfSettingsDomainEXTToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PERF_SETTINGS_DOMAIN_CPU_EXT:
@@ -2162,7 +2162,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& value, const JsonOptions& options)
+void XrPerfSettingsLevelEXTToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PERF_SETTINGS_LEVEL_POWER_SAVINGS_EXT:
@@ -2183,7 +2183,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsNotificationLevelEXT& value, const JsonOptions& options)
+void XrPerfSettingsNotificationLevelEXTToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsNotificationLevelEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PERF_SETTINGS_NOTIF_LEVEL_NORMAL_EXT:
@@ -2201,7 +2201,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsNotification
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT& value, const JsonOptions& options)
+void XrPerfSettingsSubDomainEXTToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT:
@@ -2219,7 +2219,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterUnitMETA& value, const JsonOptions& options)
+void XrPerformanceMetricsCounterUnitMETAToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterUnitMETA& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META:
@@ -2243,7 +2243,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounte
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& value, const JsonOptions& options)
+void XrPlaneDetectionStateEXTToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PLANE_DETECTION_STATE_NONE_EXT:
@@ -2267,7 +2267,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientationEXT& value, const JsonOptions& options)
+void XrPlaneDetectorOrientationEXTToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientationEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PLANE_DETECTOR_ORIENTATION_HORIZONTAL_UPWARD_EXT:
@@ -2288,7 +2288,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientation
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTypeEXT& value, const JsonOptions& options)
+void XrPlaneDetectorSemanticTypeEXTToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_PLANE_DETECTOR_SEMANTIC_TYPE_UNDEFINED_EXT:
@@ -2312,7 +2312,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTyp
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& value, const JsonOptions& options)
+void XrReferenceSpaceTypeToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_REFERENCE_SPACE_TYPE_VIEW:
@@ -2342,7 +2342,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& value, const JsonOptions& options)
+void XrReprojectionModeMSFTToJson(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_REPROJECTION_MODE_DEPTH_MSFT:
@@ -2363,7 +2363,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value, const JsonOptions& options)
+void XrResultToJson(nlohmann::ordered_json& jdata, const XrResult& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SUCCESS:
@@ -2711,7 +2711,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value, const Jso
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& value, const JsonOptions& options)
+void XrSceneComponentTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_COMPONENT_TYPE_INVALID_MSFT:
@@ -2741,7 +2741,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyMSFT& value, const JsonOptions& options)
+void XrSceneComputeConsistencyMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_CONSISTENCY_SNAPSHOT_COMPLETE_MSFT:
@@ -2759,7 +2759,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyM
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT& value, const JsonOptions& options)
+void XrSceneComputeFeatureMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_FEATURE_PLANE_MSFT:
@@ -2786,7 +2786,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT&
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& value, const JsonOptions& options)
+void XrSceneComputeStateMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_STATE_NONE_MSFT:
@@ -2807,7 +2807,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolTypeMSFT& value, const JsonOptions& options)
+void XrSceneMarkerQRCodeSymbolTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_MARKER_QR_CODE_SYMBOL_TYPE_QR_CODE_MSFT:
@@ -2822,7 +2822,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerTypeMSFT& value, const JsonOptions& options)
+void XrSceneMarkerTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_MARKER_TYPE_QR_CODE_MSFT:
@@ -2834,7 +2834,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerTypeMSFT& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& value, const JsonOptions& options)
+void XrSceneObjectTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_OBJECT_TYPE_UNCATEGORIZED_MSFT:
@@ -2864,7 +2864,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& val
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeMSFT& value, const JsonOptions& options)
+void XrScenePlaneAlignmentTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SCENE_PLANE_ALIGNMENT_TYPE_NON_ORTHOGONAL_MSFT:
@@ -2882,7 +2882,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeM
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionState& value, const JsonOptions& options)
+void XrSessionStateToJson(nlohmann::ordered_json& jdata, const XrSessionState& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SESSION_STATE_UNKNOWN:
@@ -2918,7 +2918,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionState& value, con
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& value, const JsonOptions& options)
+void XrSpaceComponentTypeFBToJson(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB:
@@ -2954,7 +2954,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& va
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& value, const JsonOptions& options)
+void XrSpacePersistenceModeFBToJson(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SPACE_PERSISTENCE_MODE_INVALID_FB:
@@ -2969,7 +2969,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceQueryActionFB& value, const JsonOptions& options)
+void XrSpaceQueryActionFBToJson(nlohmann::ordered_json& jdata, const XrSpaceQueryActionFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SPACE_QUERY_ACTION_LOAD_FB:
@@ -2981,7 +2981,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceQueryActionFB& valu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& value, const JsonOptions& options)
+void XrSpaceStorageLocationFBToJson(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SPACE_STORAGE_LOCATION_INVALID_FB:
@@ -2999,7 +2999,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT& value, const JsonOptions& options)
+void XrSpatialGraphNodeTypeMSFTToJson(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_SPATIAL_GRAPH_NODE_TYPE_STATIC_MSFT:
@@ -3014,7 +3014,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, const JsonOptions& options)
+void XrStructureTypeToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_TYPE_UNKNOWN:
@@ -4091,7 +4091,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsDomainQCOM& value, const JsonOptions& options)
+void XrTrackingOptimizationSettingsDomainQCOMToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsDomainQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_TRACKING_OPTIMIZATION_SETTINGS_DOMAIN_ALL_QCOM:
@@ -4103,7 +4103,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSett
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsHintQCOM& value, const JsonOptions& options)
+void XrTrackingOptimizationSettingsHintQCOMToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsHintQCOM& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_NONE_QCOM:
@@ -4127,7 +4127,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSett
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& value, const JsonOptions& options)
+void XrViewConfigurationTypeToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO:
@@ -4148,7 +4148,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSourceMETA& value, const JsonOptions& options)
+void XrVirtualKeyboardInputSourceMETAToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSourceMETA& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_VIRTUAL_KEYBOARD_INPUT_SOURCE_CONTROLLER_RAY_LEFT_META:
@@ -4181,7 +4181,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSour
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationTypeMETA& value, const JsonOptions& options)
+void XrVirtualKeyboardLocationTypeMETAToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationTypeMETA& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_VIRTUAL_KEYBOARD_LOCATION_TYPE_CUSTOM_META:
@@ -4199,7 +4199,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationT
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& value, const JsonOptions& options)
+void XrVisibilityMaskTypeKHRToJson(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_VISIBILITY_MASK_TYPE_HIDDEN_TRIANGLE_MESH_KHR:
@@ -4217,7 +4217,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& v
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value, const JsonOptions& options)
+void XrWindingOrderFBToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value, const JsonOptions& options)
 {
     switch (value) {
         case XR_WINDING_ORDER_UNKNOWN_FB:
@@ -4235,7 +4235,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value, c
     }
 }
 
-void FieldToJson(XrAndroidSurfaceSwapchainFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrAndroidSurfaceSwapchainFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4255,7 +4255,7 @@ void FieldToJson(XrAndroidSurfaceSwapchainFlagsFB_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrCompositionLayerFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4279,7 +4279,7 @@ void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(XrCompositionLayerImageLayoutFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrCompositionLayerImageLayoutFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4297,7 +4297,7 @@ void FieldToJson(XrCompositionLayerImageLayoutFlagsFB_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrCompositionLayerSecureContentFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrCompositionLayerSecureContentFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4317,7 +4317,7 @@ void FieldToJson(XrCompositionLayerSecureContentFlagsFB_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrCompositionLayerSettingsFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4343,7 +4343,7 @@ void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrCompositionLayerSpaceWarpInfoFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4361,7 +4361,7 @@ void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrDebugUtilsMessageSeverityFlagsEXTToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4385,7 +4385,7 @@ void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrDebugUtilsMessageTypeFlagsEXTToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4409,7 +4409,7 @@ void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrDigitalLensControlFlagsALMALENCEToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4427,17 +4427,17 @@ void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(XrEnvironmentDepthProviderCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrEnvironmentDepthProviderCreateFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrEnvironmentDepthSwapchainCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrEnvironmentDepthSwapchainCreateFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrExternalCameraStatusFlagsOCULUSToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4463,7 +4463,7 @@ void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrFoveationDynamicFlagsHTCToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4485,12 +4485,12 @@ void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(XrFoveationEyeTrackedProfileCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrFoveationEyeTrackedProfileCreateFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrFoveationEyeTrackedStateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrFoveationEyeTrackedStateFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4508,7 +4508,7 @@ void FieldToJson(XrFoveationEyeTrackedStateFlagsMETA_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(XrFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrFrameEndInfoFlagsMLToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4528,7 +4528,7 @@ void FieldToJson(XrFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrGlobalDimmerFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrGlobalDimmerFrameEndInfoFlagsMLToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4546,7 +4546,7 @@ void FieldToJson(XrGlobalDimmerFrameEndInfoFlagsML_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrHandTrackingAimFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4580,7 +4580,7 @@ void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrInputSourceLocalizedNameFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4602,12 +4602,12 @@ void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(XrInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrInstanceCreateFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrKeyboardTrackingFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4631,7 +4631,7 @@ void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(XrKeyboardTrackingQueryFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrKeyboardTrackingQueryFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4651,7 +4651,7 @@ void FieldToJson(XrKeyboardTrackingQueryFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrLocalizationMapErrorFlagsMLToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4679,7 +4679,7 @@ void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(XrOverlayMainSessionFlagsEXTX_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrOverlayMainSessionFlagsEXTXToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4697,12 +4697,12 @@ void FieldToJson(XrOverlayMainSessionFlagsEXTX_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(XrOverlaySessionCreateFlagsEXTX_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrOverlaySessionCreateFlagsEXTXToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPassthroughCapabilityFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4724,7 +4724,7 @@ void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrPassthroughFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPassthroughFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4744,7 +4744,7 @@ void FieldToJson(XrPassthroughFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrPassthroughPreferenceFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPassthroughPreferenceFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4762,7 +4762,7 @@ void FieldToJson(XrPassthroughPreferenceFlagsMETA_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPassthroughStateChangedFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4786,7 +4786,7 @@ void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPerformanceMetricsCounterFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4808,7 +4808,7 @@ void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPlaneDetectionCapabilityFlagsEXTToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4838,7 +4838,7 @@ void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(XrPlaneDetectorFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrPlaneDetectorFlagsEXTToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4856,7 +4856,7 @@ void FieldToJson(XrPlaneDetectorFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(XrRenderModelFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrRenderModelFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4876,7 +4876,7 @@ void FieldToJson(XrRenderModelFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSemanticLabelsSupportFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4898,12 +4898,12 @@ void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrSessionCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSessionCreateFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSpaceLocationFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4927,7 +4927,7 @@ void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSpaceVelocityFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSpaceVelocityFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4947,7 +4947,7 @@ void FieldToJson(XrSpaceVelocityFlags_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSwapchainCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSwapchainCreateFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4967,7 +4967,7 @@ void FieldToJson(XrSwapchainCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(XrSwapchainCreateFoveationFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSwapchainCreateFoveationFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -4987,12 +4987,12 @@ void FieldToJson(XrSwapchainCreateFoveationFlagsFB_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrSwapchainStateFoveationFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSwapchainStateFoveationFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrSwapchainUsageFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -5024,7 +5024,7 @@ void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrTriangleMeshFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrTriangleMeshFlagsFBToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -5042,7 +5042,7 @@ void FieldToJson(XrTriangleMeshFlagsFB_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrViewStateFlagsToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -5066,7 +5066,7 @@ void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlag
     });
 }
 
-void FieldToJson(XrVirtualKeyboardInputStateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrVirtualKeyboardInputStateFlagsMETAToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
     {
@@ -5084,12 +5084,12 @@ void FieldToJson(XrVirtualKeyboardInputStateFlagsMETA_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrVulkanDeviceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrVulkanDeviceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
 
-void FieldToJson(XrVulkanInstanceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+void XrVulkanInstanceCreateFlagsKHRToJson(nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
 }
