@@ -71,12 +71,12 @@ static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
 extern "C"
 {
-    GFXRECON_EXPORT uint64_t MainGetCurrentBlockIndex()
+    uint64_t MainGetCurrentBlockIndex()
     {
         return file_processor->GetCurrentBlockIndex();
     }
 
-    GFXRECON_EXPORT bool MainGetLoadingTrimmedState()
+    bool MainGetLoadingTrimmedState()
     {
         return file_processor->GetLoadingTrimmedState();
     }

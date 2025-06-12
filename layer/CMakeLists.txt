@@ -26,6 +26,9 @@
 # Description: CMake script for layer target
 ###############################################################################
 
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
+
 if (D3D12_SUPPORT)
     set (LINK_ARCH "x64")
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
