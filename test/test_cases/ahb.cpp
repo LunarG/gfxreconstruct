@@ -24,9 +24,15 @@
 
 #include "verify-gfxr.h"
 
-char const* const KNOWN_GFXR_PATH = "ahb.gfxr";
+#define TEST_APP_NAME "ahb"
+
+#ifdef __APPLE__
+char const* const KNOWN_GFXR_PATH = TEST_APP_NAME "_macos.gfxr";
+#else
+char const* const KNOWN_GFXR_PATH = TEST_APP_NAME ".gfxr";
+#endif
 
 TEST(AndroidHardwareBuffer, CorrectGFXR)
 {
-    verify_gfxr("gfxrecon-testapp-ahb", KNOWN_GFXR_PATH);
+    verify_gfxr(TEST_APP_NAME, KNOWN_GFXR_PATH);
 }

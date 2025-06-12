@@ -28,6 +28,9 @@
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
 #include <triangle_app.h>
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#include <ahb_app.h>
+#endif
 
 #ifdef __linux__
 #include <external_memory_fd_export_app.h>
@@ -42,8 +45,6 @@
 #include <util/argument_parser.h>
 
 #if defined(__ANDROID__)
-#include <ahb_app.h>
-
 #include <util/android/activity.h>
 #include <util/android/intent.h>
 #endif
@@ -67,7 +68,7 @@ static const char* kAppNames[] = { "acquired-image",
                                    "external-memory-fd-import",
                                    "wait-for-present",
 #endif
-#ifdef __ANDROID__
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
                                    "ahb"
 #endif
 };
@@ -169,12 +170,14 @@ std::unique_ptr<gfxrecon::test::TestAppBase> CreateTestApp(
         app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
     }
 #endif // __linux__
-#if defined(__ANDROID__)
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
     else if (app_name == "ahb")
     {
         app = std::make_unique<gfxrecon::test_app::ahb::App>();
     }
+#endif
 
+#if defined(__ANDROID__)
     app->set_android_app(android_app);
 #endif // __ANDROID__
 
