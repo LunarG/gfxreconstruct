@@ -32,9 +32,14 @@ GFXRECON_BEGIN_NAMESPACE(test_app)
 GFXRECON_BEGIN_NAMESPACE(ahb)
 
 const size_t MAX_FRAMES_IN_FLIGHT = 2;
+const size_t WIDTH                = 128;
+const size_t HEIGHT               = 128;
+const size_t CHANNEL_COUNT        = 4;
 
 class App : public test::TestAppBase
 {
+    uint8_t mock_memory_[WIDTH * HEIGHT * CHANNEL_COUNT];
+
     VkQueue graphics_queue_;
     VkQueue present_queue_;
 

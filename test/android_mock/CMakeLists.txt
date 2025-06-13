@@ -21,42 +21,9 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for Test Launcher
+# Description: CMake script for Android Mock Driver
 ###############################################################################
 
-set(TARGET_NAME gfxrecon-test-launcher)
-add_executable(${TARGET_NAME} "")
-
-target_sources(${TARGET_NAME}
-               PRIVATE
-               ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
-
-target_include_directories(${TARGET_NAME} PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR})
-
-set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
-    gfxrecon-testapp-acquired-image
-    gfxrecon-testapp-host-image-copy
-    gfxrecon-testapp-multisample-depth
-    gfxrecon-testapp-pipeline-binaries
-    gfxrecon-testapp-shader-objects
-    gfxrecon-testapp-sparse-resources
-    gfxrecon-testapp-ahb
-    gfxrecon-testapp-triangle)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    list(APPEND GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
-            gfxrecon-testapp-external-memory-fd-export
-            gfxrecon-testapp-external-memory-fd-import
-            gfxrecon-testapp-wait-for-present)
-endif()
-
-target_link_libraries(${TARGET_NAME}
-                      ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})
-
-common_build_directives(${TARGET_NAME})
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-    install(TARGETS ${TARGET_NAME} RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/launcher)
-endif()
+add_library(gfxrecon_android_mock ${CMAKE_CURRENT_SOURCE_DIR}/android/hardware_buffer.cpp)
+target_compile_definitions(gfxrecon_android_mock PUBLIC VK_USE_PLATFORM_ANDROID_KHR VVL_MOCK_ANDROID)
+target_include_directories(gfxrecon_android_mock SYSTEM PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

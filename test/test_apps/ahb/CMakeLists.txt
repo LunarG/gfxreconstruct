@@ -28,10 +28,13 @@ add_library(gfxrecon-testapp-ahb app.cpp)
 
 target_include_directories(gfxrecon-testapp-ahb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(gfxrecon-testapp-ahb PUBLIC gfxrecon-testapp-base)
+set(GFXRECON_TESTAPP_AHB_LINK_LIBRARIES gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-ahb)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    list(APPEND GFXRECON_TESTAPP_AHB_LINK_LIBRARIES gfxrecon_android_mock)
     install(TARGETS gfxrecon-testapp-ahb RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/ahb)
 endif()
+
+target_link_libraries(gfxrecon-testapp-ahb ${GFXRECON_TESTAPP_AHB_LINK_LIBRARIES})
