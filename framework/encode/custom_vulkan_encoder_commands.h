@@ -1804,6 +1804,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>
     }
 };
 
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBeginCommandBuffer(result, args...);
+    }
+};
+
 #endif // ENABLE_OPENXR_SUPPORT
 
 GFXRECON_END_NAMESPACE(encode)

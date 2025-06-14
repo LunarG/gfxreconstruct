@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_writer.h"
 
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/vulkan_capture_common.h"
@@ -313,10 +314,19 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_table)
 {
-    std::set<util::MemoryOutputStream*>                       processed;
-    std::vector<const vulkan_wrappers::CommandBufferWrapper*> primary;
+    std::set<util::MemoryOutputStream*>                 processed;
+    std::vector<vulkan_wrappers::CommandBufferWrapper*> primary;
 
-    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) {
+    // Because secondaries can reference other secondaries we need to do a first pass over all alive command buffers
+    // to detect all invalid secondaries.
+    state_table.VisitWrappers([&](vulkan_wrappers::CommandBufferWrapper* wrapper) {
+        if (wrapper->level == VK_COMMAND_BUFFER_LEVEL_SECONDARY && !CheckCommandHandles(wrapper, state_table))
+        {
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInvalid;
+        }
+    });
+
+    state_table.VisitWrappers([&](vulkan_wrappers::CommandBufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         // Filter duplicate calls to vkAllocateCommandBuffers for command buffers that were allocated by the same API
@@ -3630,8 +3640,8 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                                   const VulkanStateTable&                      state_table)
+void VulkanStateWriter::WriteCommandBufferCommands(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                                   const VulkanStateTable&                state_table)
 {
     assert(wrapper != nullptr);
 
@@ -3657,6 +3667,10 @@ void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::Comman
         }
 
         assert(offset == data_size);
+    }
+    else
+    {
+        wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInvalid;
     }
 }
 
@@ -4339,7 +4353,10 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
         case vulkan_state_info::CommandHandleType::BufferViewHandle:
             return IsBufferViewValid(handle_id, state_table);
         case vulkan_state_info::CommandHandleType::CommandBufferHandle:
-            return (state_table.GetVulkanCommandBufferWrapper(handle_id) != nullptr);
+        {
+            const vulkan_wrappers::CommandBufferWrapper* wrapper = state_table.GetVulkanCommandBufferWrapper(handle_id);
+            return (wrapper != nullptr && wrapper->state == vulkan_wrappers::CommandBufferWrapper::kExecutable);
+        }
         case vulkan_state_info::CommandHandleType::DescriptorSetHandle:
             return (state_table.GetVulkanDescriptorSetWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::EventHandle:

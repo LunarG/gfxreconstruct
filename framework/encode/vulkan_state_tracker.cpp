@@ -60,6 +60,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
     {
         // Clear command data on command buffer reset.
+        wrapper->one_time_submission = false;
         wrapper->command_data.Clear();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
@@ -77,6 +78,25 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         {
             wrapper->command_handles[i].clear();
         }
+    }
+
+    // Determine command buffer's state
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_vkBeginCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kRecording;
+            break;
+
+        case format::ApiCallId::ApiCall_vkEndCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kExecutable;
+            break;
+
+        case format::ApiCallId::ApiCall_vkResetCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInitial;
+            break;
+
+        default:
+            break;
     }
 
     if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
@@ -108,6 +128,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 
     for (const auto& entry : wrapper->child_buffers)
     {
+        entry.second->one_time_submission = false;
         entry.second->command_data.Clear();
         entry.second->pending_layouts.clear();
         entry.second->recorded_queries.clear();
@@ -125,6 +146,8 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         {
             entry.second->command_handles[i].clear();
         }
+
+        entry.second->state = vulkan_wrappers::CommandBufferWrapper::kInitial;
     }
 }
 
@@ -2382,8 +2405,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
     wrapper->bindings.clear();
 }
 
-void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               command_buffer_count,
-                                                     const VkCommandBuffer* command_buffers)
+void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               command_buffer_count,
+                                                      const VkCommandBuffer* command_buffers)
 {
     if (!command_buffer_count || !command_buffers)
     {
@@ -2392,10 +2415,16 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
 
     for (uint32_t c = 0; c < command_buffer_count; ++c)
     {
-        const vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[c]);
         const auto device_wrapper = cmd_buf_wrapper->parent_pool->device;
 
+        // Update command buffer state
+        cmd_buf_wrapper->state = cmd_buf_wrapper->one_time_submission
+                                     ? vulkan_wrappers::CommandBufferWrapper::kInvalid
+                                     : vulkan_wrappers::CommandBufferWrapper::kExecutable;
+
+        // Track acceleration structures
         for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
         {
             // Sanity checks. Build infos with one of these 0 should not be inserted in the map
@@ -3966,6 +3995,18 @@ void VulkanStateTracker::TrackSetDebugUtilsObjectTagEXT(VkDevice                
                         nullptr,
                         std::make_shared<util::MemoryOutputStream>(object_tag_parameter_buffer->GetData(),
                                                                    object_tag_parameter_buffer->GetDataSize()));
+}
+
+void VulkanStateTracker::TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags)
+{
+    if ((flags & VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
+    {
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+        if (wrapper != nullptr)
+        {
+            wrapper->one_time_submission = true;
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
