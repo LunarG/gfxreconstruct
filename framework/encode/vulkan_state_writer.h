@@ -305,7 +305,7 @@ class VulkanStateWriter
                            util::MemoryOutputStream* parameter_buffer,
                            util::FileOutputStream*   output_stream = nullptr);
 
-    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+    void WriteResizeWindowCmd(format::HandleId surface_id, const vulkan_wrappers::SurfaceCapabilities& capabilities);
 
     void WriteResizeWindowCmd2(format::HandleId              surface_id,
                                uint32_t                      width,

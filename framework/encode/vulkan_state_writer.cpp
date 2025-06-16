@@ -1243,9 +1243,7 @@ void VulkanStateWriter::WriteSurfaceKhrState(const VulkanStateTable& state_table
 
         for (const auto& entry : wrapper->surface_capabilities)
         {
-            WriteResizeWindowCmd(wrapper->handle_id,
-                                 entry.second.surface_capabilities.surfaceCapabilities.currentExtent.width,
-                                 entry.second.surface_capabilities.surfaceCapabilities.currentExtent.height);
+            WriteResizeWindowCmd(wrapper->handle_id, entry.second);
             WriteGetPhysicalDeviceSurfaceCapabilities(entry.first, wrapper->handle_id, entry.second, state_table);
         }
 
@@ -3374,12 +3372,41 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(
 {
     const VkResult result = VK_SUCCESS;
 
+    format::ApiCallId call_id;
+
     encoder_.EncodeHandleIdValue(physical_device_id);
-    EncodeStructPtr(&encoder_, &capabilities.surface_info);
-    EncodeStructPtr(&encoder_, &capabilities.surface_capabilities);
+
+    switch (capabilities.function_version)
+    {
+        case vulkan_wrappers::SurfaceCapabilities::kKHR:
+            call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+
+            encoder_.EncodeVulkanHandleValue<vulkan_wrappers::SurfaceKHRWrapper>(capabilities.surface);
+            EncodeStructPtr(&encoder_, &capabilities.surface_capabilities);
+            break;
+
+        case vulkan_wrappers::SurfaceCapabilities::k2KHR:
+            call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR;
+
+            EncodeStructPtr(&encoder_, &capabilities.surface_info);
+            EncodeStructPtr(&encoder_, &capabilities.surface_capabilities_2);
+            break;
+
+        case vulkan_wrappers::SurfaceCapabilities::k2EXT:
+            call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT;
+
+            encoder_.EncodeVulkanHandleValue<vulkan_wrappers::SurfaceKHRWrapper>(capabilities.surface);
+            EncodeStructPtr(&encoder_, &capabilities.surface_capabilities_ext);
+            break;
+
+        default:
+            GFXRECON_ASSERT(0);
+            GFXRECON_LOG_ERROR("Unrecognized GetPhysicalDeviceSurfaceCapabilities function")
+    }
+
     encoder_.EncodeEnumValue(result);
 
-    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR, &parameter_stream_);
+    WriteFunctionCall(call_id, &parameter_stream_);
     parameter_stream_.Clear();
 }
 
@@ -3392,24 +3419,45 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
 
     uint32_t format_count = formats.surface_format_count;
 
+    const bool              is_2nd_version = formats.surface_formats_2_khr != nullptr;
+    const format::ApiCallId call_id = is_2nd_version ? format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR
+                                                     : format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR;
+
     // First write the call to retrieve the size.
     encoder_.EncodeHandleIdValue(physical_device_id);
-    EncodeStructPtr(&encoder_, &formats.surface_info);
+    if (is_2nd_version)
+    {
+        EncodeStructPtr(&encoder_, &formats.surface_info);
+    }
+    else
+    {
+        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::SurfaceKHRWrapper>(formats.surface_info.surface);
+    }
+
     encoder_.EncodeUInt32Ptr(&format_count);
     EncodeStructArray<VkSurfaceFormatKHR>(&encoder_, nullptr, 0);
     encoder_.EncodeEnumValue(result);
+    WriteFunctionCall(call_id, &parameter_stream_);
 
-    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
     parameter_stream_.Clear();
 
     // Then write the call with the data.
     encoder_.EncodeHandleIdValue(physical_device_id);
-    EncodeStructPtr(&encoder_, &formats.surface_info);
-    encoder_.EncodeUInt32Ptr(&format_count);
-    EncodeStructArray(&encoder_, formats.surface_formats, format_count);
-    encoder_.EncodeEnumValue(result);
+    if (is_2nd_version)
+    {
+        EncodeStructPtr(&encoder_, &formats.surface_info);
+        encoder_.EncodeUInt32Ptr(&format_count);
+        EncodeStructArray(&encoder_, formats.surface_formats_2_khr, format_count);
+    }
+    else
+    {
+        encoder_.EncodeVulkanHandleValue<vulkan_wrappers::SurfaceKHRWrapper>(formats.surface_info.surface);
+        encoder_.EncodeUInt32Ptr(&format_count);
+        EncodeStructArray(&encoder_, formats.surface_formats, format_count);
+    }
 
-    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
+    encoder_.EncodeEnumValue(result);
+    WriteFunctionCall(call_id, &parameter_stream_);
     parameter_stream_.Clear();
 }
 
@@ -4092,8 +4140,31 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
 
 // TODO: This is the same code used by CaptureManager to write command data. It could be moved to a format
 // utility.
-void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
+void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId                            surface_id,
+                                             const vulkan_wrappers::SurfaceCapabilities& capabilities)
 {
+    uint32_t width, height;
+    switch (capabilities.function_version)
+    {
+        case vulkan_wrappers::SurfaceCapabilities::kKHR:
+            width  = capabilities.surface_capabilities.currentExtent.width;
+            height = capabilities.surface_capabilities.currentExtent.height;
+            break;
+
+        case vulkan_wrappers::SurfaceCapabilities::k2KHR:
+            width  = capabilities.surface_capabilities_2.surfaceCapabilities.currentExtent.width;
+            height = capabilities.surface_capabilities_2.surfaceCapabilities.currentExtent.height;
+            break;
+
+        case vulkan_wrappers::SurfaceCapabilities::k2EXT:
+            width  = capabilities.surface_capabilities_ext.currentExtent.width;
+            height = capabilities.surface_capabilities_ext.currentExtent.height;
+            break;
+
+        default:
+            GFXRECON_ASSERT(0);
+            GFXRECON_LOG_ERROR("Unrecognized GetPhysicalDeviceSurfaceCapabilities function")
+    }
     format::ResizeWindowCommand resize_cmd;
     resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);

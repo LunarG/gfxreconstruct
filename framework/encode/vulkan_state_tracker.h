@@ -341,7 +341,11 @@ class VulkanStateTracker
 
     void TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevice                       physical_device,
                                                  const VkPhysicalDeviceSurfaceInfo2KHR& surface_info,
-                                                 VkSurfaceCapabilities2KHR*             surface_capabilities);
+                                                 const VkSurfaceCapabilities2KHR*       surface_capabilities);
+
+    void TrackPhysicalDeviceSurfaceCapabilities2EXT(VkPhysicalDevice                 physical_device,
+                                                    VkSurfaceKHR                     surface,
+                                                    const VkSurfaceCapabilities2EXT* capabilities);
 
     void TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
                                            VkSurfaceKHR              surface,

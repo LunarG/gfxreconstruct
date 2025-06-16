@@ -506,10 +506,20 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
 struct SurfaceCapabilities
 {
-    VkPhysicalDeviceSurfaceInfo2KHR surface_info;
+    enum FunctionVersion
+    {
+        kKHR,
+        k2KHR,
+        k2EXT
+    } function_version;
+
+    VkSurfaceKHR                    surface;
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info{};
     std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    VkSurfaceCapabilities2KHR  surface_capabilities;
+    VkSurfaceCapabilitiesKHR   surface_capabilities;
+    VkSurfaceCapabilities2KHR  surface_capabilities_2;
+    VkSurfaceCapabilities2EXT  surface_capabilities_ext;
     std::unique_ptr<uint8_t[]> surface_capabilities_pnext_memory;
 };
 
@@ -519,7 +529,8 @@ struct SurfaceFormats
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
     std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    VkSurfaceFormat2KHR*       surface_formats;
+    VkSurfaceFormatKHR*        surface_formats;
+    VkSurfaceFormat2KHR*       surface_formats_2_khr;
     uint32_t                   surface_format_count;
     std::unique_ptr<uint8_t[]> surface_formats_memory;
 };
