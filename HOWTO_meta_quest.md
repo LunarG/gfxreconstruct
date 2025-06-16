@@ -132,6 +132,7 @@ For example:
      ndk {
 -        debuggable  false
 +        debuggable  true
+...
      }
  }
 ```
@@ -370,7 +371,7 @@ adb shell settings put global gpu_debug_app com.lunarg.gfxreconstruct.replay
 adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture.gfxr'"
 ```
 
-### 2. Install the Quest Teplay Application
+### 2. Install the Quest Replay Application
 
 (Follow instructions in the 
 [1. Install the replay application](#1-install-the-replay-application))section above (especially if the Quest replay application was
@@ -395,7 +396,7 @@ the device, push it to the device using ADB:
 adb push {capture_file_name} /sdcard/Download
 ```
 
-### 5. Run the quest_replay Application
+### 5. Run the Quest Replay Application
 
 Run the replay using the `gfxrecon.py` script:
 
