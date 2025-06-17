@@ -14,10 +14,7 @@ if (${D3D12_SUPPORT})
 
     # Find the build architecture.
     set(DXC_ARCH "")
-    # Some IDEs pass -A in lowercase or in mixed case.
-    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
-    string(TOUPPER ${CMAKE_GENERATOR_PLATFORM} NORMALIZED_CMAKE_GENERATOR_PLATFORM)
-    if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
         set(DXC_ARCH "arm64")
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(DXC_ARCH "x64")
