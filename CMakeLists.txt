@@ -172,7 +172,7 @@ if (MSVC)
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
     # Some IDEs pass -A in lowercase or in mixed case.
     # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
-    string(TOUPPER ${CMAKE_GENERATOR_PLATFORM} NORMALIZED_CMAKE_GENERATOR_PLATFORM)
+    string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
     if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
         set(GFXR_ARM_WINDOWS_BUILD TRUE)
     endif ()
