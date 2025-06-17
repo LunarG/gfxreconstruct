@@ -1130,5 +1130,34 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
     }
 }
 
+std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags)
+{
+    std::vector<VkPipelineBindPoint> bind_points;
+
+    constexpr VkShaderStageFlags gr_flags =
+        VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_TASK_BIT_EXT | VK_SHADER_STAGE_MESH_BIT_EXT;
+    constexpr VkShaderStageFlags com_flags = VK_SHADER_STAGE_COMPUTE_BIT;
+    constexpr VkShaderStageFlags rt_flags  = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR |
+                                            VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR |
+                                            VK_SHADER_STAGE_INTERSECTION_BIT_KHR | VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+
+    if (flags & gr_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
+    if (flags & com_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
+
+    if (flags & rt_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
+    }
+
+    return bind_points;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

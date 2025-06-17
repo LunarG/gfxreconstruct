@@ -313,6 +313,12 @@ class VulkanReplayDumpResourcesBase
                                        uint32_t                        dynamicOffsetCount,
                                        const uint32_t*                 pDynamicOffsets);
 
+    void
+    OverrideCmdBindDescriptorSets2(const ApiCallInfo&                                      call_info,
+                                   PFN_vkCmdBindDescriptorSets2                            func,
+                                   VkCommandBuffer                                         original_command_buffer,
+                                   StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
+
     void OverrideCmdBindIndexBuffer(const ApiCallInfo&       call_info,
                                     PFN_vkCmdBindIndexBuffer func,
                                     VkCommandBuffer          original_command_buffer,
