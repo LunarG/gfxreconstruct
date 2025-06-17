@@ -119,7 +119,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
                                                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                          void*                                       pUserData)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pUserData);
+    VulkanReplayConsumerBase* replay_consumer = static_cast<VulkanReplayConsumerBase*>(pUserData);
+    uint64_t frame_number = replay_consumer->GetFrameNumber() + 1; // Add 1 because of one-based indexing of frames
 
     // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
     const char* message_id_name = "(nullptr)";
@@ -132,19 +133,23 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
     {
         if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
         {
-            GFXRECON_LOG_ERROR("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
+            GFXRECON_LOG_ERROR(
+                "DEBUG MESSENGER: Frame #%i: %s: %s", frame_number, message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
         {
-            GFXRECON_LOG_WARNING("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
+            GFXRECON_LOG_WARNING(
+                "DEBUG MESSENGER: Frame #%i: %s: %s", frame_number, message_id_name, pCallbackData->pMessage);
         }
         else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
         {
-            GFXRECON_LOG_INFO("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
+            GFXRECON_LOG_INFO(
+                "DEBUG MESSENGER: Frame #%i: %s: %s", frame_number, message_id_name, pCallbackData->pMessage);
         }
         else
         {
-            GFXRECON_LOG_DEBUG("DEBUG MESSENGER: %s: %s", message_id_name, pCallbackData->pMessage);
+            GFXRECON_LOG_DEBUG(
+                "DEBUG MESSENGER: Frame #%i: %s: %s", frame_number, message_id_name, pCallbackData->pMessage);
         }
     }
 
@@ -1913,6 +1918,11 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
     }
 }
 
+uint64_t VulkanReplayConsumerBase::GetFrameNumber()
+{
+    return this->frame_number_;
+}
+
 void VulkanReplayConsumerBase::GetMatchingDeviceGroup(VulkanInstanceInfo*                  instance_info,
                                                       VulkanPhysicalDeviceInfo*            physical_device_info,
                                                       const std::vector<format::HandleId>& capture_device_group,
@@ -2245,6 +2255,7 @@ void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Deco
             graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value))
     {
         debug_utils_info->pfnUserCallback = DebugUtilsCallback;
+        debug_utils_info->pUserData       = this;
     }
 }
 
@@ -2754,6 +2765,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         while (pnext_callback_info != nullptr)
         {
             pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
+            pnext_callback_info->pUserData       = this;
             pnext_callback_info =
                 graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
         }
@@ -2765,7 +2777,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         create_state.messenger_create_info.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
         create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
         create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-        create_state.messenger_create_info.pUserData       = nullptr;
+        create_state.messenger_create_info.pUserData       = this;
 
         // We chain the debug messenger create info here to catch debug messages
         // emitted during vkCreateInstance()/vkDestroyInstance()
@@ -6889,6 +6901,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
     {
         modified_create_info                 = (*pCreateInfo->GetPointer());
         modified_create_info.pfnUserCallback = DebugUtilsCallback;
+        modified_create_info.pUserData       = this;
     }
     else
     {
@@ -11344,6 +11357,11 @@ void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
 
     // poll main-dispatch-queue at beginning of new blocks
     main_thread_queue_.poll();
+}
+
+void VulkanReplayConsumerBase::SetCurrentFrameNumber(uint64_t frame_number)
+{
+    VulkanConsumer::SetCurrentFrameNumber(frame_number);
 }
 
 bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*          device_info,

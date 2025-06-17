@@ -52,9 +52,14 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
+    virtual void SetCurrentFrameNumber(uint64_t frame_number) { frame_number_ = frame_number; }
+
     virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
                                                        const char*                             env_string)
     {}
+
+  protected:
+    uint64_t frame_number_{ 0 };
 };
 
 /* Utility */

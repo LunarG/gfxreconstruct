@@ -569,6 +569,14 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void VulkanDecoderBase::SetCurrentFrameNumber(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentFrameNumber(frame_number);
+    }
+}
+
 void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                                              size_t         buffer_size)
 {
