@@ -21,10 +21,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
-#define GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
+#ifndef GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODERS_H
+#define GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODERS_H
 
 #include "format/platform_types.h"
+#include "decode/custom_common_struct_decoders.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
@@ -165,38 +166,6 @@ struct Decoded_VkPushDescriptorSetWithTemplateInfo
     DescriptorUpdateTemplateDecoder pData;
 };
 
-// Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
-struct Decoded_ACL
-{
-    using struct_type = ACL;
-
-    ACL* decoded_value{ nullptr };
-};
-
-struct Decoded_SECURITY_DESCRIPTOR
-{
-    using struct_type = SECURITY_DESCRIPTOR;
-
-    SECURITY_DESCRIPTOR* decoded_value{ nullptr };
-
-    uint8_t*                Owner{ nullptr };
-    uint8_t*                Group{ nullptr };
-    PointerDecoder<uint8_t> PackedOwner;
-    PointerDecoder<uint8_t> PackedGroup;
-
-    StructPointerDecoder<Decoded_ACL>* Sacl{ nullptr };
-    StructPointerDecoder<Decoded_ACL>* Dacl{ nullptr };
-};
-
-struct Decoded_SECURITY_ATTRIBUTES
-{
-    using struct_type = SECURITY_ATTRIBUTES;
-
-    SECURITY_ATTRIBUTES* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
-};
-
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the
 // Decoded_VkIndirectExecutionSetCreateInfoEXT DecodeStruct function, based on the value of
 // VkIndirectExecutionSetCreateInfoEXT::type.
@@ -292,4 +261,4 @@ struct Decoded_VkImageToMemoryCopy
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
+#endif // GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODERS_H

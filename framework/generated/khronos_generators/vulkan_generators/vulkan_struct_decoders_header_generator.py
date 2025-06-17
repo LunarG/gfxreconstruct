@@ -53,6 +53,7 @@ class VulkanStructDecodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
+            'decode/custom_common_struct_decoders_forward.h',
             'decode/custom_vulkan_struct_decoders_forward.h',
             'decode/handle_pointer_decoder.h',
             'decode/pointer_decoder.h',

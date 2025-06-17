@@ -30,6 +30,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 
+#include "decode/custom_common_struct_decoders_forward.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
