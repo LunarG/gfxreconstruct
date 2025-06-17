@@ -1072,6 +1072,68 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
+    const ApiCallInfo&                                      call_info,
+    PFN_vkCmdBindDescriptorSets2                            func,
+    VkCommandBuffer                                         original_command_buffer,
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
+{
+    const auto bind_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+
+    std::vector<VkPipelineBindPoint> bind_points =
+        ShaderStageFlagsToPipelineBindPoints(bind_meta->decoded_value->stageFlags);
+
+    const auto layout_info = object_info_table_->GetVkPipelineLayoutInfo(bind_meta->layout);
+
+    std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(bind_meta->decoded_value->descriptorSetCount, nullptr);
+
+    for (uint32_t i = 0; i < bind_meta->decoded_value->descriptorSetCount; ++i)
+    {
+        const VulkanDescriptorSetInfo* desc_set_info =
+            object_info_table_->GetVkDescriptorSetInfo(bind_meta->pDescriptorSets.GetPointer()[i]);
+        desc_set_infos[i] = desc_set_info;
+    }
+
+    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
+    if (dc_context)
+    {
+        for (const auto bind_point : bind_points)
+        {
+            dc_context->BindDescriptorSets(bind_point,
+                                           bind_meta->decoded_value->firstSet,
+                                           desc_set_infos,
+                                           bind_meta->decoded_value->dynamicOffsetCount,
+                                           bind_meta->decoded_value->pDynamicOffsets);
+        }
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, pBindDescriptorSetsInfo->GetPointer());
+    }
+
+    VkCommandBuffer dr_cmd_buf = GetDispatchRaysCommandBuffer(original_command_buffer);
+    if (dr_cmd_buf != VK_NULL_HANDLE)
+    {
+        func(dr_cmd_buf, pBindDescriptorSetsInfo->GetPointer());
+    }
+
+    DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(original_command_buffer);
+    if (dr_context)
+    {
+        for (const auto bind_point : bind_points)
+        {
+            dr_context->BindDescriptorSets(bind_point,
+                                           bind_meta->decoded_value->firstSet,
+                                           desc_set_infos,
+                                           bind_meta->decoded_value->dynamicOffsetCount,
+                                           bind_meta->decoded_value->pDynamicOffsets);
+        }
+    }
+}
+
 void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer(const ApiCallInfo&       call_info,
                                                                PFN_vkCmdBindIndexBuffer func,
                                                                VkCommandBuffer          original_command_buffer,

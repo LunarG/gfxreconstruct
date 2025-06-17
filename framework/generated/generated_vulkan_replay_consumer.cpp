@@ -3694,7 +3694,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2, in_commandBuffer->handle, pBindDescriptorSetsInfo->GetPointer());
+        resource_dumper_->Process_vkCmdBindDescriptorSets2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2, in_commandBuffer->handle, pBindDescriptorSetsInfo);
     }
 }
 
@@ -6463,7 +6463,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets2KHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2KHR, in_commandBuffer->handle, pBindDescriptorSetsInfo->GetPointer());
+        resource_dumper_->Process_vkCmdBindDescriptorSets2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorSets2KHR, in_commandBuffer->handle, pBindDescriptorSetsInfo);
     }
 }
 
