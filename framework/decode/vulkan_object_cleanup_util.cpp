@@ -570,6 +570,21 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                 ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
+    FreeChildObjects<VulkanDeviceInfo, VulkanMicromapEXTInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkMicromapEXT),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkMicromapEXTInfo,
+        &CommonObjectInfoTable::RemoveVkMicromapEXTInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanMicromapEXTInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)
+                ->DestroyMicromapEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
     FreeChildObjects<VulkanInstanceInfo, VulkanDebugReportCallbackEXTInfo>(
         table,
         GFXRECON_STR(VkInstance),

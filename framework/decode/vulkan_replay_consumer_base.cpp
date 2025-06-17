@@ -5572,6 +5572,12 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
         // In the case of dump resources we also want the TRANSFER_SRC_BIT in order to be able to dump all images
         modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+        if (loading_trim_state_)
+        {
+            // ensure image-initialization can copy
+            modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        }
     }
 
     // The original image might be external and it might be an unknown format, so perform any
