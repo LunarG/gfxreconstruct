@@ -199,7 +199,7 @@ class ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
 
-    virtual void SetCurrentFrameNumber(uint64_t frame_number) {};
+    virtual void SetCurrentFrameNumber(uint64_t frame_number){};
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
 
