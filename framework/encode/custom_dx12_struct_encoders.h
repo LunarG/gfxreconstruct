@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 #define GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 
+#include "encode/custom_common_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "util/defines.h"
 

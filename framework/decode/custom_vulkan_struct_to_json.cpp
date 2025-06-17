@@ -324,18 +324,6 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTES* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const auto& decoded_value = *data->decoded_value;
-        const auto& meta_struct   = *data;
-        jdata["bInheritHandle"]   = static_cast<bool>(decoded_value.bInheritHandle);
-        FieldToJson(jdata["nLength"], decoded_value.nLength, options);
-        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor->GetAddress(), options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json&                  jdata,
                  const Decoded_VkPipelineCacheCreateInfo* data,
                  const JsonOptions&                       options)

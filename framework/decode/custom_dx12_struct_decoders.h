@@ -25,8 +25,8 @@
 
 #if defined(D3D12_SUPPORT)
 
+#include "decode/custom_common_struct_decoders.h"
 #include "decode/custom_dx12_struct_decoders_forward.h"
-#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "format/format.h"
