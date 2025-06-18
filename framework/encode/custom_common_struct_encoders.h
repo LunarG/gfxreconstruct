@@ -36,6 +36,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 void EncodeStruct(ParameterEncoder* encoder, const ACL& value);
 void EncodeStruct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
 void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
+void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
