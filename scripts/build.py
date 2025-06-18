@@ -25,6 +25,7 @@ GFXReconstruct build script
 '''
 
 import argparse
+import glob
 import os
 import platform
 import re
@@ -187,6 +188,10 @@ def get_build_dir(user_build_dir, configuration, architecture):
         return os.path.join(prefix_dir(configuration, architecture), 'cmake_output')
 
 
+def repo_relative(path):
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', path))
+
+
 def cmake_version():
     '''
     Get the CMake version
@@ -330,9 +335,55 @@ def cmake_build(args):
             raise BuildError('cmake install failed')
 
 
+# Check copyright dates for modified files
+def verify_copyrights(commit, target_files):
+    retval = 0
+    is_lunarg_author = False
+    authors = subprocess.check_output(['git', 'log', '-n' , '1', '--format=%ae', commit])
+    for author in authors.split(b'\n'):
+        if author.endswith(b'@lunarg.com'):
+            is_lunarg_author = True
+            break
+
+    if not is_lunarg_author:
+        return 0
+
+    # Handle year changes by respecting when the author wrote the code, rather
+    # the day the script runs. This isn't exactly right yet, because really
+    # we should evaluate it commit's files against that commit's date.
+    commit_year = None
+    # get all the author dates in YYYY-MM-DD format
+    commit_dates = subprocess.check_output(['git', 'log', '-n', '1', '--format=%as', commit])
+    for cd in commit_dates.split(b'\n'):
+        if len(cd) == 0:
+            continue
+        year = cd.split(b'-')[0]
+        if not commit_year or int(commit_year) < int(year):
+            commit_year = year.decode('utf-8')
+    for file in target_files:
+        if file is None:
+            continue
+        file_path = repo_relative(file)
+        if not os.path.isfile(file_path):
+            continue
+        for company in ["LunarG", "Valve"]:
+            # Capture the last year on the line as a separate match. It should be the highest (or only year of the range)
+            copyright_match = re.search('Copyright .*(\d{4}) ' + company, open(file_path, encoding="utf-8", errors='ignore').read(1024))
+            if copyright_match:
+                copyright_year = copyright_match.group(1)
+                if int(commit_year) > int(copyright_year):
+                    msg = f'Change written in {commit_year} but copyright ends in {copyright_year}.'
+                    print(f'\n{file_path} has an out-of-date {company} copyright notice: {msg}')
+                    retval = 1
+    return retval
+
+
 # Main entry point
 if '__main__' == __name__:
     args = parse_args()
+    if args.check_code_style_base:
+        all_source_files = glob.glob("./**/*.cpp", recursive=True)
+        #verify_copyrights()
     clean = args.clean or args.clobber
     if not clean:
         update_external_dependencies(args)
