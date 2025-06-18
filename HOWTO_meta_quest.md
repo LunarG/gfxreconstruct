@@ -309,8 +309,11 @@ If the application fails to launch, review the
 Here is a useful filter for logcat messages.
 
 ```bash
-adb logcat -s DEBUG vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
+adb logcat -s DEBUG vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon {application log tag}
 ```
+
+Replace `{application log tag}` with the logging tag the application
+uses to log messages to logcat.
 
 Once complete, if everything executed correctly, the capture
 file should be present in the `/sdcard/Download` folder.
@@ -348,9 +351,9 @@ section.
 Even though the Quest Replay application is built enabling external
 storage access permissions in its Android Manifest file,
 it doesn't always appear to stick.
-Because of this, it is best to just force on the permission right
-before attempting to run and access the files in the `/sdcard/Download`
-directory:
+Because of this, it is best to just force the external storage
+permission on immediately after installing the application to
+allow it to access the files in the `/sdcard/Download` directory:
 
 ```bash
 adb shell appops set --uid com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
