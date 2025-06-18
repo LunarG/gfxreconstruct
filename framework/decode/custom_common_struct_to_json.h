@@ -36,6 +36,14 @@ void FieldToJson(nlohmann::ordered_json&            jdata,
                  const Decoded_SECURITY_ATTRIBUTES* data,
                  const util::JsonOptions&           options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
+
+inline void
+FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options)
+{
+    FieldToJson(jdata, &obj, options);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

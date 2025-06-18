@@ -102,5 +102,10 @@ void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
     encoder->EncodeInt32Value(value.bInheritHandle);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
+{
+    encoder->EncodeInt64Value(value.QuadPart);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -82,18 +82,6 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         write(ref_wrappers, file=self.outFile)
 
     def endFile(self):
-        """Method override."""
-        custom_to_fields = '''
-
-        // Custom, manually written implementations whose prototypes haven't been generated above:
-
-        /// <winnt.h> Named union type with two structs and a uint64_t inside.
-        void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
-        inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
-        '''
-        custom_to_fields = format_cpp_code(custom_to_fields)
-        write(custom_to_fields, file=self.outFile)
-
         code = '\n'
         code += 'GFXRECON_END_NAMESPACE(decode)\n'
         code += 'GFXRECON_END_NAMESPACE(gfxrecon)\n'

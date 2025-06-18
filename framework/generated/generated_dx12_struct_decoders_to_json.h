@@ -680,11 +680,6 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID& obj, 
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagRECT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 
-// Custom, manually written implementations whose prototypes haven't been generated above:
-
-/// <winnt.h> Named union type with two structs and a uint64_t inside.
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
-inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

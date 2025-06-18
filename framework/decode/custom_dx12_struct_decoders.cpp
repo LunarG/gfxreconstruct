@@ -671,18 +671,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
-
-    size_t         bytes_read = 0;
-    LARGE_INTEGER* value      = wrapper->decoded_value;
-
-    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->QuadPart));
-
-    return bytes_read;
-}
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

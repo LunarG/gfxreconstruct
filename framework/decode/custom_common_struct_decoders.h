@@ -66,6 +66,12 @@ struct Decoded_SECURITY_ATTRIBUTES
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
 };
 
+struct Decoded_LARGE_INTEGER
+{
+    using struct_type = LARGE_INTEGER;
+    LARGE_INTEGER* decoded_value{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

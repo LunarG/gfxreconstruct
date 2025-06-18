@@ -61,7 +61,6 @@ class Dx12StructDecodersForwardGenerator(
         struct_dict = self.source_dict['struct_dict']
         for name in struct_dict:
             code += 'struct Decoded_{};\n'.format(name)
-        code += 'struct Decoded_LARGE_INTEGER;\n'
         write(code, file=self.outFile)
 
         Dx12BaseGenerator.generate_feature(self)

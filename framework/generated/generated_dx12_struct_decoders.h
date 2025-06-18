@@ -50,6 +50,7 @@
 #include "format/platform_types.h"
 #endif // WIN32
 
+#include "decode/custom_common_struct_decoders_forward.h"
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/string_array_decoder.h"

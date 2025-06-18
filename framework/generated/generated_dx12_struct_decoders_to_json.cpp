@@ -5001,17 +5001,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT* data, co
 /// creating a whole new compilation unit for them.
 /** @{*/
 
-// Decoded_LARGE_INTEGER won't be generated as it is a <winnt.h> struct rather than D3D12.
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const LARGE_INTEGER& decoded_value = *data->decoded_value;
-        FieldToJson(jdata, decoded_value.QuadPart, options);
-    }
-}
-
 // Generated version tries to read the struct members rather than doing the "fake enum" thing.
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID* data, const JsonOptions& options)
 {

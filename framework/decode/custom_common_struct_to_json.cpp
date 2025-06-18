@@ -42,5 +42,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTE
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const LARGE_INTEGER& decoded_value = *data->decoded_value;
+        FieldToJson(jdata, decoded_value.QuadPart, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

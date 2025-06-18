@@ -40,6 +40,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrap
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
 
+// Platform types.
+struct Decoded_LARGE_INTEGER;
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -74,6 +74,7 @@ class Dx12StructDecodersHeaderGenerator(
         code += '#endif // WIN32\n\n'
 
         code += (
+            "#include \"decode/custom_common_struct_decoders_forward.h\"\n"
             "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
             "#include \"decode/handle_pointer_decoder.h\"\n"
             "#include \"decode/string_array_decoder.h\"\n"
