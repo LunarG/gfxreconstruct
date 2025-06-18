@@ -21,7 +21,7 @@ Limitations below.
 
 1. [Purpose](#purpose)
 2. [Building GFXReconstruct](#building-gfxreconstruct)
-3. [Attaching GFXReconstruct to an Existing Application](#attaching-gfxreconstruct-to-an-existing-appplication)
+3. [Attaching GFXReconstruct to an Existing Application](#attaching-gfxreconstruct-to-an-existing-application)
 4. [Replaying a Capture File](#replaying-a-capture-file)
 6. [Capturing the Replay Content](#capturing-the-replay-content)
 7. [OpenXR Capture Known Limitations](#openxr-capture-known-limitations)
@@ -37,7 +37,7 @@ as the build and/or host since the Meta Quest Developer Hub tools work
 on Windows and not Linux.
 
 **NOTE:** This assumes the application meets the following requirements
- * Uses Gralde (preferablly 8.0+)
+ * Uses Gradle (preferably 8.0+)
  * Builds against Android 10+
 
 ## Building GFXReconstruct
@@ -57,7 +57,7 @@ found in the top-level of the GFXReconstruct repo for building
 for an [Android target](./BUILD.md#building-for-android).
 
 
-## Attaching GFXReconstruct to an Existing Appplication
+## Attaching GFXReconstruct to an Existing Application
 
 To attach GFXReconstruct to an existing application
 will require modifying the Gradle files so that the
@@ -94,7 +94,7 @@ dependencies {
 }
 ```
 
-### 3. Adjust App AndrdoidManifest
+### 3. Adjust App AndroidManifest
 
 Edit the application file to add both the
 `WRITE_EXTERNAL_STORAGE` and `MANAGE_EXTERNAL_STORAGE`
@@ -158,7 +158,7 @@ should look something similar to the following:
 * net.beyondreality.openxr_provider.finger_painting3.openxr
 
 **NOTE:** If you apply an `applicationIdSuffix`, you should append it to
-the applciationId to get the full Identifier.
+the applicationId to get the full Identifier.
 
 #### What do These Commands Do?
 
@@ -196,7 +196,7 @@ The file name with timestamps enabled will look
 something like `openxr_capture_20240812T132918.gfxr`.
 
 
-#### Limit to a Certian Number of Frames
+#### Limit to a Certain Number of Frames
 
 You can adjust how many frames are captured (instead of
 all frames until the app is completed) by defining
@@ -284,9 +284,9 @@ adb shell ls /sdcard/Download/openxr_capture*.gfxr
 ## Replaying a Capture File
 
 
-### 1. Install the replay application
+### 1. Install the Quest Replay Application
 
-Install the GFXReconstrudct Quest Replay application
+Install the GFXReconstruct Quest Replay application
 that is built as part of the Android build of
 GFXReconstruct using the `gfxrecon.py` script:
 
@@ -309,7 +309,7 @@ Even though the Quest Replay application is built enabling external
 storage access permissions in its Android Manifest file,
 it doesn't always appear to stick.
 Because of this, it is best to just force on the permission right
-before attempting to run and access the files in the `/sdcard/downlaod`
+before attempting to run and access the files in the `/sdcard/Download`
 directory:
 
 ```bash
@@ -340,7 +340,7 @@ does require some additional changes.
 By default, the Quest replay application does not include the
 necessary OpenXR capture layer manifest files.
 Because of this, you need to pass in the `EnableOpenXRCaptureOfReplay`
-Gradle propery during build to properly define all the dependencies
+Gradle property during build to properly define all the dependencies
 for the capture layer.
 
 This can be done in the following way:
@@ -371,10 +371,10 @@ adb shell settings put global gpu_debug_app com.lunarg.gfxreconstruct.replay
 adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture.gfxr'"
 ```
 
-### 2. Install the Quest Replay Application
+### 2. Install the Updated Replay Tool
 
 (Follow instructions in the 
-[1. Install the replay application](#1-install-the-replay-application))section above (especially if the Quest replay application was
+[1. Install the Quest Replay Application](#1-install-the-quest-replay-application))section above (especially if the Quest replay application was
 previously installed without re-capture enabled).
 
 Repeat the permissions modification as noted in tje
