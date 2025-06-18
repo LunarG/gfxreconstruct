@@ -73,7 +73,7 @@ include ':VkLayer_gfxreconstruct'
 project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}\\android\\layer')
 ```
 
-Replacing `{gfxreconstruct_root}` with the location of your
+Replace `{gfxreconstruct_root}` with the location of your
 GFXReconstruct source pulled down from Github above in
 the [Building GFXReconstruct](#building-gfxreconstruct)
 section.
@@ -100,6 +100,21 @@ Edit the application file to add both the
 `WRITE_EXTERNAL_STORAGE` and `MANAGE_EXTERNAL_STORAGE`
 permissions so that GFXReconstruct can write the
 capture file to your system.
+
+For example:
+
+```bash
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+...
+  <uses-permission android:name="org.khronos.openxr.permission.OPENXR" />
+  <uses-permission android:name="org.khronos.openxr.permission.OPENXR_SYSTEM" />
+...
++  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++  <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+...
+```
 
 
 ### 4. Building Your App
@@ -150,7 +165,7 @@ adb shell "settings put global gpu_debug_app {Android applicationId}"
 adb shell "settings put global gpu_debug_layers 'VK_LAYER_LUNARG_gfxreconstruct'"
 ```
 
-Replacing `{Android applicationId}` with the application's Id.
+Replace `{Android applicationId}` with the application's Id.
 This Id typically can be found in the `build.gradle` file and
 should look something similar to the following:
 
@@ -182,18 +197,37 @@ of the capture, in this case to the `/sdcard/Download` folder:
 
 ```bash
 adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture.gfxr'"
+```
+
+This commands will result in the capture file being written
+to the `/sdcard/Download` folder on the device with the
+prefix of `openxr_capture` and the suffix of `.gfxr`.
+
+#### Filename With Timestamp
+
+By default, the filename provided above is modified to include
+a timestamp after the main filename.
+For example, with the above information, the expanded
+filename with timestamp may look something like
+`openxr_capture_20240812T132918.gfxr`.
+In general, adding a timestamp to the filename is useful
+since it creates a unique file per run allowing users
+to capture multiple times without fear of overriding
+the previous capture.
+However, if you are using it in a script and it may be useful
+to force a consistent filename by disabling the use of
+the timestamp.
+
+To disable adding a timestamp to the filename when capturing,
+set the following Android property:
+
+```bash
 adb shell "setprop debug.gfxrecon.capture_file_timestamp 0"
 ```
 
-These two commands will result in the capture file
-`openxr_capture.gfxr` being written to the `/sdcard/Download`
-folder on the device.
-
-The second command disables adding a timestamp the name.
-If this is not set, it creates a unique filename per 
-run (which is great for CI systems or other testing).
-The file name with timestamps enabled will look
-something like `openxr_capture_20240812T132918.gfxr`.
+**NOTE:** The rest of this document assumes this option
+is enabled simply so we can simplify the naming of the
+capture filename.
 
 
 #### Limit to a Certain Number of Frames
@@ -259,7 +293,13 @@ Options](./USAGE_android.md#capture-options) section.
 ### 7. Install and Run the Application
 
 Install the application as normal and run it.
-You may have to stop and uninstall any older 
+
+**NOTE:** There are several situations in Android that may
+prevent updating an application that has already been installed
+on the system previously.
+In those situations, it is better to make sure any previous
+installed versions are stopped and uninstalled before
+attempting to install the newer version of the application.
 
 Then run the application as normal to capture
 the content.
@@ -298,7 +338,7 @@ cd {gfxreconstruct_root}
 python3 android/scripts/gfxrecon.py install-apk android/tools/quest_replay/build/outputs/apk/debug/quest_replay-debug.apk
 ```
 
-Replacing `{gfxreconstruct_root}` with the location of your
+Replace `{gfxreconstruct_root}` with the location of your
 GFXReconstruct source pulled down from Github above in
 the [Building GFXReconstruct](#building-gfxreconstruct)
 section.
@@ -324,7 +364,7 @@ Run the replay using the `gfxrecon.py` script:
 python3 android/scripts/gfxrecon.py replay sdcard/Download/{capture_file_name}
 ```
 
-Replacing `{capture_file_name}` with the name of a
+Replace `{capture_file_name}` with the name of a
 valid capture file that was created.
 The replay should run, perform the appropriate rendering,
 and then close on completion.
@@ -377,7 +417,7 @@ adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture
 [1. Install the Quest Replay Application](#1-install-the-quest-replay-application))section above (especially if the Quest replay application was
 previously installed without re-capture enabled).
 
-Repeat the permissions modification as noted in tje
+Repeat the permissions modification as noted in the
 [2. Force External Storage Permissions](#2-force-external-storage-permissions)
 section above.
 
