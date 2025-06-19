@@ -44,7 +44,6 @@ typedef uint64_t PresentId;
 
 enum KhronosLoaderType : uint16_t
 {
-    KhronosLoader_None,
     KhronosLoader_Vulkan,
     KhronosLoader_OpenXR,
 };

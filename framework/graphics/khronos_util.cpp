@@ -55,6 +55,9 @@ util::platform::LibraryHandle InitializeKhronosLoader(KhronosLoaderType type)
         case KhronosLoader_OpenXR:
             return util::platform::OpenLibrary(kOpenXrLoaderLibNames);
         default:
+            GFXRECON_LOG_FATAL("Unsupported Khronos Loader option %d", type);
+            GFXRECON_ASSERT(false);
+
 #if defined(WIN32)
             return reinterpret_cast<util::platform::LibraryHandle>(INVALID_HANDLE_VALUE);
 #else
