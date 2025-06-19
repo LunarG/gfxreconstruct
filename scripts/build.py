@@ -390,14 +390,19 @@ def verify_copyrights(target_files):
         commit_year = edit_date.split('-')[0]
 
         file_path = repo_relative(file)
-        copyright_pattern = 'Copyright .*([0-9]{4}) LunarG'
-        copyright_match = re.search(copyright_pattern, open(file_path, encoding=ENCODING, errors='ignore').read(1024))
+        copyright_pattern = r'Copyright .*([0-9]{4}) LunarG'
+        with open(file_path, encoding=ENCODING, errors='ignore') as f:
+            in_string = f.read(1024)
+        copyright_match = re.search(copyright_pattern, in_string)
         if copyright_match:
             copyright_year = copyright_match.group(1)
             if int(commit_year) > int(copyright_year):
                 msg = f'Change written in {commit_year} but copyright ends in {copyright_year}.'
                 print(f'\n{file_path} has an out-of-date LunarG copyright notice: {msg}')
-                #re.sub(copyright_pattern, repl, string, count=0, flags=0)
+                out_string = re.sub(r"[0-9]{4} LunarG", f'{commit_year} LunarG', in_string, count=0, flags=0)
+                with open(file_path, "r+", encoding=ENCODING, errors='ignore') as f:
+                    f.seek(0)
+                    f.write(out_string)
                 bad_files.append(file)
     
     return bad_files
