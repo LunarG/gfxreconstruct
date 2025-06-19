@@ -56,6 +56,7 @@ BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
 CONFIGURATIONS = ['release', 'debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
 VERSION = '0.0.0'
+ENCODING = 'utf-8'
 
 
 class BuildError(Exception):
@@ -336,7 +337,7 @@ def cmake_build(args):
 
 
 # Check copyright dates for modified files
-def verify_copyrights(commit, target_files):
+def verify_copyrights_by_commit(commit, target_files):
     retval = 0
     is_lunarg_author = False
     authors = subprocess.check_output(['git', 'log', '-n' , '1', '--format=%ae', commit])
@@ -368,7 +369,7 @@ def verify_copyrights(commit, target_files):
             continue
         for company in ["LunarG", "Valve"]:
             # Capture the last year on the line as a separate match. It should be the highest (or only year of the range)
-            copyright_match = re.search('Copyright .*(\d{4}) ' + company, open(file_path, encoding="utf-8", errors='ignore').read(1024))
+            copyright_match = re.search('Copyright .*([0-9]{4}) ' + company, open(file_path, encoding=ENCODING, errors='ignore').read(1024))
             if copyright_match:
                 copyright_year = copyright_match.group(1)
                 if int(commit_year) > int(copyright_year):
@@ -377,13 +378,44 @@ def verify_copyrights(commit, target_files):
                     retval = 1
     return retval
 
+def verify_copyrights(target_files):    
+    bad_files = []
+    for file in target_files:
+        # Skip if non-LunarG author
+        author = subprocess.check_output(['git', 'log', '-n1', '--format=%ae', file]).decode(ENCODING)
+        if "lunarg" not in author:
+            continue
+        
+        edit_date = subprocess.check_output(['git', 'log', '-1', '--format=%as', file]).decode(ENCODING)
+        commit_year = edit_date.split('-')[0]
+
+        file_path = repo_relative(file)
+        copyright_pattern = 'Copyright .*([0-9]{4}) LunarG'
+        copyright_match = re.search(copyright_pattern, open(file_path, encoding=ENCODING, errors='ignore').read(1024))
+        if copyright_match:
+            copyright_year = copyright_match.group(1)
+            if int(commit_year) > int(copyright_year):
+                msg = f'Change written in {commit_year} but copyright ends in {copyright_year}.'
+                print(f'\n{file_path} has an out-of-date LunarG copyright notice: {msg}')
+                #re.sub(copyright_pattern, repl, string, count=0, flags=0)
+                bad_files.append(file)
+    
+    return bad_files
 
 # Main entry point
 if '__main__' == __name__:
     args = parse_args()
     if args.check_code_style_base:
-        all_source_files = glob.glob("./**/*.cpp", recursive=True)
-        #verify_copyrights()
+        exts = [".cpp", ".h", ".py"]
+        dirs = ["android", "framework", "layer", "scripts", "test", "tools"]
+        all_source_files = []
+        for ext in exts:
+            for dir in dirs:
+                all_source_files.extend(glob.glob(f"./{dir}/**/*{ext}", recursive=True))
+
+        bad_files = verify_copyrights(all_source_files)
+        if len(bad_files) > 0:
+            sys.exit(-1)
     clean = args.clean or args.clobber
     if not clean:
         update_external_dependencies(args)
