@@ -120,7 +120,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
                                                          void*                                       pUserData)
 {
     VulkanReplayConsumerBase* replay_consumer = static_cast<VulkanReplayConsumerBase*>(pUserData);
-    uint64_t frame_number = replay_consumer->GetFrameNumber();
+    uint64_t                  frame_number    = replay_consumer->GetFrameNumber();
 
     // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
     const char* message_id_name = "(nullptr)";
