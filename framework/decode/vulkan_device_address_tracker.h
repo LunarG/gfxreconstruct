@@ -122,12 +122,20 @@ class VulkanDeviceAddressTracker
      */
     [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
 
+    //! aggregate to group an address and size
+    struct device_address_item_t
+    {
+        VkDeviceAddress address = 0;
+        VkDeviceSize    size    = 0;
+    };
+
     /**
-     * @brief   Create and return a lookup-table containing all internally stored buffer-device-addresses.
+     * @brief   Return a lookup-table containing all internally stored buffer-device-addresses,
+     *          mapping from capture- to replay-addresses
      *
      * @return  a lookup-table for buffer-device-addresses.
      */
-    [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetBufferDeviceAddressMap() const;
+    const std::unordered_map<VkDeviceAddress, device_address_item_t>& GetBufferDeviceAddressMap() const;
 
   private:
     //! use a sorted (BST-based) map
@@ -142,6 +150,8 @@ class VulkanDeviceAddressTracker
 
     std::unordered_map<VkBuffer, format::HandleId>                   buffer_handles_;
     std::unordered_map<VkAccelerationStructureKHR, format::HandleId> acceleration_structure_handles_;
+
+    std::unordered_map<VkDeviceAddress, device_address_item_t> address_lookup_helper_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

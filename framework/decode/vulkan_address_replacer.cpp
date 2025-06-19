@@ -338,14 +338,10 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         storage_bda_binary_.clear();
 
         // populate hashmap
-        auto address_map = address_tracker.GetBufferDeviceAddressMap();
-        for (const auto& [capture_address, replay_address] : address_map)
+        const auto& address_map = address_tracker.GetBufferDeviceAddressMap();
+        for (const auto& [capture_address, replay_item] : address_map)
         {
-            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
-            if (buffer_info != nullptr)
-            {
-                storage_bda_binary_.push_back({ capture_address, replay_address, buffer_info->size });
-            }
+            storage_bda_binary_.push_back({ capture_address, replay_item.address, replay_item.size });
         }
 
         if (command_buffer_info != nullptr)
