@@ -120,7 +120,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
                                                          void*                                       pUserData)
 {
     VulkanReplayConsumerBase* replay_consumer = static_cast<VulkanReplayConsumerBase*>(pUserData);
-    uint64_t frame_number = replay_consumer->GetFrameNumber() + 1; // Add 1 because of one-based indexing of frames
+    uint64_t frame_number = replay_consumer->GetFrameNumber();
 
     // Allow pCallbackData->pMessageIdName to be nullptr by defining a default string for message id name
     const char* message_id_name = "(nullptr)";
@@ -1918,9 +1918,9 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
     }
 }
 
-uint64_t VulkanReplayConsumerBase::GetFrameNumber()
+const uint64_t VulkanReplayConsumerBase::GetFrameNumber()
 {
-    return this->frame_number_;
+    return this->frame_number_ + 1; // Add 1 because of one-based indexing of frames
 }
 
 void VulkanReplayConsumerBase::GetMatchingDeviceGroup(VulkanInstanceInfo*                  instance_info,
