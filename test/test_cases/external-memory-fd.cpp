@@ -2,7 +2,8 @@
 
 #include "verify-gfxr.h"
 
-char const* const KNOWN_GFXR_PATH = "external-memory-fd.gfxr";
+
+char const* const KNOWN_GFXR_PATH = "external-memory-fd-import.gfxr";
 
 TEST(ExternalMemoryFD, CorrectGFXR)
 {
