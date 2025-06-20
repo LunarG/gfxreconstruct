@@ -52,6 +52,7 @@
 #endif
 
 const char kOptions[] = "-h|--help";
+const char kArguments[] = "--wsi";
 
 static const char* kAppNames[] = { "acquired-image",
                                    "host-image-copy",
@@ -81,7 +82,9 @@ void PrintUsage(const char* exe_name)
     }
     GFXRECON_WRITE_CONSOLE("\n%s - A launcher for GFXReconstruct test apps.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] <test_name>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help]", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t\t\t\t[--wsi <platform>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\t<test_name>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <test_name>\tName of the test app to launch.");
     GFXRECON_WRITE_CONSOLE("             \tOptions are: ");
@@ -89,6 +92,9 @@ void PrintUsage(const char* exe_name)
     {
         GFXRECON_WRITE_CONSOLE("             \t  %s", app_name);
     }
+    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tUse the specified wsi platform.");
+    GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
 }
 
 std::unique_ptr<gfxrecon::test::TestAppBase>
@@ -185,7 +191,7 @@ int inner_main(
 {
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     if (CheckOptionPrintUsage(argv[0], arg_parser))
     {
