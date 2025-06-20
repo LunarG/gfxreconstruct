@@ -47,7 +47,7 @@
 #endif
 
 #include <application/application.h>
-#include <util/defines.h>
+#include <graphics/vulkan_util.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test)
@@ -152,185 +152,6 @@ void GenericFeatureChain::combine(GenericFeatureChain const& right) noexcept
     }
 }
 
-class VulkanFunctions
-{
-  private:
-    std::mutex init_mutex;
-
-#if defined(__linux__) || defined(__APPLE__)
-    void* library = nullptr;
-#elif defined(_WIN32)
-    HMODULE library = nullptr;
-#endif
-
-    bool load_vulkan_library()
-    {
-        // Can immediately return if it has already been loaded
-        if (library)
-        {
-            return true;
-        }
-        auto library_path = std::getenv("VULKAN_LIBRARY_PATH");
-#if defined(__linux__)
-        if (library_path != nullptr)
-        {
-            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!library)
-            library = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
-#elif defined(__APPLE__)
-        if (library_path != nullptr)
-        {
-            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!library)
-            library = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libvulkan.1.dylib", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
-#elif defined(_WIN32)
-        if (library_path != nullptr)
-        {
-            library = LoadLibrary(library_path);
-        }
-        if (!library)
-            library = LoadLibrary(TEXT("vulkan-1.dll"));
-#else
-        assert(false && "Unsupported platform");
-#endif
-        if (!library)
-        {
-            return false;
-        }
-        load_func(ptr_vkGetInstanceProcAddr, "vkGetInstanceProcAddr");
-        return ptr_vkGetInstanceProcAddr != nullptr;
-    }
-
-    template <typename T>
-    void load_func(T& func_dest, const char* func_name)
-    {
-#if defined(__linux__) || defined(__APPLE__)
-        func_dest = reinterpret_cast<T>(dlsym(library, func_name));
-#elif defined(_WIN32)
-        func_dest = reinterpret_cast<T>(GetProcAddress(library, func_name));
-#endif
-    }
-
-    void close()
-    {
-#if defined(__linux__) || defined(__APPLE__)
-        dlclose(library);
-#elif defined(_WIN32)
-        FreeLibrary(library);
-#endif
-        library = 0;
-    }
-
-  public:
-    bool init_vulkan_funcs(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr = nullptr)
-    {
-        std::lock_guard<std::mutex> lg(init_mutex);
-        if (fp_vkGetInstanceProcAddr != nullptr)
-        {
-            ptr_vkGetInstanceProcAddr = fp_vkGetInstanceProcAddr;
-        }
-        else
-        {
-            bool ret = load_vulkan_library();
-            if (!ret)
-                return false;
-        }
-
-        fp_vkEnumerateInstanceExtensionProperties = reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
-            ptr_vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkEnumerateInstanceExtensionProperties"));
-        fp_vkEnumerateInstanceLayerProperties = reinterpret_cast<PFN_vkEnumerateInstanceLayerProperties>(
-            ptr_vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkEnumerateInstanceLayerProperties"));
-        fp_vkEnumerateInstanceVersion = reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
-            ptr_vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkEnumerateInstanceVersion"));
-        fp_vkCreateInstance =
-            reinterpret_cast<PFN_vkCreateInstance>(ptr_vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
-        return true;
-    }
-
-  public:
-    template <typename T>
-    void get_inst_proc_addr(T& out_ptr, const char* func_name)
-    {
-        out_ptr = reinterpret_cast<T>(ptr_vkGetInstanceProcAddr(instance, func_name));
-    }
-
-    template <typename T>
-    void get_device_proc_addr(VkDevice device, T& out_ptr, const char* func_name)
-    {
-        out_ptr = reinterpret_cast<T>(fp_vkGetDeviceProcAddr(device, func_name));
-    }
-
-    PFN_vkGetInstanceProcAddr ptr_vkGetInstanceProcAddr = nullptr;
-    VkInstance                instance                  = nullptr;
-
-    PFN_vkEnumerateInstanceExtensionProperties fp_vkEnumerateInstanceExtensionProperties = nullptr;
-    PFN_vkEnumerateInstanceLayerProperties     fp_vkEnumerateInstanceLayerProperties     = nullptr;
-    PFN_vkEnumerateInstanceVersion             fp_vkEnumerateInstanceVersion             = nullptr;
-    PFN_vkCreateInstance                       fp_vkCreateInstance                       = nullptr;
-
-    PFN_vkDestroyInstance                        fp_vkDestroyInstance                        = nullptr;
-    PFN_vkCreateDebugUtilsMessengerEXT           fp_vkCreateDebugUtilsMessengerEXT           = nullptr;
-    PFN_vkDestroyDebugUtilsMessengerEXT          fp_vkDestroyDebugUtilsMessengerEXT          = nullptr;
-    PFN_vkEnumeratePhysicalDevices               fp_vkEnumeratePhysicalDevices               = nullptr;
-    PFN_vkGetPhysicalDeviceFeatures              fp_vkGetPhysicalDeviceFeatures              = nullptr;
-    PFN_vkGetPhysicalDeviceFeatures2             fp_vkGetPhysicalDeviceFeatures2             = nullptr;
-    PFN_vkGetPhysicalDeviceFeatures2KHR          fp_vkGetPhysicalDeviceFeatures2KHR          = nullptr;
-    PFN_vkGetPhysicalDeviceProperties            fp_vkGetPhysicalDeviceProperties            = nullptr;
-    PFN_vkGetPhysicalDeviceQueueFamilyProperties fp_vkGetPhysicalDeviceQueueFamilyProperties = nullptr;
-    PFN_vkGetPhysicalDeviceMemoryProperties      fp_vkGetPhysicalDeviceMemoryProperties      = nullptr;
-    PFN_vkEnumerateDeviceExtensionProperties     fp_vkEnumerateDeviceExtensionProperties     = nullptr;
-
-    PFN_vkCreateDevice      fp_vkCreateDevice      = nullptr;
-    PFN_vkGetDeviceProcAddr fp_vkGetDeviceProcAddr = nullptr;
-
-    PFN_vkDestroySurfaceKHR                       fp_vkDestroySurfaceKHR                       = nullptr;
-    PFN_vkGetPhysicalDeviceSurfaceSupportKHR      fp_vkGetPhysicalDeviceSurfaceSupportKHR      = nullptr;
-    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR      fp_vkGetPhysicalDeviceSurfaceFormatsKHR      = nullptr;
-    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fp_vkGetPhysicalDeviceSurfacePresentModesKHR = nullptr;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fp_vkGetPhysicalDeviceSurfaceCapabilitiesKHR = nullptr;
-
-    void init_instance_funcs(VkInstance inst)
-    {
-        instance = inst;
-        get_inst_proc_addr(fp_vkDestroyInstance, "vkDestroyInstance");
-        get_inst_proc_addr(fp_vkCreateDebugUtilsMessengerEXT, "vkCreateDebugUtilsMessengerEXT");
-        get_inst_proc_addr(fp_vkDestroyDebugUtilsMessengerEXT, "vkDestroyDebugUtilsMessengerEXT");
-        get_inst_proc_addr(fp_vkEnumeratePhysicalDevices, "vkEnumeratePhysicalDevices");
-
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceFeatures, "vkGetPhysicalDeviceFeatures");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceFeatures2, "vkGetPhysicalDeviceFeatures2");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceFeatures2KHR, "vkGetPhysicalDeviceFeatures2KHR");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceProperties, "vkGetPhysicalDeviceProperties");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceQueueFamilyProperties, "vkGetPhysicalDeviceQueueFamilyProperties");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceMemoryProperties, "vkGetPhysicalDeviceMemoryProperties");
-        get_inst_proc_addr(fp_vkEnumerateDeviceExtensionProperties, "vkEnumerateDeviceExtensionProperties");
-
-        get_inst_proc_addr(fp_vkCreateDevice, "vkCreateDevice");
-        get_inst_proc_addr(fp_vkGetDeviceProcAddr, "vkGetDeviceProcAddr");
-
-        get_inst_proc_addr(fp_vkDestroySurfaceKHR, "vkDestroySurfaceKHR");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceSurfaceSupportKHR, "vkGetPhysicalDeviceSurfaceSupportKHR");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceSurfaceFormatsKHR, "vkGetPhysicalDeviceSurfaceFormatsKHR");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceSurfacePresentModesKHR, "vkGetPhysicalDeviceSurfacePresentModesKHR");
-        get_inst_proc_addr(fp_vkGetPhysicalDeviceSurfaceCapabilitiesKHR, "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
-    }
-};
-
-static VulkanFunctions& _vulkan_functions()
-{
-
-    static VulkanFunctions v;
-    return v;
-}
-
 struct VulkanInstTable
 {
     VulkanInstTable() { GFXRECON_ASSERT(init_vulkan_funcs()); }
@@ -363,57 +184,20 @@ struct VulkanInstTable
     bool load_vulkan_library()
     {
         // Can immediately return if it has already been loaded
-        if (library)
+        if (loader_handle_ != nullptr)
         {
             return true;
         }
-        auto library_path = std::getenv("VULKAN_LIBRARY_PATH");
-#if defined(__linux__)
-        if (library_path != nullptr)
-        {
-            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!library)
-            library = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
-#elif defined(__APPLE__)
-        if (library_path != nullptr)
-        {
-            library = dlopen(library_path, RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!library)
-            library = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libvulkan.1.dylib", RTLD_NOW | RTLD_LOCAL);
-        if (!library)
-            library = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
-#elif defined(_WIN32)
-        if (library_path != nullptr)
-        {
-            library = LoadLibrary(library_path);
-        }
-        if (!library)
-            library = LoadLibrary(TEXT("vulkan-1.dll"));
-#else
-        assert(false && "Unsupported platform");
-#endif
-        if (!library)
+
+        loader_handle_ = graphics::InitializeLoader();
+        if (loader_handle_ == nullptr)
         {
             return false;
         }
-        load_func(ptr_vkGetInstanceProcAddr, "vkGetInstanceProcAddr");
-        return ptr_vkGetInstanceProcAddr != nullptr;
-    }
 
-    template <typename T>
-    void load_func(T& func_dest, const char* func_name)
-    {
-#if defined(__linux__) || defined(__APPLE__)
-        func_dest = reinterpret_cast<T>(dlsym(library, func_name));
-#elif defined(_WIN32)
-        func_dest = reinterpret_cast<T>(GetProcAddress(library, func_name));
-#endif
+        ptr_vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
+        return ptr_vkGetInstanceProcAddr != nullptr;
     }
 
     bool init_vulkan_funcs(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr = nullptr)
@@ -440,11 +224,7 @@ struct VulkanInstTable
         return true;
     }
 
-#if defined(__linux__) || defined(__APPLE__)
-    void* library = nullptr;
-#elif defined(_WIN32)
-    HMODULE library = nullptr;
-#endif
+    util::platform::LibraryHandle loader_handle_ = nullptr;
 
     PFN_vkGetInstanceProcAddr ptr_vkGetInstanceProcAddr = nullptr;
 
