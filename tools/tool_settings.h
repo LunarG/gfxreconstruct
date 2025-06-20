@@ -404,10 +404,16 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
     return wsi_platform;
 }
 
-static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
+/// @brief Selects the WSI extension name based on the WSI platform.
+/// @param wsi_platform The WSI platform to select the extension name for.
+/// @return If WsiPlatform::kAuto, returns the first available WSI extension name.
+///         Otherwise, returns the WSI extension name for the specified platform.
+static std::string GetFirstWsiExtensionName(WsiPlatform wsi_platform)
 {
     switch (wsi_platform)
     {
+        // Return the first available WSI extension name
+        case WsiPlatform::kAuto:
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         case WsiPlatform::kWin32:
         {
@@ -452,7 +458,27 @@ static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
 #endif
         default:
         {
+            GFXRECON_ASSERT(false && "Failed to get WSI extension name");
             return std::string();
+        }
+    }
+}
+
+/// @brief Selects the WSI extension name based on the WSI platform.
+/// @param wsi_platform The WSI platform to select the extension name for.
+/// @return If WsiPlatform::kAuto, returns an empty string.
+///         Otherwise, returns the WSI extension name for the specified platform.
+static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
+{
+    switch (wsi_platform)
+    {
+        case WsiPlatform::kAuto:
+        {
+            return std::string();
+        }
+        default:
+        {
+            return GetFirstWsiExtensionName(wsi_platform);
         }
     }
 }
