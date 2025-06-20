@@ -207,7 +207,7 @@ int inner_main(
     application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, android_app);
 #else
     // Select WSI context based on CLI
-    std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
+    std::string wsi_extension = GetFirstWsiExtensionName(GetWsiPlatform(arg_parser));
     auto        application   = std::make_unique<gfxrecon::application::Application>(app_name, wsi_extension, nullptr);
 #endif
 
