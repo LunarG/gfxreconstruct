@@ -52,7 +52,11 @@ const std::vector<std::string> kLoaderLibNames = {
 #endif
 };
 
-util::platform::LibraryHandle InitializeLoader();
+/// @brief Initialize the Vulkan loader by loading the Vulkan library.
+/// @param loader_path Optional path to the Vulkan loader library. If not provided, the function will search for
+/// `kLoaderLibNames` in the system library paths.
+/// @return A handle to the loaded Vulkan library, or nullptr if the library could not be loaded.
+util::platform::LibraryHandle InitializeLoader(const char* loader_path = nullptr);
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 

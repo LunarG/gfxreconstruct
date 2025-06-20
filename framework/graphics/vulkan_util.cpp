@@ -27,9 +27,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-util::platform::LibraryHandle InitializeLoader()
+util::platform::LibraryHandle InitializeLoader(const char* loader_path)
 {
-    return util::platform::OpenLibrary(kLoaderLibNames);
+    if (loader_path != nullptr && loader_path[0] != '\0')
+    {
+        return util::platform::OpenLibrary(loader_path);
+    }
+    else
+    {
+        return util::platform::OpenLibrary(kLoaderLibNames);
+    }
 }
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle)
