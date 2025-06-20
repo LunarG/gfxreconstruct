@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2021 Samsung
 # Copyright (c) 2023 Google
-# Copyright (c) 2023 LunarG
+# Copyright (c) 2024 LunarG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

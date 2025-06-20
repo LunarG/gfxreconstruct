@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2025 LunarG, Inc.
 ** Copyright (c) 2024 Arm Limited and/or its affiliates <open-source-office@arm.com>
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a

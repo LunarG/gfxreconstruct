@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2020-2022 LunarG, Inc.
+# Copyright (c) 2020-2023 LunarG, Inc.
 # Copyright (c) 2022 Valve Corporation
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

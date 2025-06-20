@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2025 LunarG, Inc.
 # Copyright (c) 2022 Advanced Micro Devices, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

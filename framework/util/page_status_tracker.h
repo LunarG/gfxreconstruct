@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),

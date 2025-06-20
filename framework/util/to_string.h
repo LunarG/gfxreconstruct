@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2021-2023 LunarG, Inc.
+** Copyright (c) 2021-2025 LunarG, Inc.
 ** Copyright (c) 2022-2023 Valve Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
