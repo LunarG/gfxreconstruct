@@ -189,7 +189,7 @@ struct VulkanInstTable
             return true;
         }
 
-        loader_handle_ = graphics::InitializeLoader();
+        loader_handle_ = graphics::InitializeLoader(getenv("VULKAN_LIBRARY_PATH"));
         if (loader_handle_ == nullptr)
         {
             return false;

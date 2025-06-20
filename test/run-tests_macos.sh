@@ -14,9 +14,12 @@ export GFXRECON_TESTAPP_MOCK_ICD="$PWD/test_apps/libVkICD_mock_icd.dylib"
 #export GFXRECON_LOG_LEVEL="info"
 #export VK_LOADER_DEBUG="layer"
 
-$single_test_app_path = $1
-if [ -z "$single_test_app_path" ]; then
-    ./gfxrecon-testapp-runner 
+SINGLE_TEST_APP_PATH=$1
+if [ -z "$SINGLE_TEST_APP_PATH" ]; then
+    ./gfxrecon-testapp-runner
 else
-    eval "$single_test_app_path"
+    TEST_APPS_DIR="$PWD/test_apps"
+    push "$PWD/res"
+    $TEST_APPS_DIR/launcher/gfxrecon-test-launcher $SINGLE_TEST_APP_PATH
+    popd
 fi
