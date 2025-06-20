@@ -1085,6 +1085,10 @@ Instance InstanceBuilder::build() const
     }
 #endif
     instance_create_info.flags                   = info.flags;
+    if (portability_enumeration_support)
+    {
+        instance_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    }
     instance_create_info.pApplicationInfo        = &app_info;
     instance_create_info.enabledExtensionCount   = static_cast<uint32_t>(extensions.size());
     instance_create_info.ppEnabledExtensionNames = extensions.data();
