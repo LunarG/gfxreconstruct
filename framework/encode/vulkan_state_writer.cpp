@@ -160,7 +160,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Resource creation.
     WriteBufferState(state_table);
-    StandardCreateWrite<vulkan_wrappers::ImageWrapper>(state_table);
+    WriteImageState(state_table);
     WriteDeviceMemoryState(state_table);
 
     // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
@@ -1435,6 +1435,26 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* image_wrapper) {
+        // Skip create call for swapchain images, i.e. vkGetSwapchainImagesKHR
+        // This call is already emitted by the state setup for the parent swapchain
+        if (image_wrapper->is_swapchain_image)
+        {
+            return;
+        }
+        // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+        // all reference the same parameter buffer.
+        if (processed.find(image_wrapper->create_parameters.get()) == processed.end())
+        {
+            WriteFunctionCall(image_wrapper->create_call_id, image_wrapper->create_parameters.get());
+            processed.insert(image_wrapper->create_parameters.get());
+        }
     });
 }
 
