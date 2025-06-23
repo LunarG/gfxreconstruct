@@ -534,13 +534,16 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                                                  pp_buildRange_infos[i] + build_info.geometryCount);
         }
 
-        if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
+        if (dst_command.geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
         {
             wrapper->latest_build_command_ = std::move(dst_command);
         }
-        else if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
+        else if (dst_command.geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
         {
-            wrapper->latest_update_command_ = std::move(dst_command);
+            // store command as regular build
+            dst_command.geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+            dst_command.geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
+            wrapper->latest_build_command_ = std::move(dst_command);
         }
 
         wrapper->blas.clear();
@@ -2065,15 +2068,13 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
 
     state_table_.VisitWrappers([&wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
         GFXRECON_ASSERT(acc_wrapper);
-        for (auto& command : { &acc_wrapper->latest_build_command_, &acc_wrapper->latest_update_command_ })
-        {
-            if (!command || !command->has_value())
-            {
-                continue;
-            }
 
-            auto it = (*command)->input_buffers.find(wrapper->handle_id);
-            if (it != (*command)->input_buffers.end())
+        auto& command = acc_wrapper->latest_build_command_;
+
+        if (command)
+        {
+            auto it = command->input_buffers.find(wrapper->handle_id);
+            if (it != command->input_buffers.end())
             {
                 vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
                 buffer.destroyed                                                        = true;
