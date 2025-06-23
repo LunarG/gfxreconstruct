@@ -199,7 +199,10 @@ decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
         if (buffer != VK_NULL_HANDLE)
         {
             // unmap/destroy buffer
-            resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            if (mapped_data != nullptr)
+            {
+                resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            }
             resource_allocator->DestroyBufferDirect(buffer, nullptr, allocator_data);
         }
         if (device_memory != VK_NULL_HANDLE)
@@ -1191,22 +1194,18 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     uint32_t                                     info_count,
     VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-    const decode::VulkanDeviceAddressTracker&    address_tracker,
-    bool                                         use_address_replace)
+    const decode::VulkanDeviceAddressTracker&    address_tracker)
 {
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
-        if(use_address_replace)
-        {
-            // dummy-wrapper
-            VulkanCommandBufferInfo command_buffer_info = {};
-            command_buffer_info.handle                  = command_buffer_;
-            ProcessCmdBuildAccelerationStructuresKHR(
-                &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
-        }
+        // dummy-wrapper
+        VulkanCommandBufferInfo command_buffer_info = {};
+        command_buffer_info.handle                  = command_buffer_;
+        ProcessCmdBuildAccelerationStructuresKHR(
+            &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
 
         // issue build-command
         MarkInjectedCommandsHelper mark_injected_commands_helper;

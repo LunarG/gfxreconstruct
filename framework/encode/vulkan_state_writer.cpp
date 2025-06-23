@@ -1742,6 +1742,15 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             }
         }
 
+        if (wrapper->latest_update_command_)
+        {
+            update_container->push_back(&wrapper->latest_update_command_.value());
+            for (const auto& [handle_id, buffer] : wrapper->latest_update_command_->input_buffers)
+            {
+                max_resource_size = std::max(max_resource_size, buffer.bytes.size());
+            }
+        }
+
         if (wrapper->latest_copy_command_)
         {
             // filter out stale handles

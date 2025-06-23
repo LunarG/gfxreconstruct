@@ -5463,7 +5463,7 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     // replaying a trimmed capture or dump-resources will require us to copy from buffers
     if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
-        if(loading_trim_state_)
+        if (loading_trim_state_)
         {
             // ensure buffer-initialization can copy
             modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -10489,17 +10489,17 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+        if (UseAddressReplacement(device_info))
+        {
+            MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
-        VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
-        VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
+            VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
+            VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
 
-        GetDeviceAddressReplacer(device_info)
-            .ProcessBuildVulkanAccelerationStructuresMetaCommand(info_count,
-                                                                 pInfos->GetPointer(),
-                                                                 ppRangeInfos->GetPointer(),
-                                                                 GetDeviceAddressTracker(device_info),
-                                                                 UseAddressReplacement(device_info));
+            GetDeviceAddressReplacer(device_info)
+                .ProcessBuildVulkanAccelerationStructuresMetaCommand(
+                    info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
+        }
     }
 }
 
@@ -10511,11 +10511,14 @@ void VulkanReplayConsumerBase::ProcessVulkanAccelerationStructuresWritePropertie
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device_id);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        VkAccelerationStructureKHR acceleration_structure = MapHandle<VulkanAccelerationStructureKHRInfo>(
-            acceleration_structure_id, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
+        if (UseAddressReplacement(device_info))
+        {
+            VkAccelerationStructureKHR acceleration_structure = MapHandle<VulkanAccelerationStructureKHRInfo>(
+                acceleration_structure_id, &VulkanObjectInfoTable::GetVkAccelerationStructureKHRInfo);
 
-        GetDeviceAddressReplacer(device_info)
-            .ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(query_type, acceleration_structure);
+            GetDeviceAddressReplacer(device_info)
+                .ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(query_type, acceleration_structure);
+        }
     }
 }
 

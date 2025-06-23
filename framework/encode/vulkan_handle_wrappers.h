@@ -635,7 +635,7 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
         std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
         std::unordered_map<format::HandleId, ASInputBuffer>   input_buffers;
     };
-
+    std::optional<AccelerationStructureKHRBuildCommandData> latest_update_command_{ std::nullopt };
     std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };
 
     struct AccelerationStructureCopyCommandData
