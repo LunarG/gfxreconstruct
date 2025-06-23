@@ -72,10 +72,6 @@ class VulkanReplayDumpResourcesJson
                          bool                    separate_alpha  = false,
                          const std::string*      filename_before = nullptr);
 
-    void InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                          const VulkanBufferInfo* buffer_info,
-                          const std::string&      filename);
-
     uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
 
     uint32_t FetchAndAddDispatchEntryIndex() { return dispatch_entry_index++; }

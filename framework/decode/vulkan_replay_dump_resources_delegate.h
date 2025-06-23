@@ -221,6 +221,14 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     bool ImageFailedScaling(const std::string& filename) const { return images_failed_scaling_.count(filename); }
 
+    void GenerateDispatchTraceRaysDescriptorsJsonInfo(
+        const VulkanDumpDrawCallInfo&                                         draw_call_info,
+        nlohmann::ordered_json&                                               dispatch_json_entry,
+        const BoundDescriptorSets&                                            referenced_descriptors,
+        const DispatchTraceRaysDumpingContext::MutableResourcesBackupContext& cloned_resources,
+        const DispatchTraceRaysDumpingContext::MutableResourcesBackupContext& cloned_resources_before,
+        bool                                                                  is_dispatch);
+
     VulkanReplayDumpResourcesJson dump_json_;
     const VulkanReplayOptions&    options_;
     CommonObjectInfoTable&        object_info_table_;

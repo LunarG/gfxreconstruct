@@ -175,9 +175,9 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
                                                     bool                    separate_alpha,
                                                     const std::string*      filename_before)
 {
-    json_entry["imageId"] = image_id;
-    json_entry["format"]  = util::ToString<VkFormat>(image_format);
-    json_entry["type"]    = util::ToString<VkImageType>(image_type);
+    json_entry["imageId"]   = image_id;
+    json_entry["format"]    = util::ToString<VkFormat>(image_format);
+    json_entry["imageType"] = util::ToString<VkImageType>(image_type);
 
     const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
     const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
@@ -225,16 +225,6 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
             json_entry["file"] = filename;
         }
     }
-}
-
-void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                                                     const VulkanBufferInfo* buffer_info,
-                                                     const std::string&      filename)
-{
-    assert(buffer_info != nullptr);
-
-    json_entry["bufferId"] = buffer_info->capture_id;
-    json_entry["file"]     = filename;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
