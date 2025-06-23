@@ -2727,6 +2727,13 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
+        // NOTE: capturing unconditionally uses 'vkGetPhysicalDeviceSurfaceCapabilities2KHR' for restoring surface state
+        if (loading_trim_state_)
+        {
+            feature_util::EnableExtensionIfSupported(
+                available_extensions, &modified_extensions, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
+        }
+
         if (options_.remove_unsupported_features)
         {
             // Remove enabled extensions that are not available from the replay instance.
@@ -5456,6 +5463,12 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     // replaying a trimmed capture or dump-resources will require us to copy from buffers
     if (replaying_trimmed_capture_ || options_.dumping_resources)
     {
+        if(loading_trim_state_)
+        {
+            // ensure buffer-initialization can copy
+            modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        }
+
         // The GFXR trimmed capture process sets VK_BUFFER_USAGE_TRANSFER_SRC_BIT flag for buffer VkBufferCreateInfo.
         // Since buffer memory requirements can differ when VK_BUFFER_USAGE_TRANSFER_SRC_BIT is set, we sometimes hit
         // vkBindBufferMemory failures due to memory requirement mismatch during replay. So here we add
