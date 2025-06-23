@@ -256,12 +256,14 @@ class VulkanAddressReplacer
      * @param   geometry_infos          provided array of VkAccelerationStructureBuildGeometryInfoKHR
      * @param   range_infos             provided array of pointers to VkAccelerationStructureBuildRangeInfoKHR
      * @param   address_tracker         const reference to a VulkanDeviceAddressTracker
+     * @param   use_address_replace     flag indicating if the input-data should be sanitized or just passed through
      */
     void
     ProcessBuildVulkanAccelerationStructuresMetaCommand(uint32_t                                     info_count,
                                                         VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
                                                         VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-                                                        const decode::VulkanDeviceAddressTracker&    address_tracker);
+                                                        const decode::VulkanDeviceAddressTracker&    address_tracker,
+                                                        bool use_address_replace);
 
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.

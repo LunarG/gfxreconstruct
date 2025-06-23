@@ -1191,18 +1191,22 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     uint32_t                                     info_count,
     VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-    const decode::VulkanDeviceAddressTracker&    address_tracker)
+    const decode::VulkanDeviceAddressTracker&    address_tracker,
+    bool                                         use_address_replace)
 {
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
 
-        // dummy-wrapper
-        VulkanCommandBufferInfo command_buffer_info = {};
-        command_buffer_info.handle                  = command_buffer_;
-        ProcessCmdBuildAccelerationStructuresKHR(
-            &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
+        if(use_address_replace)
+        {
+            // dummy-wrapper
+            VulkanCommandBufferInfo command_buffer_info = {};
+            command_buffer_info.handle                  = command_buffer_;
+            ProcessCmdBuildAccelerationStructuresKHR(
+                &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
+        }
 
         // issue build-command
         MarkInjectedCommandsHelper mark_injected_commands_helper;
