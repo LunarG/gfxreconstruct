@@ -444,8 +444,11 @@ if '__main__' == __name__:
         #     target_refspec = 'HEAD^'
         #     base_refspec = 'HEAD^2'
         if "Merge" in this_commit_log:
-            target_refspec = 'HEAD^'
-            base_refspec = 'HEAD^2'
+            # this_commit_log will be something like
+            # 835d472e Merge 789aa977b4f32539b9a6b95df8262b46b61d776c into 0c85de735c31bd1688f4cf4dbfaac41b189a46c9
+            
+            base_refspec = this_commit_log.split(' ')[2]
+            #base_refspec = 'HEAD^2'
 
         print("target_ref == ", target_refspec)
         print("base_ref == ", base_refspec)
