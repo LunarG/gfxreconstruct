@@ -26,6 +26,7 @@
 import json,os,re,shutil,sys,tempfile
 
 from collections import OrderedDict
+from common_struct_info_provider import CommonStructInfoProvider
 
 try:
     from pathlib import Path
@@ -217,9 +218,7 @@ class Dx12GeneratorOptions():
 
 class Dx12BaseGenerator():
 
-    NO_STRUCT_BREAKDOWN = [
-        'LARGE_INTEGER',
-        'SECURITY_ATTRIBUTES',
+    NO_STRUCT_BREAKDOWN = CommonStructInfoProvider.COMMON_STRUCTS + [
         'D3D12_AUTO_BREADCRUMB_NODE',
         'D3D12_AUTO_BREADCRUMB_NODE1',
         'D3D12_DRED_ALLOCATION_NODE',
@@ -1431,7 +1430,7 @@ class Dx12BaseGenerator():
     def is_struct(self, type):
         """Method override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
-        if type in ['LARGE_INTEGER', 'SECURITY_ATTRIBUTES']:
+        if CommonStructInfoProvider.is_common_struct(type):
             return True
         struct_dict = self.source_dict['struct_dict']
         return type in struct_dict
