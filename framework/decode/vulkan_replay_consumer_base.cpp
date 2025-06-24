@@ -8869,7 +8869,7 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
     if (!deferred_operation_info->pending_state)
     {
         // The deferred operation object has no deferred command or its deferred command has been finished.
-        return VK_SUCCESS;
+        return original_result;
     }
 
     VkDevice               device             = device_info->handle;
