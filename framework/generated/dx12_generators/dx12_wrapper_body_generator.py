@@ -23,6 +23,7 @@
 
 import sys
 import json
+from common_struct_info_provider import CommonStructInfoProvider
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions, write
 
 
@@ -264,9 +265,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         for param in param_info:
             value = self.get_value_info(param)
 
-            if (value.base_type not in ['LARGE_INTEGER', 'SECURITY_ATTRIBUTES']) and self.is_struct(
-                value.base_type
-            ) and (value.full_type.find('_Out_') != -1):
+            if (
+                not CommonStructInfoProvider.is_common_struct(value.base_type)
+                and self.is_struct(value.base_type)
+                and (value.full_type.find('_Out_') != -1)
+            ):
                 if value.base_type in self.structs_with_wrap_objects:
                     create_wrap_struct.append(value)
 
@@ -778,7 +781,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     self.CAPTURE_OVERRIDES['classmethods'][class_name]
                     [method_name]
                 )
-                
+
                 if (class_name in self.OVERRIDECALL_TRIM_TRIGGERS) and (method_name in self.OVERRIDECALL_TRIM_TRIGGERS[class_name]):
                     expr += '\n'+ self.increment_indent(indent) + 'shared_api_call_lock,'
 
@@ -825,13 +828,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 else:
                     expr += indent2 + 'wrapper'
 
-                expr += "->{}(".format(method_name)                
+                expr += "->{}(".format(method_name)
                 if trim_draw_calls_wrapped_args:
                     expr += "\n"
                     expr += trim_draw_calls_wrapped_args
                 expr += ");\n"
 
-                if return_type != 'void':               
+                if return_type != 'void':
                     expr += indent2 + 'if (result != result_trim_draw_calls)\n'
                     expr += indent2 + '{\n'
                     expr += indent3 + 'GFXRECON_LOG_WARNING("Splitting commandlists of {}::{} get different results: %s and %s",\n'.format(class_name, method_name)

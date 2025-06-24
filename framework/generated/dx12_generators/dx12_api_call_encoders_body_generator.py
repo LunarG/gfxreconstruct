@@ -22,6 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
+from common_struct_info_provider import CommonStructInfoProvider
 from dx12_base_generator import write
 from dx12_api_call_encoders_header_generator import Dx12ApiCallEncodersHeaderGenerator
 
@@ -478,10 +479,10 @@ class Dx12ApiCallEncodersBodyGenerator(Dx12ApiCallEncodersHeaderGenerator):
             value = self.get_value_info(param)
 
             if (
-                value.base_type
-                not in ['LARGE_INTEGER', 'SECURITY_ATTRIBUTES']
-            ) and self.is_struct(value.base_type
-                                 ) and (value.full_type.find('_Out_') != -1):
+                not CommonStructInfoProvider.is_common_struct(value.base_type)
+                and self.is_struct(value.base_type)
+                and (value.full_type.find('_Out_') != -1)
+            ):
                 if value.base_type in self.structs_with_wrap_objects:
                     create_wrap_struct.append(value)
 
