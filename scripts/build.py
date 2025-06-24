@@ -430,17 +430,19 @@ if '__main__' == __name__:
         target_refspec = "origin/dev"
         base_refspec = "HEAD"
 
-        loglines = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')
-        print(loglines)
+        this_commit_log = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')[0]
 
         # Check if this is a merge commit
-        commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
-        print("commit_parents ==", commit_parents)
-        if len(commit_parents.split(b' ')) > 2:
-            # If this is a merge commit, this is a PR being built, and has been merged into main for testing.
-            # The first parent (HEAD^) is going to be main, the second parent (HEAD^2) is going to be the PR commit.
-            # TODO (nick) We should *ONLY* get here when on github CI, building a PR. Should probably print a
-            #      warning if this happens locally.
+        # commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
+        # print("commit_parents ==", commit_parents)
+        # if len(commit_parents.split(b' ')) > 2:
+        #     # If this is a merge commit, this is a PR being built, and has been merged into main for testing.
+        #     # The first parent (HEAD^) is going to be main, the second parent (HEAD^2) is going to be the PR commit.
+        #     # TODO (nick) We should *ONLY* get here when on github CI, building a PR. Should probably print a
+        #     #      warning if this happens locally.
+        #     target_refspec = 'HEAD^'
+        #     base_refspec = 'HEAD^2'
+        if "Merge" in this_commit_log:
             target_refspec = 'HEAD^'
             base_refspec = 'HEAD^2'
 
