@@ -367,7 +367,8 @@ def verify_copyrights_by_commit(commit, target_files):
         file_path = repo_relative(file)
         if not os.path.isfile(file_path):
             continue
-        for company in ["LunarG", "Valve"]:
+        #for company in ["LunarG", "Valve"]:
+        for company in ["LunarG"]:
             # Capture the last year on the line as a separate match. It should be the highest (or only year of the range)
             copyright_match = re.search('Copyright .*([0-9]{4}) ' + company, open(file_path, encoding=ENCODING, errors='ignore').read(1024))
             if copyright_match:
@@ -383,6 +384,7 @@ def verify_copyrights(target_files):
     for file in target_files:
         # Skip if non-LunarG author
         author = subprocess.check_output(['git', 'log', '-n1', '--format=%ae', file]).decode(ENCODING)
+        print("author == ", author)
         if "lunarg" not in author:
             continue
         
@@ -399,28 +401,63 @@ def verify_copyrights(target_files):
             if int(commit_year) > int(copyright_year):
                 msg = f'Change written in {commit_year} but copyright ends in {copyright_year}.'
                 print(f'\n{file_path} has an out-of-date LunarG copyright notice: {msg}')
-                out_string = re.sub(r"[0-9]{4} LunarG", f'{commit_year} LunarG', in_string, count=0, flags=0)
-                with open(file_path, "r+", encoding=ENCODING, errors='ignore') as f:
-                    f.seek(0)
-                    f.write(out_string)
                 bad_files.append(file)
     
     return bad_files
+
+def fix_copyright(in_string, commit_year, file_path):
+    out_string = re.sub(r"[0-9]{4} LunarG", f'{commit_year} LunarG', in_string, count=0, flags=0)
+    with open(file_path, "r+", encoding=ENCODING, errors='ignore') as f:
+        f.seek(0)
+        f.write(out_string)
 
 # Main entry point
 if '__main__' == __name__:
     args = parse_args()
     if args.check_code_style_base:
-        exts = [".cpp", ".h", ".py"]
-        dirs = ["android", "framework", "layer", "scripts", "test", "tools"]
-        all_source_files = []
-        for ext in exts:
-            for dir in dirs:
-                all_source_files.extend(glob.glob(f"./{dir}/**/*{ext}", recursive=True))
+        # exts = [".cpp", ".h", ".py"]
+        # dirs = ["android", "framework", "layer", "scripts", "test", "tools"]
+        # all_source_files = ["LICENSE.txt"]
+        # for ext in exts:
+        #     for dir in dirs:
+        #         all_source_files.extend(glob.glob(f"./{dir}/**/*{ext}", recursive=True))
 
-        bad_files = verify_copyrights(all_source_files)
-        if len(bad_files) > 0:
+        # bad_files = verify_copyrights(all_source_files)
+        # if len(bad_files) > 0:
+        #     sys.exit(-1)
+
+        subprocess.check_output(['git', 'fetch', 'https://github.com/LunarG/gfxreconstruct.git', 'dev'])
+        target_refspec = "origin/dev"
+        base_refspec = "HEAD"
+
+        # Check if this is a merge commit
+        commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
+        if len(commit_parents.split(b' ')) > 2:
+            # If this is a merge commit, this is a PR being built, and has been merged into main for testing.
+            # The first parent (HEAD^) is going to be main, the second parent (HEAD^2) is going to be the PR commit.
+            # TODO (nick) We should *ONLY* get here when on github CI, building a PR. Should probably print a
+            #      warning if this happens locally.
+            target_refspec = 'HEAD^'
+            base_refspec = 'HEAD^2'
+
+        print("target_ref == ", target_refspec)
+        print("base_ref == ", base_refspec)
+        copyright_check_failed = 0
+        commits = subprocess.check_output(['git', 'log', '--format=%h', f'{target_refspec}...{base_refspec}']).split(b'\n')
+        commits = commits[:-1] # Remove final, blank entry
+        commits.reverse()
+        print("Commit list: ", commits)
+        for commit in commits:
+
+            # Get list of files involved in this commit
+            target_files_data = subprocess.check_output(['git', 'log', '-n1', '--name-only', commit])
+            target_files = target_files_data.decode('utf-8')
+            target_files = target_files.split("\n")
+
+            copyright_check_failed |= verify_copyrights_by_commit(commit, target_files)
+        if copyright_check_failed:
             sys.exit(-1)
+
     clean = args.clean or args.clobber
     if not clean:
         update_external_dependencies(args)
