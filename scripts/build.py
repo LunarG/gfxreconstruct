@@ -432,6 +432,7 @@ if '__main__' == __name__:
 
         # Check if this is a merge commit
         commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
+        print("commit_parents ==", commit_parents)
         if len(commit_parents.split(b' ')) > 2:
             # If this is a merge commit, this is a PR being built, and has been merged into main for testing.
             # The first parent (HEAD^) is going to be main, the second parent (HEAD^2) is going to be the PR commit.
