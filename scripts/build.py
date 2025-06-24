@@ -431,8 +431,7 @@ if '__main__' == __name__:
         base_refspec = "HEAD"
 
         loglines = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')
-        for i in range(0, 10):
-            print(loglines[i])
+        print(loglines)
 
         # Check if this is a merge commit
         commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
