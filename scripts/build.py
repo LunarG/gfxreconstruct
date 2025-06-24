@@ -448,6 +448,12 @@ if '__main__' == __name__:
         commits.reverse()
         print("Commit list: ", commits)
         for commit in commits:
+            # Don't check blacklisted commits
+            # Right now, the only blacklisted commit is the one
+            # where all of the copyrights years were updated
+            BLACKLISTED_COMMITS = [b'93169ddf']
+            if commit in BLACKLISTED_COMMITS:
+                continue
 
             # Get list of files involved in this commit
             target_files_data = subprocess.check_output(['git', 'log', '-n1', '--name-only', commit])
