@@ -430,6 +430,10 @@ if '__main__' == __name__:
         target_refspec = "origin/dev"
         base_refspec = "HEAD"
 
+        loglines = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')
+        for i in range(0, 10):
+            print(loglines[i])
+
         # Check if this is a merge commit
         commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
         print("commit_parents ==", commit_parents)
