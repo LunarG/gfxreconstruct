@@ -1096,42 +1096,42 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
         stage_names.push_back("compute");
     }
 
-    if ((flags & VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR) == VK_SHADER_STAGE_RAYGEN_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_RAYGEN_BIT_KHR) == VK_SHADER_STAGE_RAYGEN_BIT_KHR)
     {
         stage_names.push_back("raygen");
     }
 
-    if ((flags & VK_SHADER_STAGE_MISS_BIT_KHR) == VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_ANY_HIT_BIT_KHR) == VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
     {
         stage_names.push_back("any_hit");
     }
 
-    if ((flags & VK_SHADER_STAGE_INTERSECTION_BIT_KHR) == VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR) == VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
     {
         stage_names.push_back("closest_hit");
     }
 
-    if ((flags & VK_SHADER_STAGE_CALLABLE_BIT_KHR) == VK_SHADER_STAGE_MISS_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_MISS_BIT_KHR) == VK_SHADER_STAGE_MISS_BIT_KHR)
     {
         stage_names.push_back("miss");
     }
 
-    if ((flags & VK_SHADER_STAGE_TASK_BIT_EXT) == VK_SHADER_STAGE_INTERSECTION_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_INTERSECTION_BIT_KHR) == VK_SHADER_STAGE_INTERSECTION_BIT_KHR)
     {
         stage_names.push_back("intersection");
     }
 
-    if ((flags & VK_SHADER_STAGE_MESH_BIT_EXT) == VK_SHADER_STAGE_CALLABLE_BIT_KHR)
+    if ((flags & VK_SHADER_STAGE_CALLABLE_BIT_KHR) == VK_SHADER_STAGE_CALLABLE_BIT_KHR)
     {
         stage_names.push_back("callable");
     }
 
-    if ((flags & VK_SHADER_STAGE_ALL_GRAPHICS) == VK_SHADER_STAGE_TASK_BIT_EXT)
+    if ((flags & VK_SHADER_STAGE_TASK_BIT_EXT) == VK_SHADER_STAGE_TASK_BIT_EXT)
     {
         stage_names.push_back("task");
     }
 
-    if ((flags & VK_SHADER_STAGE_ALL) == VK_SHADER_STAGE_MESH_BIT_EXT)
+    if ((flags & VK_SHADER_STAGE_MESH_BIT_EXT) == VK_SHADER_STAGE_MESH_BIT_EXT)
     {
         stage_names.push_back("mesh");
     }
