@@ -431,6 +431,7 @@ if '__main__' == __name__:
         base_refspec = "HEAD"
 
         this_commit_log = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')[0]
+        print("this_commit_log ==", this_commit_log)
 
         # Check if this is a merge commit
         # commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
