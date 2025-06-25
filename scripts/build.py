@@ -414,7 +414,7 @@ def fix_copyright(in_string, commit_year, file_path):
 # Main entry point
 if '__main__' == __name__:
     args = parse_args()
-    if args.check_code_style_base:
+    if not args.skip_check_code_style:
         # exts = [".cpp", ".h", ".py"]
         # dirs = ["android", "framework", "layer", "scripts", "test", "tools"]
         # all_source_files = ["LICENSE.txt"]
@@ -428,8 +428,7 @@ if '__main__' == __name__:
 
         subprocess.check_output(['git', 'fetch', 'https://github.com/LunarG/gfxreconstruct.git', 'dev'])
         target_refspec = "origin/dev"
-        #base_refspec = "HEAD"
-        base_refspec = "FETCH_HEAD"
+        base_refspec = "HEAD"
 
         status = subprocess.check_output(['git', 'status'])
         print("status ==", status)
@@ -468,7 +467,7 @@ if '__main__' == __name__:
             # Don't check blacklisted commits
             # Right now, the only blacklisted commit is the one
             # where all of the copyrights years were updated
-            BLACKLISTED_COMMITS = [b'93169ddf']
+            BLACKLISTED_COMMITS = [b'd14a5fe2']
             if commit in BLACKLISTED_COMMITS:
                 continue
 
