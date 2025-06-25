@@ -428,7 +428,8 @@ if '__main__' == __name__:
 
         subprocess.check_output(['git', 'fetch', 'https://github.com/LunarG/gfxreconstruct.git', 'dev'])
         target_refspec = "origin/dev"
-        base_refspec = "HEAD"
+        #base_refspec = "HEAD"
+        base_refspec = "FETCH_HEAD"
 
         status = subprocess.check_output(['git', 'status'])
         print("status ==", status)
@@ -449,19 +450,19 @@ if '__main__' == __name__:
         #     #      warning if this happens locally.
         #     target_refspec = 'HEAD^'
         #     base_refspec = 'HEAD^2'
-        if "Merge" in this_commit_log:
-            # this_commit_log will be something like
-            # 835d472e Merge 789aa977b4f32539b9a6b95df8262b46b61d776c into 0c85de735c31bd1688f4cf4dbfaac41b189a46c9
+        # if "Merge" in this_commit_log:
+        #     # this_commit_log will be something like
+        #     # 835d472e Merge 789aa977b4f32539b9a6b95df8262b46b61d776c into 0c85de735c31bd1688f4cf4dbfaac41b189a46c9
             
-            base_refspec = this_commit_log.split(' ')[2]
+        #     base_refspec = this_commit_log.split(' ')[2]
             #base_refspec = 'HEAD^2'
 
-        print("target_ref == ", target_refspec)
-        print("base_ref == ", base_refspec)
-        copyright_check_failed = 0
+        print("target_ref ==", target_refspec)
+        print("base_ref ==", base_refspec)
         commits = subprocess.check_output(['git', 'log', '--format=%h', f'{target_refspec}...{base_refspec}']).split(b'\n')
         commits = commits[:-1] # Remove final, blank entry
         commits.reverse()
+        copyright_check_failed = 0
         print("Commit list: ", commits)
         for commit in commits:
             # Don't check blacklisted commits
