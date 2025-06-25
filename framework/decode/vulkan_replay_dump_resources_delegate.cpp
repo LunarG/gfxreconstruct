@@ -187,13 +187,11 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
     }
 
     // Keep track of images for which scaling failed
-    for (size_t i = 0; i < filenames.size(); ++i)
+    if (!scaling_supported)
     {
-        if (!scaling_supported)
-        {
-            images_failed_scaling_.insert(filenames[i]);
-        }
+        images_failed_scaling_.insert(image_info);
     }
+
     return res;
 }
 
@@ -335,13 +333,11 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDum
     }
 
     // Keep track of images for which scaling failed
-    for (size_t i = 0; i < filenames.size(); ++i)
+    if (!scaling_supported)
     {
-        if (!scaling_supported)
-        {
-            images_failed_scaling_.insert(filenames[i]);
-        }
+        images_failed_scaling_.insert(image_info);
     }
+
     return res;
 }
 
@@ -665,6 +661,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
             rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
 
+            if (ImageFailedScaling(image_info))
+            {
+                rt_entry["scaleFailed"] = true;
+            }
+
             size_t subresource_entry = 0;
             for (auto aspect : aspects)
             {
@@ -703,7 +704,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                               extent,
                                                               filenameAfter,
                                                               aspect,
-                                                              ImageFailedScaling(filenameAfter),
                                                               mip,
                                                               layer,
                                                               options_.dump_resources_dump_separate_alpha,
@@ -744,6 +744,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
         rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
 
+        if (ImageFailedScaling(image_info))
+        {
+            rt_entry["scaleFailed"] = true;
+        }
+
         size_t subresource_entry = 0;
         for (auto aspect : aspects)
         {
@@ -781,7 +786,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                           extent,
                                                           filenameAfter,
                                                           aspect,
-                                                          ImageFailedScaling(filenameAfter),
                                                           mip,
                                                           layer,
                                                           options_.dump_resources_dump_separate_alpha,
@@ -952,6 +956,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                 desc_json_entry["format"]     = util::ToString<VkFormat>(image_info->format);
                                 desc_json_entry["imageType"]  = util::ToString<VkImageType>(image_info->type);
 
+                                if (ImageFailedScaling(image_info))
+                                {
+                                    desc_json_entry["scaleFailed"] = true;
+                                }
+
                                 std::vector<VkImageAspectFlagBits> aspects;
                                 GetFormatAspects(image_info->format, aspects);
 
@@ -981,7 +990,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                 extent,
                                                 filename,
                                                 aspect,
-                                                ImageFailedScaling(filename),
                                                 mip,
                                                 layer,
                                                 options_.dump_resources_dump_separate_alpha);
@@ -1129,13 +1137,11 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
     }
 
     // Keep track of images for which scaling failed
-    for (size_t i = 0; i < filenames.size(); ++i)
+    if (!scaling_supported)
     {
-        if (!scaling_supported)
-        {
-            images_failed_scaling_.insert(filenames[i]);
-        }
+        images_failed_scaling_.insert(image_info);
     }
+
     return res;
 }
 
@@ -1286,13 +1292,11 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
     }
 
     // Keep track of images for which scaling failed
-    for (size_t i = 0; i < filenames.size(); ++i)
+    if (scaling_supported)
     {
-        if (scaling_supported)
-        {
-            images_failed_scaling_.insert(filenames[i]);
-        }
+        images_failed_scaling_.insert(image_info);
     }
+
     return res;
 }
 
@@ -1432,6 +1436,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
             entry["format"]             = util::ToString<VkFormat>(img_info->format);
             entry["imageType"]          = util::ToString<VkImageType>(img_info->type);
 
+            if (ImageFailedScaling(img_info))
+            {
+                entry["scaleFailed"] = true;
+            }
+
             std::vector<VkImageAspectFlagBits> aspects;
             GetFormatAspects(img_info->format, aspects);
 
@@ -1472,7 +1481,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                                   extent,
                                                                   filename,
                                                                   aspect,
-                                                                  ImageFailedScaling(filename),
                                                                   mip,
                                                                   layer,
                                                                   options_.dump_resources_dump_separate_alpha,
@@ -1487,7 +1495,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                                   extent,
                                                                   filename,
                                                                   aspect,
-                                                                  ImageFailedScaling(filename),
                                                                   mip,
                                                                   layer,
                                                                   options_.dump_resources_dump_separate_alpha);
@@ -1595,6 +1602,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                 entry["format"]     = util::ToString<VkFormat>(img_info->format);
                                 entry["imageType"]  = util::ToString<VkImageType>(img_info->type);
 
+                                if (ImageFailedScaling(img_info))
+                                {
+                                    entry["scaleFailed"] = true;
+                                }
+
                                 std::vector<VkImageAspectFlagBits> aspects;
                                 GetFormatAspects(img_info->format, aspects);
 
@@ -1625,7 +1637,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                 extent,
                                                 filename,
                                                 aspect,
-                                                ImageFailedScaling(filename),
                                                 mip,
                                                 layer,
                                                 options_.dump_resources_dump_separate_alpha);
