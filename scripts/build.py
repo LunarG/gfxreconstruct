@@ -428,7 +428,8 @@ if '__main__' == __name__:
 
         subprocess.check_output(['git', 'fetch', 'https://github.com/LunarG/gfxreconstruct.git', 'dev'])
         target_refspec = "origin/dev"
-        base_refspec = "HEAD"
+        #base_refspec = "HEAD"
+        base_refspec = args.check_code_style_base
 
         status = subprocess.check_output(['git', 'status'])
         print("status ==", status)
@@ -462,7 +463,7 @@ if '__main__' == __name__:
 
         print("target_ref ==", target_refspec)
         print("base_ref ==", base_refspec)
-        commits = subprocess.check_output(['git', 'log', '--format=%h', f'{base_refspec}...{target_refspec}']).split(b'\n')
+        commits = subprocess.check_output(['git', 'log', '--format=%h', f'{target_refspec}...{base_refspec}']).split(b'\n')
         commits = commits[:-1] # Remove final, blank entry
         commits.reverse()
         copyright_check_failed = 0
