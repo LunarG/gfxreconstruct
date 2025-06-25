@@ -185,11 +185,6 @@ void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered
     json_entry["mipLevel"]   = mip_level;
     json_entry["arrayLayer"] = array_layer;
 
-    if (scale_failed)
-    {
-        json_entry["scaleFailed"] = true;
-    }
-
     const bool raw_image = !util::filepath::GetFilenameExtension(filename).compare(".bin");
 
     if (separate_alpha && !raw_image && vkuFormatHasAlpha(image_format))
