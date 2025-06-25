@@ -6027,108 +6027,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
         render_pass_info->attachment_descs.push_back(create_info->pAttachments[i]);
     }
 
-    // Copy subpass attachment references
-    render_pass_info->subpass_refs.reserve(create_info->subpassCount);
-    for (uint32_t i = 0; i < create_info->subpassCount; ++i)
+    if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        VulkanRenderPassInfo::SubpassReferences sp_ref;
-        sp_ref.flags               = create_info->pSubpasses[i].flags;
-        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
+        const VkRenderPassCreateInfo* create_info = pCreateInfo->GetPointer();
+        uint32_t                      num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
-        // Copy input attachment refs
-        for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
-        {
-            if (create_info->pSubpasses[i].pInputAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                sp_ref.input_att_refs.push_back(create_info->pSubpasses[i].pInputAttachments[s]);
-            }
-        }
-
-        for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
-        {
-            // Copy color attachment refs
-            if (create_info->pSubpasses[i].pColorAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                sp_ref.color_att_refs.push_back(create_info->pSubpasses[i].pColorAttachments[s]);
-            }
-
-            // Copy resolve attachment refs
-            if (create_info->pSubpasses[i].pResolveAttachments &&
-                create_info->pSubpasses[i].pResolveAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                sp_ref.resolve_att_refs.push_back(create_info->pSubpasses[i].pResolveAttachments[s]);
-            }
-        }
-
-        // Copy preserve attachment indices
-        sp_ref.preserve_att_refs.reserve(create_info->pSubpasses[i].preserveAttachmentCount);
-        for (uint32_t s = 0; s < create_info->pSubpasses[i].preserveAttachmentCount; ++s)
-        {
-            sp_ref.preserve_att_refs.push_back(create_info->pSubpasses[i].pPreserveAttachments[s]);
-        }
-
-        // Copy depth attachment ref
-        if (create_info->pSubpasses[i].pDepthStencilAttachment &&
-            create_info->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
-        {
-            sp_ref.has_depth     = true;
-            sp_ref.depth_att_ref = *create_info->pSubpasses[i].pDepthStencilAttachment;
-        }
-        else
-        {
-            sp_ref.has_depth = false;
-        }
-
-        render_pass_info->subpass_refs.push_back(std::move(sp_ref));
-    }
-
-    // Copy dependencies
-    render_pass_info->dependencies.resize(create_info->dependencyCount);
-    for (uint32_t i = 0; i < create_info->dependencyCount; ++i)
-    {
-        render_pass_info->dependencies[i] = create_info->pDependencies[i];
-    }
-
-    // Copy multiview information
-    render_pass_info->has_multiview  = false;
-    const VkBaseInStructure* current = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
-    while (current != nullptr)
-    {
-        if (current->sType == VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO)
-        {
-            const VkRenderPassMultiviewCreateInfo* mv_ci =
-                reinterpret_cast<const VkRenderPassMultiviewCreateInfo*>(current);
-
-            render_pass_info->has_multiview = true;
-            if (mv_ci->subpassCount && mv_ci->pViewMasks != nullptr)
-            {
-                render_pass_info->multiview.view_masks.resize(mv_ci->subpassCount);
-                for (uint32_t i = 0; i < mv_ci->subpassCount; ++i)
-                {
-                    render_pass_info->multiview.view_masks[i] = mv_ci->pViewMasks[i];
-                }
-            }
-
-            if (mv_ci->dependencyCount && mv_ci->pViewOffsets != nullptr)
-            {
-                render_pass_info->multiview.view_offsets.resize(mv_ci->dependencyCount);
-                for (uint32_t i = 0; i < mv_ci->dependencyCount; ++i)
-                {
-                    render_pass_info->multiview.view_offsets[i] = mv_ci->pViewOffsets[i];
-                }
-            }
-
-            if (mv_ci->correlationMaskCount && mv_ci->pCorrelationMasks != nullptr)
-            {
-                render_pass_info->multiview.correlation_masks.resize(mv_ci->correlationMaskCount);
-                for (uint32_t i = 0; i < mv_ci->correlationMaskCount; ++i)
-                {
-                    render_pass_info->multiview.correlation_masks[i] = mv_ci->pCorrelationMasks[i];
-                }
-            }
-        }
-
-        current = current->pNext;
+        render_pass_info->func_version = VulkanRenderPassInfo::kCreateRenderPass;
+        render_pass_info->create_info.resize(num_bytes);
+        graphics::vulkan_struct_deep_copy(create_info, 1, render_pass_info->create_info.data());
     }
 
     return result;
@@ -6174,46 +6080,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
         render_pass_info->attachment_descs[i].finalLayout    = create_info->pAttachments[i].finalLayout;
     }
 
-    render_pass_info->subpass_refs.reserve(create_info->subpassCount);
-    for (uint32_t i = 0; i < create_info->subpassCount; ++i)
+    if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        VulkanRenderPassInfo::SubpassReferences sp_ref;
-        sp_ref.flags               = create_info->pSubpasses[i].flags;
-        sp_ref.pipeline_bind_point = create_info->pSubpasses[i].pipelineBindPoint;
+        const VkRenderPassCreateInfo2* create_info = pCreateInfo->GetPointer();
+        uint32_t                       num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
-        for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
-        {
-            if (create_info->pSubpasses[i].pColorAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                sp_ref.color_att_refs.emplace_back(
-                    VkAttachmentReference{ create_info->pSubpasses[i].pColorAttachments[s].attachment,
-                                           create_info->pSubpasses[i].pColorAttachments[s].layout });
-            }
-        }
-
-        for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
-        {
-            if (create_info->pSubpasses[i].pInputAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
-            {
-                sp_ref.input_att_refs.emplace_back(
-                    VkAttachmentReference{ create_info->pSubpasses[i].pInputAttachments[s].attachment,
-                                           create_info->pSubpasses[i].pInputAttachments[s].layout });
-            }
-        }
-
-        if (create_info->pSubpasses[i].pDepthStencilAttachment &&
-            create_info->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
-        {
-            sp_ref.has_depth                = true;
-            sp_ref.depth_att_ref.attachment = create_info->pSubpasses[i].pDepthStencilAttachment->attachment;
-            sp_ref.depth_att_ref.layout     = create_info->pSubpasses[i].pDepthStencilAttachment->layout;
-        }
-        else
-        {
-            sp_ref.has_depth = false;
-        }
-
-        render_pass_info->subpass_refs.push_back(std::move(sp_ref));
+        render_pass_info->func_version = (func == GetDeviceTable(device_info->handle)->CreateRenderPass2)
+                                             ? VulkanRenderPassInfo::kCreateRenderPass2
+                                             : VulkanRenderPassInfo::kCreateRenderPass2KHR;
+        render_pass_info->create_info.resize(num_bytes);
+        graphics::vulkan_struct_deep_copy(create_info, 1, render_pass_info->create_info.data());
     }
 
     return result;

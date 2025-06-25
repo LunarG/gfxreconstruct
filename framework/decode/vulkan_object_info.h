@@ -647,33 +647,16 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<VkImageLayout>           attachment_description_final_layouts;
     std::vector<VkAttachmentDescription> attachment_descs;
 
-    struct SubpassReferences
+    std::vector<uint8_t> create_info;
+    enum FuncVersion
     {
-        VkSubpassDescriptionFlags          flags;
-        VkPipelineBindPoint                pipeline_bind_point;
-        std::vector<VkAttachmentReference> input_att_refs;
-        std::vector<VkAttachmentReference> color_att_refs;
-        std::vector<VkAttachmentReference> resolve_att_refs;
-        std::vector<uint32_t>              preserve_att_refs;
-
-        bool                  has_depth;
-        VkAttachmentReference depth_att_ref;
+        kCreateRenderPass,
+        kCreateRenderPass2,
+        kCreateRenderPass2KHR
     };
+    FuncVersion func_version;
 
-    // The attachment references per subpass
-    std::vector<SubpassReferences> subpass_refs;
-
-    std::vector<VkSubpassDependency> dependencies;
-
-    // Multiview info
-    bool has_multiview{ false };
-
-    struct
-    {
-        std::vector<uint32_t> view_masks;
-        std::vector<int32_t>  view_offsets;
-        std::vector<uint32_t> correlation_masks;
-    } multiview;
+    std::vector<format::HandleId> begin_renderpass_override_attachments;
 };
 
 struct VulkanDescriptorTypeImageInfo
