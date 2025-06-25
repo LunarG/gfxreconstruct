@@ -59,18 +59,17 @@ class VulkanReplayDumpResourcesJson
 
     nlohmann::ordered_json& GetCurrentSubEntry();
 
-    void InsertImageInfo(nlohmann::ordered_json& json_entry,
-                         VkFormat                image_format,
-                         VkImageType             image_type,
-                         format::HandleId        image_id,
-                         const VkExtent3D&       extent,
-                         const std::string&      filename,
-                         VkImageAspectFlagBits   aspect,
-                         bool                    scale_failed,
-                         uint32_t                mip_level       = 0,
-                         uint32_t                array_layer     = 0,
-                         bool                    separate_alpha  = false,
-                         const std::string*      filename_before = nullptr);
+    void InsertImageSubresourceInfo(nlohmann::ordered_json& json_entry,
+                                    VkFormat                image_format,
+                                    VkImageType             image_type,
+                                    format::HandleId        image_id,
+                                    const VkExtent3D&       extent,
+                                    const std::string&      filename,
+                                    VkImageAspectFlagBits   aspect,
+                                    uint32_t                mip_level       = 0,
+                                    uint32_t                array_layer     = 0,
+                                    bool                    separate_alpha  = false,
+                                    const std::string*      filename_before = nullptr);
 
     uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
 
