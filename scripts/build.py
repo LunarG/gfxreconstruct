@@ -436,6 +436,10 @@ if '__main__' == __name__:
         commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
         print("commit_parents ==", commit_parents)
 
+        # orig_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').splitlines()[0]
+        # if orig_branch == 'HEAD':
+        #     orig_branch = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').splitlines()[0]
+
         this_commit_log = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')[0]
         print("this_commit_log ==", this_commit_log)
 
@@ -458,7 +462,7 @@ if '__main__' == __name__:
 
         print("target_ref ==", target_refspec)
         print("base_ref ==", base_refspec)
-        commits = subprocess.check_output(['git', 'log', '--format=%h', f'{target_refspec}...{base_refspec}']).split(b'\n')
+        commits = subprocess.check_output(['git', 'log', '--format=%h', f'{base_refspec}...{target_refspec}']).split(b'\n')
         commits = commits[:-1] # Remove final, blank entry
         commits.reverse()
         copyright_check_failed = 0
