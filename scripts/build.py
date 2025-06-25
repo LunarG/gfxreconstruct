@@ -430,6 +430,9 @@ if '__main__' == __name__:
         target_refspec = "origin/dev"
         base_refspec = "HEAD"
 
+        status = subprocess.check_output(['git', 'status'])
+        print("status ==", status)
+
         this_commit_log = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')[0]
         print("this_commit_log ==", this_commit_log)
 
