@@ -162,23 +162,18 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
     return current_entry != nullptr ? *current_entry : json_data_;
 }
 
-void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
-                                                    VkFormat                image_format,
-                                                    VkImageType             image_type,
-                                                    format::HandleId        image_id,
-                                                    const VkExtent3D&       extent,
-                                                    const std::string&      filename,
-                                                    VkImageAspectFlagBits   aspect,
-                                                    bool                    scale_failed,
-                                                    uint32_t                mip_level,
-                                                    uint32_t                array_layer,
-                                                    bool                    separate_alpha,
-                                                    const std::string*      filename_before)
+void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered_json& json_entry,
+                                                               VkFormat                image_format,
+                                                               VkImageType             image_type,
+                                                               format::HandleId        image_id,
+                                                               const VkExtent3D&       extent,
+                                                               const std::string&      filename,
+                                                               VkImageAspectFlagBits   aspect,
+                                                               uint32_t                mip_level,
+                                                               uint32_t                array_layer,
+                                                               bool                    separate_alpha,
+                                                               const std::string*      filename_before)
 {
-    json_entry["imageId"]   = image_id;
-    json_entry["format"]    = util::ToString<VkFormat>(image_format);
-    json_entry["imageType"] = util::ToString<VkImageType>(image_type);
-
     const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
     const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
     json_entry["aspect"] = aspect_str;

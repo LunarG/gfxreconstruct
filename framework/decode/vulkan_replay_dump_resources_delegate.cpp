@@ -640,7 +640,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     {
         auto& rt_entries = draw_call_entry["colorAttachments"];
 
-        size_t f = 0;
+        size_t rt_json_entries = 0;
         for (size_t i = 0; i < draw_call_info.render_targets->color_att_imgs.size(); ++i)
         {
             if (options_.dump_resources_color_attachment_index != kUnspecifiedColorAttachment &&
@@ -660,6 +660,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             std::vector<VkImageAspectFlagBits> aspects;
             GetFormatAspects(image_info->format, aspects);
 
+            auto& rt_entry        = rt_entries[rt_json_entries++];
+            rt_entry["imageId"]   = image_info->capture_id;
+            rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
+            rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
+
+            size_t subresource_entry = 0;
             for (auto aspect : aspects)
             {
                 for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
@@ -689,18 +695,20 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                     std::max(1u, image_info->extent.height >> mip),
                                                     image_info->extent.depth };
 
-                        dump_json_.InsertImageInfo(rt_entries[f++],
-                                                   image_info->format,
-                                                   image_info->type,
-                                                   image_info->capture_id,
-                                                   extent,
-                                                   filenameAfter,
-                                                   aspect,
-                                                   ImageFailedScaling(filenameAfter),
-                                                   mip,
-                                                   layer,
-                                                   options_.dump_resources_dump_separate_alpha,
-                                                   options_.dump_resources_before ? &filenameBefore : nullptr);
+                        auto& subresource_json_entry = rt_entry["subresources"];
+                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[subresource_entry++],
+                                                              image_info->format,
+                                                              image_info->type,
+                                                              image_info->capture_id,
+                                                              extent,
+                                                              filenameAfter,
+                                                              aspect,
+                                                              ImageFailedScaling(filenameAfter),
+                                                              mip,
+                                                              layer,
+                                                              options_.dump_resources_dump_separate_alpha,
+                                                              options_.dump_resources_before ? &filenameBefore
+                                                                                             : nullptr);
 
                         // Skip rest of layers
                         if (!options_.dump_resources_dump_all_image_subresources)
@@ -724,14 +732,19 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         draw_call_info.render_targets->depth_att_img != nullptr &&
         IsImageDumpable(instance_table, draw_call_info.render_targets->depth_att_img))
     {
-        auto& depth_entries = draw_call_entry["depthAttachments"];
+        auto& depth_entry = draw_call_entry["depthAttachment"];
 
         const VulkanImageInfo* image_info = draw_call_info.render_targets->depth_att_img;
 
         std::vector<VkImageAspectFlagBits> aspects;
         GetFormatAspects(image_info->format, aspects);
 
-        size_t f = 0;
+        auto& rt_entry        = depth_entry;
+        rt_entry["imageId"]   = image_info->capture_id;
+        rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
+        rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
+
+        size_t subresource_entry = 0;
         for (auto aspect : aspects)
         {
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
@@ -760,18 +773,19 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                 std::max(1u, image_info->extent.height >> mip),
                                                 image_info->extent.depth };
 
-                    dump_json_.InsertImageInfo(depth_entries[f++],
-                                               image_info->format,
-                                               image_info->type,
-                                               image_info->capture_id,
-                                               extent,
-                                               filenameAfter,
-                                               aspect,
-                                               ImageFailedScaling(filenameAfter),
-                                               mip,
-                                               layer,
-                                               options_.dump_resources_dump_separate_alpha,
-                                               options_.dump_resources_before ? &filenameBefore : nullptr);
+                    auto& subresource_json_entry = rt_entry["subresources"];
+                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[subresource_entry++],
+                                                          image_info->format,
+                                                          image_info->type,
+                                                          image_info->capture_id,
+                                                          extent,
+                                                          filenameAfter,
+                                                          aspect,
+                                                          ImageFailedScaling(filenameAfter),
+                                                          mip,
+                                                          layer,
+                                                          options_.dump_resources_dump_separate_alpha,
+                                                          options_.dump_resources_before ? &filenameBefore : nullptr);
 
                     // Skip rest of layers
                     if (!options_.dump_resources_dump_all_image_subresources)
@@ -934,6 +948,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                 desc_json_entry["set"]        = desc_set_index;
                                 desc_json_entry["binding"]    = desc_set_binding_index;
                                 desc_json_entry["arrayIndex"] = img_desc.first;
+                                desc_json_entry["imageId"]    = image_info->capture_id;
+                                desc_json_entry["format"]     = util::ToString<VkFormat>(image_info->format);
+                                desc_json_entry["imageType"]  = util::ToString<VkImageType>(image_info->type);
 
                                 std::vector<VkImageAspectFlagBits> aspects;
                                 GetFormatAspects(image_info->format, aspects);
@@ -942,7 +959,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                 res_info.type                   = DumpResourceType::kImageDescriptor;
                                 res_info.image_info             = image_info;
 
-                                size_t f = 0;
+                                size_t subresource_entry = 0;
                                 for (auto aspect : aspects)
                                 {
                                     for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
@@ -955,18 +972,19 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                                         std::max(1u, image_info->extent.height >> mip),
                                                                         image_info->extent.depth };
 
-                                            auto& image_descriptor_json_entry = desc_json_entry["descriptor"];
-                                            dump_json_.InsertImageInfo(image_descriptor_json_entry[f++],
-                                                                       image_info->format,
-                                                                       image_info->type,
-                                                                       image_info->capture_id,
-                                                                       extent,
-                                                                       filename,
-                                                                       aspect,
-                                                                       ImageFailedScaling(filename),
-                                                                       mip,
-                                                                       layer,
-                                                                       options_.dump_resources_dump_separate_alpha);
+                                            auto& subresource_json_entry = desc_json_entry["subresources"];
+                                            dump_json_.InsertImageSubresourceInfo(
+                                                subresource_json_entry[subresource_entry++],
+                                                image_info->format,
+                                                image_info->type,
+                                                image_info->capture_id,
+                                                extent,
+                                                filename,
+                                                aspect,
+                                                ImageFailedScaling(filename),
+                                                mip,
+                                                layer,
+                                                options_.dump_resources_dump_separate_alpha);
 
                                             if (!options_.dump_resources_dump_all_image_subresources)
                                             {
@@ -1410,10 +1428,14 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
             entry["set"]                = desc_set;
             entry["binding"]            = binding;
             entry["arrayIndex"]         = array_index;
+            entry["imageId"]            = img_info->capture_id;
+            entry["format"]             = util::ToString<VkFormat>(img_info->format);
+            entry["imageType"]          = util::ToString<VkImageType>(img_info->type);
 
             std::vector<VkImageAspectFlagBits> aspects;
             GetFormatAspects(img_info->format, aspects);
 
+            size_t subresource_entry = 0;
             for (auto aspect : aspects)
             {
                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
@@ -1436,38 +1458,39 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                     std::max(1u, img_info->extent.height >> mip),
                                                     img_info->extent.depth };
 
+                        auto& subresource_json_entry = entry["subresources"];
                         if (options_.dump_resources_before)
                         {
                             res_info.before_cmd = true;
                             const std::string filename_before =
                                 GenerateDispatchTraceRaysImageFilename(res_info, mip, layer, aspect);
 
-                            dump_json_.InsertImageInfo(entry,
-                                                       img_info->format,
-                                                       img_info->type,
-                                                       img_info->capture_id,
-                                                       extent,
-                                                       filename,
-                                                       aspect,
-                                                       ImageFailedScaling(filename),
-                                                       mip,
-                                                       layer,
-                                                       options_.dump_resources_dump_separate_alpha,
-                                                       &filename_before);
+                            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[subresource_entry++],
+                                                                  img_info->format,
+                                                                  img_info->type,
+                                                                  img_info->capture_id,
+                                                                  extent,
+                                                                  filename,
+                                                                  aspect,
+                                                                  ImageFailedScaling(filename),
+                                                                  mip,
+                                                                  layer,
+                                                                  options_.dump_resources_dump_separate_alpha,
+                                                                  &filename_before);
                         }
                         else
                         {
-                            dump_json_.InsertImageInfo(entry,
-                                                       img_info->format,
-                                                       img_info->type,
-                                                       img_info->capture_id,
-                                                       extent,
-                                                       filename,
-                                                       aspect,
-                                                       ImageFailedScaling(filename),
-                                                       mip,
-                                                       layer,
-                                                       options_.dump_resources_dump_separate_alpha);
+                            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[subresource_entry++],
+                                                                  img_info->format,
+                                                                  img_info->type,
+                                                                  img_info->capture_id,
+                                                                  extent,
+                                                                  filename,
+                                                                  aspect,
+                                                                  ImageFailedScaling(filename),
+                                                                  mip,
+                                                                  layer,
+                                                                  options_.dump_resources_dump_separate_alpha);
                         }
 
                         if (!options_.dump_resources_dump_all_image_subresources)
@@ -1568,10 +1591,14 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                 entry["set"]        = desc_set_index;
                                 entry["binding"]    = desc_binding_index;
                                 entry["arrayIndex"] = img_desc.first;
+                                entry["imageId"]    = img_info->capture_id;
+                                entry["format"]     = util::ToString<VkFormat>(img_info->format);
+                                entry["imageType"]  = util::ToString<VkImageType>(img_info->type);
 
                                 std::vector<VkImageAspectFlagBits> aspects;
                                 GetFormatAspects(img_info->format, aspects);
 
+                                size_t subresource_entry = 0;
                                 for (auto aspect : aspects)
                                 {
                                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
@@ -1585,22 +1612,23 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                             std::string filename = GenerateDispatchTraceRaysImageDescriptorFilename(
                                                 res_info, mip, layer, aspect);
 
-                                            auto&            image_descriptor_json_entry = entry["descriptor"];
                                             const VkExtent3D extent = { std::max(1u, img_info->extent.width >> mip),
                                                                         std::max(1u, img_info->extent.height >> mip),
                                                                         img_info->extent.depth };
 
-                                            dump_json_.InsertImageInfo(image_descriptor_json_entry,
-                                                                       img_info->format,
-                                                                       img_info->type,
-                                                                       img_info->capture_id,
-                                                                       extent,
-                                                                       filename,
-                                                                       aspect,
-                                                                       ImageFailedScaling(filename),
-                                                                       mip,
-                                                                       layer,
-                                                                       options_.dump_resources_dump_separate_alpha);
+                                            auto& subresource_json_entry = entry["subresources"];
+                                            dump_json_.InsertImageSubresourceInfo(
+                                                subresource_json_entry[subresource_entry++],
+                                                img_info->format,
+                                                img_info->type,
+                                                img_info->capture_id,
+                                                extent,
+                                                filename,
+                                                aspect,
+                                                ImageFailedScaling(filename),
+                                                mip,
+                                                layer,
+                                                options_.dump_resources_dump_separate_alpha);
 
                                             if (!options_.dump_resources_dump_all_image_subresources)
                                             {
