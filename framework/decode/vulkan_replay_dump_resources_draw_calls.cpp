@@ -2005,12 +2005,11 @@ void DrawCallsDumpingContext::BindDescriptorSets(
     assert((dynamic_offset_index == dynamicOffsetCount && pDynamicOffsets != nullptr) || (!dynamic_offset_index));
 }
 
-VkResult DrawCallsDumpingContext::CloneRenderPass(
-    const VulkanRenderPassInfo*                         original_render_pass,
-    const VulkanFramebufferInfo*                        fb_info,
-    const std::optional<std::vector<format::HandleId>>& override_attachment_image_views)
+VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* original_render_pass_ci)
 {
-    std::vector<VkAttachmentDescription> modified_attachments = original_render_pass->attachment_descs;
+    std::vector<VkAttachmentDescription> modified_attachments(original_render_pass_ci->pAttachments,
+                                                              original_render_pass_ci->pAttachments +
+                                                                  original_render_pass_ci->attachmentCount);
 
     // Fix storeOps and final layouts
     for (auto& att : modified_attachments)
@@ -2024,49 +2023,27 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         }
     }
 
-    // Inform the original command buffer about the new image layouts
-    for (const auto& att_ref : original_render_pass->subpass_refs[0].color_att_refs)
-    {
-        const VulkanImageViewInfo* att_img_view_info = nullptr;
-        if (att_ref.attachment < fb_info->attachment_image_view_ids.size())
-        {
-            att_img_view_info =
-                object_info_table_.GetVkImageViewInfo(fb_info->attachment_image_view_ids[att_ref.attachment]);
-            original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
-        }
-        else if (override_attachment_image_views && att_ref.attachment < override_attachment_image_views->size())
-        {
-            att_img_view_info =
-                object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[att_ref.attachment]);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
-            continue;
-        }
-        GFXRECON_ASSERT(att_img_view_info != nullptr);
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(att_img_view_info->image_id);
-        GFXRECON_ASSERT(img_info != nullptr);
-        img_info->intermediate_layout = att_ref.layout;
-    }
-
     // Create new render passes
     std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.emplace_back();
-    GFXRECON_ASSERT(!original_render_pass->subpass_refs.empty());
-    new_render_pass.resize(original_render_pass->subpass_refs.size());
+    new_render_pass.resize(original_render_pass_ci->subpassCount);
 
     // Do one quick pass over the subpass references in order to check if the render pass
     // uses color and/or depth attachments. This information might be necessary when
     // defining the dependencies of the custom render passes
     bool has_color = false, has_depth = false;
-    for (const auto& sub_pass_ref : original_render_pass->subpass_refs)
+    for (uint32_t i = 0; i < original_render_pass_ci->subpassCount; ++i)
     {
-        if (!sub_pass_ref.color_att_refs.empty())
+        for (uint32_t j = 0; j < original_render_pass_ci->pSubpasses[i].colorAttachmentCount; ++j)
         {
-            has_color = true;
+            if (original_render_pass_ci->pSubpasses[i].pColorAttachments[j].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                has_color = true;
+                break;
+            }
         }
 
-        if (sub_pass_ref.has_depth)
+        if (original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment != nullptr &&
+            original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
         {
             has_depth = true;
         }
@@ -2083,12 +2060,15 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
     std::vector<VkSubpassDescription> subpass_descs;
-    for (size_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
+    for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
     {
         bool                             has_external_dependencies_post = false;
         std::vector<VkSubpassDependency> modified_dependencies;
-        for (const auto& original_dep : original_render_pass->dependencies)
+
+        for (uint32_t i = 0; i < original_render_pass_ci->dependencyCount; ++i)
         {
+            const auto& original_dep = original_render_pass_ci->pDependencies[i];
+
             if ((original_dep.srcSubpass > sub || original_dep.dstSubpass > sub) &&
                 (original_dep.srcSubpass != VK_SUBPASS_EXTERNAL && original_dep.dstSubpass != VK_SUBPASS_EXTERNAL))
             {
@@ -2141,27 +2121,12 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
             }
         }
 
-        const VulkanRenderPassInfo::SubpassReferences& original_subp_ref = original_render_pass->subpass_refs[sub];
-        auto&                                          new_subp_desc     = subpass_descs.emplace_back();
-        new_subp_desc.flags                                              = original_subp_ref.flags;
-        new_subp_desc.pipelineBindPoint                                  = original_subp_ref.pipeline_bind_point;
-        new_subp_desc.inputAttachmentCount                               = original_subp_ref.input_att_refs.size();
-        new_subp_desc.pInputAttachments =
-            original_subp_ref.input_att_refs.empty() ? nullptr : original_subp_ref.input_att_refs.data();
-        new_subp_desc.colorAttachmentCount = original_subp_ref.color_att_refs.size();
-        new_subp_desc.pColorAttachments =
-            original_subp_ref.color_att_refs.empty() ? nullptr : original_subp_ref.color_att_refs.data();
-        new_subp_desc.pResolveAttachments =
-            original_subp_ref.resolve_att_refs.empty() ? nullptr : original_subp_ref.resolve_att_refs.data();
-        new_subp_desc.pDepthStencilAttachment =
-            original_subp_ref.has_depth ? &original_subp_ref.depth_att_ref : nullptr;
-        new_subp_desc.preserveAttachmentCount = original_subp_ref.preserve_att_refs.size();
-        new_subp_desc.pPreserveAttachments =
-            original_subp_ref.preserve_att_refs.empty() ? nullptr : original_subp_ref.preserve_att_refs.data();
+        auto& new_subp_desc = subpass_descs.emplace_back();
+        new_subp_desc       = original_render_pass_ci->pSubpasses[sub];
 
         VkRenderPassCreateInfo ci;
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        ci.flags           = VkRenderPassCreateFlags(0);
+        ci.flags           = original_render_pass_ci->flags;
         ci.attachmentCount = modified_attachments.size();
         ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
@@ -2172,31 +2137,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
         ci.dependencyCount = modified_dependencies.size();
         ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
-        VkRenderPassMultiviewCreateInfo renderPassMultiviewCI;
-        if (original_render_pass->has_multiview)
-        {
-            renderPassMultiviewCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO;
-            renderPassMultiviewCI.pNext = nullptr;
-
-            renderPassMultiviewCI.subpassCount         = original_render_pass->multiview.view_masks.size();
-            renderPassMultiviewCI.pViewMasks           = original_render_pass->multiview.view_masks.empty()
-                                                             ? nullptr
-                                                             : original_render_pass->multiview.view_masks.data();
-            renderPassMultiviewCI.dependencyCount      = original_render_pass->multiview.view_offsets.size();
-            renderPassMultiviewCI.pViewOffsets         = original_render_pass->multiview.view_offsets.empty()
-                                                             ? nullptr
-                                                             : original_render_pass->multiview.view_offsets.data();
-            renderPassMultiviewCI.correlationMaskCount = original_render_pass->multiview.correlation_masks.size();
-            renderPassMultiviewCI.pCorrelationMasks    = original_render_pass->multiview.correlation_masks.empty()
-                                                             ? nullptr
-                                                             : original_render_pass->multiview.correlation_masks.data();
-
-            ci.pNext = &renderPassMultiviewCI;
-        }
-        else
-        {
-            ci.pNext = nullptr;
-        }
+        ci.pNext = original_render_pass_ci->pNext;
 
         const VulkanDeviceInfo* device_info =
             object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
@@ -2210,69 +2151,242 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(
             return res;
         }
     }
+
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::BeginRenderPass(
-    const VulkanRenderPassInfo*                         render_pass_info,
-    const VulkanFramebufferInfo*                        framebuffer_info,
-    const VkRenderPassBeginInfo*                        renderpass_begin_info,
-    VkSubpassContents                                   contents,
-    const std::optional<std::vector<format::HandleId>>& override_attachment_image_views)
+VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*    render_pass_info,
+                                                   const VkRenderPassCreateInfo2* original_render_pass_ci)
 {
-    GFXRECON_ASSERT(render_pass_info != nullptr);
-    GFXRECON_ASSERT(framebuffer_info != nullptr);
-    GFXRECON_ASSERT(renderpass_begin_info != nullptr);
+    std::vector<VkAttachmentDescription2> modified_attachments(original_render_pass_ci->pAttachments,
+                                                               original_render_pass_ci->pAttachments +
+                                                                   original_render_pass_ci->attachmentCount);
 
-    std::vector<VulkanImageInfo*> color_att_imgs;
+    // Fix storeOps and final layouts
+    for (auto& att : modified_attachments)
+    {
+        att.storeOp     = VK_ATTACHMENT_STORE_OP_STORE;
+        att.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
-    current_render_pass_type_ = kRenderPass;
-    current_subpass_          = 0;
-    active_renderpass_        = render_pass_info;
-    active_framebuffer_       = framebuffer_info;
+        if (vkuFormatHasStencil(att.format))
+        {
+            att.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+        }
+    }
+
+    // Create new render passes
+    std::vector<VkRenderPass>& new_render_pass = render_pass_clones_.emplace_back();
+    new_render_pass.resize(original_render_pass_ci->subpassCount);
+
+    // Do one quick pass over the subpass references in order to check if the render pass
+    // uses color and/or depth attachments. This information might be necessary when
+    // defining the dependencies of the custom render passes
+    bool has_color = false, has_depth = false;
+    for (uint32_t i = 0; i < original_render_pass_ci->subpassCount; ++i)
+    {
+        for (uint32_t j = 0; j < original_render_pass_ci->pSubpasses[i].colorAttachmentCount; ++j)
+        {
+            if (original_render_pass_ci->pSubpasses[i].pColorAttachments[j].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                has_color = true;
+                break;
+            }
+        }
+
+        if (original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment != nullptr &&
+            original_render_pass_ci->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
+        {
+            has_depth = true;
+        }
+    }
+
+    // Create new render passes. For each subpass in the original render pass a new render pass will be created.
+    // Each new render pass will progressively contain an additional subpass until all subpasses of the original
+    // renderpass are exhausted.
+    // For example for a render pass with 3 subpasses, 3 new render passes will be created and will contain the
+    // following subpasses:
+    // Renderpass 0: Will contain 1 subpass.
+    // Renderpass 1: Will contain 2 subpass.
+    // Renderpass 2: Will contain 3 subpass.
+    // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
+    // subpasses it was called from in the original render pass
+    std::vector<VkSubpassDescription2> subpass_descs;
+    for (uint32_t sub = 0; sub < original_render_pass_ci->subpassCount; ++sub)
+    {
+        bool                              has_external_dependencies_post = false;
+        std::vector<VkSubpassDependency2> modified_dependencies;
+
+        for (uint32_t i = 0; i < original_render_pass_ci->dependencyCount; ++i)
+        {
+            const auto& original_dep = original_render_pass_ci->pDependencies[i];
+
+            if ((original_dep.srcSubpass > sub || original_dep.dstSubpass > sub) &&
+                (original_dep.srcSubpass != VK_SUBPASS_EXTERNAL && original_dep.dstSubpass != VK_SUBPASS_EXTERNAL))
+            {
+                // Skip this dependency as out of scope
+                continue;
+            }
+
+            auto new_dep = modified_dependencies.insert(modified_dependencies.end(), original_dep);
+            if (new_dep->srcSubpass != VK_SUBPASS_EXTERNAL && new_dep->srcSubpass > sub)
+            {
+                new_dep->srcSubpass = sub;
+            }
+            else if (new_dep->dstSubpass != VK_SUBPASS_EXTERNAL && new_dep->dstSubpass > sub)
+            {
+                new_dep->dstSubpass = sub;
+            }
+
+            if (new_dep->dstSubpass == VK_SUBPASS_EXTERNAL)
+            {
+                has_external_dependencies_post = true;
+            }
+        }
+
+        // No post renderpass dependency was detected
+        if (!has_external_dependencies_post)
+        {
+            VkSubpassDependency2 post_dependency;
+            post_dependency.sType         = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
+            post_dependency.pNext         = nullptr;
+            post_dependency.srcSubpass    = sub;
+            post_dependency.dstSubpass    = VK_SUBPASS_EXTERNAL;
+            post_dependency.dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            post_dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            // Injecting one for color
+            if (has_color)
+            {
+                post_dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+                post_dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+                modified_dependencies.push_back(post_dependency);
+            }
+
+            // Injecting one for depth
+            if (has_depth)
+            {
+                post_dependency.srcStageMask =
+                    VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+                post_dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+                modified_dependencies.push_back(post_dependency);
+            }
+        }
+
+        auto& new_subp_desc = subpass_descs.emplace_back();
+        new_subp_desc       = original_render_pass_ci->pSubpasses[sub];
+
+        VkRenderPassCreateInfo2 ci;
+        ci.sType           = render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2
+                                 ? VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
+                                 : VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR;
+        ci.flags           = original_render_pass_ci->flags;
+        ci.attachmentCount = modified_attachments.size();
+        ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
+
+        assert(subpass_descs.size() == sub + 1);
+        ci.subpassCount = sub + 1;
+        ci.pSubpasses   = subpass_descs.data();
+
+        ci.dependencyCount = modified_dependencies.size();
+        ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
+
+        ci.correlatedViewMaskCount = original_render_pass_ci->correlatedViewMaskCount;
+        ci.pCorrelatedViewMasks    = original_render_pass_ci->pCorrelatedViewMasks;
+        ci.pNext                   = original_render_pass_ci->pNext;
+
+        const VulkanDeviceInfo* device_info =
+            object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+        VkDevice device = device_info->handle;
+
+        assert(sub < new_render_pass.size());
+
+        VkResult res;
+        if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2)
+        {
+            res = device_table_->CreateRenderPass2(device, &ci, nullptr, &new_render_pass[sub]);
+        }
+        else
+        {
+            GFXRECON_ASSERT(render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2KHR);
+            res = device_table_->CreateRenderPass2KHR(device, &ci, nullptr, &new_render_pass[sub]);
+        }
+
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+    }
+
+    return VK_SUCCESS;
+}
+
+template <typename CreateInfoType>
+static void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*    render_pass_info,
+                                                   const CreateInfoType*          ci,
+                                                   const VulkanFramebufferInfo*   framebuffer_info,
+                                                   uint32_t                       subpass,
+                                                   CommonObjectInfoTable&         object_info_table,
+                                                   std::vector<VulkanImageInfo*>& color_att_imgs,
+                                                   VulkanImageInfo**              depth_img_info)
+{
+    const VulkanImageViewInfo* depth_img_view_info = nullptr;
 
     // Parse color attachments
-    for (const auto& att_ref : active_renderpass_->subpass_refs[current_subpass_].color_att_refs)
+    for (uint32_t i = 0; i < ci->pSubpasses[subpass].colorAttachmentCount; ++i)
     {
-        const uint32_t             att_idx       = att_ref.attachment;
-        const VulkanImageViewInfo* img_view_info = nullptr;
+        const uint32_t att_idx = ci->pSubpasses[subpass].pColorAttachments->attachment;
+        if (att_idx == VK_ATTACHMENT_UNUSED)
+        {
+            continue;
+        }
 
+        const VulkanImageViewInfo* img_view_info = nullptr;
         if (att_idx < framebuffer_info->attachment_image_view_ids.size())
         {
-            img_view_info = object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
+            img_view_info = object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
         }
-        else if (override_attachment_image_views && att_idx < override_attachment_image_views->size())
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
-            img_view_info = object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[att_idx]);
+            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
+                            static_cast<size_t>(att_idx));
+
+            img_view_info =
+                object_info_table.GetVkImageViewInfo(render_pass_info->begin_renderpass_override_attachments[att_idx]);
         }
         else
         {
             GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
             continue;
         }
+
         GFXRECON_ASSERT(img_view_info != nullptr);
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
+        VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(img_view_info->image_id);
         GFXRECON_ASSERT(img_info != nullptr);
 
         color_att_imgs.push_back(img_info);
     }
 
-    VulkanImageInfo*           depth_img_info      = nullptr;
-    const VulkanImageViewInfo* depth_img_view_info = nullptr;
-
-    if (active_renderpass_->subpass_refs[current_subpass_].has_depth)
+    // Detect depth attachment
+    if (ci->pSubpasses[subpass].pDepthStencilAttachment != nullptr &&
+        ci->pSubpasses[subpass].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
     {
-        const uint32_t depth_att_idx = active_renderpass_->subpass_refs[current_subpass_].depth_att_ref.attachment;
+        const uint32_t depth_att_idx = ci->pSubpasses[subpass].pDepthStencilAttachment->attachment;
 
         if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
         {
             depth_img_view_info =
-                object_info_table_.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
         }
-        else if (override_attachment_image_views && depth_att_idx < override_attachment_image_views->size())
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
         {
-            depth_img_view_info =
-                object_info_table_.GetVkImageViewInfo(override_attachment_image_views.value()[depth_att_idx]);
+            GFXRECON_ASSERT(render_pass_info->begin_renderpass_override_attachments.size() >
+                            static_cast<size_t>(depth_att_idx));
+
+            depth_img_view_info = object_info_table.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
         }
         else
         {
@@ -2282,14 +2396,144 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(
 
     if (depth_img_view_info != nullptr)
     {
-        depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
-        GFXRECON_ASSERT(depth_img_info != nullptr);
+        *depth_img_info = object_info_table.GetVkImageInfo(depth_img_view_info->image_id);
+        GFXRECON_ASSERT(*depth_img_info != nullptr);
+    }
+}
+
+template <typename CreateInfoType>
+static void UpdateOriginalCommandBufferWithNewImageLayouts(const VulkanRenderPassInfo*  render_pass_info,
+                                                           const CreateInfoType*        original_render_pass_ci,
+                                                           const VulkanFramebufferInfo* framebuffer_info,
+                                                           VulkanCommandBufferInfo*     original_command_buffer_info,
+                                                           CommonObjectInfoTable&       object_info_table)
+{
+    // Inform the original command buffer about the new image layouts
+    GFXRECON_ASSERT(original_render_pass_ci->subpassCount && original_render_pass_ci->pSubpasses != nullptr);
+    for (uint32_t i = 0; i < original_render_pass_ci->pSubpasses[0].colorAttachmentCount; ++i)
+    {
+        const auto& att_ref = original_render_pass_ci->pSubpasses[0].pColorAttachments[i];
+
+        const VulkanImageViewInfo* att_img_view_info = nullptr;
+        if (att_ref.attachment < framebuffer_info->attachment_image_view_ids.size())
+        {
+            att_img_view_info =
+                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[att_ref.attachment]);
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            att_img_view_info = object_info_table.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[att_ref.attachment]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("unhandled missing color-attachment in %s", __func__);
+            continue;
+        }
+        GFXRECON_ASSERT(att_img_view_info != nullptr);
+        VulkanImageInfo* img_info = object_info_table.GetVkImageInfo(att_img_view_info->image_id);
+        GFXRECON_ASSERT(img_info != nullptr);
+        img_info->intermediate_layout = att_ref.layout;
+    }
+
+    if (original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment != nullptr &&
+        original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
+    {
+        const VulkanImageViewInfo* att_img_view_info = nullptr;
+
+        const uint32_t depth_att_idx = original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->attachment;
+        if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
+        {
+            att_img_view_info =
+                object_info_table.GetVkImageViewInfo(framebuffer_info->attachment_image_view_ids[depth_att_idx]);
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
+                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
+        }
+        else if (!render_pass_info->begin_renderpass_override_attachments.empty())
+        {
+            att_img_view_info = object_info_table.GetVkImageViewInfo(
+                render_pass_info->begin_renderpass_override_attachments[depth_att_idx]);
+            original_command_buffer_info->image_layout_barriers[att_img_view_info->image_id] =
+                original_render_pass_ci->pSubpasses[0].pDepthStencilAttachment->layout;
+        }
+    }
+}
+
+VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  render_pass_info,
+                                                  const VulkanFramebufferInfo* framebuffer_info,
+                                                  const VkRenderPassBeginInfo* renderpass_begin_info,
+                                                  VkSubpassContents            contents)
+{
+    GFXRECON_ASSERT(render_pass_info != nullptr);
+    GFXRECON_ASSERT(framebuffer_info != nullptr);
+    GFXRECON_ASSERT(renderpass_begin_info != nullptr);
+    GFXRECON_ASSERT(!render_pass_info->create_info.empty());
+
+    std::vector<VulkanImageInfo*> color_att_imgs;
+    VulkanImageInfo*              depth_img_info = nullptr;
+
+    current_render_pass_type_ = kRenderPass;
+    current_subpass_          = 0;
+    active_renderpass_        = render_pass_info;
+    active_framebuffer_       = framebuffer_info;
+
+    if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
+    {
+        ParseAttachmentsInRenderPassCreateInfo(
+            render_pass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()),
+            framebuffer_info,
+            current_subpass_,
+            object_info_table_,
+            color_att_imgs,
+            &depth_img_info);
+    }
+    else
+    {
+        ParseAttachmentsInRenderPassCreateInfo(
+            render_pass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()),
+            framebuffer_info,
+            current_subpass_,
+            object_info_table_,
+            color_att_imgs,
+            &depth_img_info);
     }
 
     SetRenderTargets(color_att_imgs, depth_img_info, true);
     SetRenderArea(renderpass_begin_info->renderArea);
 
-    VkResult res = CloneRenderPass(render_pass_info, framebuffer_info, override_attachment_image_views);
+    if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
+    {
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            render_pass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()),
+            framebuffer_info,
+            original_command_buffer_info_,
+            object_info_table_);
+    }
+    else
+    {
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            render_pass_info,
+            reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()),
+            framebuffer_info,
+            original_command_buffer_info_,
+            object_info_table_);
+    }
+
+    VkResult res;
+    if (render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass)
+    {
+        res = CloneRenderPass(reinterpret_cast<const VkRenderPassCreateInfo*>(render_pass_info->create_info.data()));
+    }
+    else
+    {
+        res = CloneRenderPass2(render_pass_info,
+                               reinterpret_cast<const VkRenderPassCreateInfo2*>(render_pass_info->create_info.data()));
+    }
+
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed cloning render pass (%s).", util::ToString<VkResult>(res).c_str())
@@ -2367,6 +2611,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(
 void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
 {
     assert(active_renderpass_);
+    assert(!active_renderpass_->create_info.empty());
     assert(active_framebuffer_);
 
     std::vector<VulkanImageInfo*>    color_att_imgs;
@@ -2387,64 +2632,52 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
         device_table_->CmdNextSubpass(*it, contents);
     }
 
-    assert(current_subpass_ < active_renderpass_->subpass_refs.size());
-
-    // Parse color attachments
-    for (const auto& att_ref : active_renderpass_->subpass_refs[current_subpass_].color_att_refs)
-    {
-        const uint32_t att_idx = att_ref.attachment;
-        assert(att_idx < active_framebuffer_->attachment_image_view_ids.size());
-
-        const VulkanImageViewInfo* img_view_info =
-            object_info_table_.GetVkImageViewInfo(active_framebuffer_->attachment_image_view_ids[att_idx]);
-        assert(img_view_info);
-
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
-        assert(img_info);
-
-        color_att_imgs.push_back(img_info);
-        color_att_storeOps.push_back(active_renderpass_->attachment_descs[att_idx].storeOp);
-        color_att_final_layouts.push_back(active_renderpass_->attachment_descs[att_idx].finalLayout);
-    }
-
     VulkanImageInfo*    depth_img_info;
     VkAttachmentStoreOp depth_att_storeOp;
     VkImageLayout       depth_final_layout;
 
-    if (active_renderpass_->subpass_refs[current_subpass_].has_depth)
+    if (active_renderpass_->func_version == VulkanRenderPassInfo::kCreateRenderPass)
     {
-        const uint32_t depth_att_idx = active_renderpass_->subpass_refs[current_subpass_].depth_att_ref.attachment;
-        assert(depth_att_idx < active_framebuffer_->attachment_image_view_ids.size());
-
-        const VulkanImageViewInfo* depth_img_view_info =
-            object_info_table_.GetVkImageViewInfo(active_framebuffer_->attachment_image_view_ids[depth_att_idx]);
-        assert(depth_img_view_info);
-
-        depth_img_info = object_info_table_.GetVkImageInfo(depth_img_view_info->image_id);
-        assert(depth_img_info);
-        depth_att_storeOp  = active_renderpass_->attachment_descs[depth_att_idx].storeOp;
-        depth_final_layout = active_renderpass_->attachment_descs[depth_att_idx].finalLayout;
+        ParseAttachmentsInRenderPassCreateInfo(
+            active_renderpass_,
+            reinterpret_cast<const VkRenderPassCreateInfo*>(active_renderpass_->create_info.data()),
+            active_framebuffer_,
+            current_subpass_,
+            object_info_table_,
+            color_att_imgs,
+            &depth_img_info);
     }
     else
     {
-        depth_img_info    = nullptr;
-        depth_att_storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        ParseAttachmentsInRenderPassCreateInfo(
+            active_renderpass_,
+            reinterpret_cast<const VkRenderPassCreateInfo2*>(active_renderpass_->create_info.data()),
+            active_framebuffer_,
+            current_subpass_,
+            object_info_table_,
+            color_att_imgs,
+            &depth_img_info);
     }
 
     SetRenderTargets(color_att_imgs, depth_img_info, false);
 
-    // Inform the original command buffer about the new image layouts
-    for (const auto& att_ref : active_renderpass_->subpass_refs[current_subpass_].color_att_refs)
+    if (active_renderpass_->func_version == VulkanRenderPassInfo::kCreateRenderPass)
     {
-        const VulkanImageViewInfo* att_img_view_info =
-            object_info_table_.GetVkImageViewInfo(active_framebuffer_->attachment_image_view_ids[att_ref.attachment]);
-        assert(att_img_view_info != nullptr);
-
-        original_command_buffer_info_->image_layout_barriers[att_img_view_info->image_id] = att_ref.layout;
-
-        VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(att_img_view_info->image_id);
-        assert(img_info != nullptr);
-        img_info->intermediate_layout = att_ref.layout;
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            active_renderpass_,
+            reinterpret_cast<const VkRenderPassCreateInfo*>(active_renderpass_->create_info.data()),
+            active_framebuffer_,
+            original_command_buffer_info_,
+            object_info_table_);
+    }
+    else
+    {
+        UpdateOriginalCommandBufferWithNewImageLayouts(
+            active_renderpass_,
+            reinterpret_cast<const VkRenderPassCreateInfo2*>(active_renderpass_->create_info.data()),
+            active_framebuffer_,
+            original_command_buffer_info_,
+            object_info_table_);
     }
 }
 
