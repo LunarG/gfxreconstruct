@@ -433,6 +433,9 @@ if '__main__' == __name__:
         status = subprocess.check_output(['git', 'status'])
         print("status ==", status)
 
+        commit_parents = subprocess.check_output(['git', 'rev-list', '--parents', '-n', '1', 'HEAD'])
+        print("commit_parents ==", commit_parents)
+
         this_commit_log = subprocess.check_output(['git', 'log', '--oneline']).decode(ENCODING).split('\n')[0]
         print("this_commit_log ==", this_commit_log)
 
