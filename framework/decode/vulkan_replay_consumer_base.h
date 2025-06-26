@@ -81,6 +81,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    void SetCurrentFrameNumber(uint64_t frame_number) override;
+
     void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
@@ -307,6 +309,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void GetMatchingDevice(VulkanPhysicalDeviceInfo* physical_device_info);
 
     void InitializeReplayDumpResources();
+
+    const uint64_t GetFrameNumber();
 
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }

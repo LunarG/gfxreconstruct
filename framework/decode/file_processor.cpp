@@ -141,6 +141,10 @@ bool FileProcessor::ProcessNextFrame()
 
     if (success)
     {
+        for (ApiDecoder* decoder : decoders_)
+        {
+            decoder->SetCurrentFrameNumber(current_frame_number_);
+        }
         success = ProcessBlocks();
     }
     else

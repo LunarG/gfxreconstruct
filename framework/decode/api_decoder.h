@@ -199,6 +199,9 @@ class ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
 
+    // Expects zero-based frame_number to match the way FileProcessor::current_frame_number_ works
+    virtual void SetCurrentFrameNumber(uint64_t frame_number){};
+
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
 
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
