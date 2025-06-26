@@ -151,6 +151,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define IGNORE_FRAME_BOUNDARY_ANDROID_UPPER                  "IGNORE_FRAME_BOUNDARY_ANDROID"
 #define SKIP_THREADS_WITH_INVALID_DATA_LOWER                 "skip_threads_with_invalid_data"
 #define SKIP_THREADS_WITH_INVALID_DATA_UPPER                 "SKIP_THREADS_WITH_INVALID_DATA"
+#define CAPTURE_ENVIRONMENT_LOWER                            "capture_environment"
+#define CAPTURE_ENVIRONMENT_UPPER                            "CAPTURE_ENVIRONMENT"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -222,6 +224,7 @@ const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_OPTION_S
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_OPTION_STR(FORCE_FIFO_PRESENT_MODE);
 const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_OPTION_STR(IGNORE_FRAME_BOUNDARY_ANDROID);
 const char kSkipThreadsWithInvalidDataEnvVar[]               = GFXRECON_OPTION_STR(SKIP_THREADS_WITH_INVALID_DATA);
+const char kCaptureEnvironmentEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_ENVIRONMENT);
 
 #if defined(__ANDROID__)
 // Android-specific capture options
@@ -281,9 +284,10 @@ const std::string kOptionKeyAnnotationExperimental                   = std::stri
 const std::string kOptionKeyAnnotationRand                           = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_RAND_LOWER);
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
-const std::string kOptionForceFifoPresentModeEnvVar                  = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
+const std::string kOptionForceFifoPresentMode                        = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
 const std::string kOptionIgnoreFrameBoundaryAndroid                  = std::string(kSettingsFilter) + std::string(IGNORE_FRAME_BOUNDARY_ANDROID_LOWER);
 const std::string kOptionSkipThreadsWithInvalidData                  = std::string(kSettingsFilter) + std::string(SKIP_THREADS_WITH_INVALID_DATA_LOWER);
+const std::string kOptionCaptureEnvironment                          = std::string(kSettingsFilter) + std::string(CAPTURE_ENVIRONMENT_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -454,11 +458,13 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kAnnotationRandEnvVar, kOptionKeyAnnotationRand);
     LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
     LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
-    LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentModeEnvVar);
+    LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentMode);
 
     LoadSingleOptionEnvVar(options, kIgnoreFrameBoundaryAndroidEnvVar, kOptionIgnoreFrameBoundaryAndroid);
 
     LoadSingleOptionEnvVar(options, kSkipThreadsWithInvalidDataEnvVar, kOptionSkipThreadsWithInvalidData);
+
+    LoadSingleOptionEnvVar(options, kCaptureEnvironmentEnvVar, kOptionCaptureEnvironment);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -679,7 +685,7 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         ParseUnsignedInteger16String(FindOption(options, kOptionKeyAnnotationDescriptor),
                                      settings->trace_settings_.rv_anotation_info.descriptor_mask);
     settings->trace_settings_.force_fifo_present_mode = ParseBoolString(
-        FindOption(options, kOptionForceFifoPresentModeEnvVar), settings->trace_settings_.force_fifo_present_mode);
+        FindOption(options, kOptionForceFifoPresentMode), settings->trace_settings_.force_fifo_present_mode);
 
     settings->trace_settings_.ignore_frame_boundary_android =
         ParseBoolString(FindOption(options, kOptionIgnoreFrameBoundaryAndroid),
@@ -689,6 +695,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.skip_threads_with_invalid_data =
         ParseBoolString(FindOption(options, kOptionSkipThreadsWithInvalidData),
                         settings->trace_settings_.skip_threads_with_invalid_data);
+
+    // Capture environment variables
+    settings->trace_settings_.capture_environment =
+        util::strings::SplitString(FindOption(options, kOptionCaptureEnvironment), ',');
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
