@@ -67,7 +67,7 @@ struct Paths
     std::filesystem::path app_trimming_json_path;
     std::filesystem::path known_good_trimming_json_path;
 
-    void trimming_paths(char const* test_name, char const* known_gfxr_path, char const* trimming_frames)
+    void trimming_paths(char const* test_name, char const* trimming_frames)
     {
         // Trimming suffix is like "_frame_10" or "_frames_10_through_100"
         std::string s_trimming_frames = trimming_frames;
@@ -102,13 +102,8 @@ struct Paths
         capture_trimming_file += ".gfxr";
         capture_trimming_path.append(capture_trimming_file);
 
-        std::string s_known_gfxr_path        = known_gfxr_path;
-        index                                = s_known_gfxr_path.find(".gfxr");
-        std::string known_gfxr_trimming_path = s_known_gfxr_path.substr(0, index);
-        known_gfxr_trimming_path += trimming_suffix;
-        known_gfxr_trimming_path += ".gfxr";
         known_good_trimming_path.append("known_good");
-        known_good_trimming_path.append(known_gfxr_trimming_path);
+        known_good_trimming_path.append(capture_trimming_file);
 
         app_trimming_json_path = std::filesystem::path{ capture_trimming_path };
         app_trimming_json_path.replace_extension(".json");
@@ -117,7 +112,7 @@ struct Paths
         known_good_trimming_json_path.replace_extension(".json");
     }
 
-    Paths(char const* test_name, char const* known_gfxr_path, char const* trimming_frames)
+    Paths(char const* test_name, char const* trimming_frames)
     {
         working_directory = full_app_directory;
         working_directory.append("res");
@@ -138,7 +133,7 @@ struct Paths
         capture_path.append(gfxr_file_name);
 
         known_good_path.append("known_good");
-        known_good_path.append(known_gfxr_path);
+        known_good_path.append(gfxr_file_name);
 
         app_json_path = std::filesystem::path{ capture_path };
         app_json_path.replace_extension(".json");
@@ -148,7 +143,7 @@ struct Paths
 
         if (trimming_frames)
         {
-            trimming_paths(test_name, known_gfxr_path, trimming_frames);
+            trimming_paths(test_name, trimming_frames);
         }
     }
 };
@@ -225,7 +220,7 @@ int run_command(std::filesystem::path const& working_directory,
 
 void run_in_background(const char* test_name)
 {
-    Paths paths{ test_name, "", nullptr };
+    Paths paths{ test_name, nullptr };
     run_command(paths.working_directory, paths.full_executable_path, { test_name, "&" });
 }
 
@@ -266,11 +261,11 @@ void run_trimming_app(const Paths& paths, const char* test_name, char const* tri
     ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
 }
 
-void verify_gfxr(const char* test_name, char const* known_gfxr_path, char const* trimming_frames)
+void verify_gfxr(const char* test_name, char const* trimming_frames)
 {
     EnvironmentVariables env_vars;
 
-    Paths paths{ test_name, known_gfxr_path, trimming_frames };
+    Paths paths{ test_name, trimming_frames };
     int   result;
 
     bool workind_directory_exists = std::filesystem::exists(paths.working_directory);

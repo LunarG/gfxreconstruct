@@ -24,9 +24,7 @@
 
 #include "verify-gfxr.h"
 
-char const* const KNOWN_GFXR_PATH = "ahb.gfxr";
-
 TEST(AndroidHardwareBuffer, CorrectGFXR)
 {
-    verify_gfxr("gfxrecon-testapp-ahb", KNOWN_GFXR_PATH);
+    verify_gfxr("ahb");
 }
