@@ -1012,6 +1012,32 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
 
                         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                        {
+                            for (const auto& buf_desc : desc.second.texel_buffer_view_info)
+                            {
+                                const VulkanBufferInfo* buf_info =
+                                    object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
+                                if (buf_info != nullptr)
+                                {
+                                    uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
+                                    auto&     desc_json_entry =
+                                        draw_call_entry["descriptors"][stage_name][stage_entry_index++];
+                                    desc_json_entry["type"] = util::ToString<VkDescriptorType>(desc.second.desc_type);
+                                    desc_json_entry["set"]  = desc_set_index;
+                                    desc_json_entry["binding"]    = desc_set_binding_index;
+                                    desc_json_entry["arrayIndex"] = buf_desc.first;
+                                    desc_json_entry["bufferId"]   = buf_desc.second->buffer_id;
+
+                                    VulkanDumpResourceInfo res_info = res_info_base;
+                                    res_info.type                   = DumpResourceType::kBufferDescriptor;
+                                    res_info.buffer_info            = buf_info;
+
+                                    desc_json_entry["file"] = GenerateBufferDescriptorFilename(res_info);
+                                }
+                            }
+                        }
+                        break;
+
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
@@ -1658,6 +1684,31 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                         break;
 
                         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        {
+                            for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
+                            {
+                                const auto buffer_info = object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
+                                if (buffer_info != nullptr)
+                                {
+                                    uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
+                                    auto& entry = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
+
+                                    entry["type"]       = util::ToString<VkDescriptorType>(desc_binding_info.desc_type);
+                                    entry["set"]        = desc_set_index;
+                                    entry["binding"]    = desc_binding_index;
+                                    entry["arrayIndex"] = buf_desc.first;
+                                    entry["bufferId"]   = buffer_info->capture_id;
+
+                                    VulkanDumpResourceInfo res_info = res_info_base;
+                                    res_info.type        = DumpResourceType::kDispatchTraceRaysBufferDescriptor;
+                                    res_info.buffer_info = buffer_info;
+
+                                    entry["file"] = GenerateDispatchTraceRaysBufferDescriptorFilename(res_info);
+                                }
+                            }
+                        }
+                        break;
+
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                         {

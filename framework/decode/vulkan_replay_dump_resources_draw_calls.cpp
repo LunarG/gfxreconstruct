@@ -540,6 +540,21 @@ static void SnapshotBoundDescriptors(DrawCallsDumpingContext::DrawCallParams& dc
 
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                {
+                    for (const auto& [array_idx, buf_info] : binding_info.texel_buffer_view_info)
+                    {
+                        // Check against pipeline layout
+                        if (layout_entry->second.count <= array_idx)
+                        {
+                            continue;
+                        }
+
+                        dc_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                            .texel_buffer_view_info[array_idx] = buf_info;
+                    }
+                }
+                break;
+
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
@@ -1187,6 +1202,26 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
 
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                {
+                    for (const auto& buf_desc_info : desc_binding.second.texel_buffer_view_info)
+                    {
+                        const VulkanBufferInfo* buffer_info =
+                            object_info_table_.GetVkBufferInfo(buf_desc_info.second->buffer_id);
+                        if (buffer_info != nullptr &&
+                            (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
+                             render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
+                        {
+                            buffer_descriptors.emplace(
+                                std::piecewise_construct,
+                                std::forward_as_tuple(buffer_info),
+                                std::forward_as_tuple(buffer_descriptor_info{ buf_desc_info.second->offset,
+                                                                              buf_desc_info.second->range }));
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.insert(buffer_info);
+                        }
+                    }
+                }
+                break;
+
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:

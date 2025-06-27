@@ -5552,6 +5552,31 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateBufferView(
+    PFN_vkCreateBufferView                                      func,
+    VkResult                                                    original_result,
+    const VulkanDeviceInfo*                                     device_info,
+    const StructPointerDecoder<Decoded_VkBufferViewCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+    HandlePointerDecoder<VkBufferView>*                         pBufferView)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto     in_p_create_info = pCreateInfo->GetPointer();
+    auto     buffer_view      = pBufferView->GetHandlePointer();
+    VkResult result = func(device_info->handle, in_p_create_info, GetAllocationCallbacks(pAllocator), buffer_view);
+    if (result == VK_SUCCESS)
+    {
+        auto in_p_create_meta       = pCreateInfo->GetMetaStructPointer();
+        auto buffer_view_info       = reinterpret_cast<VulkanBufferViewInfo*>(pBufferView->GetConsumerData(0));
+        buffer_view_info->buffer_id = in_p_create_meta->buffer;
+        buffer_view_info->offset    = in_p_create_info->offset;
+        buffer_view_info->range     = in_p_create_info->range;
+    }
+
+    return result;
+}
+
 void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     PFN_vkDestroyBuffer                                        func,
     const VulkanDeviceInfo*                                    device_info,
