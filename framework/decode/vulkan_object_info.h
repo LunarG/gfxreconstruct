@@ -386,6 +386,8 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
+    VkDeviceSize     offset{ 0 };
+    VkDeviceSize     range{ 0 };
 };
 
 struct VulkanImageInfo : public VulkanObjectInfo<VkImage>

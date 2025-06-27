@@ -512,6 +512,21 @@ static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::Di
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        for (const auto& [array_idx, buf_info] : binding_info.texel_buffer_view_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            disp_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .texel_buffer_view_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
@@ -606,6 +621,21 @@ static void SnapshotBoundDescriptorsTraceRays(DispatchTraceRaysDumpingContext::T
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        for (const auto& [array_idx, buf_info] : binding_info.texel_buffer_view_info)
+                        {
+                            // Check against pipeline layout
+                            if (layout_entry->second.count <= array_idx)
+                            {
+                                continue;
+                            }
+
+                            tr_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .texel_buffer_view_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
@@ -715,9 +745,49 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                 }
                 break;
 
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                {
+                    for (const auto& [array_index, buf_desc] : desc_info.texel_buffer_view_info)
+                    {
+                        const VulkanBufferInfo* buf_info = object_info_table_.GetVkBufferInfo(buf_desc->buffer_id);
+                        if (buf_info == nullptr)
+                        {
+                            continue;
+                        }
+
+                        auto& new_entry           = resource_backup_context.buffers.emplace_back();
+                        new_entry.original_buffer = buf_info;
+                        new_entry.stages          = stage_flags;
+                        new_entry.desc_type       = desc_type;
+                        new_entry.desc_set        = desc_set_index;
+                        new_entry.desc_binding    = binding_index;
+                        new_entry.array_index     = array_index;
+                        new_entry.cloned_size =
+                            buf_desc->range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc->offset) : buf_desc->range;
+
+                        VkResult res = CloneBuffer(object_info_table_,
+                                                   device_table_,
+                                                   replay_device_phys_mem_props_,
+                                                   buf_info,
+                                                   &new_entry.buffer,
+                                                   &new_entry.buffer_memory,
+                                                   new_entry.cloned_size);
+
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
+                                               buf_info->capture_id,
+                                               util::ToString<VkResult>(res).c_str())
+                            return res;
+                        }
+
+                        CopyBufferResource(buf_info, buf_desc->offset, buf_desc->range, new_entry.buffer);
+                    }
+                }
+                break;
+
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 {
                     for (const auto& [array_index, buf_desc] : desc_info.buffer_info)
                     {
@@ -1347,6 +1417,24 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                     break;
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    {
+                        for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
+                        {
+                            const VulkanBufferInfo* buffer_info =
+                                object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
+                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
+                                                              dumped_descriptors.buffer_descriptors.end())
+                            {
+                                buffer_descriptors.emplace(std::piecewise_construct,
+                                                           std::forward_as_tuple(buffer_info),
+                                                           std::forward_as_tuple(buffer_descriptor_info{
+                                                               buf_desc.second->offset, buf_desc.second->range }));
+                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
+                            }
+                        }
+                    }
+                    break;
+
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     {
@@ -1431,6 +1519,24 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                     break;
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    {
+                        for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
+                        {
+                            const VulkanBufferInfo* buffer_info =
+                                object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
+                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
+                                                              dumped_descriptors.buffer_descriptors.end())
+                            {
+                                buffer_descriptors.emplace(std::piecewise_construct,
+                                                           std::forward_as_tuple(buffer_info),
+                                                           std::forward_as_tuple(buffer_descriptor_info{
+                                                               buf_desc.second->offset, buf_desc.second->range }));
+                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
+                            }
+                        }
+                    }
+                    break;
+
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     {
