@@ -266,9 +266,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // Idle all devices before destroying other resources.
     WaitDevicesIdle();
 
-    // free replacer internal vulkan-resources
-    _device_address_replacers.clear();
-
     // process queued async tasks
     background_queue_.join_all();
     main_thread_queue_.poll();
@@ -3265,6 +3262,8 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
             decode::EndInjectedCommands();
         }
+        // free replacer internal vulkan-resources
+        _device_address_replacers.clear();
 
         device_info->allocator->Destroy();
     }
