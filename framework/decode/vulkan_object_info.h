@@ -491,6 +491,9 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
         uint32_t offset;
     };
 
+    // Aggregated shader stages flags
+    VkShaderStageFlags shader_stages{ 0 };
+
     // One entry per binding
     using VertexInputBindingMap = std::unordered_map<uint32_t, InputBindingDescription>;
     VertexInputBindingMap vertex_input_binding_map;

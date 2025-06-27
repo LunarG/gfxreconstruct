@@ -478,7 +478,8 @@ static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::Di
                 // Check against pipeline layout
                 const auto layout_entry =
                     bound_pipeline_compute->desc_set_layouts[desc_set_index].find(desc_binding_index);
-                if (layout_entry == bound_pipeline_compute->desc_set_layouts[desc_set_index].end())
+                if (layout_entry == bound_pipeline_compute->desc_set_layouts[desc_set_index].end() ||
+                    !(bound_pipeline_compute->shader_stages & binding_info.stage_flags))
                 {
                     continue;
                 }
@@ -486,7 +487,7 @@ static void SnapshotBoundDescriptorsDispatch(DispatchTraceRaysDumpingContext::Di
                 disp_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type =
                     binding_info.desc_type;
                 disp_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
-                    binding_info.stage_flags;
+                    (bound_pipeline_compute->shader_stages & binding_info.stage_flags);
 
                 switch (binding_info.desc_type)
                 {
@@ -572,14 +573,15 @@ static void SnapshotBoundDescriptorsTraceRays(DispatchTraceRaysDumpingContext::T
                 // Check against pipeline layout
                 const auto layout_entry =
                     bound_pipeline_trace_rays->desc_set_layouts[desc_set_index].find(desc_binding_index);
-                if (layout_entry == bound_pipeline_trace_rays->desc_set_layouts[desc_set_index].end())
+                if (layout_entry == bound_pipeline_trace_rays->desc_set_layouts[desc_set_index].end() ||
+                    !(bound_pipeline_trace_rays->shader_stages & binding_info.stage_flags))
                 {
                     continue;
                 }
 
                 tr_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type = binding_info.desc_type;
                 tr_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
-                    binding_info.stage_flags;
+                    (bound_pipeline_trace_rays->shader_stages & binding_info.stage_flags);
 
                 switch (binding_info.desc_type)
                 {
