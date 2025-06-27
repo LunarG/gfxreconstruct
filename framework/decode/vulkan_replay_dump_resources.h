@@ -428,21 +428,19 @@ class VulkanReplayDumpResourcesBase
                                    HandlePointerDecoder<VkPipeline>*                                 pPipelines);
 
     template <typename DecodedCreateInfoType>
-    void DumpComputeRayTracingPipelineInfos(DecodedCreateInfoType             pCreateInfos,
-                                            uint32_t                          createInfoCount,
-                                            HandlePointerDecoder<VkPipeline>* pPipelines)
+    void DumpRayTracingPipelineInfos(DecodedCreateInfoType             pCreateInfos,
+                                     uint32_t                          createInfoCount,
+                                     HandlePointerDecoder<VkPipeline>* pPipelines)
     {
-        static_assert(
-            (std::is_same<decltype(pCreateInfos),
-                          const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>*>::value) ||
-                (std::is_same<decltype(pCreateInfos),
-                              const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>*>::value) ||
-                (std::is_same<decltype(pCreateInfos),
-                              const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>*>::value),
-            "pCreateInfos is of wrong type");
+        static_assert((std::is_same<decltype(pCreateInfos),
+                                    const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>*>::value) ||
+                          (std::is_same<decltype(pCreateInfos),
+                                        const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>*>::value),
+                      "pCreateInfos is of wrong type");
 
-        const auto* create_info_meta = pCreateInfos->GetMetaStructPointer();
-        if (create_info_meta != nullptr)
+        const auto* create_info_meta  = pCreateInfos->GetMetaStructPointer();
+        const auto* in_p_create_infos = pCreateInfos->GetPointer();
+        if (create_info_meta != nullptr && in_p_create_infos != nullptr)
         {
             for (uint32_t i = 0; i < createInfoCount; ++i)
             {
@@ -455,6 +453,39 @@ class VulkanReplayDumpResourcesBase
                 {
                     pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
                 }
+
+                // Aggregate used shader stages flags
+                for (uint32_t ss = 0; ss < in_p_create_infos[i].stageCount; ++ss)
+                {
+                    pipeline_info->shader_stages |=
+                        static_cast<VkShaderStageFlags>(in_p_create_infos[i].pStages[ss].stage);
+                }
+            }
+        }
+    }
+
+    void DumpComputePipelineInfos(const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+                                  uint32_t                                                         createInfoCount,
+                                  HandlePointerDecoder<VkPipeline>*                                pPipelines)
+    {
+        const auto* create_info_meta  = pCreateInfos->GetMetaStructPointer();
+        const auto* in_p_create_infos = pCreateInfos->GetPointer();
+        if (create_info_meta != nullptr && in_p_create_infos != nullptr)
+        {
+            for (uint32_t i = 0; i < createInfoCount; ++i)
+            {
+                VulkanPipelineInfo* pipeline_info =
+                    reinterpret_cast<VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
+
+                // Copy pipeline layout information
+                const auto ppl_layout_info = object_info_table_->GetVkPipelineLayoutInfo(create_info_meta[i].layout);
+                if (ppl_layout_info != nullptr)
+                {
+                    pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
+                }
+
+                // Used shader stages
+                pipeline_info->shader_stages = in_p_create_infos->stage.stage;
             }
         }
     }

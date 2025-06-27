@@ -8722,7 +8722,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     {
         if (options_.dumping_resources)
         {
-            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+            resource_dumper_->DumpRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
         }
     }
 
@@ -8906,7 +8906,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesNV(
     {
         if (options_.dumping_resources)
         {
-            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+            resource_dumper_->DumpRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
         }
     }
 
@@ -10682,7 +10682,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     {
         if (options_.dumping_resources)
         {
-            resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, create_info_count, pPipelines);
+            resource_dumper_->DumpComputePipelineInfos(pCreateInfos, create_info_count, pPipelines);
         }
     }
 
@@ -11029,7 +11029,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (returnValue == VK_SUCCESS && options_.dumping_resources)
     {
-        resource_dumper_->DumpComputeRayTracingPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+        resource_dumper_->DumpComputePipelineInfos(pCreateInfos, createInfoCount, pPipelines);
     }
 
     // populate VulkanPipelineInfo structs with information related to shader-modules

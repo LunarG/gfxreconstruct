@@ -2181,6 +2181,12 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                 pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
             }
         }
+
+        // Aggregate used shader stages flags
+        for (uint32_t ss = 0; ss < in_p_create_infos[i].stageCount; ++ss)
+        {
+            pipeline_info->shader_stages |= static_cast<VkShaderStageFlags>(in_p_create_infos[i].pStages[ss].stage);
+        }
     }
 }
 

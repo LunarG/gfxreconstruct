@@ -506,13 +506,16 @@ static void SnapshotBoundDescriptors(DrawCallsDumpingContext::DrawCallParams& dc
         {
             // Check against pipeline layout
             const auto layout_entry = bound_pipeline->desc_set_layouts[desc_set_index].find(desc_binding_index);
-            if (layout_entry == bound_pipeline->desc_set_layouts[desc_set_index].end())
+
+            if (layout_entry == bound_pipeline->desc_set_layouts[desc_set_index].end() ||
+                !(bound_pipeline->shader_stages & binding_info.stage_flags))
             {
                 continue;
             }
 
-            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type   = binding_info.desc_type;
-            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags = binding_info.stage_flags;
+            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].desc_type = binding_info.desc_type;
+            dc_params.referenced_descriptors[desc_set_index][desc_binding_index].stage_flags =
+                (bound_pipeline->shader_stages & binding_info.stage_flags);
 
             switch (binding_info.desc_type)
             {
