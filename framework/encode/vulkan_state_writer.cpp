@@ -1051,7 +1051,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                 {
                     if (output_stream_ != nullptr)
                     {
-                        assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
+                        assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
                         const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
                         WriteExecuteFromFile(asset_file_name_, 1, offset);
                     }
@@ -1073,7 +1073,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         }
         else
         {
-            assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
+            assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
             offset = (*asset_file_offsets_)[wrapper->handle_id];
         }
 
@@ -2281,7 +2281,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
         {
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(buffer_wrapper->handle_id) != (*asset_file_offsets_).end());
+                assert(asset_file_offsets_->find(buffer_wrapper->handle_id) != asset_file_offsets_->end());
                 const int64_t offset = (*asset_file_offsets_)[buffer_wrapper->handle_id];
                 WriteExecuteFromFile(asset_file_name_, 1, offset);
             }
@@ -2589,9 +2589,14 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         {
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end());
-                const int64_t offset = (*asset_file_offsets_)[image_wrapper->handle_id];
-                WriteExecuteFromFile(asset_file_name_, 1, offset);
+                // It is possible that an image could not be dumped in the asset file (i.e. multisampled).
+                // We will still clear its flag to false but there won't be an entry in the offsets map
+                const auto& asset_file_offset_entry = asset_file_offsets_->find(image_wrapper->handle_id);
+                if (asset_file_offset_entry != asset_file_offsets_->end())
+                {
+                    const int64_t offset = asset_file_offset_entry->second;
+                    WriteExecuteFromFile(asset_file_name_, 1, offset);
+                }
             }
         }
     }
