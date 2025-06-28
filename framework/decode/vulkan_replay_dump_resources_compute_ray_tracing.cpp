@@ -1381,208 +1381,103 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
     std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
 
     DumpedDescriptors& dumped_descriptors = is_dispatch ? dispatch_dumped_descriptors_ : trace_rays_dumped_descriptors_;
+    GFXRECON_ASSERT((dispatch_params_.find(cmd_index) != dispatch_params_.end()) ||
+                    (trace_rays_params_.find(cmd_index) != trace_rays_params_.end()));
+    const BoundDescriptorSets& referenced_descriptors = is_dispatch
+                                                            ? (dispatch_params_[cmd_index]->referenced_descriptors)
+                                                            : (trace_rays_params_[cmd_index]->referenced_descriptors);
 
-    if (is_dispatch)
+    for (const auto& [desc_set_index, desc_set_info] : referenced_descriptors)
     {
-        const auto disp_params_entry = dispatch_params_.find(cmd_index);
-        GFXRECON_ASSERT(disp_params_entry != dispatch_params_.end());
-
-        const DispatchParams* disp_params = disp_params_entry->second.get();
-        for (const auto& [desc_set_index, desc_set_info] : disp_params->referenced_descriptors)
+        for (const auto& [desc_binding_index, desc_binding_info] : desc_set_info)
         {
-            for (const auto& [desc_binding_index, desc_binding_info] : desc_set_info)
+            switch (desc_binding_info.desc_type)
             {
-                switch (desc_binding_info.desc_type)
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    for (const auto& img_desc : desc_binding_info.image_info)
                     {
-                        for (const auto& img_desc : desc_binding_info.image_info)
+                        if (img_desc.second.image_view_info != nullptr)
                         {
-                            if (img_desc.second.image_view_info != nullptr)
+                            const VulkanImageInfo* img_info =
+                                object_info_table_.GetVkImageInfo(img_desc.second.image_view_info->image_id);
+                            if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
+                                                           dumped_descriptors.image_descriptors.end())
                             {
-                                const VulkanImageInfo* img_info =
-                                    object_info_table_.GetVkImageInfo(img_desc.second.image_view_info->image_id);
-                                if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
-                                                               dumped_descriptors.image_descriptors.end())
-                                {
-                                    image_descriptors.insert(img_info);
-                                    dumped_descriptors.image_descriptors.insert(img_info);
-                                }
+                                image_descriptors.insert(img_info);
+                                dumped_descriptors.image_descriptors.insert(img_info);
                             }
                         }
                     }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    {
-                        for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
-                        {
-                            const VulkanBufferInfo* buffer_info =
-                                object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
-                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                              dumped_descriptors.buffer_descriptors.end())
-                            {
-                                buffer_descriptors.emplace(std::piecewise_construct,
-                                                           std::forward_as_tuple(buffer_info),
-                                                           std::forward_as_tuple(buffer_descriptor_info{
-                                                               buf_desc.second->offset, buf_desc.second->range }));
-                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    {
-                        for (const auto& buf_desc : desc_binding_info.buffer_info)
-                        {
-                            const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
-                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                              dumped_descriptors.buffer_descriptors.end())
-                            {
-                                buffer_descriptors.emplace(std::piecewise_construct,
-                                                           std::forward_as_tuple(buffer_info),
-                                                           std::forward_as_tuple(buffer_descriptor_info{
-                                                               buf_desc.second.offset, buf_desc.second.range }));
-                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        break;
-
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
-                            dumped_descriptors.inline_uniform_blocks.end())
-                        {
-                            inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
-                                desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
-                            };
-                            dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
-                        }
-                    }
-                    break;
-
-                    default:
-                        GFXRECON_LOG_WARNING_ONCE(
-                            "%s(): Descriptor type (%s) not handled",
-                            __func__,
-                            util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
-                        break;
                 }
-            }
-        }
-    }
-    else
-    {
-        const auto tr_params_entry = trace_rays_params_.find(cmd_index);
-        GFXRECON_ASSERT(tr_params_entry != trace_rays_params_.end());
+                break;
 
-        const TraceRaysParams* tr_params = tr_params_entry->second.get();
-        for (const auto& [desc_set_index, desc_set_info] : tr_params->referenced_descriptors)
-        {
-            for (const auto& [desc_binding_index, desc_binding_info] : desc_set_info)
-            {
-                switch (desc_binding_info.desc_type)
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 {
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
                     {
-                        for (const auto& img_desc : desc_binding_info.image_info)
+                        const VulkanBufferInfo* buffer_info =
+                            object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
+                        if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
+                                                          dumped_descriptors.buffer_descriptors.end())
                         {
-                            if (img_desc.second.image_view_info != nullptr)
-                            {
-                                const VulkanImageInfo* img_info =
-                                    object_info_table_.GetVkImageInfo(img_desc.second.image_view_info->image_id);
-                                if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
-                                                               dumped_descriptors.image_descriptors.end())
-                                {
-                                    image_descriptors.insert(img_info);
-                                    dumped_descriptors.image_descriptors.insert(img_info);
-                                }
-                            }
+                            buffer_descriptors.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(buffer_info),
+                                                       std::forward_as_tuple(buffer_descriptor_info{
+                                                           buf_desc.second->offset, buf_desc.second->range }));
+                            dumped_descriptors.buffer_descriptors.insert(buffer_info);
                         }
                     }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    {
-                        for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
-                        {
-                            const VulkanBufferInfo* buffer_info =
-                                object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
-                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                              dumped_descriptors.buffer_descriptors.end())
-                            {
-                                buffer_descriptors.emplace(std::piecewise_construct,
-                                                           std::forward_as_tuple(buffer_info),
-                                                           std::forward_as_tuple(buffer_descriptor_info{
-                                                               buf_desc.second->offset, buf_desc.second->range }));
-                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    {
-                        for (const auto& buf_desc : desc_binding_info.buffer_info)
-                        {
-                            const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
-                            if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                              dumped_descriptors.buffer_descriptors.end())
-                            {
-                                buffer_descriptors.emplace(std::piecewise_construct,
-                                                           std::forward_as_tuple(buf_desc.second.buffer_info),
-                                                           std::forward_as_tuple(buffer_descriptor_info{
-                                                               buf_desc.second.offset, buf_desc.second.range }));
-                                dumped_descriptors.buffer_descriptors.insert(buffer_info);
-                            }
-                        }
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        break;
-
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
-                            dumped_descriptors.inline_uniform_blocks.end())
-                        {
-                            inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
-                                desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
-                            };
-                            dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
-                        }
-                    }
-                    break;
-
-                    default:
-                        GFXRECON_LOG_WARNING_ONCE(
-                            "%s(): Descriptor type (%s) not handled",
-                            __func__,
-                            util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
-                        break;
                 }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                {
+                    for (const auto& buf_desc : desc_binding_info.buffer_info)
+                    {
+                        const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
+                        if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
+                                                          dumped_descriptors.buffer_descriptors.end())
+                        {
+                            buffer_descriptors.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(buffer_info),
+                                                       std::forward_as_tuple(buffer_descriptor_info{
+                                                           buf_desc.second.offset, buf_desc.second.range }));
+                            dumped_descriptors.buffer_descriptors.insert(buffer_info);
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    break;
+
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
+                        dumped_descriptors.inline_uniform_blocks.end())
+                    {
+                        inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
+                            desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
+                        };
+                        dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
+                    }
+                }
+                break;
+
+                default:
+                    GFXRECON_LOG_WARNING_ONCE("%s(): Descriptor type (%s) not handled",
+                                              __func__,
+                                              util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
+                    break;
             }
         }
     }
