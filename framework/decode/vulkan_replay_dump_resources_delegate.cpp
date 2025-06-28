@@ -248,24 +248,13 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilenam
         }
     }
 
-    if (options_.dump_resources_dump_all_image_subresources)
-    {
-        std::stringstream subresource_sting;
-        subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
-        subresource_sting << ImageFileExtension(output_image_format);
+    std::stringstream subresource_sting;
+    subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
+    subresource_sting << ImageFileExtension(output_image_format);
 
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str() + subresource_sting.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        filename << ImageFileExtension(output_image_format);
-
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        return (filedirname / filebasename).string();
-    }
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(filename.str() + subresource_sting.str());
+    return (filedirname / filebasename).string();
 }
 
 VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDumpResourceInfo& resource_info)
@@ -374,23 +363,13 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageDescriptorFilename(
                       << aspect_str;
     }
 
-    if (options_.dump_resources_dump_all_image_subresources)
-    {
-        std::stringstream sub_resources_str;
-        sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(output_image_format);
+    std::stringstream sub_resources_str;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << ImageFileExtension(output_image_format);
 
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(sub_resources_str.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        base_filename << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(base_filename.str());
-        return (filedirname / filebasename).string();
-    }
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(sub_resources_str.str());
+    return (filedirname / filebasename).string();
 }
 
 VkResult DefaultVulkanDumpResourcesDelegate::DumpBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
@@ -1215,10 +1194,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
         filename << "_aspect_" << aspect_str;
     }
 
-    if (options_.dump_resources_dump_all_image_subresources)
-    {
-        filename << "_mip_" << mip_level << "_layer_" << layer;
-    }
+    filename << "_mip_" << mip_level << "_layer_" << layer;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -1357,22 +1333,12 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
                       << resource_info.bcb_index << "_" << format_name << "_aspect_" << aspect_str;
     }
 
-    if (options_.dump_resources_dump_all_image_subresources)
-    {
-        std::stringstream sub_resources_str;
-        sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
-        sub_resources_str << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(sub_resources_str.str());
-        return (filedirname / filebasename).string();
-    }
-    else
-    {
-        base_filename << ImageFileExtension(output_image_format);
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(base_filename.str());
-        return (filedirname / filebasename).string();
-    }
+    std::stringstream sub_resources_str;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << ImageFileExtension(output_image_format);
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(sub_resources_str.str());
+    return (filedirname / filebasename).string();
 }
 
 VkResult
