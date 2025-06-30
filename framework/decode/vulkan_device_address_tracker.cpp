@@ -197,7 +197,7 @@ VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
     return ret;
 }
 
-const std::unordered_map<VkDeviceAddress, VulkanDeviceAddressTracker::device_address_item_t>&
+const std::unordered_map<VkDeviceAddress, VulkanDeviceAddressTracker::device_address_range_t>&
 VulkanDeviceAddressTracker::GetBufferDeviceAddressMap() const
 {
     return address_lookup_helper_map_;
