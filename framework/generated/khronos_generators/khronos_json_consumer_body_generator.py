@@ -112,7 +112,15 @@ class KhronosExportJsonConsumerBodyGenerator():
             body += '            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);\n'
         elif self.is_handle_like(return_type):
             body += '    HandleToJson(jdata[NameReturn()], returnValue, json_options);\n'
-        # Enums, ints, etc. handled by default and static dispatch based on C++ type:
+        elif self.is_flags(return_type):
+            # String conversion for flags
+            flag_type = self.flags_type_aliases.get(return_type, return_type)
+            body += f'    {flag_type}ToJson(jdata[NameReturn()], returnValue, json_options);\n'
+        elif self.is_enum(return_type):
+            # String conversion for enums
+            enum_type = self.enumAliases.get(return_type, return_type)
+            body += f'    {enum_type}ToJson(jdata[NameReturn()], returnValue, json_options);\n'
+        # Remaining types (ints) handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
             body += '    FieldToJson(jdata[NameReturn()], returnValue, json_options);\n'
 
@@ -140,12 +148,13 @@ class KhronosExportJsonConsumerBodyGenerator():
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'
                 elif self.decode_as_handle(value):
                     to_json = 'HandleToJson(args["{0}"], {0}, json_options)'
-                elif self.is_flags(value.base_type):
+                elif self.is_flags(value.base_type) or self.is_enum(value.base_type):
                     if value.base_type in self.flags_type_aliases:
-                        flagsEnumType = self.flags_type_aliases[value.base_type
-                                                                ]
+                        flagsEnumType = self.flags_type_aliases[value.base_type]
+                    elif value.base_type in self.enumAliases:
+                        flagsEnumType = self.enumAliases[value.base_type]
                     if not (value.is_pointer or value.is_array):
-                        to_json = 'FieldToJson({2}_t(), args["{0}"], {0}, json_options)'
+                        to_json = '{2}ToJson(args["{0}"], {0}, json_options)'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(

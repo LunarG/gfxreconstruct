@@ -39,24 +39,6 @@ class KhronosEnumToJsonHeaderGenerator():
         #   enums that should be skipped.
         processedEnums = set()
 
-        for flag in sorted(self.flags_types):
-            if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(
-                flag
-            ):
-                continue
-            body = 'struct {0}_t {{ }};'
-            write(body.format(flag), file=self.outFile)
-
-        for enum in sorted(self.enum_names):
-            if enum in self.enumAliases or self.skip_generating_enum_to_json_for_type(
-                enum
-            ):
-                continue
-            if self.is_flags_enum_64bit(enum):
-                body = 'struct {0}_t {{ }};'
-                write(body.format(enum), file=self.outFile)
-
-        self.newline()
         for enum in sorted(self.enum_names):
             if enum in processedEnums or self.skip_generating_enum_to_json_for_type(
                 enum
@@ -64,14 +46,11 @@ class KhronosEnumToJsonHeaderGenerator():
                 continue
             processedEnums.add(enum)
             if not enum in self.enumAliases:
-                if self.is_flags_enum_64bit(enum):
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+                body = 'void {0}ToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
                 write(body.format(enum), file=self.outFile)
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
+            body = 'void {0}ToJson(nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
             write(body.format(flag, self.flags_types[flag]), file=self.outFile)

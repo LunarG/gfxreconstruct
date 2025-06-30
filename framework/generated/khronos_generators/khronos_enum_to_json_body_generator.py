@@ -82,10 +82,7 @@ class KhronosEnumToJsonBodyGenerator():
 
             processedEnums.add(enum)
 
-            if self.is_flags_enum_64bit(enum):
-                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-            else:
-                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+            body = 'void {0}ToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
             body += '{{\n'
             if len(self.enumEnumerants[enum]):
                 body += '    switch (value) {{\n'
@@ -119,7 +116,7 @@ class KhronosEnumToJsonBodyGenerator():
             if flag in self.flags_to_enum_bits:
                 bittype = self.flags_to_enum_bits[flag]
 
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
+            body = 'void {0}ToJson(nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
             body += '{{\n'
             if bittype is not None and len(self.enumEnumerants[bittype]):
                 body += "    if (!options.expand_flags)\n"
