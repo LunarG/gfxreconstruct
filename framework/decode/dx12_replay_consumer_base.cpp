@@ -97,7 +97,6 @@ static void ReplayMessageFunc(D3D12_MESSAGE_CATEGORY category,
     }
 }
 
-
 void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
                               D3D12_RESOURCE_STATES        initial_state,
                               bool                         is_reserved_resource)
@@ -2401,7 +2400,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
             memory_info.memory_id = *id_pointer;
             ++(memory_info.count);
 
-            mapped_memory_[*id_pointer] = { *data_pointer, replay_object_info->capture_id };
+            MappedMemoryEntry memory_entry = { *data_pointer, replay_object_info->capture_id, 0 };
+            auto              entry = mapped_memory_.emplace(std::make_pair(*id_pointer, memory_entry));
+
+            ++(entry.first->second.ref_count);
         }
     }
     else
@@ -2441,13 +2443,28 @@ void Dx12ReplayConsumerBase::OverrideResourceUnmap(DxObjectInfo*                
         {
             auto& memory_info = entry->second;
 
-            assert(memory_info.count > 0);
+            GFXRECON_ASSERT(memory_info.count > 0);
 
             --(memory_info.count);
+            auto& map_entry = mapped_memory_.find(memory_info.memory_id);
+            if (map_entry != mapped_memory_.end())
+            {
+                GFXRECON_ASSERT(map_entry->second.ref_count > 0);
+                --(map_entry->second.ref_count);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Mapped memory ID %" PRIu64 " not found in mapped_memory_ map during unmap.",
+                                   memory_info.memory_id);
+            }
+
             if (memory_info.count == 0)
             {
-                mapped_memory_.erase(memory_info.memory_id);
                 resource_info->mapped_memory_info.erase(entry);
+                if (map_entry->second.ref_count == 0)
+                {
+                    mapped_memory_.erase(map_entry);
+                }
             }
         }
     }
@@ -3221,7 +3238,15 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
             for (const auto& entry : resource_info->mapped_memory_info)
             {
                 auto& mapped_info = entry.second;
-                mapped_memory_.erase(mapped_info.memory_id);
+                auto& entry       = mapped_memory_.find(mapped_info.memory_id);
+                if (entry != mapped_memory_.end())
+                {
+                    entry->second.ref_count -= mapped_info.count;
+                    if (entry->second.ref_count == 0)
+                    {
+                        mapped_memory_.erase(mapped_info.memory_id);
+                    }
+                }
             }
         }
         else if (extra_info->extra_info_type == DxObjectInfoType::kID3D12CommandQueueInfo)
