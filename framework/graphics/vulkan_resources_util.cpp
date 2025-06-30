@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -823,6 +824,17 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
                                                            std::vector<uint64_t>* subresource_sizes,
                                                            bool                   all_layers_per_level)
 {
+    // Check whether the format is supported
+    VkFormatProperties format_properties;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL && format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
+        (tiling == VK_IMAGE_TILING_OPTIMAL && format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
+    {
+        GFXRECON_LOG_ERROR("Format %s is not supported by the implementation",
+                           util::ToString<VkFormat>(format).c_str());
+        return 0;
+    }
+
     if (mip_levels > 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))))
     {
         GFXRECON_LOG_WARNING_ONCE("%s(): too many mip_levels for extent", __func__);

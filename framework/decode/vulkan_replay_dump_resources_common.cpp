@@ -509,6 +509,13 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                                                        &subresource_sizes,
                                                        image_resource.all_layers_per_level);
 
+        if (!image_resource.resource_size)
+        {
+            GFXRECON_LOG_ERROR("Unsupported format. Image cannot be dumped");
+            // This should not prohibit us from dumping other images though. Treat it as a no error
+            return VK_SUCCESS;
+        }
+
         if (subresource_offsets.empty() || subresource_sizes.empty())
         {
             return VK_ERROR_INITIALIZATION_FAILED;
