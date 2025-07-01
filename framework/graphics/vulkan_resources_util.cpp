@@ -828,7 +828,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
     VkFormatProperties format_properties;
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
     if ((tiling == VK_IMAGE_TILING_OPTIMAL && format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
-        (tiling == VK_IMAGE_TILING_OPTIMAL && format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
+        (tiling == VK_IMAGE_TILING_LINEAR && format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
     {
         GFXRECON_LOG_ERROR("Format %s is not supported by the implementation",
                            util::ToString<VkFormat>(format).c_str());
