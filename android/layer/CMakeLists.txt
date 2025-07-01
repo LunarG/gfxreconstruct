@@ -88,7 +88,3 @@ if (GFXRECON_ENABLE_OPENXR)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/assets/openxr/1/api_layers/implicit.d)
     file(GENERATE OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/assets/openxr/1/api_layers/implicit.d/XrLayer_gfxreconstruct.json CONTENT "${openxr_implicit_layer_contents}")
 endif()
-
-target_link_options(VkLayer_gfxreconstruct
-    PRIVATE
-        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/layer/VkLayer_gfxreconstruct-android.map)
