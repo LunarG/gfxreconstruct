@@ -248,8 +248,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.surface              = surface;
-    entry.surface_capabilities = *capabilities;
+    entry = vulkan_wrappers::SurfaceCapabilities{ surface, *capabilities };
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevice                       physical_device,
@@ -262,25 +261,20 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.use_surface_capabilities2 = true;
+    auto& surface_capabilities2 = entry.emplace<vulkan_wrappers::SurfaceCapabilities2>();
 
-    entry.surface_info2.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info2.pNext   = nullptr;
-    entry.surface_info2.surface = surface_info.surface;
-
+    surface_capabilities2.surface_info = surface_info;
     if (surface_info.pNext != nullptr)
     {
-        entry.surface_info2.pNext = vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info2_pnext_memory);
+        surface_capabilities2.surface_info.pNext =
+            vulkan_trackers::TrackStruct(surface_info.pNext, surface_capabilities2.surface_info_pnext_memory);
     }
 
-    entry.surface_capabilities2.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
-    entry.surface_capabilities2.pNext               = nullptr;
-    entry.surface_capabilities2.surfaceCapabilities = surface_capabilities->surfaceCapabilities;
-
+    surface_capabilities2.surface_capabilities = *surface_capabilities;
     if (surface_capabilities->pNext != nullptr)
     {
-        entry.surface_capabilities2.pNext =
-            vulkan_trackers::TrackStruct(surface_capabilities->pNext, entry.surface_capabilities2_pnext_memory);
+        surface_capabilities2.surface_capabilities.pNext = vulkan_trackers::TrackStruct(
+            surface_capabilities->pNext, surface_capabilities2.surface_capabilities_pnext_memory);
     }
 }
 
@@ -297,8 +291,8 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.surface         = surface;
-        entry.surface_formats = std::vector<VkSurfaceFormatKHR>(formats, formats + format_count);
+        entry = vulkan_wrappers::SurfaceFormats{ surface,
+                                                 std::vector<VkSurfaceFormatKHR>(formats, formats + format_count) };
     }
 }
 
@@ -315,21 +309,18 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.use_surface_formats2 = true;
+        auto& surface_formats2 = entry.emplace<vulkan_wrappers::SurfaceFormats2>();
 
-        entry.surface_info2.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        entry.surface_info2.pNext   = nullptr;
-        entry.surface_info2.surface = surface_info.surface;
-
+        surface_formats2.surface_info = surface_info;
         if (surface_info.pNext != nullptr)
         {
-            entry.surface_info2.pNext =
-                vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info2_pnext_memory);
+            surface_formats2.surface_info.pNext =
+                vulkan_trackers::TrackStruct(surface_info.pNext, surface_formats2.surface_info_pnext_memory);
         }
 
-        entry.surface_format2_count = surface_format_count;
-        entry.surface_formats2 =
-            vulkan_trackers::TrackStructs(surface_formats, surface_format_count, entry.surface_formats2_memory);
+        surface_formats2.surface_format_count = surface_format_count;
+        surface_formats2.surface_formats      = vulkan_trackers::TrackStructs(
+            surface_formats, surface_format_count, surface_formats2.surface_formats_memory);
     }
 }
 

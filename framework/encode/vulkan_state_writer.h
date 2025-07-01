@@ -223,10 +223,20 @@ class VulkanStateWriter
                                                    const vulkan_wrappers::SurfaceCapabilities& capabilities,
                                                    const VulkanStateTable&                     state_table);
 
+    void WriteGetPhysicalDeviceSurfaceCapabilities2(format::HandleId                             physical_device_id,
+                                                    format::HandleId                             surface_id,
+                                                    const vulkan_wrappers::SurfaceCapabilities2& capabilities,
+                                                    const VulkanStateTable&                      state_table);
+
     void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId                       physical_device_id,
                                               format::HandleId                       surface_id,
                                               const vulkan_wrappers::SurfaceFormats& formats,
                                               const VulkanStateTable&                state_table);
+
+    void WriteGetPhysicalDeviceSurfaceFormats2(format::HandleId                        physical_device_id,
+                                               format::HandleId                        surface_id,
+                                               const vulkan_wrappers::SurfaceFormats2& formats,
+                                               const VulkanStateTable&                 state_table);
 
     void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId                            physical_device_id,
                                                    format::HandleId                            surface_id,
