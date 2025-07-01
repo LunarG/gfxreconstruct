@@ -768,6 +768,28 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdEndPerTileExecutionQCOM                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x131b),
     ApiCall_vkCmdBindTileMemoryQCOM                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x131c),
     ApiCall_vkCmdEndRendering2EXT                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x131d),
+    ApiCall_vkBindTensorMemoryARM                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x131e),
+    ApiCall_vkCmdCopyTensorARM                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x131f),
+    ApiCall_vkCreateTensorARM                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1320),
+    ApiCall_vkCreateTensorViewARM                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1321),
+    ApiCall_vkDestroyTensorARM                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1322),
+    ApiCall_vkDestroyTensorViewARM                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1323),
+    ApiCall_vkGetDeviceTensorMemoryRequirementsARM                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1324),
+    ApiCall_vkGetPhysicalDeviceExternalTensorPropertiesARM                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1325),
+    ApiCall_vkGetTensorMemoryRequirementsARM                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1326),
+    ApiCall_vkGetTensorOpaqueCaptureDescriptorDataARM                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1327),
+    ApiCall_vkGetTensorViewOpaqueCaptureDescriptorDataARM                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1328),
+    ApiCall_vkBindDataGraphPipelineSessionMemoryARM                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1329),
+    ApiCall_vkCmdDispatchDataGraphARM                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x132a),
+    ApiCall_vkCreateDataGraphPipelineSessionARM                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x132b),
+    ApiCall_vkCreateDataGraphPipelinesARM                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x132c),
+    ApiCall_vkDestroyDataGraphPipelineSessionARM                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x132d),
+    ApiCall_vkGetDataGraphPipelineAvailablePropertiesARM                                          = MakeApiCallId(ApiFamily_Vulkan, 0x132e),
+    ApiCall_vkGetDataGraphPipelinePropertiesARM                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x132f),
+    ApiCall_vkGetDataGraphPipelineSessionBindPointRequirementsARM                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1330),
+    ApiCall_vkGetDataGraphPipelineSessionMemoryRequirementsARM                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1331),
+    ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM                  = MakeApiCallId(ApiFamily_Vulkan, 0x1332),
+    ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1333),
 
     ApiCall_VulkanLast,
 
@@ -1318,7 +1340,7 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12GBVDiagnostics_GetGBVResourceInfo                                               = MakeApiCallId(ApiFamily_D3D12, 0x1165),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved0                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1166),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1167),
-    
+
     // AGS API
     // amd_ags.h
     ApiCall_Ags_agsInitialize_6_0_1                                                               = MakeApiCallId(ApiFamily_AGS, 0x1000),
@@ -1332,7 +1354,7 @@ enum ApiCallId : uint32_t
     ApiCall_Ags_agsDriverExtensionsDX12_PopMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1008),
     ApiCall_Ags_agsDriverExtensionsDX12_SetMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1009),
     ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0                                        = MakeApiCallId(ApiFamily_AGS, 0x100a),
-    
+
     ApiCall_D3D12Last,
 
     // OpenXR
