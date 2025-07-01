@@ -603,6 +603,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--screenshot-interval <N>]
+                        [--capture]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
@@ -711,6 +712,11 @@ Optional arguments:
                         unspecified screenshots will use the swapchain images
                         dimensions. If --screenshot-scale is also specified then
                         this option is ignored.
+  --capture             Capture the replaying GFXR file. Capture option behavior and
+                        usage is the same as when capturing with the GFXR layer. The
+                        capture functionality is included in the `gfxrecon-replay`
+                        executable--no GFXR capture layer is added to the Vulkan layer
+                        chain.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
