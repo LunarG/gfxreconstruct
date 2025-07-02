@@ -34,6 +34,196 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)
+uint64_t GetWrappedId(uint64_t object, VkObjectType object_type) {
+    switch (object_type) {
+        case VK_OBJECT_TYPE_FENCE:
+            return GetWrappedId<FenceWrapper>(format::FromHandleId<VkFence>(object));
+        case VK_OBJECT_TYPE_SHADER_MODULE:
+            return GetWrappedId<ShaderModuleWrapper>(format::FromHandleId<VkShaderModule>(object));
+        case VK_OBJECT_TYPE_IMAGE_VIEW:
+            return GetWrappedId<ImageViewWrapper>(format::FromHandleId<VkImageView>(object));
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
+            return GetWrappedId<AccelerationStructureNVWrapper>(format::FromHandleId<VkAccelerationStructureNV>(object));
+        case VK_OBJECT_TYPE_DISPLAY_MODE_KHR:
+            return GetWrappedId<DisplayModeKHRWrapper>(format::FromHandleId<VkDisplayModeKHR>(object));
+        case VK_OBJECT_TYPE_PHYSICAL_DEVICE:
+            return GetWrappedId<PhysicalDeviceWrapper>(format::FromHandleId<VkPhysicalDevice>(object));
+        case VK_OBJECT_TYPE_QUEUE:
+            return GetWrappedId<QueueWrapper>(format::FromHandleId<VkQueue>(object));
+        case VK_OBJECT_TYPE_SEMAPHORE:
+            return GetWrappedId<SemaphoreWrapper>(format::FromHandleId<VkSemaphore>(object));
+        case VK_OBJECT_TYPE_VIDEO_SESSION_KHR:
+            return GetWrappedId<VideoSessionKHRWrapper>(format::FromHandleId<VkVideoSessionKHR>(object));
+        case VK_OBJECT_TYPE_DEVICE:
+            return GetWrappedId<DeviceWrapper>(format::FromHandleId<VkDevice>(object));
+        case VK_OBJECT_TYPE_COMMAND_BUFFER:
+            return GetWrappedId<CommandBufferWrapper>(format::FromHandleId<VkCommandBuffer>(object));
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET:
+            return GetWrappedId<DescriptorSetWrapper>(format::FromHandleId<VkDescriptorSet>(object));
+        case VK_OBJECT_TYPE_SAMPLER:
+            return GetWrappedId<SamplerWrapper>(format::FromHandleId<VkSampler>(object));
+        case VK_OBJECT_TYPE_PIPELINE_CACHE:
+            return GetWrappedId<PipelineCacheWrapper>(format::FromHandleId<VkPipelineCache>(object));
+        case VK_OBJECT_TYPE_RENDER_PASS:
+            return GetWrappedId<RenderPassWrapper>(format::FromHandleId<VkRenderPass>(object));
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return GetWrappedId<AccelerationStructureKHRWrapper>(format::FromHandleId<VkAccelerationStructureKHR>(object));
+        case VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV:
+            return GetWrappedId<OpticalFlowSessionNVWrapper>(format::FromHandleId<VkOpticalFlowSessionNV>(object));
+        case VK_OBJECT_TYPE_BUFFER:
+            return GetWrappedId<BufferWrapper>(format::FromHandleId<VkBuffer>(object));
+        case VK_OBJECT_TYPE_COMMAND_POOL:
+            return GetWrappedId<CommandPoolWrapper>(format::FromHandleId<VkCommandPool>(object));
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            return GetWrappedId<MicromapEXTWrapper>(format::FromHandleId<VkMicromapEXT>(object));
+        case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
+            return GetWrappedId<DebugUtilsMessengerEXTWrapper>(format::FromHandleId<VkDebugUtilsMessengerEXT>(object));
+        case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
+            return GetWrappedId<ValidationCacheEXTWrapper>(format::FromHandleId<VkValidationCacheEXT>(object));
+        case VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION:
+            return GetWrappedId<SamplerYcbcrConversionWrapper>(format::FromHandleId<VkSamplerYcbcrConversion>(object));
+        case VK_OBJECT_TYPE_DISPLAY_KHR:
+            return GetWrappedId<DisplayKHRWrapper>(format::FromHandleId<VkDisplayKHR>(object));
+        case VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR:
+            return GetWrappedId<VideoSessionParametersKHRWrapper>(format::FromHandleId<VkVideoSessionParametersKHR>(object));
+        case VK_OBJECT_TYPE_PIPELINE_BINARY_KHR:
+            return GetWrappedId<PipelineBinaryKHRWrapper>(format::FromHandleId<VkPipelineBinaryKHR>(object));
+        case VK_OBJECT_TYPE_INSTANCE:
+            return GetWrappedId<InstanceWrapper>(format::FromHandleId<VkInstance>(object));
+        case VK_OBJECT_TYPE_PIPELINE:
+            return GetWrappedId<PipelineWrapper>(format::FromHandleId<VkPipeline>(object));
+        case VK_OBJECT_TYPE_IMAGE:
+            return GetWrappedId<ImageWrapper>(format::FromHandleId<VkImage>(object));
+        case VK_OBJECT_TYPE_DESCRIPTOR_POOL:
+            return GetWrappedId<DescriptorPoolWrapper>(format::FromHandleId<VkDescriptorPool>(object));
+        case VK_OBJECT_TYPE_PIPELINE_LAYOUT:
+            return GetWrappedId<PipelineLayoutWrapper>(format::FromHandleId<VkPipelineLayout>(object));
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT:
+            return GetWrappedId<DescriptorSetLayoutWrapper>(format::FromHandleId<VkDescriptorSetLayout>(object));
+        case VK_OBJECT_TYPE_QUERY_POOL:
+            return GetWrappedId<QueryPoolWrapper>(format::FromHandleId<VkQueryPool>(object));
+        case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            return GetWrappedId<DeviceMemoryWrapper>(format::FromHandleId<VkDeviceMemory>(object));
+        case VK_OBJECT_TYPE_SHADER_EXT:
+            return GetWrappedId<ShaderEXTWrapper>(format::FromHandleId<VkShaderEXT>(object));
+        case VK_OBJECT_TYPE_SURFACE_KHR:
+            return GetWrappedId<SurfaceKHRWrapper>(format::FromHandleId<VkSurfaceKHR>(object));
+        case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT:
+            return GetWrappedId<PrivateDataSlotWrapper>(format::FromHandleId<VkPrivateDataSlot>(object));
+        case VK_OBJECT_TYPE_SWAPCHAIN_KHR:
+            return GetWrappedId<SwapchainKHRWrapper>(format::FromHandleId<VkSwapchainKHR>(object));
+        case VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR:
+            return GetWrappedId<DeferredOperationKHRWrapper>(format::FromHandleId<VkDeferredOperationKHR>(object));
+        case VK_OBJECT_TYPE_BUFFER_VIEW:
+            return GetWrappedId<BufferViewWrapper>(format::FromHandleId<VkBufferView>(object));
+        case VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT:
+            return GetWrappedId<IndirectExecutionSetEXTWrapper>(format::FromHandleId<VkIndirectExecutionSetEXT>(object));
+        case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
+            return GetWrappedId<IndirectCommandsLayoutNVWrapper>(format::FromHandleId<VkIndirectCommandsLayoutNV>(object));
+        case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
+            return GetWrappedId<PerformanceConfigurationINTELWrapper>(format::FromHandleId<VkPerformanceConfigurationINTEL>(object));
+        case VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT:
+            return GetWrappedId<DebugReportCallbackEXTWrapper>(format::FromHandleId<VkDebugReportCallbackEXT>(object));
+        case VK_OBJECT_TYPE_EVENT:
+            return GetWrappedId<EventWrapper>(format::FromHandleId<VkEvent>(object));
+        case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT:
+            return GetWrappedId<IndirectCommandsLayoutEXTWrapper>(format::FromHandleId<VkIndirectCommandsLayoutEXT>(object));
+        case VK_OBJECT_TYPE_FRAMEBUFFER:
+            return GetWrappedId<FramebufferWrapper>(format::FromHandleId<VkFramebuffer>(object));
+        case VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE:
+            return GetWrappedId<DescriptorUpdateTemplateWrapper>(format::FromHandleId<VkDescriptorUpdateTemplate>(object));
+        VK_OBJECT_TYPE_UNKNOWN:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);
+            return object;
+        default:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);
+            return object;
+    }
+}
+
+uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type) {
+    switch (object_type) {
+        case VK_DEBUG_REPORT_OBJECT_TYPE_FENCE_EXT:
+            return GetWrappedId<FenceWrapper>(format::FromHandleId<VkFence>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT:
+            return GetWrappedId<ShaderModuleWrapper>(format::FromHandleId<VkShaderModule>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT:
+            return GetWrappedId<ImageViewWrapper>(format::FromHandleId<VkImageView>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV_EXT:
+            return GetWrappedId<AccelerationStructureNVWrapper>(format::FromHandleId<VkAccelerationStructureNV>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT:
+            return GetWrappedId<DisplayModeKHRWrapper>(format::FromHandleId<VkDisplayModeKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_PHYSICAL_DEVICE_EXT:
+            return GetWrappedId<PhysicalDeviceWrapper>(format::FromHandleId<VkPhysicalDevice>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT:
+            return GetWrappedId<QueueWrapper>(format::FromHandleId<VkQueue>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SEMAPHORE_EXT:
+            return GetWrappedId<SemaphoreWrapper>(format::FromHandleId<VkSemaphore>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT:
+            return GetWrappedId<DeviceWrapper>(format::FromHandleId<VkDevice>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT:
+            return GetWrappedId<CommandBufferWrapper>(format::FromHandleId<VkCommandBuffer>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT:
+            return GetWrappedId<DescriptorSetWrapper>(format::FromHandleId<VkDescriptorSet>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_EXT:
+            return GetWrappedId<SamplerWrapper>(format::FromHandleId<VkSampler>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_CACHE_EXT:
+            return GetWrappedId<PipelineCacheWrapper>(format::FromHandleId<VkPipelineCache>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_RENDER_PASS_EXT:
+            return GetWrappedId<RenderPassWrapper>(format::FromHandleId<VkRenderPass>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR_EXT:
+            return GetWrappedId<AccelerationStructureKHRWrapper>(format::FromHandleId<VkAccelerationStructureKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT:
+            return GetWrappedId<BufferWrapper>(format::FromHandleId<VkBuffer>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT:
+            return GetWrappedId<CommandPoolWrapper>(format::FromHandleId<VkCommandPool>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT_EXT:
+            return GetWrappedId<ValidationCacheEXTWrapper>(format::FromHandleId<VkValidationCacheEXT>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_EXT:
+            return GetWrappedId<SamplerYcbcrConversionWrapper>(format::FromHandleId<VkSamplerYcbcrConversion>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT:
+            return GetWrappedId<DisplayKHRWrapper>(format::FromHandleId<VkDisplayKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT:
+            return GetWrappedId<InstanceWrapper>(format::FromHandleId<VkInstance>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT:
+            return GetWrappedId<PipelineWrapper>(format::FromHandleId<VkPipeline>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT:
+            return GetWrappedId<ImageWrapper>(format::FromHandleId<VkImage>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_POOL_EXT:
+            return GetWrappedId<DescriptorPoolWrapper>(format::FromHandleId<VkDescriptorPool>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_LAYOUT_EXT:
+            return GetWrappedId<PipelineLayoutWrapper>(format::FromHandleId<VkPipelineLayout>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT_EXT:
+            return GetWrappedId<DescriptorSetLayoutWrapper>(format::FromHandleId<VkDescriptorSetLayout>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_QUERY_POOL_EXT:
+            return GetWrappedId<QueryPoolWrapper>(format::FromHandleId<VkQueryPool>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT:
+            return GetWrappedId<DeviceMemoryWrapper>(format::FromHandleId<VkDeviceMemory>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT:
+            return GetWrappedId<SurfaceKHRWrapper>(format::FromHandleId<VkSurfaceKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT:
+            return GetWrappedId<SwapchainKHRWrapper>(format::FromHandleId<VkSwapchainKHR>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_VIEW_EXT:
+            return GetWrappedId<BufferViewWrapper>(format::FromHandleId<VkBufferView>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT:
+            return GetWrappedId<DebugReportCallbackEXTWrapper>(format::FromHandleId<VkDebugReportCallbackEXT>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_EVENT_EXT:
+            return GetWrappedId<EventWrapper>(format::FromHandleId<VkEvent>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_FRAMEBUFFER_EXT:
+            return GetWrappedId<FramebufferWrapper>(format::FromHandleId<VkFramebuffer>(object));
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_EXT:
+            return GetWrappedId<DescriptorUpdateTemplateWrapper>(format::FromHandleId<VkDescriptorUpdateTemplate>(object));
+        VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);
+            return object;
+        default:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);
+            return object;
+    }
+}
+
+GFXRECON_END_NAMESPACE(vulkan_wrappers)
 
 void TrackBeginCommandBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCommandBufferBeginInfo* pBeginInfo)
 {
