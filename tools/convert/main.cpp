@@ -456,11 +456,6 @@ int main(int argc, const char** argv)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
             }
-            else
-            {
-                // Just make sure we haven't accidentally left a file open.
-                GFXRECON_ASSERT(out_file_handle == nullptr);
-            }
 
             if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
