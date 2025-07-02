@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_TRACE_LAYER_H
-#define GFXRECON_TRACE_LAYER_H
+#ifndef GFXRECON_LAYER_VULKAN_ENTRY_H
+#define GFXRECON_LAYER_VULKAN_ENTRY_H
 
 #include "util/defines.h"
 
@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 GFXRECON_BEGIN_NAMESPACE(vulkan_entry)
 // The following prototype declarations are required so the dispatch table can find these
-// functions which are defined in trace_layer.cpp
+// functions which are defined in the .cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName);
@@ -82,4 +82,4 @@ GFXRECON_END_NAMESPACE(openxr_entry)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_TRACE_LAYER_H
+#endif // GFXRECON_LAYER_VULKAN_ENTRY_H
