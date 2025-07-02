@@ -55,7 +55,7 @@ class VulkanLayerFuncTableGeneratorOptions(VulkanBaseGeneratorOptions):
         self.begin_end_file_data.specific_headers.extend((
             'encode/custom_vulkan_api_call_encoders.h',
             'generated/generated_vulkan_api_call_encoders.h',
-            'layer/trace_layer.h',
+            'layer/layer_vulkan_entry.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.system_headers.append('unordered_map')

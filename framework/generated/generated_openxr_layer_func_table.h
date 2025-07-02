@@ -34,7 +34,7 @@
 
 #include "encode/custom_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_api_call_encoders.h"
-#include "layer/trace_layer.h"
+#include "layer/layer_vulkan_entry.h"
 #include "util/defines.h"
 
 #include "format/platform_types.h"

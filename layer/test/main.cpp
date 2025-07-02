@@ -28,8 +28,8 @@
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
-// Pull in the layer code so we can call static functions in there:
-#include "../trace_layer.cpp"
+// Pull in the layer code so we can call functions in there:
+#include "layer/layer_vulkan_entry.cpp"
 
 namespace
 {

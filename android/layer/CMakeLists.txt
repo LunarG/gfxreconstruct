@@ -37,8 +37,8 @@ add_library(VkLayer_gfxreconstruct SHARED "")
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/layer/dll_main.cpp
-                   ${GFXRECON_SOURCE_DIR}/layer/trace_layer.h
-                   ${GFXRECON_SOURCE_DIR}/layer/trace_layer.cpp
+                   ${GFXRECON_SOURCE_DIR}/layer/layer_vulkan_entry.h
+                   ${GFXRECON_SOURCE_DIR}/layer/layer_vulkan_entry.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
               )

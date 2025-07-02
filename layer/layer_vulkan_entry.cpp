@@ -23,7 +23,7 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 
-#include "layer/trace_layer.h"
+#include "layer/layer_vulkan_entry.h"
 
 #include "encode/custom_vulkan_layer_func_table.h"
 #include "encode/vulkan_capture_manager.h"
