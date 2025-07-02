@@ -250,6 +250,9 @@ typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryPropertiesKHR>
 typedef VulkanObjectInfo<VkIndirectCommandsLayoutEXT> VulkanIndirectCommandsLayoutEXTInfo;
 typedef VulkanObjectInfo<VkIndirectExecutionSetEXT>   VulkanIndirectExecutionSetEXTInfo;
 typedef VulkanObjectInfo<VkExternalComputeQueueNV>    VulkanExternalComputeQueueNVInfo;
+typedef VulkanObjectInfo<VkDataGraphPipelineSessionARM> VulkanDataGraphPipelineSessionARMInfo;
+typedef VulkanObjectInfo<VkTensorARM> VulkanTensorARMInfo;
+typedef VulkanObjectInfo<VkTensorViewARM> VulkanTensorViewARMInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

@@ -6227,6 +6227,23 @@ void VulkanExportJsonConsumer::Process_vkGetImageSubresourceLayout2KHR(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkWaitForPresent2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkWaitForPresent2KHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        HandleToJson(args["swapchain"], swapchain, json_options);
+        FieldToJson(args["pPresentWait2Info"], pPresentWait2Info, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9012,13 +9029,15 @@ void VulkanExportJsonConsumer::Process_vkGetPrivateDataEXT(
 
 void VulkanExportJsonConsumer::Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdDispatchTileQCOM");
     const JsonOptions& json_options = GetJsonOptions();
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pDispatchTileInfo"], pDispatchTileInfo, json_options);
     WriteBlockEnd();
 }
 

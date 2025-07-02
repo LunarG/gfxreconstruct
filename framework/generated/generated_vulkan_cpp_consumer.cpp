@@ -9038,6 +9038,31 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRenderingAreaGranularityKHR);
 }
+void VulkanCppConsumer::Process_vkWaitForPresent2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppresent_wait2_info;
+    std::string ppresent_wait2_info_struct = GenerateStruct_VkPresentWait2InfoKHR(stream_ppresent_wait2_info,
+                                                                                  pPresentWait2Info->GetPointer(),
+                                                                                  pPresentWait2Info->GetMetaStructPointer(),
+                                                                                  *this);
+    fprintf(file, "%s", stream_ppresent_wait2_info.str().c_str());
+    pfn_loader_.AddMethodName("vkWaitForPresent2KHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkWaitForPresent2KHR(%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            ppresent_wait2_info_struct.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkWaitForPresent2KHR);
+}
 void VulkanCppConsumer::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13138,14 +13163,22 @@ void VulkanCppConsumer::Process_vkCmdBeginPerTileExecutionQCOM(
 
 void VulkanCppConsumer::Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer)
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
+    std::stringstream stream_pdispatch_tile_info;
+    std::string pdispatch_tile_info_struct = GenerateStruct_VkDispatchTileInfoQCOM(stream_pdispatch_tile_info,
+                                                                                   pDispatchTileInfo->GetPointer(),
+                                                                                   pDispatchTileInfo->GetMetaStructPointer(),
+                                                                                   *this);
+    fprintf(file, "%s", stream_pdispatch_tile_info.str().c_str());
     pfn_loader_.AddMethodName("vkCmdDispatchTileQCOM");
     fprintf(file,
-            "\t\tloaded_vkCmdDispatchTileQCOM(%s);\n",
-            this->GetHandle(commandBuffer).c_str());
+            "\t\tloaded_vkCmdDispatchTileQCOM(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pdispatch_tile_info_struct.c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchTileQCOM);
 }

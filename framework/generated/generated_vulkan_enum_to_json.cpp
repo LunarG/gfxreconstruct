@@ -1128,6 +1128,189 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH265SliceType& val
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ColorSpace& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_UNKNOWN";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_BT_601:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_BT_601";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_BT_709:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_BT_709";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_170";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_SMPTE_240";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_BT_2020:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_BT_2020";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_RESERVED:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_RESERVED";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_RGB:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_RGB";
+            break;
+        case STD_VIDEO_VP9_COLOR_SPACE_INVALID:
+            jdata = "STD_VIDEO_VP9_COLOR_SPACE_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9FrameType& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_FRAME_TYPE_KEY:
+            jdata = "STD_VIDEO_VP9_FRAME_TYPE_KEY";
+            break;
+        case STD_VIDEO_VP9_FRAME_TYPE_NON_KEY:
+            jdata = "STD_VIDEO_VP9_FRAME_TYPE_NON_KEY";
+            break;
+        case STD_VIDEO_VP9_FRAME_TYPE_INVALID:
+            jdata = "STD_VIDEO_VP9_FRAME_TYPE_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9InterpolationFilter& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP";
+            break;
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SMOOTH";
+            break;
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_EIGHTTAP_SHARP";
+            break;
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_BILINEAR";
+            break;
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_SWITCHABLE";
+            break;
+        case STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID:
+            jdata = "STD_VIDEO_VP9_INTERPOLATION_FILTER_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Level& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_LEVEL_1_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_1_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_1_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_1_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_2_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_2_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_2_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_2_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_3_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_3_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_3_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_3_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_4_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_4_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_4_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_4_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_5_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_5_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_5_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_5_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_5_2:
+            jdata = "STD_VIDEO_VP9_LEVEL_5_2";
+            break;
+        case STD_VIDEO_VP9_LEVEL_6_0:
+            jdata = "STD_VIDEO_VP9_LEVEL_6_0";
+            break;
+        case STD_VIDEO_VP9_LEVEL_6_1:
+            jdata = "STD_VIDEO_VP9_LEVEL_6_1";
+            break;
+        case STD_VIDEO_VP9_LEVEL_6_2:
+            jdata = "STD_VIDEO_VP9_LEVEL_6_2";
+            break;
+        case STD_VIDEO_VP9_LEVEL_INVALID:
+            jdata = "STD_VIDEO_VP9_LEVEL_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Profile& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_PROFILE_0:
+            jdata = "STD_VIDEO_VP9_PROFILE_0";
+            break;
+        case STD_VIDEO_VP9_PROFILE_1:
+            jdata = "STD_VIDEO_VP9_PROFILE_1";
+            break;
+        case STD_VIDEO_VP9_PROFILE_2:
+            jdata = "STD_VIDEO_VP9_PROFILE_2";
+            break;
+        case STD_VIDEO_VP9_PROFILE_3:
+            jdata = "STD_VIDEO_VP9_PROFILE_3";
+            break;
+        case STD_VIDEO_VP9_PROFILE_INVALID:
+            jdata = "STD_VIDEO_VP9_PROFILE_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ReferenceName& value, const JsonOptions& options)
+{
+    switch (value) {
+        case STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME:
+            jdata = "STD_VIDEO_VP9_REFERENCE_NAME_INTRA_FRAME";
+            break;
+        case STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME:
+            jdata = "STD_VIDEO_VP9_REFERENCE_NAME_LAST_FRAME";
+            break;
+        case STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME:
+            jdata = "STD_VIDEO_VP9_REFERENCE_NAME_GOLDEN_FRAME";
+            break;
+        case STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME:
+            jdata = "STD_VIDEO_VP9_REFERENCE_NAME_ALTREF_FRAME";
+            break;
+        case STD_VIDEO_VP9_REFERENCE_NAME_INVALID:
+            jdata = "STD_VIDEO_VP9_REFERENCE_NAME_INVALID";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureBuildTypeKHR& value, const JsonOptions& options)
 {
     switch (value) {
@@ -1466,6 +1649,12 @@ void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAcc
             break;
         case VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV:
             jdata = "VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV";
+            break;
+        case VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM:
+            jdata = "VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM";
+            break;
+        case VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM:
+            jdata = "VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -1979,8 +2168,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& val
         case VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT:
             jdata = "VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT";
             break;
-        case VK_BUFFER_USAGE_TILE_MEMORY_QCOM:
-            jdata = "VK_BUFFER_USAGE_TILE_MEMORY_QCOM";
+        case VK_BUFFER_USAGE_TILE_MEMORY_BIT_QCOM:
+            jdata = "VK_BUFFER_USAGE_TILE_MEMORY_BIT_QCOM";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -2069,8 +2258,11 @@ void FieldToJson(VkBufferUsageFlagBits2_t, nlohmann::ordered_json& jdata, const 
         case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT:
             jdata = "VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT";
             break;
-        case VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM:
-            jdata = "VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM";
+        case VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM:
+            jdata = "VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM";
+            break;
+        case VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM:
+            jdata = "VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM";
             break;
         case VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT:
             jdata = "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT";
@@ -2102,20 +2294,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructu
         case VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV:
             jdata = "VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV";
             break;
-        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT:
-            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT";
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT";
             break;
-        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT:
-            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT";
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT";
             break;
-        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT:
-            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT";
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT";
             break;
-        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV:
-            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV";
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_BIT_NV:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_BIT_NV";
             break;
-        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR:
-            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR";
+        case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_BIT_KHR:
+            jdata = "VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_BIT_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -2465,11 +2657,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkComponentTypeKHR& value,
         case VK_COMPONENT_TYPE_UINT8_PACKED_NV:
             jdata = "VK_COMPONENT_TYPE_UINT8_PACKED_NV";
             break;
-        case VK_COMPONENT_TYPE_FLOAT_E4M3_NV:
-            jdata = "VK_COMPONENT_TYPE_FLOAT_E4M3_NV";
+        case VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT:
+            jdata = "VK_COMPONENT_TYPE_FLOAT8_E4M3_EXT";
             break;
-        case VK_COMPONENT_TYPE_FLOAT_E5M2_NV:
-            jdata = "VK_COMPONENT_TYPE_FLOAT_E5M2_NV";
+        case VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT:
+            jdata = "VK_COMPONENT_TYPE_FLOAT8_E5M2_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -2867,6 +3059,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFla
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDefaultVertexAttributeValueKHR& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ZERO_KHR:
+            jdata = "VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ZERO_KHR";
+            break;
+        case VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR:
+            jdata = "VK_DEFAULT_VERTEX_ATTRIBUTE_VALUE_ZERO_ZERO_ZERO_ONE_KHR";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
@@ -2884,6 +3091,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& valu
             break;
         case VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR:
             jdata = "VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR";
+            break;
+        case VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR:
+            jdata = "VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -3049,6 +3259,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorType& value, c
             break;
         case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
             jdata = "VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM";
+            break;
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            jdata = "VK_DESCRIPTOR_TYPE_TENSOR_ARM";
             break;
         case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
             jdata = "VK_DESCRIPTOR_TYPE_MUTABLE_EXT";
@@ -4673,8 +4886,53 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG:
             jdata = "VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG";
             break;
+        case VK_FORMAT_R8_BOOL_ARM:
+            jdata = "VK_FORMAT_R8_BOOL_ARM";
+            break;
         case VK_FORMAT_R16G16_SFIXED5_NV:
             jdata = "VK_FORMAT_R16G16_SFIXED5_NV";
+            break;
+        case VK_FORMAT_R10X6_UINT_PACK16_ARM:
+            jdata = "VK_FORMAT_R10X6_UINT_PACK16_ARM";
+            break;
+        case VK_FORMAT_R10X6G10X6_UINT_2PACK16_ARM:
+            jdata = "VK_FORMAT_R10X6G10X6_UINT_2PACK16_ARM";
+            break;
+        case VK_FORMAT_R10X6G10X6B10X6A10X6_UINT_4PACK16_ARM:
+            jdata = "VK_FORMAT_R10X6G10X6B10X6A10X6_UINT_4PACK16_ARM";
+            break;
+        case VK_FORMAT_R12X4_UINT_PACK16_ARM:
+            jdata = "VK_FORMAT_R12X4_UINT_PACK16_ARM";
+            break;
+        case VK_FORMAT_R12X4G12X4_UINT_2PACK16_ARM:
+            jdata = "VK_FORMAT_R12X4G12X4_UINT_2PACK16_ARM";
+            break;
+        case VK_FORMAT_R12X4G12X4B12X4A12X4_UINT_4PACK16_ARM:
+            jdata = "VK_FORMAT_R12X4G12X4B12X4A12X4_UINT_4PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2_UINT_PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2_UINT_PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2G14X2_UINT_2PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2G14X2_UINT_2PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2G14X2B14X2A14X2_UINT_4PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2G14X2B14X2A14X2_UINT_4PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2_UNORM_PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2_UNORM_PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM";
+            break;
+        case VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM:
+            jdata = "VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM";
+            break;
+        case VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM:
+            jdata = "VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM";
+            break;
+        case VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM:
+            jdata = "VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -4910,6 +5168,12 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
         case VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM:
             jdata = "VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM";
             break;
+        case VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM:
+            jdata = "VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM";
+            break;
+        case VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM:
+            jdata = "VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM";
+            break;
         case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV:
             jdata = "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV";
             break;
@@ -4918,6 +5182,9 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
             break;
         case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV:
             jdata = "VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV";
+            break;
+        case VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM:
+            jdata = "VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM";
             break;
         case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
             jdata = "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
@@ -5105,11 +5372,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBits
         case VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR:
             jdata = "VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR";
             break;
-        case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT:
-            jdata = "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT";
+        case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT:
+            jdata = "VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT";
             break;
-        case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT:
-            jdata = "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT";
+        case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT:
+            jdata = "VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -5165,8 +5432,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryF
 void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
-        case VK_HOST_IMAGE_COPY_MEMCPY:
-            jdata = "VK_HOST_IMAGE_COPY_MEMCPY";
+        case VK_HOST_IMAGE_COPY_MEMCPY_BIT:
+            jdata = "VK_HOST_IMAGE_COPY_MEMCPY_BIT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -5483,8 +5750,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageLayout& value, cons
         case VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT:
             jdata = "VK_IMAGE_LAYOUT_ATTACHMENT_FEEDBACK_LOOP_OPTIMAL_EXT";
             break;
+        case VK_IMAGE_LAYOUT_TENSOR_ALIASING_ARM:
+            jdata = "VK_IMAGE_LAYOUT_TENSOR_ALIASING_ARM";
+            break;
         case VK_IMAGE_LAYOUT_VIDEO_ENCODE_QUANTIZATION_MAP_KHR:
             jdata = "VK_IMAGE_LAYOUT_VIDEO_ENCODE_QUANTIZATION_MAP_KHR";
+            break;
+        case VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT:
+            jdata = "VK_IMAGE_LAYOUT_ZERO_INITIALIZED_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -5594,8 +5867,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlagBits& valu
         case VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM:
             jdata = "VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM";
             break;
-        case VK_IMAGE_USAGE_TILE_MEMORY_QCOM:
-            jdata = "VK_IMAGE_USAGE_TILE_MEMORY_QCOM";
+        case VK_IMAGE_USAGE_TENSOR_ALIASING_BIT_ARM:
+            jdata = "VK_IMAGE_USAGE_TENSOR_ALIASING_BIT_ARM";
+            break;
+        case VK_IMAGE_USAGE_TILE_MEMORY_BIT_QCOM:
+            jdata = "VK_IMAGE_USAGE_TILE_MEMORY_BIT_QCOM";
             break;
         case VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
             jdata = "VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
@@ -6056,6 +6332,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlagBits& 
         case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT:
             jdata = "VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT";
             break;
+        case VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT:
+            jdata = "VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -6335,6 +6614,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
         case VK_OBJECT_TYPE_MICROMAP_EXT:
             jdata = "VK_OBJECT_TYPE_MICROMAP_EXT";
             break;
+        case VK_OBJECT_TYPE_TENSOR_ARM:
+            jdata = "VK_OBJECT_TYPE_TENSOR_ARM";
+            break;
+        case VK_OBJECT_TYPE_TENSOR_VIEW_ARM:
+            jdata = "VK_OBJECT_TYPE_TENSOR_VIEW_ARM";
+            break;
         case VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV:
             jdata = "VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV";
             break;
@@ -6343,6 +6628,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
             break;
         case VK_OBJECT_TYPE_PIPELINE_BINARY_KHR:
             jdata = "VK_OBJECT_TYPE_PIPELINE_BINARY_KHR";
+            break;
+        case VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM:
+            jdata = "VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM";
             break;
         case VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV:
             jdata = "VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV";
@@ -6866,6 +7154,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineBindPoint& value
         case VK_PIPELINE_BIND_POINT_SUBPASS_SHADING_HUAWEI:
             jdata = "VK_PIPELINE_BIND_POINT_SUBPASS_SHADING_HUAWEI";
             break;
+        case VK_PIPELINE_BIND_POINT_DATA_GRAPH_ARM:
+            jdata = "VK_PIPELINE_BIND_POINT_DATA_GRAPH_ARM";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7131,6 +7422,9 @@ void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, con
             break;
         case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT:
             jdata = "VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT";
+            break;
+        case VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+            jdata = "VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -7483,6 +7777,9 @@ void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, cons
         case VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV:
             jdata = "VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV";
             break;
+        case VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM:
+            jdata = "VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7711,6 +8008,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFl
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlagBits& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_QUERY_POOL_CREATE_RESET_BIT_KHR:
+            jdata = "VK_QUERY_POOL_CREATE_RESET_BIT_KHR";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolSamplingModeINTEL& value, const JsonOptions& options)
 {
     switch (value) {
@@ -7855,6 +8164,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueFlagBits& value, co
         case VK_QUEUE_OPTICAL_FLOW_BIT_NV:
             jdata = "VK_QUEUE_OPTICAL_FLOW_BIT_NV";
             break;
+        case VK_QUEUE_DATA_GRAPH_BIT_ARM:
+            jdata = "VK_QUEUE_DATA_GRAPH_BIT_ARM";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7966,6 +8278,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderPassCreateFlagBits
         case VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM:
             jdata = "VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM";
             break;
+        case VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+            jdata = "VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7989,6 +8304,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingFlagBits& value
             break;
         case VK_RENDERING_CONTENTS_INLINE_BIT_KHR:
             jdata = "VK_RENDERING_CONTENTS_INLINE_BIT_KHR";
+            break;
+        case VK_RENDERING_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+            jdata = "VK_RENDERING_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -8014,8 +8332,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveModeFlagBits& val
         case VK_RESOLVE_MODE_MAX_BIT:
             jdata = "VK_RESOLVE_MODE_MAX_BIT";
             break;
-        case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID:
-            jdata = "VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID";
+        case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_BIT_ANDROID:
+            jdata = "VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_BIT_ANDROID";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -10566,12 +10884,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT:
             jdata = "VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT";
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT";
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT";
-            break;
         case VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT";
             break;
@@ -11175,6 +11487,78 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
             jdata = "VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG";
             break;
+        case VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_VIEW_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_BIND_TENSOR_MEMORY_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM:
+            jdata = "VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_FORMAT_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_DESCRIPTION_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_MEMORY_BARRIER_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TENSOR_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DEVICE_TENSOR_MEMORY_REQUIREMENTS_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_COPY_TENSOR_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_COPY_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_COPY_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_DEPENDENCY_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM:
+            jdata = "VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_TENSOR_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_TENSOR_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_EXTERNAL_TENSOR_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_TENSOR_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_TENSOR_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DESCRIPTOR_GET_TENSOR_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_CAPTURE_DESCRIPTOR_DATA_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_TENSOR_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM:
+            jdata = "VK_STRUCTURE_TYPE_FRAME_BOUNDARY_TENSORS_ARM";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT";
             break;
@@ -11231,6 +11615,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD:
             jdata = "VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD";
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR:
+            jdata = "VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_2_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR:
+            jdata = "VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR";
@@ -11376,6 +11778,66 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR";
             break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_DISPATCH_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_DISPATCH_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM";
             break;
@@ -11436,6 +11898,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR:
             jdata = "VK_STRUCTURE_TYPE_VIDEO_ENCODE_AV1_GOP_REMAINING_FRAME_INFO_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_DECODE_VP9_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_DECODE_VP9_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PICTURE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PICTURE_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR";
             break;
@@ -11474,6 +11948,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT";
             break;
         case VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX:
             jdata = "VK_STRUCTURE_TYPE_SCREEN_BUFFER_PROPERTIES_QNX";
@@ -11598,6 +12078,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT8_FEATURES_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV";
             break;
@@ -11706,6 +12189,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR";
             break;
@@ -11717,6 +12209,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
             jdata = "VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_OH_SURFACE_CREATE_INFO_OHOS:
+            jdata = "VK_STRUCTURE_TYPE_OH_SURFACE_CREATE_INFO_OHOS";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI";
@@ -11751,6 +12246,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FORMAT_PACK_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_FEATURES_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_LAYERED_PROPERTIES_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR";
+            break;
         case VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV:
             jdata = "VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV";
             break;
@@ -11768,6 +12281,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_RENDERING_END_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -11996,6 +12512,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsK
             break;
         case VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT:
             jdata = "VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT";
+            break;
+        case VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR:
+            jdata = "VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR";
+            break;
+        case VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR:
+            jdata = "VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -12302,6 +12824,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodecOperationFlagB
             break;
         case VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR:
             jdata = "VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR";
+            break;
+        case VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR:
+            jdata = "VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -13254,6 +13779,10 @@ void FieldToJson(VkAccessFlags2_t, nlohmann::ordered_json& jdata, const VkFlags6
                 return std::string("VK_ACCESS_2_OPTICAL_FLOW_READ_BIT_NV");
             case VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV:
                 return std::string("VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV");
+            case VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM:
+                return std::string("VK_ACCESS_2_DATA_GRAPH_READ_BIT_ARM");
+            case VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM:
+                return std::string("VK_ACCESS_2_DATA_GRAPH_WRITE_BIT_ARM");
         }
         return to_hex_fixed_width(flags);
     });
@@ -13398,8 +13927,8 @@ void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFl
                 return std::string("VK_BUFFER_USAGE_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT");
             case VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT:
                 return std::string("VK_BUFFER_USAGE_MICROMAP_STORAGE_BIT_EXT");
-            case VK_BUFFER_USAGE_TILE_MEMORY_QCOM:
-                return std::string("VK_BUFFER_USAGE_TILE_MEMORY_QCOM");
+            case VK_BUFFER_USAGE_TILE_MEMORY_BIT_QCOM:
+                return std::string("VK_BUFFER_USAGE_TILE_MEMORY_BIT_QCOM");
         }
         return to_hex_fixed_width(flags);
     });
@@ -13468,8 +13997,10 @@ void FieldToJson(VkBufferUsageFlags2_t, nlohmann::ordered_json& jdata, const VkF
                 return std::string("VK_BUFFER_USAGE_2_MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT");
             case VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT:
                 return std::string("VK_BUFFER_USAGE_2_MICROMAP_STORAGE_BIT_EXT");
-            case VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM:
-                return std::string("VK_BUFFER_USAGE_2_TILE_MEMORY_QCOM");
+            case VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM:
+                return std::string("VK_BUFFER_USAGE_2_DATA_GRAPH_FOREIGN_DESCRIPTOR_BIT_ARM");
+            case VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM:
+                return std::string("VK_BUFFER_USAGE_2_TILE_MEMORY_BIT_QCOM");
             case VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT:
                 return std::string("VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT");
         }
@@ -13505,16 +14036,16 @@ void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json&
                 return std::string("VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR");
             case VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV:
                 return std::string("VK_BUILD_ACCELERATION_STRUCTURE_MOTION_BIT_NV");
-            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT:
-                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT");
-            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT:
-                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT");
-            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT:
-                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT");
-            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV:
-                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_NV");
-            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR:
-                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_BIT_EXT");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_BIT_EXT");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_BIT_EXT");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_BIT_NV:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISPLACEMENT_MICROMAP_UPDATE_BIT_NV");
+            case VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_BIT_KHR:
+                return std::string("VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });
@@ -13822,6 +14353,8 @@ void FieldToJson(VkDependencyFlags_t, nlohmann::ordered_json& jdata, const VkFla
                 return std::string("VK_DEPENDENCY_FEEDBACK_LOOP_BIT_EXT");
             case VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR:
                 return std::string("VK_DEPENDENCY_QUEUE_FAMILY_OWNERSHIP_TRANSFER_USE_ALL_STAGES_BIT_KHR");
+            case VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR:
+                return std::string("VK_DEPENDENCY_ASYMMETRIC_EVENT_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });
@@ -14490,12 +15023,18 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_FORMAT_FEATURE_2_BLOCK_MATCHING_BIT_QCOM");
             case VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM:
                 return std::string("VK_FORMAT_FEATURE_2_BOX_FILTER_SAMPLED_BIT_QCOM");
+            case VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM:
+                return std::string("VK_FORMAT_FEATURE_2_TENSOR_SHADER_BIT_ARM");
+            case VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM:
+                return std::string("VK_FORMAT_FEATURE_2_TENSOR_IMAGE_ALIASING_BIT_ARM");
             case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV:
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_IMAGE_BIT_NV");
             case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV:
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_VECTOR_BIT_NV");
             case VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV:
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV");
+            case VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM:
+                return std::string("VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
                 return std::string("VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR:
@@ -14580,10 +15119,10 @@ void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, co
                 return std::string("VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR");
             case VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR:
                 return std::string("VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_KHR");
-            case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT:
-                return std::string("VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_EXT");
-            case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT:
-                return std::string("VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_EXT");
+            case VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT:
+                return std::string("VK_GEOMETRY_INSTANCE_FORCE_OPACITY_MICROMAP_2_STATE_BIT_EXT");
+            case VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT:
+                return std::string("VK_GEOMETRY_INSTANCE_DISABLE_OPACITY_MICROMAPS_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -14629,8 +15168,8 @@ void FieldToJson(VkHostImageCopyFlags_t, nlohmann::ordered_json& jdata, const Vk
     {
         switch (flags)
         {
-            case VK_HOST_IMAGE_COPY_MEMCPY:
-                return std::string("VK_HOST_IMAGE_COPY_MEMCPY");
+            case VK_HOST_IMAGE_COPY_MEMCPY_BIT:
+                return std::string("VK_HOST_IMAGE_COPY_MEMCPY_BIT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -14885,8 +15424,10 @@ void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFla
                 return std::string("VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM");
             case VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM:
                 return std::string("VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM");
-            case VK_IMAGE_USAGE_TILE_MEMORY_QCOM:
-                return std::string("VK_IMAGE_USAGE_TILE_MEMORY_QCOM");
+            case VK_IMAGE_USAGE_TENSOR_ALIASING_BIT_ARM:
+                return std::string("VK_IMAGE_USAGE_TENSOR_ALIASING_BIT_ARM");
+            case VK_IMAGE_USAGE_TILE_MEMORY_BIT_QCOM:
+                return std::string("VK_IMAGE_USAGE_TILE_MEMORY_BIT_QCOM");
             case VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
                 return std::string("VK_IMAGE_USAGE_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR");
             case VK_IMAGE_USAGE_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR:
@@ -15038,6 +15579,8 @@ void FieldToJson(VkMemoryAllocateFlags_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT");
             case VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT:
                 return std::string("VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT");
+            case VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT:
+                return std::string("VK_MEMORY_ALLOCATE_ZERO_INITIALIZE_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -15565,6 +16108,8 @@ void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const 
                 return std::string("VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR");
             case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT:
                 return std::string("VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT");
+            case VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+                return std::string("VK_PIPELINE_CREATE_2_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE");
         }
         return to_hex_fixed_width(flags);
     });
@@ -15857,6 +16402,8 @@ void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_PIPELINE_STAGE_2_OPTICAL_FLOW_BIT_NV");
             case VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV:
                 return std::string("VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV");
+            case VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM:
+                return std::string("VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM");
         }
         return to_hex_fixed_width(flags);
     });
@@ -15995,7 +16542,20 @@ void FieldToJson(VkQueryPipelineStatisticFlags_t, nlohmann::ordered_json& jdata,
 
 void FieldToJson(VkQueryPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
-    jdata = to_hex_fixed_width(flags);
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_QUERY_POOL_CREATE_RESET_BIT_KHR:
+                return std::string("VK_QUERY_POOL_CREATE_RESET_BIT_KHR");
+        }
+        return to_hex_fixed_width(flags);
+    });
 }
 
 void FieldToJson(VkQueryResultFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
@@ -16051,6 +16611,8 @@ void FieldToJson(VkQueueFlags_t, nlohmann::ordered_json& jdata, const VkFlags fl
                 return std::string("VK_QUEUE_VIDEO_ENCODE_BIT_KHR");
             case VK_QUEUE_OPTICAL_FLOW_BIT_NV:
                 return std::string("VK_QUEUE_OPTICAL_FLOW_BIT_NV");
+            case VK_QUEUE_DATA_GRAPH_BIT_ARM:
+                return std::string("VK_QUEUE_DATA_GRAPH_BIT_ARM");
         }
         return to_hex_fixed_width(flags);
     });
@@ -16069,6 +16631,8 @@ void FieldToJson(VkRenderPassCreateFlags_t, nlohmann::ordered_json& jdata, const
         {
             case VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM:
                 return std::string("VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM");
+            case VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+                return std::string("VK_RENDER_PASS_CREATE_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE");
         }
         return to_hex_fixed_width(flags);
     });
@@ -16095,6 +16659,8 @@ void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlag
                 return std::string("VK_RENDERING_ENABLE_LEGACY_DITHERING_BIT_EXT");
             case VK_RENDERING_CONTENTS_INLINE_BIT_KHR:
                 return std::string("VK_RENDERING_CONTENTS_INLINE_BIT_KHR");
+            case VK_RENDERING_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE:
+                return std::string("VK_RENDERING_PER_LAYER_FRAGMENT_DENSITY_BIT_VALVE");
         }
         return to_hex_fixed_width(flags);
     });
@@ -16121,8 +16687,8 @@ void FieldToJson(VkResolveModeFlags_t, nlohmann::ordered_json& jdata, const VkFl
                 return std::string("VK_RESOLVE_MODE_MIN_BIT");
             case VK_RESOLVE_MODE_MAX_BIT:
                 return std::string("VK_RESOLVE_MODE_MAX_BIT");
-            case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID:
-                return std::string("VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_ANDROID");
+            case VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_BIT_ANDROID:
+                return std::string("VK_RESOLVE_MODE_EXTERNAL_FORMAT_DOWNSAMPLE_BIT_ANDROID");
         }
         return to_hex_fixed_width(flags);
     });
@@ -16552,6 +17118,10 @@ void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, con
                 return std::string("VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR");
             case VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT:
                 return std::string("VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT");
+            case VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR:
+                return std::string("VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR");
+            case VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR:
+                return std::string("VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });
@@ -16693,6 +17263,8 @@ void FieldToJson(VkVideoCodecOperationFlagsKHR_t, nlohmann::ordered_json& jdata,
                 return std::string("VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR");
             case VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR:
                 return std::string("VK_VIDEO_CODEC_OPERATION_ENCODE_AV1_BIT_KHR");
+            case VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR:
+                return std::string("VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });

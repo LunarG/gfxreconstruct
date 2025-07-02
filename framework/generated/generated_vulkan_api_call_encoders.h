@@ -2019,6 +2019,11 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2KHR(
     const VkImageSubresource2*                  pSubresource,
     VkSubresourceLayout2*                       pLayout);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresent2KHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    const VkPresentWait2InfoKHR*                pPresentWait2Info);
+
 VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineBinariesKHR(
     VkDevice                                    device,
     const VkPipelineBinaryCreateInfoKHR*        pCreateInfo,
@@ -2892,7 +2897,8 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(
     uint64_t*                                   pData);
 
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(
-    VkCommandBuffer                             commandBuffer);
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchTileInfoQCOM*               pDispatchTileInfo);
 
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(
     VkCommandBuffer                             commandBuffer,

@@ -428,6 +428,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
     { "vkGetRenderingAreaGranularityKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetRenderingAreaGranularityKHR) },
     { "vkGetDeviceImageSubresourceLayoutKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetDeviceImageSubresourceLayoutKHR) },
     { "vkGetImageSubresourceLayout2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetImageSubresourceLayout2KHR) },
+    { "vkWaitForPresent2KHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::vkWaitForPresent2KHR) },
     { "vkCreatePipelineBinariesKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreatePipelineBinariesKHR) },
     { "vkDestroyPipelineBinaryKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::vkDestroyPipelineBinaryKHR) },
     { "vkGetPipelineKeyKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetPipelineKeyKHR) },
