@@ -276,6 +276,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH265LevelIdc& valu
 void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH265PictureType& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH265ProfileIdc& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoH265SliceType& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ColorSpace& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9FrameType& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9InterpolationFilter& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Level& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9Profile& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const StdVideoVP9ReferenceName& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureBuildTypeKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCompatibilityKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCreateFlagBitsKHR& value, const util::JsonOptions& options = util::JsonOptions());
@@ -329,6 +335,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagBitsEXT& 
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportObjectTypeEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverityFlagBitsEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFlagBitsEXT& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDefaultVertexAttributeValueKHR& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthBiasRepresentationEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDepthClampModeEXT& value, const util::JsonOptions& options = util::JsonOptions());
@@ -464,6 +471,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value
 void FieldToJson(nlohmann::ordered_json& jdata, const VkProvokingVertexModeEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryControlFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolSamplingModeINTEL& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultFlagBits& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultStatusKHR& value, const util::JsonOptions& options = util::JsonOptions());

@@ -2567,6 +2567,13 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout) {}
 
+    virtual void Process_vkWaitForPresent2KHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
+        StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info) {}
+
     virtual void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3688,7 +3695,8 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkCmdDispatchTileQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) {}
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo) {}
 
     virtual void Process_vkCmdBeginPerTileExecutionQCOM(
         const ApiCallInfo&                          call_info,

@@ -2511,6 +2511,12 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkRenderingAreaInfo>* pRenderingAreaInfo,
         StructPointerDecoder<Decoded_VkExtent2D>*   pGranularity) override;
+    virtual void Process_vkWaitForPresent2KHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
+        StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info) override;
     virtual void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3540,7 +3546,8 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
 
     virtual void Process_vkCmdDispatchTileQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo) override;
 
     virtual void Process_vkCmdEndPerTileExecutionQCOM(
         const ApiCallInfo&                          call_info,

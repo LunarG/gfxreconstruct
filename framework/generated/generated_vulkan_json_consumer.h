@@ -2534,6 +2534,13 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout) override;
 
+    virtual void Process_vkWaitForPresent2KHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
+        StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info) override;
+
     virtual void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3655,7 +3662,8 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
 
     virtual void Process_vkCmdDispatchTileQCOM(
         const ApiCallInfo&                          call_info,
-        format::HandleId                            commandBuffer) override;
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo) override;
 
     virtual void Process_vkCmdBeginPerTileExecutionQCOM(
         const ApiCallInfo&                          call_info,
