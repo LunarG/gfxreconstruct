@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2016-2025 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2015-2023 Valve Corporation
 ** Copyright (c) 2015-2023 LunarG, Inc.
 **
@@ -1176,8 +1176,6 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
 
         if (success)
         {
-            assert(memory_info_.find(memory_id) == memory_info_.end());
-
             auto entry =
                 memory_info_.emplace(std::piecewise_construct,
                                      std::forward_as_tuple(memory_id),
@@ -1193,6 +1191,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                                            static_cast<const uint8_t*>(start_address) + mapped_range,
                                                            use_write_watch,
                                                            shadow_memory_handle == kNullShadowHandle));
+            ++(entry.first->second.ref_count);
 
             if (!entry.second)
             {
@@ -1254,7 +1253,7 @@ void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
     auto entry = memory_info_.find(memory_id);
-    if (entry != memory_info_.end())
+    if ((entry != memory_info_.end()) && (--(entry->second.ref_count) == 0))
     {
         ReleaseTrackedMemory(&entry->second);
 
