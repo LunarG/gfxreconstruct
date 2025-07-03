@@ -17946,24 +17946,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyAcceleration
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShaderGroupCreateInfoKHR* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkRayTracingShaderGroupCreateInfoKHR& decoded_value = *data->decoded_value;
-        const Decoded_VkRayTracingShaderGroupCreateInfoKHR& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["generalShader"], decoded_value.generalShader, options);
-        FieldToJson(jdata["closestHitShader"], decoded_value.closestHitShader, options);
-        FieldToJson(jdata["anyHitShader"], decoded_value.anyHitShader, options);
-        FieldToJson(jdata["intersectionShader"], decoded_value.intersectionShader, options);
-        FieldToJson(jdata["pShaderGroupCaptureReplayHandle"], meta_struct.pShaderGroupCaptureReplayHandle, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)

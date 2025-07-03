@@ -563,5 +563,58 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCop
     }
 }
 
+void FieldToJson(nlohmann::ordered_json&                             jdata,
+                 const Decoded_VkRayTracingShaderGroupCreateInfoKHR* data,
+                 const JsonOptions&                                  options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkRayTracingShaderGroupCreateInfoKHR&         decoded_value = *data->decoded_value;
+        const Decoded_VkRayTracingShaderGroupCreateInfoKHR& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        if (decoded_value.generalShader != VK_SHADER_UNUSED_KHR)
+        {
+            FieldToJson(jdata["generalShader"], decoded_value.generalShader, options);
+        }
+        else
+        {
+            jdata["generalShader"] = "VK_SHADER_UNUSED_KHR";
+        }
+
+        if (decoded_value.closestHitShader != VK_SHADER_UNUSED_KHR)
+        {
+            FieldToJson(jdata["closestHitShader"], decoded_value.closestHitShader, options);
+        }
+        else
+        {
+            jdata["closestHitShader"] = "VK_SHADER_UNUSED_KHR";
+        }
+
+        if (decoded_value.anyHitShader != VK_SHADER_UNUSED_KHR)
+        {
+            FieldToJson(jdata["anyHitShader"], decoded_value.anyHitShader, options);
+        }
+        else
+        {
+            jdata["anyHitShader"] = "VK_SHADER_UNUSED_KHR";
+        }
+
+        if (decoded_value.intersectionShader != VK_SHADER_UNUSED_KHR)
+        {
+            FieldToJson(jdata["intersectionShader"], decoded_value.intersectionShader, options);
+        }
+        else
+        {
+
+            jdata["intersectionShader"] = "VK_SHADER_UNUSED_KHR";
+        }
+
+        FieldToJson(jdata["pShaderGroupCaptureReplayHandle"], meta_struct.pShaderGroupCaptureReplayHandle, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

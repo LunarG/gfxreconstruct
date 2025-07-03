@@ -75,6 +75,7 @@ class VulkanStructToJsonHeaderGenerator(
             'VkPipelineCacheCreateInfo',
             'VkShaderModuleCreateInfo',
             'VkPipelineExecutableStatisticKHR',
+            'VkRayTracingShaderGroupCreateInfoKHR'
         }
 
     def should_decode_struct(self, struct):

@@ -80,6 +80,7 @@ class VulkanStructToJsonBodyGenerator(VulkanBaseGenerator, KhronosStructToJsonBo
             'VkPipelineCacheCreateInfo',
             'VkShaderModuleCreateInfo',
             'VkPipelineExecutableStatisticKHR',
+            'VkRayTracingShaderGroupCreateInfoKHR'
         }
 
         self.formatAsHex = {
