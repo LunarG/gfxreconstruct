@@ -47,6 +47,7 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 #include <optional>
 
@@ -520,6 +521,13 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 // For vkGetPhysicalDeviceSurfaceCapabilitiesKHR
 struct SurfaceCapabilities
 {
+    VkSurfaceKHR             surface;
+    VkSurfaceCapabilitiesKHR surface_capabilities;
+};
+
+// For vkGetPhysicalDeviceSurfaceCapabilities2KHR
+struct SurfaceCapabilities2
+{
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
     std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
@@ -529,6 +537,13 @@ struct SurfaceCapabilities
 
 // For vkGetPhysicalDeviceSurfaceFormatsKHR
 struct SurfaceFormats
+{
+    VkSurfaceKHR                    surface{ VK_NULL_HANDLE };
+    std::vector<VkSurfaceFormatKHR> surface_formats;
+};
+
+// For vkGetPhysicalDeviceSurfaceFormats2KHR
+struct SurfaceFormats2
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
     std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
@@ -559,10 +574,10 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
     // Keys are the VkPhysicalDevice handle ID.
-    std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
-    std::unordered_map<format::HandleId, SurfaceCapabilities>                    surface_capabilities;
-    std::unordered_map<format::HandleId, SurfaceFormats>                         surface_formats;
-    std::unordered_map<format::HandleId, SurfacePresentModes>                    surface_present_modes;
+    std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>>                  surface_support;
+    std::unordered_map<format::HandleId, std::variant<SurfaceCapabilities, SurfaceCapabilities2>> surface_capabilities;
+    std::unordered_map<format::HandleId, std::variant<SurfaceFormats, SurfaceFormats2>>           surface_formats;
+    std::unordered_map<format::HandleId, SurfacePresentModes>                                     surface_present_modes;
 
     // Keys are the VkDevice handle ID.
     std::unordered_map<format::HandleId, GroupSurfacePresentModes> group_surface_present_modes;

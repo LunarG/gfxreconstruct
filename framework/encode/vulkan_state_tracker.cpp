@@ -248,13 +248,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface;
-
-    entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
-    entry.surface_capabilities.pNext               = nullptr;
-    entry.surface_capabilities.surfaceCapabilities = *capabilities;
+    entry = vulkan_wrappers::SurfaceCapabilities{ surface, *capabilities };
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevice                       physical_device,
@@ -267,23 +261,20 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface_info.surface;
+    auto& surface_capabilities2 = entry.emplace<vulkan_wrappers::SurfaceCapabilities2>();
 
+    surface_capabilities2.surface_info = surface_info;
     if (surface_info.pNext != nullptr)
     {
-        entry.surface_info.pNext = vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
+        surface_capabilities2.surface_info.pNext =
+            vulkan_trackers::TrackStruct(surface_info.pNext, surface_capabilities2.surface_info_pnext_memory);
     }
 
-    entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
-    entry.surface_capabilities.pNext               = nullptr;
-    entry.surface_capabilities.surfaceCapabilities = surface_capabilities->surfaceCapabilities;
-
+    surface_capabilities2.surface_capabilities = *surface_capabilities;
     if (surface_capabilities->pNext != nullptr)
     {
-        entry.surface_capabilities.pNext =
-            vulkan_trackers::TrackStruct(surface_capabilities->pNext, entry.surface_capabilities_pnext_memory);
+        surface_capabilities2.surface_capabilities.pNext = vulkan_trackers::TrackStruct(
+            surface_capabilities->pNext, surface_capabilities2.surface_capabilities_pnext_memory);
     }
 }
 
@@ -300,21 +291,8 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        entry.surface_info.pNext   = nullptr;
-        entry.surface_info.surface = surface;
-
-        std::vector<VkSurfaceFormat2KHR> surface_formats(format_count);
-
-        for (uint32_t i = 0; i < format_count; ++i)
-        {
-            surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-            surface_formats[i].pNext         = nullptr;
-            surface_formats[i].surfaceFormat = formats[i];
-        }
-        entry.surface_format_count = format_count;
-        entry.surface_formats =
-            vulkan_trackers::TrackStructs(surface_formats.data(), format_count, entry.surface_formats_memory);
+        entry = vulkan_wrappers::SurfaceFormats{ surface,
+                                                 std::vector<VkSurfaceFormatKHR>(formats, formats + format_count) };
     }
 }
 
@@ -331,19 +309,18 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        entry.surface_info.pNext   = nullptr;
-        entry.surface_info.surface = surface_info.surface;
+        auto& surface_formats2 = entry.emplace<vulkan_wrappers::SurfaceFormats2>();
 
+        surface_formats2.surface_info = surface_info;
         if (surface_info.pNext != nullptr)
         {
-            entry.surface_info.pNext =
-                vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
+            surface_formats2.surface_info.pNext =
+                vulkan_trackers::TrackStruct(surface_info.pNext, surface_formats2.surface_info_pnext_memory);
         }
 
-        entry.surface_format_count = surface_format_count;
-        entry.surface_formats =
-            vulkan_trackers::TrackStructs(surface_formats, surface_format_count, entry.surface_formats_memory);
+        surface_formats2.surface_format_count = surface_format_count;
+        surface_formats2.surface_formats      = vulkan_trackers::TrackStructs(
+            surface_formats, surface_format_count, surface_formats2.surface_formats_memory);
     }
 }
 
@@ -635,7 +612,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     if (wrapper->external_format || wrapper->external_memory_android)
     {
         const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
-        VkMemoryRequirements     image_mem_reqs;
+        VkMemoryRequirements               image_mem_reqs;
         device_table->GetImageMemoryRequirements(device, image, &image_mem_reqs);
         wrapper->size = image_mem_reqs.size;
     }
@@ -2484,11 +2461,11 @@ void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               com
             {
                 // If PageGuardManager is not used or if it couldn't find the memory id it means that
                 // we need to map the memory.
-                VkDevice                 device        = dev_mem_wrapper->parent_device->handle;
-                const graphics::VulkanDeviceTable* device_table  = vulkan_wrappers::GetDeviceTable(device);
-                const VkDeviceSize       map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
-                void*                    mapped_memory = nullptr;
-                const VkResult           result =
+                VkDevice                           device       = dev_mem_wrapper->parent_device->handle;
+                const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+                const VkDeviceSize                 map_size = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
+                void*                              mapped_memory = nullptr;
+                const VkResult                     result =
                     device_table->MapMemory(device, dev_mem_wrapper->handle, total_offset, map_size, 0, &mapped_memory);
 
                 if (result == VK_SUCCESS)
@@ -2520,7 +2497,7 @@ void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               com
                 // If we had to map the device memory unmap it now
                 if (needs_unmapping)
                 {
-                    VkDevice                 device       = dev_mem_wrapper->parent_device->handle;
+                    VkDevice                           device       = dev_mem_wrapper->parent_device->handle;
                     const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
                     device_table->UnmapMemory(device, dev_mem_wrapper->handle);
                 }
