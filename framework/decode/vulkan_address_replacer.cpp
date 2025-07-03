@@ -199,7 +199,10 @@ decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
         if (buffer != VK_NULL_HANDLE)
         {
             // unmap/destroy buffer
-            resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            if (mapped_data != nullptr)
+            {
+                resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            }
             resource_allocator->DestroyBufferDirect(buffer, nullptr, allocator_data);
         }
         if (device_memory != VK_NULL_HANDLE)
@@ -338,14 +341,10 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         storage_bda_binary_.clear();
 
         // populate hashmap
-        auto address_map = address_tracker.GetBufferDeviceAddressMap();
-        for (const auto& [capture_address, replay_address] : address_map)
+        const auto& address_map = address_tracker.GetBufferDeviceAddressMap();
+        for (const auto& [capture_address, replay_item] : address_map)
         {
-            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
-            if (buffer_info != nullptr)
-            {
-                storage_bda_binary_.push_back({ capture_address, replay_address, buffer_info->size });
-            }
+            storage_bda_binary_.push_back({ capture_address, replay_item.address, replay_item.size });
         }
 
         if (command_buffer_info != nullptr)
