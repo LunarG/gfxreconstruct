@@ -1177,8 +1177,12 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
 
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
 {
-    bool success      = true;
-    capture_filename_ = base_filename;
+    bool success = true;
+
+    util::filepath::FileInfo info{};
+    util::filepath::GetApplicationInfo(info);
+
+    capture_filename_ = util::filepath::ExpandPathVariables(info, base_filename);
 
     if (timestamp_filename_)
     {
@@ -1192,8 +1196,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename_.c_str());
         WriteFileHeader();
 
-        gfxrecon::util::filepath::FileInfo info{};
-        gfxrecon::util::filepath::GetApplicationInfo(info);
         WriteExeFileInfo(api_family, info);
 
         // Save parameters of the capture in an annotation.

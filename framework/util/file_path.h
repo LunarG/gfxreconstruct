@@ -115,6 +115,19 @@ bool EqualStr(const std::string& str1, const std::string& str2, bool case_sensit
 
 std::string FindModulePath(const std::string& target_module, bool case_sensitive);
 
+/**
+ * @brief Expands variable patterns in a file path string.
+ *
+ * This function searches the input path string for variable patterns of the form `${VariableName}`
+ * (e.g., `${InternalDataPath}`, `${AppName}`), and replaces them with the corresponding values. This allows for dynamic
+ * construction of file paths based on application or environment-specific information.
+ *
+ * @param info The FileInfo structure containing values for variable substitution.
+ * @param path The input path string, which may contain variable patterns to expand.
+ * @return A new string with all recognized variable patterns replaced by their corresponding values.
+ */
+std::string ExpandPathVariables(const FileInfo& info, const std::string& path);
+
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
