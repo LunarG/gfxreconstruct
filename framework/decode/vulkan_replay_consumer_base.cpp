@@ -2727,13 +2727,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
-        // NOTE: capturing unconditionally uses 'vkGetPhysicalDeviceSurfaceCapabilities2KHR' for restoring surface state
-        if (loading_trim_state_)
-        {
-            feature_util::EnableExtensionIfSupported(
-                available_extensions, &modified_extensions, VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
-        }
-
         if (options_.remove_unsupported_features)
         {
             // Remove enabled extensions that are not available from the replay instance.
