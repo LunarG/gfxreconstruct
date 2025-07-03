@@ -173,6 +173,8 @@ const char kDumpResourcesDumpRawImages[]               = "--dump-resources-dump-
 const char kDumpResourcesDumpSeparateAlpha[]           = "--dump-resources-dump-separate-alpha";
 const char kDumpResourcesDumpUnusedVertexBindings[]    = "--dump-resources-dump-unused-vertex-bindigs";
 const char kDumpResourcesBinaryFileCompressionMethod[] = "--dump-resources-binary-file-compression-type";
+const char kDumpResourcesDumpBuildASInputBuffers[] =
+    "--dump-resources-dump-build-acceleration-structures-input-buffers";
 
 enum class WsiPlatform
 {
@@ -1333,6 +1335,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.dump_resources_dump_separate_alpha = arg_parser.IsOptionSet(kDumpResourcesDumpSeparateAlpha);
     replay_options.dump_resources_dump_unused_vertex_bindings =
         arg_parser.IsOptionSet(kDumpResourcesDumpUnusedVertexBindings);
+    replay_options.dump_resources_dump_build_AS_input_buffers =
+        arg_parser.IsOptionSet(kDumpResourcesDumpBuildASInputBuffers);
     replay_options.dump_resources_binary_file_compression_type = GetDumpResourcesCompressionType(arg_parser);
 
     std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);

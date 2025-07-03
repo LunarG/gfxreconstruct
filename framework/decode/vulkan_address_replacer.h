@@ -496,6 +496,10 @@ class VulkanAddressReplacer
     PFN_vkGetPhysicalDeviceProperties2 get_physical_device_properties_fn_ = nullptr;
     PFN_vkSetDebugUtilsObjectNameEXT   set_debug_utils_object_name_fn_    = nullptr;
 };
+
+using VulkanPerDeviceAddressReplacers =
+    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>;
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

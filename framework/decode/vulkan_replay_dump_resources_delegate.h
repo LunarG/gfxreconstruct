@@ -24,13 +24,16 @@
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "format/format.h"
 #include "util/compressor.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_json.h"
 
 #include <cstdint>
+#include <limits>
 #include <variant>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -82,7 +85,14 @@ struct VulkanDelegateImageDumpedData
 {
     VulkanDelegateImageDumpedData() = default;
 
-    std::vector<DumpedRawData> data;
+    DumpedImageRawData data;
+};
+
+struct VulkanDelegateAccelerationStructureDumpedData
+{
+    VulkanDelegateAccelerationStructureDumpedData() = default;
+
+    TLASDumpedHostData data;
 };
 
 struct VulkanDelegateDumpResourceContext
@@ -103,8 +113,11 @@ struct VulkanDelegateDumpResourceContext
     const util::Compressor* compressor;
     bool                    before_command;
 
-    DumpedResourceBase*                                                         dumped_resource;
-    std::variant<VulkanDelegateBufferDumpedData, VulkanDelegateImageDumpedData> dumped_data;
+    DumpedResourceBase* dumped_resource;
+    std::variant<VulkanDelegateBufferDumpedData,
+                 VulkanDelegateImageDumpedData,
+                 VulkanDelegateAccelerationStructureDumpedData>
+        dumped_data;
 
     VulkanDelegateDumpResourceContext& operator=(const VulkanDelegateDumpDrawCallContext& draw_call_info)
     {
@@ -223,6 +236,26 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     std::string GenerateIndexBufferFilename(const DumpedResourceBase& dumped_resource, bool before_command) const;
 
+    // Acceleration structures
+    bool DumpAccelerationStructureToFile(const VulkanDelegateDumpResourceContext& delegate_context);
+
+    enum class AccelerationStructureDumpedBufferType
+    {
+        kInstance,
+        kVertex,
+        kIndex,
+        kAABB,
+        kTransform,
+        kSerializedBlas,
+        kSerializedTlas
+    };
+
+    std::string GenerateASDumpedBufferFilename(const DumpedResourceBase&             resource_info,
+                                               format::HandleId                      handle_id,
+                                               AccelerationStructureDumpedBufferType type,
+                                               DumpResourcesCommandType              dumped_command_type,
+                                               uint32_t buffer_index = std::numeric_limits<uint32_t>::max());
+
     // Json generators
     void GenerateOutputJsonDrawCallInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
 
@@ -230,9 +263,8 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     void GenerateOutputJsonTraceRaysIndex(const VulkanDelegateDumpDrawCallContext& draw_call_info);
 
-    void GenerateDispatchTraceRaysDescriptorsJsonInfo(nlohmann::ordered_json&    dispatch_json_entry,
-                                                      const DumpedResourcesInfo& dumped_resources,
-                                                      bool                       is_dispatch);
+    void GenerateDescriptorsJsonInfo(nlohmann::ordered_json&    dispatch_json_entry,
+                                     const DumpedResourcesInfo& dumped_resources);
 
     VulkanReplayDumpResourcesJson dump_json_;
     const VulkanReplayOptions&    options_;

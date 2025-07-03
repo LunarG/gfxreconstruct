@@ -48,13 +48,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DrawCallsDumpingContext::DrawCallsDumpingContext(const CommandIndices*          draw_indices,
-                                                 const RenderPassIndices*       renderpass_indices,
-                                                 const CommandImageSubresource& dc_subresources,
-                                                 CommonObjectInfoTable&         object_info_table,
-                                                 const VulkanReplayOptions&     options,
-                                                 VulkanDumpResourcesDelegate&   delegate,
-                                                 const util::Compressor*        compressor) :
+DrawCallsDumpingContext::DrawCallsDumpingContext(
+    const CommandIndices*                       draw_indices,
+    const RenderPassIndices*                    renderpass_indices,
+    const CommandImageSubresource&              dc_subresources,
+    CommonObjectInfoTable&                      object_info_table,
+    const VulkanReplayOptions&                  options,
+    VulkanDumpResourcesDelegate&                delegate,
+    const util::Compressor*                     compressor,
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&       address_trackers) :
     original_command_buffer_info_(nullptr),
     current_cb_index_(0), dc_subresources_(dc_subresources), active_renderpass_(nullptr),
     active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
@@ -62,7 +65,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const CommandIndices*          
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
     object_info_table_(object_info_table),
-    replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false }
+    replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
     if (draw_indices != nullptr)
     {
@@ -591,6 +595,16 @@ static void SnapshotBoundDescriptors(DrawCallsDumpingContext::DrawCallParams& dc
                 {
                     dc_params.referenced_descriptors[desc_set_index][desc_binding_index].inline_uniform_block =
                         binding_info.inline_uniform_block;
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                {
+                    for (const auto& [array_idx, as_info] : binding_info.acceleration_structs_khr_info)
+                    {
+                        dc_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                            .acceleration_structs_khr_info[array_idx] = as_info;
+                    }
                 }
                 break;
 
@@ -1598,6 +1612,71 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                 break;
 
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                {
+                    for (const auto& [array_index, as_info] : desc_binding.acceleration_structs_khr_info)
+                    {
+                        if (as_info == nullptr)
+                        {
+                            continue;
+                        }
+
+                        GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+                        auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
+                            DumpResourceType::kAccelerationStructure,
+                            bcb_index,
+                            dc_index,
+                            qs_index,
+                            desc_binding.stage_flags,
+                            desc_binding.desc_type,
+                            desc_set_index,
+                            desc_binding_index,
+                            array_index,
+                            as_info,
+                            options_.dump_resources_dump_build_AS_input_buffers,
+                            DumpResourcesCommandType::kGraphics);
+
+                        auto& new_dumped_as =
+                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
+                        const auto&              dumped_descs_entry =
+                            render_pass_dumped_descriptors_[rp].acceleration_structures.find(loc);
+                        if (dumped_descs_entry == render_pass_dumped_descriptors_[rp].acceleration_structures.end())
+                        {
+                            render_pass_dumped_descriptors_[rp].acceleration_structures.emplace(loc, new_dumped_as);
+
+                            VulkanDelegateDumpResourceContext res_info = res_info_base;
+                            res_info.dumped_resource                   = &new_dumped_desc;
+                            res_info.dumped_data = VulkanDelegateAccelerationStructureDumpedData();
+                            auto& dumped_as_data =
+                                std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
+
+                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
+                                                                             dumped_as_data.data,
+                                                                             acceleration_structures_context_,
+                                                                             device_info,
+                                                                             *device_table_,
+                                                                             object_info_table_,
+                                                                             *instance_table_,
+                                                                             address_trackers_);
+                            if (res != VK_SUCCESS)
+                            {
+                                GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
+                                                   as_info->capture_id,
+                                                   util::ToString(res).c_str());
+                                dc_params.dumped_resources.dumped_descriptors.pop_back();
+                                return res;
+                            }
+
+                            delegate_.DumpResource(res_info);
+                        }
+                        else
+                        {
+                            new_dumped_as.CopyDumpedInfo(dumped_descs_entry->second);
+                        }
+                    }
+                }
+                break;
+
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                     break;
 

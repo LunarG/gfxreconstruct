@@ -378,6 +378,9 @@ Dump resources feature can be control in several ways. To do so, a number of par
   --dump-resources-binary-file-compression-type
               Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib,
               zlib, zstd]. Default is none (no compression).
+  --dump-resources-dump-build-acceleration-structures-input-buffers
+              Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index,
+              transformation matrix, AABB and instance buffers. Default is off.
 ```
 
 ## Output

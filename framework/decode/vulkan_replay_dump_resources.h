@@ -25,6 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/struct_pointer_decoder.h"
@@ -53,7 +54,9 @@ class VulkanReplayDumpResourcesBase
   public:
     VulkanReplayDumpResourcesBase() = delete;
 
-    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table);
+    VulkanReplayDumpResourcesBase(const VulkanReplayOptions&            options,
+                                  CommonObjectInfoTable*                object_info_table,
+                                  const VulkanPerDeviceAddressTrackers& address_trackers);
 
     ~VulkanReplayDumpResourcesBase();
 
@@ -500,6 +503,20 @@ class VulkanReplayDumpResourcesBase
 
     void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
 
+    void HandleCmdBuildAccelerationStructures(
+        const VulkanCommandBufferInfo*                                             original_command_buffer,
+        const graphics::VulkanDeviceTable&                                         device_table,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
+
+    void HandleCmdCopyAccelerationStructureKHR(const VulkanCommandBufferInfo*            original_command_buffer,
+                                               const graphics::VulkanDeviceTable&        device_table,
+                                               const VulkanAccelerationStructureKHRInfo* src,
+                                               const VulkanAccelerationStructureKHRInfo* dst);
+
+    void HandleDestroyAccelerationStructureKHR(const VulkanAccelerationStructureKHRInfo* as_info);
+
   private:
     bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
 
@@ -552,6 +569,18 @@ class VulkanReplayDumpResourcesBase
                                            uint32_t                              stride,
                                            DrawCallsDumpingContext::DrawCallType drawcall_type);
 
+    struct PushConstantBlock
+    {
+        VkDeviceAddress array_of_pointers;
+        VkDeviceAddress out_buffer;
+        uint32_t        count;
+    };
+
+    static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device_table,
+                                           VkDevice                           device,
+                                           VkPipeline*                        compute_ppl,
+                                           VkPipelineLayout*                  ppl_layout);
+
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
@@ -573,6 +602,11 @@ class VulkanReplayDumpResourcesBase
     std::unique_ptr<util::Compressor> compressor_;
 
     std::string capture_filename;
+
+    const VulkanPerDeviceAddressTrackers& address_trackers_;
+
+    DumpResourcesAccelerationStructuresContext acceleration_structures_context_;
+    bool                                       dump_as_build_input_buffers_;
 
     std::function<void(const char*)> fatal_error_handler_;
     void                             RaiseFatalError(const char* message) const;
