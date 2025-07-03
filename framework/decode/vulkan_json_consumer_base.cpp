@@ -98,6 +98,8 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
 {
     const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](nlohmann::ordered_json& function) {
+        FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         FieldToJson(args["infoCount"], infoCount, json_options);
@@ -204,6 +206,8 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
 {
     const JsonOptions& json_options = GetJsonOptions();
     WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](nlohmann::ordered_json& function) {
+        FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer, json_options);
         HandleToJson(args["layout"], layout, json_options);
@@ -257,8 +261,9 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR
     const JsonOptions& json_options = GetJsonOptions();
 
     auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplateKHR");
-    auto& args     = function[NameArgs()];
+    FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
 
+    auto& args = function[NameArgs()];
     HandleToJson(args["commandBuffer"], commandBuffer, json_options);
     HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate, json_options);
     HandleToJson(args["layout"], layout, json_options);
@@ -276,9 +281,10 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KH
     const JsonOptions& json_options = GetJsonOptions();
 
     auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2KHR");
-    auto& args     = function[NameArgs()];
-    const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* info = pPushDescriptorSetWithTemplateInfo;
+    FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
 
+    auto&                                                                    args = function[NameArgs()];
+    const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* info = pPushDescriptorSetWithTemplateInfo;
     HandleToJson(args["commandBuffer"], commandBuffer, json_options);
     FieldToJson(args["pPushDescriptorSetWithTemplateInfo"], info, json_options);
 
