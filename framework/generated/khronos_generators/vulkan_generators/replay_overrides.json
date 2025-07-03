@@ -148,6 +148,8 @@
     "vkCmdExecuteCommands": "OverrideCmdExecuteCommands",
     "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
     "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR",
-    "vkCreatePipelineLayout": "OverrideCreatePipelineLayout"
+    "vkCreatePipelineLayout": "OverrideCreatePipelineLayout",
+    "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
+    "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE"
   }
 }
