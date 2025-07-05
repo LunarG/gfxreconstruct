@@ -2369,12 +2369,10 @@ static void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*  
                                                    std::vector<VulkanImageInfo*>& color_att_imgs,
                                                    VulkanImageInfo**              depth_img_info)
 {
-    const VulkanImageViewInfo* depth_img_view_info = nullptr;
-
     // Parse color attachments
     for (uint32_t i = 0; i < ci->pSubpasses[subpass].colorAttachmentCount; ++i)
     {
-        const uint32_t att_idx = ci->pSubpasses[subpass].pColorAttachments->attachment;
+        const uint32_t att_idx = ci->pSubpasses[subpass].pColorAttachments[i].attachment;
         if (att_idx == VK_ATTACHMENT_UNUSED)
         {
             continue;
@@ -2407,9 +2405,13 @@ static void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*  
     }
 
     // Detect depth attachment
+    const VulkanImageViewInfo* depth_img_view_info = nullptr;
+
     if (ci->pSubpasses[subpass].pDepthStencilAttachment != nullptr &&
         ci->pSubpasses[subpass].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
     {
+        GFXRECON_ASSERT(depth_img_info != nullptr);
+
         const uint32_t depth_att_idx = ci->pSubpasses[subpass].pDepthStencilAttachment->attachment;
 
         if (depth_att_idx < framebuffer_info->attachment_image_view_ids.size())
@@ -2435,6 +2437,10 @@ static void ParseAttachmentsInRenderPassCreateInfo(const VulkanRenderPassInfo*  
     {
         *depth_img_info = object_info_table.GetVkImageInfo(depth_img_view_info->image_id);
         GFXRECON_ASSERT(*depth_img_info != nullptr);
+    }
+    else
+    {
+        *depth_img_info = nullptr;
     }
 }
 
@@ -2508,7 +2514,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
     GFXRECON_ASSERT(!render_pass_info->create_info.empty());
 
     std::vector<VulkanImageInfo*> color_att_imgs;
-    VulkanImageInfo*              depth_img_info = nullptr;
+    VulkanImageInfo*              depth_img_info;
 
     current_render_pass_type_ = kRenderPass;
     current_subpass_          = 0;
