@@ -1690,6 +1690,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
+    void SyncWaitSemaphores(VkDevice device, const VkSubmitInfo* submit_info) const;
+    void SyncWaitSemaphores(VkDevice device, const VkSubmitInfo2* submit_info) const;
+
   private:
     struct HardwareBufferInfo
     {

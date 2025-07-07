@@ -3897,8 +3897,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            uint32_t num_command_buffers = submit_info_data[i].pCommandBuffers.GetLength();
-            auto*    cmd_buf_handles     = submit_info_data[i].pCommandBuffers.GetPointer();
+            uint32_t num_command_buffers  = submit_info_data[i].pCommandBuffers.GetLength();
+            auto*    cmd_buf_handles      = submit_info_data[i].pCommandBuffers.GetPointer();
+            bool     sync_wait_semaphores = false;
+
             for (uint32_t c = 0; c < num_command_buffers; ++c)
             {
                 auto* command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_handles[c]);
@@ -3906,6 +3908,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
+                sync_wait_semaphores |= command_buffer_info->addresses_to_replace.empty();
+            }
+
+            // sync wait-semaphores here
+            if (sync_wait_semaphores)
+            {
+                SyncWaitSemaphores(device_info->handle, &submit_infos[i]);
             }
         }
 
@@ -4104,12 +4113,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
         std::vector<VkDeviceAddress> addresses_to_replace;
-        std::vector<VkSemaphoreSubmitInfo> semaphore_wait_infos;
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            uint32_t num_command_buffers = submit_info_data[i].pCommandBufferInfos->GetLength();
-            auto*    cmd_buf_info_metas  = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            uint32_t num_command_buffers  = submit_info_data[i].pCommandBufferInfos->GetLength();
+            auto*    cmd_buf_info_metas   = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            bool     sync_wait_semaphores = false;
+
             for (uint32_t c = 0; c < num_command_buffers; ++c)
             {
                 auto* command_buffer_info =
@@ -4118,30 +4128,18 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
+                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
             }
 
-            semaphore_wait_infos.insert(semaphore_wait_infos.end(),
-                                        submit_info_data[i].pWaitSemaphoreInfos->GetPointer(),
-                                        submit_info_data[i].pWaitSemaphoreInfos->GetPointer() +
-                                            submit_info_data[i].pWaitSemaphoreInfos->GetLength());
+            // sync wait-semaphores here
+            if (sync_wait_semaphores)
+            {
+                SyncWaitSemaphores(device_info->handle, &submit_infos[i]);
+            }
         }
 
         if (!addresses_to_replace.empty())
         {
-            // wait for semaphores
-            for (const auto& semaphore_submit_info : semaphore_wait_infos)
-            {
-                VkSemaphoreWaitInfo wait_info;
-                wait_info.sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
-                wait_info.pNext          = nullptr;
-                wait_info.flags          = 0;
-                wait_info.semaphoreCount = 1;
-                wait_info.pSemaphores    = &semaphore_submit_info.semaphore;
-                wait_info.pValues        = &semaphore_submit_info.value;
-                GetDeviceTable(queue_info->handle)
-                    ->WaitSemaphores(device_info->handle, &wait_info, std::numeric_limits<uint64_t>::max());
-            }
-
             // runs replacer, sync via fence
             auto& address_replacer = GetDeviceAddressReplacer(device_info);
             address_replacer.UpdateBufferAddresses(nullptr,
@@ -11548,6 +11546,73 @@ void VulkanReplayConsumerBase::DestroyInternalInstanceResources(const VulkanInst
     {
         instance_table->DestroyDebugUtilsMessengerEXT(instance, info->debug_messenger, nullptr);
     }
+}
+
+template <typename T>
+void SyncWaitSemaphoresUtil(VkDevice device, const graphics::VulkanDeviceTable* device_table, const T* submit_info)
+{
+    static_assert(std::is_same_v<T, VkSubmitInfo> || std::is_same_v<T, VkSubmitInfo2>);
+
+    struct semaphore_wait_item_t
+    {
+        VkSemaphore semaphore = VK_NULL_HANDLE;
+        uint64_t    value     = 0;
+    };
+    std::vector<semaphore_wait_item_t> semaphore_wait_infos;
+
+    if constexpr (std::is_same_v<T, VkSubmitInfo>)
+    {
+        semaphore_wait_infos.resize(submit_info->waitSemaphoreCount);
+
+        for (uint32_t s = 0; s < submit_info->waitSemaphoreCount; ++s)
+        {
+            semaphore_wait_infos[s] = { submit_info->pWaitSemaphores[s], 1 };
+        }
+
+        if (auto* timeline_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(submit_info))
+        {
+            GFXRECON_ASSERT(submit_info->waitSemaphoreCount == timeline_info->waitSemaphoreValueCount);
+
+            for (uint32_t s = 0; s < timeline_info->waitSemaphoreValueCount; ++s)
+            {
+                semaphore_wait_infos[s].value = timeline_info->pWaitSemaphoreValues[s];
+            }
+        }
+    }
+
+    if constexpr (std::is_same_v<T, VkSubmitInfo2>)
+    {
+        semaphore_wait_infos.resize(submit_info->waitSemaphoreInfoCount);
+
+        for (uint32_t s = 0; s < submit_info->waitSemaphoreInfoCount; ++s)
+        {
+            semaphore_wait_infos[s] = { submit_info->pWaitSemaphoreInfos[s].semaphore,
+                                        submit_info->pWaitSemaphoreInfos[s].value };
+        }
+    }
+
+    // wait for semaphores
+    for (const auto& semaphore_submit_info : semaphore_wait_infos)
+    {
+        VkSemaphoreWaitInfo wait_info;
+        wait_info.sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+        wait_info.pNext          = nullptr;
+        wait_info.flags          = 0;
+        wait_info.semaphoreCount = 1;
+        wait_info.pSemaphores    = &semaphore_submit_info.semaphore;
+        wait_info.pValues        = &semaphore_submit_info.value;
+        device_table->WaitSemaphores(device, &wait_info, std::numeric_limits<uint64_t>::max());
+    }
+}
+
+void VulkanReplayConsumerBase::SyncWaitSemaphores(VkDevice device, const VkSubmitInfo* submit_info) const
+{
+    SyncWaitSemaphoresUtil(device, GetDeviceTable(device), submit_info);
+}
+
+void VulkanReplayConsumerBase::SyncWaitSemaphores(VkDevice device, const VkSubmitInfo2* submit_info) const
+{
+    SyncWaitSemaphoresUtil(device, GetDeviceTable(device), submit_info);
 }
 
 GFXRECON_END_NAMESPACE(decode)
