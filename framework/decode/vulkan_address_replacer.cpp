@@ -350,7 +350,7 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
         if (command_buffer_info != nullptr)
         {
             run_compute_replace(
-                command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+                command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
         }
         else if (init_queue_assets())
         {
@@ -360,7 +360,7 @@ void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*
             VulkanCommandBufferInfo fake_info = {};
             fake_info.handle                  = command_buffer_;
             run_compute_replace(
-                &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+                &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
         }
     }
 }
@@ -1779,6 +1779,17 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     replacer_params.num_handles = num_addresses;
 
+    // pre memory-barrier
+    for (const auto& buf : buffer_set)
+    {
+        barrier(command_buffer_info->handle,
+                buf,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_ACCESS_SHADER_WRITE_BIT);
+    }
+
     device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
 
     // NOTE: using push-constants here requires us to re-establish the previous data, if any
@@ -1800,7 +1811,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 VK_ACCESS_SHADER_WRITE_BIT,
                 sync_stage,
-                VK_ACCESS_SHADER_READ_BIT);
+                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT);
     }
 
     // synchronize host-reads

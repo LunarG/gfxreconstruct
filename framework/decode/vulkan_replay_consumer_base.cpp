@@ -4104,6 +4104,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
         std::vector<VkDeviceAddress> addresses_to_replace;
+        std::vector<VkSemaphoreSubmitInfo> semaphore_wait_infos;
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
@@ -4118,10 +4119,30 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
             }
+
+            semaphore_wait_infos.insert(semaphore_wait_infos.end(),
+                                        submit_info_data[i].pWaitSemaphoreInfos->GetPointer(),
+                                        submit_info_data[i].pWaitSemaphoreInfos->GetPointer() +
+                                            submit_info_data[i].pWaitSemaphoreInfos->GetLength());
         }
 
         if (!addresses_to_replace.empty())
         {
+            // wait for semaphores
+            for (const auto& semaphore_submit_info : semaphore_wait_infos)
+            {
+                VkSemaphoreWaitInfo wait_info;
+                wait_info.sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+                wait_info.pNext          = nullptr;
+                wait_info.flags          = 0;
+                wait_info.semaphoreCount = 1;
+                wait_info.pSemaphores    = &semaphore_submit_info.semaphore;
+                wait_info.pValues        = &semaphore_submit_info.value;
+                GetDeviceTable(queue_info->handle)
+                    ->WaitSemaphores(device_info->handle, &wait_info, std::numeric_limits<uint64_t>::max());
+            }
+
+            // runs replacer, sync via fence
             auto& address_replacer = GetDeviceAddressReplacer(device_info);
             address_replacer.UpdateBufferAddresses(nullptr,
                                                    addresses_to_replace.data(),
