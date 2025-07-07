@@ -30,9 +30,15 @@ The GFXReconstruct components currently provided with this repository are:
 ## Experimental OpenXR Support
 
 OpenXR support in GFXReconstruct is experimental and is recommended only for
-developer use for evaluation!  Only a subset of features and a very small number
-of apps are supported.  See [USAGE_desktop_OpenXR](USAGE_desktop_OpenXR.md)
-and the "Supported Capabilities" table below for more detail.
+developer use for evaluation!
+Only a subset of features and a very small number of apps are supported.
+See [USAGE_desktop_OpenXR](USAGE_desktop_OpenXR.md) and the
+"Supported Capabilities" table below for more detail.
+
+Because OpenXR support is considered a Proof-of-Concept, it is not enabled
+in the SDK built version of GFXReconstruct.
+If OpenXR support is desired, please pull the source down from the
+GitHub repo and build manually.
 
 ## Contributing
 
