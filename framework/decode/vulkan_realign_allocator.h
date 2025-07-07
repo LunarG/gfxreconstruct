@@ -78,9 +78,15 @@ class VulkanRealignAllocator : public VulkanDefaultAllocator
     virtual VkResult BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
                                             uint32_t                               bind_info_count,
                                             const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                            const ResourceData*                    allocator_session_datas,
+                                            const ResourceData                     allocator_session_data,
                                             const MemoryData*                      allocator_memory_datas,
                                             VkMemoryPropertyFlags*                 bind_memory_properties) override;
+
+    virtual VkResult BindAccelerationStructureMemoryNV(uint32_t                                       bind_info_count,
+                                                       const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+                                                       const ResourceData*    allocator_acc_datas,
+                                                       const MemoryData*      allocator_memory_datas,
+                                                       VkMemoryPropertyFlags* bind_memory_properties) override;
 
     virtual VkResult MapMemory(VkDeviceMemory   memory,
                                VkDeviceSize     offset,
