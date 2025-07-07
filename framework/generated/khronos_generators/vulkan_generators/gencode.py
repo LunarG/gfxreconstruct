@@ -109,6 +109,9 @@ from vulkan_stype_util_generator import VulkanSTypeUtilGenerator, VulkanSTypeUti
 from vulkan_cpp_struct_generator import VulkanCppStructGenerator, VulkanCppStructGeneratorOptions
 from vulkan_cpp_consumer_extension_generator import VulkanCppConsumerExtensionGenerator, VulkanCppConsumerExtensionGeneratorOptions
 
+# Handle wrapping
+from vulkan_handle_wrapper_util import VulkanHandleWrapperUtil, VulkanHandleWrapperUtilOptions
+
 # Simple timer functions
 start_time = None
 
@@ -911,6 +914,35 @@ def make_gen_opts(args):
         VulkanStructDeepCopySTypeBodyGenerator,
         VulkanStructDeepCopySTypeBodyGeneratorOptions(
             filename='generated_vulkan_struct_deep_copy_stype.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    # Handle wrapping utilities
+    # gen_opts['generated_vulkan_handle_wrapper_util.h'] = [
+    #     VulkanHandleWrapperUtil,
+    #     VulkanStructToJsonHeaderGeneratorOptions(
+    #         filename='generated_vulkan_handle_wrapper_util.h',
+    #         directory=directory,
+    #         blacklists=blacklists,
+    #         platform_types=platform_types,
+    #         prefix_text=prefix_strings + vk_prefix_strings,
+    #         protect_file=True,
+    #         protect_feature=False,
+    #         extra_headers=extra_headers
+    #     )
+    # ]
+
+    gen_opts['generated_vulkan_handle_wrapper_util.cpp'] = [
+        VulkanHandleWrapperUtil,
+        VulkanHandleWrapperUtilOptions(
+            filename='generated_vulkan_handle_wrapper_util.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
