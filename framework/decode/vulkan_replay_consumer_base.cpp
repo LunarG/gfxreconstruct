@@ -3908,10 +3908,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
-                sync_wait_semaphores |= command_buffer_info->addresses_to_replace.empty();
+                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
             }
 
-            // sync wait-semaphores here
             if (sync_wait_semaphores)
             {
                 SyncWaitSemaphores(device_info->handle, &submit_infos[i]);
@@ -4131,7 +4130,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
                 sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
             }
 
-            // sync wait-semaphores here
             if (sync_wait_semaphores)
             {
                 SyncWaitSemaphores(device_info->handle, &submit_infos[i]);
