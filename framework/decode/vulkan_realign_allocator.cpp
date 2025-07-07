@@ -211,23 +211,23 @@ VkResult VulkanRealignAllocator::BindImageMemory2(uint32_t                     b
 VkResult VulkanRealignAllocator::BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
                                                         uint32_t                               bind_info_count,
                                                         const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                                        const ResourceData*                    allocator_session_datas,
+                                                        const ResourceData                     allocator_session_data,
                                                         const MemoryData*                      allocator_memory_datas,
                                                         VkMemoryPropertyFlags*                 bind_memory_properties)
 {
     std::unique_ptr<VkBindVideoSessionMemoryInfoKHR[]> realign_bind_infos;
 
-    if ((allocator_session_datas != nullptr) && (bind_infos != nullptr))
+    if ((allocator_session_data != 0) && (bind_infos != nullptr))
     {
         realign_bind_infos = std::make_unique<VkBindVideoSessionMemoryInfoKHR[]>(bind_info_count);
+        auto resource_info = GetResourceAllocInfo(allocator_session_data);
 
-        for (uint32_t i = 0; i < bind_info_count; ++i)
+        if (resource_info != nullptr)
         {
-            realign_bind_infos[i] = bind_infos[i];
-
-            auto resource_info = GetResourceAllocInfo(allocator_session_datas[i]);
-            if (resource_info != nullptr)
+            for (uint32_t i = 0; i < bind_info_count; ++i)
             {
+                realign_bind_infos[i] = bind_infos[i];
+
                 // Update video seesion to new binding offset from first pass data collected from resource tracking.
                 auto tracked_session_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
                 if (tracked_session_info != nullptr)
@@ -241,9 +241,43 @@ VkResult VulkanRealignAllocator::BindVideoSessionMemory(VkVideoSessionKHR       
     return VulkanDefaultAllocator::BindVideoSessionMemory(video_session,
                                                           bind_info_count,
                                                           realign_bind_infos.get(),
-                                                          allocator_session_datas,
+                                                          allocator_session_data,
                                                           allocator_memory_datas,
                                                           bind_memory_properties);
+}
+
+VkResult
+VulkanRealignAllocator::BindAccelerationStructureMemoryNV(uint32_t bind_info_count,
+                                                          const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+                                                          const ResourceData*    allocator_acc_datas,
+                                                          const MemoryData*      allocator_memory_datas,
+                                                          VkMemoryPropertyFlags* bind_memory_properties)
+{
+    std::unique_ptr<VkBindAccelerationStructureMemoryInfoNV[]> realign_bind_infos;
+
+    if ((allocator_acc_datas != nullptr) && (bind_infos != nullptr))
+    {
+        realign_bind_infos = std::make_unique<VkBindAccelerationStructureMemoryInfoNV[]>(bind_info_count);
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            realign_bind_infos[i] = bind_infos[i];
+
+            auto resource_info = GetResourceAllocInfo(allocator_acc_datas[i]);
+            if (resource_info != nullptr)
+            {
+                // Update image to new binding offset from first pass data collected from resource tracking.
+                auto tracked_image_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
+                if (tracked_image_info != nullptr)
+                {
+                    realign_bind_infos[i].memoryOffset = tracked_image_info->GetReplayBindOffset();
+                }
+            }
+        }
+    }
+
+    return VulkanDefaultAllocator::BindAccelerationStructureMemoryNV(
+        bind_info_count, realign_bind_infos.get(), allocator_acc_datas, allocator_memory_datas, bind_memory_properties);
 }
 
 VkResult VulkanRealignAllocator::MapMemory(VkDeviceMemory   memory,
