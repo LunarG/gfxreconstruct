@@ -124,7 +124,6 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
-                    #${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_table_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker.h
@@ -166,7 +165,7 @@ target_sources(gfxrecon_encode
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
-
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_handle_wrapper_util.cpp
 )
 
 if (MSVC)

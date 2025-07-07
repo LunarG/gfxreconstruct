@@ -22,7 +22,6 @@
 # IN THE SOFTWARE.
 
 import sys
-from common import makePrefixObjectType
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, write
 
 
@@ -56,7 +55,7 @@ class VulkanCommandBufferUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             'generated/generated_vulkan_command_buffer_util.h',
             '',
             'encode/vulkan_handle_wrapper_util.h',
-            'encode/vulkan_state_info.h'
+            'encode/vulkan_state_info.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
         self.begin_end_file_data.common_api_headers = []
@@ -84,52 +83,12 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
             'CmdPushDescriptorSetKHR'
         }
 
-    def gen_get_wrapped_id(self, prefix, prefix_type, suffix='', debug_report=False):
-        ind = self.INDENT_SIZE * " "
-        enums = self.enumEnumerants[prefix_type]
-        self.write_lines([f'uint64_t GetWrappedId(uint64_t object, {prefix_type} object_type) {{'])
-        self.write_lines([f'{ind}switch (object_type) {{'])
-        for h_prefix in self.handle_names:
-            if h_prefix in self.handle_aliases.keys():
-                # Including aliases in a switch statement will not compile
-                continue
-            h = h_prefix[2:]  # Remove 'Vk' prefix
-            object_type = makePrefixObjectType(h_prefix, prefix) + suffix
-            if not debug_report:
-                if object_type not in enums.keys():
-                    raise ValueError(f'{object_type} was not found as an enumerant in {prefix_type}')
-            else:
-                if debug_report and object_type not in enums.keys():
-                    # Bit of a hack to ensure we only output valid VK_DEBUG_REPORT_OBJECT_TYPE_* enums
-                    continue
-
-            self.write_lines([f'{2 * ind}case {object_type}:'])
-            self.write_lines([f'{3 * ind}return GetWrappedId<{h}Wrapper>(format::FromHandleId<{h_prefix}>(object));'])
-
-        self.write_lines([f'{2 * ind}{prefix}UNKNOWN:'])
-        self.write_lines([f'{3 * ind}GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);'])
-        self.write_lines([f'{3 * ind}return object;'])
-
-        self.write_lines([f'{2 * ind}default:'])
-        self.write_lines([f'{3 * ind}GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized debug marker object type %d", object_type);'])
-        self.write_lines([f'{3 * ind}return object;'])
-
-        self.write_lines([ind + '}']) # End switch block
-
-        self.write_lines(['}']) # End function block
-
-        self.newline()
 
     def endFile(self):
         """Method override."""
         command_info = dict()  # Map of Vulkan commands to parameter info
         for cmd in self.get_all_filtered_cmd_names():
             command_info[cmd] = self.all_cmd_params[cmd]
-
-        self.write_lines(['GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)'])
-        self.gen_get_wrapped_id('VK_OBJECT_TYPE_', 'VkObjectType')
-        self.gen_get_wrapped_id('VK_DEBUG_REPORT_OBJECT_TYPE_', 'VkDebugReportObjectTypeEXT', '_EXT', True)
-        self.write_lines(['GFXRECON_END_NAMESPACE(vulkan_wrappers)'])
 
         for cmd, info in command_info.items():
             wrapper_prefix = self.get_wrapper_prefix_from_command(cmd)
