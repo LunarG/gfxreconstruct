@@ -15499,6 +15499,46 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(
 
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesKHR(
+    VkDevice                                    device,
+    const VkReleaseSwapchainImagesInfoKHR*      pReleaseInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseSwapchainImagesKHR>::Dispatch(manager, device, pReleaseInfo);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkReleaseSwapchainImagesInfoKHR* pReleaseInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pReleaseInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->ReleaseSwapchainImagesKHR(device, pReleaseInfo_unwrapped);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkReleaseSwapchainImagesKHR);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        EncodeStructPtr(encoder, pReleaseInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseSwapchainImagesKHR>::Dispatch(manager, result, device, pReleaseInfo);
+
+    return result;
+
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t*                                   pPropertyCount,
@@ -21324,7 +21364,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(
     VkDevice                                    device,
-    const VkReleaseSwapchainImagesInfoEXT*      pReleaseInfo)
+    const VkReleaseSwapchainImagesInfoKHR*      pReleaseInfo)
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
@@ -21343,7 +21383,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseSwapchainImagesEXT>::Dispatch(manager, device, pReleaseInfo);
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkReleaseSwapchainImagesInfoEXT* pReleaseInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pReleaseInfo, handle_unwrap_memory);
+    const VkReleaseSwapchainImagesInfoKHR* pReleaseInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pReleaseInfo, handle_unwrap_memory);
 
     VkResult result = vulkan_wrappers::GetDeviceTable(device)->ReleaseSwapchainImagesEXT(device, pReleaseInfo_unwrapped);
 

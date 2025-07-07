@@ -2172,6 +2172,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR*>(next);
+                VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->swapchainMaintenance1 == VK_TRUE) && (query.swapchainMaintenance1 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature swapchainMaintenance1 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR*>(currentNext)->swapchainMaintenance1 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
             {
                 const VkPhysicalDeviceCooperativeMatrixFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(next);
@@ -2279,6 +2294,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature unifiedImageLayoutsVideo %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR*>(currentNext)->unifiedImageLayoutsVideo =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(next);
+                VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->videoEncodeIntraRefresh == VK_TRUE) && (query.videoEncodeIntraRefresh == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature videoEncodeIntraRefresh %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(currentNext)->videoEncodeIntraRefresh =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -2413,6 +2443,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature nullDescriptor %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceRobustness2FeaturesKHR*>(currentNext)->nullDescriptor =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
+            {
+                const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(next);
+                VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->presentModeFifoLatestReady == VK_TRUE) && (query.presentModeFifoLatestReady == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature presentModeFifoLatestReady %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(currentNext)->presentModeFifoLatestReady =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -3111,21 +3156,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
-            {
-                const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(next);
-                VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->swapchainMaintenance1 == VK_TRUE) && (query.swapchainMaintenance1 == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature swapchainMaintenance1 %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(currentNext)->swapchainMaintenance1 =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
             {
                 const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(next);
@@ -3687,21 +3717,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature primitiveTopologyPatchListRestart %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(currentNext)->primitiveTopologyPatchListRestart =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
-            {
-                const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(next);
-                VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->presentModeFifoLatestReady == VK_TRUE) && (query.presentModeFifoLatestReady == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature presentModeFifoLatestReady %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(currentNext)->presentModeFifoLatestReady =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
@@ -5203,6 +5218,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature zeroInitializeDeviceMemory %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(currentNext)->zeroInitializeDeviceMemory =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC:
+            {
+                const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* currentNext = reinterpret_cast<const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(next);
+                VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->pipelineCacheIncrementalMode == VK_TRUE) && (query.pipelineCacheIncrementalMode == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature pipelineCacheIncrementalMode %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(currentNext)->pipelineCacheIncrementalMode =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

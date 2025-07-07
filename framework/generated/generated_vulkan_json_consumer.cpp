@@ -6333,6 +6333,21 @@ void VulkanExportJsonConsumer::Process_vkReleaseCapturedPipelineDataKHR(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkReleaseSwapchainImagesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkReleaseSwapchainImagesKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        FieldToJson(args["pReleaseInfo"], pReleaseInfo, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -8795,7 +8810,7 @@ void VulkanExportJsonConsumer::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkReleaseSwapchainImagesEXT");
     const JsonOptions& json_options = GetJsonOptions();

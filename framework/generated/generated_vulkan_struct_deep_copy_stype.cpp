@@ -1761,6 +1761,42 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSurfacePresentModeKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSurfacePresentScalingCapabilitiesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSurfacePresentModeCompatibilityKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSwapchainPresentFenceInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSwapchainPresentModesCreateInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSwapchainPresentModeInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSwapchainPresentScalingCreateInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkReleaseSwapchainImagesInfoKHR*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkCooperativeMatrixPropertiesKHR*>(pNext), 1, out_ptr);
@@ -1889,6 +1925,26 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeSessionIntraRefreshCreateInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeIntraRefreshInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_INTRA_REFRESH_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoReferenceIntraRefreshInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkVideoEncodeQuantizationMapCapabilitiesKHR*>(pNext), 1, out_ptr);
@@ -2000,6 +2056,10 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceRobustness2PropertiesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             offset += vulkan_struct_deep_copy(
@@ -2649,42 +2709,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSurfacePresentModeEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSurfacePresentModeCompatibilityEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSwapchainPresentFenceInfoEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSwapchainPresentModesCreateInfoEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSwapchainPresentModeInfoEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkReleaseSwapchainImagesInfoEXT*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(pNext), 1, out_ptr);
@@ -2960,10 +2984,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
             offset += vulkan_struct_deep_copy(
@@ -3784,6 +3804,10 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_DEVICE_MEMORY_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
             offset += vulkan_struct_deep_copy(

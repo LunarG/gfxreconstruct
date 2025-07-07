@@ -2553,6 +2553,11 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+    virtual void Process_vkReleaseSwapchainImagesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo) override;
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3453,7 +3458,7 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo) override;
+        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo) override;
     virtual void Process_vkCmdBindPipelineShaderGroupNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

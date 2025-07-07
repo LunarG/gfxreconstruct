@@ -9220,6 +9220,29 @@ void VulkanCppConsumer::Process_vkReleaseCapturedPipelineDataKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseCapturedPipelineDataKHR);
 }
+void VulkanCppConsumer::Process_vkReleaseSwapchainImagesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_prelease_info;
+    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoKHR(stream_prelease_info,
+                                                                                      pReleaseInfo->GetPointer(),
+                                                                                      pReleaseInfo->GetMetaStructPointer(),
+                                                                                      *this);
+    fprintf(file, "%s", stream_prelease_info.str().c_str());
+    pfn_loader_.AddMethodName("vkReleaseSwapchainImagesKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseSwapchainImagesKHR(%s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            prelease_info_struct.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkReleaseSwapchainImagesKHR);
+}
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -12802,12 +12825,12 @@ void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
     std::stringstream stream_prelease_info;
-    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoEXT(stream_prelease_info,
+    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoKHR(stream_prelease_info,
                                                                                       pReleaseInfo->GetPointer(),
                                                                                       pReleaseInfo->GetMetaStructPointer(),
                                                                                       *this);

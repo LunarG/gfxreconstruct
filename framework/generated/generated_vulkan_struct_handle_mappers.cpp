@@ -1325,6 +1325,26 @@ void MapStructHandles(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper, const Com
     }
 }
 
+void MapStructHandles(Decoded_VkSwapchainPresentFenceInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSwapchainPresentFenceInfoKHR* value = wrapper->decoded_value;
+
+        value->pFences = handle_mapping::MapHandleArray<VulkanFenceInfo>(&wrapper->pFences, object_info_table, &CommonObjectInfoTable::GetVkFenceInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkReleaseSwapchainImagesInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkReleaseSwapchainImagesInfoKHR* value = wrapper->decoded_value;
+
+        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkVideoInlineQueryInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1592,26 +1612,6 @@ void MapStructHandles(Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT* wr
         VkRenderingFragmentDensityMapAttachmentInfoEXT* value = wrapper->decoded_value;
 
         value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &CommonObjectInfoTable::GetVkImageViewInfo);
-    }
-}
-
-void MapStructHandles(Decoded_VkSwapchainPresentFenceInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkSwapchainPresentFenceInfoEXT* value = wrapper->decoded_value;
-
-        value->pFences = handle_mapping::MapHandleArray<VulkanFenceInfo>(&wrapper->pFences, object_info_table, &CommonObjectInfoTable::GetVkFenceInfo);
-    }
-}
-
-void MapStructHandles(Decoded_VkReleaseSwapchainImagesInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkReleaseSwapchainImagesInfoEXT* value = wrapper->decoded_value;
-
-        value->swapchain = handle_mapping::MapHandle<VulkanSwapchainKHRInfo>(wrapper->swapchain, object_info_table, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
     }
 }
 
@@ -2177,8 +2177,8 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(wrapper), object_info_table);
             break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkSwapchainPresentFenceInfoEXT*>(wrapper), object_info_table);
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkSwapchainPresentFenceInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
             MapStructHandles(reinterpret_cast<Decoded_VkTileMemoryBindInfoQCOM*>(wrapper), object_info_table);

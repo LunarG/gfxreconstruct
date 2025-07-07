@@ -2611,6 +2611,12 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
 
+    virtual void Process_vkReleaseSwapchainImagesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo) {}
+
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3602,7 +3608,7 @@ class VulkanConsumer : public VulkanConsumerBase
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo) {}
+        StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo) {}
 
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsNV(
         const ApiCallInfo&                          call_info,

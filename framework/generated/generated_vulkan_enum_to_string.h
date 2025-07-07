@@ -349,11 +349,11 @@ std::string VkPipelineStageFlagBits2ToString(const VkPipelineStageFlagBits2 valu
 std::string VkPipelineStageFlags2ToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkPointClippingBehavior>(const VkPointClippingBehavior& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPolygonMode>(const VkPolygonMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPresentGravityFlagBitsEXT>(const VkPresentGravityFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPresentGravityFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPresentGravityFlagBitsKHR>(const VkPresentGravityFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPresentGravityFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPresentModeKHR>(const VkPresentModeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPresentScalingFlagBitsEXT>(const VkPresentScalingFlagBitsEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPresentScalingFlagBitsEXT>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPresentScalingFlagBitsKHR>(const VkPresentScalingFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkPresentScalingFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkPrimitiveTopology>(const VkPrimitiveTopology& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkProvokingVertexModeEXT>(const VkProvokingVertexModeEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkQueryControlFlagBits>(const VkQueryControlFlagBits& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
@@ -494,6 +494,8 @@ template <> std::string ToString<VkVideoEncodeH265StdFlagBitsKHR>(const VkVideoE
 template <> std::string ToString<VkVideoEncodeH265StdFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeH265TransformBlockSizeFlagBitsKHR>(const VkVideoEncodeH265TransformBlockSizeFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeH265TransformBlockSizeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkVideoEncodeIntraRefreshModeFlagBitsKHR>(const VkVideoEncodeIntraRefreshModeFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<VkVideoEncodeIntraRefreshModeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(const VkVideoEncodeRateControlModeFlagBitsKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkVideoEncodeTuningModeKHR>(const VkVideoEncodeTuningModeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

@@ -6328,6 +6328,81 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryHandlesInfoKH
     encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineBinaryKHRWrapper>(value.pPipelineBinaries, value.pipelineBinaryCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.presentMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentScalingCapabilitiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.supportedPresentScaling);
+    encoder->EncodeFlagsValue(value.supportedPresentGravityX);
+    encoder->EncodeFlagsValue(value.supportedPresentGravityY);
+    EncodeStruct(encoder, value.minScaledImageExtent);
+    EncodeStruct(encoder, value.maxScaledImageExtent);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeCompatibilityKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainMaintenance1);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentFenceInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::FenceWrapper>(value.pFences, value.swapchainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModesCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModeInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    encoder->EncodeEnumArray(value.pPresentModes, value.swapchainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentScalingCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.scalingBehavior);
+    encoder->EncodeFlagsValue(value.presentGravityX);
+    encoder->EncodeFlagsValue(value.presentGravityY);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeUInt32Value(value.imageIndexCount);
+    encoder->EncodeUInt32Array(value.pImageIndices, value.imageIndexCount);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6655,6 +6730,46 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorBufferEmbedde
     encoder->EncodeUInt32Value(value.set);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeIntraRefreshCapabilitiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.intraRefreshModes);
+    encoder->EncodeUInt32Value(value.maxIntraRefreshCycleDuration);
+    encoder->EncodeUInt32Value(value.maxIntraRefreshActiveReferencePictures);
+    encoder->EncodeUInt32Value(value.partitionIndependentIntraRefreshRegions);
+    encoder->EncodeUInt32Value(value.nonRectangularIntraRefreshRegions);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionIntraRefreshCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.intraRefreshMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeIntraRefreshInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.intraRefreshCycleDuration);
+    encoder->EncodeUInt32Value(value.intraRefreshIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoReferenceIntraRefreshInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.dirtyIntraRefreshRegions);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.videoEncodeIntraRefresh);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeQuantizationMapCapabilitiesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6872,6 +6987,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2Pr
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt64Value(value.robustStorageBufferAccessSizeAlignment);
     encoder->EncodeUInt64Value(value.robustUniformBufferAccessSizeAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentModeFifoLatestReady);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value)
@@ -8472,81 +8594,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicF
     encoder->EncodeUInt32Value(value.sparseImageFloat32AtomicMinMax);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.presentMode);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentScalingCapabilitiesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.supportedPresentScaling);
-    encoder->EncodeFlagsValue(value.supportedPresentGravityX);
-    encoder->EncodeFlagsValue(value.supportedPresentGravityY);
-    EncodeStruct(encoder, value.minScaledImageExtent);
-    EncodeStruct(encoder, value.maxScaledImageExtent);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSurfacePresentModeCompatibilityEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.presentModeCount);
-    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.swapchainMaintenance1);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentFenceInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.swapchainCount);
-    encoder->EncodeVulkanHandleArray<vulkan_wrappers::FenceWrapper>(value.pFences, value.swapchainCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModesCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.presentModeCount);
-    encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModeInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.swapchainCount);
-    encoder->EncodeEnumArray(value.pPresentModes, value.swapchainCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentScalingCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.scalingBehavior);
-    encoder->EncodeFlagsValue(value.presentGravityX);
-    encoder->EncodeFlagsValue(value.presentGravityY);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(value.swapchain);
-    encoder->EncodeUInt32Value(value.imageIndexCount);
-    encoder->EncodeUInt32Array(value.pImageIndices, value.imageIndexCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -9261,13 +9308,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveTopo
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.primitiveTopologyListRestart);
     encoder->EncodeUInt32Value(value.primitiveTopologyPatchListRestart);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.presentModeFifoLatestReady);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryZirconHandleInfoFUCHSIA& value)
@@ -11179,6 +11219,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceZeroInitializ
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.zeroInitializeDeviceMemory);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pipelineCacheIncrementalMode);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

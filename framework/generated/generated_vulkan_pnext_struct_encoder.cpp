@@ -1004,6 +1004,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_BINARY_PROPERTIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePipelineBinaryPropertiesKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(base));
             break;
@@ -1046,8 +1049,8 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_METERING_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePresentMeteringFeaturesNV*>(base));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT*>(base));
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_MODE_FIFO_LATEST_READY_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDevicePresentWait2FeaturesKHR*>(base));
@@ -1295,8 +1298,8 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT*>(base));
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceSynchronization2Features*>(base));
@@ -1366,6 +1369,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_AV1_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoEncodeAV1FeaturesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(base));
@@ -1697,14 +1703,14 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSurfaceFullScreenExclusiveWin32InfoEXT*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeCompatibilityEXT*>(base));
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeCompatibilityKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeEXT*>(base));
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentModeKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentScalingCapabilitiesEXT*>(base));
+        case VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSurfacePresentScalingCapabilitiesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSurfaceProtectedCapabilitiesKHR*>(base));
@@ -1721,17 +1727,17 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentBarrierCreateInfoNV*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentFenceInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentFenceInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModeInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModeInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModesCreateInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentModesCreateInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentScalingCreateInfoEXT*>(base));
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkSwapchainPresentScalingCreateInfoKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base));
@@ -1949,6 +1955,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeIntraRefreshInfoKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeQualityLevelInfoKHR*>(base));
             break;
@@ -1963,6 +1975,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeSessionIntraRefreshCreateInfoKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base));
@@ -1984,6 +1999,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoProfileListInfoKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_INTRA_REFRESH_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoReferenceIntraRefreshInfoKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(base));

@@ -11438,6 +11438,236 @@ size_t vulkan_struct_deep_copy(const VkPipelineBinaryHandlesInfoKHR* structs, ui
 }
 
 template <>
+size_t vulkan_struct_deep_copy(const VkSurfacePresentModeKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSurfacePresentScalingCapabilitiesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSurfacePresentModeCompatibilityKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.presentModeCount, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSwapchainPresentFenceInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+        handle_pointer(base_struct, base_struct.pFences, base_struct.swapchainCount, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSwapchainPresentModesCreateInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.presentModeCount, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSwapchainPresentModeInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.swapchainCount, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkSwapchainPresentScalingCreateInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkReleaseSwapchainImagesInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+        handle_pointer(base_struct, base_struct.pImageIndices, base_struct.imageIndexCount, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
 size_t vulkan_struct_deep_copy(const VkCooperativeMatrixPropertiesKHR* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -12251,6 +12481,131 @@ size_t vulkan_struct_deep_copy(const VkBindDescriptorBufferEmbeddedSamplersInfoE
 }
 
 template <>
+size_t vulkan_struct_deep_copy(const VkVideoEncodeIntraRefreshCapabilitiesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkVideoEncodeSessionIntraRefreshCreateInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkVideoEncodeIntraRefreshInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkVideoReferenceIntraRefreshInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
 size_t vulkan_struct_deep_copy(const VkVideoEncodeQuantizationMapCapabilitiesKHR* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -12934,6 +13289,31 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceRobustness2FeaturesKHR* str
 
 template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDeviceRobustness2PropertiesKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);
@@ -17101,236 +17481,6 @@ size_t vulkan_struct_deep_copy(const VkPhysicalDeviceShaderAtomicFloat2FeaturesE
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkSurfacePresentModeEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSurfacePresentScalingCapabilitiesEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSurfacePresentModeCompatibilityEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.presentModeCount, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSwapchainPresentFenceInfoEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer(base_struct, base_struct.pFences, base_struct.swapchainCount, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSwapchainPresentModesCreateInfoEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.presentModeCount, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSwapchainPresentModeInfoEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer(base_struct, base_struct.pPresentModes, base_struct.swapchainCount, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkSwapchainPresentScalingCreateInfoEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkReleaseSwapchainImagesInfoEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer(base_struct, base_struct.pImageIndices, base_struct.imageIndexCount, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -19072,31 +19222,6 @@ size_t vulkan_struct_deep_copy(const VkPipelineViewportDepthClipControlCreateInf
 
 template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        handle_pnext(base_struct, i, offset, out_data);
-    }
-    return offset;
-}
-
-template <>
-size_t vulkan_struct_deep_copy(const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);
@@ -24290,6 +24415,31 @@ size_t vulkan_struct_deep_copy(const VkRenderingEndInfoEXT* structs, uint32_t co
 
 template <>
 size_t vulkan_struct_deep_copy(const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if (structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+        handle_pnext(base_struct, i, offset, out_data);
+    }
+    return offset;
+}
+
+template <>
+size_t vulkan_struct_deep_copy(const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
     constexpr uint32_t struct_size = sizeof(struct_type);

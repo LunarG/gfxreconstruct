@@ -434,6 +434,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
     { "vkGetPipelineKeyKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetPipelineKeyKHR) },
     { "vkGetPipelineBinaryDataKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetPipelineBinaryDataKHR) },
     { "vkReleaseCapturedPipelineDataKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkReleaseCapturedPipelineDataKHR) },
+    { "vkReleaseSwapchainImagesKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::vkReleaseSwapchainImagesKHR) },
     { "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR) },
     { "vkCmdSetLineStippleKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdSetLineStippleKHR) },
     { "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetPhysicalDeviceCalibrateableTimeDomainsKHR) },

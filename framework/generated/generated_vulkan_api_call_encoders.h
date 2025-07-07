@@ -2052,6 +2052,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(
     const VkReleaseCapturedPipelineDataInfoKHR* pInfo,
     const VkAllocationCallbacks*                pAllocator);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesKHR(
+    VkDevice                                    device,
+    const VkReleaseSwapchainImagesInfoKHR*      pReleaseInfo);
+
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t*                                   pPropertyCount,
@@ -2823,7 +2827,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(
 
 VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(
     VkDevice                                    device,
-    const VkReleaseSwapchainImagesInfoEXT*      pReleaseInfo);
+    const VkReleaseSwapchainImagesInfoKHR*      pReleaseInfo);
 
 VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsNV(
     VkDevice                                    device,
