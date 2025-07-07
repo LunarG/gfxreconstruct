@@ -2160,7 +2160,6 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.destroy_buffer                              = device_table->DestroyBuffer;
     functions.get_buffer_memory_requirements              = device_table->GetBufferMemoryRequirements;
     functions.bind_buffer_memory                          = device_table->BindBufferMemory;
-    functions.cmd_copy_buffer                             = device_table->CmdCopyBuffer;
     functions.create_image                                = device_table->CreateImage;
     functions.destroy_image                               = device_table->DestroyImage;
     functions.get_image_memory_requirements               = device_table->GetImageMemoryRequirements;
@@ -2183,6 +2182,20 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.destroy_video_session                       = device_table->DestroyVideoSessionKHR;
     functions.bind_video_session_memory                   = device_table->BindVideoSessionMemoryKHR;
     functions.get_video_session_memory_requirements       = device_table->GetVideoSessionMemoryRequirementsKHR;
+    functions.map_memory2                                 = device_table->MapMemory2KHR;
+    functions.unmap_memory2                               = device_table->UnmapMemory2KHR;
+    functions.set_device_memory_priority                  = device_table->SetDeviceMemoryPriorityEXT;
+    functions.get_memory_remote_address_nv                = device_table->GetMemoryRemoteAddressNV;
+    functions.create_acceleration_structure_nv            = device_table->CreateAccelerationStructureNV;
+    functions.destroy_acceleration_structure_nv           = device_table->DestroyAccelerationStructureNV;
+    functions.bind_acceleration_structure_memory_nv       = device_table->BindAccelerationStructureMemoryNV;
+    functions.get_acceleration_structure_memory_requirements_nv =
+        device_table->GetAccelerationStructureMemoryRequirementsNV;
+    functions.queue_bind_sparse                           = device_table->QueueBindSparse;
+    functions.create_semaphore                            = device_table->CreateSemaphore;
+    functions.destroy_semaphore                           = device_table->DestroySemaphore;
+    functions.get_memory_fd                               = device_table->GetMemoryFdKHR;
+    functions.get_device_memory_opaque_capture_address    = device_table->GetDeviceMemoryOpaqueCaptureAddressKHR;
     functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
     functions.set_debug_utils_object_name                 = instance_table->SetDebugUtilsObjectNameEXT;
     functions.set_debug_utils_object_tag                  = instance_table->SetDebugUtilsObjectTagEXT;
@@ -4357,21 +4370,188 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 {
     assert((queue_info != nullptr) && (pBindInfo != nullptr) && !pBindInfo->IsNull());
 
-    VkResult                result     = VK_SUCCESS;
-    const VkBindSparseInfo* bind_infos = pBindInfo->GetPointer();
-    VkFence                 fence      = VK_NULL_HANDLE;
+    auto        result          = VK_SUCCESS;
+    const auto* meta_bind_infos = pBindInfo->GetMetaStructPointer();
+    const auto* bind_infos      = pBindInfo->GetPointer();
+    VkFence     fence           = VK_NULL_HANDLE;
 
     if (fence_info != nullptr)
     {
         fence = fence_info->handle;
     }
 
+    auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    std::vector<VulkanBufferInfo*>                     buf_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         buf_mem_infos;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_buf_datas;
+    std::vector<VulkanResourceAllocator::MemoryData>   allocator_buf_mem_datas;
+    std::vector<format::HandleId>                      buf_mem_capture_ids;
+    std::vector<VkMemoryPropertyFlags>                 buf_mem_prop_flags;
+
+    std::vector<VulkanImageInfo*>                      img_op_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         img_op_mem_infos;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_img_op_datas;
+    std::vector<VulkanResourceAllocator::MemoryData>   allocator_img_op_mem_datas;
+    std::vector<format::HandleId>                      img_op_mem_capture_ids;
+    std::vector<VkMemoryPropertyFlags>                 img_op_mem_prop_flags;
+
+    std::vector<VulkanImageInfo*>                      img_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         img_mem_infos;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_img_datas;
+    std::vector<VulkanResourceAllocator::MemoryData>   allocator_img_mem_datas;
+    std::vector<format::HandleId>                      img_mem_capture_ids;
+    std::vector<VkMemoryPropertyFlags>                 img_mem_prop_flags;
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        const auto* meta_bind_info = &meta_bind_infos[i];
+
+        const auto  buf_len   = meta_bind_infos->pBufferBinds->GetLength();
+        const auto* meta_bufs = meta_bind_infos->pBufferBinds->GetMetaStructPointer();
+
+        for (uint32_t buf_i = 0; i < buf_len; ++i)
+        {
+            auto buf_info = object_info_table_->GetVkBufferInfo(meta_bufs[buf_i].buffer);
+            buf_infos.push_back(buf_info);
+
+            if (buf_info != nullptr)
+            {
+                allocator_buf_datas.push_back(buf_info->allocator_data);
+            }
+            else
+            {
+                allocator_buf_datas.push_back(0);
+            }
+
+            const auto  mem_len   = meta_bufs[buf_i].pBinds->GetLength();
+            const auto* meta_mems = meta_bufs[buf_i].pBinds->GetMetaStructPointer();
+
+            for (uint32_t mem_i = 0; mem_i < mem_len; ++mem_i)
+            {
+                auto mem_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mems[mem_i].memory);
+                buf_mem_infos.push_back(mem_info);
+
+                if (mem_info != nullptr)
+                {
+                    allocator_buf_mem_datas.push_back(mem_info->allocator_data);
+                    buf_mem_capture_ids.push_back(mem_info->capture_id);
+                }
+                else
+                {
+                    allocator_buf_mem_datas.push_back(0);
+                    buf_mem_capture_ids.push_back(format::kNullHandleId);
+                }
+            }
+        }
+
+        auto        img_op_len   = meta_bind_infos->pImageOpaqueBinds->GetLength();
+        const auto* meta_img_ops = meta_bind_infos->pImageOpaqueBinds->GetMetaStructPointer();
+
+        for (uint32_t img_op_i = 0; img_op_i < img_op_len; ++img_op_i)
+        {
+            auto img_info = object_info_table_->GetVkImageInfo(meta_img_ops[img_op_i].image);
+            img_op_infos.push_back(img_info);
+
+            if (img_info != nullptr)
+            {
+                allocator_img_op_datas.push_back(img_info->allocator_data);
+            }
+            else
+            {
+                allocator_img_op_datas.push_back(0);
+            }
+
+            const auto  mem_len   = meta_img_ops[img_op_i].pBinds->GetLength();
+            const auto* meta_mems = meta_img_ops[img_op_i].pBinds->GetMetaStructPointer();
+
+            for (uint32_t mem_i = 0; mem_i < mem_len; ++mem_i)
+            {
+                auto mem_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mems[mem_i].memory);
+                img_op_mem_infos.push_back(mem_info);
+
+                if (mem_info != nullptr)
+                {
+                    allocator_img_op_mem_datas.push_back(mem_info->allocator_data);
+                    img_op_mem_capture_ids.push_back(mem_info->capture_id);
+                }
+                else
+                {
+                    allocator_img_op_mem_datas.push_back(0);
+                    img_op_mem_capture_ids.push_back(0);
+                }
+            }
+        }
+
+        auto        img_len   = meta_bind_infos->pImageBinds->GetLength();
+        const auto* meta_imgs = meta_bind_infos->pImageBinds->GetMetaStructPointer();
+
+        for (uint32_t img_i = 0; img_i < img_len; ++img_i)
+        {
+            auto img_info = object_info_table_->GetVkImageInfo(meta_imgs[img_i].image);
+            img_infos.push_back(img_info);
+
+            if (img_info != nullptr)
+            {
+                allocator_img_datas.push_back(img_info->allocator_data);
+            }
+            else
+            {
+                allocator_img_datas.push_back(0);
+            }
+
+            const auto  mem_len   = meta_imgs[img_i].pBinds->GetLength();
+            const auto* meta_mems = meta_imgs[img_i].pBinds->GetMetaStructPointer();
+
+            for (uint32_t mem_i = 0; mem_i < mem_len; ++mem_i)
+            {
+                auto mem_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mems[mem_i].memory);
+                img_mem_infos.push_back(mem_info);
+
+                if (mem_info != nullptr)
+                {
+                    allocator_img_mem_datas.push_back(mem_info->allocator_data);
+                    img_mem_capture_ids.push_back(mem_info->capture_id);
+                }
+                else
+                {
+                    allocator_img_mem_datas.push_back(0);
+                    img_mem_capture_ids.push_back(0);
+                }
+            }
+        }
+    }
+
+    buf_mem_prop_flags.resize(allocator_buf_mem_datas.size(), 0);
+    img_op_mem_prop_flags.resize(allocator_img_op_mem_datas.size(), 0);
+    img_mem_prop_flags.resize(allocator_img_mem_datas.size(), 0);
+
+    std::vector<VkBindSparseInfo> modified_bind_infos(bind_infos, std::next(bind_infos, bindInfoCount));
+
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
     if ((!have_imported_semaphores_) && (options_.surface_index == -1))
     {
-        result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
+        result = allocator->QueueBindSparse(queue_info->handle,
+                                            static_cast<uint32_t>(modified_bind_infos.size()),
+                                            modified_bind_infos.data(),
+                                            fence,
+                                            allocator_buf_datas.data(),
+                                            allocator_buf_mem_datas.data(),
+                                            buf_mem_capture_ids.data(),
+                                            buf_mem_prop_flags.data(),
+                                            allocator_img_op_datas.data(),
+                                            allocator_img_op_mem_datas.data(),
+                                            img_op_mem_capture_ids.data(),
+                                            img_op_mem_prop_flags.data(),
+                                            allocator_img_datas.data(),
+                                            allocator_img_mem_datas.data(),
+                                            img_mem_capture_ids.data(),
+                                            img_mem_prop_flags.data());
     }
     else
     {
@@ -4405,13 +4585,27 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 
         if (altered_submits.empty())
         {
-            result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
+            result = allocator->QueueBindSparse(queue_info->handle,
+                                                static_cast<uint32_t>(modified_bind_infos.size()),
+                                                modified_bind_infos.data(),
+                                                fence,
+                                                allocator_buf_datas.data(),
+                                                allocator_buf_mem_datas.data(),
+                                                buf_mem_capture_ids.data(),
+                                                buf_mem_prop_flags.data(),
+                                                allocator_img_op_datas.data(),
+                                                allocator_img_op_mem_datas.data(),
+                                                img_op_mem_capture_ids.data(),
+                                                img_op_mem_prop_flags.data(),
+                                                allocator_img_datas.data(),
+                                                allocator_img_mem_datas.data(),
+                                                img_mem_capture_ids.data(),
+                                                img_mem_prop_flags.data());
         }
         else
         {
             // Make shallow copies of the VkBindSparseInfo structures and change pWaitSemaphores to reference a copy of
             // the original semaphore array with the imported semaphores omitted.
-            std::vector<VkBindSparseInfo>         modified_bind_infos(bind_infos, std::next(bind_infos, bindInfoCount));
             std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
 
             std::vector<VkSemaphore> wait_semaphores;
@@ -4459,13 +4653,93 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                 modified_bind_info.pWaitSemaphores    = signal_semaphores.data();
             }
 
-            result = func(queue_info->handle,
-                          static_cast<uint32_t>(modified_bind_infos.size()),
-                          modified_bind_infos.data(),
-                          fence);
+            result = allocator->QueueBindSparse(queue_info->handle,
+                                                static_cast<uint32_t>(modified_bind_infos.size()),
+                                                modified_bind_infos.data(),
+                                                fence,
+                                                allocator_buf_datas.data(),
+                                                allocator_buf_mem_datas.data(),
+                                                buf_mem_capture_ids.data(),
+                                                buf_mem_prop_flags.data(),
+                                                allocator_img_op_datas.data(),
+                                                allocator_img_op_mem_datas.data(),
+                                                img_op_mem_capture_ids.data(),
+                                                img_op_mem_prop_flags.data(),
+                                                allocator_img_datas.data(),
+                                                allocator_img_mem_datas.data(),
+                                                img_mem_capture_ids.data(),
+                                                img_mem_prop_flags.data());
         }
     }
 
+    if (result == VK_SUCCESS)
+    {
+        uint32_t buf_prop_i    = 0;
+        uint32_t img_op_prop_i = 0;
+        uint32_t img_prop_i    = 0;
+
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            const auto* bind_info = &bind_infos[i];
+
+            for (uint32_t buf_i = 0; buf_i < bind_info->bufferBindCount; ++buf_i)
+            {
+                auto* info = buf_infos[buf_i];
+
+                if (info != nullptr)
+                {
+                    for (uint32_t mem_i = 0; mem_i < bind_info->pBufferBinds[buf_i].bindCount; ++mem_i)
+                    {
+                        info->sparse_memory_property_flags.push_back(buf_mem_prop_flags[buf_prop_i]);
+                        ++buf_prop_i;
+                    }
+                }
+            }
+
+            for (uint32_t img_op_i = 0; img_op_i < bind_info->imageOpaqueBindCount; ++img_op_i)
+            {
+                auto* info = img_op_infos[img_op_i];
+
+                if (info != nullptr)
+                {
+                    for (uint32_t mem_i = 0; mem_i < bind_info->pImageOpaqueBinds[img_op_i].bindCount; ++mem_i)
+                    {
+                        info->sparse_memory_property_flags.push_back(img_op_mem_prop_flags[img_op_prop_i]);
+                        ++img_op_prop_i;
+                    }
+                }
+            }
+
+            for (uint32_t img_i = 0; img_i < bind_info->imageBindCount; ++img_i)
+            {
+                auto* info = img_infos[img_i];
+
+                if (info != nullptr)
+                {
+                    for (uint32_t mem_i = 0; mem_i < bind_info->pImageBinds[img_i].bindCount; ++mem_i)
+                    {
+                        info->sparse_memory_property_flags.push_back(img_mem_prop_flags[img_prop_i]);
+                        ++img_prop_i;
+                    }
+                }
+            }
+        }
+    }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportQueueBindSparseIncompatibility(queue_info->handle,
+                                                        static_cast<uint32_t>(modified_bind_infos.size()),
+                                                        modified_bind_infos.data(),
+                                                        fence,
+                                                        allocator_buf_datas.data(),
+                                                        allocator_buf_mem_datas.data(),
+                                                        allocator_img_op_datas.data(),
+                                                        allocator_img_op_mem_datas.data(),
+                                                        allocator_img_datas.data(),
+                                                        allocator_img_mem_datas.data());
+    }
     return result;
 }
 
@@ -5238,7 +5512,6 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
     std::vector<VulkanBufferInfo*>                     buffer_infos;
-    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_buffer_datas(bindInfoCount, 0);
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindInfoCount, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindInfoCount, 0);
@@ -5251,7 +5524,6 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
         auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(bind_meta_info->memory);
 
         buffer_infos.push_back(buffer_info);
-        memory_infos.push_back(memory_info);
 
         if (buffer_info != nullptr)
         {
@@ -5355,7 +5627,6 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
     std::vector<VulkanImageInfo*>                      image_infos;
-    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_image_datas(bindInfoCount, 0);
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindInfoCount, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindInfoCount, 0);
@@ -5368,7 +5639,6 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
         auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(bind_meta_info->memory);
 
         image_infos.push_back(image_info);
-        memory_infos.push_back(memory_info);
 
         if (image_info != nullptr)
         {
@@ -5441,44 +5711,41 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
     auto replay_bind_meta_infos = pBindSessionMemoryInfos->GetMetaStructPointer();
     GFXRECON_ASSERT((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
 
-    uint32_t                                           session_mem_count = video_session_info->allocator_datas.size();
-    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
-    std::vector<VulkanResourceAllocator::ResourceData> allocator_session_datas(session_mem_count, 0);
-    std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(session_mem_count, 0);
-    std::vector<VkMemoryPropertyFlags>                 memory_property_flags(session_mem_count, 0);
+    VulkanResourceAllocator::ResourceData allocator_session_data = video_session_info->allocator_data;
 
-    for (uint32_t mem_index = 0; mem_index < session_mem_count; ++mem_index)
+    std::vector<VulkanResourceAllocator::MemoryData> allocator_memory_datas(bindSessionMemoryInfoCount, 0);
+    std::vector<VkMemoryPropertyFlags>               memory_property_flags(bindSessionMemoryInfoCount, 0);
+
+    for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
     {
-        allocator_session_datas[mem_index] = video_session_info->allocator_datas[mem_index];
+        const auto* bind_meta_info = &replay_bind_meta_infos[i];
+        auto        memory_info    = object_info_table_->GetVkDeviceMemoryInfo(bind_meta_info->memory);
 
-        for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
+        if (memory_info != nullptr)
         {
-            const auto* bind_meta_info = &replay_bind_meta_infos[i];
-            if (mem_index == bind_meta_info->decoded_value->memoryBindIndex)
-            {
-                auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(bind_meta_info->memory);
-                memory_infos.push_back(memory_info);
-
-                if (memory_info != nullptr)
-                {
-                    allocator_memory_datas[mem_index] = memory_info->allocator_data;
-                }
-            }
+            allocator_memory_datas[i] = memory_info->allocator_data;
         }
     }
+
     VkResult result = allocator->BindVideoSessionMemory(video_session_info->handle,
                                                         bindSessionMemoryInfoCount,
                                                         replay_bind_infos,
-                                                        allocator_session_datas.data(),
+                                                        allocator_session_data,
                                                         allocator_memory_datas.data(),
                                                         memory_property_flags.data());
 
     if (result == VK_SUCCESS)
     {
-        video_session_info->memory_property_flags.resize(session_mem_count);
-        for (uint32_t i = 0; i < session_mem_count; ++i)
+        for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
         {
-            video_session_info->memory_property_flags[i] = memory_property_flags[i];
+            const auto* bind_meta_info = &replay_bind_meta_infos[i];
+            const auto  mem_i          = bind_meta_info->decoded_value->memoryBindIndex;
+
+            if (mem_i >= video_session_info->memory_property_flags.size())
+            {
+                video_session_info->memory_property_flags.resize(mem_i + 1, 0);
+            }
+            video_session_info->memory_property_flags[mem_i] = memory_property_flags[i];
         }
     }
     else if (original_result == VK_SUCCESS)
@@ -5488,7 +5755,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
         allocator->ReportBindVideoSessionIncompatibility(video_session_info->handle,
                                                          bindSessionMemoryInfoCount,
                                                          replay_bind_infos,
-                                                         allocator_session_datas.data(),
+                                                         allocator_session_data,
                                                          allocator_memory_datas.data());
     }
 
@@ -5934,21 +6201,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VkResult                                           result = VK_SUCCESS;
-    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
-    auto                                               replay_session     = pVideoSession->GetHandlePointer();
-    auto                                               capture_id         = (*pVideoSession->GetPointer());
-    auto                                               replay_create_info = pCreateInfo->GetPointer();
+    VkResult                              result = VK_SUCCESS;
+    VulkanResourceAllocator::ResourceData allocator_data;
+    auto                                  replay_session     = pVideoSession->GetHandlePointer();
+    auto                                  capture_id         = (*pVideoSession->GetPointer());
+    auto                                  replay_create_info = pCreateInfo->GetPointer();
 
     result = allocator->CreateVideoSession(
-        replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_session, &allocator_datas);
+        replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_session, &allocator_data);
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_session) != VK_NULL_HANDLE))
     {
         auto session_info = reinterpret_cast<VulkanVideoSessionKHRInfo*>(pVideoSession->GetConsumerData(0));
         GFXRECON_ASSERT(session_info != nullptr);
 
-        session_info->allocator_datas    = allocator_datas;
+        session_info->allocator_data     = allocator_data;
         session_info->queue_family_index = replay_create_info->queueFamilyIndex;
     }
 
@@ -5968,18 +6235,18 @@ void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VkVideoSessionKHR                                  session = VK_NULL_HANDLE;
-    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
+    VkVideoSessionKHR                     session = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data;
 
     if (video_session_info != nullptr)
     {
-        session         = video_session_info->handle;
-        allocator_datas = video_session_info->allocator_datas;
+        session        = video_session_info->handle;
+        allocator_data = video_session_info->allocator_data;
 
-        video_session_info->allocator_datas.clear();
+        video_session_info->allocator_data = 0;
     }
 
-    allocator->DestroyVideoSession(session, GetAllocationCallbacks(pAllocator), allocator_datas);
+    allocator->DestroyVideoSession(session, GetAllocationCallbacks(pAllocator), allocator_data);
 }
 
 void VulkanReplayConsumerBase::OverrideGetBufferMemoryRequirements(
@@ -6114,7 +6381,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetVideoSessionMemoryRequirementsKHR(
         video_session_info->handle,
         pMemoryRequirementsCount->GetPointer(),
         pMemoryRequirements == nullptr ? nullptr : pMemoryRequirements->GetPointer(),
-        video_session_info->allocator_datas);
+        video_session_info->allocator_data);
 }
 
 template <typename T>
@@ -6933,6 +7200,10 @@ uintptr_t VulkanReplayConsumerBase::GetObjectAllocatorData(VkObjectType object_t
             return GetObjectInfoTable().GetVkBufferInfo(handle_id)->allocator_data;
         case VK_OBJECT_TYPE_IMAGE:
             return GetObjectInfoTable().GetVkImageInfo(handle_id)->allocator_data;
+        case VK_OBJECT_TYPE_VIDEO_SESSION_KHR:
+            return GetObjectInfoTable().GetVkVideoSessionKHRInfo(handle_id)->allocator_data;
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
+            return GetObjectInfoTable().GetVkAccelerationStructureNVInfo(handle_id)->allocator_data;
         default:
             return 0;
     }
@@ -11654,6 +11925,290 @@ void VulkanReplayConsumerBase::DestroyInternalInstanceResources(const VulkanInst
     {
         instance_table->DestroyDebugUtilsMessengerEXT(instance, info->debug_messenger, nullptr);
     }
+}
+
+void VulkanReplayConsumerBase::OverrideGetDeviceMemoryCommitment(PFN_vkGetDeviceMemoryCommitment func,
+                                                                 const VulkanDeviceInfo*         device_info,
+                                                                 const VulkanDeviceMemoryInfo*   memory_info,
+                                                                 PointerDecoder<VkDeviceSize>* pCommittedMemoryInBytes)
+{
+    auto* committed_memory_in_bytes =
+        pCommittedMemoryInBytes->IsNull()
+            ? nullptr
+            : pCommittedMemoryInBytes->AllocateOutputData(1, static_cast<VkDeviceSize>(0));
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetDeviceMemoryCommitment(memory_info->handle, committed_memory_in_bytes, memory_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideMapMemory2(PFN_vkMapMemory2                               func,
+                                                      VkResult                                       original_result,
+                                                      const VulkanDeviceInfo*                        device_info,
+                                                      StructPointerDecoder<Decoded_VkMemoryMapInfo>* pMemoryMapInfo,
+                                                      void**                                         ppData)
+{
+    const auto* meta_memory_map_info = pMemoryMapInfo->GetMetaStructPointer();
+    const auto* memory_map_info      = pMemoryMapInfo->GetPointer();
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    const auto* memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_memory_map_info->memory);
+
+    return allocator->MapMemory2(memory_map_info, ppData, memory_info->allocator_data);
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideUnmapMemory2(PFN_vkUnmapMemory2                               func,
+                                               VkResult                                         original_result,
+                                               const VulkanDeviceInfo*                          device_info,
+                                               StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo)
+{
+    const auto* meta_memory_unmap_info = pMemoryUnmapInfo->GetMetaStructPointer();
+    const auto* memory_unmap_info      = pMemoryUnmapInfo->GetPointer();
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    const auto* memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_memory_unmap_info->memory);
+
+    return allocator->UnmapMemory2(memory_unmap_info, memory_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideSetDeviceMemoryPriorityEXT(PFN_vkSetDeviceMemoryPriorityEXT func,
+                                                                  const VulkanDeviceInfo*          device_info,
+                                                                  const VulkanDeviceMemoryInfo*    memory_info,
+                                                                  float                            priority)
+{
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->SetDeviceMemoryPriority(memory_info->handle, priority, memory_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetMemoryRemoteAddressNV(
+    PFN_vkGetMemoryRemoteAddressNV                                func,
+    VkResult                                                      original_result,
+    const VulkanDeviceInfo*                                       device_info,
+    StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
+    VkRemoteAddressNV*                                            pAddress)
+{
+    const auto* meta_mem_get_remote_address_info = pMemoryGetRemoteAddressInfo->GetMetaStructPointer();
+    const auto* mem_get_remote_address_info      = pMemoryGetRemoteAddressInfo->GetPointer();
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VulkanResourceAllocator::MemoryData allocator_data;
+
+    auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mem_get_remote_address_info->memory);
+
+    if (memory_info != nullptr)
+    {
+        allocator_data = memory_info->allocator_data;
+    }
+
+    return allocator->GetMemoryRemoteAddressNV(mem_get_remote_address_info, pAddress, memory_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureNV(
+    PFN_vkCreateAccelerationStructureNV                                func,
+    VkResult                                                           original_result,
+    const VulkanDeviceInfo*                                            device_info,
+    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*               pAllocator,
+    HandlePointerDecoder<VkAccelerationStructureNV>*                   pAccelerationStructure)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfo != nullptr) && (pAccelerationStructure != nullptr) &&
+                    !pAccelerationStructure->IsNull() && (pAccelerationStructure->GetHandlePointer() != nullptr));
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VkResult                              result = VK_SUCCESS;
+    VulkanResourceAllocator::ResourceData allocator_data;
+    auto                                  replay_acc_str     = pAccelerationStructure->GetHandlePointer();
+    auto                                  capture_id         = (*pAccelerationStructure->GetPointer());
+    auto                                  replay_create_info = pCreateInfo->GetPointer();
+
+    result = allocator->CreateAccelerationStructureNV(
+        replay_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_acc_str, &allocator_data);
+
+    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_acc_str) != VK_NULL_HANDLE))
+    {
+        auto acc_str_info =
+            reinterpret_cast<VulkanAccelerationStructureNVInfo*>(pAccelerationStructure->GetConsumerData(0));
+        GFXRECON_ASSERT(acc_str_info != nullptr);
+
+        acc_str_info->allocator_data = allocator_data;
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureNV(
+    PFN_vkDestroyAccelerationStructureNV                 func,
+    const VulkanDeviceInfo*                              device_info,
+    VulkanAccelerationStructureNVInfo*                   acc_str_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VkAccelerationStructureNV             acc_str        = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    if (acc_str_info != nullptr)
+    {
+        acc_str        = acc_str_info->handle;
+        allocator_data = acc_str_info->allocator_data;
+
+        acc_str_info->allocator_data = 0;
+    }
+
+    allocator->DestroyAccelerationStructureNV(acc_str, GetAllocationCallbacks(pAllocator), allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetAccelerationStructureMemoryRequirementsNV(
+    PFN_vkGetAccelerationStructureMemoryRequirementsNV                             func,
+    const VulkanDeviceInfo*                                                        device_info,
+    StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>*                           pMemoryRequirements)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    const auto* meta_info = pInfo->GetMetaStructPointer();
+    const auto* info      = pInfo->GetPointer();
+    auto*       mem_reqs  = pMemoryRequirements->IsNull() ? nullptr : pMemoryRequirements->AllocateOutputData(1);
+    auto        acc_info  = object_info_table_->GetVkAccelerationStructureNVInfo(meta_info->accelerationStructure);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    allocator->GetAccelerationStructureMemoryRequirementsNV(info, mem_reqs, acc_info->allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideBindAccelerationStructureMemoryNV(
+    PFN_vkBindAccelerationStructureMemoryNV                                func,
+    VkResult                                                               original_result,
+    const VulkanDeviceInfo*                                                device_info,
+    uint32_t                                                               bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
+{
+    const auto* meta_bind_infos = pBindInfos->GetMetaStructPointer();
+    const auto* bind_infos      = pBindInfos->GetPointer();
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    std::vector<VulkanAccelerationStructureNVInfo*>    acc_infos;
+    std::vector<const VulkanDeviceMemoryInfo*>         memory_infos;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_acc_datas(bindInfoCount, 0);
+    std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindInfoCount, 0);
+    std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindInfoCount, 0);
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        const auto* meta_bind_info = &meta_bind_infos[i];
+
+        auto acc_info    = object_info_table_->GetVkAccelerationStructureNVInfo(meta_bind_info->accelerationStructure);
+        auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_bind_info->memory);
+
+        acc_infos.push_back(acc_info);
+        memory_infos.push_back(memory_info);
+
+        if (acc_info != nullptr)
+        {
+            allocator_acc_datas[i] = acc_info->allocator_data;
+        }
+
+        if (memory_info != nullptr)
+        {
+            allocator_memory_datas[i] = memory_info->allocator_data;
+        }
+    }
+
+    auto result = allocator->BindAccelerationStructureMemoryNV(bindInfoCount,
+                                                               bind_infos,
+                                                               allocator_acc_datas.data(),
+                                                               allocator_memory_datas.data(),
+                                                               memory_property_flags.data());
+    if (result == VK_SUCCESS)
+    {
+
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            auto acc_info = acc_infos[i];
+
+            if (acc_info != nullptr)
+            {
+                acc_info->memory_property_flags = memory_property_flags[i];
+            }
+        }
+    }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindAccelerationStructureMemoryNVIncompatibility(
+            bindInfoCount, bind_infos, allocator_acc_datas.data(), allocator_memory_datas.data());
+    }
+    return result;
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideGetMemoryFdKHR(PFN_vkGetMemoryFdKHR                                func,
+                                                 VkResult                                            original_result,
+                                                 const VulkanDeviceInfo*                             device_info,
+                                                 StructPointerDecoder<Decoded_VkMemoryGetFdInfoKHR>* pGetFdInfo,
+                                                 PointerDecoder<int>*                                pFd)
+{
+    const auto* meta_get_fd_info = pGetFdInfo->GetMetaStructPointer();
+    const auto* get_fd_info      = pGetFdInfo->GetPointer();
+    auto*       fd               = pFd->IsNull() ? nullptr : pFd->AllocateOutputData(1, static_cast<int>(0));
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VulkanResourceAllocator::MemoryData allocator_data;
+
+    auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_get_fd_info->memory);
+
+    if (memory_info != nullptr)
+    {
+        allocator_data = memory_info->allocator_data;
+    }
+
+    return allocator->GetMemoryFd(get_fd_info, fd, memory_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetDeviceMemoryOpaqueCaptureAddress(
+    PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR                          func,
+    const VulkanDeviceInfo*                                               device_info,
+    StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
+{
+    const auto* meta_info = pInfo->GetMetaStructPointer();
+    const auto* info      = pInfo->GetPointer();
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VulkanResourceAllocator::MemoryData allocator_data;
+
+    auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_info->memory);
+
+    if (memory_info != nullptr)
+    {
+        allocator_data = memory_info->allocator_data;
+    }
+
+    allocator->GetDeviceMemoryOpaqueCaptureAddress(info, allocator_data);
 }
 
 GFXRECON_END_NAMESPACE(decode)
