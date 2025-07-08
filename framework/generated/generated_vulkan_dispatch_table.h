@@ -483,11 +483,13 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer2KHR(VkCommandBuffer, VkBu
 inline VKAPI_ATTR void VKAPI_CALL vkGetRenderingAreaGranularityKHR(VkDevice, const VkRenderingAreaInfo*, VkExtent2D*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetRenderingAreaGranularityKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetDeviceImageSubresourceLayoutKHR(VkDevice, const VkDeviceImageSubresourceInfo*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceImageSubresourceLayoutKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2KHR(VkDevice, VkImage, const VkImageSubresource2*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2KHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkWaitForPresent2KHR(VkDevice, VkSwapchainKHR, const VkPresentWait2InfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkWaitForPresent2KHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreatePipelineBinariesKHR(VkDevice, const VkPipelineBinaryCreateInfoKHR*, const VkAllocationCallbacks*, VkPipelineBinaryHandlesInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreatePipelineBinariesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyPipelineBinaryKHR(VkDevice, VkPipelineBinaryKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyPipelineBinaryKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineKeyKHR(VkDevice, const VkPipelineCreateInfoKHR*, VkPipelineBinaryKeyKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineKeyKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPipelineBinaryDataKHR(VkDevice, const VkPipelineBinaryDataInfoKHR*, VkPipelineBinaryKeyKHR*, size_t*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPipelineBinaryDataKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkReleaseCapturedPipelineDataKHR(VkDevice, const VkReleaseCapturedPipelineDataInfoKHR*, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseCapturedPipelineDataKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesKHR(VkDevice, const VkReleaseSwapchainImagesInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseSwapchainImagesKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetLineStippleKHR(VkCommandBuffer, uint32_t, uint16_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetLineStippleKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsKHR(VkDevice, uint32_t, const VkCalibratedTimestampInfoKHR*, uint64_t*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetCalibratedTimestampsKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorSets2KHR(VkCommandBuffer, const VkBindDescriptorSetsInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorSets2KHR was called, resulting in no-op behavior."); }
@@ -603,7 +605,7 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToMemoryEXT(VkDevice, const VkC
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCopyImageToImageEXT(VkDevice, const VkCopyImageToImageInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCopyImageToImageEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkTransitionImageLayoutEXT(VkDevice, uint32_t, const VkHostImageLayoutTransitionInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkTransitionImageLayoutEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout2EXT(VkDevice, VkImage, const VkImageSubresource2*, VkSubresourceLayout2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageSubresourceLayout2EXT was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(VkDevice, const VkReleaseSwapchainImagesInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseSwapchainImagesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkReleaseSwapchainImagesEXT(VkDevice, const VkReleaseSwapchainImagesInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkReleaseSwapchainImagesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetGeneratedCommandsMemoryRequirementsNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPreprocessGeneratedCommandsNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsNV(VkCommandBuffer, VkBool32, const VkGeneratedCommandsInfoNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdExecuteGeneratedCommandsNV was called, resulting in no-op behavior."); }
@@ -615,7 +617,7 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkCreatePrivateDataSlotEXT(VkDevice, const
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyPrivateDataSlotEXT(VkDevice, VkPrivateDataSlot, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyPrivateDataSlotEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkSetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetPrivateDataEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(VkDevice, VkObjectType, uint64_t, VkPrivateDataSlot, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPrivateDataEXT was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDispatchTileQCOM was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(VkCommandBuffer, const VkDispatchTileInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDispatchTileQCOM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBeginPerTileExecutionQCOM(VkCommandBuffer, const VkPerTileBeginInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginPerTileExecutionQCOM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(VkCommandBuffer, const VkPerTileEndInfoQCOM*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndPerTileExecutionQCOM was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(VkCommandBuffer, VkFragmentShadingRateNV, const VkFragmentShadingRateCombinerOpKHR[2]) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetFragmentShadingRateEnumNV was called, resulting in no-op behavior."); }
@@ -1180,11 +1182,13 @@ struct VulkanDeviceTable
     PFN_vkGetRenderingAreaGranularityKHR GetRenderingAreaGranularityKHR{ noop::vkGetRenderingAreaGranularityKHR };
     PFN_vkGetDeviceImageSubresourceLayoutKHR GetDeviceImageSubresourceLayoutKHR{ noop::vkGetDeviceImageSubresourceLayoutKHR };
     PFN_vkGetImageSubresourceLayout2KHR GetImageSubresourceLayout2KHR{ noop::vkGetImageSubresourceLayout2KHR };
+    PFN_vkWaitForPresent2KHR WaitForPresent2KHR{ noop::vkWaitForPresent2KHR };
     PFN_vkCreatePipelineBinariesKHR CreatePipelineBinariesKHR{ noop::vkCreatePipelineBinariesKHR };
     PFN_vkDestroyPipelineBinaryKHR DestroyPipelineBinaryKHR{ noop::vkDestroyPipelineBinaryKHR };
     PFN_vkGetPipelineKeyKHR GetPipelineKeyKHR{ noop::vkGetPipelineKeyKHR };
     PFN_vkGetPipelineBinaryDataKHR GetPipelineBinaryDataKHR{ noop::vkGetPipelineBinaryDataKHR };
     PFN_vkReleaseCapturedPipelineDataKHR ReleaseCapturedPipelineDataKHR{ noop::vkReleaseCapturedPipelineDataKHR };
+    PFN_vkReleaseSwapchainImagesKHR ReleaseSwapchainImagesKHR{ noop::vkReleaseSwapchainImagesKHR };
     PFN_vkCmdSetLineStippleKHR CmdSetLineStippleKHR{ noop::vkCmdSetLineStippleKHR };
     PFN_vkGetCalibratedTimestampsKHR GetCalibratedTimestampsKHR{ noop::vkGetCalibratedTimestampsKHR };
     PFN_vkCmdBindDescriptorSets2KHR CmdBindDescriptorSets2KHR{ noop::vkCmdBindDescriptorSets2KHR };
@@ -1884,11 +1888,13 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetRenderingAreaGranularityKHR", &table->GetRenderingAreaGranularityKHR);
     LoadVulkanFunction(gpa, device, "vkGetDeviceImageSubresourceLayoutKHR", &table->GetDeviceImageSubresourceLayoutKHR);
     LoadVulkanFunction(gpa, device, "vkGetImageSubresourceLayout2KHR", &table->GetImageSubresourceLayout2KHR);
+    LoadVulkanFunction(gpa, device, "vkWaitForPresent2KHR", &table->WaitForPresent2KHR);
     LoadVulkanFunction(gpa, device, "vkCreatePipelineBinariesKHR", &table->CreatePipelineBinariesKHR);
     LoadVulkanFunction(gpa, device, "vkDestroyPipelineBinaryKHR", &table->DestroyPipelineBinaryKHR);
     LoadVulkanFunction(gpa, device, "vkGetPipelineKeyKHR", &table->GetPipelineKeyKHR);
     LoadVulkanFunction(gpa, device, "vkGetPipelineBinaryDataKHR", &table->GetPipelineBinaryDataKHR);
     LoadVulkanFunction(gpa, device, "vkReleaseCapturedPipelineDataKHR", &table->ReleaseCapturedPipelineDataKHR);
+    LoadVulkanFunction(gpa, device, "vkReleaseSwapchainImagesKHR", &table->ReleaseSwapchainImagesKHR);
     LoadVulkanFunction(gpa, device, "vkCmdSetLineStippleKHR", &table->CmdSetLineStippleKHR);
     LoadVulkanFunction(gpa, device, "vkGetCalibratedTimestampsKHR", &table->GetCalibratedTimestampsKHR);
     LoadVulkanFunction(gpa, device, "vkCmdBindDescriptorSets2KHR", &table->CmdBindDescriptorSets2KHR);

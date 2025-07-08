@@ -1462,7 +1462,8 @@ void Process_vkCmdSetDepthBias2EXT(
 void Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDispatchTileQCOM                   func,
-    VkCommandBuffer                             commandBuffer);
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchTileInfoQCOM*               pDispatchTileInfo);
 
 void Process_vkCmdBeginPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,

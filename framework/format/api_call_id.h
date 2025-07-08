@@ -790,6 +790,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDataGraphPipelineSessionMemoryRequirementsARM                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1331),
     ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM                  = MakeApiCallId(ApiFamily_Vulkan, 0x1332),
     ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1333),
+    ApiCall_vkWaitForPresent2KHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1334),
+    ApiCall_vkReleaseSwapchainImagesKHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1335),
 
     ApiCall_VulkanLast,
 

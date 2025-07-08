@@ -4653,7 +4653,8 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias2EXT(
 void VulkanReplayDumpResources::Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDispatchTileQCOM                   func,
-    VkCommandBuffer                             commandBuffer)
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchTileInfoQCOM*               pDispatchTileInfo)
 {
     if (IsRecording(commandBuffer))
     {
@@ -4663,14 +4664,14 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchTileQCOM(
         {
             for (CommandBufferIterator it = first; it < last; ++it)
             {
-                 func(*it);
+                 func(*it, pDispatchTileInfo);
             }
         }
 
         VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
         if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
         {
-             func(dispatch_rays_command_buffer);
+             func(dispatch_rays_command_buffer, pDispatchTileInfo);
         }
     }
 }
