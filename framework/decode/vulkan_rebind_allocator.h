@@ -243,6 +243,17 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                            const ResourceData* allocator_acc_datas,
                                                            const MemoryData*   allocator_memory_datas) override;
 
+    virtual void ReportQueueBindSparseIncompatibility(VkQueue                 queue,
+                                                      uint32_t                bind_info_count,
+                                                      const VkBindSparseInfo* bind_infos,
+                                                      VkFence                 fence,
+                                                      const ResourceData*     allocator_buf_datas,
+                                                      const MemoryData*       allocator_buf_mem_datas,
+                                                      const ResourceData*     allocator_img_op_datas,
+                                                      const MemoryData*       allocator_img_op_mem_datas,
+                                                      const ResourceData*     allocator_img_datas,
+                                                      const MemoryData*       allocator_img_mem_datas) override;
+
     // Direct allocation methods that perform memory allocation and resource creation without performing memory
     // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so
     // that the allocator is aware of all allocations performed at replay.
@@ -375,6 +386,23 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                        VkMemoryPropertyFlags* bind_memory_properties) override;
 
     virtual VkResult GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int* pFd, MemoryData allocator_data) override;
+
+    virtual VkResult QueueBindSparse(VkQueue                 queue,
+                                     uint32_t                bind_info_count,
+                                     const VkBindSparseInfo* bind_infos,
+                                     VkFence                 fence,
+                                     ResourceData*           allocator_buf_datas,
+                                     const MemoryData*       allocator_buf_mem_datas,
+                                     const format::HandleId* buf_mem_capture_ids,
+                                     VkMemoryPropertyFlags*  bind_buf_mem_properties,
+                                     ResourceData*           allocator_img_op_datas,
+                                     const MemoryData*       allocator_img_op_mem_datas,
+                                     const format::HandleId* img_op_mem_capture_ids,
+                                     VkMemoryPropertyFlags*  bind_img_op_mem_properties,
+                                     ResourceData*           allocator_img_datas,
+                                     const MemoryData*       allocator_img_mem_datas,
+                                     const format::HandleId* img_mem_capture_ids,
+                                     VkMemoryPropertyFlags*  bind_img_mem_properties) override;
 
     virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                          MemoryData allocator_data) override;
@@ -566,6 +594,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkResult
     VmaAllocateMemory(const VkMemoryRequirements& mem_req, const VmaMemoryUsage usage, VmaAllocation& allocation);
 
+    // The allocation for the same memory and offset could be re-used.
+    bool FindBoundMemory(const ResourceAllocInfo* resource_alloc_info,
+                         format::HandleId         memory_capture_id,
+                         VkDeviceSize             original_offset,
+                         VmaAllocation&           allocation,
+                         VmaAllocationInfo&       allocation_info);
+
     void UpdateAllocInfo(ResourceAllocInfo&       resource_alloc_info,
                          uint64_t                 object_handle,
                          MemoryInfoType           memory_info_type,
@@ -576,6 +611,24 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                          VkMemoryPropertyFlags&   bind_memory_property);
 
     void GetVmaAllocations(MemoryData allocator_data, std::vector<VmaAllocation>& allocations);
+
+    enum QueueBindSparseType
+    {
+        kBindBuffer,
+        kBindImageOpaqueMemory,
+        kBindImageMemory
+    };
+
+    VkResult ProcessSingleQueueBindSparse(VkQueue                   queue,
+                                          const VkBindSparseInfo&   original_bind_info,
+                                          VkFence                   fence,
+                                          QueueBindSparseType       type,
+                                          uint32_t                  object_bind_index,
+                                          uint32_t                  memory_bind_index,
+                                          bool                      is_last_bind_info,
+                                          std::vector<VkSemaphore>& semaphores,
+                                          const VmaAllocation&      allocation,
+                                          const VmaAllocationInfo&  allocation_info);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;
@@ -589,6 +642,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
     VkQueue                          staging_queue_ = VK_NULL_HANDLE;
     uint32_t                         staging_queue_family_{};
+    std::vector<VkSemaphore>         queue_bind_sparse_semaphores;
 
     //! define a general minimum alignment for buffers
     uint32_t min_buffer_alignment_ = 128;
