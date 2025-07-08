@@ -45,6 +45,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/scoped_destroy_lock.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_layer_settings.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_layer_settings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_device_address_tracker.h
