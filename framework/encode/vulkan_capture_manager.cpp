@@ -34,6 +34,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "encode/vulkan_capture_common.h"
+#include "encode/vulkan_capture_layer_settings.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
@@ -61,12 +62,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+std::mutex                 VulkanCaptureManager::instance_lock_;
 VulkanCaptureManager*      VulkanCaptureManager::singleton_ = nullptr;
 graphics::VulkanLayerTable VulkanCaptureManager::vulkan_layer_table_;
 
 bool VulkanCaptureManager::CreateInstance()
 {
-
     bool result = CommonCaptureManager::CreateInstance<VulkanCaptureManager>();
     GFXRECON_ASSERT(singleton_);
 
@@ -80,6 +81,8 @@ bool VulkanCaptureManager::CreateInstance()
 
 VulkanCaptureManager* VulkanCaptureManager::InitSingleton()
 {
+    std::lock_guard<std::mutex> instance_lock(instance_lock_);
+
     if (!singleton_)
     {
         singleton_ = new VulkanCaptureManager();
@@ -547,6 +550,12 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
                                                       VkInstance*                  pInstance)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (InitSingleton() == nullptr)
+    {
+        return result;
+    }
+    singleton_->layer_settings_ = GetVulkanLayerTraceSettings(pCreateInfo);
 
     if (CreateInstance())
     {
