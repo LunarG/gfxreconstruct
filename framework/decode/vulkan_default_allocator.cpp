@@ -82,9 +82,10 @@ VkResult VulkanDefaultAllocator::CreateBuffer(const VkBufferCreateInfo*    creat
 
     if (allocator_data != nullptr)
     {
-        auto resource_alloc_info        = new ResourceAllocInfo;
-        resource_alloc_info->capture_id = capture_id;
-        (*allocator_data)               = reinterpret_cast<ResourceData>(resource_alloc_info);
+        auto resource_alloc_info         = new ResourceAllocInfo;
+        resource_alloc_info->object_type = VK_OBJECT_TYPE_BUFFER;
+        resource_alloc_info->capture_id  = capture_id;
+        (*allocator_data)                = reinterpret_cast<ResourceData>(resource_alloc_info);
 
         result = functions_.create_buffer(device_, create_info, allocation_callbacks, buffer);
     }
@@ -115,9 +116,10 @@ VkResult VulkanDefaultAllocator::CreateImage(const VkImageCreateInfo*     create
 
     if (allocator_data != nullptr)
     {
-        auto resource_alloc_info        = new ResourceAllocInfo;
-        resource_alloc_info->capture_id = capture_id;
-        (*allocator_data)               = reinterpret_cast<ResourceData>(resource_alloc_info);
+        auto resource_alloc_info         = new ResourceAllocInfo;
+        resource_alloc_info->object_type = VK_OBJECT_TYPE_IMAGE;
+        resource_alloc_info->capture_id  = capture_id;
+        (*allocator_data)                = reinterpret_cast<ResourceData>(resource_alloc_info);
 
         result = functions_.create_image(device_, create_info, allocation_callbacks, image);
     }
@@ -142,26 +144,18 @@ VkResult VulkanDefaultAllocator::CreateVideoSession(const VkVideoSessionCreateIn
                                                     const VkAllocationCallbacks*       allocation_callbacks,
                                                     format::HandleId                   capture_id,
                                                     VkVideoSessionKHR*                 session,
-                                                    std::vector<ResourceData>*         allocator_datas)
+                                                    ResourceData*                      allocator_data)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if (allocator_datas != nullptr)
+    if (allocator_data != nullptr)
     {
-        result = functions_.create_video_session(device_, create_info, allocation_callbacks, session);
+        auto resource_alloc_info         = new ResourceAllocInfo;
+        resource_alloc_info->object_type = VK_OBJECT_TYPE_VIDEO_SESSION_KHR;
+        resource_alloc_info->capture_id  = capture_id;
+        (*allocator_data)                = reinterpret_cast<ResourceData>(resource_alloc_info);
 
-        if (result >= 0)
-        {
-            uint32_t count = 0;
-            functions_.get_video_session_memory_requirements(device_, *session, &count, nullptr);
-            allocator_datas->resize(count);
-            for (auto& allocator_data : *allocator_datas)
-            {
-                auto resource_alloc_info        = new ResourceAllocInfo;
-                resource_alloc_info->capture_id = capture_id;
-                allocator_data                  = reinterpret_cast<ResourceData>(resource_alloc_info);
-            }
-        }
+        result = functions_.create_video_session(device_, create_info, allocation_callbacks, session);
     }
 
     return result;
@@ -169,15 +163,12 @@ VkResult VulkanDefaultAllocator::CreateVideoSession(const VkVideoSessionCreateIn
 
 void VulkanDefaultAllocator::DestroyVideoSession(VkVideoSessionKHR            session,
                                                  const VkAllocationCallbacks* allocation_callbacks,
-                                                 std::vector<ResourceData>    allocator_datas)
+                                                 ResourceData                 allocator_data)
 {
-    for (auto allocator_data : allocator_datas)
+    if (allocator_data != 0)
     {
-        if (allocator_data != 0)
-        {
-            auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-            delete resource_alloc_info;
-        }
+        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+        delete resource_alloc_info;
     }
 
     functions_.destroy_video_session(device_, session, allocation_callbacks);
@@ -226,7 +217,7 @@ VkResult
 VulkanDefaultAllocator::GetVideoSessionMemoryRequirementsKHR(VkVideoSessionKHR video_session,
                                                              uint32_t*         memory_requirements_count,
                                                              VkVideoSessionMemoryRequirementsKHR* memory_requirements,
-                                                             std::vector<ResourceData>            allocator_datas)
+                                                             ResourceData                         allocator_datas)
 {
     return functions_.get_video_session_memory_requirements(
         device_, video_session, memory_requirements_count, memory_requirements);
@@ -274,6 +265,51 @@ void VulkanDefaultAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
     functions_.get_device_memory_commitment(device_, memory, committed_memory_in_bytes);
 }
 
+bool VulkanDefaultAllocator::UpdateAllocInfo(ResourceData           allocator_resource_data,
+                                             MemoryInfoType         memory_info_type,
+                                             VkDeviceMemory         memory,
+                                             VkDeviceSize           memory_offset,
+                                             MemoryData             allocator_memory_data,
+                                             VkMemoryPropertyFlags* bind_memory_property)
+{
+    if ((allocator_resource_data != 0) && (allocator_memory_data != 0))
+    {
+        auto resource_alloc_info              = reinterpret_cast<ResourceAllocInfo*>(allocator_resource_data);
+        resource_alloc_info->memory_info_type = memory_info_type;
+
+        switch (memory_info_type)
+        {
+            case MemoryInfoType::kBasic:
+            {
+                if (resource_alloc_info->bound_memory_infos.empty())
+                {
+                    resource_alloc_info->bound_memory_infos.resize(1);
+                }
+                resource_alloc_info->bound_memory_infos[0].memory = memory;
+                resource_alloc_info->bound_memory_infos[0].offset = memory_offset;
+                break;
+            }
+            case MemoryInfoType::kSparse:
+            case MemoryInfoType::kVideoSession:
+            {
+                BoundMemoryInfo info{};
+                info.memory = memory;
+                info.offset = memory_offset;
+                resource_alloc_info->bound_memory_infos.emplace_back(info);
+                break;
+            }
+            default:
+                return false;
+        }
+
+        auto memory_alloc_info  = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+        (*bind_memory_property) = memory_alloc_info->property_flags;
+
+        return true;
+    }
+    return false;
+}
+
 VkResult VulkanDefaultAllocator::BindBufferMemory(VkBuffer               buffer,
                                                   VkDeviceMemory         memory,
                                                   VkDeviceSize           memory_offset,
@@ -289,16 +325,12 @@ VkResult VulkanDefaultAllocator::BindBufferMemory(VkBuffer               buffer,
 
         if (result == VK_SUCCESS)
         {
-            if ((allocator_buffer_data != 0) && (allocator_memory_data != 0))
-            {
-                auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_buffer_data);
-                resource_alloc_info->bound_memory = memory;
-                resource_alloc_info->bound_offset = memory_offset;
-
-                auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-                (*bind_memory_properties) = memory_alloc_info->property_flags;
-            }
-            else
+            if (!UpdateAllocInfo(allocator_buffer_data,
+                                 MemoryInfoType::kBasic,
+                                 memory,
+                                 memory_offset,
+                                 allocator_memory_data,
+                                 bind_memory_properties))
             {
                 GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkBuffer object to a VkDeviceMemory object "
                                      "without allocator data");
@@ -329,16 +361,12 @@ VkResult VulkanDefaultAllocator::BindBufferMemory2(uint32_t                     
                 auto allocator_buffer_data = allocator_buffer_datas[i];
                 auto allocator_memory_data = allocator_memory_datas[i];
 
-                if ((allocator_buffer_data != 0) && (allocator_memory_data != 0))
-                {
-                    auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_buffer_data);
-                    resource_alloc_info->bound_memory = bind_infos[i].memory;
-                    resource_alloc_info->bound_offset = bind_infos[i].memoryOffset;
-
-                    auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-                    bind_memory_properties[i] = memory_alloc_info->property_flags;
-                }
-                else
+                if (!UpdateAllocInfo(allocator_buffer_data,
+                                     MemoryInfoType::kBasic,
+                                     bind_infos[i].memory,
+                                     bind_infos[i].memoryOffset,
+                                     allocator_memory_data,
+                                     &bind_memory_properties[i]))
                 {
                     GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkBuffer object to a VkDeviceMemory object "
                                          "without allocator data");
@@ -365,17 +393,12 @@ VkResult VulkanDefaultAllocator::BindImageMemory(VkImage                image,
 
         if (result == VK_SUCCESS)
         {
-
-            if ((allocator_image_data != 0) && (allocator_memory_data != 0))
-            {
-                auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
-                resource_alloc_info->bound_memory = memory;
-                resource_alloc_info->bound_offset = memory_offset;
-
-                auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-                (*bind_memory_properties) = memory_alloc_info->property_flags;
-            }
-            else
+            if (!UpdateAllocInfo(allocator_image_data,
+                                 MemoryInfoType::kBasic,
+                                 memory,
+                                 memory_offset,
+                                 allocator_memory_data,
+                                 bind_memory_properties))
             {
                 GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkImage object to a VkDeviceMemory object "
                                      "without allocator data");
@@ -405,17 +428,13 @@ VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t                     b
             {
                 auto allocator_image_data  = allocator_image_datas[i];
                 auto allocator_memory_data = allocator_memory_datas[i];
-
-                if ((allocator_image_data != 0) && (allocator_memory_data != 0))
-                {
-                    auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
-                    resource_alloc_info->bound_memory = bind_infos[i].memory;
-                    resource_alloc_info->bound_offset = bind_infos[i].memoryOffset;
-
-                    auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-                    bind_memory_properties[i] = memory_alloc_info->property_flags;
-                }
-                else
+                
+                if (!UpdateAllocInfo(allocator_image_data,
+                                     MemoryInfoType::kBasic,
+                                     bind_infos[i].memory,
+                                     bind_infos[i].memoryOffset,
+                                     allocator_memory_data,
+                                     &bind_memory_properties[i]))
                 {
                     GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkImage object to a VkDeviceMemory object "
                                          "without allocator data");
@@ -430,13 +449,13 @@ VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t                     b
 VkResult VulkanDefaultAllocator::BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
                                                         uint32_t                               bind_info_count,
                                                         const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                                        const ResourceData*                    allocator_session_datas,
+                                                        const ResourceData                     allocator_session_data,
                                                         const MemoryData*                      allocator_memory_datas,
                                                         VkMemoryPropertyFlags*                 bind_memory_properties)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if ((bind_infos != nullptr) && (allocator_session_datas != nullptr) && (allocator_memory_datas != nullptr) &&
+    if ((bind_infos != nullptr) && (allocator_session_data != 0) && (allocator_memory_datas != nullptr) &&
         (bind_memory_properties != nullptr))
     {
         result = functions_.bind_video_session_memory(device_, video_session, bind_info_count, bind_infos);
@@ -445,19 +464,14 @@ VkResult VulkanDefaultAllocator::BindVideoSessionMemory(VkVideoSessionKHR       
         {
             for (uint32_t i = 0; i < bind_info_count; ++i)
             {
-                auto allocator_session_data = allocator_session_datas[i];
                 auto allocator_memory_data  = allocator_memory_datas[i];
-
-                if ((allocator_session_data != 0) && (allocator_memory_data != 0))
-                {
-                    auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_session_data);
-                    resource_alloc_info->bound_memory = bind_infos[i].memory;
-                    resource_alloc_info->bound_offset = bind_infos[i].memoryOffset;
-
-                    auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
-                    bind_memory_properties[i] = memory_alloc_info->property_flags;
-                }
-                else
+                
+                if (!UpdateAllocInfo(allocator_session_data,
+                                     MemoryInfoType::kVideoSession,
+                                     bind_infos[i].memory,
+                                     bind_infos[i].memoryOffset,
+                                     allocator_memory_data,
+                                     &bind_memory_properties[i]))
                 {
                     GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkVideoSessionKHR object to a "
                                          "VkDeviceMemory object without allocator data");
@@ -499,6 +513,34 @@ VkResult VulkanDefaultAllocator::MapMemory(VkDeviceMemory   memory,
     return result;
 }
 
+VkResult
+VulkanDefaultAllocator::MapMemory2(const VkMemoryMapInfo* memory_map_info, void** data, MemoryData allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (data != nullptr)
+    {
+        result = functions_.map_memory2(device_, memory_map_info, data);
+
+        if (result >= 0)
+        {
+            if (allocator_data != 0)
+            {
+                auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+                memory_alloc_info->mapped_pointer = static_cast<uint8_t*>(*data);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("VulkanDefaultAllocator mapping a VkDeviceMemory object without allocator data");
+            }
+        }
+    }
+
+    return result;
+}
+
 void VulkanDefaultAllocator::UnmapMemory(VkDeviceMemory memory, MemoryData allocator_data)
 {
     if (allocator_data != 0)
@@ -508,6 +550,19 @@ void VulkanDefaultAllocator::UnmapMemory(VkDeviceMemory memory, MemoryData alloc
     }
 
     functions_.unmap_memory(device_, memory);
+}
+
+VkResult VulkanDefaultAllocator::UnmapMemory2(const VkMemoryUnmapInfo* memory_unmap_info, MemoryData allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+
+    if (allocator_data != 0)
+    {
+        auto memory_alloc_info            = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+        memory_alloc_info->mapped_pointer = nullptr;
+    }
+
+    return functions_.unmap_memory2(device_, memory_unmap_info);
 }
 
 VkResult VulkanDefaultAllocator::FlushMappedMemoryRanges(uint32_t                   memory_range_count,
@@ -657,10 +712,10 @@ void VulkanDefaultAllocator::ReportBindImage2Incompatibility(uint32_t           
 void VulkanDefaultAllocator::ReportBindVideoSessionIncompatibility(VkVideoSessionKHR video_session,
                                                                    uint32_t          bind_info_count,
                                                                    const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                                                   const ResourceData* allocator_resource_datas,
-                                                                   const MemoryData*   allocator_memory_datas)
+                                                                   const ResourceData allocator_resource_data,
+                                                                   const MemoryData*  allocator_memory_datas)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_datas);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_data);
 
     if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
     {
@@ -681,6 +736,99 @@ void VulkanDefaultAllocator::ReportBindVideoSessionIncompatibility(VkVideoSessio
         }
 
         ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindAccelerationStructureMemoryNVIncompatibility(
+    uint32_t                                       bind_info_count,
+    const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+    const ResourceData*                            allocator_acc_datas,
+    const MemoryData*                              allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_acc_datas);
+
+    if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
+    {
+        std::vector<VkMemoryRequirements>     reqs(bind_info_count);
+        std::vector<VkMemoryRequirements2KHR> reqs2(bind_info_count);
+
+        VkAccelerationStructureMemoryRequirementsInfoNV acc_reqs_info{};
+        acc_reqs_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            acc_reqs_info.accelerationStructure = bind_infos[i].accelerationStructure;
+
+            reqs2[i]       = {};
+            reqs2[i].sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+
+            functions_.get_acceleration_structure_memory_requirements_nv(device_, &acc_reqs_info, &reqs2[i]);
+
+            reqs[i] = reqs2[i].memoryRequirements;
+        }
+
+        ReportBindIncompatibility(reqs.data(), allocator_memory_datas, bind_info_count);
+    }
+}
+
+void VulkanDefaultAllocator::ReportQueueBindSparseIncompatibility(VkQueue                 queue,
+                                                                  uint32_t                bind_info_count,
+                                                                  const VkBindSparseInfo* bind_infos,
+                                                                  VkFence                 fence,
+                                                                  const ResourceData*     allocator_buf_datas,
+                                                                  const MemoryData*       allocator_buf_mem_datas,
+                                                                  const ResourceData*     allocator_img_op_datas,
+                                                                  const MemoryData*       allocator_img_op_mem_datas,
+                                                                  const ResourceData*     allocator_img_datas,
+                                                                  const MemoryData*       allocator_img_mem_datas)
+{
+    uint32_t alc_buf_i    = 0;
+    uint32_t alc_img_op_i = 0;
+    uint32_t alc_img_i    = 0;
+
+    uint32_t alc_buf_mem_i    = 0;
+    uint32_t alc_img_op_mem_i = 0;
+    uint32_t alc_img_mem_i    = 0;
+
+    for (uint32_t i = 0; i < bind_info_count; ++i)
+    {
+        const auto* bind_info = &bind_infos[i];
+        
+        for (uint32_t buf_i = 0; buf_i < bind_info->bufferBindCount; ++buf_i)
+        {
+            for (uint32_t mem_i = 0; mem_i < bind_info->pBufferBinds[buf_i].bindCount; ++mem_i)
+            {
+                ReportBindBufferIncompatibility(bind_info->pBufferBinds[buf_i].buffer,
+                                                allocator_buf_datas[alc_buf_i],
+                                                allocator_buf_mem_datas[alc_buf_mem_i]);
+                ++alc_buf_mem_i;
+            }
+            ++alc_buf_i;
+        }
+
+        for (uint32_t img_op_i = 0; img_op_i < bind_info->imageOpaqueBindCount; ++img_op_i)
+        {
+            for (uint32_t mem_i = 0; mem_i < bind_info->pImageOpaqueBinds[img_op_i].bindCount; ++mem_i)
+            {
+                ReportBindImageIncompatibility(bind_info->pImageOpaqueBinds[img_op_i].image,
+                                               allocator_img_op_datas[alc_img_op_i],
+                                               allocator_img_op_mem_datas[alc_img_op_mem_i]);
+                ++alc_img_op_mem_i;
+            }
+            ++alc_img_op_i;
+        }
+
+        for (uint32_t img_i = 0; img_i < bind_info->imageBindCount; ++img_i)
+        {
+            for (uint32_t mem_i = 0; mem_i < bind_info->pImageBinds[img_i].bindCount; ++mem_i)
+            {
+                ReportBindImageIncompatibility(bind_info->pImageBinds[img_i].image,
+                                               allocator_img_datas[alc_img_i],
+                                               allocator_img_mem_datas[alc_img_mem_i]);
+                ++alc_img_mem_i;
+            }
+            ++alc_img_i;
+        }
     }
 }
 
@@ -726,10 +874,33 @@ VkResult VulkanDefaultAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
     {
         auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
 
-        if (resource_alloc_info->bound_memory != VK_NULL_HANDLE)
+        if (!resource_alloc_info->bound_memory_infos.empty() &&
+            resource_alloc_info->bound_memory_infos[0].memory != VK_NULL_HANDLE)
         {
-            result = functions_.map_memory(
-                device_, resource_alloc_info->bound_memory, resource_alloc_info->bound_offset, size, flags, data);
+            result = functions_.map_memory(device_,
+                                           resource_alloc_info->bound_memory_infos[0].memory,
+                                           resource_alloc_info->bound_memory_infos[0].offset,
+                                           size,
+                                           flags,
+                                           data);
+        }
+
+        // TODO: Implement it when it's necessary.
+        if (resource_alloc_info->bound_memory_infos.size() > 1)
+        {
+            switch (resource_alloc_info->memory_info_type)
+            {
+                case MemoryInfoType::kSparse:
+                    GFXRECON_LOG_WARNING("VulkanDefaultAllocator::MapResourceMemoryDirect map only the first memory of "
+                                         "sparse memories.");
+                    break;
+                case MemoryInfoType::kVideoSession:
+                    GFXRECON_LOG_WARNING(
+                        "VulkanDefaultAllocator::MapResourceMemoryDirect map only the first memory of VideoSession.");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -741,10 +912,29 @@ void VulkanDefaultAllocator::UnmapResourceMemoryDirect(ResourceData allocator_da
     if (allocator_data != 0)
     {
         auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->bound_memory != VK_NULL_HANDLE)
+        
+        if (!resource_alloc_info->bound_memory_infos.empty() &&
+            resource_alloc_info->bound_memory_infos[0].memory != VK_NULL_HANDLE)
         {
-            functions_.unmap_memory(device_, resource_alloc_info->bound_memory);
+            functions_.unmap_memory(device_, resource_alloc_info->bound_memory_infos[0].memory);
+        }
+
+        // TODO: Implement it when it's necessary.
+        if (resource_alloc_info->bound_memory_infos.size() > 1)
+        {
+            switch (resource_alloc_info->memory_info_type)
+            {
+                case MemoryInfoType::kSparse:
+                    GFXRECON_LOG_WARNING("VulkanDefaultAllocator::UnmapResourceMemoryDirect unmap only the first "
+                                         "memory of sparse memories.");
+                    break;
+                case MemoryInfoType::kVideoSession:
+                    GFXRECON_LOG_WARNING("VulkanDefaultAllocator::UnmapResourceMemoryDirect unmap only the first "
+                                         "memory of VideoSession.");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
@@ -772,6 +962,233 @@ VkResult VulkanDefaultAllocator::Allocate(const VkMemoryAllocateInfo*  allocate_
     }
 
     return result;
+}
+
+void VulkanDefaultAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    functions_.set_device_memory_priority(device_, memory, priority);
+}
+
+VkResult
+VulkanDefaultAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressInfoNV* memory_get_remote_address_info,
+                                                 VkRemoteAddressNV*                    address,
+                                                 MemoryData                            allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    return functions_.get_memory_remote_address_nv(device_, memory_get_remote_address_info, address);
+}
+
+VkResult VulkanDefaultAllocator::CreateAccelerationStructureNV(const VkAccelerationStructureCreateInfoNV* create_info,
+                                                               const VkAllocationCallbacks* allocation_callbacks,
+                                                               format::HandleId             capture_id,
+                                                               VkAccelerationStructureNV*   acc_str,
+                                                               ResourceData*                allocator_data)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (allocator_data != nullptr)
+    {
+        auto resource_alloc_info         = new ResourceAllocInfo;
+        resource_alloc_info->object_type = VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV;
+        resource_alloc_info->capture_id  = capture_id;
+        (*allocator_data)                = reinterpret_cast<ResourceData>(resource_alloc_info);
+
+        result = functions_.create_acceleration_structure_nv(device_, create_info, allocation_callbacks, acc_str);
+    }
+
+    return result;
+}
+
+void VulkanDefaultAllocator::DestroyAccelerationStructureNV(VkAccelerationStructureNV    acc_str,
+                                                            const VkAllocationCallbacks* allocation_callbacks,
+                                                            ResourceData                 allocator_data)
+{
+    if (allocator_data != 0)
+    {
+        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+        delete resource_alloc_info;
+    }
+
+    functions_.destroy_acceleration_structure_nv(device_, acc_str, allocation_callbacks);
+}
+
+void VulkanDefaultAllocator::GetAccelerationStructureMemoryRequirementsNV(
+    const VkAccelerationStructureMemoryRequirementsInfoNV* info,
+    VkMemoryRequirements2KHR*                              memory_requirements,
+    ResourceData                                           allocator_data)
+{
+    functions_.get_acceleration_structure_memory_requirements_nv(device_, info, memory_requirements);
+}
+
+VkResult
+VulkanDefaultAllocator::BindAccelerationStructureMemoryNV(uint32_t bind_info_count,
+                                                          const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+                                                          const ResourceData*    allocator_acc_datas,
+                                                          const MemoryData*      allocator_memory_datas,
+                                                          VkMemoryPropertyFlags* bind_memory_properties)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if ((bind_infos != nullptr) && (allocator_acc_datas != nullptr) && (allocator_memory_datas != nullptr) &&
+        (bind_memory_properties != nullptr))
+    {
+        result = functions_.bind_acceleration_structure_memory_nv(device_, bind_info_count, bind_infos);
+
+        if (result == VK_SUCCESS)
+        {
+            for (uint32_t i = 0; i < bind_info_count; ++i)
+            {
+                auto allocator_acc_data    = allocator_acc_datas[i];
+                auto allocator_memory_data = allocator_memory_datas[i];
+                
+                if (!UpdateAllocInfo(allocator_acc_data,
+                                     MemoryInfoType::kBasic,
+                                     bind_infos[i].memory,
+                                     bind_infos[i].memoryOffset,
+                                     allocator_memory_data,
+                                     &bind_memory_properties[i]))
+                {
+                    GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkAccelerationStructureNV object to a "
+                                         "VkDeviceMemory object without allocator data");
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+VkResult VulkanDefaultAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info,
+                                             int*                        pFd,
+                                             MemoryData                  allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    return functions_.get_memory_fd(device_, get_fd_info, pFd);
+}
+
+VkResult VulkanDefaultAllocator::QueueBindSparse(VkQueue                 queue,
+                                                 uint32_t                bind_info_count,
+                                                 const VkBindSparseInfo* bind_infos,
+                                                 VkFence                 fence,
+                                                 ResourceData*           allocator_buf_datas,
+                                                 const MemoryData*       allocator_buf_mem_datas,
+                                                 const format::HandleId* buf_mem_capture_ids,
+                                                 VkMemoryPropertyFlags*  bind_buf_mem_properties,
+                                                 ResourceData*           allocator_img_op_datas,
+                                                 const MemoryData*       allocator_img_op_mem_datas,
+                                                 const format::HandleId* img_op_mem_capture_ids,
+                                                 VkMemoryPropertyFlags*  bind_img_op_mem_properties,
+                                                 ResourceData*           allocator_img_datas,
+                                                 const MemoryData*       allocator_img_mem_datas,
+                                                 const format::HandleId* img_mem_capture_ids,
+                                                 VkMemoryPropertyFlags*  bind_img_mem_properties)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    
+    if (bind_infos != nullptr)
+    {
+        result = functions_.queue_bind_sparse(queue, bind_info_count, bind_infos, fence);
+        
+        if (result == VK_SUCCESS)
+        {
+            uint32_t alc_buf_i    = 0;
+            uint32_t alc_img_op_i = 0;
+            uint32_t alc_img_i    = 0;
+
+            uint32_t alc_buf_mem_i    = 0;
+            uint32_t alc_img_op_mem_i = 0;
+            uint32_t alc_img_mem_i    = 0;
+
+            for (uint32_t i = 0; i < bind_info_count; ++i)
+            {
+                const auto* bind_info = &bind_infos[i];
+
+                for (uint32_t buf_i = 0; buf_i < bind_info->bufferBindCount; ++buf_i)
+                {
+                    auto bind         = bind_info->pBufferBinds[buf_i];
+                    auto alc_buf_data = allocator_buf_datas[alc_buf_i];
+
+                    for (uint32_t mem_i = 0; mem_i < bind.bindCount; ++mem_i)
+                    {
+                        auto alc_buf_mem_data = allocator_buf_mem_datas[alc_buf_mem_i];
+
+                        if (bind.pBinds[mem_i].memory != VK_NULL_HANDLE &&
+                            !UpdateAllocInfo(alc_buf_data,
+                                             MemoryInfoType::kSparse,
+                                             bind.pBinds[mem_i].memory,
+                                             bind.pBinds[mem_i].memoryOffset,
+                                             alc_buf_mem_data,
+                                             &bind_buf_mem_properties[alc_buf_mem_i]))
+                        {
+                            GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkBuffer object to a "
+                                                 "VkDeviceMemory object on QueueBindSparse without allocator data");
+                        }
+                        ++alc_buf_mem_i;
+                    }
+                    ++alc_buf_i;
+                }
+
+                for (uint32_t img_op_i = 0; img_op_i < bind_info->imageOpaqueBindCount; ++img_op_i)
+                {
+                    auto bind            = bind_info->pImageOpaqueBinds[img_op_i];
+                    auto alc_img_op_data = allocator_img_op_datas[alc_img_op_i];
+
+                    for (uint32_t mem_i = 0; mem_i < bind.bindCount; ++mem_i)
+                    {
+                        auto alc_img_op_mem_data = allocator_img_op_mem_datas[alc_img_op_mem_i];
+
+                        if (bind.pBinds[mem_i].memory != VK_NULL_HANDLE &&
+                            !UpdateAllocInfo(alc_img_op_data,
+                                             MemoryInfoType::kSparse,
+                                             bind.pBinds[mem_i].memory,
+                                             bind.pBinds[mem_i].memoryOffset,
+                                             alc_img_op_mem_data,
+                                             &bind_img_op_mem_properties[alc_img_op_mem_i]))
+                        {
+                            GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a opaque VkImage object to a "
+                                                 "VkDeviceMemory object on QueueBindSparse without allocator data");
+                        }
+                        ++alc_img_op_mem_i;
+                    }
+                    ++alc_img_op_i;
+                }
+
+                for (uint32_t img_i = 0; img_i < bind_info->imageBindCount; ++img_i)
+                {
+                    auto bind         = bind_info->pImageBinds[img_i];
+                    auto alc_img_data = allocator_img_datas[alc_img_i];
+
+                    for (uint32_t mem_i = 0; mem_i < bind.bindCount; ++mem_i)
+                    {
+                        auto alc_img_mem_data = allocator_img_mem_datas[alc_img_mem_i];
+
+                        if (bind.pBinds[mem_i].memory != VK_NULL_HANDLE &&
+                            !UpdateAllocInfo(alc_img_data,
+                                             MemoryInfoType::kSparse,
+                                             bind.pBinds[mem_i].memory,
+                                             bind.pBinds[mem_i].memoryOffset,
+                                             alc_img_mem_data,
+                                             &bind_img_mem_properties[alc_img_mem_i]))
+                        {
+                            GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkImage object to a "
+                                                 "VkDeviceMemory object on QueueBindSparse without allocator data");
+                        }
+                        ++alc_img_mem_i;
+                    }
+                    ++alc_img_i;
+                }
+            }
+        }
+    }
+    return result;
+}
+
+uint64_t VulkanDefaultAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
+                                                                     MemoryData allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    return functions_.get_device_memory_opaque_capture_address(device_, info);
 }
 
 GFXRECON_END_NAMESPACE(decode)
