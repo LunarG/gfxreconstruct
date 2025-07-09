@@ -919,6 +919,14 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
             PrintAnnotations(annotation_recorder.GetAnnotationCount(),
                              annotation_recorder.GetOperationAnnotationDatas(),
                              target_annotations);
+
+            std::stringstream stats_stream;
+            file_processor.DumpFileStats(stats_stream);
+            std::string stats = stats_stream.str();
+            if (!stats.empty())
+            {
+                GFXRECON_WRITE_CONSOLE("File level statistics: \n%s", stats.c_str());
+            }
         }
         else
         {

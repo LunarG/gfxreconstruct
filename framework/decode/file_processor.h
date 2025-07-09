@@ -35,6 +35,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -134,6 +135,12 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    template <typename Stream>
+    void DumpFileStats(Stream& stream) const
+    {
+        file_stats_.Dump(stream);
+    };
+
   protected:
     bool ContinueDecoding();
 
@@ -193,6 +200,141 @@ class FileProcessor
     }
 
   private:
+    constexpr static bool kLogFileStats = true;
+    template <bool EnableLog>
+    struct FileStats
+    {
+        void AddBlockStats(const format::BlockHeader& header) {}
+        void AddApiCallStats(const format::BlockHeader& header, format::ApiCallId call_id) {}
+        template <typename T>
+        void Dump(T& out)
+        {}
+    };
+
+    template <>
+    struct FileStats<true>
+    {
+        void AddBlockStats(const format::BlockHeader& header)
+        {
+            file_stat.Add(header.size);
+            block_stat[header.type].Add(header.size);
+        }
+        void AddApiCallStats(const format::BlockHeader& header, format::ApiCallId call_id)
+        {
+            func_stat[call_id].Add(header.size);
+        }
+
+        struct Stat
+        {
+            constexpr static int    kLimit    = 20; // Anything bigger that 1M is just "big"
+            constexpr static size_t kBig      = size_t(1) << (kLimit - 1);
+            constexpr static bool   kLogBase2 = true; // Anything bigger that 16K is just "big"
+            Stat()                            = default;
+            size_t                   count    = 0;
+            size_t                   total    = 0;
+            std::map<size_t, size_t> size_hist; // Ordered for useful output
+            void                     Add(size_t size)
+            {
+                count++;
+                total += size;
+                if constexpr (kLogBase2)
+                {
+                    int log2 = 0;
+                    while ((log2 < kLimit) && size > (size_t(1) << log2))
+                    {
+                        log2++;
+                    }
+                    size_hist[log2]++;
+                }
+                else
+                {
+                    size_hist[size]++;
+                }
+            }
+            template <typename Stream, typename T>
+            void
+            Dump(Stream& out, const T& type, const char* base_indent, const char* indent, const char* final_sep) const
+            {
+                out << base_indent << "\"" << type << "\" : {" << std::endl;
+                out << base_indent << indent << "\"count\" : " << count << "," << std::endl;
+                out << base_indent << indent << "\"total\" : " << total << "," << std::endl;
+                out << base_indent << indent << "\"size_hist\" : {" << std::endl;
+                const auto hist_count  = size_hist.size();
+                size_t     entry_index = 0;
+
+                for (const auto& entry : size_hist)
+                {
+                    out << base_indent << indent << indent << "\"";
+                    size_t size = entry.first;
+                    if constexpr (kLogBase2)
+                    {
+                        if (size == kLimit)
+                        {
+                            out << "< " << kBig;
+                        }
+                        else
+                        {
+                            out << (size_t(1) << size);
+                        }
+                    }
+                    else
+                    {
+                        out << size;
+                    }
+
+                    entry_index++;
+                    const char* sep = entry_index < hist_count ? "," : "";
+                    out << "\" : " << entry.second << sep << std::endl;
+                }
+                out << base_indent << indent << "}" << std::endl;
+                out << base_indent << "}" << final_sep << std::endl;
+            }
+        };
+        std::unordered_map<format::BlockType, Stat> block_stat;
+        std::unordered_map<format::ApiCallId, Stat> func_stat;
+        Stat                                        file_stat;
+
+        const char*       BlockName(format::BlockType) const;
+        const std::string BlockName(format::ApiCallId call_id) const;
+
+        template <typename T, typename Map, typename Name>
+        void Dump(T&          out,
+                  const Map&  map,
+                  Name&       name,
+                  const char* base_indent,
+                  const char* indent,
+                  const char* final_sep) const
+        {
+            size_t stat_count = map.size();
+            size_t stat_index = 0;
+            out << base_indent << "\"" << name << "\" : {" << std::endl;
+            std::string indent2(base_indent);
+            indent2 += indent;
+            for (const auto& stat : map)
+            {
+                stat_index++;
+                const char* sep = stat_index < stat_count ? "," : "";
+                stat.second.Dump(out, BlockName(stat.first), indent2.c_str(), indent, sep);
+            }
+            out << base_indent << "}" << final_sep << std::endl;
+        }
+
+        template <typename T>
+        void Dump(T& out) const
+        {
+            const char* indent = "    ";
+            out << "{" << std::endl;
+            const char* dump_sep = ",";
+            file_stat.Dump(out, "file_stat", indent, indent, dump_sep);
+
+            Dump(out, block_stat, "block_stats", indent, indent, ",");
+            Dump(out, func_stat, "func_stats", indent, indent, "");
+
+            out << "}" << std::endl;
+        }
+    };
+    FileStats<kLogFileStats> file_stats_;
+
     bool ProcessFileHeader();
 
     virtual bool ProcessBlocks();
