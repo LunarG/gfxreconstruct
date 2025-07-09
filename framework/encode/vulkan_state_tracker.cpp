@@ -3313,7 +3313,7 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
                 vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                         pRenderingInfo->pColorAttachments[i].imageView);
-                
+
                 // The image view is allowed to be null
                 if (img_view_wrapper != nullptr)
                 {
