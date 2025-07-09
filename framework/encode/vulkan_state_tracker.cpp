@@ -2024,7 +2024,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
-        wrapper->asset_map_lock.lock();
+    wrapper->asset_map_lock.lock();
 
     // If the memory gets destroyed before the asset(s) it's bound to, dump the AS as we would in the DestroyBuffer call
     for (const auto& bound_asset : wrapper->bound_assets)
