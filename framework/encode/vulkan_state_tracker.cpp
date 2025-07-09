@@ -853,6 +853,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                                                    uint32_t                    copy_count,
                                                    const VkCopyDescriptorSet*  copies)
 {
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+
     // When processing descriptor updates, we pack the unique handle ID into the stored
     // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
     // exists at state write time by checking for the ID in the active state table.
@@ -3311,9 +3313,12 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
                 vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                         pRenderingInfo->pColorAttachments[i].imageView);
-                assert(img_view_wrapper != nullptr);
-
-                wrapper->modified_assets.insert(img_view_wrapper->image);
+                
+                // The image view is allowed to be null
+                if (img_view_wrapper != nullptr)
+                {
+                    wrapper->modified_assets.insert(img_view_wrapper->image);
+                }
             }
         }
 

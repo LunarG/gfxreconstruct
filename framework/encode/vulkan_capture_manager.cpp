@@ -1506,6 +1506,8 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
                     device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
                     deferred_operation_wrapper->create_infos[i].groupCount;
 
+                pipeline_wrapper->num_shader_group_handles = deferred_operation_wrapper->create_infos[i].groupCount;
+
                 std::vector<uint8_t> data(data_size);
                 result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
                     device_wrapper->handle,
