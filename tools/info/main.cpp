@@ -525,7 +525,8 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
             GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", props.second.vendorID);
             GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", props.second.deviceID);
             GFXRECON_WRITE_CONSOLE("\tDevice type: %u", props.second.deviceType);
-            GFXRECON_WRITE_CONSOLE("\tPipeline cache UUID: 0x%x", props.second.pipelineCacheUUID);
+            std::string uuid_string = gfxrecon::util::uuid_to_string(VK_UUID_SIZE, props.second.pipelineCacheUUID);
+            GFXRECON_WRITE_CONSOLE("\tPipeline cache UUID: 0x%s", uuid_string.c_str());
             GFXRECON_WRITE_CONSOLE("\tDevice name: %s", props.second.deviceName);
         }
 
