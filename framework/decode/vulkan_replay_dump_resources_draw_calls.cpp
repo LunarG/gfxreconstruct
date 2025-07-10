@@ -1534,7 +1534,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     DrawCallParams& dc_params = *dc_params_entry->second;
 
     MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
-    bool              empty_draw_call        = false;
+    bool              empty_draw_call        = true;
 
     VulkanDumpResourceInfo res_info_base{};
     res_info_base.device_info                  = device_info;
@@ -1571,7 +1571,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             {
                 const DrawCallParams::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
                     dc_params.dc_params_union.draw_indirect_count;
-                empty_draw_call = !ic_params.actual_draw_count;
 
                 if (ic_params.actual_draw_count)
                 {
@@ -1581,6 +1580,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].indexCount;
                         if (indirect_index_count && ic_params.draw_indexed_params[d].instanceCount)
                         {
+                            empty_draw_call = false;
+
                             const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
                             indexed_params.emplace_back(
@@ -1595,7 +1596,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             {
                 const DrawCallParams::DrawCallParamsUnion::DrawIndirectParams& i_params =
                     dc_params.dc_params_union.draw_indirect;
-                empty_draw_call = !i_params.draw_count;
 
                 if (i_params.draw_count)
                 {
@@ -1605,6 +1605,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         const uint32_t indirect_index_count = i_params.draw_indexed_params[d].indexCount;
                         if (indirect_index_count && i_params.draw_indexed_params[d].instanceCount)
                         {
+                            empty_draw_call = false;
+
                             const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
                             indexed_params.emplace_back(
