@@ -94,6 +94,7 @@ def CreateReplayParser():
     parser.add_argument('-p', '--push-file', metavar='LOCAL_FILE', help='Local file to push to the location on device specified by <file>')
     parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
     parser.add_argument('--log-level', metavar='LEVEL', help='Specify highest level message to log. Options are: debug, info, warning, error, and fatal. Default is info. (forwarded to replay tool)')
+    parser.add_argument('--log-timestamps', action='store_true', help='Output a timestamp in front of each log message. (forwarded to replay tool)')
     parser.add_argument('--log-file', metavar='DEVICE_FILE', help='Write log messages to a file at the specified path instead of logcat (forwarded to replay tool)')
     parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
@@ -163,6 +164,9 @@ def MakeExtrasString(args):
     if args.log_level:
         arg_list.append('--log-level')
         arg_list.append('{}'.format(args.log_level))
+
+    if args.log_timestamps:
+        arg_list.append('--log-timestamps')
 
     if args.log_file:
         arg_list.append('--log-file')

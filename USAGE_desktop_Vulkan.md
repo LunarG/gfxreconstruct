@@ -477,6 +477,7 @@ usage: gfxrecon-capture-vulkan.py [-h]
                                   [--compression-type {LZ4,ZLIB,ZSTD,NONE}]
                                   [--file-flush]
                                   [--log-level {debug,info,warn,error,fatal}]
+                                  [--log-timestamps]
                                   [--log-file <file>]
                                   [--memory-tracking-mode {page_guard,assisted,unassisted}]
                                   <program> [<programArgs>]
@@ -507,6 +508,7 @@ optional arguments:
                         capture file
   --log-level {debug,info,warn,error,fatal}
                         Specify highest level message to log, default is info
+  --log-timestamps      Output a timestamp in front of each log message.
   --log-file <logFile>  Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled)
   --memory-tracking-mode {page_guard,assisted,unassisted}
@@ -592,6 +594,7 @@ Optional arguments:
   --version             Print version information and exit.
   --log-level <level>   Specify highest level message to log. Options are:
                         debug, info, warning, error, and fatal. Default is info.
+  --log-timestamps      Output a timestamp in front of each log message.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
