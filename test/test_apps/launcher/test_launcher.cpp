@@ -25,6 +25,9 @@
 #include <acquired_image_app.h>
 #include <host_image_copy_app.h>
 #include <pipeline_binaries_app.h>
+#ifndef __ANDROID__
+#include <set_environment_app.h>
+#endif
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
 #include <triangle_app.h>
@@ -51,25 +54,30 @@
 #include <util/android/intent.h>
 #endif
 
-const char kOptions[] = "-h|--help";
+const char kOptions[]   = "-h|--help";
 const char kArguments[] = "--wsi";
 
-static const char* kAppNames[] = { "acquired-image",
-                                   "host-image-copy",
-                                   "multisample-depth",
-                                   "pipeline-binaries",
-                                   "shader-objects",
-                                   "sparse-resources",
-                                   "triangle",
-                                   "triangle-extra-device",
+static const char* kAppNames[] = {
+    "acquired-image",
+    "host-image-copy",
+    "multisample-depth",
+    "pipeline-binaries",
+#ifndef __ANDROID__
+    "set-environment",
+#endif
+    "shader-objects",
+    "sparse-resources",
+    "triangle",
+    "triangle-extra-device",
 #ifdef __linux__
-                                   "external-memory-fd-export",
-                                   "external-memory-fd-import",
-                                   "wait-for-present",
+    "external-memory-fd-export",
+    "external-memory-fd-import",
+    "wait-for-present",
 #endif
 #ifdef __ANDROID__
-                                   "ahb"
+    "ahb"
 #endif
+    // Add more test apps here as needed.
 };
 
 void PrintUsage(const char* exe_name)
@@ -146,6 +154,12 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         app = std::make_unique<gfxrecon::test_app::pipeline_binaries::App>();
     }
+#ifndef __ANDROID__
+    else if (app_name == "set-environment")
+    {
+        app = std::make_unique<gfxrecon::test_app::set_environment::App>();
+    }
+#endif // __ANDROID__
     else if (app_name == "shader-objects")
     {
         app = std::make_unique<gfxrecon::test_app::shader_objects::App>();

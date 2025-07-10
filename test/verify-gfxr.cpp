@@ -23,9 +23,13 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
                 return false;
             if (key == "\"pipelineCacheUUID\"")
                 return false;
+            if (key == "\"pipeline_cache_uuid\"")
+                return false;
             if (key == "\"ppData\"")
                 return false;
             if (key == "\"fd\"")
+                return false;
+            if (key == "\"app_name\"")
                 return false;
         }
         break;
@@ -33,8 +37,6 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
             if (depth == 1 && parsed.contains("header"))
                 return false;
             if (depth == 1 && parsed.contains("annotation"))
-                return false;
-            if (depth == 1 && parsed.contains("meta"))
                 return false;
             break;
         default:

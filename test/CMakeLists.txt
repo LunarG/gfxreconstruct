@@ -44,6 +44,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
         test_cases/shader-objects.cpp
         test_cases/pipeline-binaries.cpp
         test_cases/acquired-image.cpp
+        test_cases/set-environment.cpp
         verify-gfxr.cpp)
 
     if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
