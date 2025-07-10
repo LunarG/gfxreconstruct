@@ -381,7 +381,31 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         }
 
         StandardCreateWrite(wrapper);
+        if (wrapper_info->heap_flags & D3D12_HEAP_FLAG_CREATE_NOT_RESIDENT)
+        {
+            WriteHeapMakeResidentCmd(wrapper);
+        }
     });
+}
+
+void Dx12StateWriter::WriteHeapMakeResidentCmd(const ID3D12Heap_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    UINT                  num_objects  = 1;
+    HRESULT               return_value = S_OK;
+    const ID3D12Pageable* ppObjects[1];
+    ppObjects[0] = reinterpret_cast<const ID3D12Pageable*>(wrapper);
+
+    encoder_.EncodeUInt32Value(num_objects);
+    encoder_.EncodeObjectArray(ppObjects, num_objects);
+    encoder_.EncodeInt32Value(return_value);
+    WriteMethodCall(
+        format::ApiCallId::ApiCall_ID3D12Device_MakeResident, wrapper_info->create_object_id, &parameter_stream_);
+    parameter_stream_.Clear();
 }
 
 bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)

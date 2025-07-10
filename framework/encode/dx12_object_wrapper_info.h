@@ -438,6 +438,7 @@ struct ID3D12HeapInfo : public DxWrapperInfo
     D3D12_MEMORY_POOL         memory_pool{};
     uint64_t                  heap_size{ 0 };
     D3D12_GPU_VIRTUAL_ADDRESS gpu_va{ 0 };
+    D3D12_HEAP_FLAGS          heap_flags{ D3D12_HEAP_FLAG_NONE };
 
     const void* open_existing_address{ nullptr }; ///< Address used to create heap with OpenExistingHeapFromAddress.
 };

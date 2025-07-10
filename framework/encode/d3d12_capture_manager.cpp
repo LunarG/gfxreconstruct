@@ -848,6 +848,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
         info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
         info->heap_size       = desc->SizeInBytes;
+        info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
@@ -1093,6 +1094,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wr
         info->page_property   = desc->Properties.CPUPageProperty;
         info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
+        info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
