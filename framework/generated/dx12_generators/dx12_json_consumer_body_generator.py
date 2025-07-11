@@ -56,6 +56,16 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
     JSON_OVERRIDES = {}
 
+    ## @brief A set of tuples, each specifying an argument of a method or function which could be
+    ## represented as a binary blob.
+    ## The binary file will be named as follows: [<object_name>.]<[method|function]_name>.<argument_name>-<instance_counter>.bin
+    BINARY_BLOBS = {
+        # Methods:
+        ('ID3D12Device', 'CreateRootSignature', 'pBlobWithRootSignature'),
+        # Free Functions:
+        (None, 'FunctionWithBlob', 'pBlobArgument'), # Example of registering a free function's argument as a binary blob.
+    }
+
     def beginFile(self, genOpts):
         Dx12JsonConsumerHeaderGenerator.beginFile(self, genOpts)
         if genOpts.json_overrides:
@@ -76,6 +86,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         self.newline()
 
     def generate_feature(self):
+        write(format_cpp_code('''
+            inline bool RepresentBinaryFile(const util::JsonOptions& json_options, nlohmann::ordered_json& jdata, std::string_view filename_base, const uint64_t instance_counter, const PointerDecoder<uint8_t>& data)
+            {
+                return util::RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
+            }
+        '''), file=self.outFile)
+        self.newline()
         Dx12BaseGenerator.generate_feature(self)
         self.write_dx12_consumer_class('Json')
 
@@ -132,7 +149,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         # Generate a correct FieldToJson for each argument:
         for parameter in method_info['parameters']:
             value = self.get_value_info(parameter)
-            code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+            code += "    " + self.make_field_to_json(None, method_info['name'], value, "options") + "\n"
 
         code += remove_leading_empty_lines('''
                 }}
@@ -159,7 +176,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             # Generate a correct FieldToJson for each argument:
             for parameter in method_info['parameters']:
                 value = self.get_value_info(parameter)
-                code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+                code += "    " + self.make_field_to_json(class_name, method_info['name'], value, "options") + "\n"
             code += "}}\n"
 
         code += "writer_->WriteBlockEnd();"
@@ -167,16 +184,31 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         return code
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    def make_field_to_json(self, parent_name, value_info, options_name):
-        function_name = self.choose_field_to_json_name(value_info)
+    def make_field_to_json(self, class_name, function_name, value_info, options_name):
+        # Handle arguments that are pointers to binary blobs:
+        if (class_name, function_name, value_info.name) in self.BINARY_BLOBS:
+            field_to_json  = '        static thread_local uint64_t {2}_counter{{{{ 0 }}}};\n'
+            if class_name == None:
+                # A function argument:
+                field_to_json += '        const bool written = RepresentBinaryFile(options, args["{2}"], "{1}.{2}", {2}_counter, {2});\n'
+            else:
+                # A method argument:
+                field_to_json += '        const bool written = RepresentBinaryFile(options, args["{2}"], "{0}.{1}.{2}", {2}_counter, *{2});\n'
+            field_to_json += '        {2}_counter += written;\n'
+            field_to_json = field_to_json.format(class_name, function_name, value_info.name)
+            return field_to_json
+
+        # Handle arguments that are not pointers to binary blobs:
+
+        field_to_json_name = self.choose_field_to_json_name(value_info)
         src = value_info.name
         ## Special case for pointers to flag sets defined by enums:
         ## (easier than having pointer decoder versions of each flagset type's FieldToString)
-        if value_info.is_pointer and function_name.startswith("FieldToJson_"):
+        if value_info.is_pointer and field_to_json_name.startswith("FieldToJson_"):
             src = "*" + src + "->GetPointer()"
-        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)
+        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(field_to_json_name, "args", value_info.name, src, options_name)
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
-            print("ALERT: anon union " + value_info.name + " in " + parent_name)
+            print("ALERT: anon union " + value_info.name)
 
         return field_to_json

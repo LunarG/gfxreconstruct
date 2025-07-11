@@ -15,11 +15,9 @@
       "WriteToSubresource"
     ]
   },
-  "todo2": "Remove the ones below which can be handled with anon union support.",
   "structures": [
     "GUID Comment - We can generate the header for the decoded struct but the body needs a manual implementation.",
     "GUID",
-    "Comment: definitely need custom json conversion below",
     "D3D12_PIPELINE_STATE_STREAM_DESC",
     "D3D12_STATE_SUBOBJECT",
     "D3D12_CPU_DESCRIPTOR_HANDLE"
