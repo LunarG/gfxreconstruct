@@ -1754,8 +1754,8 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 
         const VkDeviceSize   size = sizeof(VkDispatchIndirectCommand);
         std::vector<uint8_t> data;
-        VkResult             res =
-            resource_util.ReadFromBufferResource(i_params.new_params_buffer, size, 0, VK_QUEUE_FAMILY_IGNORED, data);
+        VkResult             res = resource_util.ReadFromBufferResource(
+            i_params.new_params_buffer, size, 0, i_params.params_buffer_info->queue_family_index, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -1763,7 +1763,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
         }
 
         assert(data.size() == sizeof(VkDispatchIndirectCommand));
-        util::platform::MemoryCopy(&i_params.dispatch_params, size, data.data(), size);
+        util::platform::MemoryCopy(&i_params.fetched_dispatch_params, size, data.data(), size);
     }
 
     for (auto& params : trace_rays_params_)

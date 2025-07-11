@@ -1803,10 +1803,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
         {
             const auto& ds_params = draw_call_info.disp_param->dispatch_params_union.dispatch_indirect;
 
-            assert(ds_params.dispatch_params != nullptr);
-            params_json_entries["groupCountX"] = ds_params.dispatch_params->groupCountX;
-            params_json_entries["groupCountY"] = ds_params.dispatch_params->groupCountY;
-            params_json_entries["groupCountZ"] = ds_params.dispatch_params->groupCountZ;
+            params_json_entries["groupCountX"] = ds_params.fetched_dispatch_params.groupCountX;
+            params_json_entries["groupCountY"] = ds_params.fetched_dispatch_params.groupCountY;
+            params_json_entries["groupCountZ"] = ds_params.fetched_dispatch_params.groupCountZ;
         }
         break;
 
