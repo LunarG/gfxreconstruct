@@ -362,15 +362,12 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                      VkFence                 fence,
                                      ResourceData*           allocator_buf_datas,
                                      const MemoryData*       allocator_buf_mem_datas,
-                                     const format::HandleId* buf_mem_capture_ids,
                                      VkMemoryPropertyFlags*  bind_buf_mem_properties,
                                      ResourceData*           allocator_img_op_datas,
                                      const MemoryData*       allocator_img_op_mem_datas,
-                                     const format::HandleId* img_op_mem_capture_ids,
                                      VkMemoryPropertyFlags*  bind_img_op_mem_properties,
                                      ResourceData*           allocator_img_datas,
                                      const MemoryData*       allocator_img_mem_datas,
-                                     const format::HandleId* img_mem_capture_ids,
                                      VkMemoryPropertyFlags*  bind_img_mem_properties) override;
 
     virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,

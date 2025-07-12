@@ -4389,21 +4389,18 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     std::vector<const VulkanDeviceMemoryInfo*>         buf_mem_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_buf_datas;
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_buf_mem_datas;
-    std::vector<format::HandleId>                      buf_mem_capture_ids;
     std::vector<VkMemoryPropertyFlags>                 buf_mem_prop_flags;
 
     std::vector<VulkanImageInfo*>                      img_op_infos;
     std::vector<const VulkanDeviceMemoryInfo*>         img_op_mem_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_img_op_datas;
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_img_op_mem_datas;
-    std::vector<format::HandleId>                      img_op_mem_capture_ids;
     std::vector<VkMemoryPropertyFlags>                 img_op_mem_prop_flags;
 
     std::vector<VulkanImageInfo*>                      img_infos;
     std::vector<const VulkanDeviceMemoryInfo*>         img_mem_infos;
     std::vector<VulkanResourceAllocator::ResourceData> allocator_img_datas;
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_img_mem_datas;
-    std::vector<format::HandleId>                      img_mem_capture_ids;
     std::vector<VkMemoryPropertyFlags>                 img_mem_prop_flags;
 
     for (uint32_t i = 0; i < bindInfoCount; ++i)
@@ -4438,12 +4435,10 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                 if (mem_info != nullptr)
                 {
                     allocator_buf_mem_datas.push_back(mem_info->allocator_data);
-                    buf_mem_capture_ids.push_back(mem_info->capture_id);
                 }
                 else
                 {
                     allocator_buf_mem_datas.push_back(0);
-                    buf_mem_capture_ids.push_back(format::kNullHandleId);
                 }
             }
         }
@@ -4476,12 +4471,10 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                 if (mem_info != nullptr)
                 {
                     allocator_img_op_mem_datas.push_back(mem_info->allocator_data);
-                    img_op_mem_capture_ids.push_back(mem_info->capture_id);
                 }
                 else
                 {
                     allocator_img_op_mem_datas.push_back(0);
-                    img_op_mem_capture_ids.push_back(0);
                 }
             }
         }
@@ -4514,12 +4507,10 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                 if (mem_info != nullptr)
                 {
                     allocator_img_mem_datas.push_back(mem_info->allocator_data);
-                    img_mem_capture_ids.push_back(mem_info->capture_id);
                 }
                 else
                 {
                     allocator_img_mem_datas.push_back(0);
-                    img_mem_capture_ids.push_back(0);
                 }
             }
         }
@@ -4542,15 +4533,12 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                                             fence,
                                             allocator_buf_datas.data(),
                                             allocator_buf_mem_datas.data(),
-                                            buf_mem_capture_ids.data(),
                                             buf_mem_prop_flags.data(),
                                             allocator_img_op_datas.data(),
                                             allocator_img_op_mem_datas.data(),
-                                            img_op_mem_capture_ids.data(),
                                             img_op_mem_prop_flags.data(),
                                             allocator_img_datas.data(),
                                             allocator_img_mem_datas.data(),
-                                            img_mem_capture_ids.data(),
                                             img_mem_prop_flags.data());
     }
     else
@@ -4591,15 +4579,12 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                                                 fence,
                                                 allocator_buf_datas.data(),
                                                 allocator_buf_mem_datas.data(),
-                                                buf_mem_capture_ids.data(),
                                                 buf_mem_prop_flags.data(),
                                                 allocator_img_op_datas.data(),
                                                 allocator_img_op_mem_datas.data(),
-                                                img_op_mem_capture_ids.data(),
                                                 img_op_mem_prop_flags.data(),
                                                 allocator_img_datas.data(),
                                                 allocator_img_mem_datas.data(),
-                                                img_mem_capture_ids.data(),
                                                 img_mem_prop_flags.data());
         }
         else
@@ -4659,15 +4644,12 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
                                                 fence,
                                                 allocator_buf_datas.data(),
                                                 allocator_buf_mem_datas.data(),
-                                                buf_mem_capture_ids.data(),
                                                 buf_mem_prop_flags.data(),
                                                 allocator_img_op_datas.data(),
                                                 allocator_img_op_mem_datas.data(),
-                                                img_op_mem_capture_ids.data(),
                                                 img_op_mem_prop_flags.data(),
                                                 allocator_img_datas.data(),
                                                 allocator_img_mem_datas.data(),
-                                                img_mem_capture_ids.data(),
                                                 img_mem_prop_flags.data());
         }
     }
@@ -5163,7 +5145,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto allocator = device_info->allocator.get();
         assert(allocator != nullptr);
 
-        VulkanResourceAllocator::MemoryData allocator_data;
+        VulkanResourceAllocator::MemoryData allocator_data = 0;
 
         auto* modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(pAllocateInfo->GetPointer());
         auto  replay_memory          = pMemory->GetHandlePointer();
@@ -12001,7 +11983,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetMemoryRemoteAddressNV(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VulkanResourceAllocator::MemoryData allocator_data;
+    VulkanResourceAllocator::MemoryData allocator_data = 0;
 
     auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mem_get_remote_address_info->memory);
 
@@ -12176,7 +12158,7 @@ VulkanReplayConsumerBase::OverrideGetMemoryFdKHR(PFN_vkGetMemoryFdKHR           
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VulkanResourceAllocator::MemoryData allocator_data;
+    VulkanResourceAllocator::MemoryData allocator_data = 0;
 
     auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_get_fd_info->memory);
 
@@ -12199,7 +12181,7 @@ void VulkanReplayConsumerBase::OverrideGetDeviceMemoryOpaqueCaptureAddress(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VulkanResourceAllocator::MemoryData allocator_data;
+    VulkanResourceAllocator::MemoryData allocator_data = 0;
 
     auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_info->memory);
 
