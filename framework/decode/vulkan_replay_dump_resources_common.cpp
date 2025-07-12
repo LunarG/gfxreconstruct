@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_object_info.h"
 #include "util/logging.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
@@ -1156,6 +1157,23 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     }
 
     return bind_points;
+}
+
+uint32_t FindQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families, VkQueueFlags flags)
+{
+    for (uint32_t index = 0; index < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++index)
+    {
+        if (families.queue_family_index_enabled[index])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(index);
+            if ((flags_entry != families.queue_family_properties_flags.end()) && (flags_entry->second & flags) == flags)
+            {
+                return index;
+            }
+        }
+    }
+
+    return VK_QUEUE_FAMILY_IGNORED;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -3138,12 +3138,12 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     auto replay_device_info = physical_device_info->replay_device_info;
     GFXRECON_ASSERT(replay_device_info != nullptr);
 
+    auto table = GetInstanceTable(physical_device);
+    GFXRECON_ASSERT(table != nullptr);
+
     if (replay_device_info->memory_properties == std::nullopt)
     {
         // Memory properties weren't queried before device creation, so retrieve them now.
-        auto table = GetInstanceTable(physical_device);
-        GFXRECON_ASSERT(table != nullptr);
-
         replay_device_info->memory_properties = VkPhysicalDeviceMemoryProperties();
         table->GetPhysicalDeviceMemoryProperties(physical_device, &replay_device_info->memory_properties.value());
     }
@@ -3170,16 +3170,29 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
                                                     create_state.modified_create_info.queueCreateInfoCount,
                                                 0,
                                                 max);
-    device_info->queue_family_index_enabled.clear();
-    device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
+    device_info->enabled_queue_family_flags.queue_family_index_enabled.clear();
+    device_info->enabled_queue_family_flags.queue_family_index_enabled.resize(max_queue_family + 1, false);
+
+    uint32_t                             phys_dev_queue_families_count = 0;
+    std::vector<VkQueueFamilyProperties> phys_dev_queue_props;
+    table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &phys_dev_queue_families_count, nullptr);
+    GFXRECON_ASSERT(phys_dev_queue_families_count);
+
+    phys_dev_queue_props.resize(phys_dev_queue_families_count);
+    table->GetPhysicalDeviceQueueFamilyProperties(
+        physical_device, &phys_dev_queue_families_count, phys_dev_queue_props.data());
 
     for (uint32_t q = 0; q < create_state.modified_create_info.queueCreateInfoCount; ++q)
     {
         const VkDeviceQueueCreateInfo* queue_create_info = &create_state.modified_create_info.pQueueCreateInfos[q];
-        GFXRECON_ASSERT(device_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                        device_info->queue_family_creation_flags.end());
-        device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
-        device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex]  = true;
+        GFXRECON_ASSERT(device_info->enabled_queue_family_flags.queue_family_creation_flags.find(
+                            queue_create_info->queueFamilyIndex) ==
+                        device_info->enabled_queue_family_flags.queue_family_creation_flags.end());
+        device_info->enabled_queue_family_flags.queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
+            queue_create_info->flags;
+        device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
+        device_info->enabled_queue_family_flags.queue_family_properties_flags[queue_create_info->queueFamilyIndex] =
+            phys_dev_queue_props[queue_create_info->queueFamilyIndex].queueFlags;
     }
 
     // Restore modified property/feature create info values to the original application values

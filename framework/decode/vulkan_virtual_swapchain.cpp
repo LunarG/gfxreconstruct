@@ -217,12 +217,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
     {
         // If we're past the point of enabled queues, then stop looking because we really can't enable
         // a queue that isn't flagged during device creation.
-        if (queue_family_index >= static_cast<uint32_t>(device_info->queue_family_index_enabled.size()))
+        if (queue_family_index >=
+            static_cast<uint32_t>(device_info->enabled_queue_family_flags.queue_family_index_enabled.size()))
         {
             break;
         }
 
-        if (!device_info->queue_family_index_enabled[queue_family_index])
+        if (!device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
         {
             continue;
         }
@@ -278,8 +279,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 // We only want to look at a given queue if it was enabled during device creation time
                 // and if it supports present.  Otherwise, we don't need to create a command pool,
                 // command buffers, and semaphores for performing the swapchain copy.
-                if (device_info->queue_family_index_enabled.size() <= queue_family_index ||
-                    !device_info->queue_family_index_enabled[queue_family_index])
+                if (device_info->enabled_queue_family_flags.queue_family_index_enabled.size() <= queue_family_index ||
+                    !device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
                 {
                     GFXRECON_LOG_DEBUG("Virtual swapchain skipping creating blit info for queue family %d because it "
                                        "was not enabled by the device",
