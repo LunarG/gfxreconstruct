@@ -2328,6 +2328,11 @@ void VulkanRebindAllocator::GetVmaAllocations(MemoryData allocator_data, std::ve
 {
     auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
 
+    if (memory_alloc_info == nullptr)
+    {
+        return;
+    }
+
     for (const auto& res_alc : memory_alloc_info->original_objects)
     {
         for (const auto& mem_info : res_alc.second->bound_memory_infos)
@@ -2345,12 +2350,15 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
                                                       VkDeviceSize*  committed_memory_in_bytes,
                                                       MemoryData     allocator_data)
 {
+    VkDeviceMemory modified_mem = VK_NULL_HANDLE;
+
     std::vector<VmaAllocation> alcs;
     GetVmaAllocations(allocator_data, alcs);
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocations for GetDeviceMemoryCommitment");
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for GetDeviceMemoryCommitment");
+        functions_.get_device_memory_commitment(device_, modified_mem, committed_memory_in_bytes);
     }
 
     for (const auto& alc : alcs)
@@ -2358,7 +2366,7 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
         VmaAllocationInfo allocation_info{};
         allocator_->GetAllocationInfo(alc, &allocation_info);
 
-        const auto modified_mem = allocation_info.deviceMemory;
+        modified_mem = allocation_info.deviceMemory;
 
         switch (alc->GetType())
         {
@@ -2384,12 +2392,15 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
 
 void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data)
 {
+    VkDeviceMemory modified_mem = VK_NULL_HANDLE;
+
     std::vector<VmaAllocation> alcs;
     GetVmaAllocations(allocator_data, alcs);
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocations for SetDeviceMemoryPriority");
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for SetDeviceMemoryPriority");
+        functions_.set_device_memory_priority(device_, modified_mem, priority);
     }
 
     for (const auto& alc : alcs)
@@ -2397,7 +2408,7 @@ void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float
         VmaAllocationInfo allocation_info{};
         allocator_->GetAllocationInfo(alc, &allocation_info);
 
-        const auto modified_mem = allocation_info.deviceMemory;
+        modified_mem = allocation_info.deviceMemory;
 
         switch (alc->GetType())
         {
@@ -2426,17 +2437,20 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
                                                 VkRemoteAddressNV*                    address,
                                                 MemoryData                            allocator_data)
 {
-    auto result = VK_ERROR_INITIALIZATION_FAILED;
+    auto modified_get_mem_remote_addr_info = *memory_get_remote_address_info;
 
     std::vector<VmaAllocation> alcs;
     GetVmaAllocations(allocator_data, alcs);
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocations for GetMemoryRemoteAddressNV");
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for GetMemoryRemoteAddressNV");
+
+        modified_get_mem_remote_addr_info.memory = VK_NULL_HANDLE;
+        return functions_.get_memory_remote_address_nv(device_, &modified_get_mem_remote_addr_info, address);
     }
 
-    auto modified_get_mem_remote_addr_info = *memory_get_remote_address_info;
+    auto result = VK_ERROR_INITIALIZATION_FAILED;
 
     for (const auto& alc : alcs)
     {
@@ -2664,17 +2678,20 @@ VulkanRebindAllocator::BindAccelerationStructureMemoryNV(uint32_t               
 VkResult
 VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int* pFd, MemoryData allocator_data)
 {
-    auto result = VK_ERROR_INITIALIZATION_FAILED;
+    auto modified_get_fd_info = *get_fd_info;
 
     std::vector<VmaAllocation> alcs;
     GetVmaAllocations(allocator_data, alcs);
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocations for GetMemoryFd");
+        GFXRECON_LOG_ERROR("There's no allocationsor memory is VK_NULL_HANDLE for GetMemoryFd");
+
+        modified_get_fd_info.memory = VK_NULL_HANDLE;
+        return functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
     }
 
-    auto modified_get_fd_info = *get_fd_info;
+    auto result = VK_ERROR_INITIALIZATION_FAILED;
 
     for (const auto& alc : alcs)
     {
@@ -2910,15 +2927,12 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                 VkFence                 fence,
                                                 ResourceData*           allocator_buf_datas,
                                                 const MemoryData*       allocator_buf_mem_datas,
-                                                const format::HandleId* buf_mem_capture_ids,
                                                 VkMemoryPropertyFlags*  bind_buf_mem_properties,
                                                 ResourceData*           allocator_img_op_datas,
                                                 const MemoryData*       allocator_img_op_mem_datas,
-                                                const format::HandleId* img_op_mem_capture_ids,
                                                 VkMemoryPropertyFlags*  bind_img_op_mem_properties,
                                                 ResourceData*           allocator_img_datas,
                                                 const MemoryData*       allocator_img_mem_datas,
-                                                const format::HandleId* img_mem_capture_ids,
                                                 VkMemoryPropertyFlags*  bind_img_mem_properties)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
@@ -2951,21 +2965,25 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     VmaAllocation     allocation = VK_NULL_HANDLE;
                     VmaAllocationInfo allocation_info{};
 
-                    // Since BindSparse could re-bind, it needs to find the existing allocation first, intead of
-                    // allocating a new one. If it always create a new allocation, the new allocation might not be
-                    // filled with data. Plus, BindSparse could bind the same memory with different offset, so it needs
-                    // to create a new allocation for this case. Only the same memory and same offset could re-use the
-                    // existing allocation.
-                    auto is_bound = FindBoundMemory(res_alloc_info,
-                                                    buf_mem_capture_ids[alc_buf_mem_i],
-                                                    bind.pBinds[m_i].memoryOffset,
-                                                    allocation,
-                                                    allocation_info);
-
+                    auto is_bound       = false;
                     auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
 
+                    if (mem_alloc_info)
+                    {
+                        // Since BindSparse could re-bind, it needs to find the existing allocation first, intead of
+                        // allocating a new one. If it always create a new allocation, the new allocation might not be
+                        // filled with data. Plus, BindSparse could bind the same memory with different offset, so it
+                        // needs to create a new allocation for this case. Only the same memory and same offset could
+                        // re-use the existing allocation.
+                        is_bound = FindBoundMemory(res_alloc_info,
+                                                   mem_alloc_info->capture_id,
+                                                   bind.pBinds[m_i].memoryOffset,
+                                                   allocation,
+                                                   allocation_info);
+                    }
+
                     // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
-                    if (mem_alloc_info != nullptr && !is_bound)
+                    if (mem_alloc_info && !is_bound)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
@@ -3022,16 +3040,20 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     VmaAllocation     allocation = VK_NULL_HANDLE;
                     VmaAllocationInfo allocation_info{};
 
-                    auto is_bound = FindBoundMemory(res_alloc_info,
-                                                    img_op_mem_capture_ids[alc_img_op_mem_i],
-                                                    bind.pBinds[m_i].memoryOffset,
-                                                    allocation,
-                                                    allocation_info);
-
+                    auto is_bound = false;
                     auto mem_alloc_info =
                         reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
 
-                    if (mem_alloc_info != nullptr && !is_bound)
+                    if (mem_alloc_info)
+                    {
+                        is_bound = FindBoundMemory(res_alloc_info,
+                                                   mem_alloc_info->capture_id,
+                                                   bind.pBinds[m_i].memoryOffset,
+                                                   allocation,
+                                                   allocation_info);
+                    }
+
+                    if (mem_alloc_info && !is_bound)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
@@ -3089,15 +3111,19 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     VmaAllocation     allocation = VK_NULL_HANDLE;
                     VmaAllocationInfo allocation_info{};
 
-                    auto is_bound = FindBoundMemory(res_alloc_info,
-                                                    img_mem_capture_ids[alc_img_mem_i],
-                                                    bind.pBinds[m_i].memoryOffset,
-                                                    allocation,
-                                                    allocation_info);
-
+                    auto is_bound       = false;
                     auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
 
-                    if (mem_alloc_info != nullptr && !is_bound)
+                    if (mem_alloc_info)
+                    {
+                        is_bound = FindBoundMemory(res_alloc_info,
+                                                   mem_alloc_info->capture_id,
+                                                   bind.pBinds[m_i].memoryOffset,
+                                                   allocation,
+                                                   allocation_info);
+                    }
+
+                    if (mem_alloc_info && !is_bound)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
@@ -3154,17 +3180,21 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                                     MemoryData allocator_data)
 {
-    uint64_t result = 0;
+    auto modified_info = *info;
 
     std::vector<VmaAllocation> alcs;
     GetVmaAllocations(allocator_data, alcs);
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocations for GetDeviceMemoryOpaqueCaptureAddress");
+        GFXRECON_LOG_WARNING(
+            "There's no allocations or memory is VK_NULL_HANDLE for GetDeviceMemoryOpaqueCaptureAddress");
+
+        modified_info.memory = VK_NULL_HANDLE;
+        return functions_.get_device_memory_opaque_capture_address(device_, &modified_info);
     }
 
-    auto modified_info = *info;
+    uint64_t result = 0;
 
     for (const auto& alc : alcs)
     {
