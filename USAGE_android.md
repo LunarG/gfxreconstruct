@@ -860,10 +860,11 @@ options:
                         Scale screenshot dimensions. Overrides --screenshot-
                         size, if specified. Expects a number which can be
                         decimal
-  --capture             Capture the replaying GFXR file. Capture options are set using
-                        environment variables or a layer settings file. The capture
-                        functionality is included in the `gfxrecon-replay` executable--
-                        no GFXR capture layer is added to the Vulkan layer chain.
+  --capture             Capture the replaying GFXR file. Capture option behavior and
+                        usage is the same as when capturing with the GFXR layer. The
+                        capture functionality is included in the `gfxrecon-replay`
+                        executable--no GFXR capture layer is added to the Vulkan layer
+                        chain.
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
