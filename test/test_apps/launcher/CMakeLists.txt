@@ -42,6 +42,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
+    gfxrecon-testapp-set-environment
     gfxrecon-testapp-shader-objects
     gfxrecon-testapp-sparse-resources
     gfxrecon-testapp-triangle

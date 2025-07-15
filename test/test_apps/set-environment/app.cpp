@@ -20,11 +20,38 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include "set_environment_app.h"
 
-#include "verify-gfxr.h"
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(set_environment)
 
-TEST(AndroidHardwareBuffer, CorrectGFXR)
+static void SetEnvironmentVariable(const char* name, const char* value)
 {
-    verify_gfxr("ahb");
+#if defined(__linux__) || defined(__APPLE__)
+    setenv(name, value, 1);
+#elif defined(_WIN32)
+    ::SetEnvironmentVariableA(name, value);
+#else
+#error "Unsupported platform"
+#endif
 }
+
+void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
+{
+    // Set environment variables for the test before the instance is created.
+    SetEnvironmentVariable("GFXRECON_CAPTURE_ENVIRONMENT", "TEST_NAME_1,TEST_NAME_2");
+    SetEnvironmentVariable("TEST_NAME_1", "TEST_VALUE_1");
+    SetEnvironmentVariable("TEST_NAME_2", "TEST_VALUE_2");
+
+    TestAppBase::configure_instance_builder(instance_builder, test_config);
+}
+
+bool App::frame(const int frame_num)
+{
+    return false;
+}
+
+GFXRECON_END_NAMESPACE(set_environment)
+GFXRECON_END_NAMESPACE(test_app)
+GFXRECON_END_NAMESPACE(gfxrecon)

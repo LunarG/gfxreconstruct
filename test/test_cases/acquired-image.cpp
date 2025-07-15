@@ -24,24 +24,7 @@
 
 #include "verify-gfxr.h"
 
-#define TEST_APP_NAME "acquired-image"
-#define TEST_APP_PREFIX "gfxrecon-testapp-"
-
-char const* const APP_RUN_DIRECTORY = TEST_APP_NAME;
-
-#ifdef WIN32
-char const* const APP_PATH = TEST_APP_PREFIX TEST_APP_NAME ".exe";
-#else
-char const* const APP_PATH = TEST_APP_PREFIX TEST_APP_NAME;
-#endif
-
-#ifdef __APPLE__
-char const* const KNOWN_GFXR_PATH = TEST_APP_NAME "_macos.gfxr";
-#else
-char const* const KNOWN_GFXR_PATH = TEST_APP_NAME ".gfxr";
-#endif
-
 TEST(AcquiredImage, CorrectGFXR)
 {
-    verify_gfxr(TEST_APP_NAME, KNOWN_GFXR_PATH);
+    verify_gfxr("acquired-image");
 }

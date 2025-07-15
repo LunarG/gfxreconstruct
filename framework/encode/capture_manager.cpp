@@ -1124,62 +1124,20 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
         // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
         std::string env_vars;
-#ifdef _WINDOWS
-        const LPCH env_string  = GetEnvironmentStrings();
-        int        offset      = 0;
-        int        base_offset = 0;
 
-        // Initial loop to count total length
-        while (env_string[offset] != '\0')
+        for (const auto& name : capture_settings_.GetTraceSettings().capture_environment)
         {
-            const char* c = env_string + offset;
-
-            while (env_string[offset] != '\0') offset += 1;
-            offset += 1;
-
-            // Environment variables starting with '=' are relics from the DOS era and can be ignored
-            // Said variables are always at the front, so we can simply bump base_offset to skip them
-            // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
-            if (*c == '=')
-                base_offset = offset;
+            const auto value = util::platform::GetEnv(name.c_str());
+            if (!value.empty())
+            {
+                GFXRECON_LOG_INFO("Capturing environment variable %s", name.c_str());
+                env_vars += name;
+                env_vars += '=';
+                env_vars += value;
+                env_vars += format::kEnvironmentStringDelimeter;
+            }
         }
-        env_vars.reserve(offset - base_offset);
-        offset = base_offset;
 
-        // Second loop to copy string data into allocated buffer
-        while (env_string[offset] != '\0')
-        {
-            const char* c = env_string + offset;
-            env_vars += c;
-            env_vars += format::kEnvironmentStringDelimeter;
-
-            // Advance offset until it points to next null byte of string
-            while (env_string[offset] != '\0') offset += 1;
-
-            // Advance offset to point at the first character of the next string
-            // or null if we're out of strings
-            offset += 1;
-        }
-        FreeEnvironmentStrings(env_string);
-#elif __unix__
-        int    current      = 0;
-        size_t total_length = 0;
-        // Initial loop to count total length
-        while (environ[current] != nullptr)
-        {
-            total_length += util::platform::StringLength(environ[current]);
-            current += 1;
-        }
-        current = 0;
-        env_vars.reserve(total_length);
-        // Second loop to copy string data into allocated buffer
-        while (environ[current] != nullptr)
-        {
-            env_vars += environ[current];
-            env_vars += format::kEnvironmentStringDelimeter;
-            current += 1;
-        }
-#endif
         if (!env_vars.empty())
         {
             env_vars[env_vars.size() - 1] = '\0';

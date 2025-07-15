@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2025 LunarG, Inc.
+** Copyright (c) 2018-2023 Valve Corporation
+** Copyright (c) 2018-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,11 +21,23 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#ifndef GFXRECON_TESTAPP_SET_ENVIRONMENT_H
+#define GFXRECON_TESTAPP_SET_ENVIRONMENT_H
 
-#include "verify-gfxr.h"
+#include <test_app_base.h>
 
-TEST(AndroidHardwareBuffer, CorrectGFXR)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(set_environment)
+
+class App : public gfxrecon::test::TestAppBase
 {
-    verify_gfxr("ahb");
-}
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+    bool frame(const int frame_num) override;
+};
+
+GFXRECON_END_NAMESPACE(set_environment)
+GFXRECON_END_NAMESPACE(test_app)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_TESTAPP_SET_ENVIRONMENT_H

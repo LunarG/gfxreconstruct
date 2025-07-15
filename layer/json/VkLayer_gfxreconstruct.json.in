@@ -215,6 +215,15 @@
                     "default": "LZ4"
                 },
                 {
+                    "key": "capture_environment",
+                    "env": "GFXRECON_CAPTURE_ENVIRONMENT",
+                    "label": "Capture Environment",
+                    "description": "List of environment variables to capture.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "type": "LIST",
+                    "default": []
+                },
+                {
                     "key": "memory_tracking_mode",
                     "env": "GFXRECON_MEMORY_TRACKING_MODE",
                     "label": "Memory Tracking Mode",
