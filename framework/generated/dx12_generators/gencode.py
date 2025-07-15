@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2021-2023 LunarG, Inc.
+# Copyright (c) 2021-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -96,7 +96,7 @@ def make_gen_opts(args):
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
-        '/*', '** Copyright (c) 2021-2023 LunarG, Inc.', '**',
+        '/*', '** Copyright (c) 2021-2025 LunarG, Inc.', '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a copy',
         '** of this software and associated documentation files (the "Software"), to',
         '** deal in the Software without restriction, including without limitation the',

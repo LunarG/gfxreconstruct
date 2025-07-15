@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020,2022 Valve Corporation
-** Copyright (c) 2018-2020,2022 LunarG, Inc.
+** Copyright (c) 2018-2020,2025 LunarG, Inc.
 ** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a

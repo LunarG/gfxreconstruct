@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2020 Samsung
 # Copyright (c) 2023 Google
-# Copyright (c) 2023 LunarG
+# Copyright (c) 2025 LunarG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ CPP_PREFIX_STRING = [
     '/*',
     '** Copyright (c) 2020 Samsung',
     '** Copyright (c) 2023 Google',
-    '** Copyright (c) 2023 LunarG, Inc.',
+    '** Copyright (c) 2025 LunarG, Inc.',
     '**',
     '** Permission is hereby granted, free of charge, to any person obtaining a',
     '** copy of this software and associated documentation files (the "Software"),',
