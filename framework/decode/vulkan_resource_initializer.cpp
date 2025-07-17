@@ -1514,11 +1514,8 @@ VkResult VulkanResourceInitializer::FlushCommandBuffer(uint32_t queue_family_ind
     {
         device_table_->EndCommandBuffer(iter->second.command_buffer);
 
-        result = ExecuteCommandBuffer(iter->second.queue, iter->second.command_buffer);
-        if (result == VK_SUCCESS)
-        {
-            iter->second.recording = false;
-        }
+        result                 = ExecuteCommandBuffer(iter->second.queue, iter->second.command_buffer);
+        iter->second.recording = false;
     }
 
     return result;
