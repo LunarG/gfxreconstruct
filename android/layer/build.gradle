@@ -19,7 +19,7 @@ android {
             } else if (project.hasProperty("x86_64")) {
                 abiFilters 'x86_64'
             } else {
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a', 'x86_64'
             }
         }
         externalNativeBuild {
