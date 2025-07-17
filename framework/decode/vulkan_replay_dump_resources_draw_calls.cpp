@@ -3275,6 +3275,7 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
             std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
             dc_indices_.reserve(n_command_buffers);
             dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
+            std::sort(dc_indices_.begin(), dc_indices_.end());
         }
     }
 
