@@ -86,12 +86,12 @@ class MetadataJsonConsumer : public Base
         jdata["product_version"] = info.ProductVersion;
         jdata["file_version"]    = info.FileVersion;
         FieldToJson(jdata["app_version"], info.AppVersion);
-        jdata["app_name"]          = info.AppName;
-        jdata["company_name"]      = info.CompanyName;
-        jdata["file_description"]  = info.FileDescription;
-        jdata["internal_name"]     = info.InternalName;
-        jdata["original_filename"] = info.OriginalFilename;
-        jdata["product_name"]      = info.ProductName;
+        jdata["app_name"]          = util::NormalizeUtf8(info.AppName);
+        jdata["company_name"]      = util::NormalizeUtf8(info.CompanyName);
+        jdata["file_description"]  = util::NormalizeUtf8(info.FileDescription);
+        jdata["internal_name"]     = util::NormalizeUtf8(info.InternalName);
+        jdata["original_filename"] = util::NormalizeUtf8(info.OriginalFilename);
+        jdata["product_name"]      = util::NormalizeUtf8(info.ProductName);
         WriteBlockEnd();
     }
 
