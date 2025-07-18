@@ -308,17 +308,17 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
 {
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
-    std::unique_ptr<VulkanResourceAllocator> allocator;
+    std::shared_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
 
     // Map pipeline ID to ray tracing shader group handle capture replay data.
-    std::unordered_map<format::HandleId, const std::vector<uint8_t>> shader_group_handles;
+    std::unordered_map<format::HandleId, std::vector<uint8_t>> shader_group_handles;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
-    std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+    std::shared_ptr<VulkanResourceInitializer> resource_initializer;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
@@ -335,6 +335,21 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
 
     // For use with device deduplication
     format::HandleId duplicate_source_id{ format::kNullHandleId };
+
+    void copy(VulkanDeviceInfo* source_info)
+    {
+        parent                     = source_info->parent;
+        allocator                  = source_info->allocator;
+        array_counts               = source_info->array_counts;
+        opaque_addresses           = source_info->opaque_addresses;
+        shader_group_handles       = source_info->shader_group_handles;
+        extensions                 = source_info->extensions;
+        resource_initializer       = source_info->resource_initializer;
+        property_feature_info      = source_info->property_feature_info;
+        enabled_queue_family_flags = source_info->enabled_queue_family_flags;
+        replay_device_group        = source_info->replay_device_group;
+        duplicate_source_id        = source_info->capture_id;
+    }
 };
 
 struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
