@@ -632,6 +632,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--dump-resources-dump-all-image-subresources] <file>
                         [--pbi-all] [--pbis <index1,index2>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
+                        [--deduplicate-device]
 
 
 Required arguments:
@@ -904,6 +905,9 @@ Optional arguments:
                         `--load-pipeline-cache`.
   --quit-after-frame
               Specify a frame after which replay will terminate.
+
+  --deduplicate-device
+              If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
 ```
 
 ### Key Controls
