@@ -1027,7 +1027,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer = std::make_unique<VulkanResourceInitializer>(
+        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(
             device_info, max_copy_size, properties, have_shader_stencil_write, allocator, table);
     }
 }
@@ -3185,7 +3185,7 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
                                                     create_state.modified_create_info.enabledExtensionCount);
     InitializeResourceAllocator(physical_device_info, replay_device, enabled_extensions, allocator);
 
-    device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+    device_info->allocator = std::shared_ptr<VulkanResourceAllocator>(allocator);
 
     // Track state of physical device properties and features at device creation
     device_info->property_feature_info = create_state.property_feature_info;
@@ -3238,14 +3238,11 @@ VulkanReplayConsumerBase::SetDuplicateDeviceInfo(VulkanPhysicalDeviceInfo* physi
                                                  VulkanDeviceInfo*                                       device_info,
                                                  format::HandleId extant_device_id)
 {
-    auto* extant_device_info         = object_info_table_->GetVkDeviceInfo(extant_device_id);
-    *replay_device                   = extant_device_info->handle;
-    device_info->duplicate_source_id = extant_device_id;
+    auto* extant_device_info = object_info_table_->GetVkDeviceInfo(extant_device_id);
+    *replay_device           = extant_device_info->handle;
+    device_info->copy(extant_device_info);
 
-    CreateDeviceInfoState create_state;
-    ModifyCreateDeviceInfo(physical_device_info, create_info, create_state);
-
-    return PostCreateDeviceUpdateState(physical_device_info, *replay_device, create_state, device_info);
+    return VK_SUCCESS;
 }
 
 VkResult
