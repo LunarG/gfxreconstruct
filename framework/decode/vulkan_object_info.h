@@ -333,7 +333,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     std::vector<VkPhysicalDevice> replay_device_group;
 
     // For use with device deduplication
-    bool is_duplicate{ false };
+    format::HandleId duplicate_source_id{ format::kNullHandleId };
 };
 
 struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
