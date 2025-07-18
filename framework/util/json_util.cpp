@@ -409,7 +409,7 @@ bool RepresentBinaryFile(const util::JsonOptions& json_options,
         {
             std::string filename = GenerateFilename(filename_base, instance_counter);
             std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, filename);
             if (WriteBinaryFile(filepath, data_size, data))
             {
                 FieldToJson(jdata, basename, json_options);
