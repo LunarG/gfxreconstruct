@@ -228,7 +228,7 @@ int inner_main(
 #else
     // Select WSI context based on CLI
     std::string wsi_extension = GetFirstWsiExtensionName(GetWsiPlatform(arg_parser));
-    auto        application   = std::make_unique<gfxrecon::application::Application>(app_name, wsi_extension, nullptr);
+    auto application = std::make_unique<gfxrecon::application::Application>(app_name, nullptr, wsi_extension, nullptr);
 #endif
 
     std::unique_ptr<gfxrecon::test::TestAppBase> app = CreateTestApp(std::move(application),
