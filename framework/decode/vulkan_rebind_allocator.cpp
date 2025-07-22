@@ -1461,8 +1461,6 @@ void VulkanRebindAllocator::ReportBindAccelerationStructureMemoryNVIncompatibili
 {
     GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
     GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
-
-    ReportBindIncompatibility(allocator_acc_datas, bind_info_count);
 }
 
 void VulkanRebindAllocator::ReportQueueBindSparseIncompatibility(VkQueue                 queue,
@@ -2103,13 +2101,6 @@ VmaMemoryUsage VulkanRebindAllocator::GetVideoSeesionMemoryUsage(VkMemoryPropert
     return AdjustMemoryUsage(memory_usage, replay_requirements);
 }
 
-VmaMemoryUsage
-VulkanRebindAllocator::GetAccelerationStructureMemoryNVUsage(VkMemoryPropertyFlags       capture_properties,
-                                                             const VkMemoryRequirements& replay_requirements)
-{
-    return GetVideoSeesionMemoryUsage(capture_properties, replay_requirements);
-}
-
 VmaMemoryUsage VulkanRebindAllocator::AdjustMemoryUsage(VmaMemoryUsage              desired_usage,
                                                         const VkMemoryRequirements& replay_requirements)
 {
@@ -2491,27 +2482,9 @@ VkResult VulkanRebindAllocator::CreateAccelerationStructureNV(const VkAccelerati
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
     GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
-
-    if ((create_info != nullptr) && (acc_str != nullptr) && (allocator_data != nullptr))
-    {
-
-        result = functions_.create_acceleration_structure_nv(device_, create_info, nullptr, acc_str);
-
-        if (result >= 0)
-        {
-            auto resource_alloc_info         = new ResourceAllocInfo;
-            resource_alloc_info->object_type = VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV;
-            (*allocator_data)                = reinterpret_cast<uintptr_t>(resource_alloc_info);
-
-            if (create_info->pNext != nullptr)
-            {
-                resource_alloc_info->uses_extensions = true;
-            }
-        }
-    }
-
-    return result;
+    GFXRECON_LOG_FATAL("-m rebind doesn't support CreateAccelerationStructureNV. VK_NV_ray_tracing is deprecated. It "
+                       "won't get more support.");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 void VulkanRebindAllocator::DestroyAccelerationStructureNV(VkAccelerationStructureNV    acc_str,
@@ -2519,39 +2492,9 @@ void VulkanRebindAllocator::DestroyAccelerationStructureNV(VkAccelerationStructu
                                                            ResourceData                 allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
-    GFXRECON_ASSERT(acc_str != VK_NULL_HANDLE);
 
-    if (allocator_data != 0)
-    {
-        auto* resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        // It supposes only have one bind memory info.
-        if (resource_alloc_info->bound_memory_infos.size() > 1)
-        {
-            GFXRECON_LOG_WARNING("AccelerationStructureNV should have bind only one memory, but it bound more.");
-        }
-
-        for (auto& mem_info : resource_alloc_info->bound_memory_infos)
-        {
-            auto* mem_alc_info = mem_info.memory_info;
-            if (mem_alc_info != nullptr)
-            {
-                mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(acc_str));
-            }
-
-            if (mem_info.allocation != VK_NULL_HANDLE)
-            {
-                if (mem_info.mapped_pointer != nullptr)
-                {
-                    vmaUnmapMemory(allocator_, mem_info.allocation);
-                }
-                vmaFreeMemory(allocator_, mem_info.allocation);
-            }
-        }
-        delete resource_alloc_info;
-    }
-
-    functions_.destroy_acceleration_structure_nv(device_, acc_str, allocator_->GetAllocationCallbacks());
+    GFXRECON_LOG_FATAL("-m rebind doesn't support DestroyAccelerationStructureNV. VK_NV_ray_tracing is deprecated. It "
+                       "won't get more support.");
 }
 
 void VulkanRebindAllocator::GetAccelerationStructureMemoryRequirementsNV(
@@ -2559,48 +2502,8 @@ void VulkanRebindAllocator::GetAccelerationStructureMemoryRequirementsNV(
     VkMemoryRequirements2KHR*                              memory_requirements,
     ResourceData                                           allocator_data)
 {
-    if (allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->original_sizes.empty())
-        {
-            resource_alloc_info->original_sizes.resize(1);
-        }
-        resource_alloc_info->original_sizes[0] = memory_requirements->memoryRequirements.size;
-    }
-
-    functions_.get_acceleration_structure_memory_requirements_nv(device_, info, memory_requirements);
-}
-
-VkResult VulkanRebindAllocator::AllocateMemoryForAccelerationStructureMemoryNV(
-    VkAccelerationStructureNV               acceleration_structure_nv,
-    const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-    const ResourceAllocInfo&                resource_alloc_info,
-    const MemoryAllocInfo&                  memory_alloc_info,
-    VmaAllocation&                          allocation,
-    VmaAllocationInfo&                      allocation_info)
-{
-    VkAccelerationStructureMemoryRequirementsInfoNV acc_mem_reqs_info = {};
-    acc_mem_reqs_info.sType                 = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV;
-    acc_mem_reqs_info.accelerationStructure = acceleration_structure_nv;
-
-    VkMemoryRequirements2KHR mem_reqs = {};
-    mem_reqs.sType                    = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2_KHR;
-
-    functions_.get_acceleration_structure_memory_requirements_nv(device_, &acc_mem_reqs_info, &mem_reqs);
-
-    auto usage = GetAccelerationStructureMemoryNVUsage(
-        device_memory_properties.memoryTypes[memory_alloc_info.original_index].propertyFlags,
-        mem_reqs.memoryRequirements);
-
-    auto result = VmaAllocateMemory(mem_reqs.memoryRequirements, usage, allocation);
-    if (result == VK_SUCCESS)
-    {
-        allocator_->GetAllocationInfo(allocation, &allocation_info);
-    }
-
-    return result;
+    GFXRECON_LOG_FATAL("-m rebind doesn't support GetAccelerationStructureMemoryRequirementsNV. VK_NV_ray_tracing is "
+                       "deprecated. It won't get more support.");
 }
 
 VkResult
@@ -2610,69 +2513,9 @@ VulkanRebindAllocator::BindAccelerationStructureMemoryNV(uint32_t               
                                                          const MemoryData*      allocator_memory_datas,
                                                          VkMemoryPropertyFlags* bind_memory_properties)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
-
-    if ((bind_info_count > 0) && (bind_infos != nullptr) && (allocator_acc_datas != nullptr) &&
-        (allocator_memory_datas != nullptr) && (bind_memory_properties != nullptr))
-    {
-        for (uint32_t i = 0; i < bind_info_count; ++i)
-        {
-            const auto&       bind_info  = bind_infos[i];
-            VmaAllocation     allocation = VK_NULL_HANDLE;
-            VmaAllocationInfo allocation_info{};
-
-            auto* resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_acc_datas[i]);
-            auto* memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_datas[i]);
-
-            result = AllocateMemoryForAccelerationStructureMemoryNV(bind_info.accelerationStructure,
-                                                                    capture_memory_properties_,
-                                                                    *resource_alloc_info,
-                                                                    *memory_alloc_info,
-                                                                    allocation,
-                                                                    allocation_info);
-            if (result == VK_SUCCESS)
-            {
-                auto modified_bind_info         = bind_info;
-                modified_bind_info.memory       = allocation_info.deviceMemory;
-                modified_bind_info.memoryOffset = allocation_info.offset;
-
-                switch (allocation->GetType())
-                {
-                    case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
-                    {
-                        result = functions_.bind_acceleration_structure_memory_nv(device_, 1, &modified_bind_info);
-                        break;
-                    }
-                    case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
-                    {
-                        VmaDeviceMemoryBlock* const pBlock = allocation->GetBlock();
-                        VMA_ASSERT(pBlock &&
-                                   "BindAccelerationStructureMemoryNV to allocation that doesn't belong to any block.");
-
-                        VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
-                        result = functions_.bind_acceleration_structure_memory_nv(device_, 1, &modified_bind_info);
-                        break;
-                    }
-                    default:
-                        VMA_ASSERT(0);
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    UpdateAllocInfo(*resource_alloc_info,
-                                    VK_HANDLE_TO_UINT64(bind_info.accelerationStructure),
-                                    MemoryInfoType::kBasic,
-                                    bind_info.memoryOffset,
-                                    allocation,
-                                    allocation_info,
-                                    *memory_alloc_info,
-                                    bind_memory_properties[i]);
-                }
-            }
-        }
-    }
-
-    return result;
+    GFXRECON_LOG_FATAL("-m rebind doesn't support BindAccelerationStructureMemoryNV. VK_NV_ray_tracing is deprecated. "
+                       "It won't get more support.");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 VkResult
