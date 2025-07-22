@@ -95,7 +95,7 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
+    const format::EnabledOptions& GetFileOptions() const { return enabled_options_; }
 
     uint64_t GetCurrentFrameNumber() const { return current_frame_number_; }
 
@@ -236,7 +236,6 @@ class FileProcessor
     std::string ApplyAbsolutePath(const std::string& file);
 
   private:
-    std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;

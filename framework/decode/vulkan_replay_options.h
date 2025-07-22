@@ -67,7 +67,6 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
-    bool                         omit_pipeline_cache_data{ false };
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };

@@ -94,8 +94,10 @@
       "Signal": "OverrideFenceSignal"
     },
     "ID3D12PipelineLibrary": {
+      "GetSerializedSize": "OverrideGetSerializedSize",
       "LoadComputePipeline": "OverrideLoadComputePipeline",
-      "LoadGraphicsPipeline": "OverrideLoadGraphicsPipeline"
+      "LoadGraphicsPipeline": "OverrideLoadGraphicsPipeline",
+      "Serialize": "OverrideSerialize"
     },
     "ID3D12PipelineLibrary1": {
       "LoadPipeline": "OverrideLoadPipeline"

@@ -311,6 +311,10 @@ class CommonCaptureManager
     void                                SetCaptureMode(CaptureMode new_mode) { capture_mode_ = new_mode; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
+    bool                                GetEnablePipelineLibrarySetting() const
+    {
+        return file_options_.pipeline_library_enabled;
+    }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
     bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }

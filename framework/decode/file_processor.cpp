@@ -226,20 +226,22 @@ bool FileProcessor::ProcessFileHeader()
 
         if (success)
         {
-            file_options_.resize(file_header.num_options);
-
+            std::vector<format::FileOptionPair> file_options(file_header.num_options);
             size_t option_data_size = file_header.num_options * sizeof(format::FileOptionPair);
 
-            success = ReadBytes(file_options_.data(), option_data_size);
+            success = ReadBytes(file_options.data(), option_data_size);
 
             if (success)
             {
-                for (const auto& option : file_options_)
+                for (const auto& option : file_options)
                 {
                     switch (option.key)
                     {
                         case format::FileOption::kCompressionType:
                             enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
+                            break;
+                        case format::FileOption::kPipelineLibraryEnabled:
+                            enabled_options_.pipeline_library_enabled = static_cast<bool>(option.value);
                             break;
                         default:
                             GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);

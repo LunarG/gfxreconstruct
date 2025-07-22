@@ -186,6 +186,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.");
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
+    GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
+    GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache and skip calls to");
+    GFXRECON_WRITE_CONSOLE("        \t\tvkGetPipelineCacheData (same as");
+    GFXRECON_WRITE_CONSOLE("        \t\t--omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
@@ -222,10 +226,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<handle_id> if found, where");
     GFXRECON_WRITE_CONSOLE("       \t\t\t<handle_id> is the handle id of the CreateShaderModule call.");
     GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
-    GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
-    GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache and skip calls to");
-    GFXRECON_WRITE_CONSOLE("        \t\tvkGetPipelineCacheData (same as");
-    GFXRECON_WRITE_CONSOLE("        \t\t--omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
     GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
     GFXRECON_WRITE_CONSOLE("  --surface-index <N>\tRestrict rendering to the Nth surface object created.");

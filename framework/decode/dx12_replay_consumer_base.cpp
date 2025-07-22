@@ -117,8 +117,10 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 }
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
-                                               const DxReplayOptions&                    options) :
-    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
+                                               const DxReplayOptions&                    options,
+                                               const format::EnabledOptions&             file_options) :
+    application_(application),
+    file_options_(file_options), options_(options), current_message_length_(0), info_queue_(nullptr),
     resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
     set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
     set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr), frame_end_marker_count_(0)
@@ -2275,7 +2277,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineLibrary(DxObjectInfo*     
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (original_result == D3D12_ERROR_DRIVER_VERSION_MISMATCH)
+    if (!file_options_.pipeline_library_enabled && (original_result == D3D12_ERROR_DRIVER_VERSION_MISMATCH))
     {
         return original_result;
     }
@@ -2284,9 +2286,62 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreatePipelineLibrary(DxObjectInfo*     
         assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
                (library_blob != nullptr) && (library != nullptr));
 
-        auto replay_object = static_cast<ID3D12Device1*>(replay_object_info->object);
-        return replay_object->CreatePipelineLibrary(
-            library_blob->GetPointer(), blob_length, *riid.decoded_value, library->GetHandlePointer());
+        auto replay_object  = static_cast<ID3D12Device1*>(replay_object_info->object);
+        auto replay_result  = DXGI_ERROR_UNSUPPORTED;
+        auto blob           = library_blob->GetPointer();
+        auto library_object = library->GetHandlePointer();
+
+        // When the library pointer is null, the call is just checking to see if a library can be created from the
+        // data, so we don't need to do anything special for this case. If the library pointer is not null, the data
+        // needs to be preserved because it is not copied by the runtime.
+        if (library_object != nullptr)
+        {
+            if (options_.omit_pipeline_cache_data)
+            {
+                blob        = nullptr;
+                blob_length = 0;
+            }
+
+            std::unique_ptr<uint8_t[]> cache_data = nullptr;
+
+            if (blob != nullptr)
+            {
+                cache_data = std::make_unique<uint8_t[]>(blob_length);
+                memcpy(cache_data.get(), blob, blob_length);
+            }
+
+            replay_result = replay_object->CreatePipelineLibrary(
+                cache_data.get(), blob_length, *riid.decoded_value, library_object);
+
+            if (SUCCEEDED(original_result) && FAILED(replay_result))
+            {
+                // If creations fails, we need to create an empty pipeline library object that will be used for load
+                // pipeline calls associated with this library's object ID.
+                cache_data.reset();
+                replay_result = replay_object->CreatePipelineLibrary(nullptr, 0, *riid.decoded_value, library_object);
+            }
+
+            if (SUCCEEDED(replay_result))
+            {
+                GFXRECON_ASSERT((*library_object) != nullptr);
+
+                auto library_info = std::make_unique<D3D12PipelineLibraryInfo>();
+
+                if (cache_data != nullptr)
+                {
+                    library_info->cache_data = std::move(cache_data);
+                }
+
+                SetExtraInfo(library, std::move(library_info));
+            }
+        }
+        else
+        {
+            replay_result =
+                replay_object->CreatePipelineLibrary(blob, blob_length, *riid.decoded_value, library_object);
+        }
+
+        return replay_result;
     }
 }
 
@@ -2875,6 +2930,22 @@ HRESULT Dx12ReplayConsumerBase::OverrideResizeBuffers1(DxObjectInfo*            
     return replay_result;
 }
 
+SIZE_T Dx12ReplayConsumerBase::OverrideGetSerializedSize(DxObjectInfo* replay_object_info, SIZE_T original_result)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr));
+
+    auto replay_size = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object_info->object)->GetSerializedSize();
+
+    auto pipeline_library_info = GetExtraInfo<D3D12PipelineLibraryInfo>(replay_object_info);
+    GFXRECON_ASSERT(pipeline_library_info != nullptr);
+
+    pipeline_library_info->replay_cache_data_size = static_cast<size_t>(replay_size);
+
+    return replay_size;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
     DxObjectInfo*                                                     replay_object_info,
     HRESULT                                                           original_result,
@@ -2886,7 +2957,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (original_result == E_INVALIDARG)
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
@@ -2903,8 +2974,19 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadGraphicsPipeline(
         }
 
         auto replay_object = static_cast<ID3D12PipelineLibrary*>(replay_object_info->object);
-        return replay_object->LoadGraphicsPipeline(
+        auto replay_result = replay_object->LoadGraphicsPipeline(
             name->GetPointer(), desc2, *riid.decoded_value, state->GetHandlePointer());
+
+        if (SUCCEEDED(original_result) && FAILED(replay_result))
+        {
+            // If load fails, we need to fallback to create the pipeline.
+            auto device = graphics::dx12::ID3D12DeviceComPtr{};
+            replay_object->GetDevice(IID_PPV_ARGS(&device));
+
+            replay_result = device->CreateGraphicsPipelineState(desc2, *riid.decoded_value, state->GetHandlePointer());
+        }
+
+        return replay_result;
     }
 }
 
@@ -2919,7 +3001,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (original_result == E_INVALIDARG)
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
@@ -2936,8 +3018,19 @@ HRESULT Dx12ReplayConsumerBase::OverrideLoadComputePipeline(
         }
 
         auto replay_object = static_cast<ID3D12PipelineLibrary*>(replay_object_info->object);
-        return replay_object->LoadComputePipeline(
+        auto replay_result = replay_object->LoadComputePipeline(
             name->GetPointer(), desc2, *riid.decoded_value, state->GetHandlePointer());
+
+        if (SUCCEEDED(original_result) && FAILED(replay_result))
+        {
+            // If load fails, we need to fallback to create the pipeline.
+            auto device = graphics::dx12::ID3D12DeviceComPtr{};
+            replay_object->GetDevice(IID_PPV_ARGS(&device));
+
+            replay_result = device->CreateComputePipelineState(desc2, *riid.decoded_value, state->GetHandlePointer());
+        }
+
+        return replay_result;
     }
 }
 
@@ -2952,7 +3045,7 @@ Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*   replay_object_info,
     // The capture layer can skip this call and return an error code to make the application think that the library is
     // invalid and must be recreated.  Replay will also skip the call if it was intentionally failed by the capture
     // layer.
-    if (original_result == E_INVALIDARG)
+    if (!file_options_.pipeline_library_enabled && (original_result == E_INVALIDARG))
     {
         return original_result;
     }
@@ -2962,9 +3055,45 @@ Dx12ReplayConsumerBase::OverrideLoadPipeline(DxObjectInfo*   replay_object_info,
                (desc != nullptr) && (desc->GetPointer() != nullptr) && (state != nullptr));
 
         auto replay_object = static_cast<ID3D12PipelineLibrary1*>(replay_object_info->object);
-        return replay_object->LoadPipeline(
+        auto replay_result = replay_object->LoadPipeline(
             name->GetPointer(), desc->GetPointer(), *riid.decoded_value, state->GetHandlePointer());
+
+        if (SUCCEEDED(original_result) && FAILED(replay_result))
+        {
+            // If load fails, we need to fallback to create the pipeline.
+            auto device = graphics::dx12::ID3D12Device2ComPtr{};
+            replay_object->GetDevice(IID_PPV_ARGS(&device));
+
+            replay_result =
+                device->CreatePipelineState(desc->GetPointer(), *riid.decoded_value, state->GetHandlePointer());
+        }
+
+        return replay_result;
     }
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideSerialize(DxObjectInfo*            replay_object_info,
+                                                  HRESULT                  original_result,
+                                                  PointerDecoder<uint8_t>* data,
+                                                  SIZE_T                   data_size_in_bytes)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (data != nullptr));
+
+    auto pipeline_library_info = GetExtraInfo<D3D12PipelineLibraryInfo>(replay_object_info);
+    GFXRECON_ASSERT(pipeline_library_info != nullptr);
+
+    auto replay_size = pipeline_library_info->replay_cache_data_size;
+
+    if (replay_size > data_size_in_bytes)
+    {
+        // Reallocate output array for replay data size.
+        data->AllocateOutputData(replay_size);
+    }
+
+    auto replay_object = static_cast<ID3D12PipelineLibrary1*>(replay_object_info->object);
+    return replay_object->Serialize(data->GetOutputPointer(), replay_size);
 }
 
 void* Dx12ReplayConsumerBase::OverrideGetShaderIdentifier(DxObjectInfo*            replay_object_info,
