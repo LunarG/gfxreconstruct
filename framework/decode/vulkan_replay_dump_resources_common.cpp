@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_object_info.h"
 #include "util/logging.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
@@ -220,7 +221,7 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
     ci.pNext                 = nullptr;
     ci.flags                 = VkBufferCreateFlags(0);
     ci.size                  = override_size ? override_size : buffer_info->size;
-    ci.usage                 = buffer_info->usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    ci.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     ci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     ci.queueFamilyIndexCount = buffer_info->queue_family_index;
     ci.pQueueFamilyIndices   = nullptr;
@@ -251,14 +252,6 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
     }
 
     mem_alloc_info.memoryTypeIndex = index;
-
-    VkMemoryAllocateFlagsInfo mem_alloc_flags_info = {};
-    mem_alloc_flags_info.sType                     = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
-    if (ci.usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
-    {
-        mem_alloc_flags_info.flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
-    }
-    mem_alloc_info.pNext = &mem_alloc_flags_info;
 
     assert(new_buffer_memory);
     res = device_table->AllocateMemory(device, &mem_alloc_info, nullptr, new_buffer_memory);
@@ -1164,6 +1157,23 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     }
 
     return bind_points;
+}
+
+uint32_t FindQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families, VkQueueFlags flags)
+{
+    for (uint32_t index = 0; index < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++index)
+    {
+        if (families.queue_family_index_enabled[index])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(index);
+            if ((flags_entry != families.queue_family_properties_flags.end()) && (flags_entry->second & flags) == flags)
+            {
+                return index;
+            }
+        }
+    }
+
+    return VK_QUEUE_FAMILY_IGNORED;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

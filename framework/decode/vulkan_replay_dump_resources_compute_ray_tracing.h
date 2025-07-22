@@ -261,11 +261,7 @@ class DispatchTraceRaysDumpingContext
                 VkBuffer       new_params_buffer;
                 VkDeviceMemory new_params_memory;
 
-                // Pointers that will point to host allocated memory and filled with the dispatch
-                // params read back after executing on the gpu. Because of the union a data
-                // structure with a non default destructor (vector/unique_ptr) cannot be used
-                // and we will handle the memory managment ourselves.
-                DispatchParams* dispatch_params;
+                DispatchParams fetched_dispatch_params;
             };
 
             DispatchIndirect dispatch_indirect;
@@ -275,7 +271,7 @@ class DispatchTraceRaysDumpingContext
             {}
 
             DispatchParamsUnion(const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
-                dispatch_indirect{ params_buffer_info, offset, VK_NULL_HANDLE, VK_NULL_HANDLE, nullptr }
+                dispatch_indirect{ params_buffer_info, offset, VK_NULL_HANDLE, VK_NULL_HANDLE }
             {}
 
             DispatchParamsUnion(uint32_t baseGroupX,

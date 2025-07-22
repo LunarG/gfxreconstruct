@@ -362,7 +362,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
             VkCommandBuffer cmd_buf = command_buffers_[current_cb_index_];
             device_table_->CmdCopyBuffer(
-                cmd_buf, ic_params.params_buffer_info->handle, ic_params.new_count_buffer, 1, &region);
+                cmd_buf, ic_params.count_buffer_info->handle, ic_params.new_count_buffer, 1, &region);
 
             VkBufferMemoryBarrier buf_barrier;
             buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -1303,6 +1303,9 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
+    const uint32_t transfer_queue_index =
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
                                                 *device_table_,
@@ -1318,7 +1321,7 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
         const VkDeviceSize size         = range == VK_WHOLE_SIZE ? res_info.buffer_info->size - offset : range;
 
         VkResult res = resource_util.ReadFromBufferResource(
-            res_info.buffer_info->handle, size, offset, res_info.buffer_info->queue_family_index, res_info.data);
+            res_info.buffer_info->handle, size, offset, transfer_queue_index, res_info.data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource %" PRIu64 " failed (%s).",
@@ -1362,6 +1365,9 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
+    const uint32_t transfer_queue_index =
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
                                                 *device_table_,
@@ -1390,7 +1396,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         // Fetch draw count buffer
         std::vector<uint8_t> data;
         VkResult             res = resource_util.ReadFromBufferResource(
-            ic_params.new_count_buffer, sizeof(uint32_t), 0, ic_params.count_buffer_info->queue_family_index, data);
+            ic_params.new_count_buffer, sizeof(uint32_t), 0, transfer_queue_index, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1437,7 +1443,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
 
         // Fetch param buffers
         res = resource_util.ReadFromBufferResource(
-            ic_params.new_params_buffer, params_actual_size, 0, ic_params.params_buffer_info->queue_family_index, data);
+            ic_params.new_params_buffer, params_actual_size, 0, transfer_queue_index, data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1484,11 +1490,8 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         }
 
         std::vector<uint8_t> params_data;
-        VkResult             res = resource_util.ReadFromBufferResource(i_params.new_params_buffer,
-                                                            i_params.new_params_buffer_size,
-                                                            0,
-                                                            i_params.params_buffer_info->queue_family_index,
-                                                            params_data);
+        VkResult             res = resource_util.ReadFromBufferResource(
+            i_params.new_params_buffer, i_params.new_params_buffer_size, 0, transfer_queue_index, params_data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1522,6 +1525,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
+
+    const uint32_t transfer_queue_index =
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
@@ -1575,11 +1581,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 if (ic_params.actual_draw_count)
                 {
+                    bool has_count = false;
                     assert(ic_params.draw_indexed_params != nullptr);
                     for (uint32_t d = 0; d < ic_params.actual_draw_count; ++d)
                     {
-                        const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].indexCount;
-                        if (indirect_index_count && ic_params.draw_indexed_params[d].instanceCount)
+                        const uint32_t indirect_index_count    = ic_params.draw_indexed_params[d].indexCount;
+                        const uint32_t indirect_instance_count = ic_params.draw_indexed_params[d].instanceCount;
+                        has_count                              = indirect_index_count && indirect_instance_count;
+                        if (has_count)
                         {
                             const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
@@ -1589,6 +1598,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                                    ic_params.draw_indexed_params[d].vertexOffset });
                         }
                     }
+                    empty_draw_call = !has_count;
                 }
             }
             else
@@ -1599,11 +1609,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 if (i_params.draw_count)
                 {
+                    bool has_count = false;
                     assert(i_params.draw_indexed_params != nullptr);
                     for (uint32_t d = 0; d < i_params.draw_count; ++d)
                     {
-                        const uint32_t indirect_index_count = i_params.draw_indexed_params[d].indexCount;
-                        if (indirect_index_count && i_params.draw_indexed_params[d].instanceCount)
+                        const uint32_t indirect_index_count    = i_params.draw_indexed_params[d].indexCount;
+                        const uint32_t indirect_instance_count = i_params.draw_indexed_params[d].instanceCount;
+                        has_count                              = indirect_index_count && indirect_instance_count;
+                        if (has_count)
                         {
                             const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
@@ -1613,6 +1626,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                                    i_params.draw_indexed_params[d].vertexOffset });
                         }
                     }
+                    empty_draw_call = !has_count;
                 }
             }
         }
@@ -1653,12 +1667,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
             dc_params.referenced_index_buffer.actual_size = total_size;
             VulkanDumpResourceInfo res_info               = res_info_base;
-            VkResult               res =
-                resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
-                                                     total_size,
-                                                     offset,
-                                                     dc_params.referenced_index_buffer.buffer_info->queue_family_index,
-                                                     res_info.data);
+            VkResult res = resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
+                                                                total_size,
+                                                                offset,
+                                                                transfer_queue_index,
+                                                                res_info.data);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Reading index buffer resource %" PRIu64 " failed (%s).",
@@ -1898,11 +1911,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 vb_entry.actual_size            = total_size;
                 VulkanDumpResourceInfo res_info = res_info_base;
 
-                VkResult res = resource_util.ReadFromBufferResource(vb_entry.buffer_info->handle,
-                                                                    total_size,
-                                                                    offset,
-                                                                    vb_entry.buffer_info->queue_family_index,
-                                                                    res_info.data);
+                VkResult res = resource_util.ReadFromBufferResource(
+                    vb_entry.buffer_info->handle, total_size, offset, transfer_queue_index, res_info.data);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
@@ -3273,6 +3283,7 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
             std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
             dc_indices_.reserve(n_command_buffers);
             dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
+            std::sort(dc_indices_.begin(), dc_indices_.end());
         }
     }
 

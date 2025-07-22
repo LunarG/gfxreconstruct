@@ -140,6 +140,8 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
+uint32_t FindQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families, VkQueueFlags flags);
+
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;
 
