@@ -83,6 +83,7 @@ const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
 const char kCaptureOption[]                      = "--capture";
+const char kPreserveCaptureDataOption[]          = "--preserve-capture-data";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
 const char kDiscardCachedPsosShortOption[]       = "--dcp";
@@ -1079,6 +1080,19 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     if (arg_parser.IsOptionSet(kCaptureOption))
     {
         replay_options.capture = true;
+    }
+
+    if (arg_parser.IsOptionSet(kPreserveCaptureDataOption))
+    {
+        if (replay_options.capture)
+        {
+            replay_options.preserve_capture_data = true;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("`--presere-capture-data` requires the `--capture` option but it was not set."
+                                 "`--presere-capture-data` will be ignored.");
+        }
     }
 
     const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);

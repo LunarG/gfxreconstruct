@@ -756,7 +756,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-prefix PREFIX]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
-                          [--capture]
+                          [--capture][--preserve-capture-data]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
                           [--use-colorspace-fallback]
@@ -866,6 +866,10 @@ options:
                         capture functionality is included in the `gfxrecon-replay`
                         executable--no GFXR capture layer is added to the Vulkan layer
                         chain.
+  --preserve-capture-data
+                        An option that can be used with `--capture` to preserve capture
+                        file data such as HandleIds. This feature is under development
+                        and behavior may change.
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during

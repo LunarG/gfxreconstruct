@@ -603,7 +603,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--screenshot-interval <N>]
-                        [--capture]
+                        [--capture][--preserve-capture-data]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
@@ -719,6 +719,10 @@ Optional arguments:
                         capture functionality is included in the `gfxrecon-replay`
                         executable--no GFXR capture layer is added to the Vulkan layer
                         chain.
+  --preserve-capture-data
+                        An option that can be used with `--capture` to preserve capture
+                        file data such as HandleIds. This feature is under development
+                        and behavior may change.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
