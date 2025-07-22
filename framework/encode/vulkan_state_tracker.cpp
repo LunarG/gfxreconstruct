@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2024 LunarG, Inc.
+*  Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -2023,6 +2024,47 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
+    wrapper->asset_map_lock.lock();
+
+    // If the memory gets destroyed before the asset(s) it's bound to, dump the AS as we would in the DestroyBuffer call
+    for (const auto& bound_asset : wrapper->bound_assets)
+    {
+        state_table_.VisitWrappers([&bound_asset, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
+            GFXRECON_ASSERT(acc_wrapper);
+            for (auto& command : { &acc_wrapper->latest_build_command_, &acc_wrapper->latest_update_command_ })
+            {
+                if (!command || !command->has_value())
+                {
+                    continue;
+                }
+
+                // This works even if the bound asset is not a buffer, as they all derive from HandleWrapper and
+                // handle_id will contain a valid value
+                auto buffer_wrapper = static_cast<vulkan_wrappers::BufferWrapper*>(bound_asset);
+
+                auto it = (*command)->input_buffers.find(buffer_wrapper->handle_id);
+                if (it != (*command)->input_buffers.end())
+                {
+                    vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
+                    buffer.destroyed                                                        = true;
+                    auto [resource_util, created] = resource_utils_.try_emplace(
+                        buffer.bind_device->handle,
+                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
+                                                      buffer.bind_device->physical_device->handle,
+                                                      buffer.bind_device->layer_table,
+                                                      *buffer.bind_device->physical_device->layer_table_ref,
+                                                      buffer.bind_device->physical_device->memory_properties));
+                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
+                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
+                    resource_util->second.ReadFromBufferResource(
+                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                }
+            }
+        });
+    }
+
+    wrapper->asset_map_lock.unlock();
+
     const auto& entry = device_memory_addresses_map.find(wrapper->address);
     if (entry != device_memory_addresses_map.end())
     {
@@ -2046,6 +2088,14 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
         {
             if (!command || !command->has_value())
             {
+                continue;
+            }
+
+            vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
+                state_table_.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
+            if (mem_wrapper == nullptr)
+            {
+                // If the memory bound to this resource has already been destroyed, skip reading the buffer data.
                 continue;
             }
 
