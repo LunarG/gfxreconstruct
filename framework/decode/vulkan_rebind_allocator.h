@@ -416,7 +416,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     enum MemoryInfoType
     {
-        kBasic,       // single: buffer, image, acceleration_structure_nv
+        kBasic,       // single: buffer, image
         kSparse,      // array: buffer, image
         kVideoSession // array: video_session
     };
@@ -536,9 +536,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VmaMemoryUsage GetVideoSeesionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
                                               const VkMemoryRequirements& replay_requirements);
 
-    VmaMemoryUsage GetAccelerationStructureMemoryNVUsage(VkMemoryPropertyFlags       capture_properties,
-                                                         const VkMemoryRequirements& replay_requirements);
-
     VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
 
     void ReportBindIncompatibility(const ResourceData* allocator_resource_datas, uint32_t resource_count);
@@ -579,14 +576,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                     const MemoryAllocInfo&                  memory_alloc_info,
                                     VmaAllocation&                          allocation,
                                     VmaAllocationInfo&                      allocation_info);
-
-    VkResult
-    AllocateMemoryForAccelerationStructureMemoryNV(VkAccelerationStructureNV               acceleration_structure_nv,
-                                                   const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-                                                   const ResourceAllocInfo&                resource_alloc_info,
-                                                   const MemoryAllocInfo&                  memory_alloc_info,
-                                                   VmaAllocation&                          allocation,
-                                                   VmaAllocationInfo&                      allocation_info);
 
     VkResult
     VmaAllocateMemory(const VkMemoryRequirements& mem_req, const VmaMemoryUsage usage, VmaAllocation& allocation);
