@@ -253,31 +253,9 @@ VulkanRealignAllocator::BindAccelerationStructureMemoryNV(uint32_t bind_info_cou
                                                           const MemoryData*      allocator_memory_datas,
                                                           VkMemoryPropertyFlags* bind_memory_properties)
 {
-    std::unique_ptr<VkBindAccelerationStructureMemoryInfoNV[]> realign_bind_infos;
-
-    if ((allocator_acc_datas != nullptr) && (bind_infos != nullptr))
-    {
-        realign_bind_infos = std::make_unique<VkBindAccelerationStructureMemoryInfoNV[]>(bind_info_count);
-
-        for (uint32_t i = 0; i < bind_info_count; ++i)
-        {
-            realign_bind_infos[i] = bind_infos[i];
-
-            auto resource_info = GetResourceAllocInfo(allocator_acc_datas[i]);
-            if (resource_info != nullptr)
-            {
-                // Update image to new binding offset from first pass data collected from resource tracking.
-                auto tracked_image_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
-                if (tracked_image_info != nullptr)
-                {
-                    realign_bind_infos[i].memoryOffset = tracked_image_info->GetReplayBindOffset();
-                }
-            }
-        }
-    }
-
-    return VulkanDefaultAllocator::BindAccelerationStructureMemoryNV(
-        bind_info_count, realign_bind_infos.get(), allocator_acc_datas, allocator_memory_datas, bind_memory_properties);
+    GFXRECON_LOG_FATAL("-m realign doesn't support BindAccelerationStructureMemoryNV. VK_NV_ray_tracing is deprecated. "
+                       "It won't get more support.");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 VkResult VulkanRealignAllocator::MapMemory(VkDeviceMemory   memory,
