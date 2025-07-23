@@ -167,6 +167,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -302,6 +303,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDum
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -375,7 +377,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageDescriptorFilename(
 VkResult DefaultVulkanDumpResourcesDelegate::DumpBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     const std::string filename = GenerateBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -398,7 +401,8 @@ VkResult
 DefaultVulkanDumpResourcesDelegate::DumpInlineUniformBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateInlineUniformBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -419,7 +423,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateInlineUniformBufferDescr
 VkResult DefaultVulkanDumpResourcesDelegate::DumpVertexBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateVertexBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -441,7 +446,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const VulkanDum
 VkResult DefaultVulkanDumpResourcesDelegate::DumpIndexBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateIndexBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1122,6 +1128,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    false,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -1206,7 +1213,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
 VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateDispatchTraceRaysBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1284,6 +1292,7 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha);
@@ -1345,7 +1354,8 @@ VkResult
 DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     const std::string filename = GenerateDispatchTraceRaysBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1367,7 +1377,8 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysInlineUniformB
     const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }

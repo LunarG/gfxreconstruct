@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "format/format_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/file_path.h"
 #include PROJECT_VERSION_HEADER_FILE
@@ -55,6 +56,8 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
     dr_options["dumpResourcesDumpSeparateAlpha"]        = options.dump_resources_dump_separate_alpha;
     dr_options["dumpResourcesDumpUnusedVertexBindings"] = options.dump_resources_dump_unused_vertex_bindings;
+    dr_options["dumpResourcesBinaryFileCompressionType"] =
+        format::GetCompressionTypeName(options.dump_resources_binary_file_compression_type);
 };
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)

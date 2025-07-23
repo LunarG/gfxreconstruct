@@ -26,6 +26,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
+#include "format/format_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
@@ -56,6 +57,12 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     user_delegate_(nullptr), active_delegate_(nullptr)
 {
     capture_filename = std::filesystem::path(options.capture_filename).stem().string();
+
+    if (options.dump_resources_binary_file_compression_type != format::CompressionType::kNone)
+    {
+        compressor_ = std::unique_ptr<util::Compressor>(
+            format::CreateCompressor(options.dump_resources_binary_file_compression_type));
+    }
 
     if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
     {
@@ -96,7 +103,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              &options.RenderPass_Indices[i],
                                                              *object_info_table,
                                                              options,
-                                                             *active_delegate_));
+                                                             *active_delegate_,
+                                                             compressor_.get()));
         }
 
         if (has_dispatch)
@@ -112,7 +120,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                           : nullptr,
                                       *object_info_table_,
                                       options,
-                                      *active_delegate_));
+                                      *active_delegate_,
+                                      compressor_.get()));
         }
     }
 
@@ -143,7 +152,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                                              &options.RenderPass_Indices[i],
                                                                              *object_info_table,
                                                                              options,
-                                                                             *active_delegate_));
+                                                                             *active_delegate_,
+                                                                             compressor_.get()));
 
                         primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
                     }
@@ -168,7 +178,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                         dispatch_ray_contexts.emplace(
                             std::piecewise_construct,
                             std::forward_as_tuple(bcb_index),
-                            std::forward_as_tuple(nullptr, nullptr, *object_info_table_, options, *active_delegate_));
+                            std::forward_as_tuple(
+                                nullptr, nullptr, *object_info_table_, options, *active_delegate_, compressor_.get()));
 
                         primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
                     }

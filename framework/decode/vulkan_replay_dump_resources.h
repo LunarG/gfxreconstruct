@@ -34,11 +34,13 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/compressor.h"
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
 
 #include <cstdint>
 #include <type_traits>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -567,6 +569,8 @@ class VulkanReplayDumpResourcesBase
     std::unique_ptr<DefaultVulkanDumpResourcesDelegate> default_delegate_;
     VulkanDumpResourcesDelegate*                        user_delegate_;
     VulkanDumpResourcesDelegate*                        active_delegate_;
+
+    std::unique_ptr<util::Compressor> compressor_;
 
     std::string capture_filename;
 

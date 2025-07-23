@@ -30,6 +30,7 @@
 #include "graphics/vulkan_resources_util.h"
 #include "util/buffer_writer.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -52,7 +53,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       dr
                                                  const RenderPassIndices*     renderpass_indices,
                                                  CommonObjectInfoTable&       object_info_table,
                                                  const VulkanReplayOptions&   options,
-                                                 VulkanDumpResourcesDelegate& delegate) :
+                                                 VulkanDumpResourcesDelegate& delegate,
+                                                 const util::Compressor*      compressor) :
     original_command_buffer_info_(nullptr),
     current_cb_index_(0), active_renderpass_(nullptr), active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr },
     current_renderpass_(0), current_subpass_(0), dump_resources_before_(options.dump_resources_before),
@@ -60,8 +62,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       dr
     color_attachment_to_dump_(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers_(options.dump_resources_dump_vertex_index_buffer),
     dump_immutable_resources_(options.dump_resources_dump_immutable_resources),
-    dump_unused_vertex_bindings_(options.dump_resources_dump_unused_vertex_bindings), current_render_pass_type_(kNone),
-    aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
+    dump_unused_vertex_bindings_(options.dump_resources_dump_unused_vertex_bindings), compressor_(compressor),
+    current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr)
 {
@@ -1103,6 +1105,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     res_info_base.before_cmd                   = dump_resources_before_ && !(cmd_buf_index % 2);
     res_info_base.rp                           = rp;
     res_info_base.sp                           = sp;
+    res_info_base.compressor                   = compressor_;
 
     // Dump color attachments
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
@@ -1287,6 +1290,7 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
     res_info_base.rp                           = rp;
+    res_info_base.compressor                   = compressor_;
 
     for (const auto& image_info : image_descriptors)
     {
@@ -1551,6 +1555,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     res_info_base.cmd_index                    = dc_index;
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
+    res_info_base.compressor                   = compressor_;
 
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)

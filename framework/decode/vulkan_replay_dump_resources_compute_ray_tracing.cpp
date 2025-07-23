@@ -27,6 +27,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
+#include "util/compressor.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
 #include "util/logging.h"
@@ -53,14 +54,16 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  const std::vector<uint64_t>* trace_rays_indices,
                                                                  CommonObjectInfoTable&       object_info_table,
                                                                  const VulkanReplayOptions&   options,
-                                                                 VulkanDumpResourcesDelegate& delegate) :
+                                                                 VulkanDumpResourcesDelegate& delegate,
+                                                                 const util::Compressor*      compressor) :
     original_command_buffer_info_(nullptr),
     DR_command_buffer_(VK_NULL_HANDLE), dump_resources_before_(options.dump_resources_before), delegate_(delegate),
-    dump_immutable_resources_(options.dump_resources_dump_immutable_resources), bound_pipeline_compute_(nullptr),
-    bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
-    device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
-    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), reached_end_command_buffer_(false)
+    dump_immutable_resources_(options.dump_resources_dump_immutable_resources), compressor_(compressor),
+    bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
+    parent_device_(VK_NULL_HANDLE), instance_table_(nullptr), object_info_table_(object_info_table),
+    replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0), current_trace_rays_index_(0),
+    reached_end_command_buffer_(false)
 {
     if (dispatch_indices != nullptr)
     {
@@ -1234,6 +1237,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     res_info_base.cmd_index                    = cmd_index;
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
+    res_info_base.compressor                   = compressor_;
 
     if (dump_resources_before_)
     {
@@ -1498,6 +1502,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
     res_info_base.qs_index                     = qs_index;
     res_info_base.bcb_index                    = bcb_index;
     res_info_base.is_dispatch                  = is_dispatch;
+    res_info_base.compressor                   = compressor_;
 
     for (const auto& img_info : image_descriptors)
     {
