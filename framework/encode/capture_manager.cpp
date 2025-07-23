@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -250,7 +250,7 @@ bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_
 
 #elif defined(WIN32)
 
-        char  ascii_name[MAX_PATH];
+        char ascii_name[MAX_PATH];
 #ifdef UNICODE
         WCHAR wide_string[MAX_PATH];
         GetModuleFileName(NULL, wide_string, MAX_PATH);
@@ -360,6 +360,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges, trace_settings.screenshot_interval);
     screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
     disable_dxr_          = trace_settings.disable_dxr;
+    disable_meta_command_ = trace_settings.disable_meta_command;
     accel_struct_padding_ = trace_settings.accel_struct_padding;
     iunknown_wrapping_    = trace_settings.iunknown_wrapping;
     force_command_serialization_     = trace_settings.force_command_serialization;
@@ -1716,8 +1717,7 @@ CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_m
                                                  const std::string&    filename,
                                                  size_t                buffer_size,
                                                  bool                  append) :
-    FileOutputStream(filename, buffer_size, append),
-    capture_manager_(capture_manager)
+    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
 {}
 
 bool CaptureFileOutputStream::Write(const void* data, size_t len)

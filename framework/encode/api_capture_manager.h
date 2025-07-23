@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -207,6 +207,7 @@ class ApiCaptureManager
     bool GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
     bool GetDisableDxrSetting() const { return common_manager_->GetDisableDxrSetting(); }
+    bool GetDisableMetaCommandSetting() const { return common_manager_->GetDisableMetaCommandSetting(); }
     auto GetAccelStructPaddingSetting() const { return common_manager_->GetAccelStructPaddingSetting(); }
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
