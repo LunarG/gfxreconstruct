@@ -23,6 +23,7 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 
+#include "util/compressor.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
@@ -85,6 +86,8 @@ struct VulkanDumpResourceInfo
     bool               before_cmd;
     uint32_t           array_index;
     VkShaderStageFlags stages;
+
+    const util::Compressor* compressor;
 
     VulkanDumpResourceInfo& operator=(const VulkanDumpDrawCallInfo& draw_call_info)
     {

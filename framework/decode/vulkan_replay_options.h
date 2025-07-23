@@ -27,6 +27,7 @@
 #include "decode/replay_options.h"
 
 #include "decode/vulkan_resource_allocator.h"
+#include "format/format.h"
 #include "util/defines.h"
 
 #include <cstdint>
@@ -111,6 +112,8 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_raw_images{ false };
     bool  dump_resources_dump_separate_alpha{ false };
     bool  dump_resources_dump_unused_vertex_bindings{ false };
+
+    format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 
     bool preload_measurement_range{ false };
 
