@@ -699,20 +699,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDeviceSize               stride,
                                          VkQueryResultFlags         flags);
 
-    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                                 func,
-                                 uint64_t                                          index,
-                                 VkResult                                          original_result,
-                                 const VulkanQueueInfo*                            queue_info,
-                                 uint32_t                                          submitCount,
-                                 const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                 const VulkanFenceInfo*                            fence_info);
+    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
+                                 uint64_t                                    index,
+                                 VkResult                                    original_result,
+                                 const VulkanQueueInfo*                      queue_info,
+                                 uint32_t                                    submitCount,
+                                 StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                 const VulkanFenceInfo*                      fence_info);
 
-    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                                 func,
-                                  VkResult                                           original_result,
-                                  const VulkanQueueInfo*                             queue_info,
-                                  uint32_t                                           submitCount,
-                                  const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                  const VulkanFenceInfo*                             fence_info);
+    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                  VkResult                                     original_result,
+                                  const VulkanQueueInfo*                       queue_info,
+                                  uint32_t                                     submitCount,
+                                  StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                  const VulkanFenceInfo*                       fence_info);
 
     VkResult OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                      VkResult                                              original_result,
@@ -1690,10 +1690,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
-    std::vector<std::pair<VkSemaphore, uint64_t>> SyncWaitSemaphores(VkDevice            device,
-                                                                     const VkSubmitInfo* submit_info) const;
-    std::vector<std::pair<VkSemaphore, uint64_t>> SyncWaitSemaphores(VkDevice             device,
-                                                                     const VkSubmitInfo2* submit_info) const;
+    std::vector<std::pair<VkSemaphore, uint64_t>> ExtractWaitSemaphores(VkSubmitInfo* submit_info) const;
+    std::vector<std::pair<VkSemaphore, uint64_t>> ExtractWaitSemaphores(VkSubmitInfo2* submit_info) const;
+    void                                          InjectWaitSemaphores(VkSubmitInfo2*               submit_info,
+                                                                       const VkSemaphoreSubmitInfo* wait_semaphore_infos,
+                                                                       size_t                       num_semaphores) const;
 
   private:
     struct HardwareBufferInfo

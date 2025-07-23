@@ -402,6 +402,8 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
                     return VK_NULL_HANDLE;
                 }
 
+                device_table_->ResetFences(device_, 1, &submit_asset.fence);
+
                 VkCommandBufferBeginInfo command_buffer_begin_info;
                 command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
                 command_buffer_begin_info.pNext            = nullptr;
@@ -414,8 +416,13 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
                 run_compute_replace(
                     &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
 
-                std::vector<VkSemaphore> semaphore_handles(wait_semaphores.size());
-                std::vector<uint64_t>    semaphore_values(wait_semaphores.size());
+                device_table_->EndCommandBuffer(submit_asset.command_buffer);
+
+                std::vector<VkSemaphore>          semaphore_handles(wait_semaphores.size());
+                std::vector<uint64_t>             semaphore_values(wait_semaphores.size());
+                std::vector<VkPipelineStageFlags> wait_dst_stages(wait_semaphores.size(),
+                                                                  VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+
                 for (uint32_t i = 0; i < wait_semaphores.size(); ++i)
                 {
                     semaphore_handles[i] = wait_semaphores[i].first;
@@ -428,10 +435,10 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
                 timeline_info.pWaitSemaphoreValues          = semaphore_values.data();
 
                 VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-                submit_info.pNext                = nullptr;
+                submit_info.pNext                = &timeline_info;
                 submit_info.waitSemaphoreCount   = wait_semaphores.size();
                 submit_info.pWaitSemaphores      = semaphore_handles.data();
-                submit_info.pWaitDstStageMask    = nullptr;
+                submit_info.pWaitDstStageMask    = wait_dst_stages.data();
                 submit_info.commandBufferCount   = 1;
                 submit_info.pCommandBuffers      = &submit_asset.command_buffer;
                 submit_info.signalSemaphoreCount = 1;
@@ -1827,9 +1834,15 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
     // create a signal-semaphore
     if (submit_asset.signal_semaphore == VK_NULL_HANDLE)
     {
+//        VkSemaphoreTypeCreateInfo timeline_create_info{};
+//        timeline_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
+//        timeline_create_info.pNext = nullptr;
+//        timeline_create_info.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+//        timeline_create_info.initialValue = 0;
+
         VkSemaphoreCreateInfo semaphore_create_info = {};
         semaphore_create_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-                semaphore_create_info.pNext                 = nullptr;
+//        semaphore_create_info.pNext                 = &timeline_create_info;
         VkResult result =
             device_table_->CreateSemaphore(device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore);
         if (result != VK_SUCCESS)
