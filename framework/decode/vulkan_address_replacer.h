@@ -407,12 +407,34 @@ class VulkanAddressReplacer
     // pipeline enabling rehashing buffer-device-addresses (BDA), utility
     VkPipeline pipeline_bda_rehash_ = VK_NULL_HANDLE;
 
-    // required assets for submitting meta-commands
-    VkCommandPool   command_pool_   = VK_NULL_HANDLE;
-    VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
-    VkFence         fence_          = VK_NULL_HANDLE;
-    VkQueue         queue_          = VK_NULL_HANDLE;
-    VkQueryPool     query_pool_     = VK_NULL_HANDLE;
+    // required assets for submitting (meta-)commands that do not provide an existing command-buffer
+    VkCommandPool command_pool_ = VK_NULL_HANDLE;
+    VkQueryPool   query_pool_   = VK_NULL_HANDLE;
+    VkQueue       queue_        = VK_NULL_HANDLE;
+
+    struct submit_asset_t
+    {
+        // members required for cleanup
+        VkDevice      device       = VK_NULL_HANDLE;
+        VkCommandPool command_pool = VK_NULL_HANDLE;
+
+        // actual payload
+        VkCommandBuffer command_buffer   = VK_NULL_HANDLE;
+        VkFence         fence            = VK_NULL_HANDLE;
+        VkSemaphore     signal_semaphore = VK_NULL_HANDLE;
+
+        PFN_vkDestroyFence       destroy_fence_fn        = nullptr;
+        PFN_vkFreeCommandBuffers free_command_buffers_fn = nullptr;
+        PFN_vkDestroySemaphore   destroy_semaphore_fn    = nullptr;
+
+        submit_asset_t()                      = default;
+        submit_asset_t(const submit_asset_t&) = delete;
+        submit_asset_t(submit_asset_t&& other) noexcept;
+        submit_asset_t& operator=(submit_asset_t other);
+        ~submit_asset_t();
+        void swap(submit_asset_t& other);
+    };
+    submit_asset_t submit_asset_ = {};
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap_sbt_;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
