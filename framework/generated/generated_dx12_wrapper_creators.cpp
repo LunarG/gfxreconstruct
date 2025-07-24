@@ -48,7 +48,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)

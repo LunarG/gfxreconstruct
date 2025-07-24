@@ -16,7 +16,6 @@
       "IID"       : { "baseType" : "GUID",     "replaceWith" : "GUID" },
       "DXGI_RGBA" : { "baseType" : "D3DCOLORVALUE", "replaceWith" : "D3DCOLORVALUE" },
       "ID3DBlob"  : { "baseType" : "ID3D10Blob",    "replaceWith" : "ID3D10Blob" },
-      "SECURITY_ATTRIBUTES"     : { "baseType" : "_SECURITY_ATTRIBUTES",   "replaceWith" : "_SECURITY_ATTRIBUTES" },
       "D3D12_PRIMITIVE_TOPOLOGY": { "baseType" : "D3D_PRIMITIVE_TOPOLOGY", "replaceWith" : "D3D_PRIMITIVE_TOPOLOGY" },
       "LPCVOID"   : { "baseType" : "void",     "replaceWith" : "const void*" },
       "LPVOID"    : { "baseType" : "void",     "replaceWith" : "void*" },
