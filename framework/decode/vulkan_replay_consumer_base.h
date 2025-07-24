@@ -699,20 +699,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDeviceSize               stride,
                                          VkQueryResultFlags         flags);
 
-    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                                 func,
-                                 uint64_t                                          index,
-                                 VkResult                                          original_result,
-                                 const VulkanQueueInfo*                            queue_info,
-                                 uint32_t                                          submitCount,
-                                 const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                 const VulkanFenceInfo*                            fence_info);
+    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
+                                 uint64_t                                    index,
+                                 VkResult                                    original_result,
+                                 const VulkanQueueInfo*                      queue_info,
+                                 uint32_t                                    submitCount,
+                                 StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                 const VulkanFenceInfo*                      fence_info);
 
-    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                                 func,
-                                  VkResult                                           original_result,
-                                  const VulkanQueueInfo*                             queue_info,
-                                  uint32_t                                           submitCount,
-                                  const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                  const VulkanFenceInfo*                             fence_info);
+    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                  VkResult                                     original_result,
+                                  const VulkanQueueInfo*                       queue_info,
+                                  uint32_t                                     submitCount,
+                                  StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                  const VulkanFenceInfo*                       fence_info);
 
     VkResult OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                      VkResult                                              original_result,
