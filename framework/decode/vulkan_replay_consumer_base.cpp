@@ -3935,6 +3935,14 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 // inject wait-semaphore into submit-info
                 submit_info_mut.waitSemaphoreCount = 1;
                 submit_info_mut.pWaitSemaphores    = &semaphores[i];
+
+                // handle potential timeline-semaphores in pnext-chain
+                if (auto* timeline_info =
+                        graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info_mut))
+                {
+                    timeline_info->waitSemaphoreValueCount = 0;
+                    timeline_info->pWaitSemaphoreValues    = nullptr;
+                }
             }
         }
     }
