@@ -1180,7 +1180,8 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
         return result;
     }
 
-    // Wait a sensible amount of time (10 seconds) to avoid hanging
+    // Wait a sensible amount of time (10 seconds) to avoid hanging in case a prior
+    // operation caused the GPU to hang or crash.
     result = device_table_->WaitForFences(device_, 1, &fence, VK_TRUE, 10000000000);
 
     device_table_->DestroyFence(device_, fence, nullptr);
