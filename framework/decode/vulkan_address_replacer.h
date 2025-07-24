@@ -67,12 +67,25 @@ class VulkanAddressReplacer
      * @brief   UpdateBufferAddresses will replace buffer-device-addresses in gpu-memory,
      *          at locations pointed to by @param addresses.
      *
-     * Replacement will be performed using a compute-dispatch injected into @param command_buffer_info.
+     * Replacement will be performed using a compute-dispatch.
+     * Depending on scenario this dispatch will be submitted differently:
      *
-     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr to use an internal command-buffer
+     * 1) in case 'command_buffer_info' is not nullptr and wait-semaphores are empty:
+     * - Inject the dispatch into 'command_buffer_info'
+     *
+     * 2) in case 'command_buffer_info' is not nullptr and wait-semaphores were provided:
+     * - Submit the dispatch with a separate submission, wait on semaphores and return a signal-semaphore
+     *   for that queue-submission. 'command_buffer_info' will merely be used to track lifetime of internal assets.
+     *
+     * 3) lastly, if command_buffer_info' is a nullptr and wait-semaphores are empty:
+     * - submit the dispatch locally, sync via internal fence
+     *
+     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
      * @param   addresses           array of device-addresses
      * @param   num_addresses       number of addresses
      * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
+     * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
     VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*                       command_buffer_info,
                                       const VkDeviceAddress*                               addresses,

@@ -398,7 +398,7 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
             {
                 // don't inject into the command-buffer, instead use a separate submit
                 submit_asset_t& submit_asset = submit_asset_map_[command_buffer_info->handle];
-                if (!create_submit_asset(submit_asset))
+                if (!init_queue_assets() || !create_submit_asset(submit_asset))
                 {
                     GFXRECON_LOG_WARNING_ONCE(
                         "VulkanAddressReplacer::UpdateBufferAddresses: could not create required submit-assets");
