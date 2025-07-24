@@ -32,6 +32,10 @@
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
 
+// Includes for recapture
+#include "encode/vulkan_capture_manager.h"
+#include "recapture_vulkan_entry.h"
+
 #if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_tracked_object_info_table.h"
 #include "generated/generated_openxr_decoder.h"
@@ -146,6 +150,21 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
 
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::InitSingleton();
+
+                    // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
+                    // calls into the capture layer instead of directly into the loader and Vulkan runtime.
+                    vulkan_replay_consumer.SetGetInstanceProcAddrOverride(
+                        gfxrecon::vulkan_recapture::GetInstanceProcAddr);
+
+                    // Set the capture manager's instance and device creation callbacks.
+                    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(
+                        gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                        gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                }
+
                 ApiReplayOptions  api_replay_options;
                 ApiReplayConsumer api_replay_consumer;
                 api_replay_options.vk_replay_options   = &replay_options;
@@ -248,6 +267,11 @@ void android_main(struct android_app* app)
                 else
                 {
                     GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                }
+
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::DestroySingleton();
                 }
             }
         }

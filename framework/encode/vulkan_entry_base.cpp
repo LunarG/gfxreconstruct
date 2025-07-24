@@ -115,6 +115,157 @@ void VulkanEntryBase::RemoveExtensions(std::vector<VkExtensionProperties>& exten
     extensionProps.resize(new_end - extensionProps.begin());
 }
 
+PFN_vkVoidFunction VulkanEntryBase::GetInstanceProcAddr(VkInstance instance, const char* pName)
+{
+    PFN_vkVoidFunction result = nullptr;
+
+    // This is required by the loader and is called directly with an "instance" actually
+    // set to the internal "loader_instance".  Detect that case and return
+    if (!strcmp(pName, "vkCreateInstance"))
+    {
+        return reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateInstance);
+    }
+
+    bool has_implementation = false;
+
+    // Check for implementation in the next level
+    if (instance != VK_NULL_HANDLE)
+    {
+        auto table = encode::vulkan_wrappers::GetInstanceTable(instance);
+        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
+        {
+            has_implementation = (table->GetInstanceProcAddr(instance, pName) != nullptr);
+        }
+    }
+
+    // Check for implementation in the layer itself
+    if (!has_implementation)
+    {
+        for (const auto& ext_props : kVulkanDeviceExtensionProps)
+        {
+            if (std::find(ext_props.instance_funcs.begin(), ext_props.instance_funcs.end(), pName) !=
+                ext_props.instance_funcs.end())
+            {
+                has_implementation = true;
+                break;
+            }
+        }
+    }
+
+    // Only intercept the requested function if there is an implementation available, or if
+    // the instance handle is null and we can't determine if it is available from the next level.
+    if (has_implementation || (instance == VK_NULL_HANDLE))
+    {
+        const auto entry = vulkan_function_table_.find(pName);
+
+        if (entry != vulkan_function_table_.end())
+        {
+            result = entry->second;
+        }
+    }
+
+    return result;
+}
+
+PFN_vkVoidFunction VulkanEntryBase::GetDeviceProcAddr(VkDevice device, const char* pName)
+{
+    PFN_vkVoidFunction result = nullptr;
+
+    if (device != VK_NULL_HANDLE)
+    {
+        bool has_implementation = false;
+
+        // Check for implementation in the next level
+        auto table = encode::vulkan_wrappers::GetDeviceTable(device);
+        if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
+        {
+            has_implementation = (table->GetDeviceProcAddr(device, pName) != nullptr);
+        }
+
+        // Check for implementation in the layer itself
+        if (!has_implementation)
+        {
+            for (const auto& ext_props : kVulkanDeviceExtensionProps)
+            {
+                if (std::find(ext_props.device_funcs.begin(), ext_props.device_funcs.end(), pName) !=
+                    ext_props.device_funcs.end())
+                {
+                    has_implementation = true;
+                    break;
+                }
+            }
+        }
+
+        // Only intercept the requested function if there is an implementation available
+        if (has_implementation)
+        {
+            const auto entry = vulkan_function_table_.find(pName);
+            if (entry != vulkan_function_table_.end())
+            {
+                result = entry->second;
+            }
+        }
+    }
+
+    return result;
+}
+
+/**
+ * We don't actually need to do anything for this function,
+ * but we do need to unwrap the instance before the downstream layer
+ * sees it.
+ */
+PFN_vkVoidFunction VulkanEntryBase::GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName)
+{
+    PFN_vkVoidFunction result = nullptr;
+
+    if (ourInstanceWrapper != VK_NULL_HANDLE)
+    {
+        PFN_GetPhysicalDeviceProcAddr vulkan_next_gpdpa = GetNextGPDPA(ourInstanceWrapper);
+        if (vulkan_next_gpdpa != nullptr)
+        {
+            result = vulkan_next_gpdpa(ourInstanceWrapper, pName);
+        }
+    }
+
+    return result;
+}
+
+VkResult VulkanEntryBase::EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+{
+    VkResult result = VK_SUCCESS;
+
+    if (pProperties == nullptr)
+    {
+        if (pPropertyCount != nullptr)
+        {
+            *pPropertyCount = 1;
+        }
+    }
+    else
+    {
+        if ((pPropertyCount != nullptr) && (*pPropertyCount >= 1))
+        {
+            util::platform::MemoryCopy(pProperties, sizeof(*pProperties), &kLayerProps, sizeof(kLayerProps));
+            *pPropertyCount = 1;
+        }
+        else
+        {
+            result = VK_INCOMPLETE;
+        }
+    }
+
+    return result;
+}
+
+VkResult VulkanEntryBase::EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                         uint32_t*          pPropertyCount,
+                                                         VkLayerProperties* pProperties)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+    return EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+}
+
 const VkLayerInstanceCreateInfo* VulkanEntryBase::GetInstanceChainInfo(const VkInstanceCreateInfo* pCreateInfo,
                                                                        VkLayerFunction             func)
 {

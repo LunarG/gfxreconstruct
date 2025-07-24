@@ -1274,7 +1274,9 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
-    if (loader_handle_ != nullptr)
+
+    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetGetInstanceProcAddrOverride()
+    if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
             util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
