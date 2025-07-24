@@ -70,14 +70,14 @@ class VulkanAddressReplacer
      * Replacement will be performed using a compute-dispatch.
      * Depending on scenario this dispatch will be submitted differently:
      *
-     * 1) in case 'command_buffer_info' is not nullptr and wait-semaphores are empty:
+     * 1) in case 'command_buffer_info' is not nullptr and 'wait-semaphores' is std::nullopt:
      * - Inject the dispatch into 'command_buffer_info'
      *
      * 2) in case 'command_buffer_info' is not nullptr and wait-semaphores were provided:
      * - Submit the dispatch with a separate submission, wait on semaphores and return a signal-semaphore
      *   for that queue-submission. 'command_buffer_info' will merely be used to track lifetime of internal assets.
      *
-     * 3) lastly, if command_buffer_info' is a nullptr and wait-semaphores are empty:
+     * 3) lastly, if command_buffer_info' is a nullptr:
      * - submit the dispatch locally, sync via internal fence
      *
      * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
@@ -87,11 +87,12 @@ class VulkanAddressReplacer
      * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*                       command_buffer_info,
-                                      const VkDeviceAddress*                               addresses,
-                                      uint32_t                                             num_addresses,
-                                      const decode::VulkanDeviceAddressTracker&            address_tracker,
-                                      const std::vector<std::pair<VkSemaphore, uint64_t>>& wait_semaphores = {});
+    VkSemaphore
+    UpdateBufferAddresses(const VulkanCommandBufferInfo*                                      command_buffer_info,
+                          const VkDeviceAddress*                                              addresses,
+                          uint32_t                                                            num_addresses,
+                          const decode::VulkanDeviceAddressTracker&                           address_tracker,
+                          const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores = {});
 
     /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',

@@ -363,12 +363,12 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-VkSemaphore
-VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*                       command_buffer_info,
-                                             const VkDeviceAddress*                               addresses,
-                                             uint32_t                                             num_addresses,
-                                             const decode::VulkanDeviceAddressTracker&            address_tracker,
-                                             const std::vector<std::pair<VkSemaphore, uint64_t>>& wait_semaphores)
+VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
+    const VulkanCommandBufferInfo*                                      command_buffer_info,
+    const VkDeviceAddress*                                              addresses,
+    uint32_t                                                            num_addresses,
+    const decode::VulkanDeviceAddressTracker&                           address_tracker,
+    const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores)
 {
     if (addresses != nullptr && num_addresses > 0)
     {
@@ -386,7 +386,7 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
 
         if (command_buffer_info != nullptr)
         {
-            if (wait_semaphores.empty())
+            if (!wait_semaphores)
             {
                 run_compute_replace(command_buffer_info,
                                     addresses,
@@ -421,27 +421,27 @@ VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*     
 
                 device_table_->EndCommandBuffer(submit_asset.command_buffer);
 
-                std::vector<VkSemaphore>          semaphore_handles(wait_semaphores.size());
-                std::vector<uint64_t>             semaphore_values(wait_semaphores.size());
-                std::vector<VkPipelineStageFlags> wait_dst_stages(wait_semaphores.size(),
+                std::vector<VkSemaphore>          semaphore_handles(wait_semaphores->size());
+                std::vector<uint64_t>             semaphore_values(wait_semaphores->size());
+                std::vector<VkPipelineStageFlags> wait_dst_stages(wait_semaphores->size(),
                                                                   VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-                for (uint32_t i = 0; i < wait_semaphores.size(); ++i)
+                for (uint32_t i = 0; i < wait_semaphores->size(); ++i)
                 {
-                    semaphore_handles[i] = wait_semaphores[i].first;
-                    semaphore_values[i]  = wait_semaphores[i].second;
+                    semaphore_handles[i] = wait_semaphores.value()[i].first;
+                    semaphore_values[i]  = wait_semaphores.value()[i].second;
                 }
 
                 VkTimelineSemaphoreSubmitInfo timeline_info = {};
                 timeline_info.sType                         = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
-                timeline_info.waitSemaphoreValueCount       = wait_semaphores.size();
-                timeline_info.pWaitSemaphoreValues          = semaphore_values.data();
+                timeline_info.waitSemaphoreValueCount       = wait_semaphores->size();
+                timeline_info.pWaitSemaphoreValues = wait_semaphores->empty() ? nullptr : semaphore_values.data();
 
                 VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
                 submit_info.pNext                = &timeline_info;
-                submit_info.waitSemaphoreCount   = wait_semaphores.size();
-                submit_info.pWaitSemaphores      = semaphore_handles.data();
-                submit_info.pWaitDstStageMask    = wait_dst_stages.data();
+                submit_info.waitSemaphoreCount   = wait_semaphores->size();
+                submit_info.pWaitSemaphores      = wait_semaphores->empty() ? nullptr : semaphore_handles.data();
+                submit_info.pWaitDstStageMask    = wait_semaphores->empty() ? nullptr : wait_dst_stages.data();
                 submit_info.commandBufferCount   = 1;
                 submit_info.pCommandBuffers      = &submit_asset.command_buffer;
                 submit_info.signalSemaphoreCount = 1;
