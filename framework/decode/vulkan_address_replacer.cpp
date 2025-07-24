@@ -1829,10 +1829,6 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
             return false;
         }
     }
-    else
-    {
-        device_table_->ResetFences(device_, 1, &submit_asset.fence);
-    }
 
     // create a signal-semaphore
     if (submit_asset.signal_semaphore == VK_NULL_HANDLE)
