@@ -2041,8 +2041,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
             // Combined size of all layers in a mip level.
             std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
-                                                                                img.format,
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.format,
                                                                                 img.type,
                                                                                 img.extent,
                                                                                 img.level_count,
