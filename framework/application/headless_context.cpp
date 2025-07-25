@@ -23,7 +23,7 @@
 #include "application/headless_context.h"
 #include "application/application.h"
 #include "application/headless_window.h"
-#include "graphics/vulkan_feature_util.h"
+#include "decode/vulkan_feature_util.h"
 #include "graphics/vulkan_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -46,9 +46,9 @@ HeadlessContext::HeadlessContext(Application* application, bool dpi_aware) : Wsi
                 get_instance_proc_addr(nullptr, "vkEnumerateInstanceExtensionProperties"));
             std::vector<VkExtensionProperties> properties;
 
-            if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
+            if (decode::feature_util::GetInstanceExtensions(instance_extension_proc, &properties) == VK_SUCCESS)
             {
-                if (graphics::feature_util::IsSupportedExtension(properties, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
+                if (decode::feature_util::IsSupportedExtension(properties, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
                 {
                     supported = true;
                 }

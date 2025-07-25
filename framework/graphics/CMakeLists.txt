@@ -52,13 +52,10 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_instance_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_get_pnext.h
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy_stype.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_feature_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_dispatch_table.h
