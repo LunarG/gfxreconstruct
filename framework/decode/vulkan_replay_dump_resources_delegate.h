@@ -225,6 +225,12 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     bool ImageFailedScaling(const VulkanImageInfo* img_info) const { return images_failed_scaling_.count(img_info); }
 
+    uint64_t GetImageResourceSizes(const VulkanImageInfo*               image_info,
+                                   VkImageAspectFlagBits                aspect,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   const graphics::VulkanDeviceTable*   device_table,
+                                   std::vector<uint64_t>&               subresource_sizes);
+
     void GenerateDispatchTraceRaysDescriptorsJsonInfo(
         const VulkanDumpDrawCallInfo&                                         draw_call_info,
         nlohmann::ordered_json&                                               dispatch_json_entry,
