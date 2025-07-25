@@ -2707,7 +2707,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
     // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
     // extension without having VK_KHR_surface. Check for that and fix that.
-    if (!feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+    if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
     {
         for (const std::string& current_extension : modified_extensions)
         {
