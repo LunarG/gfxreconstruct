@@ -492,8 +492,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         };
 
         image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(image_resource.image,
-                                                       use_blit ? dst_format : image_resource.format,
+            resource_util.GetImageResourceSizesOptimal(use_blit ? dst_format : image_resource.format,
                                                        image_resource.type,
                                                        use_blit ? scaled_extent : image_resource.extent,
                                                        image_resource.level_count,
