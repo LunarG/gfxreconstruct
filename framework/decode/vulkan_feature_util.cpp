@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "graphics/vulkan_feature_util.h"
+#include "decode/vulkan_feature_util.h"
 
 #include "util/logging.h"
 #include "util/platform.h"
@@ -32,7 +32,7 @@
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(graphics)
+GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
 
 // There are some extensions which can be enabled by the application, but can be ignored during replay if
@@ -207,7 +207,7 @@ void RemoveExtensionIfUnsupported(const std::vector<VkExtensionProperties>& prop
                                   std::vector<const char*>*                 extensions,
                                   const char*                               extension_to_remove)
 {
-    if (!IsSupportedExtension(properties, extension_to_remove))
+    if (!feature_util::IsSupportedExtension(properties, extension_to_remove))
     {
         auto extension_iter =
             std::find_if(extensions->begin(), extensions->end(), [&extension_to_remove](const char* extension) {
@@ -256,5 +256,5 @@ void RemoveIgnorableExtensions(const std::vector<VkExtensionProperties>& propert
 }
 
 GFXRECON_END_NAMESPACE(feature_util)
-GFXRECON_END_NAMESPACE(graphics)
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
