@@ -1164,12 +1164,27 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
-    VkResult result = device_table_->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    const VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, VkFenceCreateFlags(0) };
+    VkFence                 fence;
 
-    if (result == VK_SUCCESS)
+    VkResult result = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence);
+    if (result != VK_SUCCESS)
     {
-        result = device_table_->QueueWaitIdle(queue);
+        return result;
     }
+
+    result = device_table_->QueueSubmit(queue, 1, &submit_info, fence);
+    if (result != VK_SUCCESS)
+    {
+        device_table_->DestroyFence(device_, fence, nullptr);
+        return result;
+    }
+
+    // Wait a sensible amount of time (10 seconds) to avoid hanging in case a prior
+    // operation caused the GPU to hang or crash.
+    result = device_table_->WaitForFences(device_, 1, &fence, VK_TRUE, 10000000000);
+
+    device_table_->DestroyFence(device_, fence, nullptr);
 
     return result;
 }
@@ -1500,11 +1515,8 @@ VkResult VulkanResourceInitializer::FlushCommandBuffer(uint32_t queue_family_ind
     {
         device_table_->EndCommandBuffer(iter->second.command_buffer);
 
-        result = ExecuteCommandBuffer(iter->second.queue, iter->second.command_buffer);
-        if (result == VK_SUCCESS)
-        {
-            iter->second.recording = false;
-        }
+        result                 = ExecuteCommandBuffer(iter->second.queue, iter->second.command_buffer);
+        iter->second.recording = false;
     }
 
     return result;
