@@ -23,9 +23,13 @@
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_resources_util.h"
 #include "util/buffer_writer.h"
+#include "util/logging.h"
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -167,6 +171,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpRenderTargetImage(const VulkanD
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -302,6 +307,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpImageDescriptor(const VulkanDum
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -375,7 +381,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageDescriptorFilename(
 VkResult DefaultVulkanDumpResourcesDelegate::DumpBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     const std::string filename = GenerateBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -398,7 +405,8 @@ VkResult
 DefaultVulkanDumpResourcesDelegate::DumpInlineUniformBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateInlineUniformBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -419,7 +427,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateInlineUniformBufferDescr
 VkResult DefaultVulkanDumpResourcesDelegate::DumpVertexBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateVertexBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -441,7 +450,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const VulkanDum
 VkResult DefaultVulkanDumpResourcesDelegate::DumpIndexBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateIndexBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -639,6 +649,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             rt_entry["imageId"]   = image_info->capture_id;
             rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
             rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
+            rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
+            rt_entry["levels"]    = image_info->level_count;
+            rt_entry["layers"]    = image_info->layer_count;
 
             if (ImageFailedScaling(image_info))
             {
@@ -648,6 +661,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             size_t subresource_entry = 0;
             for (auto aspect : aspects)
             {
+                std::vector<uint64_t> subresource_sizes;
+                GetImageResourceSizes(
+                    image_info, aspect, instance_table, draw_call_info.device_table, subresource_sizes);
+
                 for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -683,8 +700,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                               extent,
                                                               filenameAfter,
                                                               aspect,
+                                                              image_info->layer_count,
                                                               mip,
                                                               layer,
+                                                              &subresource_sizes,
                                                               options_.dump_resources_dump_separate_alpha,
                                                               options_.dump_resources_before ? &filenameBefore
                                                                                              : nullptr);
@@ -731,6 +750,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         size_t subresource_entry = 0;
         for (auto aspect : aspects)
         {
+            std::vector<uint64_t> subresource_sizes;
+            if (options_.dump_resources_dump_raw_images)
+            {
+                GetImageResourceSizes(
+                    image_info, aspect, instance_table, draw_call_info.device_table, subresource_sizes);
+            }
+
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -765,8 +791,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                           extent,
                                                           filenameAfter,
                                                           aspect,
+                                                          image_info->layer_count,
                                                           mip,
                                                           layer,
+                                                          &subresource_sizes,
                                                           options_.dump_resources_dump_separate_alpha,
                                                           options_.dump_resources_before ? &filenameBefore : nullptr);
 
@@ -848,6 +876,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                 json_entry["offset"]   = draw_call_info.dc_param->json_output_info.index_buffer_info.offset;
                 json_entry["indexType"] =
                     util::ToString<VkIndexType>(draw_call_info.dc_param->referenced_index_buffer.index_type);
+                json_entry["size"] = draw_call_info.dc_param->referenced_index_buffer.actual_size;
             }
         }
 
@@ -883,6 +912,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                     json_entry[i]["vertexBufferBinding"] = vb_binding.first;
                     json_entry[i]["file"]                = vb_filename;
                     json_entry[i]["offset"]              = json_info_entry->second.offset;
+                    json_entry[i]["size"]                = vb_binding_buffer->second.actual_size;
                     ++i;
                 }
             }
@@ -950,6 +980,16 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                 size_t subresource_entry = 0;
                                 for (auto aspect : aspects)
                                 {
+                                    std::vector<uint64_t> subresource_sizes;
+                                    if (options_.dump_resources_dump_raw_images)
+                                    {
+                                        GetImageResourceSizes(image_info,
+                                                              aspect,
+                                                              instance_table,
+                                                              draw_call_info.device_table,
+                                                              subresource_sizes);
+                                    }
+
                                     for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
                                     {
                                         for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -969,8 +1009,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                                 extent,
                                                 filename,
                                                 aspect,
+                                                image_info->layer_count,
                                                 mip,
                                                 layer,
+                                                &subresource_sizes,
                                                 options_.dump_resources_dump_separate_alpha);
 
                                             if (!options_.dump_resources_dump_all_image_subresources)
@@ -1011,6 +1053,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                     res_info.type                   = DumpResourceType::kBufferDescriptor;
                                     res_info.buffer_info            = buf_info;
 
+                                    const VkDeviceSize size = buf_desc.second->range == VK_WHOLE_SIZE
+                                                                  ? buf_info->size - buf_desc.second->offset
+                                                                  : buf_desc.second->range;
+                                    desc_json_entry["size"] = size;
                                     desc_json_entry["file"] = GenerateBufferDescriptorFilename(res_info);
                                 }
                             }
@@ -1040,6 +1086,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                     res_info.type                   = DumpResourceType::kBufferDescriptor;
                                     res_info.buffer_info            = buf_info;
 
+                                    const VkDeviceSize size = buf_desc.second.range == VK_WHOLE_SIZE
+                                                                  ? buf_info->size - buf_desc.second.offset
+                                                                  : buf_desc.second.range;
+                                    desc_json_entry["size"] = size;
                                     desc_json_entry["file"] = GenerateBufferDescriptorFilename(res_info);
                                 }
                             }
@@ -1122,6 +1172,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    false,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
@@ -1206,7 +1257,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFi
 VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysBuffer(const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateDispatchTraceRaysBufferFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1284,6 +1336,7 @@ DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysImageDescriptor(const V
                                    options_.dump_resources_scale,
                                    scaling_supported,
                                    options_.dump_resources_image_format,
+                                   resource_info.compressor,
                                    options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha);
@@ -1345,7 +1398,8 @@ VkResult
 DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysBufferDescriptor(const VulkanDumpResourceInfo& resource_info)
 {
     const std::string filename = GenerateDispatchTraceRaysBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1367,7 +1421,8 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpDispatchTraceRaysInlineUniformB
     const VulkanDumpResourceInfo& resource_info)
 {
     std::string filename = GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename(resource_info);
-    return util::bufferwriter::WriteBuffer(filename, resource_info.data.data(), resource_info.data.size())
+    return util::bufferwriter::WriteBuffer(
+               filename, resource_info.data.data(), resource_info.data.size(), resource_info.compressor)
                ? VK_SUCCESS
                : VK_ERROR_UNKNOWN;
 }
@@ -1439,6 +1494,18 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
             size_t subresource_entry = 0;
             for (auto aspect : aspects)
             {
+                std::vector<uint64_t> subresource_sizes;
+                if (options_.dump_resources_dump_raw_images)
+                {
+                    GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
+
+                    GetImageResourceSizes(img_info,
+                                          aspect,
+                                          draw_call_info.instance_table,
+                                          draw_call_info.device_table,
+                                          subresource_sizes);
+                }
+
                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -1473,8 +1540,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                                   extent,
                                                                   filename,
                                                                   aspect,
+                                                                  img_info->layer_count,
                                                                   mip,
                                                                   layer,
+                                                                  &subresource_sizes,
                                                                   options_.dump_resources_dump_separate_alpha,
                                                                   &filename_before);
                         }
@@ -1487,8 +1556,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                                   extent,
                                                                   filename,
                                                                   aspect,
+                                                                  img_info->layer_count,
                                                                   mip,
                                                                   layer,
+                                                                  &subresource_sizes,
                                                                   options_.dump_resources_dump_separate_alpha);
                         }
 
@@ -1530,6 +1601,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
             entry["binding"]            = binding;
             entry["arrayIndex"]         = array_index;
             entry["bufferId"]           = buffer_info->capture_id;
+            entry["size"]               = buffer.cloned_size;
 
             VulkanDumpResourceInfo res_info = res_info_base;
             res_info.type                   = DumpResourceType::kDispatchTraceRaysBuffer;
@@ -1605,6 +1677,19 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                 size_t subresource_entry = 0;
                                 for (auto aspect : aspects)
                                 {
+                                    std::vector<uint64_t> subresource_sizes;
+                                    if (options_.dump_resources_dump_raw_images)
+                                    {
+                                        GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
+                                        GFXRECON_ASSERT(draw_call_info.device_table != nullptr);
+
+                                        GetImageResourceSizes(img_info,
+                                                              aspect,
+                                                              draw_call_info.instance_table,
+                                                              draw_call_info.device_table,
+                                                              subresource_sizes);
+                                    }
+
                                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                                     {
                                         for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -1629,8 +1714,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                                 extent,
                                                 filename,
                                                 aspect,
+                                                img_info->layer_count,
                                                 mip,
                                                 layer,
+                                                &subresource_sizes,
                                                 options_.dump_resources_dump_separate_alpha);
 
                                             if (!options_.dump_resources_dump_all_image_subresources)
@@ -1670,6 +1757,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                     res_info.buffer_info = buffer_info;
 
                                     entry["file"] = GenerateDispatchTraceRaysBufferDescriptorFilename(res_info);
+
+                                    const VkDeviceSize size = buf_desc.second->range == VK_WHOLE_SIZE
+                                                                  ? buffer_info->size - buf_desc.second->offset
+                                                                  : buf_desc.second->range;
+                                    entry["size"]           = size;
                                 }
                             }
                         }
@@ -1696,6 +1788,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                     res_info.buffer_info = buf_desc.second.buffer_info;
 
                                     entry["file"] = GenerateDispatchTraceRaysBufferDescriptorFilename(res_info);
+
+                                    const VkDeviceSize size =
+                                        buf_desc.second.range == VK_WHOLE_SIZE
+                                            ? buf_desc.second.buffer_info->size - buf_desc.second.offset
+                                            : buf_desc.second.range;
+                                    entry["size"] = size;
                                 }
                             }
                         }
@@ -1932,6 +2030,54 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
         dump_json_.BlockEnd();
         dump_json_.Close();
     }
+}
+
+uint64_t DefaultVulkanDumpResourcesDelegate::GetImageResourceSizes(const VulkanImageInfo*               image_info,
+                                                                   VkImageAspectFlagBits                aspect,
+                                                                   const graphics::VulkanInstanceTable* instance_table,
+                                                                   const graphics::VulkanDeviceTable*   device_table,
+                                                                   std::vector<uint64_t>& subresource_sizes)
+{
+    GFXRECON_ASSERT(image_info != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(image_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(phys_dev_info != nullptr);
+
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
+
+    VkExtent3D extent;
+    if (options_.dump_resources_scale != 1.0f && !ImageFailedScaling(image_info))
+    {
+        extent.width = static_cast<uint32_t>(
+            std::max(static_cast<float>(image_info->extent.width) * options_.dump_resources_scale, 1.0f));
+        extent.height = static_cast<uint32_t>(
+            std::max(static_cast<float>(image_info->extent.height) * options_.dump_resources_scale, 1.0f));
+        extent.depth = static_cast<uint32_t>(
+            std::max(static_cast<float>(image_info->extent.depth) * options_.dump_resources_scale, 1.0f));
+    }
+    else
+    {
+        extent = image_info->extent;
+    }
+
+    return resource_util.GetImageResourceSizesOptimal(image_info->format,
+                                                      image_info->type,
+                                                      extent,
+                                                      image_info->level_count,
+                                                      image_info->layer_count,
+                                                      image_info->tiling,
+                                                      aspect,
+                                                      nullptr,
+                                                      &subresource_sizes);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

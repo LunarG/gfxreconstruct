@@ -71,8 +71,7 @@ class VulkanResourcesUtil
     // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
     //
     // Return value is the total size of the image.
-    uint64_t GetImageResourceSizesOptimal(VkImage                image,
-                                          VkFormat               format,
+    uint64_t GetImageResourceSizesOptimal(VkFormat               format,
                                           VkImageType            type,
                                           const VkExtent3D&      extent,
                                           uint32_t               mip_levels,

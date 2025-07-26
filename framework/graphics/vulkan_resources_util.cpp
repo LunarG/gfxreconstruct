@@ -812,8 +812,7 @@ VulkanResourcesUtil::~VulkanResourcesUtil()
     }
 }
 
-uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage                image,
-                                                           VkFormat               format,
+uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat               format,
                                                            VkImageType            type,
                                                            const VkExtent3D&      extent,
                                                            uint32_t               mip_levels,
@@ -1716,8 +1715,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         }
         else if (resource_size == 0 || img.level_sizes == nullptr)
         {
-            resource_size = GetImageResourceSizesOptimal(img.image,
-                                                         tmp_data[i].use_blit ? dst_format : img.format,
+            resource_size = GetImageResourceSizesOptimal(tmp_data[i].use_blit ? dst_format : img.format,
                                                          img.type,
                                                          tmp_data[i].use_blit ? tmp_data[i].scaled_extent : img.extent,
                                                          img.level_count,

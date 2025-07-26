@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
+#include "util/compressor.h"
 #include "util/logging.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
@@ -416,6 +417,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                          float                                scale,
                          bool&                                scaling_supported,
                          util::ScreenshotFormat               image_file_format,
+                         const util::Compressor*              compressor,
                          bool                                 dump_all_subresources,
                          bool                                 dump_image_raw,
                          bool                                 dump_separate_alpha,
@@ -490,8 +492,7 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         };
 
         image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(image_resource.image,
-                                                       use_blit ? dst_format : image_resource.format,
+            resource_util.GetImageResourceSizesOptimal(use_blit ? dst_format : image_resource.format,
                                                        image_resource.type,
                                                        use_blit ? scaled_extent : image_resource.extent,
                                                        image_resource.level_count,
@@ -626,7 +627,8 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                             util::ToString<VkFormat>(image_info->format).c_str());
                     }
 
-                    util::bufferwriter::WriteBuffer(filename, offsetted_data, subresource_sizes[sub_res_idx]);
+                    util::bufferwriter::WriteBuffer(
+                        filename, offsetted_data, subresource_sizes[sub_res_idx], compressor);
                 }
 
                 if (!dump_all_subresources)
