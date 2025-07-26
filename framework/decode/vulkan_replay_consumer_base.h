@@ -1690,6 +1690,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
+    VkResult SetDuplicateDeviceInfo(VulkanPhysicalDeviceInfo*                               physical_device_info,
+                                    VkDevice*                                               replay_device,
+                                    const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info,
+                                    VulkanDeviceInfo*                                       device_info,
+                                    format::HandleId                                        extant_device_id);
+
   private:
     struct HardwareBufferInfo
     {
@@ -1725,7 +1731,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<graphics::VulkanDispatchKey, PFN_vkCreateDevice>            create_device_procs_;
     std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable> instance_tables_;
     std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>   device_tables_;
-    std::unordered_map<std::bitset<VK_UUID_SIZE * 8>, VkDevice>                    device_uuid_map_;
+    std::unordered_map<std::bitset<VK_UUID_SIZE * 8>, format::HandleId>            device_uuid_map_;
     std::function<void(const char*)>                                               fatal_error_handler_;
     std::shared_ptr<application::Application>                                      application_;
     CommonObjectInfoTable*                                                         object_info_table_;
