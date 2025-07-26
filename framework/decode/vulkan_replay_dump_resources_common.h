@@ -24,10 +24,14 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H
 
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_object_info.h"
+#include "util/logging.h"
 #include "vulkan/vulkan_core.h"
-#include "util/compressor.h"
 #include "util/defines.h"
-#include "util/options.h"
+#include <cstdint>
+#include <utility>
+#include <list>
+#include <variant>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -63,15 +67,359 @@ struct MinMaxVertexIndex
 
 using BoundDescriptorSets = std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
-                                       const graphics::VulkanDeviceTable*   device_table,
-                                       const graphics::VulkanInstanceTable* instance_table,
-                                       VulkanObjectInfoTable&               object_info_table,
-                                       VkFormat                             src_format,
-                                       VkImageTiling                        src_image_tiling,
-                                       VkImageType                          type,
-                                       util::ScreenshotFormat               image_file_format,
-                                       bool                                 dump_raw = false);
+using DumpedRawData = std::vector<uint8_t>;
+
+enum class DumpResourcesCommandType
+{
+    kNone,
+    kGraphics,
+    kCompute,
+    kRayTracing
+};
+
+enum class DumpResourceType
+{
+    kNone,
+    kRtv,
+    kDsv,
+    kVertex,
+    kIndex,
+    kImageDescriptor,
+    kBufferDescriptor,
+    kInlineUniformBufferDescriptor,
+    kDispatchTraceRaysImage,
+    kDispatchTraceRaysBuffer,
+    kDispatchTraceRaysImageDescriptor,
+    kDispatchTraceRaysBufferDescriptor,
+    kDispatchTraceRaysInlineUniformBufferDescriptor,
+};
+
+struct DumpedFile
+{
+    DumpedFile() = default;
+    DumpedFile(VkDeviceSize s) : size(s) {}
+
+    std::string  filename;
+    VkDeviceSize size{ 0 };
+    VkDeviceSize compressed_size{ 0 };
+};
+
+struct DumpedBuffer : DumpedFile
+{
+    DumpedBuffer() = default;
+
+    DumpedBuffer(const VulkanBufferInfo* bi, VkDeviceSize o, VkDeviceSize s) : DumpedFile(s), buffer_info(bi), offset(o)
+    {}
+
+    const VulkanBufferInfo* buffer_info{ nullptr };
+    VkDeviceSize            offset{ VK_WHOLE_SIZE };
+
+    void CopyDumpedInfo(const DumpedBuffer& other)
+    {
+        buffer_info     = other.buffer_info;
+        offset          = other.offset;
+        filename        = other.filename;
+        size            = other.size;
+        compressed_size = other.compressed_size;
+    }
+};
+
+struct DumpedImage
+{
+    DumpedImage() = default;
+
+    DumpedImage(const VulkanImageInfo* i_f) : image_info(i_f), scaling_failed(false), dumped_raw(false) {}
+
+    const VulkanImageInfo* image_info{ nullptr };
+
+    // Scaling is done with vkCmdBlitImage. It is possible that an implementation does not supporting blit for some
+    // specific formats. In these cases, since we can't scale the images with BlitImage, we dump them in their original
+    // dimensions and mark them with an entry in the output json.
+    bool     scaling_failed{ false };
+    bool     dumped_raw{ false };
+    VkFormat dumped_format{ VK_FORMAT_UNDEFINED };
+
+    struct DumpedImageSubresource : DumpedFile
+    {
+        DumpedImageSubresource() = default;
+
+        DumpedImageSubresource(
+            VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t le, uint32_t la) :
+            aspect(a),
+            extent(e), scaled_extent(se), level(le), layer(la)
+        {}
+
+        VkImageAspectFlagBits aspect{ VkImageAspectFlagBits(0) };
+        VkExtent3D            extent{ 0, 0, 0 };
+        VkExtent3D            scaled_extent{ 0, 0, 0 };
+        uint32_t              level{ 0 };
+        uint32_t              layer{ 0 };
+    };
+
+    std::vector<DumpedImageSubresource> dumped_subresources;
+
+    void CopyDumpedInfo(const DumpedImage& other)
+    {
+        scaling_failed      = other.scaling_failed;
+        dumped_raw          = other.dumped_raw;
+        dumped_format       = other.dumped_format;
+        dumped_subresources = other.dumped_subresources;
+    }
+};
+
+struct DumpedResourceBase
+{
+    DumpedResourceBase() = default;
+
+    DumpedResourceBase(DumpResourceType t, uint64_t bcb, uint64_t cmd, uint64_t qs) :
+        type(t), bcb_index(bcb), cmd_index(cmd), qs_index(qs)
+    {}
+
+    DumpedResourceBase(DumpResourceType t, uint64_t bcb, uint64_t cmd, uint64_t qs, uint64_t rp, uint64_t sp) :
+        type(t), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp)
+    {}
+
+    DumpResourceType type{ DumpResourceType::kNone };
+
+    // BeginCommandBuffer index
+    uint64_t bcb_index{ 0 };
+
+    // The command's index (vkCmdDraw, vkCmdDispatch, etc)
+    uint64_t cmd_index{ 0 };
+
+    // The QueueSubmit index
+    uint64_t qs_index{ 0 };
+
+    // The render pass index in which this resource is dumped
+    uint64_t render_pass{ 0 };
+
+    // The sub pass index in which this resource is dumped
+    uint64_t subpass{ 0 };
+};
+
+struct DumpedVertexIndexBuffer : DumpedResourceBase
+{
+    // Due to multiple member variable it's easy to forget seting some of them.
+    // Deleting the default construct should help to ensure that variable are set
+    DumpedVertexIndexBuffer() = delete;
+
+    // For vertex buffers
+    DumpedVertexIndexBuffer(DumpResourceType        t,
+                            uint64_t                bcb,
+                            uint64_t                cmd,
+                            uint64_t                qs,
+                            uint32_t                b,
+                            const VulkanBufferInfo* bi,
+                            VkDeviceSize            s,
+                            VkDeviceSize            o) :
+        DumpedResourceBase(t, bcb, cmd, qs),
+        buffer(bi, o, s), binding(b)
+    {}
+
+    // For index buffers
+    DumpedVertexIndexBuffer(DumpResourceType        t,
+                            uint64_t                bcb,
+                            uint64_t                cmd,
+                            uint64_t                qs,
+                            VkIndexType             it,
+                            const VulkanBufferInfo* bi,
+                            VkDeviceSize            s,
+                            VkDeviceSize            o) :
+        DumpedResourceBase(t, bcb, cmd, qs),
+        buffer(bi, o, s), index_type(it)
+    {}
+
+    DumpedBuffer buffer;
+
+    // For vertex buffer attributes
+    uint32_t binding{ 0 };
+
+    // For index buffer
+    VkIndexType index_type{ VK_INDEX_TYPE_NONE_KHR };
+};
+
+struct DumpedDescriptor : DumpedResourceBase
+{
+    // Due to multiple member variable it's easy to forget seting some of them.
+    // Deleting the default construct should help to ensure that variable are set
+    DumpedDescriptor() = delete;
+
+    // Buffer descriptors for graphics
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     uint64_t                 rp,
+                     uint64_t                 sp,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     uint32_t                 ai,
+                     const VulkanBufferInfo*  buffer_info,
+                     VkDeviceSize             offset,
+                     VkDeviceSize             size,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+    {}
+
+    // Inline uniform buffers for graphics
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     uint64_t                 rp,
+                     uint64_t                 sp,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+    {}
+
+    // Graphics image descriptors
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     uint64_t                 rp,
+                     uint64_t                 sp,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     uint32_t                 ai,
+                     const VulkanImageInfo*   img_info,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+    {}
+
+    // Dispatch ray tracing image descriptors
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     uint32_t                 ai,
+                     const VulkanImageInfo*   img_info,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+    {}
+
+    // Dispatch ray tracing buffer descriptors
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     uint32_t                 ai,
+                     const VulkanBufferInfo*  buffer_info,
+                     VkDeviceSize             offset,
+                     VkDeviceSize             size,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+    {}
+
+    // Dispatch ray tracing inline uniform buffers
+    DumpedDescriptor(DumpResourceType         t,
+                     uint64_t                 bcb,
+                     uint64_t                 cmd,
+                     uint64_t                 qs,
+                     VkShaderStageFlags       ss,
+                     VkDescriptorType         dt,
+                     uint32_t                 s,
+                     uint32_t                 b,
+                     DumpResourcesCommandType rt) :
+        DumpedResourceBase(t, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
+        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+    {}
+
+    // The dumped resource
+    std::variant<DumpedImage, DumpedBuffer> dumped_resource;
+
+    bool has_before{ false };
+
+    // The dumped resource before the execution of the command.
+    // Used only when --dump-resources-before-draw is used.
+    std::variant<DumpedImage, DumpedBuffer> dumped_resource_before;
+
+    VkShaderStageFlags stages{ VkShaderStageFlagBits(0) };
+
+    VkDescriptorType desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    uint32_t         set{ 0 };
+    uint32_t         binding{ 0 };
+    uint32_t         array_index{ 0 };
+
+    DumpResourcesCommandType resource_type{ DumpResourcesCommandType::kNone };
+};
+
+struct DumpedRenderTarget : DumpedResourceBase
+{
+    // Due to multiple member variable it's easy to forget seting some of them.
+    // Deleting the default construct should help to ensure that variable are set
+    DumpedRenderTarget() = delete;
+
+    DumpedRenderTarget(DumpResourceType       t,
+                       uint64_t               bcb,
+                       uint64_t               cmd,
+                       uint64_t               qs,
+                       uint64_t               rp,
+                       uint64_t               sp,
+                       uint32_t               l,
+                       bool                   before,
+                       const VulkanImageInfo* img_info) :
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
+        location(l), dumped_image(img_info)
+    {
+        if (before)
+        {
+            dumped_image_before = DumpedImage(img_info);
+        }
+    }
+
+    // The dumped image resource
+    DumpedImage dumped_image;
+
+    // The dumped image resource before the execution of the command.
+    // Used only when --dump-resources-before-draw is used.
+    DumpedImage dumped_image_before;
+
+    // The render target location
+    uint32_t location{ 0 };
+};
+
+struct DumpedResourcesInfo
+{
+    DumpedResourcesInfo() = default;
+
+    uint64_t bcb_index{ 0 };
+    uint64_t cmd_index{ 0 };
+    uint64_t qs_index{ 0 };
+
+    std::vector<DumpedVertexIndexBuffer> dumped_vertex_index_buffers;
+    std::vector<DumpedRenderTarget>      dumped_render_targets;
+
+    // We need to keep references to inserted elements. Use a list instead of a vector
+    std::list<DumpedDescriptor> dumped_descriptors;
+};
 
 const char* ImageFileExtension(DumpedImageFormat image_format);
 
@@ -102,20 +450,27 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                                           int32_t                     vertex_offset,
                                           VkIndexType                 type);
 
-VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
-                         const VulkanDeviceInfo*              device_info,
-                         const graphics::VulkanDeviceTable*   device_table,
-                         const graphics::VulkanInstanceTable* instance_table,
-                         CommonObjectInfoTable&               object_info_table,
-                         const std::vector<std::string>&      filenames,
-                         float                                scale,
-                         bool&                                scaling_supported,
-                         util::ScreenshotFormat               image_file_format,
-                         const util::Compressor*              compressor            = nullptr,
-                         bool                                 dump_all_subresources = false,
-                         bool                                 dump_image_raw        = false,
-                         bool                                 dump_separate_alpha   = false,
-                         VkImageLayout                        layout                = VK_IMAGE_LAYOUT_MAX_ENUM);
+bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
+                     const VulkanObjectInfoTable&         object_info_table,
+                     const VulkanImageInfo*               image_info);
+
+VkResult DumpImage(DumpedImage&                         dumped_image,
+                   VkImageLayout                        layout,
+                   float                                scale,
+                   bool                                 dump_image_raw,
+                   bool                                 dump_all_subresources,
+                   std::vector<DumpedRawData>&          data,
+                   const VulkanDeviceInfo*              device_info,
+                   const graphics::VulkanDeviceTable*   device_table,
+                   const graphics::VulkanInstanceTable* instance_table,
+                   CommonObjectInfoTable&               object_info_table);
+
+VkResult DumpBuffer(const DumpedBuffer&                  buffer,
+                    DumpedRawData&                       data,
+                    const VulkanDeviceInfo*              device_info,
+                    const graphics::VulkanDeviceTable*   device_table,
+                    const graphics::VulkanInstanceTable* instance_table,
+                    CommonObjectInfoTable&               object_info_table);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
@@ -143,28 +498,27 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
 
 uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
 
+static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
+{
+    const VkExtent3D mip_extent = VkExtent3D{ std::max(1u, extent.width >> level),
+                                              std::max(1u, extent.height >> level),
+                                              std::max(1u, extent.depth >> level) };
+
+    return mip_extent;
+}
+
+static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
+{
+    const VkExtent3D scaled_extent =
+        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.depth) * scale)) };
+
+    return scaled_extent;
+}
+
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;
-
-enum class DumpResourceType : uint32_t
-{
-    kUnknown,
-    kRtv,
-    kDsv,
-    kVertex,
-    kIndex,
-    kImageDescriptor,
-    kBufferDescriptor,
-    kInlineUniformBufferDescriptor,
-    kDrawCallInfo,
-    kDispatchInfo,
-    kTraceRaysIndex,
-    kDispatchTraceRaysImage,
-    kDispatchTraceRaysBuffer,
-    kDispatchTraceRaysImageDescriptor,
-    kDispatchTraceRaysBufferDescriptor,
-    kDispatchTraceRaysInlineUniformBufferDescriptor,
-};
 
 enum class DumpResourcesCommandBufferLevel
 {

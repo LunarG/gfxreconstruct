@@ -143,7 +143,7 @@ class DrawCallsDumpingContext
     VkResult DumpRenderTargetAttachments(
         uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index);
 
-    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
+    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
 
     VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
 
@@ -226,13 +226,8 @@ class DrawCallsDumpingContext
     const VulkanPipelineInfo*    bound_gr_pipeline_;
     uint32_t                     current_renderpass_;
     uint32_t                     current_subpass_;
-    bool                         dump_resources_before_;
     VulkanDumpResourcesDelegate& delegate_;
-    bool                         dump_depth_;
-    int32_t                      color_attachment_to_dump_;
-    bool                         dump_vertex_index_buffers_;
-    bool                         dump_immutable_resources_;
-    bool                         dump_unused_vertex_bindings_;
+    const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
 
     // Execute commands block index : DrawCallContexts
@@ -312,14 +307,14 @@ class DrawCallsDumpingContext
     {
         struct BufferPerBinding
         {
-            BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0), actual_size(0) {}
+            BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0) {}
 
             BufferPerBinding(const VulkanBufferInfo* buffer_info,
                              VkDeviceSize            offset,
                              VkDeviceSize            size   = 0,
                              VkDeviceSize            stride = 0) :
                 buffer_info(buffer_info),
-                offset(offset), size(size), stride(stride), actual_size(0)
+                offset(offset), size(size), stride(stride)
             {}
 
             const VulkanBufferInfo* buffer_info;
@@ -328,10 +323,6 @@ class DrawCallsDumpingContext
             // These are provided only by CmdBindVertexBuffers2
             VkDeviceSize size;
             VkDeviceSize stride;
-
-            // This is the size actually used as an vertex buffer from all referencing draw calls
-            // and is calculated based on the indices (if an index buffer is used)
-            VkDeviceSize actual_size;
         };
 
         // One entry for each vertex buffer bound at each binding
@@ -345,16 +336,14 @@ class DrawCallsDumpingContext
     // Keep track of bound index buffer
     struct BoundIndexBuffer
     {
-        BoundIndexBuffer() :
-            buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0), actual_size(0)
-        {}
+        BoundIndexBuffer() : buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0) {}
 
         BoundIndexBuffer(const VulkanBufferInfo* buffer_info,
                          VkDeviceSize            offset,
                          VkIndexType             index_type,
                          VkDeviceSize            size) :
             buffer_info(buffer_info),
-            offset(offset), index_type(index_type), size(size), actual_size(0)
+            offset(offset), index_type(index_type), size(size)
         {}
 
         const VulkanBufferInfo* buffer_info;
@@ -363,9 +352,6 @@ class DrawCallsDumpingContext
 
         // This is provided only by vkCmdBindIndexBuffer2KHR
         VkDeviceSize size;
-
-        // This is the size actually used as an index buffer from all referencing draw calls
-        VkDeviceSize actual_size;
     };
 
   private:
@@ -659,28 +645,13 @@ class DrawCallsDumpingContext
         // Keep copies of the descriptor bindings referenced by each draw call
         BoundDescriptorSets referenced_descriptors;
 
-        // These are used to store information calculated when dumping vertex and index buffers.
-        // This information is latter used when writting the output json file.
-        struct
-        {
-            struct
-            {
-                bool   dumped{ false };
-                size_t offset{ 0 };
-            } index_buffer_info;
-
-            struct VertexBufferBindingInfo
-            {
-                size_t offset{ 0 };
-            };
-            std::unordered_map<uint32_t, VertexBufferBindingInfo> vertex_bindings_info;
-        } json_output_info;
-
-        // Need to keep track if a draw call context from a secondary command buffer has been updated with information
-        // that might be available only from the primary command buffer
+        // Need to keep track if a draw call context from a secondary command buffer has been updated with
+        // information that might be available only from the primary command buffer
         bool updated_bound_vertex_buffers;
         bool updated_bound_index_buffer;
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
   private:
@@ -708,9 +679,8 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::unordered_set<const VulkanImageInfo*>      image_descriptors;
-        std::unordered_set<const VulkanBufferInfo*>     buffer_descriptors;
-        std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
+        std::unordered_map<const VulkanImageInfo*, const DumpedImage&>   image_descriptors;
+        std::unordered_map<const VulkanBufferInfo*, const DumpedBuffer&> buffer_descriptors;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
