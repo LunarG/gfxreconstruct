@@ -26,9 +26,7 @@
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
-#include "util/buffer_writer.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/compressor.h"
 #include "util/logging.h"
@@ -62,7 +60,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       dr
     color_attachment_to_dump_(options.dump_resources_color_attachment_index),
     dump_vertex_index_buffers_(options.dump_resources_dump_vertex_index_buffer),
     dump_immutable_resources_(options.dump_resources_dump_immutable_resources),
-    dump_unused_vertex_bindings_(options.dump_resources_dump_unused_vertex_bindings), compressor_(compressor),
+    dump_unused_vertex_bindings_(options.dump_resources_dump_unused_vertex_bindings),
+    dump_all_image_subresources_(options.dump_resources_dump_all_image_subresources), compressor_(compressor),
     current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr)
@@ -157,13 +156,12 @@ void DrawCallsDumpingContext::Release()
 void DrawCallsDumpingContext::InsertNewDrawParameters(
     uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance)
 {
-    auto new_entry = draw_call_params_.insert(
+    auto [entry_it, success] = draw_call_params_.insert(
         { index,
           std::make_unique<DrawCallParams>(
               DrawCallType::kDraw, vertex_count, instance_count, first_vertex, first_instance) });
-    GFXRECON_ASSERT(new_entry.second);
-
-    SnapshotState(*new_entry.first->second);
+    GFXRECON_ASSERT(success);
+    SnapshotState(*entry_it->second);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
@@ -883,7 +881,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump immutable resources
         if (dump_immutable_resources_ && (!dump_resources_before_ || dump_resources_before_ && !(cb % 2)))
         {
-            res = DumpImmutableDescriptors(qs_index, bcb_index, dc_index, rp);
+            res = DumpDescriptors(qs_index, bcb_index, dc_index, rp);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -893,25 +891,15 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
         if (!dump_resources_before_ || dump_resources_before_ && !(cb % 2))
         {
-            VulkanDumpDrawCallInfo draw_call_info{};
-            draw_call_info.type                         = DumpResourceType::kDrawCallInfo;
-            draw_call_info.instance_table               = instance_table_;
-            draw_call_info.device_table                 = device_table_;
-            draw_call_info.object_info_table            = &object_info_table_;
-            draw_call_info.device_info                  = device_info;
-            draw_call_info.original_command_buffer_info = original_command_buffer_info_;
-            draw_call_info.bcb_index                    = bcb_index;
-            draw_call_info.qs_index                     = qs_index;
-            draw_call_info.rp                           = rp;
-            draw_call_info.sp                           = sp;
-            draw_call_info.cmd_index                    = dc_index;
-            draw_call_info.render_targets               = &render_targets_[rp][sp];
-
-            const auto& dc_param_entry = draw_call_params_.find(draw_call_info.cmd_index);
+            const auto& dc_param_entry = draw_call_params_.find(dc_index);
             GFXRECON_ASSERT(dc_param_entry != draw_call_params_.end());
-            draw_call_info.dc_param = dc_param_entry->second.get();
+            const auto& dc_entry = dc_param_entry->second.get();
 
-            delegate_.DumpDrawCallInfo(draw_call_info, instance_table_);
+            const VulkanDelegateDumpDrawCallContext draw_call_info{
+                DumpResourcesCommandType::kGraphics, instance_table_, device_table_, dc_entry
+            };
+
+            delegate_.DumpDrawCallInfo(draw_call_info);
         }
 
         res = RevertRenderTargetImageLayouts(queue, cb);
@@ -976,7 +964,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
@@ -1088,25 +1076,34 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         return VK_SUCCESS;
     }
 
+    auto            dc_params_entry = draw_call_params_.find(dc_index);
+    DrawCallParams& dc_params       = *dc_params_entry->second;
+
+    dc_params.dumped_resources.bcb_index = bcb_index;
+    dc_params.dumped_resources.cmd_index = dc_index;
+    dc_params.dumped_resources.qs_index  = qs_index;
+
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
 
-    VulkanDumpResourceInfo res_info_base{};
-    res_info_base.device_info                  = device_info;
-    res_info_base.device_table                 = device_table_;
-    res_info_base.instance_table               = instance_table_;
-    res_info_base.object_info_table            = &object_info_table_;
-    res_info_base.original_command_buffer_info = original_command_buffer_info_;
-    res_info_base.cmd_index                    = dc_index;
-    res_info_base.qs_index                     = qs_index;
-    res_info_base.bcb_index                    = bcb_index;
-    res_info_base.before_cmd                   = dump_resources_before_ && !(cmd_buf_index % 2);
-    res_info_base.rp                           = rp;
-    res_info_base.sp                           = sp;
-    res_info_base.compressor                   = compressor_;
+    VulkanDelegateDumpResourceContext res_info_base{};
+    res_info_base.device_table   = device_table_;
+    res_info_base.instance_table = instance_table_;
+    res_info_base.compressor     = compressor_;
 
+    auto&        dumped_rts                = dc_params.dumped_resources.dumped_render_targets;
+    const bool   before_command            = dump_resources_before_ && !(cmd_buf_index % 2);
+    const bool   insert_new_resource_entry = before_command || !dump_resources_before_;
+    const bool   has_depth                 = dump_depth_ && render_targets_[rp][sp].depth_att_img != nullptr;
+    const size_t render_targets_count      = render_targets_[rp][sp].color_att_imgs.size() + has_depth;
+
+    // In the case of dumping before commands, the "before" will be dumped first. The next call will be for dumping the
+    // "after" so the dumped_render_targets vector should already contain render_targets_count entries.
+    GFXRECON_ASSERT(!dump_resources_before_ ||
+                    (dump_resources_before_ && !before_command && dumped_rts.size() == render_targets_count) ||
+                    (dump_resources_before_ && before_command));
     // Dump color attachments
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
     {
@@ -1116,11 +1113,22 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             continue;
         }
 
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kRtv;
-        res_info.image_info             = render_targets_[rp][sp].color_att_imgs[i];
-        res_info.attachment_index       = static_cast<int>(i);
-        auto res                        = delegate_.DumpResource(res_info);
+        auto& dumped_rt = insert_new_resource_entry
+                              ? dumped_rts.emplace_back(DumpedRenderTarget(DumpResourceType::kRtv,
+                                                                           bcb_index,
+                                                                           dc_index,
+                                                                           qs_index,
+                                                                           rp,
+                                                                           sp,
+                                                                           static_cast<uint32_t>(i),
+                                                                           before_command))
+                              : *(dumped_rts.end() - render_targets_count + i);
+
+        dumped_rt.image.image_info = render_targets_[rp][sp].color_att_imgs[i];
+
+        VulkanDelegateDumpResourceContext res_info = res_info_base;
+        res_info.dumped_resource                   = &dumped_rt;
+        auto res                                   = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1128,13 +1136,21 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     }
 
     // Dump depth attachment
-    if (dump_depth_ && render_targets_[rp][sp].depth_att_img != nullptr)
+    if (has_depth)
     {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kDsv;
-        res_info.image_info             = render_targets_[rp][sp].depth_att_img;
-        res_info.attachment_index       = DEPTH_ATTACHMENT;
-        auto res                        = delegate_.DumpResource(res_info);
+        // The "before" depth target will be at the back() of the vector
+        auto& dumped_rt =
+            insert_new_resource_entry
+                ? dumped_rts.emplace_back(DumpedRenderTarget(
+                      DumpResourceType::kDsv, bcb_index, dc_index, qs_index, rp, sp, DEPTH_ATTACHMENT, before_command))
+                : dumped_rts.back();
+
+        GFXRECON_ASSERT(render_targets_[rp][sp].depth_att_img != nullptr);
+        dumped_rt.image.image_info = render_targets_[rp][sp].depth_att_img;
+
+        VulkanDelegateDumpResourceContext res_info = res_info_base;
+        res_info.dumped_resource                   = &dumped_rt;
+        auto res                                   = delegate_.DumpResource(res_info);
         if (res != VK_SUCCESS)
         {
             return res;
@@ -1144,165 +1160,15 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     return VK_SUCCESS;
 }
 
-VkResult
-DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp)
+VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp)
 {
     assert(rp < render_pass_dumped_descriptors_.size());
     assert(draw_call_params_.find(dc_index) != draw_call_params_.end());
-
-    // Create a list of all descriptors referenced by all draw calls
-    std::unordered_set<const VulkanImageInfo*> image_descriptors;
-
-    struct buffer_descriptor_info
-    {
-        VkDeviceSize offset;
-        VkDeviceSize range;
-    };
-    std::unordered_map<const VulkanBufferInfo*, buffer_descriptor_info> buffer_descriptors;
-
-    struct inline_uniform_block_info
-    {
-        uint32_t                    set;
-        uint32_t                    binding;
-        const std::vector<uint8_t>* data;
-    };
-    std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
-
-    auto dc_param_entry = draw_call_params_.find(dc_index);
-    GFXRECON_ASSERT(dc_param_entry != draw_call_params_.end());
-
-    const DrawCallParams& dc_params = *dc_param_entry->second;
-    for (const auto& desc_set : dc_params.referenced_descriptors)
-    {
-        const uint32_t desc_set_index = desc_set.first;
-        for (const auto& desc_binding : desc_set.second)
-        {
-            const uint32_t desc_binding_index = desc_binding.first;
-            switch (desc_binding.second.desc_type)
-            {
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                {
-                    for (const auto& img_desc_info : desc_binding.second.image_info)
-                    {
-                        if (img_desc_info.second.image_view_info != nullptr)
-                        {
-                            const VulkanImageInfo* img_info =
-                                object_info_table_.GetVkImageInfo(img_desc_info.second.image_view_info->image_id);
-                            if (img_info != nullptr &&
-                                (render_pass_dumped_descriptors_[rp].image_descriptors.find(img_info) ==
-                                 render_pass_dumped_descriptors_[rp].image_descriptors.end()))
-                            {
-                                image_descriptors.insert(img_info);
-                                render_pass_dumped_descriptors_[rp].image_descriptors.insert(img_info);
-                            }
-                        }
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                {
-                    for (const auto& buf_desc_info : desc_binding.second.texel_buffer_view_info)
-                    {
-                        const VulkanBufferInfo* buffer_info =
-                            object_info_table_.GetVkBufferInfo(buf_desc_info.second->buffer_id);
-                        if (buffer_info != nullptr &&
-                            (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
-                             render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
-                        {
-                            buffer_descriptors.emplace(
-                                std::piecewise_construct,
-                                std::forward_as_tuple(buffer_info),
-                                std::forward_as_tuple(buffer_descriptor_info{ buf_desc_info.second->offset,
-                                                                              buf_desc_info.second->range }));
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.insert(buffer_info);
-                        }
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                {
-                    for (const auto& buf_desc_info : desc_binding.second.buffer_info)
-                    {
-                        const VulkanBufferInfo* buffer_info = buf_desc_info.second.buffer_info;
-                        if (buffer_info != nullptr &&
-                            (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
-                             render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
-                        {
-                            buffer_descriptors.emplace(std::piecewise_construct,
-                                                       std::forward_as_tuple(buffer_info),
-                                                       std::forward_as_tuple(buffer_descriptor_info{
-                                                           buf_desc_info.second.offset, buf_desc_info.second.range }));
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.insert(buffer_info);
-                        }
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                {
-                    if (render_pass_dumped_descriptors_[rp].inline_uniform_blocks.find(
-                            &desc_binding.second.inline_uniform_block) ==
-                        render_pass_dumped_descriptors_[rp].inline_uniform_blocks.end())
-                    {
-                        inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
-                            desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
-                        };
-                        render_pass_dumped_descriptors_[rp].inline_uniform_blocks.insert(
-                            &desc_binding.second.inline_uniform_block);
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                case VK_DESCRIPTOR_TYPE_SAMPLER:
-                    break;
-
-                default:
-                    GFXRECON_LOG_WARNING_ONCE("%s(): Descriptor type (%s) not handled",
-                                              __func__,
-                                              util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
-                    break;
-            }
-        }
-    }
 
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
-
-    VulkanDumpResourceInfo res_info_base{};
-    res_info_base.device_info                  = device_info;
-    res_info_base.device_table                 = device_table_;
-    res_info_base.instance_table               = instance_table_;
-    res_info_base.object_info_table            = &object_info_table_;
-    res_info_base.original_command_buffer_info = original_command_buffer_info_;
-    res_info_base.cmd_index                    = dc_index;
-    res_info_base.qs_index                     = qs_index;
-    res_info_base.bcb_index                    = bcb_index;
-    res_info_base.rp                           = rp;
-    res_info_base.compressor                   = compressor_;
-
-    for (const auto& image_info : image_descriptors)
-    {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kImageDescriptor;
-        res_info.image_info             = image_info;
-        auto res                        = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
-        }
-    }
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -1316,43 +1182,224 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
                                                 *instance_table_,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    for (const auto& buf : buffer_descriptors)
+    VulkanDelegateDumpResourceContext res_info_base{};
+    res_info_base.device_table   = device_table_;
+    res_info_base.instance_table = instance_table_;
+    res_info_base.compressor     = compressor_;
+
+    auto dc_param_entry = draw_call_params_.find(dc_index);
+    GFXRECON_ASSERT(dc_param_entry != draw_call_params_.end());
+
+    DrawCallParams& dc_params = *dc_param_entry->second;
+    for (const auto& [desc_set_index, desc_set] : dc_params.referenced_descriptors)
     {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.buffer_info            = buf.first;
-        const VkDeviceSize offset       = buf.second.offset;
-        const VkDeviceSize range        = buf.second.range;
-        const VkDeviceSize size         = range == VK_WHOLE_SIZE ? res_info.buffer_info->size - offset : range;
-
-        VkResult res = resource_util.ReadFromBufferResource(
-            res_info.buffer_info->handle, size, offset, transfer_queue_index, res_info.data);
-        if (res != VK_SUCCESS)
+        for (const auto& [desc_binding_index, desc_binding] : desc_set)
         {
-            GFXRECON_LOG_ERROR("Reading from buffer resource %" PRIu64 " failed (%s).",
-                               res_info.buffer_info->capture_id,
-                               util::ToString<VkResult>(res).c_str())
-            return res;
-        }
+            switch (desc_binding.desc_type)
+            {
+                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                {
+                    for (const auto& [array_index, img_desc_info] : desc_binding.image_info)
+                    {
+                        if (img_desc_info.image_view_info != nullptr)
+                        {
+                            const VulkanImageInfo* img_info =
+                                object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
+                            if (img_info != nullptr &&
+                                (render_pass_dumped_descriptors_[rp].image_descriptors.find(img_info) ==
+                                 render_pass_dumped_descriptors_[rp].image_descriptors.end()))
+                            {
+                                render_pass_dumped_descriptors_[rp].image_descriptors.insert(img_info);
 
-        res_info.type = DumpResourceType::kBufferDescriptor;
-        res           = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
-        }
-    }
+                                auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
+                                    DumpedDescriptor(DumpResourceType::kImageDescriptor,
+                                                     bcb_index,
+                                                     dc_index,
+                                                     qs_index,
+                                                     false,
+                                                     rp,
+                                                     current_subpass_,
+                                                     desc_binding.stage_flags,
+                                                     desc_binding.desc_type,
+                                                     desc_set_index,
+                                                     desc_binding_index,
+                                                     array_index,
+                                                     DumpResourcesCommandType::kGraphics));
 
-    for (const auto& iub : inline_uniform_blocks)
-    {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kInlineUniformBufferDescriptor;
-        res_info.set                    = iub.second.set;
-        res_info.binding                = iub.second.binding;
-        res_info.data                   = *iub.second.data;
-        auto res                        = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
+                                DumpedImage& new_dumped_image_desc =
+                                    std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+
+                                new_dumped_image_desc.image_info = img_info;
+
+                                VulkanDelegateDumpResourceContext res_info = res_info_base;
+                                res_info.dumped_resource                   = &new_dumped_desc;
+                                auto res                                   = delegate_.DumpResource(res_info);
+
+                                if (res != VK_SUCCESS)
+                                {
+                                    return res;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                {
+                    for (const auto& [array_index, buf_desc_info] : desc_binding.texel_buffer_view_info)
+                    {
+                        const VulkanBufferInfo* buffer_info =
+                            object_info_table_.GetVkBufferInfo(buf_desc_info->buffer_id);
+
+                        if (buffer_info != nullptr &&
+                            (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
+                             render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
+                        {
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.insert(buffer_info);
+
+                            auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
+                                DumpedDescriptor(DumpResourceType::kBufferDescriptor,
+                                                 bcb_index,
+                                                 dc_index,
+                                                 qs_index,
+                                                 false,
+                                                 rp,
+                                                 current_subpass_,
+                                                 desc_binding.stage_flags,
+                                                 desc_binding.desc_type,
+                                                 desc_set_index,
+                                                 desc_binding_index,
+                                                 array_index,
+                                                 DumpResourcesCommandType::kGraphics));
+
+                            const VkDeviceSize offset = buf_desc_info->offset;
+                            const VkDeviceSize range  = buf_desc_info->range;
+
+                            DumpedBuffer& dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                            dumped_buffer.buffer_info   = buffer_info;
+                            dumped_buffer.offset        = offset;
+                            dumped_buffer.size          = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+
+                            VulkanDelegateDumpResourceContext res_info = res_info_base;
+                            res_info.dumped_resource                   = &new_dumped_desc;
+                            VkResult res                               = delegate_.DumpResource(res_info);
+                            if (res != VK_SUCCESS)
+                            {
+                                return res;
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                {
+                    for (const auto& [array_index, buf_desc_info] : desc_binding.buffer_info)
+                    {
+                        const VulkanBufferInfo* buffer_info = buf_desc_info.buffer_info;
+                        if (buffer_info != nullptr &&
+                            (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
+                             render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
+                        {
+                            if (buffer_info != nullptr &&
+                                (render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info) ==
+                                 render_pass_dumped_descriptors_[rp].buffer_descriptors.end()))
+                            {
+                                render_pass_dumped_descriptors_[rp].buffer_descriptors.insert(buffer_info);
+
+                                auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
+                                    DumpedDescriptor(DumpResourceType::kBufferDescriptor,
+                                                     bcb_index,
+                                                     dc_index,
+                                                     qs_index,
+                                                     false,
+                                                     rp,
+                                                     current_subpass_,
+                                                     desc_binding.stage_flags,
+                                                     desc_binding.desc_type,
+                                                     desc_set_index,
+                                                     desc_binding_index,
+                                                     array_index,
+                                                     DumpResourcesCommandType::kGraphics));
+
+                                const VkDeviceSize offset = buf_desc_info.offset;
+                                const VkDeviceSize range  = buf_desc_info.range;
+
+                                DumpedBuffer& dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                                dumped_buffer.buffer_info   = buffer_info;
+                                dumped_buffer.offset        = offset;
+                                dumped_buffer.size = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+
+                                VulkanDelegateDumpResourceContext res_info = res_info_base;
+                                res_info.dumped_resource                   = &new_dumped_desc;
+                                VkResult res                               = delegate_.DumpResource(res_info);
+                                if (res != VK_SUCCESS)
+                                {
+                                    return res;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    if (render_pass_dumped_descriptors_[rp].inline_uniform_blocks.find(
+                            &desc_binding.inline_uniform_block) ==
+                        render_pass_dumped_descriptors_[rp].inline_uniform_blocks.end())
+                    {
+                        render_pass_dumped_descriptors_[rp].inline_uniform_blocks.insert(
+                            &desc_binding.inline_uniform_block);
+
+                        auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
+                            DumpedDescriptor(DumpResourceType::kInlineUniformBufferDescriptor,
+                                             bcb_index,
+                                             dc_index,
+                                             qs_index,
+                                             false,
+                                             rp,
+                                             current_subpass_,
+                                             desc_binding.stage_flags,
+                                             desc_binding.desc_type,
+                                             desc_set_index,
+                                             desc_binding_index,
+                                             0,
+                                             DumpResourcesCommandType::kGraphics));
+
+                        DumpedBuffer& dumped_buffer       = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                        dumped_buffer.inline_uniform_data = desc_binding.inline_uniform_block;
+                        dumped_buffer.size                = desc_binding.inline_uniform_block.size();
+
+                        VulkanDelegateDumpResourceContext res_info = res_info_base;
+                        res_info.dumped_resource                   = &new_dumped_desc;
+                        VkResult res                               = delegate_.DumpResource(res_info);
+                        if (res != VK_SUCCESS)
+                        {
+                            return res;
+                        }
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    break;
+
+                default:
+                    GFXRECON_LOG_WARNING_ONCE("%s(): Descriptor type (%s) not handled",
+                                              __func__,
+                                              util::ToString<VkDescriptorType>(desc_binding.desc_type).c_str());
+                    break;
+            }
         }
     }
 
@@ -1546,16 +1593,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
     bool              empty_draw_call        = false;
 
-    VulkanDumpResourceInfo res_info_base{};
-    res_info_base.device_info                  = device_info;
-    res_info_base.device_table                 = device_table_;
-    res_info_base.instance_table               = instance_table_;
-    res_info_base.object_info_table            = &object_info_table_;
-    res_info_base.original_command_buffer_info = original_command_buffer_info_;
-    res_info_base.cmd_index                    = dc_index;
-    res_info_base.qs_index                     = qs_index;
-    res_info_base.bcb_index                    = bcb_index;
-    res_info_base.compressor                   = compressor_;
+    VulkanDelegateDumpResourceContext res_info_base{};
+    res_info_base.device_table   = device_table_;
+    res_info_base.instance_table = instance_table_;
+    res_info_base.compressor     = compressor_;
 
     // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
@@ -1655,9 +1696,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             const uint32_t    index_size = VkIndexTypeToBytes(index_type);
             const uint32_t    offset     = dc_params.referenced_index_buffer.offset;
 
-            dc_params.json_output_info.index_buffer_info.dumped = true;
-            dc_params.json_output_info.index_buffer_info.offset = offset;
-
             // Check if the exact size has been provided by vkCmdBindIndexBuffer2
             uint32_t total_size = (dc_params.referenced_index_buffer.size != 0)
                                       ? (dc_params.referenced_index_buffer.size)
@@ -1670,13 +1708,25 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 total_size = dc_params.referenced_index_buffer.buffer_info->size - offset;
             }
 
-            dc_params.referenced_index_buffer.actual_size = total_size;
-            VulkanDumpResourceInfo res_info               = res_info_base;
-            VkResult res = resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
-                                                                total_size,
-                                                                offset,
-                                                                transfer_queue_index,
-                                                                res_info.data);
+            auto& new_dumped_index_buffer = dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(
+                DumpedVertexIndexBuffer(DumpResourceType::kIndex, bcb_index, dc_index, qs_index, false, index_type));
+
+            new_dumped_index_buffer.buffer.buffer_info = dc_params.referenced_index_buffer.buffer_info;
+            new_dumped_index_buffer.buffer.size        = total_size;
+            new_dumped_index_buffer.buffer.offset      = offset;
+
+            VulkanDelegateDumpResourceContext res_info = res_info_base;
+            res_info.dumped_resource                   = &new_dumped_index_buffer;
+            VkResult res                               = delegate_.DumpResource(res_info);
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
+
+            // Parse all indices in order to find the smallest and greatest index
+            std::vector<uint8_t> data;
+            res = resource_util.ReadFromBufferResource(
+                dc_params.referenced_index_buffer.buffer_info->handle, total_size, offset, transfer_queue_index, data);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Reading index buffer resource %" PRIu64 " failed (%s).",
@@ -1685,19 +1735,10 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 return res;
             }
 
-            res_info.type       = DumpResourceType::kIndex;
-            res_info.index_type = index_type;
-            res                 = delegate_.DumpResource(res_info);
-            if (res != VK_SUCCESS)
-            {
-                return res;
-            }
-
-            // Parse all indices in order to find the smallest and greatest index
             for (const auto& params : indexed_params)
             {
                 MinMaxVertexIndex min_max_indices = FindMinMaxVertexIndices(
-                    res_info.data, params.index_count, params.first_index, params.vertex_offset, index_type);
+                    data, params.index_count, params.first_index, params.vertex_offset, index_type);
 
                 min_max_vertex_indices.min = std::min(min_max_indices.min, min_max_vertex_indices.min);
                 min_max_vertex_indices.max = std::max(min_max_indices.max, min_max_vertex_indices.max);
@@ -1911,23 +1952,17 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry.buffer_info->size - offset;
                 }
 
-                dc_params.json_output_info.vertex_bindings_info[binding_index] = { offset };
+                auto& new_dumped_vertex_buffer =
+                    dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(DumpedVertexIndexBuffer(
+                        DumpResourceType::kVertex, bcb_index, dc_index, qs_index, false, binding_index));
 
-                vb_entry.actual_size            = total_size;
-                VulkanDumpResourceInfo res_info = res_info_base;
+                new_dumped_vertex_buffer.buffer.buffer_info = vb_entry.buffer_info;
+                new_dumped_vertex_buffer.buffer.size        = total_size;
+                new_dumped_vertex_buffer.buffer.offset      = offset;
 
-                VkResult res = resource_util.ReadFromBufferResource(
-                    vb_entry.buffer_info->handle, total_size, offset, transfer_queue_index, res_info.data);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
-                                       util::ToString<VkResult>(res).c_str())
-                    return res;
-                }
-
-                res_info.type    = DumpResourceType::kVertex;
-                res_info.binding = binding_index;
-                res              = delegate_.DumpResource(res_info);
+                VulkanDelegateDumpResourceContext res_info = res_info_base;
+                res_info.dumped_resource                   = &new_dumped_vertex_buffer;
+                VkResult res                               = delegate_.DumpResource(res_info);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
