@@ -1,5 +1,7 @@
 # Project Components
 
+Trivial change
+
 The GFXReconstruct project provides tools for the capture and replay of graphics
 API calls, allowing the graphics commands executed by an application
 to be recorded to a file that may later be replayed to reconstruct the
