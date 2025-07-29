@@ -3246,16 +3246,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     GFXRECON_ASSERT(device_info);
 
     // If we're doing device deduplication, check if we've already seen this create device request
-    std::bitset<VK_UUID_SIZE * 8> casted_uuid;
-    util::platform::MemoryCopy(
-        &casted_uuid, format::kUuidSize, physical_device_info->capture_pipeline_cache_uuid, VK_UUID_SIZE);
     if (options_.do_device_deduplication)
     {
-        auto it = device_uuid_map_.find(casted_uuid);
-        if (it != device_uuid_map_.end())
+        auto it = device_phy_id_map_.find(physical_device_info->capture_id);
+        if (it != device_phy_id_map_.end())
         {
             // We have seen this device before
-            auto      extant_device_id = device_uuid_map_[casted_uuid];
+            auto      extant_device_id = it->second;
             VkDevice* replay_device    = pDevice->GetHandlePointer();
 
             return SetDuplicateDeviceInfo(
@@ -3299,7 +3296,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     {
         // Insert this device info into map
         auto capture_id = *pDevice->GetPointer();
-        device_uuid_map_.insert(std::pair(casted_uuid, capture_id));
+        device_phy_id_map_.insert(std::pair(physical_device_info->capture_id, capture_id));
     }
 
     return result;
