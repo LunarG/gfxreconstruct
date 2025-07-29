@@ -218,6 +218,9 @@ int main(int argc, const char** argv)
                 gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(
                     gfxrecon::vulkan_recapture::dispatch_CreateInstance,
                     gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+
+                // Logger is already initialized by replay, so inform capture manager not to initialize it again.
+                gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
             }
 
             ApiReplayOptions  api_replay_options;

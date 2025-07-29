@@ -860,7 +860,8 @@ options:
                         Scale screenshot dimensions. Overrides --screenshot-
                         size, if specified. Expects a number which can be
                         decimal
-  --capture             Capture the replaying GFXR file. Capture option behavior and
+  --capture             Capture the replaying GFXR file. Capture uses the same log
+                        options as replay. All other capture option behavior and
                         usage is the same as when capturing with the GFXR layer. The
                         capture functionality is included in the `gfxrecon-replay`
                         executable--no GFXR capture layer is added to the Vulkan layer
