@@ -196,15 +196,15 @@ CaptureSettings::CaptureSettings(const TraceSettings& trace_settings)
 
 CaptureSettings::~CaptureSettings() {}
 
-void CaptureSettings::LoadSettings(CaptureSettings* settings)
+void CaptureSettings::LoadSettings(CaptureSettings* settings, bool load_log_settings)
 {
     if (settings != nullptr)
     {
         OptionsMap capture_settings;
 
         LoadOptionsFile(&capture_settings);
-        LoadOptionsEnvVar(&capture_settings);
-        ProcessOptions(&capture_settings, settings);
+        LoadOptionsEnvVar(&capture_settings, load_log_settings);
+        ProcessOptions(&capture_settings, settings, load_log_settings);
 
         LoadRunTimeEnvVarSettings(settings);
 
@@ -257,7 +257,7 @@ void CaptureSettings::LoadLogSettings(CaptureSettings* settings)
         OptionsMap capture_settings;
 
         LoadOptionsFile(&capture_settings);
-        LoadOptionsEnvVar(&capture_settings);
+        LoadOptionsEnvVar(&capture_settings, true);
         ProcessLogOptions(&capture_settings, settings);
     }
 }
@@ -276,7 +276,7 @@ void CaptureSettings::LoadSingleOptionEnvVar(OptionsMap*        options,
     }
 }
 
-void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
+void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_settings)
 {
     assert(options != nullptr);
 
@@ -287,18 +287,21 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureFileFlushEnvVar, kOptionKeyCaptureFileForceFlush);
 
     // Logging environment variables
-    LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
-    LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
-    LoadSingleOptionEnvVar(options, kLogDetailedEnvVar, kOptionKeyLogDetailed);
-    LoadSingleOptionEnvVar(options, kLogErrorsToStderrEnvVar, kOptionKeyLogErrorsToStderr);
-    LoadSingleOptionEnvVar(options, kLogFileNameEnvVar, kOptionKeyLogFile);
-    LoadSingleOptionEnvVar(options, kLogFileCreateNewEnvVar, kOptionKeyLogFileCreateNew);
-    LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
-    LoadSingleOptionEnvVar(options, kLogFileKeepFileOpenEnvVar, kOptionKeyLogFileKeepOpen);
-    LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
-    LoadSingleOptionEnvVar(options, kLogTimestampsEnvVar, kOptionKeyLogTimestamps);
-    LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
-    LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
+    if (load_log_settings)
+    {
+        LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
+        LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
+        LoadSingleOptionEnvVar(options, kLogDetailedEnvVar, kOptionKeyLogDetailed);
+        LoadSingleOptionEnvVar(options, kLogErrorsToStderrEnvVar, kOptionKeyLogErrorsToStderr);
+        LoadSingleOptionEnvVar(options, kLogFileNameEnvVar, kOptionKeyLogFile);
+        LoadSingleOptionEnvVar(options, kLogFileCreateNewEnvVar, kOptionKeyLogFileCreateNew);
+        LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
+        LoadSingleOptionEnvVar(options, kLogFileKeepFileOpenEnvVar, kOptionKeyLogFileKeepOpen);
+        LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
+        LoadSingleOptionEnvVar(options, kLogTimestampsEnvVar, kOptionKeyLogTimestamps);
+        LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
+        LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
+    }
 
     // Memory environment variables
     LoadSingleOptionEnvVar(options, kMemoryTrackingModeEnvVar, kOptionKeyMemoryTrackingMode);
@@ -384,7 +387,7 @@ void CaptureSettings::LoadOptionsFile(OptionsMap* options)
     }
 }
 
-void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings)
+void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings, bool process_log_settings)
 {
     assert(settings != nullptr);
 
@@ -528,7 +531,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.debug_device_lost =
         ParseBoolString(FindOption(options, kDebugDeviceLost), settings->trace_settings_.debug_device_lost);
 
-    ProcessLogOptions(options, settings);
+    if (process_log_settings)
+    {
+        ProcessLogOptions(options, settings);
+    }
 
     // Screenshot options
     settings->trace_settings_.screenshot_dir =
