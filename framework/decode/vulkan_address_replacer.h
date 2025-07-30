@@ -64,20 +64,35 @@ class VulkanAddressReplacer
     void SetRaytracingProperties(const decode::VulkanPhysicalDeviceInfo* physical_device_info);
 
     /**
-     * @brief   UpdateBufferAddresses will replace buffer-device-address in gpu-memory,
+     * @brief   UpdateBufferAddresses will replace buffer-device-addresses in gpu-memory,
      *          at locations pointed to by @param addresses.
      *
-     * Replacement will be performed using a compute-dispatch injected into @param command_buffer_info.
+     * Replacement will be performed using a compute-dispatch.
+     * Depending on scenario this dispatch will be submitted differently:
      *
-     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr to use an internal command-buffer
+     * 1) in case 'command_buffer_info' is not nullptr and 'wait-semaphores' is std::nullopt:
+     * - Inject the dispatch into 'command_buffer_info'
+     *
+     * 2) in case 'command_buffer_info' is not nullptr and wait-semaphores were provided:
+     * - Submit the dispatch with a separate submission, wait on semaphores and return a signal-semaphore
+     *   for that queue-submission. 'command_buffer_info' will merely be used to track lifetime of internal assets.
+     *
+     * 3) lastly, if command_buffer_info' is a nullptr:
+     * - submit the dispatch locally, sync via internal fence
+     *
+     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
      * @param   addresses           array of device-addresses
      * @param   num_addresses       number of addresses
      * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
+     * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    void UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
-                               const VkDeviceAddress*                    addresses,
-                               uint32_t                                  num_addresses,
-                               const decode::VulkanDeviceAddressTracker& address_tracker);
+    VkSemaphore
+    UpdateBufferAddresses(const VulkanCommandBufferInfo*                                      command_buffer_info,
+                          const VkDeviceAddress*                                              addresses,
+                          uint32_t                                                            num_addresses,
+                          const decode::VulkanDeviceAddressTracker&                           address_tracker,
+                          const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores = {});
 
     /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
@@ -351,6 +366,29 @@ class VulkanAddressReplacer
         bool            operator<(const bda_element_t& other) const { return capture_address < other.capture_address; }
     };
 
+    struct submit_asset_t
+    {
+        // members required for cleanup
+        VkDevice      device       = VK_NULL_HANDLE;
+        VkCommandPool command_pool = VK_NULL_HANDLE;
+
+        // actual payload
+        VkCommandBuffer command_buffer   = VK_NULL_HANDLE;
+        VkFence         fence            = VK_NULL_HANDLE;
+        VkSemaphore     signal_semaphore = VK_NULL_HANDLE;
+
+        PFN_vkDestroyFence       destroy_fence_fn        = nullptr;
+        PFN_vkFreeCommandBuffers free_command_buffers_fn = nullptr;
+        PFN_vkDestroySemaphore   destroy_semaphore_fn    = nullptr;
+
+        submit_asset_t()                      = default;
+        submit_asset_t(const submit_asset_t&) = delete;
+        submit_asset_t(submit_asset_t&& other) noexcept;
+        submit_asset_t& operator=(submit_asset_t other);
+        ~submit_asset_t();
+        void swap(submit_asset_t& other);
+    };
+
     [[nodiscard]] bool init_pipeline();
 
     [[nodiscard]] bool init_queue_assets();
@@ -374,6 +412,8 @@ class VulkanAddressReplacer
                                                  VkAccelerationStructureTypeKHR  type,
                                                  size_t                          num_buffer_bytes,
                                                  size_t                          num_scratch_bytes);
+
+    [[nodiscard]] bool create_submit_asset(submit_asset_t& submit_asset);
 
     void barrier(VkCommandBuffer      command_buffer,
                  VkBuffer             buffer,
@@ -407,12 +447,11 @@ class VulkanAddressReplacer
     // pipeline enabling rehashing buffer-device-addresses (BDA), utility
     VkPipeline pipeline_bda_rehash_ = VK_NULL_HANDLE;
 
-    // required assets for submitting meta-commands
-    VkCommandPool   command_pool_   = VK_NULL_HANDLE;
-    VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
-    VkFence         fence_          = VK_NULL_HANDLE;
-    VkQueue         queue_          = VK_NULL_HANDLE;
-    VkQueryPool     query_pool_     = VK_NULL_HANDLE;
+    // required assets for submitting (meta-)commands that do not provide an existing command-buffer
+    VkCommandPool  command_pool_ = VK_NULL_HANDLE;
+    VkQueryPool    query_pool_   = VK_NULL_HANDLE;
+    VkQueue        queue_        = VK_NULL_HANDLE;
+    submit_asset_t submit_asset_ = {};
 
     util::linear_hashmap<graphics::shader_group_handle_t, graphics::shader_group_handle_t> hashmap_sbt_;
     std::unordered_map<VkCommandBuffer, buffer_context_t>                                  shadow_sbt_map_;
@@ -432,6 +471,9 @@ class VulkanAddressReplacer
     // currently running compaction queries. pool -> AS -> query-pool-index
     std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> as_compact_queries_;
     std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize>                              as_compact_sizes_;
+
+    // submit_assets per command-buffer (required when UpdateAddresses can't be injected directly)
+    std::unordered_map<VkCommandBuffer, submit_asset_t> submit_asset_map_;
 
     // required function pointers
     PFN_vkGetBufferDeviceAddress       get_device_address_fn_             = nullptr;

@@ -224,7 +224,7 @@ void RepresentBinaryFile(JsonWriter&             writer,
     {
         std::string filename = writer.GenerateFilename(filename_base);
         std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-        std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
+        std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, filename);
         if (writer.WriteBinaryFile(filepath, data_size, data))
         {
             FieldToJson(jdata, basename, json_options);

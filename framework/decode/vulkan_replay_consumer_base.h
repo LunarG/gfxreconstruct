@@ -83,6 +83,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetCurrentFrameNumber(uint64_t frame_number) override;
 
+    // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
+    // For example, this is used during recapture to return the capture layer's Vulkan functions.
+    void SetGetInstanceProcAddrOverride(PFN_vkGetInstanceProcAddr get_instance_proc_addr)
+    {
+        GFXRECON_ASSERT((get_instance_proc_addr_ == nullptr) &&
+                        "SetGetInstanceProcAddrOverride should be called before InitializeLoader().")
+        get_instance_proc_addr_ = get_instance_proc_addr;
+    }
+
     void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
@@ -699,20 +708,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDeviceSize               stride,
                                          VkQueryResultFlags         flags);
 
-    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                                 func,
-                                 uint64_t                                          index,
-                                 VkResult                                          original_result,
-                                 const VulkanQueueInfo*                            queue_info,
-                                 uint32_t                                          submitCount,
-                                 const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                 const VulkanFenceInfo*                            fence_info);
+    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
+                                 uint64_t                                    index,
+                                 VkResult                                    original_result,
+                                 const VulkanQueueInfo*                      queue_info,
+                                 uint32_t                                    submitCount,
+                                 StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                 const VulkanFenceInfo*                      fence_info);
 
-    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                                 func,
-                                  VkResult                                           original_result,
-                                  const VulkanQueueInfo*                             queue_info,
-                                  uint32_t                                           submitCount,
-                                  const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                  const VulkanFenceInfo*                             fence_info);
+    VkResult OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                  VkResult                                     original_result,
+                                  const VulkanQueueInfo*                       queue_info,
+                                  uint32_t                                     submitCount,
+                                  StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                  const VulkanFenceInfo*                       fence_info);
 
     VkResult OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
                                      VkResult                                              original_result,

@@ -595,6 +595,67 @@ std::string FindModulePath(const std::string& target_module, bool case_sensitive
     return target_module_path;
 }
 
+enum PathVariable : uint32_t
+{
+    kAppName,
+    kInternalDataPath,
+
+    kMaxValue,
+};
+
+std::vector<const char*> GetPathVariables()
+{
+    std::vector<const char*> path_variables;
+    path_variables.resize(PathVariable::kMaxValue);
+
+    path_variables[PathVariable::kAppName]          = "${AppName}";
+    path_variables[PathVariable::kInternalDataPath] = "${InternalDataPath}";
+
+    return path_variables;
+}
+
+std::string ExpandPathVariables(const FileInfo& info, const std::string& path)
+{
+    static auto variables = GetPathVariables();
+
+    std::string expanded_path = path;
+
+    // Replace variable patterns in the path.
+    for (uint32_t i = 0; i < variables.size(); ++i)
+    {
+        const char* pattern = variables[i];
+        size_t      pos     = expanded_path.find(pattern);
+        while (pos != std::string::npos)
+        {
+            std::string replacement = "";
+
+            switch (static_cast<PathVariable>(i))
+            {
+                case PathVariable::kAppName:
+                    replacement = info.AppName;
+                    break;
+                case PathVariable::kInternalDataPath:
+#ifdef __ANDROID__
+                    replacement = "/data/data/" + std::string(info.AppName);
+#else
+                    GFXRECON_LOG_WARNING(
+                        "Unimplemented path variable pattern: %s. This pattern is only supported on Android.", pattern);
+#endif
+                    break;
+                default:
+                    GFXRECON_LOG_WARNING("Unimplemented path variable pattern: %s", pattern);
+            }
+
+            expanded_path.replace(pos, std::strlen(pattern), replacement);
+
+            // Search for the next occurrence of the pattern.
+            pos = expanded_path.find(pattern, pos + replacement.length());
+        }
+    }
+
+    return expanded_path;
+}
+
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -53,22 +53,20 @@ class VulkanEntryBase
     VulkanEntryBase(const VulkanFunctionTable& vulkan_function_table) : vulkan_function_table_(vulkan_function_table){};
     virtual ~VulkanEntryBase(){};
 
-    // The following prototype declarations are required so the dispatch table can find these
-    // functions which are defined in trace_layer.cpp
-    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName)                      = 0;
-    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName)                            = 0;
-    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName)      = 0;
+    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName);
+    virtual PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* pName);
+    virtual PFN_vkVoidFunction GetPhysicalDeviceProcAddr(VkInstance ourInstanceWrapper, const char* pName);
     virtual VkResult           EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                                   const char*            pLayerName,
                                                                   uint32_t*              pPropertyCount,
-                                                                  VkExtensionProperties* pProperties)           = 0;
+                                                                  VkExtensionProperties* pProperties)   = 0;
     virtual VkResult           EnumerateInstanceExtensionProperties(const char*            pLayerName,
                                                                     uint32_t*              pPropertyCount,
-                                                                    VkExtensionProperties* pProperties)         = 0;
-    virtual VkResult EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties) = 0;
+                                                                    VkExtensionProperties* pProperties) = 0;
+    virtual VkResult EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties);
     virtual VkResult EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
                                                     uint32_t*          pPropertyCount,
-                                                    VkLayerProperties* pProperties)                             = 0;
+                                                    VkLayerProperties* pProperties);
 
     virtual VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                              const VkAllocationCallbacks* pAllocator,

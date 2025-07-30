@@ -41,7 +41,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// Available settings (upper and lower-case)
 // clang-format off
 #define CAPTURE_COMPRESSION_TYPE_LOWER                       "capture_compression_type"
 #define CAPTURE_COMPRESSION_TYPE_UPPER                       "CAPTURE_COMPRESSION_TYPE"

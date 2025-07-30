@@ -36,6 +36,9 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
 )
 
@@ -44,6 +47,7 @@ target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
 target_link_libraries(gfxrecon-replay
                           gfxrecon_application
                           gfxrecon_decode
+                          gfxrecon_encode
                           gfxrecon_graphics
                           gfxrecon_format
                           platform_specific

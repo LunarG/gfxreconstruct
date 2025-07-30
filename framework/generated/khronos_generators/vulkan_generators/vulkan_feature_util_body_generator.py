@@ -49,7 +49,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'decode/vulkan_feature_util.h',
+            'graphics/vulkan_feature_util.h',
             '',
             'util/logging.h',
             '',
@@ -57,7 +57,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         ))
         self.begin_end_file_data.namespaces.extend((
             'gfxrecon',
-            'decode',
+            'graphics',
             'feature_util',
         ))
         self.begin_end_file_data.common_api_headers = []

@@ -1,7 +1,7 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
  ** Copyright (c) 2018-2025 LunarG, Inc.
- ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+ ** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
  ** copy of this software and associated documentation files (the "Software"),
@@ -34,12 +34,14 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "encode/vulkan_capture_common.h"
+#include "encode/vulkan_capture_layer_settings.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_feature_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
@@ -61,12 +63,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+std::mutex                 VulkanCaptureManager::instance_lock_;
 VulkanCaptureManager*      VulkanCaptureManager::singleton_ = nullptr;
 graphics::VulkanLayerTable VulkanCaptureManager::vulkan_layer_table_;
 
 bool VulkanCaptureManager::CreateInstance()
 {
-
     bool result = CommonCaptureManager::CreateInstance<VulkanCaptureManager>();
     GFXRECON_ASSERT(singleton_);
 
@@ -80,6 +82,8 @@ bool VulkanCaptureManager::CreateInstance()
 
 VulkanCaptureManager* VulkanCaptureManager::InitSingleton()
 {
+    std::lock_guard<std::mutex> instance_lock(instance_lock_);
+
     if (!singleton_)
     {
         singleton_ = new VulkanCaptureManager();
@@ -548,6 +552,12 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
+    if (InitSingleton() == nullptr)
+    {
+        return result;
+    }
+    singleton_->layer_settings_ = GetVulkanLayerTraceSettings(pCreateInfo);
+
     if (CreateInstance())
     {
         if (singleton_->IsPageGuardMemoryModeExternal())
@@ -647,6 +657,10 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
     std::vector<const char*> modified_extensions;
 
+    std::vector<VkExtensionProperties> supported_extensions;
+    graphics::feature_util::GetDeviceExtensions(
+        physicalDevice, instance_table->EnumerateDeviceExtensionProperties, &supported_extensions);
+
     bool has_ext_mem      = false;
     bool has_ext_mem_host = false;
 
@@ -679,6 +693,40 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         if (!has_ext_mem_host)
         {
             modified_extensions.push_back(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
+        }
+    }
+
+    // Check if VK_EXT_frame_boundary need to be faked (querried but not actually supported by the capture device)
+    VkBaseOutStructure*                       frame_boundary_features_parent = nullptr;
+    VkPhysicalDeviceFrameBoundaryFeaturesEXT* frame_boundary_features        = nullptr;
+    if (graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME) &&
+        !graphics::feature_util::IsSupportedExtension(supported_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+    {
+        auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
+            return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
+        });
+        modified_extensions.erase(iter);
+
+        frame_boundary_features_parent = (VkBaseOutStructure*)pCreateInfo_unwrapped;
+
+        while (frame_boundary_features_parent->pNext != nullptr &&
+               frame_boundary_features_parent->pNext->sType !=
+                   VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
+        {
+            frame_boundary_features_parent = frame_boundary_features_parent->pNext;
+        }
+
+        if (frame_boundary_features_parent->pNext == nullptr)
+        {
+            frame_boundary_features_parent = nullptr;
+        }
+        else
+        {
+            frame_boundary_features =
+                reinterpret_cast<VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(frame_boundary_features_parent->pNext);
+            frame_boundary_features_parent->pNext = frame_boundary_features_parent->pNext->pNext;
+            GFXRECON_LOG_WARNING(
+                "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from capture device creation");
         }
     }
 
@@ -747,6 +795,11 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
             wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
+    }
+
+    if (frame_boundary_features != nullptr)
+    {
+        frame_boundary_features_parent->pNext = reinterpret_cast<VkBaseOutStructure*>(frame_boundary_features);
     }
 
     // Restore modified property/feature create info values to the original application values
@@ -1505,6 +1558,8 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
                 const uint32_t data_size =
                     device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
                     deferred_operation_wrapper->create_infos[i].groupCount;
+
+                pipeline_wrapper->num_shader_group_handles = deferred_operation_wrapper->create_infos[i].groupCount;
 
                 std::vector<uint8_t> data(data_size);
                 result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(

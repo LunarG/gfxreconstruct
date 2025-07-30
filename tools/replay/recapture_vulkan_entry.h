@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_LAYER_VULKAN_ENTRY_H
-#define GFXRECON_LAYER_VULKAN_ENTRY_H
+#ifndef GFXRECON_recapture_vulkan_entry_H
+#define GFXRECON_recapture_vulkan_entry_H
 
 #include "encode/vulkan_entry_base.h"
 
@@ -35,13 +35,8 @@
 #include <unordered_map>
 #include <vector>
 
-#if ENABLE_OPENXR_SUPPORT
-#include "openxr/openxr.h"
-#include "openxr/openxr_loader_negotiation.h"
-#endif
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(vulkan_layer)
+GFXRECON_BEGIN_NAMESPACE(vulkan_recapture)
 
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in the .cpp
@@ -69,15 +64,13 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                                                      const VkAllocationCallbacks* pAllocator,
                                                      VkDevice*                    pDevice);
 
-class LayerVulkanEntry : public encode::VulkanEntryBase
+class RecaptureVulkanEntry : public encode::VulkanEntryBase
 {
   public:
     static VulkanEntryBase* InitSingleton();
 
-    LayerVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table);
-    virtual ~LayerVulkanEntry();
-
-    virtual PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* pName) override;
+    RecaptureVulkanEntry(const encode::VulkanFunctionTable& vulkan_function_table);
+    virtual ~RecaptureVulkanEntry();
 
     virtual VkResult EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
                                                         const char*            pLayerName,
@@ -94,27 +87,24 @@ class LayerVulkanEntry : public encode::VulkanEntryBase
                                            const VkDeviceCreateInfo*    pCreateInfo,
                                            const VkAllocationCallbacks* pAllocator,
                                            VkDevice*                    pDevice) override;
+
+  private:
+    void InitializeLoader();
+    void ReleaseLoader();
+
+    util::platform::LibraryHandle loader_handle_ = nullptr;
 };
 
-GFXRECON_END_NAMESPACE(vulkan_layer)
+GFXRECON_END_NAMESPACE(vulkan_recapture)
 
 #if ENABLE_OPENXR_SUPPORT
-GFXRECON_BEGIN_NAMESPACE(openxr_layer)
-// OpenXR
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateInstanceExtensionProperties(const char*            layerName,
-                                                                    uint32_t               propertyCapacityInput,
-                                                                    uint32_t*              propertyCountOutput,
-                                                                    XrExtensionProperties* properties);
-XRAPI_ATTR XrResult XRAPI_CALL EnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
-                                                           uint32_t*             propertyCountOutput,
-                                                           XrApiLayerProperties* properties);
-XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function);
-XRAPI_ATTR XrResult XRAPI_CALL dispatch_CreateApiLayerInstance(const XrInstanceCreateInfo* info,
-                                                               const XrApiLayerCreateInfo* apiLayerInfo,
-                                                               XrInstance*                 instance);
-GFXRECON_END_NAMESPACE(openxr_layer)
+GFXRECON_BEGIN_NAMESPACE(openxr_entry)
+
+// TODOTRIM: Add openxr support to recapture
+
+GFXRECON_END_NAMESPACE(openxr_entry)
 #endif // ENABLE_OPENXR_SUPPORT
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_LAYER_VULKAN_ENTRY_H
+#endif // GFXRECON_recapture_vulkan_entry_H
