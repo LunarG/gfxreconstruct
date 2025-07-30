@@ -250,7 +250,7 @@ bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_
 
 #elif defined(WIN32)
 
-        char ascii_name[MAX_PATH];
+        char  ascii_name[MAX_PATH];
 #ifdef UNICODE
         WCHAR wide_string[MAX_PATH];
         GetModuleFileName(NULL, wide_string, MAX_PATH);
@@ -1719,7 +1719,8 @@ CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_m
                                                  const std::string&    filename,
                                                  size_t                buffer_size,
                                                  bool                  append) :
-    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
+    FileOutputStream(filename, buffer_size, append),
+    capture_manager_(capture_manager)
 {}
 
 bool CaptureFileOutputStream::Write(const void* data, size_t len)
