@@ -27,6 +27,7 @@
 #include <catch2/catch.hpp>
 
 #include "encode/vulkan_entry_base.h"
+#include "encode/vulkan_capture_layer_settings.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "format/format.h"
@@ -746,4 +747,79 @@ TEST_CASE("Unsupported extension screening", "[layer]")
     }
 
     gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("VkLayerSettingsCreateInfoEXT is parsed correctly", "[capture_layer_settings]")
+{
+    using namespace gfxrecon::encode;
+    CaptureSettings::TraceSettings layer_settings{};
+
+    VkInstanceCreateInfo instance_info{};
+    instance_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+
+    // Test a null pCreateInfo pointer.
+    instance_info.pNext = nullptr;
+    layer_settings      = GetVulkanLayerTraceSettings(nullptr);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // pCreateInfo pointer that has no pNext chain.
+    instance_info.pNext = nullptr;
+    layer_settings      = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    VkLayerSettingsCreateInfoEXT layer_settings_info{};
+    layer_settings_info.sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT;
+    layer_settings_info.pNext = NULL;
+    instance_info.pNext       = &layer_settings_info;
+
+    // Create info which has no settings.
+    layer_settings_info.settingCount = 0;
+    layer_settings_info.pSettings    = nullptr;
+    layer_settings                   = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Create info with 1 setting count but no pSettings.
+    layer_settings_info.settingCount = 1;
+    layer_settings_info.pSettings    = nullptr;
+    layer_settings                   = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    VkLayerSettingEXT capture_setting{};
+    layer_settings_info.pSettings = &capture_setting;
+
+    // Settings with null layer name.
+    capture_setting.pLayerName = nullptr;
+    layer_settings             = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Setting with null setting name.
+    capture_setting.pLayerName   = "VK_LAYER_LUNARG_gfxreconstruct";
+    capture_setting.pSettingName = nullptr;
+    layer_settings               = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Setting with an invalid type.
+    capture_setting.pLayerName   = "VK_LAYER_LUNARG_gfxreconstruct";
+    capture_setting.pSettingName = "capture_file";
+    capture_setting.type         = VK_LAYER_SETTING_TYPE_INT32_EXT;
+    layer_settings               = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Setting with an invalid value count.
+    capture_setting.type       = VK_LAYER_SETTING_TYPE_STRING_EXT;
+    capture_setting.valueCount = 2;
+    layer_settings             = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Setting with a null pValues pointer.
+    capture_setting.valueCount = 1;
+    capture_setting.pValues    = nullptr;
+    layer_settings             = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == CaptureSettings::kDefaultCaptureFileName);
+
+    // Valid setting.
+    const char* capture_file_value[] = { "my_capture.gfxr" };
+    capture_setting.pValues          = capture_file_value;
+    layer_settings                   = GetVulkanLayerTraceSettings(&instance_info);
+    REQUIRE(layer_settings.capture_file == "my_capture.gfxr");
 }

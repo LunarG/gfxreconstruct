@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -32,7 +32,7 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
-#include "decode/vulkan_feature_util.h"
+#include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -1274,7 +1274,9 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
-    if (loader_handle_ != nullptr)
+
+    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetGetInstanceProcAddrOverride()
+    if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
             util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
@@ -2707,7 +2709,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
     // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
     // extension without having VK_KHR_surface. Check for that and fix that.
-    if (!feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+    if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
     {
         for (const std::string& current_extension : modified_extensions)
         {
@@ -2721,7 +2723,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
-    if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
+    if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
         // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -2739,26 +2741,27 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         if (modified_create_info.pApplicationInfo != nullptr &&
             modified_create_info.pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
         {
-            feature_util::EnableExtensionIfSupported(
+            graphics::feature_util::EnableExtensionIfSupported(
                 available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
         if (options_.remove_unsupported_features)
         {
             // Remove enabled extensions that are not available from the replay instance.
-            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
         else if (options_.use_colorspace_fallback)
         {
             for (auto& extension_name : kColorSpaceExtensionNames)
             {
-                feature_util::RemoveExtensionIfUnsupported(available_extensions, &modified_extensions, extension_name);
+                graphics::feature_util::RemoveExtensionIfUnsupported(
+                    available_extensions, &modified_extensions, extension_name);
             }
         }
         else
         {
             // Remove enabled extensions that are ignorable from the replay instance.
-            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
         }
     }
     else
@@ -2771,7 +2774,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     // debug messages from layers are displayed during replay.
     // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
     // in the pNext chain, those messengers will also be created.
-    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    if (graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
     {
         modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -2809,9 +2812,9 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     if (options_.enable_validation_layer)
     {
         std::vector<VkLayerProperties> available_layers;
-        if (feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
+        if (graphics::feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
         {
-            if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
+            if (graphics::feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
             {
                 modified_layers.push_back(kValidationLayerName);
             }
@@ -3058,7 +3061,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     // Add VK_EXT_frame_boundary if an option uses it
     if (options_.offscreen_swapchain_frame_boundary)
     {
-        if (!feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+        if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
         {
             modified_extensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
         }
@@ -3066,14 +3069,14 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
-    if (feature_util::GetDeviceExtensions(
+    if (graphics::feature_util::GetDeviceExtensions(
             physical_device, instance_table->EnumerateDeviceExtensionProperties, &available_extensions) == VK_SUCCESS)
     {
         // If VK_EXT_frame_boundary is not supported but requested, fake it
         bool ext_frame_boundary_is_supported =
-            feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
         bool ext_frame_boundary_is_requested =
-            feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
 
         if (ext_frame_boundary_is_requested && !ext_frame_boundary_is_supported)
         {
@@ -3081,17 +3084,31 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                 return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
             });
             modified_extensions.erase(iter);
+
+            VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info);
+
+            while (current->pNext != nullptr)
+            {
+                if (current->pNext->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
+                {
+                    current->pNext = current->pNext->pNext;
+                    GFXRECON_LOG_WARNING(
+                        "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
+                    break;
+                }
+                current = current->pNext;
+            }
         }
 
         if (options_.remove_unsupported_features)
         {
-            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
         else
         {
             // Remove enabled extensions that are not available on the replay device, but
             // that can still be safely ignored.
-            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
         }
     }
     else
@@ -3108,12 +3125,12 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         physical_device_info->parent_info, instance_table, physical_device, &modified_create_info);
 
     // Abort on/Remove unsupported features
-    feature_util::CheckUnsupportedFeatures(physical_device,
-                                           instance_table->GetPhysicalDeviceFeatures,
-                                           instance_table->GetPhysicalDeviceFeatures2,
-                                           modified_create_info.pNext,
-                                           modified_create_info.pEnabledFeatures,
-                                           options_.remove_unsupported_features);
+    graphics::feature_util::CheckUnsupportedFeatures(physical_device,
+                                                     instance_table->GetPhysicalDeviceFeatures,
+                                                     instance_table->GetPhysicalDeviceFeatures2,
+                                                     modified_create_info.pNext,
+                                                     modified_create_info.pEnabledFeatures,
+                                                     options_.remove_unsupported_features);
 }
 
 VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
@@ -3867,13 +3884,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      func,
-                                                       uint64_t               index,
-                                                       VkResult               original_result,
-                                                       const VulkanQueueInfo* queue_info,
-                                                       uint32_t               submitCount,
-                                                       const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                                       const VulkanFenceInfo*                            fence_info)
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
+                                                       uint64_t                                    index,
+                                                       VkResult                                    original_result,
+                                                       const VulkanQueueInfo*                      queue_info,
+                                                       uint32_t                                    submitCount,
+                                                       StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                                       const VulkanFenceInfo*                      fence_info)
 {
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
@@ -3882,6 +3899,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
     assert(submitCount == 0 || submit_infos != nullptr);
     auto    submit_info_data = pSubmits->GetMetaStructPointer();
     VkFence fence            = VK_NULL_HANDLE;
+
+    // semaphores potentially used by replacer helper-submission(s), defined here to ensure lifetime
+    std::vector<VkSemaphore> semaphores(submitCount);
 
     if (fence_info != nullptr)
     {
@@ -3897,8 +3917,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            uint32_t num_command_buffers = submit_info_data[i].pCommandBuffers.GetLength();
-            auto*    cmd_buf_handles     = submit_info_data[i].pCommandBuffers.GetPointer();
+            uint32_t num_command_buffers  = submit_info_data[i].pCommandBuffers.GetLength();
+            auto*    cmd_buf_handles      = submit_info_data[i].pCommandBuffers.GetPointer();
+            bool     sync_wait_semaphores = false;
+
+            // used to track lifetime of VulkanAddressReplacer internal resources
+            const VulkanCommandBufferInfo* cmd_buf_info = nullptr;
+
             for (uint32_t c = 0; c < num_command_buffers; ++c)
             {
                 auto* command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_handles[c]);
@@ -3906,16 +3931,36 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
+                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
+                if (cmd_buf_info == nullptr)
+                {
+                    cmd_buf_info = cmd_buf_info;
+                }
             }
-        }
 
-        if (!addresses_to_replace.empty())
-        {
-            auto& address_replacer = GetDeviceAddressReplacer(device_info);
-            address_replacer.UpdateBufferAddresses(nullptr,
-                                                   addresses_to_replace.data(),
-                                                   addresses_to_replace.size(),
-                                                   GetDeviceAddressTracker(device_info));
+            if (sync_wait_semaphores)
+            {
+                VkSubmitInfo& submit_info_mut = pSubmits->GetPointer()[i];
+                auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
+
+                auto& address_replacer = GetDeviceAddressReplacer(device_info);
+                semaphores[i] = address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
+                                                                       addresses_to_replace.data(),
+                                                                       addresses_to_replace.size(),
+                                                                       GetDeviceAddressTracker(device_info),
+                                                                       wait_semaphores);
+                // inject wait-semaphore into submit-info
+                submit_info_mut.waitSemaphoreCount = 1;
+                submit_info_mut.pWaitSemaphores    = &semaphores[i];
+
+                // handle potential timeline-semaphores in pnext-chain
+                if (auto* timeline_info =
+                        graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info_mut))
+                {
+                    timeline_info->waitSemaphoreValueCount = 0;
+                    timeline_info->pWaitSemaphoreValues    = nullptr;
+                }
+            }
         }
     }
 
@@ -4078,20 +4123,21 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     func,
-                                                        VkResult               original_result,
-                                                        const VulkanQueueInfo* queue_info,
-                                                        uint32_t               submitCount,
-                                                        const StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                                        const VulkanFenceInfo*                             fence_info)
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                                        VkResult                                     original_result,
+                                                        const VulkanQueueInfo*                       queue_info,
+                                                        uint32_t                                     submitCount,
+                                                        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                                        const VulkanFenceInfo*                       fence_info)
 {
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
     VkResult             result       = VK_SUCCESS;
     const VkSubmitInfo2* submit_infos = pSubmits->GetPointer();
     assert(submitCount == 0 || submit_infos != nullptr);
-    auto    submit_info_data = pSubmits->GetMetaStructPointer();
-    VkFence fence            = VK_NULL_HANDLE;
+    auto                               submit_info_data = pSubmits->GetMetaStructPointer();
+    VkFence                            fence            = VK_NULL_HANDLE;
+    std::vector<VkSemaphoreSubmitInfo> semaphore_infos(submitCount);
 
     if (fence_info != nullptr)
     {
@@ -4103,12 +4149,18 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
 
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
-        std::vector<VkDeviceAddress> addresses_to_replace;
-
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            uint32_t num_command_buffers = submit_info_data[i].pCommandBufferInfos->GetLength();
-            auto*    cmd_buf_info_metas  = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            VkSubmitInfo2&               submit_info_mut = pSubmits->GetPointer()[i];
+            std::vector<VkDeviceAddress> addresses_to_replace;
+
+            uint32_t num_command_buffers  = submit_info_data[i].pCommandBufferInfos->GetLength();
+            auto*    cmd_buf_info_metas   = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            bool     sync_wait_semaphores = false;
+
+            // used to track lifetime of VulkanAddressReplacer internal resources
+            const VulkanCommandBufferInfo* cmd_buf_info = nullptr;
+
             for (uint32_t c = 0; c < num_command_buffers; ++c)
             {
                 auto* command_buffer_info =
@@ -4117,16 +4169,34 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2     f
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
+                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
+                if (cmd_buf_info == nullptr)
+                {
+                    cmd_buf_info = command_buffer_info;
+                }
             }
-        }
 
-        if (!addresses_to_replace.empty())
-        {
-            auto& address_replacer = GetDeviceAddressReplacer(device_info);
-            address_replacer.UpdateBufferAddresses(nullptr,
-                                                   addresses_to_replace.data(),
-                                                   addresses_to_replace.size(),
-                                                   GetDeviceAddressTracker(device_info));
+            if (sync_wait_semaphores)
+            {
+                auto wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
+
+                VkSemaphoreSubmitInfo& semaphore_info = semaphore_infos[i];
+                semaphore_info.sType                  = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                semaphore_info.value                  = 1;
+
+                // runs replacer, sync via semaphore
+                auto& address_replacer = GetDeviceAddressReplacer(device_info);
+                semaphore_info.semaphore =
+                    address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
+                                                           addresses_to_replace.data(),
+                                                           addresses_to_replace.size(),
+                                                           GetDeviceAddressTracker(device_info),
+                                                           wait_semaphores);
+
+                // inject wait-semaphores into submit-info
+                submit_info_mut.waitSemaphoreInfoCount = 1;
+                submit_info_mut.pWaitSemaphoreInfos    = &semaphore_info;
+            }
         }
     }
     // Only attempt to filter imported semaphores if we know at least one has been imported.
@@ -8803,7 +8873,7 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
 
     uint32_t max_threads  = std::thread::hardware_concurrency();
     uint32_t thread_count = std::min(vkGetDeferredOperationMaxConcurrencyKHR(device, deferred_operation), max_threads);
-    bool     deferred_operation_completed = false;
+    std::atomic_bool               deferred_operation_completed = false;
     std::vector<std::future<void>> deferred_operation_joins;
 
     for (uint32_t i = 0; i < thread_count; i++)
@@ -8812,13 +8882,13 @@ VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperati
         deferred_operation_joins.emplace_back(
             std::async(std::launch::async, [func, device, deferred_operation, &deferred_operation_completed]() {
                 VkResult result = VK_ERROR_UNKNOWN;
-                while (result != VK_SUCCESS && !deferred_operation_completed)
+                while (result != VK_SUCCESS && !(deferred_operation_completed.load(std::memory_order_acquire)))
                 {
                     result = func(device, deferred_operation);
                     assert(result == VK_SUCCESS || result == VK_THREAD_DONE_KHR || result == VK_THREAD_IDLE_KHR);
                     if (result == VK_SUCCESS)
                     {
-                        deferred_operation_completed = true;
+                        deferred_operation_completed.store(true, std::memory_order_release);
                     }
                 }
             }));

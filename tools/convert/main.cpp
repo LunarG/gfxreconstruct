@@ -109,14 +109,19 @@ static void PrintUsage(const char* exe_name)
 #endif
 }
 
-static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
-                                     const std::string&                    input_filename,
-                                     JsonFormat                            output_format)
+static void GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
+                              const std::string&                    input_filename,
+                              JsonFormat                            output_format,
+                              bool&                                 output_to_stdout,
+                              std::string&                          output_stem,
+                              std::string&                          output_filename,
+                              std::string&                          output_data_dir)
 {
-    std::string output_filename;
     if (arg_parser.IsArgumentSet(kOutput))
     {
         output_filename = arg_parser.GetArgumentValue(kOutput);
+
+        output_to_stdout = (output_filename == "stdout");
     }
     else
     {
@@ -128,8 +133,24 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
             output_filename = output_filename.substr(0, ext_pos);
         }
         output_filename += "." + gfxrecon::util::get_json_format(output_format);
+
+        output_to_stdout = false;
     }
-    return output_filename;
+
+    // If we're outputing to stdout, we still need to use a data filename using the
+    // capture file prefix
+    std::string output_dir;
+    if (output_to_stdout)
+    {
+        output_stem = gfxrecon::util::filepath::GetFilenameStem(input_filename);
+        output_dir  = gfxrecon::util::filepath::GetBasedir(input_filename);
+    }
+    else
+    {
+        output_stem = gfxrecon::util::filepath::GetFilenameStem(output_filename);
+        output_dir  = gfxrecon::util::filepath::GetBasedir(output_filename);
+    }
+    output_data_dir = gfxrecon::util::filepath::Join(output_dir, output_stem);
 }
 
 static gfxrecon::util::JsonFormat GetOutputFormat(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -218,18 +239,19 @@ int main(int argc, const char** argv)
     gfxrecon::util::Log::Release();
     gfxrecon::util::Log::Init(log_settings);
 
+    std::string filename_stem;
+    std::string output_filename;
+    std::string output_dir;
+    bool        output_to_stdout;
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     std::string input_filename       = positional_arguments[0];
     JsonFormat  output_format        = GetOutputFormat(arg_parser);
-    std::string output_filename      = GetOutputFileName(arg_parser, input_filename, output_format);
-    std::string filename_stem        = gfxrecon::util::filepath::GetFilenameStem(output_filename);
-    std::string output_dir           = gfxrecon::util::filepath::GetBasedir(output_filename);
-    std::string data_dir             = gfxrecon::util::filepath::Join(output_dir, filename_stem);
-    bool        dump_binaries        = arg_parser.IsOptionSet(kIncludeBinariesOption);
-    bool        expand_flags         = arg_parser.IsOptionSet(kExpandFlagsOption);
-    bool        file_per_frame       = arg_parser.IsOptionSet(kFilePerFrameOption);
-    bool        output_to_stdout     = output_filename == "stdout";
+    GetOutputFileName(
+        arg_parser, input_filename, output_format, output_to_stdout, filename_stem, output_filename, output_dir);
 
+    bool                  dump_binaries  = arg_parser.IsOptionSet(kIncludeBinariesOption);
+    bool                  expand_flags   = arg_parser.IsOptionSet(kExpandFlagsOption);
+    bool                  file_per_frame = arg_parser.IsOptionSet(kFilePerFrameOption);
     std::vector<uint32_t> frame_indices;
     bool                  frame_range_option = GetFrameIndices(arg_parser, frame_indices);
 
@@ -266,7 +288,7 @@ int main(int argc, const char** argv)
 
     if (dump_binaries)
     {
-        gfxrecon::util::filepath::MakeDirectory(data_dir);
+        gfxrecon::util::filepath::MakeDirectory(output_dir);
     }
 
     if (file_processor.Initialize(input_filename))
