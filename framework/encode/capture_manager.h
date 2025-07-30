@@ -247,7 +247,10 @@ class CommonCaptureManager
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
 
-    auto GetSkipThreadsWithInvalidData() const { return skip_threads_with_invalid_data_; }
+    auto GetSkipThreadsWithInvalidData() const
+    {
+        return skip_threads_with_invalid_data_;
+    }
 
     uint64_t GetBlockIndex() { return block_index_ == 0 ? 0 : block_index_ - 1; }
 
@@ -309,7 +312,10 @@ class CommonCaptureManager
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
-    bool                                GetDisableMetaCommandSetting() const { return disable_meta_command_; }
+    bool                                GetDisableMetaCommandSetting() const
+    {
+        return disable_meta_command_;
+    }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
     bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
     auto                                GetTrimBoundary() const { return trim_boundary_; }
