@@ -147,6 +147,10 @@ void FieldToJson(nlohmann::ordered_json&         jdata,
                  const format::DeviceMemoryHeap& data,
                  const util::JsonOptions&        options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json&                             jdata,
+                 const Decoded_VkRayTracingShaderGroupCreateInfoKHR* data,
+                 const util::JsonOptions&                            options = util::JsonOptions());
+
 template <typename T>
 void FieldToJson(nlohmann::ordered_json&  jdata,
                  const std::vector<T>&    data,
