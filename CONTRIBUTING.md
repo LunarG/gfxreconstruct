@@ -461,19 +461,22 @@ pull request or other contribution to GitHub.
 
 ## Platform-specific ClangFormat Installation
 
-The following is a collection of notes for obtaining ClangFormat version 9.0.1
+The following is a collection of notes for obtaining ClangFormat version 14
 on various platforms.
 
 ### Visual Studio
 
-- Visual Studio 2019 has built-in support for ClangFormat version 9.
-- Visual Studio 2017 has built-in support for an older version of ClangFormat,
-  but can be changed to use a separately installed ClangFormat version 9
-  by following the instructions described here:
+- Different versions of Visual Studio have different versions of clang-format
+  built in. To ensure the best compatibility with GFXR's GitHub checks, version
+  14 should be used:
+  - Install version 14 of clang-format.exe.
+    - clang-format.exe 14 is included when installing LLVM 14
+    - The LLVM 14 release download is avialable on the [LLVM 14.0.6 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-14.0.6)
+  - Point Visual Studio to use the custom clang-format.exe:
     - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
-      At the bottom is a checkbox for **Use custom clang-format.exe file**.
-      Select this, and browse to the location of the 9.0.1 version of
-      `clang-format.exe` that was installed separately.
+      At the bottom is a checkbox for **Use custom path to clang-format.exe**.
+      Select this, and browse to the location of `clang-format.exe` that was
+      installed separately (e.g., `C:\Program Files\LLVM\bin\clang-format.exe`)
 
 ### Ubuntu
 
