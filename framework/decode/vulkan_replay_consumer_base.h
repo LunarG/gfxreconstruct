@@ -1773,11 +1773,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
-    VkResult SetDuplicateDeviceInfo(VulkanPhysicalDeviceInfo*                               physical_device_info,
-                                    VkDevice*                                               replay_device,
-                                    const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info,
-                                    VulkanDeviceInfo*                                       device_info,
-                                    format::HandleId                                        extant_device_id);
+    VulkanDeviceInfo* FindkDuplciateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
+                                               const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info);
+
+    VkResult SetDuplicateDeviceInfo(VkDevice*         replay_device,
+                                    VulkanDeviceInfo* device_info,
+                                    VulkanDeviceInfo* extant_device_info);
 
   private:
     struct HardwareBufferInfo
