@@ -2366,6 +2366,10 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CheckFeatureSupport(ID3D12Devi
         features->RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
         return result;
     }
+    else if (GetDisableMetaCommandSetting() && (feature == D3D12_FEATURE_QUERY_META_COMMAND))
+    {
+        return E_INVALIDARG;
+    }
     else
     {
         return device->CheckFeatureSupport(feature, feature_support_data, feature_support_data_size);
@@ -3796,7 +3800,7 @@ void D3D12CaptureManager::PostProcess_InitializeMetaCommand(ID3D12GraphicsComman
 {
     if (IsCaptureModeTrack())
     {
-        auto metacommand_info = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(pMetaCommand)->GetObjectInfo();
+        auto metacommand_info             = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(pMetaCommand)->GetObjectInfo();
         metacommand_info->was_initialized = true;
         metacommand_info->initialize_parameters = std::make_unique<util::MemoryOutputStream>(
             pInitializationParametersData, InitializationParametersDataSizeInBytes);

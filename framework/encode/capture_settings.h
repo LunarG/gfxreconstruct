@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -126,6 +126,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define DEBUG_DEVICE_LOST_UPPER                              "DEBUG_DEVICE_LOST"
 #define DISABLE_DXR_LOWER                                    "disable_dxr"
 #define DISABLE_DXR_UPPER                                    "DISABLE_DXR"
+#define DISABLE_METACOMMAND_LOWER                            "disable_meta_command"
+#define DISABLE_METACOMMAND_UPPER                            "DISABLE_META_COMMAND"
 #define ACCEL_STRUCT_PADDING_LOWER                           "accel_struct_padding"
 #define ACCEL_STRUCT_PADDING_UPPER                           "ACCEL_STRUCT_PADDING"
 #define FORCE_COMMAND_SERIALIZATION_LOWER                    "force_command_serialization"
@@ -243,6 +245,7 @@ class CaptureSettings
         bool                         debug_layer{ false };
         bool                         debug_device_lost{ false };
         bool                         disable_dxr{ false };
+        bool                         disable_meta_command{ false };
         uint32_t                     accel_struct_padding{ 0 };
         bool                         force_command_serialization{ false };
         bool                         queue_zero_only{ false };
