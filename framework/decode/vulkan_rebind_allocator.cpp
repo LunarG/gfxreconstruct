@@ -2348,8 +2348,8 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for GetDeviceMemoryCommitment");
-        functions_.get_device_memory_commitment(device_, modified_mem, committed_memory_in_bytes);
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetDeviceMemoryCommitment");
+        return;
     }
 
     for (const auto& alc : alcs)
@@ -2390,8 +2390,8 @@ void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for SetDeviceMemoryPriority");
-        functions_.set_device_memory_priority(device_, modified_mem, priority);
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip SetDeviceMemoryPriority");
+        return;
     }
 
     for (const auto& alc : alcs)
@@ -2435,10 +2435,8 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE for GetMemoryRemoteAddressNV");
-
-        modified_get_mem_remote_addr_info.memory = VK_NULL_HANDLE;
-        return functions_.get_memory_remote_address_nv(device_, &modified_get_mem_remote_addr_info, address);
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetMemoryRemoteAddressNV");
+        return VK_SUCCESS;
     }
 
     auto result = VK_ERROR_INITIALIZATION_FAILED;
@@ -2528,10 +2526,8 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
 
     if (alcs.empty())
     {
-        GFXRECON_LOG_ERROR("There's no allocationsor memory is VK_NULL_HANDLE for GetMemoryFd");
-
-        modified_get_fd_info.memory = VK_NULL_HANDLE;
-        return functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
+        GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetMemoryFd");
+        return VK_SUCCESS;
     }
 
     auto result = VK_ERROR_INITIALIZATION_FAILED;
@@ -3031,10 +3027,8 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
     if (alcs.empty())
     {
         GFXRECON_LOG_WARNING(
-            "There's no allocations or memory is VK_NULL_HANDLE for GetDeviceMemoryOpaqueCaptureAddress");
-
-        modified_info.memory = VK_NULL_HANDLE;
-        return functions_.get_device_memory_opaque_capture_address(device_, &modified_info);
+            "There's no allocations or memory is VK_NULL_HANDLE. Skip GetDeviceMemoryOpaqueCaptureAddress");
+        return 0;
     }
 
     uint64_t result = 0;
