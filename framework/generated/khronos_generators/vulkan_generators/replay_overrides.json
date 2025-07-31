@@ -135,6 +135,7 @@
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR",
     "vkCreateShadersEXT": "OverrideCreateShadersEXT",
     "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
+    "vkCmdTraceRaysIndirectKHR": "OverrideCmdTraceRaysIndirectKHR",
     "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
     "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
