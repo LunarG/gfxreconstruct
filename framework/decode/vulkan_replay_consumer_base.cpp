@@ -3231,15 +3231,25 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     return VK_SUCCESS;
 }
 
-VkResult
-VulkanReplayConsumerBase::SetDuplicateDeviceInfo(VulkanPhysicalDeviceInfo* physical_device_info,
-                                                 VkDevice*                 replay_device,
-                                                 const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info,
-                                                 VulkanDeviceInfo*                                       device_info,
-                                                 format::HandleId extant_device_id)
+VulkanDeviceInfo*
+VulkanReplayConsumerBase::FindkDuplciateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
+                                                   const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info)
 {
-    auto* extant_device_info = object_info_table_->GetVkDeviceInfo(extant_device_id);
-    *replay_device           = extant_device_info->handle;
+    auto it = device_phy_id_map_.find(physical_device_info->capture_id);
+    if (it != device_phy_id_map_.end())
+    {
+        auto* extant_device_info = object_info_table_->GetVkDeviceInfo(it->second);
+        // TODO: It might have to check if two create info are the same.
+        return extant_device_info;
+    }
+    return nullptr;
+}
+
+VkResult VulkanReplayConsumerBase::SetDuplicateDeviceInfo(VkDevice*         replay_device,
+                                                          VulkanDeviceInfo* device_info,
+                                                          VulkanDeviceInfo* extant_device_info)
+{
+    *replay_device = extant_device_info->handle;
     device_info->copy(extant_device_info);
 
     return VK_SUCCESS;
@@ -3263,15 +3273,11 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     // If we're doing device deduplication, check if we've already seen this create device request
     if (options_.do_device_deduplication)
     {
-        auto it = device_phy_id_map_.find(physical_device_info->capture_id);
-        if (it != device_phy_id_map_.end())
+        auto* extant_device_info = FindkDuplciateDeviceInfo(physical_device_info, pCreateInfo);
+        if (extant_device_info)
         {
             // We have seen this device before
-            auto      extant_device_id = it->second;
-            VkDevice* replay_device    = pDevice->GetHandlePointer();
-
-            return SetDuplicateDeviceInfo(
-                physical_device_info, replay_device, pCreateInfo, device_info, extant_device_id);
+            return SetDuplicateDeviceInfo(pDevice->GetHandlePointer(), device_info, extant_device_info);
         }
     }
 
