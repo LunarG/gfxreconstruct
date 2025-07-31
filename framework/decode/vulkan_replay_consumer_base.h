@@ -1390,6 +1390,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             uint32_t                                                       height,
                             uint32_t                                                       depth);
 
+    void OverrideCmdTraceRaysIndirectKHR(
+        PFN_vkCmdTraceRaysIndirectKHR                                  func,
+        VulkanCommandBufferInfo*                                       command_buffer_info,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+        VkDeviceAddress                                                indirectDeviceAddress);
+
     void
     OverrideCmdBeginRenderPass2(PFN_vkCmdBeginRenderPass2                            func,
                                 VulkanCommandBufferInfo*                             command_buffer_info,
