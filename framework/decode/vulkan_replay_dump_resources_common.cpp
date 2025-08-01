@@ -1161,21 +1161,32 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-uint32_t FindQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families, VkQueueFlags flags)
+uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
 {
-    for (uint32_t index = 0; index < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++index)
+    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
+
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
     {
-        if (families.queue_family_index_enabled[index])
+        if (families.queue_family_index_enabled[i])
         {
-            const auto& flags_entry = families.queue_family_properties_flags.find(index);
-            if ((flags_entry != families.queue_family_properties_flags.end()) && (flags_entry->second & flags) == flags)
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
             {
-                return index;
+                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+                {
+                    return i;
+                }
+                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
+                {
+                    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec,
+                    // graphics and compute queues also support transfer operations.
+                    index = i;
+                }
             }
         }
     }
 
-    return VK_QUEUE_FAMILY_IGNORED;
+    return index;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
