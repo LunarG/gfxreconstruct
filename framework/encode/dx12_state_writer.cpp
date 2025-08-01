@@ -1091,6 +1091,9 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
     std::vector<ID3D12CommandList_Wrapper*> direct_command_lists;
     std::vector<ID3D12CommandList_Wrapper*> open_command_lists;
 
+    const bool trim_to_draw_enabled =
+        (D3D12CaptureManager::Get()->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls);
+
     state_table.VisitWrappers([&](ID3D12CommandList_Wrapper* list_wrapper) {
         GFXRECON_ASSERT(list_wrapper != nullptr);
         GFXRECON_ASSERT(list_wrapper->GetWrappedObject() != nullptr);
@@ -1101,6 +1104,10 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
 
         GFXRECON_ASSERT(list_info->create_parameters != nullptr);
         GFXRECON_ASSERT(list_info->create_object_id != format::kNullHandleId);
+
+        // When trim to draw is enabled, skip command lists that do not contain the target draw calls.
+        if (trim_to_draw_enabled && !list_info->is_trim_target)
+            return;
 
         // Write create calls and commands for bundle command lists. Keep track of primary and open command lists to be
         // written afterward.
