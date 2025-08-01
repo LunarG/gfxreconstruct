@@ -28,7 +28,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "format/format.h"
+#include "util/compressor.h"
 #include "util/defines.h"
 #include "vulkan/vulkan_core.h"
 
@@ -62,7 +62,8 @@ class DrawCallsDumpingContext
                             const RenderPassIndices*     rp_indices,
                             CommonObjectInfoTable&       object_info_table,
                             const VulkanReplayOptions&   options,
-                            VulkanDumpResourcesDelegate& delegate);
+                            VulkanDumpResourcesDelegate& delegate,
+                            const util::Compressor*      compressor);
 
     ~DrawCallsDumpingContext();
 
@@ -232,6 +233,7 @@ class DrawCallsDumpingContext
     bool                         dump_vertex_index_buffers_;
     bool                         dump_immutable_resources_;
     bool                         dump_unused_vertex_bindings_;
+    const util::Compressor*      compressor_;
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;

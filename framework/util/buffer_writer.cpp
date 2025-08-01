@@ -23,12 +23,13 @@
 #include "buffer_writer.h"
 #include "platform.h"
 #include "logging.h"
+#include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-bool WriteBuffer(const std::string& filename, const void* data, size_t size)
+bool WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor)
 {
     assert(data);
     assert(size);
@@ -44,7 +45,26 @@ bool WriteBuffer(const std::string& filename, const void* data, size_t size)
         return false;
     }
 
-    bool success = util::platform::FileWrite(data, size, file);
+    bool success;
+    if (compressor != nullptr)
+    {
+        std::vector<uint8_t> compressed_data;
+        size_t compressed_size = compressor->Compress(size, static_cast<const uint8_t*>(data), &compressed_data, 0);
+        if (compressed_size > 0)
+        {
+            success = util::platform::FileWrite(compressed_data.data(), compressed_size, file);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Compression failed for file %s. File's content will be uncompressed.",
+                                 filename.c_str())
+            success = util::platform::FileWrite(data, size, file);
+        }
+    }
+    else
+    {
+        success = util::platform::FileWrite(data, size, file);
+    }
 
     util::platform::FileClose(file);
 

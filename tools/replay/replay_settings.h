@@ -46,7 +46,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-"
-    "image-format,--dump-resources-dir,"
+    "image-format,--dump-resources-dir,--dump-resources-binary-file-compression-type,"
     "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
     "pipeline-cache,--quit-after-frame";
 
@@ -363,6 +363,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-unused-vertex-bindings");
     GFXRECON_WRITE_CONSOLE("          \t\tDump a vertex binding even if no vertex attributes references it.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-binary-file-compression-type");
+    GFXRECON_WRITE_CONSOLE("          \t\tCompress files that are dumped as binary. Available compression types");
+    GFXRECON_WRITE_CONSOLE("          \t\tare: [none, lz4 (block format), zlib, zstd]. Default is none");
+    GFXRECON_WRITE_CONSOLE("          \t\t(no compression).");
     GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
     GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");

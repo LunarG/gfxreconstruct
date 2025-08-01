@@ -310,6 +310,9 @@ Dump resources feature can be control in several ways. To do so, a number of par
               When enabled all image resources will be dumped verbatim as raw bin files.
   --dump-resources-dump-separate-alpha
               When enabled alpha channel of dumped images will be dumped in a separate file.
+  --dump-resources-binary-file-compression-type
+              Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib,
+              zlib, zstd]. Default is none (no compression).
 ```
 
 ## Output

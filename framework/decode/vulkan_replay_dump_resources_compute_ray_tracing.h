@@ -28,7 +28,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "format/format.h"
+#include "util/compressor.h"
 #include "util/defines.h"
 #include "util/logging.h"
 #include "vulkan/vulkan_core.h"
@@ -51,7 +51,8 @@ class DispatchTraceRaysDumpingContext
                                     const std::vector<uint64_t>* trace_rays_indices,
                                     CommonObjectInfoTable&       object_info_table,
                                     const VulkanReplayOptions&   options,
-                                    VulkanDumpResourcesDelegate& delegate);
+                                    VulkanDumpResourcesDelegate& delegate,
+                                    const util::Compressor*      compressor);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -142,6 +143,7 @@ class DispatchTraceRaysDumpingContext
     bool                           dump_resources_before_;
     VulkanDumpResourcesDelegate&   delegate_;
     bool                           dump_immutable_resources_;
+    const util::Compressor*        compressor_;
 
     // One entry per descriptor set for each compute and ray tracing binding points
     BoundDescriptorSets bound_descriptor_sets_compute_;

@@ -20,8 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "format/format_util.h"
+#include "util/file_path.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/file_path.h"
+#include "util/logging.h"
+#include <cstdint>
 #include PROJECT_VERSION_HEADER_FILE
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_replay_dump_resources_json.h"
@@ -55,6 +59,8 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
     dr_options["dumpResourcesDumpSeparateAlpha"]        = options.dump_resources_dump_separate_alpha;
     dr_options["dumpResourcesDumpUnusedVertexBindings"] = options.dump_resources_dump_unused_vertex_bindings;
+    dr_options["dumpResourcesBinaryFileCompressionType"] =
+        format::GetCompressionTypeName(options.dump_resources_binary_file_compression_type);
 };
 
 bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
@@ -162,17 +168,19 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
     return current_entry != nullptr ? *current_entry : json_data_;
 }
 
-void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered_json& json_entry,
-                                                               VkFormat                image_format,
-                                                               VkImageType             image_type,
-                                                               format::HandleId        image_id,
-                                                               const VkExtent3D&       extent,
-                                                               const std::string&      filename,
-                                                               VkImageAspectFlagBits   aspect,
-                                                               uint32_t                mip_level,
-                                                               uint32_t                array_layer,
-                                                               bool                    separate_alpha,
-                                                               const std::string*      filename_before)
+void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered_json&      json_entry,
+                                                               VkFormat                     image_format,
+                                                               VkImageType                  image_type,
+                                                               format::HandleId             image_id,
+                                                               const VkExtent3D&            extent,
+                                                               const std::string&           filename,
+                                                               VkImageAspectFlagBits        aspect,
+                                                               uint32_t                     layer_count,
+                                                               uint32_t                     mip_level,
+                                                               uint32_t                     array_layer,
+                                                               const std::vector<uint64_t>* subresource_sizes,
+                                                               bool                         separate_alpha,
+                                                               const std::string*           filename_before)
 {
     const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
     const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
@@ -213,6 +221,21 @@ void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered
         else
         {
             json_entry["file"] = filename;
+        }
+    }
+
+    if (subresource_sizes != nullptr)
+    {
+        const std::string file_extension      = util::filepath::GetFilenameExtension(filename);
+        const bool        is_image_dumped_raw = !file_extension.compare(".bin");
+
+        if (is_image_dumped_raw)
+        {
+            const uint32_t sub_res_idx = mip_level * layer_count + array_layer;
+            GFXRECON_ASSERT(sub_res_idx < subresource_sizes->size());
+
+            const uint64_t subresource_size = (*subresource_sizes)[sub_res_idx];
+            json_entry["size"]              = subresource_size;
         }
     }
 }

@@ -23,6 +23,7 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 
+#include "util/compressor.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
@@ -85,6 +86,8 @@ struct VulkanDumpResourceInfo
     bool               before_cmd;
     uint32_t           array_index;
     VkShaderStageFlags stages;
+
+    const util::Compressor* compressor;
 
     VulkanDumpResourceInfo& operator=(const VulkanDumpDrawCallInfo& draw_call_info)
     {
@@ -221,6 +224,12 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     std::unordered_set<const VulkanImageInfo*> images_failed_scaling_;
 
     bool ImageFailedScaling(const VulkanImageInfo* img_info) const { return images_failed_scaling_.count(img_info); }
+
+    uint64_t GetImageResourceSizes(const VulkanImageInfo*               image_info,
+                                   VkImageAspectFlagBits                aspect,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   const graphics::VulkanDeviceTable*   device_table,
+                                   std::vector<uint64_t>&               subresource_sizes);
 
     void GenerateDispatchTraceRaysDescriptorsJsonInfo(
         const VulkanDumpDrawCallInfo&                                         draw_call_info,
