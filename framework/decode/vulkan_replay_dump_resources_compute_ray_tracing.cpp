@@ -1216,8 +1216,15 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
 
+    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec, graphics and
+    // compute queues also support transfer operations.
     const uint32_t transfer_queue_index =
-        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_GRAPHICS_BIT);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -1516,8 +1523,15 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
         }
     }
 
+    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec, graphics and
+    // compute queues also support transfer operations.
     const uint32_t transfer_queue_index =
-        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_GRAPHICS_BIT);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -1742,8 +1756,15 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
 
+    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec, graphics and
+    // compute queues also support transfer operations.
     const uint32_t transfer_queue_index =
-        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_GRAPHICS_BIT);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
 
     graphics::VulkanResourcesUtil resource_util(device_info->handle,
                                                 device_info->parent,
