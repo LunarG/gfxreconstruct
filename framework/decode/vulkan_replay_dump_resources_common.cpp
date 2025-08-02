@@ -33,7 +33,9 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <sstream>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -408,32 +410,33 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     }
 }
 
-VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
+VkResult DumpImageToFile(DumpedImage&                         dumped_resource,
                          const VulkanDeviceInfo*              device_info,
                          const graphics::VulkanDeviceTable*   device_table,
                          const graphics::VulkanInstanceTable* instance_table,
                          CommonObjectInfoTable&               object_info_table,
-                         const std::vector<std::string>&      filenames,
                          float                                scale,
-                         bool&                                scaling_supported,
                          util::ScreenshotFormat               image_file_format,
+                         bool                                 before_command,
                          const util::Compressor*              compressor,
                          bool                                 dump_all_subresources,
                          bool                                 dump_image_raw,
                          bool                                 dump_separate_alpha,
                          VkImageLayout                        layout)
 {
-    assert(image_info != nullptr);
     assert(device_info != nullptr);
     assert(device_table != nullptr);
     assert(instance_table != nullptr);
+
+    const VulkanImageInfo* image_info = dumped_resource.image_info;
+    GFXRECON_ASSERT(image_info != nullptr);
 
     std::vector<VkImageAspectFlagBits> aspects;
     GetFormatAspects(image_info->format, aspects);
 
     const uint32_t total_files =
         dump_all_subresources ? (aspects.size() * image_info->layer_count * image_info->level_count) : aspects.size();
-    assert(total_files == filenames.size());
+    assert(total_files == dumped_resource.dumped_subresources.size());
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -446,11 +449,17 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
 
     const VkFormat dst_format = dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
 
-    uint32_t f = 0;
-    for (size_t i = 0; i < aspects.size(); ++i)
-    {
-        const VkImageAspectFlagBits aspect = aspects[i];
+    const bool scaling_supported = !resource_util.IsScalingSupported(
+        image_info->format, image_info->tiling, dst_format, image_info->type, image_info->extent, scale);
 
+    const bool blit_supported = resource_util.IsBlitSupported(image_info->format, image_info->tiling, dst_format);
+    const bool use_blit = (image_info->format != dst_format && blit_supported) || (scale != 1.0f && scaling_supported);
+
+    dumped_resource.scaling_failed = scale != 1.0f && !scaling_supported;
+
+    uint32_t f = 0;
+    for (const VkImageAspectFlagBits aspect : aspects)
+    {
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
@@ -473,17 +482,6 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         image_resource.scale                = scale;
         image_resource.dst_format           = dst_format;
         image_resource.all_layers_per_level = false;
-
-        scaling_supported = resource_util.IsScalingSupported(image_resource.format,
-                                                             image_resource.tiling,
-                                                             dst_format,
-                                                             image_resource.type,
-                                                             image_resource.extent,
-                                                             scale);
-        const bool blit_supported =
-            resource_util.IsBlitSupported(image_resource.format, image_resource.tiling, dst_format);
-        const bool use_blit = (image_resource.format != dst_format && blit_supported) ||
-                              (image_resource.scale != 1.0f && scaling_supported);
 
         VkExtent3D scaled_extent = {
             static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
@@ -539,15 +537,23 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
             {
-                const std::string& filename = filenames[f++];
-
                 // We don't support stencil output yet
-                if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
+                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
                     continue;
 
                 const uint32_t sub_res_idx    = mip * image_info->layer_count + layer;
                 const void*    offsetted_data = reinterpret_cast<const void*>(
                     reinterpret_cast<const uint8_t*>(data.data()) + subresource_offsets[sub_res_idx]);
+
+                DumpedImage::DumpedImageSubresource& dumped_subresource = dumped_resource.dumped_subresources[f++];
+
+                dumped_subresource.size   = subresource_sizes[sub_res_idx];
+                dumped_subresource.layer  = layer;
+                dumped_subresource.level  = mip;
+                dumped_subresource.extent = ScaleToMipLevel(image_info->extent, mip);
+
+                const std::string& filename =
+                    before_command ? dumped_subresource.filename_before : dumped_subresource.filename;
 
                 if (output_image_format != KFormatRaw)
                 {
@@ -557,18 +563,15 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
 
                     if (scale != 1.0f && scaling_supported)
                     {
-                        scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
-                        scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
-                        scaled_extent.depth  = image_info->extent.depth;
+                        scaled_extent = ScaleExtent(image_info->extent, scale);
                     }
                     else
                     {
                         scaled_extent = image_info->extent;
                     }
 
-                    scaled_extent.width  = std::max(1u, scaled_extent.width >> mip);
-                    scaled_extent.height = std::max(1u, scaled_extent.height >> mip);
-                    scaled_extent.depth  = std::max(1u, scaled_extent.depth >> mip);
+                    scaled_extent                    = ScaleToMipLevel(scaled_extent, mip);
+                    dumped_subresource.scaled_extent = scaled_extent;
 
                     const uint32_t texel_size = vkuFormatElementSizeWithAspect(dst_format, aspect);
                     const uint32_t stride     = texel_size * scaled_extent.width;
@@ -627,8 +630,13 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                             util::ToString<VkFormat>(image_info->format).c_str());
                     }
 
-                    util::bufferwriter::WriteBuffer(
+                    const size_t bytes_written = util::bufferwriter::WriteBuffer(
                         filename, offsetted_data, subresource_sizes[sub_res_idx], compressor);
+
+                    if (compressor != nullptr && bytes_written != subresource_sizes[sub_res_idx])
+                    {
+                        dumped_subresource.compressed_size = bytes_written;
+                    }
                 }
 
                 if (!dump_all_subresources)
@@ -646,6 +654,61 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
 
     assert(f == total_files);
     return VK_SUCCESS;
+}
+
+VkResult DumpBufferToFile(DumpedBuffer&                        dumped_buffer,
+                          const VulkanDeviceInfo*              device_info,
+                          const graphics::VulkanDeviceTable*   device_table,
+                          const graphics::VulkanInstanceTable* instance_table,
+                          CommonObjectInfoTable&               object_info_table,
+                          bool                                 before_command,
+                          const util::Compressor*              compressor)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
+
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    assert(phys_dev_info);
+
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
+
+    const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
+    GFXRECON_ASSERT(buffer_info != nullptr);
+
+    GFXRECON_ASSERT(dumped_buffer.size);
+    GFXRECON_ASSERT(dumped_buffer.size != VK_WHOLE_SIZE);
+    GFXRECON_ASSERT(dumped_buffer.offset != VK_WHOLE_SIZE);
+
+    const uint32_t transfer_queue_index =
+        FindQueueFamilyIndex(device_info->enabled_queue_family_flags, VK_QUEUE_TRANSFER_BIT);
+
+    std::vector<uint8_t> data;
+    VkResult             res = resource_util.ReadFromBufferResource(
+        buffer_info->handle, dumped_buffer.size, dumped_buffer.offset, transfer_queue_index, data);
+
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Failed reading from buffer %" PRIu64, buffer_info->parent_id);
+        return res;
+    }
+
+    GFXRECON_ASSERT((!before_command && !dumped_buffer.filename.empty()) ||
+                    (before_command && !dumped_buffer.filename_before.empty()));
+    std::string& filename      = before_command ? dumped_buffer.filename_before : dumped_buffer.filename;
+    const size_t bytes_written = util::bufferwriter::WriteBuffer(filename, data.data(), dumped_buffer.size);
+
+    if (bytes_written && bytes_written != dumped_buffer.size)
+    {
+        GFXRECON_ASSERT(compressor != nullptr);
+        dumped_buffer.compressed_size = bytes_written;
+    }
+
+    return bytes_written ? VK_SUCCESS : VK_ERROR_UNKNOWN;
 }
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage)
