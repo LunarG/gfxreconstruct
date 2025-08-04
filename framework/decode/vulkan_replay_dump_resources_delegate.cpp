@@ -751,11 +751,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         for (auto aspect : aspects)
         {
             std::vector<uint64_t> subresource_sizes;
-            if (options_.dump_resources_dump_raw_images)
-            {
-                GetImageResourceSizes(
-                    image_info, aspect, instance_table, draw_call_info.device_table, subresource_sizes);
-            }
+            GetImageResourceSizes(image_info, aspect, instance_table, draw_call_info.device_table, subresource_sizes);
 
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
@@ -981,14 +977,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                                 for (auto aspect : aspects)
                                 {
                                     std::vector<uint64_t> subresource_sizes;
-                                    if (options_.dump_resources_dump_raw_images)
-                                    {
-                                        GetImageResourceSizes(image_info,
-                                                              aspect,
-                                                              instance_table,
-                                                              draw_call_info.device_table,
-                                                              subresource_sizes);
-                                    }
+                                    GetImageResourceSizes(image_info,
+                                                          aspect,
+                                                          instance_table,
+                                                          draw_call_info.device_table,
+                                                          subresource_sizes);
 
                                     for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
                                     {
@@ -1495,16 +1488,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
             for (auto aspect : aspects)
             {
                 std::vector<uint64_t> subresource_sizes;
-                if (options_.dump_resources_dump_raw_images)
-                {
-                    GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
+                GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
 
-                    GetImageResourceSizes(img_info,
-                                          aspect,
-                                          draw_call_info.instance_table,
-                                          draw_call_info.device_table,
-                                          subresource_sizes);
-                }
+                GetImageResourceSizes(
+                    img_info, aspect, draw_call_info.instance_table, draw_call_info.device_table, subresource_sizes);
 
                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                 {
@@ -1678,17 +1665,14 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                                 for (auto aspect : aspects)
                                 {
                                     std::vector<uint64_t> subresource_sizes;
-                                    if (options_.dump_resources_dump_raw_images)
-                                    {
-                                        GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
-                                        GFXRECON_ASSERT(draw_call_info.device_table != nullptr);
+                                    GFXRECON_ASSERT(draw_call_info.instance_table != nullptr);
+                                    GFXRECON_ASSERT(draw_call_info.device_table != nullptr);
 
-                                        GetImageResourceSizes(img_info,
-                                                              aspect,
-                                                              draw_call_info.instance_table,
-                                                              draw_call_info.device_table,
-                                                              subresource_sizes);
-                                    }
+                                    GetImageResourceSizes(img_info,
+                                                          aspect,
+                                                          draw_call_info.instance_table,
+                                                          draw_call_info.device_table,
+                                                          subresource_sizes);
 
                                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                                     {
