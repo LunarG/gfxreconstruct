@@ -1,5 +1,7 @@
 # Build Instructions
 
+Trivial change to test CI app.
+
 Instructions for building the GFXReconstruct project source code on Linux,
 Windows, and Android platforms.
 
