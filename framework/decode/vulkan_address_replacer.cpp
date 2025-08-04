@@ -935,7 +935,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // keep track of used handles
             buffer_set.insert(buffer_info->handle);
 
-            if(buffer_info->capture_address != buffer_info->replay_address)
+            if (buffer_info->capture_address != buffer_info->replay_address)
             {
                 uint64_t offset = capture_address - buffer_info->capture_address;
 
@@ -1107,7 +1107,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     auto& instances = geometry->geometry.instances;
 
                     // check if replacement is actually required
-                    if(address_remap(instances.data.deviceAddress))
+                    if (address_remap(instances.data.deviceAddress))
                     {
                         // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
                         for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
