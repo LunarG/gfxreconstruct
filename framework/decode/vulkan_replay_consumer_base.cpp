@@ -10813,7 +10813,7 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        if (UseAddressReplacement(device_info))
+//        if (UseAddressReplacement(device_info))
         {
             MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
