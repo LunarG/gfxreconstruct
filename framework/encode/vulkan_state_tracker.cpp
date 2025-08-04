@@ -513,21 +513,14 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
         }
 
         // track all AS builds as regular builds, we'll have no AS to 'update'
-//        if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
+        if (wrapper->latest_build_command_)
         {
-            if (wrapper->latest_build_command_)
-            {
-                // TODO: keep original scratch-buffer, check if that makes sense
-                dst_command.geometry_info.scratchData = wrapper->latest_build_command_->geometry_info.scratchData;
-            }
-            dst_command.geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-            dst_command.geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
-            wrapper->latest_build_command_ = std::move(dst_command);
+            // TODO: keep original scratch-buffer, check if that makes sense
+            dst_command.geometry_info.scratchData = wrapper->latest_build_command_->geometry_info.scratchData;
         }
-//        else if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
-//        {
-//            wrapper->latest_update_command_ = std::move(dst_command);
-//        }
+        dst_command.geometry_info.mode                     = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+        dst_command.geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
+        wrapper->latest_build_command_                     = std::move(dst_command);
 
         wrapper->blas.clear();
 
