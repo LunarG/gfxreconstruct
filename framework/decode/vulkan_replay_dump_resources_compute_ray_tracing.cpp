@@ -1042,19 +1042,23 @@ void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
-    VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence)
+VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue             queue,
+                                                                uint64_t            qs_index,
+                                                                uint64_t            bcb_index,
+                                                                const VkSubmitInfo& submit_info,
+                                                                VkFence             fence,
+                                                                bool                use_semaphores)
 {
     VkSubmitInfo si;
     si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     si.pNext                = nullptr;
-    si.waitSemaphoreCount   = submit_info.waitSemaphoreCount;
-    si.pWaitSemaphores      = submit_info.pWaitSemaphores;
-    si.pWaitDstStageMask    = submit_info.pWaitDstStageMask;
+    si.waitSemaphoreCount   = use_semaphores ? submit_info.waitSemaphoreCount : 0;
+    si.pWaitSemaphores      = use_semaphores ? submit_info.pWaitSemaphores : nullptr;
+    si.pWaitDstStageMask    = use_semaphores ? submit_info.pWaitDstStageMask : nullptr;
     si.commandBufferCount   = 1;
     si.pCommandBuffers      = &DR_command_buffer_;
-    si.signalSemaphoreCount = submit_info.signalSemaphoreCount;
-    si.pSignalSemaphores    = submit_info.pSignalSemaphores;
+    si.signalSemaphoreCount = use_semaphores ? submit_info.signalSemaphoreCount : 0;
+    si.pSignalSemaphores    = use_semaphores ? submit_info.pSignalSemaphores : nullptr;
 
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
