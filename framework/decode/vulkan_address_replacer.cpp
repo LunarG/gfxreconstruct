@@ -996,7 +996,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
                                              ? build_size_info.buildScratchSize
                                              : build_size_info.updateScratchSize;
-            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;
+            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size &&
+                                         (scratch_buffer_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
