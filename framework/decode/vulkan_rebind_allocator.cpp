@@ -2563,12 +2563,12 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
 }
 
 VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue                   queue,
-                                                             const VkBindSparseInfo&   original_bind_info,
                                                              VkFence                   fence,
                                                              QueueBindSparseType       type,
+                                                             const VkBindSparseInfo&   original_bind_info,
+                                                             bool                      is_last_bind_info,
                                                              uint32_t                  object_bind_index,
                                                              uint32_t                  memory_bind_index,
-                                                             bool                      is_last_bind_info,
                                                              std::vector<VkSemaphore>& semaphores,
                                                              const VmaAllocation&      allocation,
                                                              const VmaAllocationInfo&  allocation_info)
@@ -2600,6 +2600,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
 
             if (is_last_bind_info &&
                 (original_bind_info.imageOpaqueBindCount == 0 && original_bind_info.imageBindCount == 0) &&
+                (object_bind_index == (original_bind_info.bufferBindCount - 1)) &&
                 (memory_bind_index == (bind.bindCount - 1)))
             {
                 is_last = true;
@@ -2626,6 +2627,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             const auto& bind = original_bind_info.pImageOpaqueBinds[object_bind_index];
 
             if (is_last_bind_info && (original_bind_info.imageBindCount == 0) &&
+                (object_bind_index == (original_bind_info.imageOpaqueBindCount - 1)) &&
                 (memory_bind_index == (bind.bindCount - 1)))
             {
                 is_last = true;
@@ -2651,7 +2653,8 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
         {
             const auto& bind = original_bind_info.pImageBinds[object_bind_index];
 
-            if (is_last_bind_info && (memory_bind_index == (bind.bindCount - 1)))
+            if (is_last_bind_info && (object_bind_index == (original_bind_info.imageBindCount - 1)) &&
+                (memory_bind_index == (bind.bindCount - 1)))
             {
                 is_last = true;
             }
@@ -2842,12 +2845,12 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
-                                                              bind_info,
                                                               fence,
                                                               QueueBindSparseType::kBindBuffer,
+                                                              bind_info,
+                                                              is_last_bind_info,
                                                               buf_i,
                                                               m_i,
-                                                              is_last_bind_info,
                                                               semaphores,
                                                               allocation,
                                                               allocation_info);
@@ -2913,12 +2916,12 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
-                                                              bind_info,
                                                               fence,
                                                               QueueBindSparseType::kBindImageOpaqueMemory,
+                                                              bind_info,
+                                                              is_last_bind_info,
                                                               img_op_i,
                                                               m_i,
-                                                              is_last_bind_info,
                                                               semaphores,
                                                               allocation,
                                                               allocation_info);
@@ -2983,12 +2986,12 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
-                                                              bind_info,
                                                               fence,
                                                               QueueBindSparseType::kBindImageMemory,
+                                                              bind_info,
+                                                              is_last_bind_info,
                                                               img_i,
                                                               m_i,
-                                                              is_last_bind_info,
                                                               semaphores,
                                                               allocation,
                                                               allocation_info);
