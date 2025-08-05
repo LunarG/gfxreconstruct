@@ -4410,7 +4410,7 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
         const auto  buf_len   = meta_bind_infos->pBufferBinds->GetLength();
         const auto* meta_bufs = meta_bind_infos->pBufferBinds->GetMetaStructPointer();
 
-        for (uint32_t buf_i = 0; i < buf_len; ++i)
+        for (uint32_t buf_i = 0; buf_i < buf_len; ++buf_i)
         {
             auto buf_info = object_info_table_->GetVkBufferInfo(meta_bufs[buf_i].buffer);
             buf_infos.push_back(buf_info);
