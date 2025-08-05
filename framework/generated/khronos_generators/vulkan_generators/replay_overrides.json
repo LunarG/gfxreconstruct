@@ -150,6 +150,20 @@
     "vkCreateSamplerYcbcrConversion": "OverrideCreateSamplerYcbcrConversion",
     "vkCreateSamplerYcbcrConversionKHR": "OverrideCreateSamplerYcbcrConversionKHR",
     "vkCreatePipelineLayout": "OverrideCreatePipelineLayout",
-    "vkCreateBufferView": "OverrideCreateBufferView"
+    "vkCreateBufferView": "OverrideCreateBufferView",
+    "vkGetDeviceMemoryCommitment": "OverrideGetDeviceMemoryCommitment",
+    "vkMapMemory2": "OverrideMapMemory2",
+    "vkMapMemory2KHR": "OverrideMapMemory2",
+    "vkUnmapMemory2": "OverrideUnmapMemory2",
+    "vkUnmapMemory2KHR": "OverrideUnmapMemory2",
+    "vkSetDeviceMemoryPriorityEXT": "OverrideSetDeviceMemoryPriorityEXT",
+    "vkGetMemoryRemoteAddressNV": "OverrideGetMemoryRemoteAddressNV",
+    "vkCreateAccelerationStructureNV": "OverrideCreateAccelerationStructureNV",
+    "vkDestroyAccelerationStructureNV": "OverrideDestroyAccelerationStructureNV",
+    "vkBindAccelerationStructureMemoryNV": "OverrideBindAccelerationStructureMemoryNV",
+    "vkGetAccelerationStructureMemoryRequirementsNV": "OverrideGetAccelerationStructureMemoryRequirementsNV",
+    "vkGetMemoryFdKHR": "OverrideGetMemoryFdKHR",
+    "vkGetDeviceMemoryOpaqueCaptureAddress": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
+    "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress"
   }
 }

@@ -1490,6 +1490,71 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                 pAllocator,
         HandlePointerDecoder<VkSamplerYcbcrConversionKHR>*                         pSampler);
 
+    void OverrideGetDeviceMemoryCommitment(PFN_vkGetDeviceMemoryCommitment func,
+                                           const VulkanDeviceInfo*         device_info,
+                                           const VulkanDeviceMemoryInfo*   memory_info,
+                                           PointerDecoder<VkDeviceSize>*   pCommittedMemoryInBytes);
+
+    VkResult OverrideMapMemory2(PFN_vkMapMemory2                               func,
+                                VkResult                                       original_result,
+                                const VulkanDeviceInfo*                        device_info,
+                                StructPointerDecoder<Decoded_VkMemoryMapInfo>* pMemoryMapInfo,
+                                void**                                         ppData);
+
+    VkResult OverrideUnmapMemory2(PFN_vkUnmapMemory2                               func,
+                                  VkResult                                         original_result,
+                                  const VulkanDeviceInfo*                          device_info,
+                                  StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo);
+
+    void OverrideSetDeviceMemoryPriorityEXT(PFN_vkSetDeviceMemoryPriorityEXT func,
+                                            const VulkanDeviceInfo*          device_info,
+                                            const VulkanDeviceMemoryInfo*    memory_info,
+                                            float                            priority);
+
+    VkResult OverrideGetMemoryRemoteAddressNV(
+        PFN_vkGetMemoryRemoteAddressNV                                func,
+        VkResult                                                      original_result,
+        const VulkanDeviceInfo*                                       device_info,
+        StructPointerDecoder<Decoded_VkMemoryGetRemoteAddressInfoNV>* pMemoryGetRemoteAddressInfo,
+        VkRemoteAddressNV*                                            pAddress);
+
+    VkResult OverrideCreateAccelerationStructureNV(
+        PFN_vkCreateAccelerationStructureNV                                func,
+        VkResult                                                           original_result,
+        const VulkanDeviceInfo*                                            device_info,
+        StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*               pAllocator,
+        HandlePointerDecoder<VkAccelerationStructureNV>*                   pAccelerationStructure);
+
+    void OverrideDestroyAccelerationStructureNV(PFN_vkDestroyAccelerationStructureNV                 func,
+                                                const VulkanDeviceInfo*                              device_info,
+                                                VulkanAccelerationStructureNVInfo*                   acc_str_info,
+                                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideGetAccelerationStructureMemoryRequirementsNV(
+        PFN_vkGetAccelerationStructureMemoryRequirementsNV                             func,
+        const VulkanDeviceInfo*                                                        device_info,
+        StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>*                           pMemoryRequirements);
+
+    VkResult OverrideBindAccelerationStructureMemoryNV(
+        PFN_vkBindAccelerationStructureMemoryNV                                func,
+        VkResult                                                               original_result,
+        const VulkanDeviceInfo*                                                device_info,
+        uint32_t                                                               bindInfoCount,
+        StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos);
+
+    VkResult OverrideGetMemoryFdKHR(PFN_vkGetMemoryFdKHR                                func,
+                                    VkResult                                            original_result,
+                                    const VulkanDeviceInfo*                             device_info,
+                                    StructPointerDecoder<Decoded_VkMemoryGetFdInfoKHR>* pGetFdInfo,
+                                    PointerDecoder<int>*                                pFd);
+
+    void OverrideGetDeviceMemoryOpaqueCaptureAddress(
+        PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR                          func,
+        const VulkanDeviceInfo*                                               device_info,
+        StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,

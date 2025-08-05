@@ -228,7 +228,6 @@ typedef VulkanObjectInfo<VkDisplayModeKHR>                     VulkanDisplayMode
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>             VulkanDebugReportCallbackEXTInfo;
 typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>           VulkanIndirectCommandsLayoutNVInfo;
 typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>             VulkanDebugUtilsMessengerEXTInfo;
-typedef VulkanObjectInfo<VkAccelerationStructureNV>            VulkanAccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL>      VulkanPerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                        VulkanMicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>               VulkanOpticalFlowSessionNVInfo;
@@ -383,6 +382,8 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 
+    std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
+
     VkBufferUsageFlags usage{ 0 };
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
@@ -409,6 +410,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+
+    std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
 
     VkImageUsageFlags     usage{ 0 };
     VkImageType           type{};
@@ -621,7 +624,7 @@ struct VulkanVideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used for memory portability.
-    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
+    VulkanResourceAllocator::ResourceData allocator_data;
 
     // This is only used when loading the initial state for trimmed files.
     std::vector<VkMemoryPropertyFlags> memory_property_flags;
@@ -711,6 +714,15 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
 
     //! associated buffer
     VkBuffer buffer = VK_NULL_HANDLE;
+};
+
+struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAccelerationStructureNV>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
+
+    // This is only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
 };
 
 //
