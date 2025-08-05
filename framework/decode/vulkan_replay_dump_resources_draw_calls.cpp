@@ -2330,9 +2330,9 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
         new_subp_desc       = original_render_pass_ci->pSubpasses[sub];
 
         VkRenderPassCreateInfo2 ci;
-        ci.sType           = render_pass_info->func_version == VulkanRenderPassInfo::kCreateRenderPass2
-                                 ? VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
-                                 : VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR;
+        // VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2 and VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR are equal so
+        // it doesn't matter which one we use
+        ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
         ci.flags           = original_render_pass_ci->flags;
         ci.attachmentCount = modified_attachments.size();
         ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
