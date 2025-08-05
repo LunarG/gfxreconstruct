@@ -75,8 +75,12 @@ class DispatchTraceRaysDumpingContext
                             uint32_t                                           dynamicOffsetCount,
                             const uint32_t*                                    pDynamicOffsets);
 
-    VkResult DumpDispatchTraceRays(
-        VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
+    VkResult DumpDispatchTraceRays(VkQueue             queue,
+                                   uint64_t            qs_index,
+                                   uint64_t            bcb_index,
+                                   const VkSubmitInfo& submit_info,
+                                   VkFence             fence,
+                                   bool                use_semaphores);
 
     VkResult DumpMutableResources(uint64_t bcb_index, uint64_t qs_index, uint64_t cmd_index, bool is_dispatch);
 
