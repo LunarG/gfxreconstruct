@@ -1786,6 +1786,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           VkPipeline*             pipelines,
                                           uint32_t                pipelineCount);
 
+    bool IsExtensionBeingFaked(const char* extension);
+
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
     VulkanDeviceInfo* FindkDuplicateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
