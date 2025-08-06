@@ -3378,6 +3378,15 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
     IncrementCallScope();
 }
 
+static void MarkCommandListForTrim(graphics::dx12::ID3D12GraphicsCommandListComPtr list)
+{
+    auto wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(list.GetInterfacePtr());
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+    info->is_trim_target = true;
+}
+
 bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
     std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
     ID3D12CommandQueue_Wrapper*                            wrapper,
@@ -3442,6 +3451,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
                                      trim_draw_calls.bundle_draw_call_indices.first,
                                      trim_draw_calls.bundle_draw_call_indices.last);
             }
+
+            auto target_bundle_cmd =
+                target_info->target_bundle_commandlist_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex]
+                    .list;
+            MarkCommandListForTrim(target_bundle_cmd);
         }
 
         std::vector<ID3D12CommandList*> cmdlists;
@@ -3466,11 +3480,12 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         cmdlists.clear();
 
         // target of splitted
-        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
-
         auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
         GFXRECON_ASSERT(target_draw_call_cmd);
         cmdlists.emplace_back(target_draw_call_cmd);
+
+        MarkCommandListForTrim(target_draw_call_cmd);
+        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
 
         auto unwrap_memory = GetHandleUnwrapMemory();
         queue->ExecuteCommandLists(cmdlists.size(),
