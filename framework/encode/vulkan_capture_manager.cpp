@@ -4038,6 +4038,7 @@ void VulkanCaptureManager::AddValidFence(VkFence fence)
 {
     if (fence != VK_NULL_HANDLE && common_manager_->IsCaptureModeWrite())
     {
+        std::lock_guard<std::mutex> lock(fence_mutex);
         valid_fences_.insert(fence);
     }
 }
@@ -4046,6 +4047,7 @@ void VulkanCaptureManager::RemoveValidFence(VkFence fence)
 {
     if (fence != VK_NULL_HANDLE)
     {
+        std::lock_guard<std::mutex> lock(fence_mutex);
         valid_fences_.erase(fence);
     }
 }
@@ -4056,6 +4058,7 @@ bool VulkanCaptureManager::IsValidFence(VkFence fence)
     {
         return true;
     }
+    std::lock_guard<std::mutex> lock(fence_mutex);
     return valid_fences_.find(fence) != valid_fences_.end();
 }
 
