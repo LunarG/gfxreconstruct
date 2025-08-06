@@ -1727,8 +1727,6 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         std::vector<AccelerationStructureBuildCommandData*>          tlas_build;
         std::vector<AccelerationStructureWritePropertiesCommandData> write_properties;
         std::vector<VkCopyAccelerationStructureInfoKHR>              copy_infos;
-        std::vector<AccelerationStructureBuildCommandData*>          blas_update;
-        std::vector<AccelerationStructureBuildCommandData*>          tlas_update;
     };
 
     std::unordered_map<format::HandleId, AccelerationStructureCommands> commands;
@@ -1739,32 +1737,20 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
         auto& per_device_container                                            = commands[wrapper->device->handle_id];
         std::vector<AccelerationStructureBuildCommandData*>* build_container  = nullptr;
-        std::vector<AccelerationStructureBuildCommandData*>* update_container = nullptr;
 
         if (wrapper->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
         {
             build_container  = &per_device_container.blas_build;
-            update_container = &per_device_container.blas_update;
         }
         else if (wrapper->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
         {
             build_container  = &per_device_container.tlas_build;
-            update_container = &per_device_container.tlas_update;
         }
 
         if (wrapper->latest_build_command_)
         {
             build_container->push_back(&wrapper->latest_build_command_.value());
             for (const auto& [handle_id, buffer] : wrapper->latest_build_command_->input_buffers)
-            {
-                max_resource_size = std::max(max_resource_size, buffer.bytes.size());
-            }
-        }
-
-        if (wrapper->latest_update_command_)
-        {
-            update_container->push_back(&wrapper->latest_update_command_.value());
-            for (const auto& [handle_id, buffer] : wrapper->latest_update_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1809,15 +1795,6 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             WriteAccelerationStructureBuildState(device, *tlas_build);
         }
 
-        for (auto& blas_update : command.blas_update)
-        {
-            WriteAccelerationStructureBuildState(device, *blas_update);
-        }
-
-        for (auto& tlas_update : command.tlas_update)
-        {
-            WriteAccelerationStructureBuildState(device, *tlas_update);
-        }
         EndAccelerationStructureSection(device);
     }
 }
