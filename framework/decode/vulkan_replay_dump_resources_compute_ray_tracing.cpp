@@ -211,16 +211,14 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
 
         if (dynamicOffsetCount && pDynamicOffsets != nullptr)
         {
-            for (const auto& binding : descriptor_sets_infos[i]->descriptors)
+            for (const auto& [binding_index, binding] : descriptor_sets_infos[i]->descriptors)
             {
-                const uint32_t bindind_index = binding.first;
-
-                if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
-                    binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
+                if (binding.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                    binding.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                 {
-                    for (size_t ai = 0; ai < bound_descriptor_sets[bindind_index].buffer_info.size(); ++ai)
+                    for (const auto& [array_index, buf_desc] : bound_descriptor_sets[binding_index].buffer_info)
                     {
-                        bound_descriptor_sets[bindind_index].buffer_info[ai].offset +=
+                        bound_descriptor_sets[binding_index].buffer_info[array_index].offset +=
                             pDynamicOffsets[dynamic_offset_index];
                         ++dynamic_offset_index;
                     }
