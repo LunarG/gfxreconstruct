@@ -46,7 +46,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 #else
 #include "format/platform_types.h"
 #endif // WIN32
@@ -2446,15 +2445,6 @@ struct Decoded_tagPOINT
     using struct_type = tagPOINT;
 
     tagPOINT* decoded_value{ nullptr };
-};
-
-struct Decoded__SECURITY_ATTRIBUTES
-{
-    using struct_type = _SECURITY_ATTRIBUTES;
-
-    _SECURITY_ATTRIBUTES* decoded_value{ nullptr };
-
-    uint64_t lpSecurityDescriptor{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -87,7 +87,6 @@ WINAPI_SOURCE_LIST = [
     ['um\\Unknwnbase.h', ['IUnknown']],
     ['shared\\guiddef.h', ['GUID']],
     ['shared\\windef.h', ['tagRECT', 'tagPOINT']],
-    ['um\\minwinbase.h', ['_SECURITY_ATTRIBUTES']],
 ]
 
 if __name__ == '__main__':
