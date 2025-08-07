@@ -30,7 +30,7 @@
 
 # Purpose
 
-The purpose of GFXReconstruct is recording application graphics API calls to a file (hereafter called a “capture file”), replaying the API calls from a capture file, and processing capture files.  The design, implementation, and use of the tools should be simple. The file format should preserve the application’s calls thoroughly and accurately.  Replay should honor the application’s intent.
+The purpose of GFXReconstruct is recording application graphics API calls to a file (hereafter called a “capture file”), replaying the API calls from a capture file, and processing capture files.  The design, implementation, and use of the tools should be simple. The capture file content should preserve the application’s calls thoroughly and accurately.  Replay should by default attempt to honor the application’s intent.
 
 We recognize broad categories of use for GFXReconstruct that we describe below.  The definition of these “use cases” guides the definition of the principles.
 
@@ -38,7 +38,7 @@ We recognize broad categories of use for GFXReconstruct that we describe below. 
 
 ## USE-CASE-REPRODUCTION
 
-GFXReconstruct is intended primarily for reproduction of an application’s API calls for analysis, bug reporting, and testing.  This use case prioritizes the integrity and fidelity of the captured data and reproduction of the data when replayed.  While file storage and performance is valued, representing the application’s original API calls and intent by default is paramount.  This use case prioritizes using GFXR through one or more of its command-line tools or scripts and does not prioritize use of the internal classes or objects within the code itself.
+GFXReconstruct is intended primarily for reproduction of an application’s API calls for analysis, bug reporting, and testing.  This use case prioritizes the integrity and fidelity of the captured data and reproduction of the data when replayed.  While file storage and performance is valued, representing the application’s original API calls and intent when possible is paramount.  This use case prioritizes using GFXR through one or more of its command-line tools or scripts and does not prioritize use of the internal classes or objects within the code itself.
 
 ## USE-CASE-TOOLING
 
@@ -60,7 +60,7 @@ If an exception is made to a principle, there should be a well-considered, docum
 
 **A capture file should contain as much as possible all of the unmodified graphics API calls made by the application for the captured, trimmed range of frames.**
 
-It may contain more commands represented by Metadata commands but it should be possible to**reconstruct** the original app’s sequence of API commands from the captured “api call” blocks.
+It may contain more commands represented by Metadata commands but it should be possible to **reconstruct** the original app’s sequence of API commands from the captured “api call” blocks.
 
 * Implications:  
   * With no options enabled, capture should record as much as possible a “vanilla” capture that does not record additional graphics API calls.  Graphics calls to retrieve additional information should be represented as metadata command blocks (e.g. existing FillMemoryCommandHeader “MetaData Command”) so that it is differentiated from the app’s calls. Graphics calls that must be modified to enable replay should be represented as or augmented with metadata command blocks (e.g. SetOpaqueAddressCommand).  
@@ -68,7 +68,6 @@ It may contain more commands represented by Metadata commands but it should be p
   * It is possible to analyze an application’s API calls using the content of the capture file without the application.   The user doesn’t have to determine what calls the capture layer modified or added.  
 * Exceptions:  
   * Because of the nature of trimming, Graphics API calls issued before the beginning of the trim range are likely to be rearranged and many omitted.  The individual calls to create objects and change object state should remain as close to the original commands issued by the application as possible.  
-  * 
 
 ## PRESERVE 
 
@@ -80,7 +79,7 @@ Capture should avoid changing the content of the application’s graphics comman
   * It *may* be acceptable for the user to *request* an annotated or altered capture.  (e.g. A user may wish to save the GPU buffers used by drawing commands at capture time.  However, the preferred technique for altering the application’s graphics command stream and saving additional information for a specialization of GFXR is to make an additional upchain or downchain layer separate from GFXR. For APIs without a formal third-party layering procedure (e.g. DirectX 12), we may implement a plugin architecture for pre- or post- function and method call alteration of commands.)  
   * Combined with the above principle “A capture file should contain as much as possible of all the graphics API calls made by the application”, a corollary is that API calls modified in capture should be stored in their original form in the capture file; a MetaData Command may encode additional information to signal to the replay application to also modify the calls on replay.  
 * Benefits:  
-  * GFXR limits the differences between running the application with and without the capture layer enabled are limited.  GFXR increases confidence that replay of the capture file will closely match the application’s execution without the capture layer.  
+  * GFXR limits the differences between running the application with and without the capture layer.  GFXR increases confidence that replay of the capture file will closely match the application’s execution without the capture layer.  
 * Exceptions:  
   * Capture enables the Vulkan device features bufferDeviceAddressCaptureReplay, rayTracingPipelineShaderGroupHandleCaptureReplay, and accelerationStructureCaptureReplay during capture of Vulkan applications (and in replay) to allow replay on the same device and driver of ray-tracing workloads.  
     * Capture may alter function calls (e.g. add USAGE flags to memory creation) that enable the use of those device features  
@@ -91,9 +90,9 @@ Capture should avoid changing the content of the application’s graphics comman
 
 ## REPLAY 
 
-**Replay without user intervention in the**same** **environment** as capture is an explicit goal. **
+**Replay without user intervention in the **same** **environment** as capture is an explicit goal. **
 
-Replay on the same GPU model as capture, on the same operating system, with the same driver revision, under the same or lower load conditions without additional user-provided options**is** an explicit goal.
+Replay on the same GPU model as capture, on the same operating system, with the same driver revision, under the same or lower load conditions without additional user-provided options **is** an explicit goal.
 
 * Implications:  
   * Include modifications to the sequence of commands without which replay *in the same environment* would be unlikely to succeed.  An example is “Virtual Swapchain”, without which swapchain image indices are likely to differ between capture and replay for all presentation modes except FIFO.  
@@ -102,7 +101,7 @@ Replay on the same GPU model as capture, on the same operating system, with the 
 * Exceptions:  
   * Android replay may require “--surface-index” parameter app to force selection of a particular surface.
 
-## WORKLOAD 
+## GPU WORKLOAD 
 
 **Replay should result in a GPU workload as similar to capture as possible unless requested by the user.**
 
