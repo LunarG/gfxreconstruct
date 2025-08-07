@@ -1978,8 +1978,12 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                res = dr_context->DumpDispatchTraceRays(
-                    queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
+                res = dr_context->DumpDispatchTraceRays(queue,
+                                                        index,
+                                                        cmd_buf_begin_map_[command_buffer_handles[o]],
+                                                        modified_submit_infos[s],
+                                                        fence,
+                                                        !submitted);
                 if (res != VK_SUCCESS)
                 {
                     Release();
