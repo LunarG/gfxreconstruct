@@ -3947,7 +3947,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
                 if (cmd_buf_info == nullptr)
                 {
-                    cmd_buf_info = cmd_buf_info;
+                    cmd_buf_info = command_buffer_info;
                 }
             }
 
