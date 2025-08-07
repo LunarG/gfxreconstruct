@@ -58,6 +58,13 @@ class MetadataJsonConsumer : public Base
     }
     inline void WriteBlockEnd() { this->writer_->WriteBlockEnd(); }
 
+    inline void Unfinished(const std::string& meta_name)
+    {
+        std::string unfinished_meta_name = meta_name + " (Unfinished)";
+        auto&       jdata                = WriteMetaCommandStart(unfinished_meta_name);
+        WriteBlockEnd();
+    }
+
   public:
     /// @defGroup ApiAgnosticMetaBlocks Metablocks used by both Vulkan and DX12.
     /// @{
@@ -312,6 +319,60 @@ class MetadataJsonConsumer : public Base
         FieldToJson(jdata["offset"], offset, json_options);
         FieldToJson(jdata["filename"], filename, json_options);
         WriteBlockEnd();
+    }
+
+    virtual void
+    ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
+                                          const uint8_t*                                      data) override
+    {
+        Unfinished("FillMemoryResourceValueCommand");
+    }
+
+    virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override
+    {
+        Unfinished("CreateHeapAllocationCommand");
+    }
+
+    virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
+                                               const uint8_t*                              data) override
+    {
+        Unfinished("InitSubresourceCommand");
+    }
+
+    virtual void
+    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
+                                            const std::vector<format::DeviceMemoryType>& memory_types,
+                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override
+    {
+        Unfinished("SetDeviceMemoryPropertiesCommand");
+    }
+
+    virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        format::HandleId                                                           device_id,
+        uint32_t                                                                   info_count,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos) override
+    {
+        Unfinished("BuildVulkanAccelerationStructuresMetaCommand");
+    }
+
+    virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+        format::HandleId                                                  device_id,
+        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos) override
+    {
+        Unfinished("CopyVulkanAccelerationStructuresMetaCommand");
+    }
+
+    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id) override
+    {
+        Unfinished("VulkanAccelerationStructuresWritePropertiesMetaCommand");
+    }
+
+    virtual void ProcessViewRelativeLocation(format::ThreadId              thread_id,
+                                             format::ViewRelativeLocation& location) override
+    {
+        Unfinished("ViewRelativeLocation");
     }
 
     /// @}
