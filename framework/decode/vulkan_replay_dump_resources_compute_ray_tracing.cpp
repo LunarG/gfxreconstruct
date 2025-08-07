@@ -361,8 +361,8 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
     img_barrier.oldLayout           = old_layout;
     img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    img_barrier.srcQueueFamilyIndex = src_image_info->queue_family_index;
-    img_barrier.dstQueueFamilyIndex = src_image_info->queue_family_index;
+    img_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.image               = src_image_info->handle;
     img_barrier.subresourceRange    = {
            graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
