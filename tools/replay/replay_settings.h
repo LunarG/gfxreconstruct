@@ -388,7 +388,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, frames switced with vkFrameBoundANDROID will be ignored from");
     GFXRECON_WRITE_CONSOLE("          \t\tthe screenshot handler.");
     GFXRECON_WRITE_CONSOLE("  --deduplicate-device");
-    GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice.");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice for "
+                           "RenderDoc and DXVK case.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")
