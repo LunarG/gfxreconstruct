@@ -293,7 +293,7 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
     assert(range);
     assert(dst_buffer != VK_NULL_HANDLE);
 
-    const VkDeviceSize size = (range == VK_WHOLE_SIZE ? src_buffer_info->size - offset : range);
+    const VkDeviceSize size = (range == VK_WHOLE_SIZE ? (src_buffer_info->size - offset) : range);
 
     VkBufferMemoryBarrier buf_barrier;
     buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -320,6 +320,22 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const VulkanBufferInfo*
 
     VkBufferCopy region = { offset, 0, size };
     device_table_->CmdCopyBuffer(DR_command_buffer_, src_buffer_info->handle, dst_buffer, 1, &region);
+
+    buf_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    buf_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    buf_barrier.buffer        = dst_buffer;
+    buf_barrier.offset        = 0;
+
+    device_table_->CmdPipelineBarrier(DR_command_buffer_,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VkDependencyFlags(0),
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &buf_barrier,
+                                      0,
+                                      nullptr);
 }
 
 void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* src_image_info, VkImage dst_image)
@@ -793,7 +809,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc->offset, buf_desc->range, new_entry.buffer);
+                        CopyBufferResource(buf_info, buf_desc->offset, new_entry.cloned_size, new_entry.buffer);
                     }
                 }
                 break;
@@ -835,7 +851,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc.offset, buf_desc.range, new_entry.buffer);
+                        CopyBufferResource(buf_info, buf_desc.offset, new_entry.cloned_size, new_entry.buffer);
                     }
                 }
                 break;
@@ -1273,9 +1289,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         // Dump buffers
         for (size_t i = 0; i < mutable_resources_clones_before.buffers.size(); ++i)
         {
-            const VulkanBufferInfo* buffer_info = mutable_resources_clones_before.buffers[i].original_buffer;
-            assert(buffer_info != nullptr);
-            assert(mutable_resources_clones_before.buffers[i].buffer != VK_NULL_HANDLE);
+            GFXRECON_ASSERT(mutable_resources_clones_before.buffers[i].original_buffer != nullptr);
+            GFXRECON_ASSERT(mutable_resources_clones_before.buffers[i].buffer != VK_NULL_HANDLE);
 
             VulkanDumpResourceInfo res_info = res_info_base;
             VkResult res = resource_util.ReadFromBufferResource(mutable_resources_clones_before.buffers[i].buffer,
@@ -1333,11 +1348,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     {
         assert(mutable_resources_clones.buffers[i].original_buffer != nullptr);
         assert(mutable_resources_clones.buffers[i].buffer != VK_NULL_HANDLE);
-        const VulkanBufferInfo* buffer_info = mutable_resources_clones.buffers[i].original_buffer;
 
         VulkanDumpResourceInfo res_info = res_info_base;
-        VkResult               res      = resource_util.ReadFromBufferResource(
-            mutable_resources_clones.buffers[i].buffer, buffer_info->size, 0, transfer_queue_index, res_info.data);
+        VkResult               res = resource_util.ReadFromBufferResource(mutable_resources_clones.buffers[i].buffer,
+                                                            mutable_resources_clones.buffers[i].cloned_size,
+                                                            0,
+                                                            transfer_queue_index,
+                                                            res_info.data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())

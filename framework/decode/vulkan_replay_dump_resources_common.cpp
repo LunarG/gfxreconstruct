@@ -224,7 +224,7 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
     ci.size                  = override_size ? override_size : buffer_info->size;
     ci.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     ci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    ci.queueFamilyIndexCount = buffer_info->queue_family_index;
+    ci.queueFamilyIndexCount = 0;
     ci.pQueueFamilyIndices   = nullptr;
 
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(buffer_info->parent_id);
