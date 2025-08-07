@@ -2257,8 +2257,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     }
     else
     {
-        if ((meta_data_type == format::MetaDataType::kReserved23) ||
-            (meta_data_type == format::MetaDataType::kReserved25))
+        if (meta_data_type >= format::MetaDataType::ADDRESS_RANGE_END ||
+            meta_data_type == format::MetaDataType::kReserved23 || meta_data_type == format::MetaDataType::kReserved25)
         {
             // Only log a warning once if the capture file contains blocks that are a "reserved" meta data type.
             GFXRECON_LOG_WARNING_ONCE("This capture file contains meta-data block(s) with reserved type(s) that are "
