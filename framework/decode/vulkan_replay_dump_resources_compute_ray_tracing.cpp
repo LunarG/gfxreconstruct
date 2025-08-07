@@ -407,9 +407,9 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     {
         copy.srcSubresource.mipLevel = i;
         copy.dstSubresource.mipLevel = i;
-        copy.extent.width            = (src_image_info->extent.width << i);
-        copy.extent.height           = (src_image_info->extent.height << i);
-        copy.extent.depth            = (src_image_info->extent.depth << i);
+        copy.extent.width            = std::max((src_image_info->extent.width >> i), static_cast<uint32_t>(1));
+        copy.extent.height           = std::max((src_image_info->extent.height >> i), static_cast<uint32_t>(1));
+        copy.extent.depth            = std::max((src_image_info->extent.depth >> i), static_cast<uint32_t>(1));
 
         copies[i] = copy;
     }
