@@ -322,6 +322,8 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a dispatch context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
     enum TraceRaysTypes
@@ -434,6 +436,8 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a trace rays context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
   private:
