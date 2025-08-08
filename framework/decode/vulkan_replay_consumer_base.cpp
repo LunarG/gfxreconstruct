@@ -3947,7 +3947,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
                 if (cmd_buf_info == nullptr)
                 {
-                    cmd_buf_info = cmd_buf_info;
+                    cmd_buf_info = command_buffer_info;
                 }
             }
 
@@ -3962,6 +3962,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                                                                        addresses_to_replace.size(),
                                                                        GetDeviceAddressTracker(device_info),
                                                                        wait_semaphores);
+                GFXRECON_ASSERT(semaphores[i] != VK_NULL_HANDLE);
+
                 // inject wait-semaphore into submit-info
                 submit_info_mut.waitSemaphoreCount = 1;
                 submit_info_mut.pWaitSemaphores    = &semaphores[i];
@@ -4205,6 +4207,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                                                            addresses_to_replace.size(),
                                                            GetDeviceAddressTracker(device_info),
                                                            wait_semaphores);
+                GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
                 submit_info_mut.waitSemaphoreInfoCount = 1;
