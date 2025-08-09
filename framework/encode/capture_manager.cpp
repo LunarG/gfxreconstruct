@@ -599,7 +599,7 @@ bool CommonCaptureManager::IsCaptureModeWrite() const
 
 bool CommonCaptureManager::IsCaptureModeDisabled() const
 {
-    return (GetCaptureMode() & kModeDisabled) == kModeDisabled;
+    return GetCaptureMode() == kModeDisabled;
 }
 
 ParameterEncoder* CommonCaptureManager::InitApiCallCapture(format::ApiCallId call_id)
