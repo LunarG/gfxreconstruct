@@ -1166,7 +1166,7 @@ VkResult DefaultVulkanDumpResourcesDelegate::DumpeDispatchTraceRaysImage(const V
                                    scaling_supported,
                                    options_.dump_resources_image_format,
                                    resource_info.compressor,
-                                   false,
+                                   options_.dump_resources_dump_all_image_subresources,
                                    options_.dump_resources_dump_raw_images,
                                    options_.dump_resources_dump_separate_alpha,
                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
