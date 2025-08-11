@@ -3232,7 +3232,7 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
 }
 
 VulkanDeviceInfo*
-VulkanReplayConsumerBase::FindkDuplciateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
+VulkanReplayConsumerBase::FindkDuplicateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
                                                    const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info)
 {
     auto it = device_phy_id_map_.find(physical_device_info->capture_id);
@@ -3273,7 +3273,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     // If we're doing device deduplication, check if we've already seen this create device request
     if (options_.do_device_deduplication)
     {
-        auto* extant_device_info = FindkDuplciateDeviceInfo(physical_device_info, pCreateInfo);
+        auto* extant_device_info = FindkDuplicateDeviceInfo(physical_device_info, pCreateInfo);
         if (extant_device_info)
         {
             // We have seen this device before
