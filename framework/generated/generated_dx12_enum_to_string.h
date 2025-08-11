@@ -46,7 +46,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 #endif // WIN32
 
 #include "format/platform_types.h"

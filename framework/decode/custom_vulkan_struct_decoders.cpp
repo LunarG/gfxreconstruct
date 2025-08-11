@@ -296,22 +296,27 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPushDes
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
 static uint8_t* unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {
-    const uint8_t* bytes = packed_value.GetPointer();
+    uint8_t* unpacked_memory = nullptr;
 
-    // Allocate memory for variable length SID struct, to use for unpacking.
-    // SidAuthorityCount is the second byte of the packed array.
-    size_t sid_authority_size = bytes[1] * sizeof(uint32_t);
+    if (!packed_value.IsNull())
+    {
+        const uint8_t* bytes = packed_value.GetPointer();
 
-    // sizeof(SID) already includes the size of one of the SidAuthority elements,
-    // so we can subtract 4 bytes from sid_authority_size.
-    size_t   allocation_size = sizeof(SID) + (sid_authority_size - sizeof(uint32_t));
-    uint8_t* unpacked_memory = DecodeAllocator::Allocate<uint8_t>(allocation_size);
+        // Allocate memory for variable length SID struct, to use for unpacking.
+        // SidAuthorityCount is the second byte of the packed array.
+        size_t sid_authority_size = bytes[1] * sizeof(uint32_t);
 
-    SID* sid               = reinterpret_cast<SID*>(unpacked_memory);
-    sid->Revision          = bytes[0];
-    sid->SubAuthorityCount = bytes[1];
-    memcpy(sid->IdentifierAuthority.Value, &bytes[2], 6);
-    memcpy(sid->SubAuthority, &bytes[8], sid_authority_size);
+        // sizeof(SID) already includes the size of one of the SidAuthority elements,
+        // so we can subtract 4 bytes from sid_authority_size.
+        size_t allocation_size = sizeof(SID) + (sid_authority_size - sizeof(uint32_t));
+        unpacked_memory        = DecodeAllocator::Allocate<uint8_t>(allocation_size);
+
+        SID* sid               = reinterpret_cast<SID*>(unpacked_memory);
+        sid->Revision          = bytes[0];
+        sid->SubAuthorityCount = bytes[1];
+        memcpy(sid->IdentifierAuthority.Value, &bytes[2], 6);
+        memcpy(sid->SubAuthority, &bytes[8], sid_authority_size);
+    }
 
     return unpacked_memory;
 }
