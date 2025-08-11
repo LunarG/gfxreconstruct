@@ -37,6 +37,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+inline bool RepresentBinaryFile(const util::JsonOptions& json_options, nlohmann::ordered_json& jdata, std::string_view filename_base, const uint64_t instance_counter, const PointerDecoder<uint8_t>& data)
+{
+    return util::RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
+}
+
 /*
 ** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
@@ -2244,7 +2249,10 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateRootSignature(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask, options);
-        FieldToJson(args["pBlobWithRootSignature"], pBlobWithRootSignature, options);
+        static thread_local uint64_t pBlobWithRootSignature_counter{ 0 };
+        const bool written = RepresentBinaryFile(options, args["pBlobWithRootSignature"], "ID3D12Device.CreateRootSignature.pBlobWithRootSignature", pBlobWithRootSignature_counter, *pBlobWithRootSignature);
+        pBlobWithRootSignature_counter += written;
+
         FieldToJson(args["blobLengthInBytes"], blobLengthInBytes, options);
         FieldToJson(args["riid"], riid, options);
         FieldToJson(args["ppvRootSignature"], ppvRootSignature, options);

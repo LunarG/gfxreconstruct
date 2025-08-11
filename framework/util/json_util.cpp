@@ -302,7 +302,6 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const format::InitDx12AccelerationStructureGeometryDesc& data,
                  const util::JsonOptions&                                 options)
 {
-    /// @todo handle enums and so on.
     FieldToJson(jdata["geometry_type"], static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type), options);
     FieldToJson_D3D12_RAYTRACING_GEOMETRY_FLAGS(
         jdata["geometry_flags"], static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS>(data.geometry_flags), options);
