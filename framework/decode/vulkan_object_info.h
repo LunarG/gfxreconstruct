@@ -335,7 +335,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // For use with device deduplication
     format::HandleId duplicate_source_id{ format::kNullHandleId };
 
-    void copy(VulkanDeviceInfo* source_info)
+    void copy_characteristics(const VulkanDeviceInfo* source_info)
     {
         parent                     = source_info->parent;
         allocator                  = source_info->allocator;

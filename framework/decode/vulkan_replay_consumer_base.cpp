@@ -3250,7 +3250,7 @@ VkResult VulkanReplayConsumerBase::SetDuplicateDeviceInfo(VkDevice*         repl
                                                           VulkanDeviceInfo* extant_device_info)
 {
     *replay_device = extant_device_info->handle;
-    device_info->copy(extant_device_info);
+    device_info->copy_characteristics(extant_device_info);
 
     return VK_SUCCESS;
 }
