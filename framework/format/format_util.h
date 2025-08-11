@@ -95,6 +95,10 @@ util::Compressor* CreateCompressor(CompressionType type);
 
 std::string GetCompressionTypeName(CompressionType type);
 
+std::string GetApiCallName(ApiCallId call_id);
+std::string GetApiFamilyName(ApiFamilyId family_id);
+std::string GetApiCallFamilyName(ApiCallId call_id);
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
