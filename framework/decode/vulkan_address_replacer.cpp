@@ -529,69 +529,91 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             continue;
         }
         GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
-        auto* descriptor_set_info =
-            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
-        if (descriptor_set_info == nullptr)
+
+        // we need a mutable pointer, to allow for in-place corrections
+        auto* descriptor_set_info_mut = const_cast<VulkanDescriptorSetInfo*>(
+            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]));
+
+        if (descriptor_set_info_mut == nullptr)
         {
             continue;
         };
 
-        auto it = descriptor_set_info->descriptors.find(buffer_ref_info.binding);
-        if (it == descriptor_set_info->descriptors.end())
+        auto it = descriptor_set_info_mut->descriptors.find(buffer_ref_info.binding);
+        if (it == descriptor_set_info_mut->descriptors.end())
         {
             GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets: could not find a "
                                       "descriptor while sanitizing buffer-references.");
             continue;
         }
-        const auto& descriptor = it->second;
+        auto& descriptor_set_binding_info = it->second;
+        GFXRECON_ASSERT(!descriptor_set_binding_info.buffer_info.empty() ||
+                        !descriptor_set_binding_info.buffer_info.empty());
 
-        GFXRECON_ASSERT(!descriptor.buffer_info.empty());
-
-        for (auto& desc_buffer_info : descriptor.buffer_info)
+        for (auto& [binding, desc_buffer_info] : descriptor_set_binding_info.buffer_info)
         {
-            auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.second.buffer_info);
-            if (buffer_info == nullptr)
-            {
-                continue;
-            };
+            auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.buffer_info);
 
-            // we only track buffers with device-addresses here
-            if (auto* tracked_buffer = address_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
+            if (buffer_info != nullptr)
             {
-                // assert we got buffer-tracking correct
-                GFXRECON_ASSERT(tracked_buffer == buffer_info);
-            }
-            else
-            {
-                // patch an existing uniform-buffer and retrieve a buffer-address for it
-                decode::BeginInjectedCommands();
-                VkBufferDeviceAddressInfo address_info = {};
-                address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-                address_info.buffer                    = buffer_info->handle;
-                buffer_info->capture_address           = buffer_info->replay_address =
-                    get_device_address_fn_(device_, &address_info);
-                GFXRECON_ASSERT(buffer_info->replay_address != 0);
-                decode::EndInjectedCommands();
-
-                // track newly acquired buffer/address
-                address_tracker.TrackBuffer(buffer_info);
-            }
-
-            VkDeviceAddress address =
-                buffer_info->replay_address + desc_buffer_info.second.offset + buffer_ref_info.buffer_offset;
-            VkDeviceAddress range_end =
-                address + std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.second.offset,
-                                                 desc_buffer_info.second.range);
-            command_buffer_info->addresses_to_replace.insert(address);
-
-            if (buffer_ref_info.array_stride)
-            {
-                address += buffer_ref_info.array_stride;
-                for (; address < range_end; address += buffer_ref_info.array_stride)
+                // we only track buffers with device-addresses here
+                if (auto* tracked_buffer =
+                        address_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
                 {
-                    command_buffer_info->addresses_to_replace.insert(address);
+                    // assert we got buffer-tracking correct
+                    GFXRECON_ASSERT(tracked_buffer == buffer_info);
+                }
+                else
+                {
+                    // patch an existing uniform-buffer and retrieve a buffer-address for it
+                    decode::BeginInjectedCommands();
+                    VkBufferDeviceAddressInfo address_info = {};
+                    address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                    address_info.buffer                    = buffer_info->handle;
+                    buffer_info->capture_address           = buffer_info->replay_address =
+                        get_device_address_fn_(device_, &address_info);
+                    GFXRECON_ASSERT(buffer_info->replay_address != 0);
+                    decode::EndInjectedCommands();
+
+                    // track newly acquired buffer/address
+                    address_tracker.TrackBuffer(buffer_info);
+                }
+
+                VkDeviceAddress address =
+                    buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+                VkDeviceAddress range_end =
+                    address +
+                    std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
+                command_buffer_info->addresses_to_replace.insert(address);
+
+                if (buffer_ref_info.array_stride)
+                {
+                    address += buffer_ref_info.array_stride;
+                    for (; address < range_end; address += buffer_ref_info.array_stride)
+                    {
+                        command_buffer_info->addresses_to_replace.insert(address);
+                    }
                 }
             }
+        }
+
+        if (buffer_ref_info.buffer_offset < descriptor_set_binding_info.inline_uniform_block.size())
+        {
+            // find addresses in inline-uniform-block and replace in-place.
+            auto* address = reinterpret_cast<VkDeviceAddress*>(descriptor_set_binding_info.inline_uniform_block.data() +
+                                                               buffer_ref_info.buffer_offset);
+
+            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+            if (buffer_info != nullptr && buffer_info->replay_address != 0)
+            {
+                GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets(): Replay is adjusting "
+                                       "buffer-device-addresses in inline-uniform-block");
+                uint32_t address_offset = *address - buffer_info->capture_address;
+                *address                = buffer_info->replay_address + address_offset;
+            }
+
+            // TODO: come back for this. we don't treat arrays in push-constants and here, but 'should'
+            GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
         }
     }
     if (!command_buffer_info->inside_renderpass)
