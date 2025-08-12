@@ -3975,7 +3975,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
 
                 auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphores[i] = address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
+                semaphores[i]          = address_replacer.UpdateBufferAddresses(cmd_buf_info,
                                                                        addresses_to_replace.data(),
                                                                        addresses_to_replace.size(),
                                                                        GetDeviceAddressTracker(device_info),
@@ -4218,13 +4218,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.value                  = 1;
 
                 // runs replacer, sync via semaphore
-                auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphore_info.semaphore =
-                    address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
-                                                           addresses_to_replace.data(),
-                                                           addresses_to_replace.size(),
-                                                           GetDeviceAddressTracker(device_info),
-                                                           wait_semaphores);
+                auto& address_replacer   = GetDeviceAddressReplacer(device_info);
+                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                                                                                  addresses_to_replace.data(),
+                                                                                  addresses_to_replace.size(),
+                                                                                  GetDeviceAddressTracker(device_info),
+                                                                                  wait_semaphores);
                 GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
