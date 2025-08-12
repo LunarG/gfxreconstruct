@@ -372,7 +372,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
 {
     if (addresses != nullptr && num_addresses > 0)
     {
-        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting mismatching "
+        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting "
                                "buffer-device-addresses in-place using a compute-dispatch");
 
         storage_bda_binary_.clear();
@@ -497,7 +497,7 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                     if (buffer_info != nullptr && buffer_info->replay_address != 0)
                     {
                         GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
-                                               "mismatching buffer-device-addresses in push-constants");
+                                               "buffer-device-addresses in push-constants");
                         uint32_t address_offset = *address - buffer_info->capture_address;
                         *address                = buffer_info->replay_address + address_offset;
                     }
@@ -759,7 +759,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
         if (valid_sbt_alignment_)
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting "
                                    "raytracing shader-group-handles");
 
             // rewrite group-handles in-place
@@ -778,7 +778,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting "
                                    "raytracing shader-binding-tables using shadow-buffers");
 
             // output-handles
@@ -935,11 +935,14 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // keep track of used handles
             buffer_set.insert(buffer_info->handle);
 
-            uint64_t offset = capture_address - buffer_info->capture_address;
+            if (buffer_info->capture_address != buffer_info->replay_address)
+            {
+                uint64_t offset = capture_address - buffer_info->capture_address;
 
-            // in-place address-remap via const-cast
-            capture_address = buffer_info->replay_address + offset;
-            return true;
+                // in-place address-remap via const-cast
+                capture_address = buffer_info->replay_address + offset;
+                return true;
+            }
         }
         return false;
     };
@@ -993,13 +996,14 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
                                              ? build_size_info.buildScratchSize
                                              : build_size_info.updateScratchSize;
-            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;
+            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size &&
+                                         (scratch_buffer_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
                 MarkInjectedCommandsHelper mark_injected_commands_helper;
                 GFXRECON_LOG_INFO_ONCE(
-                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting mismatching "
+                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting "
                     "acceleration-structures using shadow-structures and -buffers");
 
                 // now definitely requiring address-replacement
@@ -1102,16 +1106,20 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 case VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
                     auto& instances = geometry->geometry.instances;
-                    address_remap(instances.data.deviceAddress);
 
-                    // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
-                    for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
+                    // check if replacement is actually required
+                    if (address_remap(instances.data.deviceAddress))
                     {
-                        VkDeviceAddress accel_structure_reference =
-                            instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
-                            offsetof(VkAccelerationStructureInstanceKHR, accelerationStructureReference);
-                        addresses_to_replace.push_back(accel_structure_reference);
+                        // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
+                        for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
+                        {
+                            VkDeviceAddress accel_structure_reference =
+                                instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
+                                offsetof(VkAccelerationStructureInstanceKHR, accelerationStructureReference);
+                            addresses_to_replace.push_back(accel_structure_reference);
+                        }
                     }
+
                     break;
                 }
                 default:
