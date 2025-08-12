@@ -579,11 +579,10 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                     address_tracker.TrackBuffer(buffer_info);
                 }
 
-                VkDeviceAddress address =
-                    buffer_info->replay_address + desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+                VkDeviceSize    offset  = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+                VkDeviceAddress address = buffer_info->replay_address + offset;
                 VkDeviceAddress range_end =
-                    address +
-                    std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.offset, desc_buffer_info.range);
+                    address + std::min<VkDeviceSize>(buffer_info->size - offset, desc_buffer_info.range);
                 command_buffer_info->addresses_to_replace.insert(address);
 
                 if (buffer_ref_info.array_stride)
