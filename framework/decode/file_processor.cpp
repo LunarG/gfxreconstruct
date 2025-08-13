@@ -29,7 +29,6 @@
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
-#include "util/logging.h"
 #include "util/platform.h"
 
 #include <cassert>
@@ -293,202 +292,9 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
-template <typename SubBlockType>
-struct SubBlockTypeDefault
-{};
-template <>
-struct SubBlockTypeDefault<format::ApiCallId>
-{
-    static constexpr format::ApiCallId kDefault = format::ApiCallId::ApiCall_Unknown;
-};
-template <>
-struct SubBlockTypeDefault<format::MetaDataId>
-{
-    static constexpr format::MetaDataId kDefault =
-        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
-};
-template <>
-struct SubBlockTypeDefault<format::MarkerType>
-{
-    static constexpr format::MarkerType kDefault = format::MarkerType::kUnknownMarker;
-};
-template <>
-struct SubBlockTypeDefault<format::AnnotationType>
-{
-    static constexpr format::AnnotationType kDefault = format::AnnotationType::kUnknown;
-};
-
-template <typename SubBlockTypeArg>
-struct SubBlockTraits
-{
-    using SubBlockType                             = SubBlockTypeArg;
-    static constexpr SubBlockType kSubBlockDefault = SubBlockTypeDefault<SubBlockType>::kDefault;
-    using ProcessProc                              = bool (FileProcessor::*)(const format::BlockHeader& block_header,
-                                                SubBlockType               call_id,
-                                                bool&                      should_break);
-};
-
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kFunctionCallBlock> : public SubBlockTraits<format::ApiCallId>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessFunctionCall;
-    static constexpr const char* ErrorMessage() { return "Failed to read function call block header"; }
-};
-
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kMethodCallBlock> : public SubBlockTraits<format::ApiCallId>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessMethodCall;
-    static constexpr const char* ErrorMessage() { return "Failed to read method call block header"; }
-};
-
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kMetaDataBlock> : public SubBlockTraits<format::MetaDataId>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessMetaData;
-    static constexpr const char* ErrorMessage() { return "Failed to read meta-data block header"; }
-};
-
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kFrameMarkerBlock> : public SubBlockTraits<format::MarkerType>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessFrameMarker;
-    static constexpr const char* ErrorMessage() { return "Failed to read frame marker header"; }
-};
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kStateMarkerBlock> : public SubBlockTraits<format::MarkerType>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessStateMarker;
-    static constexpr const char* ErrorMessage() { return "Failed to read state marker header"; }
-};
-template <>
-struct FileProcessor::BlockTypeTraits<format::BlockType::kAnnotation> : public SubBlockTraits<format::AnnotationType>
-{
-    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessAnnotation;
-    static constexpr const char* ErrorMessage() { return "Failed to read annotation block header"; }
-};
-
-template <format::BlockType BlockId>
-FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
-{
-    using Traits = BlockTypeTraits<BlockId>;
-    ProcessBlockResult result{ false, false };
-    auto               sub_block_id = Traits::kSubBlockDefault;
-
-    result.success = ReadBytes(&sub_block_id, sizeof(sub_block_id));
-
-    if (result.success)
-    {
-        result.success = (this->*(Traits::kProcessProc))(block_header, sub_block_id, result.should_break);
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockHeader, Traits::ErrorMessage());
-    }
-    return result;
-}
-
 bool FileProcessor::ProcessBlocks()
 {
-    format::BlockHeader block_header;
-    bool                success = true;
-
-    while (success)
-    {
-        PrintBlockInfo();
-        success = ContinueDecoding();
-
-        if (success)
-        {
-            success = ReadBlockHeader(&block_header);
-
-            for (auto decoder : decoders_)
-            {
-                decoder->SetCurrentBlockIndex(block_index_);
-            }
-
-            const auto base_block_type = format::RemoveCompressedBlockBit(block_header.type);
-            if (success)
-            {
-                ProcessBlockResult result{ false, false };
-                switch (base_block_type)
-                {
-                    case format::BlockType::kFunctionCallBlock:
-                        result = ProcessBlockClause<format::BlockType::kFunctionCallBlock>(block_header);
-                        break;
-                    case format::BlockType::kMethodCallBlock:
-                        result = ProcessBlockClause<format::BlockType::kMethodCallBlock>(block_header);
-                        break;
-                    case format::BlockType::kMetaDataBlock:
-                        result = ProcessBlockClause<format::BlockType::kMetaDataBlock>(block_header);
-                        break;
-                    case format::BlockType::kFrameMarkerBlock:
-                        result = ProcessBlockClause<format::BlockType::kFrameMarkerBlock>(block_header);
-                        break;
-                    case format::BlockType::kStateMarkerBlock:
-                        result = ProcessBlockClause<format::BlockType::kStateMarkerBlock>(block_header);
-                        break;
-                    case format::BlockType::kAnnotation:
-                        if (annotation_handler_ != nullptr)
-                        {
-                            result = ProcessBlockClause<format::BlockType::kAnnotation>(block_header);
-                        }
-                        else
-                        {
-                            // If there is no annotation handler to process the annotation, we can skip the annotation
-                            // block.
-                            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                            result.success = SkipBytes(static_cast<size_t>(block_header.size));
-                        }
-                        break;
-                    default:
-                        // Unrecognized block type.
-                        GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64
-                                             ")",
-                                             block_header.type,
-                                             current_frame_number_,
-                                             block_index_);
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                        result.success = SkipBytes(static_cast<size_t>(block_header.size));
-                }
-                if (result.should_break)
-                {
-                    break;
-                }
-            }
-            else
-            {
-                if (!feof(GetFileDescriptor()))
-                {
-                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
-                    // assumes that the block header has been successfully read and will print an incomplete block at
-                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
-                    // we print nothing at EOF, or print an error message and set the error code directly when not at
-                    // EOF.
-                    GFXRECON_LOG_ERROR("Failed to read block header (frame %u block %" PRIu64 ")",
-                                       current_frame_number_,
-                                       block_index_);
-                    error_state_ = kErrorReadingBlockHeader;
-                }
-                else
-                {
-                    assert(!file_stack_.empty());
-
-                    ActiveFileContext& current_file = GetCurrentFile();
-                    if (current_file.execute_till_eof)
-                    {
-                        file_stack_.pop_back();
-                        success = !file_stack_.empty();
-                    }
-                }
-            }
-        }
-        ++block_index_;
-        DecrementRemainingCommands();
-    }
-
-    DecrementRemainingCommands();
-    return success;
+    return ProcessBlocksImpl<FileProcessor>();
 }
 
 bool FileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
@@ -641,6 +447,16 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
     }
 }
 
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kFunctionCallBlock>(const format::BlockHeader& block_header,
+                                                                      format::ApiCallId          sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessFunctionCall(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
+
 bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                                         format::ApiCallId          call_id,
                                         bool&                      should_break)
@@ -723,6 +539,16 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     }
     return success;
 }
+
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kMethodCallBlock>(const format::BlockHeader& block_header,
+                                                                    format::ApiCallId          sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessMethodCall(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
 
 bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
                                       format::ApiCallId          call_id,
@@ -812,6 +638,16 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
     }
     return success;
 }
+
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kMetaDataBlock>(const format::BlockHeader& block_header,
+                                                                  format::MetaDataId         sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessMetaData(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
 
 bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header,
                                     format::MetaDataId         meta_data_id,
@@ -2288,6 +2124,16 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header,
     return success;
 }
 
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kFrameMarkerBlock>(const format::BlockHeader& block_header,
+                                                                     format::MarkerType         sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessFrameMarker(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
+
 bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
                                        format::MarkerType         marker_type,
                                        bool&                      should_break)
@@ -2341,6 +2187,16 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
     return success;
 }
 
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kStateMarkerBlock>(const format::BlockHeader& block_header,
+                                                                     format::MarkerType         sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessStateMarker(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
+
 bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header,
                                        format::MarkerType         marker_type,
                                        bool&                      should_break)
@@ -2385,6 +2241,16 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header,
 
     return success;
 }
+
+template <>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock<format::BlockType::kAnnotation>(const format::BlockHeader& block_header,
+                                                               format::AnnotationType     sub_block_id)
+{
+    bool should_break = false;
+    bool success      = ProcessAnnotation(block_header, sub_block_id, should_break);
+    return { success, should_break };
+};
 
 bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header,
                                       format::AnnotationType     annotation_type,

@@ -114,6 +114,8 @@ enum AnnotationType : uint32_t
     kXml     = 3
 };
 
+
+
 enum AdapterType
 {
     kUnknownAdapter  = 0,
@@ -762,6 +764,50 @@ struct InitializeMetaCommand
 
 #pragma pack(pop)
 
+template <BlockType BlockId>
+struct BlockTypeTraits
+{};
+template <>
+struct BlockTypeTraits<BlockType::kFunctionCallBlock>
+{
+    using SubBlockType = ApiCallId;
+    static constexpr const char* BlockTypeName() { return "function call block"; }
+};
+
+template <>
+struct BlockTypeTraits<BlockType::kMethodCallBlock>
+{
+    using SubBlockType = ApiCallId;
+    static constexpr const char* BlockTypeName() { return "method call block"; }
+};
+
+template <>
+struct BlockTypeTraits<BlockType::kMetaDataBlock>
+{
+    using SubBlockType = MetaDataId;
+    static constexpr const char* BlockTypeName() { return "meta-data block"; }
+};
+
+template <>
+struct BlockTypeTraits<format::BlockType::kFrameMarkerBlock>
+{
+    using SubBlockType = MarkerType;
+    static constexpr const char* BlockTypeName() { return "frame marker"; }
+};
+
+template <>
+struct BlockTypeTraits<format::BlockType::kStateMarkerBlock>
+{
+    using SubBlockType = MarkerType;
+    static constexpr const char* BlockTypeName() { return "state marker"; }
+};
+
+template <>
+struct BlockTypeTraits<BlockType::kAnnotation>
+{
+    using SubBlockType = format::AnnotationType;
+    static constexpr const char* BlockTypeName() { return "annotation block"; }
+};
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -25,11 +25,12 @@
 #define GFXRECON_DECODE_FILE_PROCESSOR_H
 
 #include "format/api_call_id.h"
-#include "format/format.h"
+#include "format/format_util.h"
 #include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -165,8 +166,16 @@ class FileProcessor
     }
 
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
-
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
+    bool IsFrameDelimiter(format::BlockType block_type, format::ApiCallId call_id) const
+    {
+        return IsFrameDelimiter(call_id);
+    }
+    template <typename SubBlockId>
+    constexpr bool IsFrameDelimiter(format::BlockType block_type, SubBlockId call_id) const
+    {
+        return false;
+    }
 
     void HandleBlockReadError(Error error_code, const char* error_message);
 
@@ -191,6 +200,21 @@ class FileProcessor
     }
 
     void PrintBlockInfo() const;
+
+    template <typename Derived>
+    bool           ProcessBlocksImpl();
+    constexpr bool SkipBlock() { return false; }
+    template <typename Derived, format::BlockType BlockId>
+    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
+    constexpr bool     PreloadRecording() const { return false; }
+    template <typename SubBlockId>
+    constexpr ProcessBlockResult RecordPreloadBlock(format::BlockHeader& block_header, SubBlockId sub_block_id)
+    {
+        return { true /* success */, false /* not a frame delimiter */ };
+    }
+    template <format::BlockType BlockId>
+    ProcessBlockResult ProcessOneBlock(const format::BlockHeader&                              block_header,
+                                       typename format::BlockTypeTraits<BlockId>::SubBlockType sub_block_id);
 
   protected:
     uint64_t                 current_frame_number_;
@@ -223,8 +247,6 @@ class FileProcessor
   private:
     bool ProcessFileHeader();
 
-    template <format::BlockType BlockId>
-    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
     virtual bool ProcessBlocks();
 
     bool ReadParameterBuffer(size_t buffer_size);
@@ -313,6 +335,161 @@ class FileProcessor
         return file_stack_.back();
     }
 };
+
+template <format::BlockType BlockId>
+FileProcessor::ProcessBlockResult
+FileProcessor::ProcessOneBlock(const format::BlockHeader&                              block_header,
+                               typename format::BlockTypeTraits<BlockId>::SubBlockType sub_block_id)
+{
+    return { true, false };
+}
+
+template <typename Derived, format::BlockType BlockId>
+FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
+{
+    using Traits = format::BlockTypeTraits<BlockId>;
+    ProcessBlockResult result{ false, false };
+    // Note: A sub block id's treat unknown as 0. If we really care, add traits for a default value
+    //
+    auto sub_block_id = typename Traits::SubBlockType(0);
+
+    result.success = ReadBytes(&sub_block_id, sizeof(sub_block_id));
+
+    if (result.success)
+    {
+        if (Derived::PreloadRecording())
+        {
+            result = Derived::RecordPreloadBlock(block_header, sub_block_id);
+        }
+        else
+        {
+            result = ProcessOneBlock<BlockId>(block_header, sub_block_id);
+        }
+    }
+    else
+    {
+        const std::string error_message =
+            std::string("Failed to read ") + Traits::BlockTypeName() + std::string(" header");
+        HandleBlockReadError(kErrorReadingBlockHeader, error_message.c_str());
+    }
+    return result;
+}
+
+template <typename Derived>
+bool FileProcessor::ProcessBlocksImpl()
+{
+    format::BlockHeader block_header;
+    bool                success = true;
+
+    while (success)
+    {
+        PrintBlockInfo();
+        success = ContinueDecoding();
+
+        if (success)
+        {
+            success = ReadBlockHeader(&block_header);
+
+            if (!Derived::PreloadRecording())
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->SetCurrentBlockIndex(block_index_);
+                }
+            }
+
+            if (success)
+            {
+                ProcessBlockResult result{ false, false };
+                const auto         base_block_type = format::RemoveCompressedBlockBit(block_header.type);
+                if (Derived::SkipBlock())
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                    result.success = SkipBytes(static_cast<size_t>(block_header.size));
+                }
+                else if (base_block_type == format::BlockType::kFunctionCallBlock)
+                {
+                    result = ProcessBlockClause<Derived, format::BlockType::kFunctionCallBlock>(block_header);
+                }
+                else if (base_block_type == format::BlockType::kMethodCallBlock)
+                {
+                    result = ProcessBlockClause<Derived, format::BlockType::kMethodCallBlock>(block_header);
+                }
+                else if (base_block_type == format::BlockType::kMetaDataBlock)
+                {
+                    result = ProcessBlockClause<Derived, format::BlockType::kMetaDataBlock>(block_header);
+                }
+                else if (base_block_type == format::BlockType::kFrameMarkerBlock)
+                {
+                    result = ProcessBlockClause<Derived, format::BlockType::kFrameMarkerBlock>(block_header);
+                }
+                else if (base_block_type == format::BlockType::kStateMarkerBlock)
+                {
+                    result = ProcessBlockClause<Derived, format::BlockType::kStateMarkerBlock>(block_header);
+                }
+                else if (base_block_type == format::BlockType::kAnnotation)
+                {
+                    if (annotation_handler_ != nullptr)
+                    {
+                        result = ProcessBlockClause<Derived, format::BlockType::kAnnotation>(block_header);
+                    }
+                    else
+                    {
+                        // If there is no annotation handler to process the annotation, we can skip the annotation
+                        // block.
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                        result.success = SkipBytes(static_cast<size_t>(block_header.size));
+                    }
+                }
+                else
+                {
+                    // Unrecognized block type.
+                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
+                                         block_header.type,
+                                         current_frame_number_,
+                                         block_index_);
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                    result.success = SkipBytes(static_cast<size_t>(block_header.size));
+                }
+                if (result.should_break)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                if (!feof(GetFileDescriptor()))
+                {
+                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                    // assumes that the block header has been successfully read and will print an incomplete block at
+                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
+                    // we print nothing at EOF, or print an error message and set the error code directly when not at
+                    // EOF.
+                    GFXRECON_LOG_ERROR("Failed to read block header (frame %u block %" PRIu64 ")",
+                                       current_frame_number_,
+                                       block_index_);
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+                else
+                {
+                    assert(!file_stack_.empty());
+
+                    ActiveFileContext& current_file = GetCurrentFile();
+                    if (current_file.execute_till_eof)
+                    {
+                        file_stack_.pop_back();
+                        success = !file_stack_.empty();
+                    }
+                }
+            }
+        }
+        ++block_index_;
+        DecrementRemainingCommands();
+    }
+
+    DecrementRemainingCommands();
+    return success;
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
