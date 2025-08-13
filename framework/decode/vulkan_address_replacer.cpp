@@ -603,16 +603,38 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                                                                buffer_ref_info.buffer_offset);
 
             auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
-            if (buffer_info != nullptr && buffer_info->replay_address != 0)
+
+            // ensure buffer exists and replacement actually required
+            if (buffer_info != nullptr && buffer_info->replay_address != 0 &&
+                buffer_info->capture_address != buffer_info->replay_address)
             {
                 GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets(): Replay is adjusting "
                                        "buffer-device-addresses in inline-uniform-block");
                 uint32_t address_offset = *address - buffer_info->capture_address;
                 *address                = buffer_info->replay_address + address_offset;
-            }
 
-            // TODO: come back for this. we don't treat arrays in push-constants and here, but 'should'
-            GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
+                // TODO: come back for this. we don't treat arrays in push-constants and here, but probably should
+                GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
+
+                // requires an injected call to vkUpdateDescriptorSets in order to correct addresses
+                VkWriteDescriptorSet write_descriptor_set = {};
+                write_descriptor_set.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write_descriptor_set.descriptorType       = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK;
+                write_descriptor_set.descriptorCount      = descriptor_set_binding_info.inline_uniform_block.size();
+                write_descriptor_set.dstSet               = descriptor_set_info_mut->handle;
+                write_descriptor_set.dstBinding           = buffer_ref_info.binding;
+
+                VkWriteDescriptorSetInlineUniformBlock write_inline_uniform_block = {};
+                write_inline_uniform_block.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
+                write_inline_uniform_block.dataSize = descriptor_set_binding_info.inline_uniform_block.size();
+                write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
+
+                write_descriptor_set.pNext = &write_inline_uniform_block;
+
+                // mark injected commands
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
+                device_table_->UpdateDescriptorSets(device_, 1, &write_descriptor_set, 0, nullptr);
+            }
         }
     }
     if (!command_buffer_info->inside_renderpass)

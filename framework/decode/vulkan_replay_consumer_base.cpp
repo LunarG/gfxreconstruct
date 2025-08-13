@@ -10928,30 +10928,20 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     break;
 
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        const VkBaseOutStructure* pnext = reinterpret_cast<const VkBaseOutStructure*>(write->pNext);
-                        while (pnext != nullptr)
+                        if (auto* inline_uniform_block_write =
+                                graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write))
                         {
-                            if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
-                            {
-                                const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
-                                    reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
-
-                                const uint32_t offset = write->dstArrayElement;
-                                const uint32_t size   = write->descriptorCount;
-                                assert(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
-                                       offset + size);
-                                util::platform::MemoryCopy(
-                                    dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
-                                    size,
-                                    inline_uni_block_write->pData,
-                                    size);
-                                break;
-                            }
-                            pnext = pnext->pNext;
+                            const uint32_t offset = write->dstArrayElement;
+                            const uint32_t size   = write->descriptorCount;
+                            GFXRECON_ASSERT(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
+                                            offset + size);
+                            util::platform::MemoryCopy(
+                                dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
+                                size,
+                                inline_uniform_block_write->pData,
+                                size);
                         }
-                    }
-                    break;
+                        break;
 
                     default:
                         break;
