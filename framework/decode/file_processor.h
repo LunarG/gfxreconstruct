@@ -134,6 +134,16 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    template <format::BlockType BlockId>
+    struct BlockTypeTraits
+    {};
+
+    struct ProcessBlockResult
+    {
+        bool success;
+        bool should_break;
+    };
+
   protected:
     bool ContinueDecoding();
 
@@ -147,7 +157,12 @@ class FileProcessor
 
     bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id, bool& should_break);
+    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
+    {
+        bool should_break = false;
+        return ProcessMetaData(block_header, meta_data_id, should_break);
+    }
 
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
 
@@ -158,9 +173,22 @@ class FileProcessor
     bool
     ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
 
-    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+    bool
+    ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
+    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+    {
+        bool should_break = false;
+        return ProcessStateMarker(block_header, marker_type, should_break);
+    }
 
-    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
+    bool ProcessAnnotation(const format::BlockHeader& block_header,
+                           format::AnnotationType     annotation_type,
+                           bool&                      should_break);
+    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
+    {
+        bool should_break = false;
+        return ProcessAnnotation(block_header, annotation_type, should_break);
+    }
 
     void PrintBlockInfo() const;
 
@@ -195,6 +223,8 @@ class FileProcessor
   private:
     bool ProcessFileHeader();
 
+    template <format::BlockType BlockId>
+    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
     virtual bool ProcessBlocks();
 
     bool ReadParameterBuffer(size_t buffer_size);
