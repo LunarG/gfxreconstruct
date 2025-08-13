@@ -44,6 +44,7 @@ struct DxgiDispatchTable
     decltype(CreateDXGIFactory2)*               CreateDXGIFactory2{ nullptr };
     decltype(DXGIDeclareAdapterRemovalSupport)* DXGIDeclareAdapterRemovalSupport{ nullptr };
     decltype(DXGIGetDebugInterface1)*           DXGIGetDebugInterface1{ nullptr };
+    decltype(DXGIDisableVBlankVirtualization)*  DXGIDisableVBlankVirtualization{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(encode)

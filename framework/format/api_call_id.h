@@ -1343,6 +1343,9 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12GBVDiagnostics_GBVReserved0                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1166),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1167),
 
+    //win11 sdk 10.0.26100.0
+    ApiCall_DXGIDisableVBlankVirtualization                                                       = MakeApiCallId(ApiFamily_D3D12, 0x1168),
+
     // AGS API
     // amd_ags.h
     ApiCall_Ags_agsInitialize_6_0_1                                                               = MakeApiCallId(ApiFamily_AGS, 0x1000),

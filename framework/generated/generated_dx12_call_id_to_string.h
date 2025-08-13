@@ -1562,6 +1562,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_DXGIDeclareAdapterRemovalSupport:
         out = L"DXGIDeclareAdapterRemovalSupport";
         break;
+    case format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization:
+        out = L"DXGIDisableVBlankVirtualization";
+        break;
     case format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3:
         out = L"IDXGIAdapter4_GetDesc3";
         break;

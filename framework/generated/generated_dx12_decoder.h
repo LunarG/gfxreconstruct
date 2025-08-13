@@ -54,7 +54,7 @@ class Dx12Decoder : public Dx12DecoderBase
   private:
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_D3D12SerializeRootSignature(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -339,7 +339,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12GBVDiagnostics_GBVReserved1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_ID3D10Blob_GetBufferPointer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -348,7 +348,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3DDestructionNotifier_UnregisterDestructionCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_ID3D12Debug_EnableDebugLayer(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -427,7 +427,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12InfoQueue1_UnregisterMessageCallback(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_CreateDXGIFactory(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -490,7 +490,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIDevice1_GetMaximumFrameLatency(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_IDXGIDisplayControl_IsStereoEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -538,7 +538,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIOutput1_DuplicateOutput(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_CreateDXGIFactory2(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -570,7 +570,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIOutput3_CheckOverlaySupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_IDXGISwapChain3_GetCurrentBackBufferIndex(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -588,7 +588,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_IDXGIOutput5_DuplicateOutput1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -597,10 +597,11 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIDevice4_ReclaimResources1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_DXGIDeclareAdapterRemovalSupport(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_DXGIDisableVBlankVirtualization(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -609,7 +610,7 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_IDXGIFactory7_UnregisterAdaptersChangedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
     size_t Decode_IUnknown_QueryInterface(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
