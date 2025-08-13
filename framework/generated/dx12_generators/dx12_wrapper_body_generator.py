@@ -155,7 +155,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             self.newline()
 
             for m in v.functions:
-                if self.is_required_function_data(m):
+                if self.is_required_function_data(m) and (
+                    not self.is_cmd_black_listed(m['name'])
+                ):
                     self.write_function_def(m)
 
             for class_name, class_value in v.classes.items():

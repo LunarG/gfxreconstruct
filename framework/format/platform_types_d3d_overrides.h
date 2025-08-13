@@ -6506,7 +6506,7 @@ struct D3D12_BARRIER_GROUP
     };
 };
 
-// SDK 10.0.20348.0 updates...
+// SDK 10.0.26100.0 updates...
 struct D3D12_SAMPLE_MASK
 {
     UINT SampleMask;
