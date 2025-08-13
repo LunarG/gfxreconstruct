@@ -601,7 +601,6 @@ class Dx12Decoder : public Dx12DecoderBase
 **
 */
     size_t Decode_DXGIDeclareAdapterRemovalSupport(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-    size_t Decode_DXGIDisableVBlankVirtualization(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIAdapter4_GetDesc3(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIOutput6_GetDesc1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_IDXGIOutput6_CheckHardwareCompositionSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

@@ -3553,10 +3553,6 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         HRESULT return_value){}
 
-    virtual void Process_DXGIDisableVBlankVirtualization(
-        const ApiCallInfo& call_info,
-        HRESULT return_value){}
-
     virtual void Process_IDXGIAdapter4_GetDesc3(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

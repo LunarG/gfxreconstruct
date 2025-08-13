@@ -9825,22 +9825,6 @@ void Dx12JsonConsumer::Process_DXGIDeclareAdapterRemovalSupport(
 
 }
 
-void Dx12JsonConsumer::Process_DXGIDisableVBlankVirtualization(
-        const ApiCallInfo& call_info,
-        HRESULT return_value)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "DXGIDisableVBlankVirtualization");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(function[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = function[format::kNameArgs];
-    {
-    }
-    writer_->WriteBlockEnd();
-
-}
-
 void Dx12JsonConsumer::Process_IDXGIAdapter4_GetDesc3(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

@@ -3549,10 +3549,6 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         const ApiCallInfo& call_info,
         HRESULT return_value) override;
 
-    virtual void Process_DXGIDisableVBlankVirtualization(
-        const ApiCallInfo& call_info,
-        HRESULT return_value) override;
-
     virtual void Process_IDXGIAdapter4_GetDesc3(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

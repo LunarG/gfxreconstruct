@@ -11609,22 +11609,6 @@ void Encode_DXGIDeclareAdapterRemovalSupport(
     }
 }
 
-void Encode_DXGIDisableVBlankVirtualization(
-    HRESULT return_value)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization);
-    if(encoder)
-    {
-        bool omit_output_data = false;
-        if (return_value != S_OK)
-        {
-            omit_output_data = true;
-        }
-        encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndApiCallCapture();
-    }
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value)
 {
     encoder->EncodeWString(value.Description);

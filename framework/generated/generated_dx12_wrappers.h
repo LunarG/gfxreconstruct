@@ -4140,8 +4140,6 @@ class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
 
 HRESULT WINAPI DXGIDeclareAdapterRemovalSupport();
 
-HRESULT WINAPI DXGIDisableVBlankVirtualization();
-
 class IDXGIAdapter4_Wrapper : public IDXGIAdapter3_Wrapper
 {
   public:

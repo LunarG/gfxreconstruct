@@ -32771,49 +32771,6 @@ HRESULT WINAPI DXGIDeclareAdapterRemovalSupport()
     return result;
 }
 
-HRESULT WINAPI DXGIDisableVBlankVirtualization()
-{
-    HRESULT result{};
-
-    auto manager = D3D12CaptureManager::Get();
-    auto call_scope = manager->IncrementCallScope();
-
-    if (call_scope == 1)
-    {
-        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-        if (force_command_serialization)
-        {
-            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
-        }
-        else
-        {
-            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
-        }
-
-        CustomWrapperPreCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
-            manager);
-
-        result = manager->GetDxgiDispatchTable().DXGIDisableVBlankVirtualization();
-
-        Encode_DXGIDisableVBlankVirtualization(
-            result);
-
-        CustomWrapperPostCall<format::ApiCallId::ApiCall_DXGIDisableVBlankVirtualization>::Dispatch(
-            manager,
-            result);
-    }
-    else
-    {
-        result = manager->GetDxgiDispatchTable().DXGIDisableVBlankVirtualization();
-    }
-
-    manager->DecrementCallScope();
-
-    return result;
-}
-
 IDXGIAdapter4_Wrapper::IDXGIAdapter4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IDXGIAdapter3_Wrapper(riid, object, resources, destructor)
 {
 }

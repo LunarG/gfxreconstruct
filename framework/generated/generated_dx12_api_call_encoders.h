@@ -3624,9 +3624,6 @@ void Encode_IDXGIDevice4_ReclaimResources1(
 void Encode_DXGIDeclareAdapterRemovalSupport(
     HRESULT return_value);
 
-void Encode_DXGIDisableVBlankVirtualization(
-    HRESULT return_value);
-
 void EncodeStruct(ParameterEncoder* encoder, const DXGI_ADAPTER_DESC3& value);
 
 void Encode_IDXGIAdapter4_GetDesc3(
