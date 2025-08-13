@@ -520,6 +520,8 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
         return;
     };
 
+    std::map<std::pair<VkDescriptorSet, uint32_t>, VkWriteDescriptorSetInlineUniformBlock> sets_requiring_update;
+
     for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
     {
         if (buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER &&
@@ -616,27 +618,40 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 // TODO: come back for this. we don't treat arrays in push-constants and here, but probably should
                 GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
 
-                // requires an injected call to vkUpdateDescriptorSets in order to correct addresses
-                VkWriteDescriptorSet write_descriptor_set = {};
-                write_descriptor_set.sType                = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write_descriptor_set.descriptorType       = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK;
-                write_descriptor_set.descriptorCount      = descriptor_set_binding_info.inline_uniform_block.size();
-                write_descriptor_set.dstSet               = descriptor_set_info_mut->handle;
-                write_descriptor_set.dstBinding           = buffer_ref_info.binding;
-
-                VkWriteDescriptorSetInlineUniformBlock write_inline_uniform_block = {};
+                // batch descriptor-updates
+                auto& write_inline_uniform_block =
+                    sets_requiring_update[{ descriptor_set_info_mut->handle, buffer_ref_info.binding }];
                 write_inline_uniform_block.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
                 write_inline_uniform_block.dataSize = descriptor_set_binding_info.inline_uniform_block.size();
                 write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
-
-                write_descriptor_set.pNext = &write_inline_uniform_block;
-
-                // mark injected commands
-                MarkInjectedCommandsHelper mark_injected_commands_helper;
-                device_table_->UpdateDescriptorSets(device_, 1, &write_descriptor_set, 0, nullptr);
             }
         }
+    } // pipeline_info->buffer_reference_infos
+
+    std::vector<VkWriteDescriptorSet> descriptor_updates;
+    descriptor_updates.reserve(sets_requiring_update.size());
+
+    for (const auto& [pair, write_inline_uniform_block] : sets_requiring_update)
+    {
+        const auto& [descriptor_set, binding] = pair;
+
+        // requires an injected call to vkUpdateDescriptorSets in order to correct addresses
+        VkWriteDescriptorSet& write_descriptor_set = descriptor_updates.emplace_back();
+        write_descriptor_set.sType                 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write_descriptor_set.descriptorType        = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK;
+        write_descriptor_set.descriptorCount       = write_inline_uniform_block.dataSize;
+        write_descriptor_set.dstSet                = descriptor_set;
+        write_descriptor_set.dstBinding            = binding;
+        write_descriptor_set.pNext                 = &write_inline_uniform_block;
     }
+
+    if (!descriptor_updates.empty())
+    {
+        // mark injected commands
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
+        device_table_->UpdateDescriptorSets(device_, descriptor_updates.size(), descriptor_updates.data(), 0, nullptr);
+    }
+
     if (!command_buffer_info->inside_renderpass)
     {
         std::vector<VkDeviceAddress> addresses_to_replace(command_buffer_info->addresses_to_replace.begin(),
