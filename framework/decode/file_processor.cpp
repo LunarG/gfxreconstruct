@@ -293,6 +293,101 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
+template <typename SubBlockType>
+struct SubBlockTypeDefault
+{};
+template <>
+struct SubBlockTypeDefault<format::ApiCallId>
+{
+    static constexpr format::ApiCallId kDefault = format::ApiCallId::ApiCall_Unknown;
+};
+template <>
+struct SubBlockTypeDefault<format::MetaDataId>
+{
+    static constexpr format::MetaDataId kDefault =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
+};
+template <>
+struct SubBlockTypeDefault<format::MarkerType>
+{
+    static constexpr format::MarkerType kDefault = format::MarkerType::kUnknownMarker;
+};
+template <>
+struct SubBlockTypeDefault<format::AnnotationType>
+{
+    static constexpr format::AnnotationType kDefault = format::AnnotationType::kUnknown;
+};
+
+template <typename SubBlockTypeArg>
+struct SubBlockTraits
+{
+    using SubBlockType                             = SubBlockTypeArg;
+    static constexpr SubBlockType kSubBlockDefault = SubBlockTypeDefault<SubBlockType>::kDefault;
+    using ProcessProc                              = bool (FileProcessor::*)(const format::BlockHeader& block_header,
+                                                SubBlockType               call_id,
+                                                bool&                      should_break);
+};
+
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kFunctionCallBlock> : public SubBlockTraits<format::ApiCallId>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessFunctionCall;
+    static constexpr const char* ErrorMessage() { return "Failed to read function call block header"; }
+};
+
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kMethodCallBlock> : public SubBlockTraits<format::ApiCallId>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessMethodCall;
+    static constexpr const char* ErrorMessage() { return "Failed to read method call block header"; }
+};
+
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kMetaDataBlock> : public SubBlockTraits<format::MetaDataId>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessMetaData;
+    static constexpr const char* ErrorMessage() { return "Failed to read meta-data block header"; }
+};
+
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kFrameMarkerBlock> : public SubBlockTraits<format::MarkerType>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessFrameMarker;
+    static constexpr const char* ErrorMessage() { return "Failed to read frame marker header"; }
+};
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kStateMarkerBlock> : public SubBlockTraits<format::MarkerType>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessStateMarker;
+    static constexpr const char* ErrorMessage() { return "Failed to read state marker header"; }
+};
+template <>
+struct FileProcessor::BlockTypeTraits<format::BlockType::kAnnotation> : public SubBlockTraits<format::AnnotationType>
+{
+    static constexpr ProcessProc kProcessProc = &FileProcessor::ProcessAnnotation;
+    static constexpr const char* ErrorMessage() { return "Failed to read annotation block header"; }
+};
+
+template <format::BlockType BlockId>
+FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
+{
+    using Traits = BlockTypeTraits<BlockId>;
+    ProcessBlockResult result{ false, false };
+    auto               sub_block_id = Traits::kSubBlockDefault;
+
+    result.success = ReadBytes(&sub_block_id, sizeof(sub_block_id));
+
+    if (result.success)
+    {
+        result.success = (this->*(Traits::kProcessProc))(block_header, sub_block_id, result.should_break);
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, Traits::ErrorMessage());
+    }
+    return result;
+}
+
 bool FileProcessor::ProcessBlocks()
 {
     format::BlockHeader block_header;
@@ -312,138 +407,53 @@ bool FileProcessor::ProcessBlocks()
                 decoder->SetCurrentBlockIndex(block_index_);
             }
 
+            const auto base_block_type = format::RemoveCompressedBlockBit(block_header.type);
             if (success)
             {
-                if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
+                ProcessBlockResult result{ false, false };
+                switch (base_block_type)
                 {
-                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                    if (success)
-                    {
-                        bool should_break = false;
-                        success           = ProcessFunctionCall(block_header, api_call_id, should_break);
-
-                        if (should_break)
+                    case format::BlockType::kFunctionCallBlock:
+                        result = ProcessBlockClause<format::BlockType::kFunctionCallBlock>(block_header);
+                        break;
+                    case format::BlockType::kMethodCallBlock:
+                        result = ProcessBlockClause<format::BlockType::kMethodCallBlock>(block_header);
+                        break;
+                    case format::BlockType::kMetaDataBlock:
+                        result = ProcessBlockClause<format::BlockType::kMetaDataBlock>(block_header);
+                        break;
+                    case format::BlockType::kFrameMarkerBlock:
+                        result = ProcessBlockClause<format::BlockType::kFrameMarkerBlock>(block_header);
+                        break;
+                    case format::BlockType::kStateMarkerBlock:
+                        result = ProcessBlockClause<format::BlockType::kStateMarkerBlock>(block_header);
+                        break;
+                    case format::BlockType::kAnnotation:
+                        if (annotation_handler_ != nullptr)
                         {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                    }
-                }
-                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
-                {
-                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                    if (success)
-                    {
-                        bool should_break = false;
-                        success           = ProcessMethodCall(block_header, api_call_id, should_break);
-
-                        if (should_break)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                    }
-                }
-                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
-                {
-                    format::MetaDataId meta_data_id = format::MakeMetaDataId(
-                        format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
-
-                    success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
-
-                    if (success)
-                    {
-                        success = ProcessMetaData(block_header, meta_data_id);
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
-                    }
-                }
-                else if (block_header.type == format::BlockType::kFrameMarkerBlock)
-                {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
-
-                    success = ReadBytes(&marker_type, sizeof(marker_type));
-
-                    if (success)
-                    {
-                        bool should_break = false;
-                        success           = ProcessFrameMarker(block_header, marker_type, should_break);
-
-                        if (should_break)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker header");
-                    }
-                }
-                else if (block_header.type == format::BlockType::kStateMarkerBlock)
-                {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
-
-                    success = ReadBytes(&marker_type, sizeof(marker_type));
-
-                    if (success)
-                    {
-                        success = ProcessStateMarker(block_header, marker_type);
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
-                    }
-                }
-                else if (block_header.type == format::BlockType::kAnnotation)
-                {
-                    if (annotation_handler_ != nullptr)
-                    {
-                        format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
-
-                        success = ReadBytes(&annotation_type, sizeof(annotation_type));
-
-                        if (success)
-                        {
-                            success = ProcessAnnotation(block_header, annotation_type);
+                            result = ProcessBlockClause<format::BlockType::kAnnotation>(block_header);
                         }
                         else
                         {
-                            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
+                            // If there is no annotation handler to process the annotation, we can skip the annotation
+                            // block.
+                            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                            result.success = SkipBytes(static_cast<size_t>(block_header.size));
                         }
-                    }
-                    else
-                    {
-                        // If there is no annotation handler to process the annotation, we can skip the annotation
-                        // block.
+                        break;
+                    default:
+                        // Unrecognized block type.
+                        GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64
+                                             ")",
+                                             block_header.type,
+                                             current_frame_number_,
+                                             block_index_);
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                        success = SkipBytes(static_cast<size_t>(block_header.size));
-                    }
+                        result.success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
-                else
+                if (result.should_break)
                 {
-                    // Unrecognized block type.
-                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
-                                         block_header.type,
-                                         current_frame_number_,
-                                         block_index_);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                    success = SkipBytes(static_cast<size_t>(block_header.size));
+                    break;
                 }
             }
             else
@@ -803,7 +813,9 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
     return success;
 }
 
-bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
+bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header,
+                                    format::MetaDataId         meta_data_id,
+                                    bool&                      should_break)
 {
     bool success = false;
 
@@ -2329,7 +2341,9 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
     return success;
 }
 
-bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header,
+                                       format::MarkerType         marker_type,
+                                       bool&                      should_break)
 {
     uint64_t frame_number = 0;
     bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
@@ -2372,7 +2386,9 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
     return success;
 }
 
-bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
+bool FileProcessor::ProcessAnnotation(const format::BlockHeader& block_header,
+                                      format::AnnotationType     annotation_type,
+                                      bool&                      should_break)
 {
     bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
