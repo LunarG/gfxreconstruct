@@ -27,6 +27,7 @@ Copyright &copy; 2018-2024 LunarG, Inc.
     1. [Python Styling](#python-styling)
     1. [Commit Message Format](#commit-message-format)
 1. [Testing Changes](#testing-changes)
+    1. [Updating Reference Files](#updating-reference-files)
 1. [Before Submission](#before-submission)
     1. [Rebase on Dev](#rebase-on-dev)
 1. [Submitting Changes](#submitting-changes)
@@ -337,6 +338,18 @@ best for you to do your own verification prior to submitting the changes to redu
 the chance of failed automated testing during PR submission.
 
 <br/>
+
+### Updating Reference Files
+
+If you are making a change that requires updating reference files in https://github.com/LunarG/ci-gfxr-suites,
+use the following process:
+
+1. Create a PR in `ci-gfxr-suites` that makes use of the new reference files
+1. In the `gfxreconstruct` branch containing your changes, replace the refspec in `TEST_SUITE_REF` with the `HEAD`
+   of your `ci-gfxr-suites` change. Note that every time you make a change to your `ci-gfxr-suites` branch, you
+   will also need to update the `TEST_SUITE_REF` file in your `gfxreconstruct` branch.
+1. Once your gfxr change has been approved and is ready to be merged, ensure that your branch is rebased on top
+   of the latest changes in the `dev` branch and passes CI before merging.
 
 ## Before Submission
 
