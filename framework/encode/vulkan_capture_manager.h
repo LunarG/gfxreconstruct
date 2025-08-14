@@ -375,7 +375,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             const VkCommandBufferAllocateInfo* pAllocateInfo,
                                             VkCommandBuffer*                   pCommandBuffers);
 
-    VkResult OverrideBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
+    void PreProcess_vkBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
 
     void PostProcess_vkBeginCommandBuffer(VkResult                        result,
                                           VkCommandBuffer                 commandBuffer,
