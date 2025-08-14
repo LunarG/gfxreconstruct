@@ -1805,6 +1805,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>
 };
 
 template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBeginCommandBuffer(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
 {
     template <typename... Args>

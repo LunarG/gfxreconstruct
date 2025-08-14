@@ -1750,24 +1750,6 @@ VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice          
     return result;
 }
 
-VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
-                                                          const VkCommandBufferBeginInfo* pBeginInfo)
-{
-    auto modified_begin_info = *pBeginInfo;
-
-    const auto command_buffer_wrapper =
-        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-
-    // If command buffer level is primary, pInheritanceInfo must be ignored
-    if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
-        modified_begin_info.pInheritanceInfo != nullptr)
-    {
-        modified_begin_info.pInheritanceInfo = nullptr;
-    }
-
-    return vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, &modified_begin_info);
-}
-
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
                                                            VkInstance        instance,
                                                            uint32_t          count,
@@ -3352,6 +3334,19 @@ void VulkanCaptureManager::PreProcess_vkWaitForFences(
     }
 }
 #endif
+
+void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
+                                                           const VkCommandBufferBeginInfo* pBeginInfo)
+{
+    const auto* cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+
+    // If command buffer level is primary, pInheritanceInfo must be ignored
+    if (cmd_buffer_wrapper != nullptr && cmd_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        // const_cast to avoid changes to code-gen
+        const_cast<VkCommandBufferBeginInfo*>(pBeginInfo)->pInheritanceInfo = nullptr;
+    }
+}
 
 void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                                          VkPipelineBindPoint pipelineBindPoint,
