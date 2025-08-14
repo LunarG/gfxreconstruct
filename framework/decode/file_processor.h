@@ -156,6 +156,18 @@ class FileProcessor
         return ComposeErrorMsg<BlockId>("Failed to read", element);
     }
 
+    // NOTE: because of the rules regarding access control for friend declarations
+    //       the generic code must be public.  The derived classes can't declare it
+    //       a friend, unless it is public.
+    //
+    //       This doesn't break encapsulation as instantiation still requires the
+    //       Derived class to implement the needed interfaces and befriend the Impl
+    //       method.
+    template <typename Derived>
+    bool ProcessBlocksImpl();
+    template <typename Derived, format::BlockType BlockId>
+    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
+
   protected:
     bool ContinueDecoding();
 
@@ -164,17 +176,6 @@ class FileProcessor
     virtual bool ReadBytes(void* buffer, size_t buffer_size);
 
     bool SkipBytes(size_t skip_size);
-
-    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
-
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
-
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id, bool& should_break);
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
-    {
-        bool should_break = false;
-        return ProcessMetaData(block_header, meta_data_id, should_break);
-    }
 
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
@@ -194,34 +195,10 @@ class FileProcessor
         HandleBlockReadError(error_code, error_message.c_str());
     }
 
-    bool
-    ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
-
-    bool
-    ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
-    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
-    {
-        bool should_break = false;
-        return ProcessStateMarker(block_header, marker_type, should_break);
-    }
-
-    bool ProcessAnnotation(const format::BlockHeader& block_header,
-                           format::AnnotationType     annotation_type,
-                           bool&                      should_break);
-    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type)
-    {
-        bool should_break = false;
-        return ProcessAnnotation(block_header, annotation_type, should_break);
-    }
-
     void PrintBlockInfo() const;
 
-    template <typename Derived>
-    bool           ProcessBlocksImpl();
     constexpr bool SkipBlockProcessing() { return false; }
-    template <typename Derived, format::BlockType BlockId>
-    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
-    constexpr bool     PreloadRecording() const { return false; }
+    constexpr bool PreloadRecording() const { return false; }
     template <format::BlockType BlockId, typename SubBlockId>
     constexpr ProcessBlockResult RecordPreloadBlock(format::BlockHeader& block_header, SubBlockId sub_block_id)
     {
@@ -358,9 +335,10 @@ class FileProcessor
 template <typename Derived, format::BlockType BlockId>
 FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
 {
-    using Traits = format::BlockTypeTraits<BlockId>;
+    using Traits                    = format::BlockTypeTraits<BlockId>;
     Derived* const     derived_this = static_cast<Derived*>(this);
     ProcessBlockResult result{ false, false };
+
     // Note: A sub block id's treat unknown as 0. If we really care, add traits for a default value
     //
     auto sub_block_id = typename Traits::SubBlockType(0);
@@ -371,7 +349,7 @@ FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::Bloc
     {
         if (derived_this->PreloadRecording())
         {
-            result = derived_this->RecordPreloadBlock<BlockId>(block_header, sub_block_id);
+            result = derived_this->template RecordPreloadBlock<BlockId>(block_header, sub_block_id);
         }
         else
         {
@@ -462,6 +440,8 @@ bool FileProcessor::ProcessBlocksImpl()
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     result.success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
+
+                success = result.success;
                 if (result.should_break)
                 {
                     break;
