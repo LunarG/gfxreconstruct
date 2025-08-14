@@ -125,7 +125,7 @@ def parse_args():
         help='Build test apps')
     arg_parser.add_argument(
         '--cmake-system-version', dest='cmake_system_version',
-        type=str, default="10.0.20348.0",help='Select SDK version')
+        type=str, default="10.0.26100.0",help='Select SDK version')
     arg_parser.add_argument(
         '--skip-d3d12-support', dest='skip_d3d12_support',
         action='store_true', default=False,help='Skip Direct3D 12 build')
