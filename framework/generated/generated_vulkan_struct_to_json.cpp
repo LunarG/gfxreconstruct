@@ -11053,7 +11053,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjec
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["objectType"], decoded_value.objectType, options);
-        FieldToJson(jdata["object"], decoded_value.object, options);
+        HandleToJson(jdata["object"], meta_struct.object, options);
         FieldToJson(jdata["pObjectName"], &meta_struct.pObjectName, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
@@ -11068,7 +11068,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjec
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["objectType"], decoded_value.objectType, options);
-        FieldToJson(jdata["object"], decoded_value.object, options);
+        HandleToJson(jdata["object"], meta_struct.object, options);
         FieldToJson(jdata["tagName"], decoded_value.tagName, options);
         FieldToJson(jdata["tagSize"], decoded_value.tagSize, options);
         FieldToJson(jdata["pTag"], meta_struct.pTag, options);
