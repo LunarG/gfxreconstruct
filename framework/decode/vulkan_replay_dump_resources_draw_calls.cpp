@@ -1604,8 +1604,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     {
                         const uint32_t indirect_index_count    = ic_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_instance_count = ic_params.draw_indexed_params[d].instanceCount;
-                        has_count                              = indirect_index_count && indirect_instance_count;
-                        if (has_count)
+                        if (indirect_index_count && indirect_instance_count)
                         {
                             const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
@@ -1613,6 +1612,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 DrawIndexedParams{ indirect_index_count,
                                                    indirect_first_index,
                                                    ic_params.draw_indexed_params[d].vertexOffset });
+                            has_count = true;
                         }
                     }
                     empty_draw_call = !has_count;
@@ -1632,8 +1632,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     {
                         const uint32_t indirect_index_count    = i_params.draw_indexed_params[d].indexCount;
                         const uint32_t indirect_instance_count = i_params.draw_indexed_params[d].instanceCount;
-                        has_count                              = indirect_index_count && indirect_instance_count;
-                        if (has_count)
+                        if (indirect_index_count && indirect_instance_count)
                         {
                             const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
                             abs_index_count = std::max(abs_index_count, indirect_index_count + indirect_first_index);
@@ -1641,6 +1640,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 DrawIndexedParams{ indirect_index_count,
                                                    indirect_first_index,
                                                    i_params.draw_indexed_params[d].vertexOffset });
+                            has_count = true;
                         }
                     }
                     empty_draw_call = !has_count;
