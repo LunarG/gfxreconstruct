@@ -33,6 +33,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class PreloadFileProcessor : public FileProcessor
 {
   public:
+    using Base = FileProcessor;
+    using Self = PreloadFileProcessor;
     PreloadFileProcessor();
 
     // Preloads *count* frames to continuous, expandable memory buffer
@@ -103,8 +105,20 @@ class PreloadFileProcessor : public FileProcessor
         return ReadBytes(parameter_buffer, parameters_size);
     }
 
+    bool PreloadRecording() const { return status_ == PreloadStatus::kRecord; }
+    template <format::BlockType BlockId, typename SubBlockId>
+    constexpr ProcessBlockResult RecordPreloadBlock(format::BlockHeader& block_header, SubBlockId sub_block_id);
+
     bool ProcessBlocks() override;
 
+    // For the static polymorphism, we have to allow the generic implementations
+    // to access our protected and private contents
+    friend bool Base::ProcessBlocksImpl<Self>();
+    template <typename Derived, format::BlockType BlockId>
+    friend Base::ProcessBlockResult Base::ProcessBlockClause(format::BlockHeader& block_header);
+
+    // This is the critical differentiator for this FileProcessing class, it can either access recorded blocks or the
+    // current file
     bool ReadBytes(void* buffer, size_t buffer_size) override;
 };
 

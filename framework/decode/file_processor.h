@@ -135,15 +135,26 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
-    template <format::BlockType BlockId>
-    struct BlockTypeTraits
-    {};
-
     struct ProcessBlockResult
     {
         bool success;
         bool should_break;
     };
+
+    template <format::BlockType BlockId>
+    std::string ComposeErrorMsg(const char* error, const char* element)
+    {
+        using Str    = std::string;
+        using Traits = format::BlockTypeTraits<BlockId>;
+        static const Str space(" ");
+        return Str(error) + space + Traits::BlockTypeName() + space + Str(element);
+    }
+
+    template <format::BlockType BlockId>
+    std::string BlockReadErrorMsg(const char* element)
+    {
+        return ComposeErrorMsg<BlockId>("Failed to read", element);
+    }
 
   protected:
     bool ContinueDecoding();
@@ -178,6 +189,10 @@ class FileProcessor
     }
 
     void HandleBlockReadError(Error error_code, const char* error_message);
+    void HandleBlockReadError(Error error_code, const std::string& error_message)
+    {
+        HandleBlockReadError(error_code, error_message.c_str());
+    }
 
     bool
     ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
@@ -203,15 +218,19 @@ class FileProcessor
 
     template <typename Derived>
     bool           ProcessBlocksImpl();
-    constexpr bool SkipBlock() { return false; }
+    constexpr bool SkipBlockProcessing() { return false; }
     template <typename Derived, format::BlockType BlockId>
     ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
     constexpr bool     PreloadRecording() const { return false; }
-    template <typename SubBlockId>
+    template <format::BlockType BlockId, typename SubBlockId>
     constexpr ProcessBlockResult RecordPreloadBlock(format::BlockHeader& block_header, SubBlockId sub_block_id)
     {
         return { true /* success */, false /* not a frame delimiter */ };
     }
+
+    // NOTE: There is no generic implemenation for this class.  A specialization must be defined for
+    //       all supported BlockTypes.  Adding a generic will both allow for silent compile time failure
+    //       of missing support for the type, and create duplicate functions definitions at link time.
     template <format::BlockType BlockId>
     ProcessBlockResult ProcessOneBlock(const format::BlockHeader&                              block_header,
                                        typename format::BlockTypeTraits<BlockId>::SubBlockType sub_block_id);
@@ -336,18 +355,11 @@ class FileProcessor
     }
 };
 
-template <format::BlockType BlockId>
-FileProcessor::ProcessBlockResult
-FileProcessor::ProcessOneBlock(const format::BlockHeader&                              block_header,
-                               typename format::BlockTypeTraits<BlockId>::SubBlockType sub_block_id)
-{
-    return { true, false };
-}
-
 template <typename Derived, format::BlockType BlockId>
 FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
 {
     using Traits = format::BlockTypeTraits<BlockId>;
+    Derived* const     derived_this = static_cast<Derived*>(this);
     ProcessBlockResult result{ false, false };
     // Note: A sub block id's treat unknown as 0. If we really care, add traits for a default value
     //
@@ -357,9 +369,9 @@ FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::Bloc
 
     if (result.success)
     {
-        if (Derived::PreloadRecording())
+        if (derived_this->PreloadRecording())
         {
-            result = Derived::RecordPreloadBlock(block_header, sub_block_id);
+            result = derived_this->RecordPreloadBlock<BlockId>(block_header, sub_block_id);
         }
         else
         {
@@ -368,9 +380,7 @@ FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::Bloc
     }
     else
     {
-        const std::string error_message =
-            std::string("Failed to read ") + Traits::BlockTypeName() + std::string(" header");
-        HandleBlockReadError(kErrorReadingBlockHeader, error_message.c_str());
+        HandleBlockReadError(kErrorReadingBlockHeader, BlockReadErrorMsg<BlockId>("header"));
     }
     return result;
 }
@@ -383,6 +393,7 @@ bool FileProcessor::ProcessBlocksImpl()
 
     while (success)
     {
+        Derived* const derived_this = static_cast<Derived*>(this);
         PrintBlockInfo();
         success = ContinueDecoding();
 
@@ -390,7 +401,7 @@ bool FileProcessor::ProcessBlocksImpl()
         {
             success = ReadBlockHeader(&block_header);
 
-            if (!Derived::PreloadRecording())
+            if (!derived_this->PreloadRecording())
             {
                 for (auto decoder : decoders_)
                 {
@@ -402,7 +413,7 @@ bool FileProcessor::ProcessBlocksImpl()
             {
                 ProcessBlockResult result{ false, false };
                 const auto         base_block_type = format::RemoveCompressedBlockBit(block_header.type);
-                if (Derived::SkipBlock())
+                if (derived_this->SkipBlockProcessing())
                 {
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     result.success = SkipBytes(static_cast<size_t>(block_header.size));
@@ -483,7 +494,12 @@ bool FileProcessor::ProcessBlocksImpl()
                 }
             }
         }
-        ++block_index_;
+
+        if (!derived_this->PreloadRecording())
+        {
+            ++block_index_;
+        }
+
         DecrementRemainingCommands();
     }
 
