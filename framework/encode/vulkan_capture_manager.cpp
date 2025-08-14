@@ -1753,10 +1753,7 @@ VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice          
 VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
                                                           const VkCommandBufferBeginInfo* pBeginInfo)
 {
-    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
-
-    auto modified_begin_info = (*pBeginInfo_unwrapped);
+    auto modified_begin_info = *pBeginInfo;
 
     const auto command_buffer_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
