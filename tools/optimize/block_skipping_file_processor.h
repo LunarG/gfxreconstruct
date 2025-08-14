@@ -34,6 +34,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class BlockSkippingFileProcessor : public FileProcessor
 {
   public:
+    using Base = FileProcessor;
+    using Self = BlockSkippingFileProcessor;
     BlockSkippingFileProcessor() : blocks_skipped_(0) {}
 
     virtual ~BlockSkippingFileProcessor() {}
@@ -42,9 +44,17 @@ class BlockSkippingFileProcessor : public FileProcessor
 
     bool IsSkippingFinished();
 
+  protected:
+    bool SkipBlockProcessing();
+
   private:
     virtual bool ProcessBlocks() override;
-    bool         ShouldSkipBlock();
+
+    // For the static polymorphism, we have to allow the generic implementations
+    // to access our protected and private contents
+    friend bool Base::ProcessBlocksImpl<Self>();
+    template <typename Derived, format::BlockType BlockId>
+    friend Base::ProcessBlockResult Base::ProcessBlockClause(format::BlockHeader& block_header);
 
   private:
     std::unordered_set<uint64_t> blocks_to_skip_;
