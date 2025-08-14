@@ -59,6 +59,8 @@ class WsiContext
 
     bool Valid() const;
 
+    virtual const char* GetWsiName() = 0;
+
   protected:
     Application*                           application_;
     std::unique_ptr<decode::WindowFactory> window_factory_;

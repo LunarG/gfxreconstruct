@@ -65,6 +65,8 @@ class XcbContext : public WsiContext
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
+    virtual const char* GetWsiName() override { return "XCB"; }
+
   private:
     typedef std::unordered_map<xcb_window_t, XcbWindow*> XcbWindowMap;
 
