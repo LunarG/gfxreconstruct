@@ -280,7 +280,7 @@ class CaptureSettings
     const util::Log::Settings& GetLogSettings() const { return log_settings_; }
 
     // Load all settings.
-    static void LoadSettings(CaptureSettings* settings);
+    static void LoadSettings(CaptureSettings* settings, bool load_log_settings);
     static void LoadRunTimeEnvVarSettings(CaptureSettings* settings);
 
     // Load only log settings.
@@ -293,11 +293,11 @@ class CaptureSettings
     static void
     LoadSingleOptionEnvVar(OptionsMap* options, const std::string& environment_variable, const std::string& option_key);
 
-    static void LoadOptionsEnvVar(OptionsMap* options);
+    static void LoadOptionsEnvVar(OptionsMap* options, bool load_log_settings);
 
     static void LoadOptionsFile(OptionsMap* options);
 
-    static void ProcessOptions(OptionsMap* options, CaptureSettings* settings);
+    static void ProcessOptions(OptionsMap* options, CaptureSettings* settings, bool process_log_settings);
 
     static void ProcessLogOptions(OptionsMap* options, CaptureSettings* settings);
 
