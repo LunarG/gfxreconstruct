@@ -442,7 +442,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
                         arg_list.append('out_op_{}'.format(value.name))
                         post_extenal_object_list.append(
-                            'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                            'PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_{0}), out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
                             .format(value.name, name)
                         )
 
