@@ -140,9 +140,8 @@ class DispatchTraceRaysDumpingContext
     VkCommandBuffer                DR_command_buffer_;
     std::vector<uint64_t>          dispatch_indices_;
     std::vector<uint64_t>          trace_rays_indices_;
-    bool                           dump_resources_before_;
     VulkanDumpResourcesDelegate&   delegate_;
-    bool                           dump_immutable_resources_;
+    const VulkanReplayOptions&     options_;
     const util::Compressor*        compressor_;
 
     // One entry per descriptor set for each compute and ray tracing binding points
@@ -161,29 +160,27 @@ class DispatchTraceRaysDumpingContext
 
         struct ImageContext
         {
-            const VulkanImageInfo* original_image{ nullptr };
-            VkImage                image{ VK_NULL_HANDLE };
-            VkDeviceMemory         image_memory{ VK_NULL_HANDLE };
-            VkShaderStageFlags     stages;
-            VkDescriptorType       desc_type;
-            uint32_t               desc_set;
-            uint32_t               desc_binding;
-            uint32_t               array_index;
+            VulkanImageInfo    new_image_info;
+            VkDeviceMemory     image_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlags stages;
+            VkDescriptorType   desc_type;
+            uint32_t           desc_set;
+            uint32_t           desc_binding;
+            uint32_t           array_index;
         };
 
         std::vector<ImageContext> images;
 
         struct BufferContext
         {
-            const VulkanBufferInfo* original_buffer{ nullptr };
-            VkBuffer                buffer{ VK_NULL_HANDLE };
-            VkDeviceMemory          buffer_memory{ VK_NULL_HANDLE };
-            VkDeviceSize            cloned_size{ 0 };
-            VkShaderStageFlags      stages;
-            VkDescriptorType        desc_type;
-            uint32_t                desc_set;
-            uint32_t                desc_binding;
-            uint32_t                array_index;
+            VulkanBufferInfo   new_buffer_info;
+            VkDeviceMemory     buffer_memory{ VK_NULL_HANDLE };
+            VkDeviceSize       cloned_size{ 0 };
+            VkShaderStageFlags stages;
+            VkDescriptorType   desc_type;
+            uint32_t           desc_set;
+            uint32_t           desc_binding;
+            uint32_t           array_index;
         };
 
         std::vector<BufferContext> buffers;
@@ -322,6 +319,8 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a dispatch context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
     enum TraceRaysTypes
@@ -434,6 +433,8 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a trace rays context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
   private:
