@@ -481,7 +481,7 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     GFXRECON_ASSERT(command_buffer_info != nullptr && data != nullptr);
     for (const auto& [bind_point, pipeline_id] : command_buffer_info->bound_pipelines)
     {
-        auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
+        const auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
         GFXRECON_ASSERT(pipeline_info != nullptr);
         if (pipeline_info != nullptr)
         {
@@ -514,7 +514,8 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                                                          HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
                                                          VulkanDeviceAddressTracker&            address_tracker)
 {
-    auto* pipeline_info = object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines[pipelineBindPoint]);
+    const auto* pipeline_info =
+        object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines[pipelineBindPoint]);
     if (pipeline_info == nullptr)
     {
         return;
@@ -941,7 +942,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         // set previous compute-pipeline, if any
         if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
         {
-            auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+            const auto* previous_pipeline = object_table_->GetVkPipelineInfo(
                 command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
             GFXRECON_ASSERT(previous_pipeline);
             if (previous_pipeline != nullptr)
@@ -2043,7 +2044,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     // set previous compute-pipeline, if any
     if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
     {
-        auto* previous_pipeline =
+        const auto* previous_pipeline =
             object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
         GFXRECON_ASSERT(previous_pipeline);
 
