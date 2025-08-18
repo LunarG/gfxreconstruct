@@ -270,7 +270,7 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
                                              const graphics::VulkanDeviceTable*   device_table,
                                              const graphics::VulkanInstanceTable* instance_table,
-                                             const decode::CommonObjectInfoTable& object_table) :
+                                             decode::CommonObjectInfoTable&       object_table) :
     device_table_(device_table),
     object_table_(&object_table)
 {
@@ -533,16 +533,16 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
         GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
 
         // we need a mutable pointer, to allow for in-place corrections
-        auto* descriptor_set_info_mut = const_cast<VulkanDescriptorSetInfo*>(
-            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]));
+        auto* descriptor_set_info =
+            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
 
-        if (descriptor_set_info_mut == nullptr)
+        if (descriptor_set_info == nullptr)
         {
             continue;
         };
 
-        auto it = descriptor_set_info_mut->descriptors.find(buffer_ref_info.binding);
-        if (it == descriptor_set_info_mut->descriptors.end())
+        auto it = descriptor_set_info->descriptors.find(buffer_ref_info.binding);
+        if (it == descriptor_set_info->descriptors.end())
         {
             GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets: could not find a "
                                       "descriptor while sanitizing buffer-references.");
@@ -620,7 +620,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
                 // batch descriptor-updates
                 auto& write_inline_uniform_block =
-                    sets_requiring_update[{ descriptor_set_info_mut->handle, buffer_ref_info.binding }];
+                    sets_requiring_update[{ descriptor_set_info->handle, buffer_ref_info.binding }];
                 write_inline_uniform_block.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
                 write_inline_uniform_block.dataSize = descriptor_set_binding_info.inline_uniform_block.size();
                 write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
