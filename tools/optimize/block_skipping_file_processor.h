@@ -54,7 +54,7 @@ class BlockSkippingFileProcessor : public FileProcessor
     // to access our protected and private contents
     friend bool Base::ProcessBlocksImpl<Self>();
     template <typename Derived, format::BlockType BlockId>
-    friend Base::ProcessBlockResult Base::ProcessBlockClause(format::BlockHeader& block_header);
+    friend Base::ProcessBlockResult Base::ProcessBlockClause(const format::BlockHeader& block_header);
 
   private:
     std::unordered_set<uint64_t> blocks_to_skip_;

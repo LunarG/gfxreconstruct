@@ -165,8 +165,11 @@ class FileProcessor
     //       method.
     template <typename Derived>
     bool ProcessBlocksImpl();
+    template <typename Derived>
+    ProcessBlockResult ProcessBlockSieve(const gfxrecon::format::BlockType    base_block_type,
+                                         const gfxrecon::format::BlockHeader& block_header);
     template <typename Derived, format::BlockType BlockId>
-    ProcessBlockResult ProcessBlockClause(format::BlockHeader& block_header);
+    ProcessBlockResult ProcessBlockClause(const format::BlockHeader& block_header);
 
   protected:
     bool ContinueDecoding();
@@ -200,7 +203,7 @@ class FileProcessor
     constexpr bool SkipBlockProcessing() { return false; }
     constexpr bool PreloadRecording() const { return false; }
     template <format::BlockType BlockId, typename SubBlockId>
-    constexpr ProcessBlockResult RecordPreloadBlock(format::BlockHeader& block_header, SubBlockId sub_block_id)
+    constexpr ProcessBlockResult RecordPreloadBlock(const format::BlockHeader& block_header, SubBlockId sub_block_id)
     {
         return { true /* success */, false /* not a frame delimiter */ };
     }
@@ -333,7 +336,7 @@ class FileProcessor
 };
 
 template <typename Derived, format::BlockType BlockId>
-FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(format::BlockHeader& block_header)
+FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockClause(const format::BlockHeader& block_header)
 {
     using Traits                    = format::BlockTypeTraits<BlockId>;
     Derived* const     derived_this = static_cast<Derived*>(this);
@@ -396,49 +399,9 @@ bool FileProcessor::ProcessBlocksImpl()
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     result.success = SkipBytes(static_cast<size_t>(block_header.size));
                 }
-                else if (base_block_type == format::BlockType::kFunctionCallBlock)
-                {
-                    result = ProcessBlockClause<Derived, format::BlockType::kFunctionCallBlock>(block_header);
-                }
-                else if (base_block_type == format::BlockType::kMethodCallBlock)
-                {
-                    result = ProcessBlockClause<Derived, format::BlockType::kMethodCallBlock>(block_header);
-                }
-                else if (base_block_type == format::BlockType::kMetaDataBlock)
-                {
-                    result = ProcessBlockClause<Derived, format::BlockType::kMetaDataBlock>(block_header);
-                }
-                else if (base_block_type == format::BlockType::kFrameMarkerBlock)
-                {
-                    result = ProcessBlockClause<Derived, format::BlockType::kFrameMarkerBlock>(block_header);
-                }
-                else if (base_block_type == format::BlockType::kStateMarkerBlock)
-                {
-                    result = ProcessBlockClause<Derived, format::BlockType::kStateMarkerBlock>(block_header);
-                }
-                else if (base_block_type == format::BlockType::kAnnotation)
-                {
-                    if (annotation_handler_ != nullptr)
-                    {
-                        result = ProcessBlockClause<Derived, format::BlockType::kAnnotation>(block_header);
-                    }
-                    else
-                    {
-                        // If there is no annotation handler to process the annotation, we can skip the annotation
-                        // block.
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                        result.success = SkipBytes(static_cast<size_t>(block_header.size));
-                    }
-                }
                 else
                 {
-                    // Unrecognized block type.
-                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
-                                         block_header.type,
-                                         current_frame_number_,
-                                         block_index_);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                    result.success = SkipBytes(static_cast<size_t>(block_header.size));
+                    result = ProcessBlockSieve<Derived>(base_block_type, block_header);
                 }
 
                 success = result.success;
@@ -485,6 +448,58 @@ bool FileProcessor::ProcessBlocksImpl()
 
     DecrementRemainingCommands();
     return success;
+}
+
+template <typename Derived>
+FileProcessor::ProcessBlockResult FileProcessor::ProcessBlockSieve(const gfxrecon::format::BlockType    base_block_type,
+                                                                   const gfxrecon::format::BlockHeader& block_header)
+{
+    ProcessBlockResult result{ false, false }; // Failure, no break
+    if (base_block_type == format::BlockType::kFunctionCallBlock)
+    {
+        result = ProcessBlockClause<Derived, format::BlockType::kFunctionCallBlock>(block_header);
+    }
+    else if (base_block_type == format::BlockType::kMethodCallBlock)
+    {
+        result = ProcessBlockClause<Derived, format::BlockType::kMethodCallBlock>(block_header);
+    }
+    else if (base_block_type == format::BlockType::kMetaDataBlock)
+    {
+        result = ProcessBlockClause<Derived, format::BlockType::kMetaDataBlock>(block_header);
+    }
+    else if (base_block_type == format::BlockType::kFrameMarkerBlock)
+    {
+        result = ProcessBlockClause<Derived, format::BlockType::kFrameMarkerBlock>(block_header);
+    }
+    else if (base_block_type == format::BlockType::kStateMarkerBlock)
+    {
+        result = ProcessBlockClause<Derived, format::BlockType::kStateMarkerBlock>(block_header);
+    }
+    else if (base_block_type == format::BlockType::kAnnotation)
+    {
+        if (annotation_handler_ != nullptr)
+        {
+            result = ProcessBlockClause<Derived, format::BlockType::kAnnotation>(block_header);
+        }
+        else
+        {
+            // If there is no annotation handler to process the annotation, we can skip the annotation
+            // block.
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+            result.success = SkipBytes(static_cast<size_t>(block_header.size));
+        }
+    }
+    else
+    {
+        // Unrecognized block type.
+        GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64 ")",
+                             block_header.type,
+                             current_frame_number_,
+                             block_index_);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        result.success = SkipBytes(static_cast<size_t>(block_header.size));
+    }
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(decode)

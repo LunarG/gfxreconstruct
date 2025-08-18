@@ -63,8 +63,8 @@ void PreloadFileProcessor::PreloadBuffer::Reset()
 }
 
 template <format::BlockType BlockId, typename SubBlockId>
-constexpr FileProcessor::ProcessBlockResult PreloadFileProcessor::RecordPreloadBlock(format::BlockHeader& block_header,
-                                                                                     SubBlockId           sub_block_id)
+constexpr FileProcessor::ProcessBlockResult
+PreloadFileProcessor::RecordPreloadBlock(const format::BlockHeader& block_header, SubBlockId sub_block_id)
 {
     const bool is_frame_delimiter = IsFrameDelimiter(block_header.type, sub_block_id);
     const bool success            = ReadParameterBytes(block_header, sub_block_id, preload_buffer_);
