@@ -1027,7 +1027,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer = std::make_unique<VulkanResourceInitializer>(
+        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(
             device_info, max_copy_size, properties, have_shader_stencil_write, allocator, table);
     }
 }
@@ -3185,7 +3185,7 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
                                                     create_state.modified_create_info.enabledExtensionCount);
     InitializeResourceAllocator(physical_device_info, replay_device, enabled_extensions, allocator);
 
-    device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+    device_info->allocator = std::shared_ptr<VulkanResourceAllocator>(allocator);
 
     // Track state of physical device properties and features at device creation
     device_info->property_feature_info = create_state.property_feature_info;
@@ -3231,6 +3231,30 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     return VK_SUCCESS;
 }
 
+VulkanDeviceInfo*
+VulkanReplayConsumerBase::FindkDuplicateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
+                                                   const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* create_info)
+{
+    auto it = device_phy_id_map_.find(physical_device_info->capture_id);
+    if (it != device_phy_id_map_.end())
+    {
+        auto* extant_device_info = object_info_table_->GetVkDeviceInfo(it->second);
+        // TODO: It might have to check if two create info are the same.
+        return extant_device_info;
+    }
+    return nullptr;
+}
+
+VkResult VulkanReplayConsumerBase::SetDuplicateDeviceInfo(VkDevice*         replay_device,
+                                                          VulkanDeviceInfo* device_info,
+                                                          VulkanDeviceInfo* extant_device_info)
+{
+    *replay_device = extant_device_info->handle;
+    device_info->copy_characteristics(extant_device_info);
+
+    return VK_SUCCESS;
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  original_result,
                                                VulkanPhysicalDeviceInfo* physical_device_info,
@@ -3247,20 +3271,13 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     GFXRECON_ASSERT(device_info);
 
     // If we're doing device deduplication, check if we've already seen this create device request
-    std::bitset<VK_UUID_SIZE * 8> casted_uuid;
-    util::platform::MemoryCopy(
-        &casted_uuid, format::kUuidSize, physical_device_info->capture_pipeline_cache_uuid, VK_UUID_SIZE);
     if (options_.do_device_deduplication)
     {
-        auto it = device_uuid_map_.find(casted_uuid);
-        if (it != device_uuid_map_.end())
+        auto* extant_device_info = FindkDuplicateDeviceInfo(physical_device_info, pCreateInfo);
+        if (extant_device_info)
         {
             // We have seen this device before
-            VkDevice& extant_device   = device_uuid_map_[casted_uuid];
-            device_info->is_duplicate = true;
-            VkDevice* replay_device   = pDevice->GetHandlePointer();
-            *replay_device            = extant_device;
-            return VK_SUCCESS;
+            return SetDuplicateDeviceInfo(pDevice->GetHandlePointer(), device_info, extant_device_info);
         }
     }
 
@@ -3299,7 +3316,8 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     if (options_.do_device_deduplication)
     {
         // Insert this device info into map
-        device_uuid_map_.insert(std::pair(casted_uuid, *replay_device));
+        auto capture_id = *pDevice->GetPointer();
+        device_phy_id_map_.insert(std::pair(physical_device_info->capture_id, capture_id));
     }
 
     return result;
@@ -3312,7 +3330,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 {
     VkDevice device = VK_NULL_HANDLE;
 
-    if (device_info != nullptr && !device_info->is_duplicate)
+    if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
     {
         device = device_info->handle;
 
@@ -3947,7 +3965,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
                 if (cmd_buf_info == nullptr)
                 {
-                    cmd_buf_info = cmd_buf_info;
+                    cmd_buf_info = command_buffer_info;
                 }
             }
 
@@ -3957,11 +3975,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
 
                 auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphores[i] = address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
+                semaphores[i]          = address_replacer.UpdateBufferAddresses(cmd_buf_info,
                                                                        addresses_to_replace.data(),
                                                                        addresses_to_replace.size(),
                                                                        GetDeviceAddressTracker(device_info),
                                                                        wait_semaphores);
+                GFXRECON_ASSERT(semaphores[i] != VK_NULL_HANDLE);
+
                 // inject wait-semaphore into submit-info
                 submit_info_mut.waitSemaphoreCount = 1;
                 submit_info_mut.pWaitSemaphores    = &semaphores[i];
@@ -4198,13 +4218,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.value                  = 1;
 
                 // runs replacer, sync via semaphore
-                auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphore_info.semaphore =
-                    address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
-                                                           addresses_to_replace.data(),
-                                                           addresses_to_replace.size(),
-                                                           GetDeviceAddressTracker(device_info),
-                                                           wait_semaphores);
+                auto& address_replacer   = GetDeviceAddressReplacer(device_info);
+                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                                                                                  addresses_to_replace.data(),
+                                                                                  addresses_to_replace.size(),
+                                                                                  GetDeviceAddressTracker(device_info),
+                                                                                  wait_semaphores);
+                GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
                 submit_info_mut.waitSemaphoreInfoCount = 1;
@@ -4410,7 +4430,7 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
         const auto  buf_len   = meta_bind_infos->pBufferBinds->GetLength();
         const auto* meta_bufs = meta_bind_infos->pBufferBinds->GetMetaStructPointer();
 
-        for (uint32_t buf_i = 0; i < buf_len; ++i)
+        for (uint32_t buf_i = 0; buf_i < buf_len; ++buf_i)
         {
             auto buf_info = object_info_table_->GetVkBufferInfo(meta_bufs[buf_i].buffer);
             buf_infos.push_back(buf_info);
@@ -10792,17 +10812,14 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
 
-        if (UseAddressReplacement(device_info))
-        {
-            MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
+        MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
-            VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
-            VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
+        VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
+        VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
 
-            GetDeviceAddressReplacer(device_info)
-                .ProcessBuildVulkanAccelerationStructuresMetaCommand(
-                    info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
-        }
+        GetDeviceAddressReplacer(device_info)
+            .ProcessBuildVulkanAccelerationStructuresMetaCommand(
+                info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
     }
 }
 
@@ -10911,30 +10928,20 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     break;
 
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        const VkBaseOutStructure* pnext = reinterpret_cast<const VkBaseOutStructure*>(write->pNext);
-                        while (pnext != nullptr)
+                        if (auto* inline_uniform_block_write =
+                                graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write))
                         {
-                            if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
-                            {
-                                const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
-                                    reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
-
-                                const uint32_t offset = write->dstArrayElement;
-                                const uint32_t size   = write->descriptorCount;
-                                assert(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
-                                       offset + size);
-                                util::platform::MemoryCopy(
-                                    dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
-                                    size,
-                                    inline_uni_block_write->pData,
-                                    size);
-                                break;
-                            }
-                            pnext = pnext->pNext;
+                            const uint32_t offset = write->dstArrayElement;
+                            const uint32_t size   = write->descriptorCount;
+                            GFXRECON_ASSERT(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
+                                            offset + size);
+                            util::platform::MemoryCopy(
+                                dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
+                                size,
+                                inline_uniform_block_write->pData,
+                                size);
                         }
-                    }
-                    break;
+                        break;
 
                     default:
                         break;

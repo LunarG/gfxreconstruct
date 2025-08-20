@@ -151,9 +151,9 @@ VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
     ci.arrayLayers           = image_info->layer_count;
     ci.samples               = image_info->sample_count;
     ci.tiling                = image_info->tiling;
-    ci.usage                 = image_info->usage | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    ci.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     ci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    ci.queueFamilyIndexCount = image_info->queue_family_index;
+    ci.queueFamilyIndexCount = 0;
     ci.pQueueFamilyIndices   = nullptr;
     ci.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
@@ -224,7 +224,7 @@ VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
     ci.size                  = override_size ? override_size : buffer_info->size;
     ci.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     ci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    ci.queueFamilyIndexCount = buffer_info->queue_family_index;
+    ci.queueFamilyIndexCount = 0;
     ci.pQueueFamilyIndices   = nullptr;
 
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(buffer_info->parent_id);

@@ -41,7 +41,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
     Dx12ReplayConsumer(std::shared_ptr<application::Application> application, const DxReplayOptions& options) : Dx12ReplayConsumerBase(application, options) {}
     virtual ~Dx12ReplayConsumer() override {}
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_D3D12SerializeRootSignature(
@@ -2063,7 +2063,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         format::HandleId object_id) override;
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_ID3D10Blob_GetBufferPointer(
@@ -2091,7 +2091,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         UINT callbackID) override;
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_ID3D12Debug_EnableDebugLayer(
@@ -2538,7 +2538,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         DWORD CallbackCookie) override;
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_CreateDXGIFactory(
@@ -2924,7 +2924,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         PointerDecoder<UINT>* pMaxLatency) override;
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -3224,7 +3224,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication) override;
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_CreateDXGIFactory2(
@@ -3405,7 +3405,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         PointerDecoder<UINT>* pFlags) override;
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -3503,7 +3503,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         DWORD dwCookie) override;
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IDXGIOutput5_DuplicateOutput1(
@@ -3542,7 +3542,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults) override;
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_DXGIDeclareAdapterRemovalSupport(
@@ -3590,7 +3590,7 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         DWORD dwCookie) override;
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
     virtual void Process_IUnknown_QueryInterface(

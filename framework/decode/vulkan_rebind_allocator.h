@@ -606,12 +606,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     };
 
     VkResult ProcessSingleQueueBindSparse(VkQueue                   queue,
-                                          const VkBindSparseInfo&   original_bind_info,
                                           VkFence                   fence,
                                           QueueBindSparseType       type,
+                                          const VkBindSparseInfo&   original_bind_info,
+                                          bool                      is_last_bind_info,
                                           uint32_t                  object_bind_index,
                                           uint32_t                  memory_bind_index,
-                                          bool                      is_last_bind_info,
                                           std::vector<VkSemaphore>& semaphores,
                                           const VmaAllocation&      allocation,
                                           const VmaAllocationInfo&  allocation_info);

@@ -81,7 +81,9 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             for m in v.functions:
-                if self.is_required_function_data(m):
+                if self.is_required_function_data(m) and (
+                    not self.is_cmd_black_listed(m['name'])
+                ):
                     code += (
                         "    case format::ApiCallId::ApiCall_{0}:\n"
                         "        out = L\"{0}\";\n"
