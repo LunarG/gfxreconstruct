@@ -162,7 +162,7 @@ enum class MetaDataType : uint16_t
     kInitializeMetaCommand                              = 36,
 
     //! reserve values with highest-bit for special purposes
-    ADDRESS_RANGE_END = 1U << 15U
+    kBeginExperimentalReservedRange = 1U << 15U
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
