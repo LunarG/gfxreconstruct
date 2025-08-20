@@ -388,11 +388,8 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
         {
             if (!wait_semaphores)
             {
-                run_compute_replace(command_buffer_info,
-                                    addresses,
-                                    num_addresses,
-                                    address_tracker,
-                                    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+                run_compute_replace(
+                    command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
             }
             else
             {
@@ -417,7 +414,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
                 VulkanCommandBufferInfo fake_info = {};
                 fake_info.handle                  = submit_asset.command_buffer;
                 run_compute_replace(
-                    &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+                    &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
                 device_table_->EndCommandBuffer(submit_asset.command_buffer);
 
