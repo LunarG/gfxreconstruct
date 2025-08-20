@@ -519,9 +519,9 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
 
         if (result != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
-                               image_info->capture_id,
-                               util::ToString<VkResult>(result).c_str())
+            GFXRECON_LOG_WARNING("Reading from image resource %" PRIu64 " failed (%s)",
+                                 image_info->capture_id,
+                                 util::ToString<VkResult>(result).c_str())
             return result;
         }
 

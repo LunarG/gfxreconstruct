@@ -1420,6 +1420,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                            VkImage           image,
                                            VkFormat          format,
                                            VkImageType       type,
+                                           VkImageTiling     tiling,
                                            const VkExtent3D& extent,
                                            uint32_t          array_layers,
                                            VkImageLayout     current_layout,
@@ -1430,8 +1431,12 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 
     VkFormatProperties format_properties{};
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
-    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL &&
+         (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+             VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+        (((tiling == VK_IMAGE_TILING_LINEAR &&
+           (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))))
     {
         GFXRECON_LOG_WARNING_ONCE(
             "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
@@ -1756,6 +1761,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         return result;
     }
 
+    VkResult last_error = VK_SUCCESS;
+
     // accumulate timing data
     uint32_t gpu_micros = 0, cpu_micros = 0;
 
@@ -1789,6 +1796,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       img.image,
                                       img.format,
                                       img.type,
+                                      img.tiling,
                                       img.extent,
                                       img.layer_count,
                                       img.layout,
@@ -1796,6 +1804,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       &tmp_data[i].resolve_memory);
                 if (result != VK_SUCCESS)
                 {
+                    last_error = result;
+
                     // free temporary resource, continue
                     tmp_data[i] = {};
                     continue;
@@ -1846,6 +1856,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
                 if (result != VK_SUCCESS)
                 {
+                    last_error = result;
+
                     // free temporary resource, continue
                     tmp_data[i] = {};
                     continue;
@@ -1952,7 +1964,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         cpu_micros += batch_micros - gpu_micros;
     } // batch_ranges
     GFXRECON_LOG_DEBUG("gpu: %d ms - cpu: %d ms", gpu_micros / 1000, cpu_micros / 1000);
-    return VK_SUCCESS;
+    return last_error;
 }
 
 VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::ImageResource& image_resource,
