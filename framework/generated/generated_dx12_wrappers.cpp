@@ -1623,6 +1623,8 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
 
         result = GetWrappedObjectAs<ID3D12Resource>()->GetGPUVirtualAddress();
 
+        RvAnnotationUtil::AddRvAnnotation(&result);
+
         Encode_ID3D12Resource_GetGPUVirtualAddress(
             this,
             result);
@@ -1631,8 +1633,6 @@ D3D12_GPU_VIRTUAL_ADDRESS STDMETHODCALLTYPE ID3D12Resource_Wrapper::GetGPUVirtua
             manager,
             this,
             result);
-
-        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -2367,6 +2367,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
             this
 );
 
+        RvAnnotationUtil::AddRvAnnotation(&result);
+
         Encode_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
             this,
             result);
@@ -2375,8 +2377,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE STDMETHODCALLTYPE ID3D12DescriptorHeap_Wrapper::GetG
             manager,
             this,
             result);
-
-        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -4066,6 +4066,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&BaseDescriptor);
+
         Encode_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable(
             this,
             RootParameterIndex,
@@ -4133,6 +4135,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
             }
             manager->IncrementCallScope();
         }
+
+        RvAnnotationUtil::AddRvAnnotation(&BaseDescriptor);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable(
             this,
@@ -4508,6 +4512,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
+
         Encode_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
             this,
             RootParameterIndex,
@@ -4575,6 +4581,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
             }
             manager->IncrementCallScope();
         }
+
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
             this,
@@ -4644,6 +4652,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
+
         Encode_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
             this,
             RootParameterIndex,
@@ -4711,6 +4721,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
             }
             manager->IncrementCallScope();
         }
+
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
 
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
             this,
@@ -4780,6 +4792,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
+
         Encode_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
             this,
             RootParameterIndex,
@@ -4848,6 +4862,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&BufferLocation);
+
         Encode_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
             this,
             RootParameterIndex,
@@ -4915,6 +4931,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
                     pView);
             }
             manager->IncrementCallScope();
+        }
+
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> pView_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pView != nullptr))
+        {
+            pView_annotated = RvAnnotationUtil::AddStructRvAnnotations(pView);
+            pView = pView_annotated.get();
         }
 
         Encode_ID3D12GraphicsCommandList_IASetIndexBuffer(
@@ -4989,6 +5012,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
                     pViews);
             }
             manager->IncrementCallScope();
+        }
+
+        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW[]> pViews_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumViews != 0) && (pViews != nullptr))
+        {
+            pViews_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(pViews, NumViews);
+            pViews = pViews_annotated.get();
         }
 
         Encode_ID3D12GraphicsCommandList_IASetVertexBuffers(
@@ -5069,6 +5099,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
                     pViews);
             }
             manager->IncrementCallScope();
+        }
+
+        std::unique_ptr<D3D12_STREAM_OUTPUT_BUFFER_VIEW[]> pViews_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumViews != 0) && (pViews != nullptr))
+        {
+            pViews_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(pViews, NumViews);
+            pViews = pViews_annotated.get();
         }
 
         Encode_ID3D12GraphicsCommandList_SOSetTargets(
@@ -5420,6 +5457,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             manager->IncrementCallScope();
         }
 
+        RvAnnotationUtil::AddRvAnnotation(&ViewGPUHandleInCurrentHeap);
+
         Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint(
             this,
             ViewGPUHandleInCurrentHeap,
@@ -5517,6 +5556,8 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             }
             manager->IncrementCallScope();
         }
+
+        RvAnnotationUtil::AddRvAnnotation(&ViewGPUHandleInCurrentHeap);
 
         Encode_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat(
             this,
@@ -6817,6 +6858,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
                     pModes);
             }
             manager->IncrementCallScope();
+        }
+
+        std::unique_ptr<D3D12_WRITEBUFFERIMMEDIATE_PARAMETER[]> pParams_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (Count != 0) && (pParams != nullptr))
+        {
+            pParams_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(pParams, Count);
+            pParams = pParams_annotated.get();
         }
 
         Encode_ID3D12GraphicsCommandList2_WriteBufferImmediate(
@@ -8265,6 +8313,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
             pDesc,
             *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
 
+        std::unique_ptr<D3D12_CONSTANT_BUFFER_VIEW_DESC> pDesc_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc);
+            pDesc = pDesc_annotated.get();
+        }
+
         Encode_ID3D12Device_CreateConstantBufferView(
             this,
             pDesc,
@@ -8328,6 +8383,13 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
             pDesc,
             *UnwrapStructPtrObjects(&DestDescriptor, unwrap_memory));
+
+        std::unique_ptr<D3D12_SHADER_RESOURCE_VIEW_DESC> pDesc_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc);
+            pDesc = pDesc_annotated.get();
+        }
 
         Encode_ID3D12Device_CreateShaderResourceView(
             this,
@@ -12129,6 +12191,8 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
         result = GetWrappedObjectAs<ID3D12StateObjectProperties>()->GetShaderIdentifier(
             pExportName);
 
+        RvAnnotationUtil::AddRvAnnotation(&result);
+
         Encode_ID3D12StateObjectProperties_GetShaderIdentifier(
             this,
             result,
@@ -12139,8 +12203,6 @@ void* STDMETHODCALLTYPE ID3D12StateObjectProperties_Wrapper::GetShaderIdentifier
             this,
             result,
             pExportName);
-
-        RvAnnotationUtil::AddRvAnnotation(&result);
     }
     else
     {
@@ -13529,6 +13591,14 @@ void STDMETHODCALLTYPE ID3D12Device5_Wrapper::GetRaytracingAccelerationStructure
             this,
             pDesc,
             pInfo);
+
+        std::unique_ptr<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS> pDesc_annotated = nullptr;
+        std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]> pDesc_dependency2 = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc, pDesc_dependency2);
+            pDesc = pDesc_annotated.get();
+        }
 
         Encode_ID3D12Device5_GetRaytracingAccelerationStructurePrebuildInfo(
             this,
@@ -15578,6 +15648,21 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
             manager->IncrementCallScope();
         }
 
+        std::unique_ptr<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC> pDesc_annotated = nullptr;
+        std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]> pDesc_dependency2 = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc, pDesc_dependency2);
+            pDesc = pDesc_annotated.get();
+        }
+
+        std::unique_ptr<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC[]> pPostbuildInfoDescs_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumPostbuildInfoDescs != 0) && (pPostbuildInfoDescs != nullptr))
+        {
+            pPostbuildInfoDescs_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(pPostbuildInfoDescs, NumPostbuildInfoDescs);
+            pPostbuildInfoDescs = pPostbuildInfoDescs_annotated.get();
+        }
+
         Encode_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
             this,
             pDesc,
@@ -15667,6 +15752,20 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
             manager->IncrementCallScope();
         }
 
+        std::unique_ptr<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC> pDesc_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc);
+            pDesc = pDesc_annotated.get();
+        }
+
+        std::unique_ptr<D3D12_GPU_VIRTUAL_ADDRESS[]> pSourceAccelerationStructureData_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (NumSourceAccelerationStructures != 0) && (pSourceAccelerationStructureData != nullptr))
+        {
+            pSourceAccelerationStructureData_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(pSourceAccelerationStructureData, NumSourceAccelerationStructures);
+            pSourceAccelerationStructureData = pSourceAccelerationStructureData_annotated.get();
+        }
+
         Encode_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo(
             this,
             pDesc,
@@ -15745,6 +15844,10 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
             }
             manager->IncrementCallScope();
         }
+
+        RvAnnotationUtil::AddRvAnnotation(&DestAccelerationStructureData);
+
+        RvAnnotationUtil::AddRvAnnotation(&SourceAccelerationStructureData);
 
         Encode_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure(
             this,
@@ -15879,6 +15982,13 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
                     pDesc);
             }
             manager->IncrementCallScope();
+        }
+
+        std::unique_ptr<D3D12_DISPATCH_RAYS_DESC> pDesc_annotated = nullptr;
+        if((manager->IsAnnotated() == true) && (pDesc != nullptr))
+        {
+            pDesc_annotated = RvAnnotationUtil::AddStructRvAnnotations(pDesc);
+            pDesc = pDesc_annotated.get();
         }
 
         Encode_ID3D12GraphicsCommandList4_DispatchRays(
@@ -17462,6 +17572,8 @@ void STDMETHODCALLTYPE ID3D12DeviceTools_Wrapper::SetNextAllocationAddress(
 
         GetWrappedObjectAs<ID3D12DeviceTools>()->SetNextAllocationAddress(
             nextAllocationVirtualAddress);
+
+        RvAnnotationUtil::AddRvAnnotation(&nextAllocationVirtualAddress);
 
         Encode_ID3D12DeviceTools_SetNextAllocationAddress(
             this,

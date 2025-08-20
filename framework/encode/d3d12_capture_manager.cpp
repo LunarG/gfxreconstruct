@@ -1461,8 +1461,17 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
                                             reinterpret_cast<uint8_t*>(start_address) + offset,
                                             size,
                                             offset);
+                                        WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                        resource_value_annotator_->RestoreForGPUVA(
+                                            memory_id,
+                                            reinterpret_cast<uint8_t*>(start_address) + offset,
+                                            size,
+                                            offset);
                                     }
-                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                    else
+                                    {
+                                        WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                    }
                                 });
 
                             manager->RemoveTrackedMemory(memory_id);
@@ -1477,6 +1486,7 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
                                 offset = written_range->Begin;
                                 size   = (written_range->End - written_range->Begin) + 1;
                             }
+
                             if (RvAnnotationActive() == true)
                             {
                                 resource_value_annotator_->ScanForGPUVA(
@@ -1484,11 +1494,23 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
                                     reinterpret_cast<uint8_t*>(mapped_subresource.data) + offset,
                                     size,
                                     offset);
+                                WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                   offset,
+                                                   size,
+                                                   mapped_subresource.data);
+                                resource_value_annotator_->RestoreForGPUVA(
+                                    reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                    reinterpret_cast<uint8_t*>(mapped_subresource.data) + offset,
+                                    size,
+                                    offset);
                             }
-                            WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                               offset,
-                                               size,
-                                               mapped_subresource.data);
+                            else
+                            {
+                                WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                   offset,
+                                                   size,
+                                                   mapped_subresource.data);
+                            }
 
                             bool is_mapped = false;
 
@@ -1730,8 +1752,14 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
             {
                 resource_value_annotator_->ScanForGPUVA(
                     memory_id, reinterpret_cast<uint8_t*>(start_address) + offset, size, offset);
+                WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                resource_value_annotator_->RestoreForGPUVA(
+                    memory_id, reinterpret_cast<uint8_t*>(start_address) + offset, size, offset);
             }
-            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+            else
+            {
+                WriteFillMemoryCmd(memory_id, offset, size, start_address);
+            }
         });
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -1757,9 +1785,18 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
                                                                 reinterpret_cast<uint8_t*>(mapped_subresource.data),
                                                                 size,
                                                                 0);
+                        WriteFillMemoryCmd(
+                            reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                        resource_value_annotator_->RestoreForGPUVA(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                                   reinterpret_cast<uint8_t*>(mapped_subresource.data),
+                                                                   size,
+                                                                   0);
                     }
-                    WriteFillMemoryCmd(
-                        reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                    else
+                    {
+                        WriteFillMemoryCmd(
+                            reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                    }
                 }
             }
         }
