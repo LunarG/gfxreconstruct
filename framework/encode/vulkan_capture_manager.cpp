@@ -482,7 +482,6 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
             else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
             {
                 constexpr size_t byte_stride = 1;
-                GFXRECON_ASSERT(entry->stride == byte_stride);
 
                 UpdateTemplateEntryInfo inline_uniform_info;
                 inline_uniform_info.binding       = entry->dstBinding;
@@ -491,7 +490,7 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
                 // count is interpreted as number of bytes here
                 inline_uniform_info.count  = entry->descriptorCount;
                 inline_uniform_info.offset = entry->offset;
-                inline_uniform_info.stride = entry->stride;
+                inline_uniform_info.stride = byte_stride;
                 inline_uniform_info.type   = type;
 
                 info->inline_uniform_block_count += entry->descriptorCount;
