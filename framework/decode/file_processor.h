@@ -114,7 +114,7 @@ class FileProcessor
             return true;
         }
 
-        const auto file_entry = active_files_.find(file_stack_.front().filename);
+        const auto& file_entry = file_stack_.front().active_file;
         if (file_entry != active_files_.end())
         {
             return (feof(file_entry->second.fd) != 0);
@@ -181,7 +181,7 @@ class FileProcessor
 
         if (!file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
+            auto& file_entry = file_stack_.back().active_file;
             assert(file_entry != active_files_.end());
 
             return file_entry->second.fd;
@@ -193,6 +193,18 @@ class FileProcessor
     }
 
   private:
+    // Must be define before the s
+    struct ActiveFiles
+    {
+        ActiveFiles() {}
+
+        ActiveFiles(FILE* fd_) : fd(fd_) {}
+
+        FILE* fd{ nullptr };
+    };
+    using ActiveFileMap      = std::unordered_map<std::string, ActiveFiles>;
+    using ActiveFileIterator = ActiveFileMap::iterator;
+
     bool ProcessFileHeader();
 
     virtual bool ProcessBlocks();
@@ -207,7 +219,7 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
+            const auto& file_entry = file_stack_.back().active_file;
             assert(file_entry != active_files_.end());
 
             return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
@@ -220,7 +232,7 @@ class FileProcessor
 
     bool OpenFile(const std::string& filename);
 
-    bool SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SeekActiveFile(const ActiveFileIterator& file_entry, int64_t offset, util::platform::FileSeekOrigin origin);
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -250,24 +262,14 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    struct ActiveFiles
-    {
-        ActiveFiles() {}
-
-        ActiveFiles(FILE* fd_) : fd(fd_) {}
-
-        FILE* fd{ nullptr };
-    };
-
-    std::unordered_map<std::string, ActiveFiles> active_files_;
+    ActiveFileMap active_files_;
 
     struct ActiveFileContext
     {
-        ActiveFileContext(std::string filename_) : filename(std::move(filename_)){};
-        ActiveFileContext(std::string filename_, bool execute_till_eof_) :
-            filename(std::move(filename_)), execute_till_eof(execute_till_eof_){};
+        ActiveFileContext(const ActiveFileIterator& active_file_, bool execute_til_eof_ = false) :
+            active_file(active_file_), execute_till_eof(execute_til_eof_){};
 
-        std::string filename;
+        ActiveFileIterator active_file;
         uint32_t    remaining_commands{ 0 };
         bool        execute_till_eof{ false };
     };

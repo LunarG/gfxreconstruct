@@ -218,7 +218,7 @@ bool FileProcessor::ProcessFileHeader()
     bool               success = false;
     format::FileHeader file_header{};
 
-    ActiveFiles& active_file = active_files_[file_stack_.front().filename];
+    assert(file_stack_.front().active_file != active_files_.end());
 
     if (ReadBytes(&file_header, sizeof(file_header)))
     {
@@ -537,7 +537,7 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
+    const auto& file_entry = file_stack_.back().active_file;
     assert(file_entry != active_files_.end());
 
     if (util::platform::FileRead(buffer, buffer_size, file_entry->second.fd))
@@ -550,7 +550,7 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 
 bool FileProcessor::SkipBytes(size_t skip_size)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
+    const auto& file_entry = file_stack_.back().active_file;
     assert(file_entry != active_files_.end());
 
     bool success = util::platform::FileSeek(file_entry->second.fd, skip_size, util::platform::FileSeekCurrent);
@@ -564,9 +564,10 @@ bool FileProcessor::SkipBytes(size_t skip_size)
     return success;
 }
 
-bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin)
+bool FileProcessor::SeekActiveFile(const ActiveFileIterator&      file_entry,
+                                   int64_t                        offset,
+                                   util::platform::FileSeekOrigin origin)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
     assert(file_entry != active_files_.end());
 
     bool success = util::platform::FileSeek(file_entry->second.fd, offset, origin);
@@ -582,14 +583,15 @@ bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, 
 
 bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    return SeekActiveFile(file_stack_.back().filename, offset, origin);
+    return SeekActiveFile(file_stack_.back().active_file, offset, origin);
 }
 
 bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till_eof)
 {
-    if (active_files_.find(filename) != active_files_.end())
+    const auto file_entry = active_files_.find(filename);
+    if (file_entry != active_files_.end())
     {
-        file_stack_.emplace_back(filename, execute_till_eof);
+        file_stack_.emplace_back(file_entry, execute_till_eof);
         return true;
     }
     else
@@ -603,10 +605,11 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
                                   util::platform::FileSeekOrigin origin,
                                   bool                           execute_till_eof)
 {
-    if (active_files_.find(filename) != active_files_.end())
+    const auto file_entry = active_files_.find(filename);
+    if (file_entry != active_files_.end())
     {
-        file_stack_.emplace_back(filename, execute_till_eof);
-        return SeekActiveFile(filename, offset, origin);
+        file_stack_.emplace_back(file_entry, execute_till_eof);
+        return SeekActiveFile(file_entry, offset, origin);
     }
     else
     {
@@ -616,7 +619,7 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
 
 void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
+    const auto& file_entry = file_stack_.back().active_file;
     assert(file_entry != active_files_.end());
 
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
@@ -2134,7 +2137,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 std::string filename = util::filepath::Join(absolute_path_, filename_c_str);
 
                 // Check for self references
-                if (!filename.compare(file_stack_.back().filename))
+                if (!filename.compare(file_stack_.back().active_file->first))
                 {
                     GFXRECON_LOG_WARNING(
                         "ExecuteBlocksFromFile is referencing itself. Probably this is not intentional.");
