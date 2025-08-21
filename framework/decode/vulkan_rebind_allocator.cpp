@@ -843,6 +843,8 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
 
 VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_info, const VkImage image)
 {
+    GFXRECON_ASSERT(memory_alloc_info->ahb != nullptr);
+
     VkImportAndroidHardwareBufferInfoANDROID importAHBInfo;
     importAHBInfo.sType  = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
     importAHBInfo.pNext  = nullptr;
@@ -853,17 +855,20 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
     dedicatedAllocateInfo.pNext = &importAHBInfo;
     dedicatedAllocateInfo.image = image;
 
-    VkMemoryRequirements memoryRequirements;
-    functions_.get_image_memory_requirements(device_, image, &memoryRequirements);
+    VkAndroidHardwareBufferPropertiesANDROID androidHardwareBufferProperties;
+    androidHardwareBufferProperties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+    androidHardwareBufferProperties.pNext = nullptr;
+    functions_.get_android_hardware_buffer_properties(
+        device_, memory_alloc_info->ahb, &androidHardwareBufferProperties);
 
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocate_info.pNext           = &dedicatedAllocateInfo;
-    allocate_info.allocationSize  = std::max<VkDeviceSize>(memory_alloc_info->allocation_size, memoryRequirements.size);
+    allocate_info.allocationSize  = androidHardwareBufferProperties.allocationSize;
     allocate_info.memoryTypeIndex = replay_memory_properties_.memoryTypeCount;
     for (uint32_t i = 0; i < replay_memory_properties_.memoryTypeCount; ++i)
     {
-        if ((memoryRequirements.memoryTypeBits & (1 << i)) &&
+        if ((androidHardwareBufferProperties.memoryTypeBits & (1 << i)) &&
             (replay_memory_properties_.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) ==
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
         {

@@ -3581,7 +3581,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBeginCommandBuffer(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>::Dispatch(manager, commandBuffer, pBeginInfo);
 
-    VkResult result = manager->OverrideBeginCommandBuffer(commandBuffer, pBeginInfo);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkCommandBufferBeginInfo* pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, pBeginInfo_unwrapped);
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
     if (encoder)

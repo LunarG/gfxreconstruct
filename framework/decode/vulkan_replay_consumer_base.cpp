@@ -2199,6 +2199,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
     functions.set_debug_utils_object_name                 = instance_table->SetDebugUtilsObjectNameEXT;
     functions.set_debug_utils_object_tag                  = instance_table->SetDebugUtilsObjectTagEXT;
+    functions.get_android_hardware_buffer_properties      = device_table->GetAndroidHardwareBufferPropertiesANDROID;
 
     if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
@@ -3852,12 +3853,18 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
         return result;
     }
 
-    // If you find this loop to be infinite consider adding a limit in the same way
-    // it is done for GetEventStatus and GetQueryPoolResults.
-    do
+    if (original_result == VK_SUCCESS)
     {
-        result = func(device, fence);
-    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+        // Replay is usually faster than the original application, so there is a good chance the fence is still not
+        // ready. In this case, we make sure the fence is signaled by waiting for it.
+        BeginInjectedCommands();
+        result =
+            GetDeviceTable(device)->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        EndInjectedCommands();
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+    }
+
+    result = func(device, fence);
 
     return result;
 }
@@ -3975,7 +3982,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
 
                 auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphores[i] = address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
+                semaphores[i]          = address_replacer.UpdateBufferAddresses(cmd_buf_info,
                                                                        addresses_to_replace.data(),
                                                                        addresses_to_replace.size(),
                                                                        GetDeviceAddressTracker(device_info),
@@ -4218,13 +4225,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.value                  = 1;
 
                 // runs replacer, sync via semaphore
-                auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphore_info.semaphore =
-                    address_replacer.UpdateBufferAddresses(wait_semaphores.empty() ? nullptr : cmd_buf_info,
-                                                           addresses_to_replace.data(),
-                                                           addresses_to_replace.size(),
-                                                           GetDeviceAddressTracker(device_info),
-                                                           wait_semaphores);
+                auto& address_replacer   = GetDeviceAddressReplacer(device_info);
+                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                                                                                  addresses_to_replace.data(),
+                                                                                  addresses_to_replace.size(),
+                                                                                  GetDeviceAddressTracker(device_info),
+                                                                                  wait_semaphores);
                 GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
@@ -10929,30 +10935,20 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     break;
 
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                    {
-                        const VkBaseOutStructure* pnext = reinterpret_cast<const VkBaseOutStructure*>(write->pNext);
-                        while (pnext != nullptr)
+                        if (auto* inline_uniform_block_write =
+                                graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write))
                         {
-                            if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
-                            {
-                                const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
-                                    reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
-
-                                const uint32_t offset = write->dstArrayElement;
-                                const uint32_t size   = write->descriptorCount;
-                                assert(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
-                                       offset + size);
-                                util::platform::MemoryCopy(
-                                    dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
-                                    size,
-                                    inline_uni_block_write->pData,
-                                    size);
-                                break;
-                            }
-                            pnext = pnext->pNext;
+                            const uint32_t offset = write->dstArrayElement;
+                            const uint32_t size   = write->descriptorCount;
+                            GFXRECON_ASSERT(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
+                                            offset + size);
+                            util::platform::MemoryCopy(
+                                dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
+                                size,
+                                inline_uniform_block_write->pData,
+                                size);
                         }
-                    }
-                    break;
+                        break;
 
                     default:
                         break;
