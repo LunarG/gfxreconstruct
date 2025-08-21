@@ -35,6 +35,8 @@ class HeadlessContext : public WsiContext
     HeadlessContext(Application* application, bool dpi_aware = true);
 
     virtual void ProcessEvents(bool wait_for_input) override;
+
+    virtual const char* GetWsiName() override { return "HEADLESS"; }
 };
 
 GFXRECON_END_NAMESPACE(application)

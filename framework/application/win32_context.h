@@ -38,6 +38,8 @@ class Win32Context : public WsiContext
     virtual void ProcessEvents(bool wait_for_input) override;
 
     static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
+
+    virtual const char* GetWsiName() override { return "WIN32"; }
 };
 
 GFXRECON_END_NAMESPACE(application)
