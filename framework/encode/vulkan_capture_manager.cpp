@@ -482,7 +482,6 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
             else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
             {
                 constexpr size_t byte_stride = 1;
-                GFXRECON_ASSERT(entry->stride == byte_stride);
 
                 UpdateTemplateEntryInfo inline_uniform_info;
                 inline_uniform_info.binding       = entry->dstBinding;
@@ -491,7 +490,7 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
                 // count is interpreted as number of bytes here
                 inline_uniform_info.count  = entry->descriptorCount;
                 inline_uniform_info.offset = entry->offset;
-                inline_uniform_info.stride = entry->stride;
+                inline_uniform_info.stride = byte_stride;
                 inline_uniform_info.type   = type;
 
                 info->inline_uniform_block_count += entry->descriptorCount;
@@ -1748,27 +1747,6 @@ VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice          
         }
     }
     return result;
-}
-
-VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
-                                                          const VkCommandBufferBeginInfo* pBeginInfo)
-{
-    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
-
-    auto modified_begin_info = (*pBeginInfo_unwrapped);
-
-    const auto command_buffer_wrapper =
-        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-
-    // If command buffer level is primary, pInheritanceInfo must be ignored
-    if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
-        modified_begin_info.pInheritanceInfo != nullptr)
-    {
-        modified_begin_info.pInheritanceInfo = nullptr;
-    }
-
-    return vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, &modified_begin_info);
 }
 
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
@@ -3355,6 +3333,19 @@ void VulkanCaptureManager::PreProcess_vkWaitForFences(
     }
 }
 #endif
+
+void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
+                                                           const VkCommandBufferBeginInfo* pBeginInfo)
+{
+    const auto* cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+
+    // If command buffer level is primary, pInheritanceInfo must be ignored
+    if (cmd_buffer_wrapper != nullptr && cmd_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        // const_cast to avoid changes to code-gen
+        const_cast<VkCommandBufferBeginInfo*>(pBeginInfo)->pInheritanceInfo = nullptr;
+    }
+}
 
 void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                                          VkPipelineBindPoint pipelineBindPoint,

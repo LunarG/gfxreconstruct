@@ -43,6 +43,8 @@ class DisplayContext : public WsiContext
 
     DisplayWindow* GetWindow() const { return window_.get(); }
 
+    virtual const char* GetWsiName() override { return "DISPLAY"; }
+
   private:
     std::unique_ptr<DisplayWindow> window_;
 };
