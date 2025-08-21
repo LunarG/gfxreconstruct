@@ -65,7 +65,7 @@ FileProcessor::~FileProcessor()
 
     for (auto& file : active_files_)
     {
-        util::platform::FileClose(file.second.fd);
+        file.second->FileClose();
     }
 
     DecodeAllocator::DestroyInstance();
@@ -115,21 +115,32 @@ std::string FileProcessor::ApplyAbsolutePath(const std::string& file)
 
 bool FileProcessor::OpenFile(const std::string& filename)
 {
-    if (active_files_.find(filename) == active_files_.end())
+    auto active_file_it = active_files_.find(filename);
+
+    // If the file is already open, we're done, return true
+    // If the file is closed but present in the map, remove it from the map and open a new instance
+    if (active_file_it != active_files_.end())
     {
-        FILE* fd;
-        int   result = util::platform::FileOpen(&fd, filename.c_str(), "rb");
-        if (result || fd == nullptr)
+        if (active_file_it->second->IsFileOpen())
         {
-            GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
-            error_state_ = kErrorOpeningFile;
-            return false;
+            return true;
         }
-        else
-        {
-            active_files_.emplace(std::piecewise_construct, std::forward_as_tuple(filename), std::forward_as_tuple(fd));
-            error_state_ = kErrorNone;
-        }
+        active_files_.erase(active_file_it);
+    }
+
+    FILE* fd;
+    int   result = util::platform::FileOpen(&fd, filename.c_str(), "rb");
+    if (result || fd == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
+        error_state_ = kErrorOpeningFile;
+        return false;
+    }
+    else
+    {
+        auto active_file = std::make_unique<ActiveFiles>(filename, fd);
+        active_files_.emplace(std::make_pair(filename, std::move(active_file)));
+        error_state_ = kErrorNone;
     }
 
     return true;
@@ -218,7 +229,7 @@ bool FileProcessor::ProcessFileHeader()
     bool               success = false;
     format::FileHeader file_header{};
 
-    ActiveFiles& active_file = active_files_[file_stack_.front().filename];
+    assert(file_stack_.front().active_file);
 
     if (ReadBytes(&file_header, sizeof(file_header)))
     {
@@ -537,10 +548,10 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
-    assert(file_entry != active_files_.end());
+    const auto& file_entry = file_stack_.back().active_file;
+    assert(file_entry);
 
-    if (util::platform::FileRead(buffer, buffer_size, file_entry->second.fd))
+    if (util::platform::FileRead(buffer, buffer_size, file_entry.GetFile()))
     {
         bytes_read_ += buffer_size;
         return true;
@@ -550,10 +561,10 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 
 bool FileProcessor::SkipBytes(size_t skip_size)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
-    assert(file_entry != active_files_.end());
+    auto& file_entry = file_stack_.back().active_file;
+    assert(file_entry);
 
-    bool success = util::platform::FileSeek(file_entry->second.fd, skip_size, util::platform::FileSeekCurrent);
+    bool success = file_entry.FileSeek(skip_size, util::platform::FileSeekCurrent);
 
     if (success)
     {
@@ -564,12 +575,11 @@ bool FileProcessor::SkipBytes(size_t skip_size)
     return success;
 }
 
-bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin)
+bool FileProcessor::SeekActiveFile(ActiveFiles::Ref& file_entry, int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
-    assert(file_entry != active_files_.end());
+    assert(file_entry);
 
-    bool success = util::platform::FileSeek(file_entry->second.fd, offset, origin);
+    bool success = file_entry.FileSeek(offset, origin);
 
     if (success && origin == util::platform::FileSeekCurrent)
     {
@@ -582,14 +592,15 @@ bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, 
 
 bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    return SeekActiveFile(file_stack_.back().filename, offset, origin);
+    return SeekActiveFile(file_stack_.back().active_file, offset, origin);
 }
 
 bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till_eof)
 {
-    if (active_files_.find(filename) != active_files_.end())
+    const auto file_entry = active_files_.find(filename);
+    if (file_entry != active_files_.end())
     {
-        file_stack_.emplace_back(filename, execute_till_eof);
+        file_stack_.emplace_back(file_entry, execute_till_eof);
         return true;
     }
     else
@@ -603,10 +614,11 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
                                   util::platform::FileSeekOrigin origin,
                                   bool                           execute_till_eof)
 {
-    if (active_files_.find(filename) != active_files_.end())
+    const auto file_entry = active_files_.find(filename);
+    if (file_entry != active_files_.end())
     {
-        file_stack_.emplace_back(filename, execute_till_eof);
-        return SeekActiveFile(filename, offset, origin);
+        file_stack_.emplace_back(file_entry, execute_till_eof);
+        return SeekActiveFile(file_stack_.back().active_file, offset, origin);
     }
     else
     {
@@ -616,11 +628,11 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
 
 void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
 {
-    auto file_entry = active_files_.find(file_stack_.back().filename);
-    assert(file_entry != active_files_.end());
+    const auto file_desc = file_stack_.back().active_file.GetFile();
+    assert(file_desc);
 
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
-    if (feof(file_entry->second.fd) && !ferror(file_entry->second.fd))
+    if (feof(file_desc) && !ferror(file_desc))
     {
         GFXRECON_LOG_WARNING("Incomplete block at end of file");
     }
@@ -2134,7 +2146,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 std::string filename = util::filepath::Join(absolute_path_, filename_c_str);
 
                 // Check for self references
-                if (!filename.compare(file_stack_.back().filename))
+                if (!filename.compare(file_stack_.back().active_file.GetFilename()))
                 {
                     GFXRECON_LOG_WARNING(
                         "ExecuteBlocksFromFile is referencing itself. Probably this is not intentional.");
@@ -2454,6 +2466,69 @@ void FileProcessor::PrintBlockInfo() const
         GFXRECON_LOG_INFO(
             "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
     }
+}
+
+FileProcessor::ActiveFiles::Ref FileProcessor::ActiveFiles::GetRef()
+{
+    return Ref(*this);
+}
+
+void FileProcessor::ActiveFiles::FileClose()
+{
+    if (fd_)
+    {
+        util::platform::FileClose(fd_);
+        fd_ = nullptr;
+    }
+}
+
+bool FileProcessor::ActiveFiles::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
+{
+    if (fd_)
+    {
+        return util::platform::FileSeek(fd_, offset, origin);
+    }
+    return false;
+}
+
+void FileProcessor::ActiveFiles::IncRef()
+{
+    ref_count_++;
+}
+
+void FileProcessor::ActiveFiles::DecRef()
+{
+    assert(ref_count_ > 0);
+    ref_count_--;
+    if (ref_count_ == 0)
+    {
+        FileClose();
+    }
+}
+
+FileProcessor::ActiveFiles::Ref::Ref(ActiveFiles& active_file_) : active_file(active_file_)
+{
+    active_file.IncRef();
+}
+
+FileProcessor::ActiveFiles::Ref::~Ref()
+{
+    active_file.DecRef();
+}
+
+std::string FileProcessor::ActiveFiles::Ref::GetFilename() const
+{
+    return active_file.GetFilename();
+}
+
+FILE* FileProcessor::ActiveFiles::Ref::GetFile() const
+{
+    return active_file.GetFile();
+}
+
+inline bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
+{
+    return active_file.FileSeek(offset, origin);
 }
 
 GFXRECON_END_NAMESPACE(decode)
