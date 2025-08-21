@@ -365,7 +365,12 @@ VkResult VulkanResourceInitializer::TransitionImage(uint32_t              queue_
                                           1,
                                           &memory_barrier);
 
-        result = FlushCommandBuffer(queue_family_index);
+        // Check if there are pending commands from InitializeImage by checking the staging buffer's offset.
+        // If there are then don't submit the command buffer as there is still room left to init more resources
+        if (!staging_buffer_offset_)
+        {
+            result = FlushCommandBuffer(queue_family_index);
+        }
     }
 
     return result;
