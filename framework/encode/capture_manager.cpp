@@ -59,6 +59,7 @@ CommonCaptureManager*                          CommonCaptureManager::singleton_;
 std::mutex                                     CommonCaptureManager::instance_lock_;
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
+bool                                           CommonCaptureManager::initialize_log_ = true;
 
 std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
 
@@ -112,26 +113,32 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             GFXRECON_LOG_WARNING("Failed registering atexit");
         }
 
-        // Initialize logging to report only errors (to stderr).
-        util::Log::Settings stderr_only_log_settings;
-        stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-        stderr_only_log_settings.output_errors_to_stderr = true;
-        util::Log::Init(stderr_only_log_settings);
+        if (initialize_log_)
+        {
+            // Initialize logging to report only errors (to stderr).
+            util::Log::Settings stderr_only_log_settings;
+            stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
+            stderr_only_log_settings.output_errors_to_stderr = true;
+            util::Log::Init(stderr_only_log_settings);
+        }
 
         // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
         // resolve. Get capture settings which can be different per capture manager.
         default_settings_ = api_capture_singleton->GetDefaultTraceSettings();
         capture_settings_ = api_capture_singleton->GetDefaultTraceSettings();
 
-        // Load log settings.
-        CaptureSettings::LoadLogSettings(&capture_settings_);
+        if (initialize_log_)
+        {
+            // Load log settings.
+            CaptureSettings::LoadLogSettings(&capture_settings_);
 
-        // Reinitialize logging with values retrieved from settings.
-        util::Log::Release();
-        util::Log::Init(capture_settings_.GetLogSettings());
+            // Reinitialize logging with values retrieved from settings.
+            util::Log::Release();
+            util::Log::Init(capture_settings_.GetLogSettings());
+        }
 
         // Load all settings with final logging settings active.
-        CaptureSettings::LoadSettings(&capture_settings_);
+        CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
