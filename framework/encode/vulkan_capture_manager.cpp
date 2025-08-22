@@ -3291,8 +3291,7 @@ void VulkanCaptureManager::PreProcess_vkResetFences(VkDevice device, uint32_t fe
             {
                 // Skip this thread in the future since it is likely internal to the
                 // OpenXR runtime
-                util::ThreadData* thread_data = GetThreadData();
-                thread_data->EnableSkipCurrentThreadInFuture();
+                common_manager_->SetThreadSkipState(CommonCaptureManager::ThreadSkipReason::kInvalidHandles);
                 break;
             }
         }
@@ -3306,8 +3305,7 @@ void VulkanCaptureManager::PreProcess_vkGetFenceStatus(VkDevice device, VkFence 
     {
         // Skip this thread in the future since it is likely internal to the
         // OpenXR runtime
-        util::ThreadData* thread_data = GetThreadData();
-        thread_data->EnableSkipCurrentThreadInFuture();
+        common_manager_->SetThreadSkipState(CommonCaptureManager::ThreadSkipReason::kInvalidHandles);
     }
 }
 
@@ -3325,8 +3323,7 @@ void VulkanCaptureManager::PreProcess_vkWaitForFences(
             {
                 // Skip this thread in the future since it is likely internal to the
                 // OpenXR runtime
-                util::ThreadData* thread_data = GetThreadData();
-                thread_data->EnableSkipCurrentThreadInFuture();
+                common_manager_->SetThreadSkipState(CommonCaptureManager::ThreadSkipReason::kInvalidHandles);
                 break;
             }
         }
