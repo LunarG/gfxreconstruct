@@ -63,6 +63,8 @@ class AndroidContext : public WsiContext
 
     void destroyNativeWindow(int window_index);
 
+    virtual const char* GetWsiName() override { return "ANDROID"; }
+
   private:
     std::unique_ptr<AndroidWindow> window_{};
     struct android_app*            android_app_{};

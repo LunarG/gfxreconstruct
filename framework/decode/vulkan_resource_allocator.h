@@ -107,6 +107,7 @@ class VulkanResourceAllocator
         PFN_vkCreateSemaphore                              create_semaphore{ nullptr };
         PFN_vkDestroySemaphore                             destroy_semaphore{ nullptr };
         PFN_vkWaitForFences                                wait_for_fences{ nullptr };
+        PFN_vkGetAndroidHardwareBufferPropertiesANDROID    get_android_hardware_buffer_properties{ nullptr };
     };
 
   public:
