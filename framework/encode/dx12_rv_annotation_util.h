@@ -78,6 +78,27 @@ class RvAnnotationUtil
         return std::move(unannotated_structs);
     }
 
+    template <class T, class... Dependencies>
+    static std::unique_ptr<T> AddStructRvAnnotations(const T* structure, Dependencies&... dependences)
+    {
+        std::unique_ptr<T> annotated_structs = std::make_unique<T>();
+        *annotated_structs                   = *structure;
+        AddStructRvAnnotation(*annotated_structs, dependences...);
+        return std::move(annotated_structs);
+    }
+
+    template <class T, class... Dependencies>
+    static std::unique_ptr<T[]> AddStructArrayRvAnnotations(const T* structures, UINT count)
+    {
+        std::unique_ptr<T[]> annotated_structs = std::make_unique<T[]>(count);
+        for (UINT idx = 0; idx < count; ++idx)
+        {
+            annotated_structs[idx] = structures[idx];
+            AddStructRvAnnotation(annotated_structs[idx]);
+        }
+        return std::move(annotated_structs);
+    }
+
   private:
     static void RemoveStructRvAnnotation(D3D12_INDEX_BUFFER_VIEW& param);
 
@@ -104,6 +125,32 @@ class RvAnnotationUtil
     static void RemoveStructRvAnnotation(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& param);
 
     static void RemoveStructRvAnnotation(D3D12_GPU_VIRTUAL_ADDRESS& param);
+
+    static void AddStructRvAnnotation(D3D12_INDEX_BUFFER_VIEW& param);
+
+    static void AddStructRvAnnotation(D3D12_VERTEX_BUFFER_VIEW& param);
+
+    static void AddStructRvAnnotation(D3D12_STREAM_OUTPUT_BUFFER_VIEW& param);
+
+    static void AddStructRvAnnotation(D3D12_CONSTANT_BUFFER_VIEW_DESC& param);
+
+    static void AddStructRvAnnotation(D3D12_SHADER_RESOURCE_VIEW_DESC& param);
+
+    static void AddStructRvAnnotation(D3D12_WRITEBUFFERIMMEDIATE_PARAMETER& param);
+
+    static void AddStructRvAnnotation(D3D12_DISPATCH_RAYS_DESC& param);
+
+    static void AddStructRvAnnotation(D3D12_RAYTRACING_GEOMETRY_DESC& params);
+
+    static void AddStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& param,
+                                      std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&  geometry_desc);
+
+    static void AddStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& param,
+                                      std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]>&    geometry_descs);
+
+    static void AddStructRvAnnotation(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& param);
+
+    static void AddStructRvAnnotation(D3D12_GPU_VIRTUAL_ADDRESS& param);
 #endif
 };
 

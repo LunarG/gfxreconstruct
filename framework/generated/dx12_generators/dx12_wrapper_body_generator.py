@@ -448,11 +448,53 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         return expr
 
+    def gen_add_rv_annotation_call_before_encode(
+        self, class_name, method_name, method_parameters, indent
+    ):
+        expr = ''
+        for param in method_parameters:
+            param_name = param['name']
+            param_info = self.get_value_info(param)
+            param_type = param_info.base_type
+            param_ptr_length = param_info.array_length
+            if (param_type in self.REMOVE_RV_ANNOTATION_TYPES):
+                if (param_info.is_pointer):
+                    if (param_ptr_length):
+                        expr += indent + 'std::unique_ptr<' + param_type + '[]> ' + param_name + '_annotated = nullptr;\n'
+                        expr += indent + 'if((manager->IsAnnotated() == true) && (' + param_ptr_length + ' != 0) && (' + param_name + ' != nullptr))\n'
+                        expr += indent + '{\n'
+                        indent = self.increment_indent(indent)
+                        expr += indent + param_name + '_annotated = RvAnnotationUtil::AddStructArrayRvAnnotations(' + param_name + ', ' + param_ptr_length + ');\n'
+                        expr += indent + param_name + ' = ' + param_name + '_annotated.get();\n'
+                        indent = self.decrement_indent(indent)
+                        expr += indent + '}\n\n'
+                    else:
+                        dependency_type = self.REMOVE_RV_ANNOTATION_TYPES[
+                            param_type]
+                        expr += indent + 'std::unique_ptr<' + param_type + '> ' + param_name + '_annotated = nullptr;\n'
+                        if (dependency_type):
+                            expr += indent + 'std::unique_ptr<' + dependency_type + '> ' + param_name + '_dependency2 = nullptr;\n'
+                        expr += indent + 'if((manager->IsAnnotated() == true) && (' + param_name + ' != nullptr))\n'
+                        expr += indent + '{\n'
+                        indent = self.increment_indent(indent)
+                        expr += indent + param_name + '_annotated = RvAnnotationUtil::AddStructRvAnnotations(' + param_name
+                        if (dependency_type):
+                            expr += ', ' + param_name + '_dependency2'
+                        expr += ');\n'
+                        expr += indent + param_name + ' = ' + param_name + '_annotated.get();\n'
+                        indent = self.decrement_indent(indent)
+                        expr += indent + '}\n\n'
+                else:
+                    expr += indent
+                    expr += 'RvAnnotationUtil::AddRvAnnotation(&' + param_name + ');\n\n'
+
+        return expr
+
     def gen_add_rv_annotation_call(self, method_name, return_name, indent):
         expr = ''
         if (method_name in self.ADD_RV_ANNOTATION_METHODS):
-            expr += '\n'
             expr += indent + 'RvAnnotationUtil::AddRvAnnotation(&' + return_name + ');\n'
+            expr += '\n'
         return expr
 
     def gen_method_post_call(
@@ -845,6 +887,15 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             expr += '\n'
 
+            # Add post process to annotation
+            expr += self.gen_add_rv_annotation_call_before_encode(
+                class_name, method_name, parameters, indent
+            )
+
+            expr += self.gen_add_rv_annotation_call(
+                method_name, 'result', indent
+            )
+
             expr += indent + 'Encode_{}_{}(\n'.format(class_name, method_name)
             encode_args = self.increment_indent(indent) + 'this'
             if wrapped_args or (return_type != 'void'):
@@ -860,11 +911,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += '\n'
             expr += self.gen_method_post_call(
                 return_type, class_name, method_name, wrapped_args, indent
-            )
-
-            # Add post process to annotation
-            expr += self.gen_add_rv_annotation_call(
-                method_name, 'result', indent
             )
 
             indent = self.decrement_indent(indent)
