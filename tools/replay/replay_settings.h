@@ -215,7 +215,8 @@ static void PrintUsage(const char* exe_name)
 #endif
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Vulkan only:")
-    GFXRECON_WRITE_CONSOLE("  --capture\t\tCapture the replaying GFXR file. Capture option behavior and");
+    GFXRECON_WRITE_CONSOLE("  --capture\t\tCapture the replaying GFXR file. Capture uses the same log");
+    GFXRECON_WRITE_CONSOLE("       \t\t\toptions as replay. All other capture option behavior and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tusage is the same as when capturing with the GFXR layer. The");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture functionality is included in the `gfxrecon-replay`");
     GFXRECON_WRITE_CONSOLE("       \t\t\texecutable--no GFXR capture layer is added to the Vulkan layer");
