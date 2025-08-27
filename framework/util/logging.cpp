@@ -93,6 +93,7 @@ void Log::Init(Severity    min_severity,
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
@@ -127,6 +128,7 @@ void Log::Init(const util::Log::Settings& settings)
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
