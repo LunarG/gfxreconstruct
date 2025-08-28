@@ -118,7 +118,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteFenceState(state_table);
 
     // Heaps
-    StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
+    WriteRootSignatureBlobState(state_table);
     WriteHeapState(state_table);
 
     // Root signatures
@@ -153,6 +153,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // Pipelines
     StandardCreateWrite<ID3D12PipelineLibrary_Wrapper>(state_table);
     StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
+    WriteCachedPSOBlobState(state_table);
 
     // Debug objects
     StandardCreateWrite<ID3D12Debug2_Wrapper>(state_table);
@@ -359,6 +360,49 @@ void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+}
+
+bool Dx12StateWriter::IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(wrapper_info != nullptr);
+
+    return (wrapper_info->create_call_id == format::ApiCall_ID3D12PipelineState_GetCachedBlob);
+}
+
+void Dx12StateWriter::WriteRootSignatureBlobState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D10Blob_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+
+        if (IsRootSignatureBlob(wrapper))
+        {
+            // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+            // all reference the same parameter buffer.
+            auto wrapper_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT((wrapper_info != nullptr) && (wrapper_info->create_parameters != nullptr));
+
+            if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+            {
+                StandardCreateWrite(wrapper);
+                processed.insert(wrapper_info->create_parameters.get());
+            }
+        }
+    });
+}
+
+void Dx12StateWriter::WriteCachedPSOBlobState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D10Blob_Wrapper* wrapper) {
+        if (IsCachedPSOBlob(wrapper))
+        {
+            StandardCreateWrite(wrapper);
+        }
+    });
 }
 
 void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
