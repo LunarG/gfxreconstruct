@@ -6313,6 +6313,7 @@ public:
     uint32_t GetId() const { return m_Id; }
     void* GetMappedData() const { return m_pMappedData; }
     uint32_t GetMapRefCount() const { return m_MapCount; }
+    VMA_MUTEX& GetMapAndBindMutex() { return m_MapAndBindMutex; }
 
     // Call when allocation/free was made from m_pMetadata.
     // Used for m_MappingHysteresis.
