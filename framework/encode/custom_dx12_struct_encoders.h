@@ -23,6 +23,7 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 #define GFXRECON_ENCODE_CUSTOM_DX12_STRUCT_ENCODERS_H
 
+#include "encode/custom_common_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "util/defines.h"
 
@@ -54,9 +55,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
-
-// Platform types.
-void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
 
 // Types requiring special processing.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value);

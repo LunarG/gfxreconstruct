@@ -11933,11 +11933,5 @@ void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value)
 }
 
 
-/*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
-**
-*/
-
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

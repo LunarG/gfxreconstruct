@@ -26,6 +26,7 @@
 import json,os,re,shutil,sys,tempfile
 
 from collections import OrderedDict
+from common_struct_info_provider import CommonStructInfoProvider
 
 try:
     from pathlib import Path
@@ -217,8 +218,7 @@ class Dx12GeneratorOptions():
 
 class Dx12BaseGenerator():
 
-    NO_STRUCT_BREAKDOWN = [
-        'LARGE_INTEGER',
+    NO_STRUCT_BREAKDOWN = CommonStructInfoProvider.COMMON_STRUCTS + [
         'D3D12_AUTO_BREADCRUMB_NODE',
         'D3D12_AUTO_BREADCRUMB_NODE1',
         'D3D12_DRED_ALLOCATION_NODE',
@@ -602,9 +602,8 @@ class Dx12BaseGenerator():
                 continue
             elif skip:
                 continue
-            elif t == '_SECURITY_ATTRIBUTES' or (
-                t[0] != '_' and t != 'STDMETHODCALLTYPE' and t != 'WINAPI'
-                and t != 'IN' and t != 'OUT'
+            elif (t[0] != '_') and (
+                t not in ['STDMETHODCALLTYPE', 'WINAPI', 'IN', 'OUT']
             ):
                 if rtn:
                     rtn += ' '
@@ -1297,7 +1296,7 @@ class Dx12BaseGenerator():
     def is_manually_generated_cmd_name(self, command):
         """Determines if a command is in the list of manually generated command names."""
         if self.MANUALLY_GENERATED_COMMANDS is not None and command in self.MANUALLY_GENERATED_COMMANDS:
-           return True
+            return True
         return False
 
     def get_filtered_cmd_names(self):
@@ -1431,7 +1430,7 @@ class Dx12BaseGenerator():
     def is_struct(self, type):
         """Method override."""
         # This type is from winnt.h. It isn't parsed. It's in custom classes.
-        if type == 'LARGE_INTEGER':
+        if CommonStructInfoProvider.is_common_struct(type):
             return True
         struct_dict = self.source_dict['struct_dict']
         return type in struct_dict

@@ -22,6 +22,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_TO_JSON_H
 #define GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_TO_JSON_H
 
+#include "decode/custom_common_struct_to_json.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_json.h"
 #include "generated/generated_vulkan_struct_to_json.h"
@@ -74,10 +75,6 @@ void FieldToJson(nlohmann::ordered_json&                              jdata,
 void FieldToJson(nlohmann::ordered_json&                         jdata,
                  const Decoded_VkPipelineExecutableStatisticKHR* data,
                  const util::JsonOptions&                        options = util::JsonOptions());
-
-void FieldToJson(nlohmann::ordered_json&            jdata,
-                 const Decoded_SECURITY_ATTRIBUTES* data,
-                 const util::JsonOptions&           options = util::JsonOptions());
 
 void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const Decoded_VkAccelerationStructureGeometryDataKHR* data,

@@ -25,6 +25,7 @@
 
 #if defined(D3D12_SUPPORT)
 
+#include "decode/custom_common_struct_decoders.h"
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
@@ -204,13 +205,6 @@ struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS
     D3D12_RENDER_PASS_ENDING_ACCESS*                                   decoded_value{ nullptr };
     Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS*        Resolve{ nullptr };
     Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS* PreserveLocal{ nullptr };
-};
-
-// Platform types.
-struct Decoded_LARGE_INTEGER
-{
-    using struct_type = LARGE_INTEGER;
-    LARGE_INTEGER* decoded_value{ nullptr };
 };
 
 // Types requiring special processing.
