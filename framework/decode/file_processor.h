@@ -114,15 +114,7 @@ class FileProcessor
             return true;
         }
 
-        const auto file_desc = file_stack_.front().active_file.GetFile();
-        if (file_desc)
-        {
-            return (feof(file_desc) != 0);
-        }
-        else
-        {
-            return false;
-        }
+        return file_stack_.front().active_file.AtEof();
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -175,21 +167,33 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
-    FILE* GetFileDescriptor()
+    Error CheckFileStatus() const
     {
-        assert(!file_stack_.empty());
-
-        if (!file_stack_.empty())
+        if (file_stack_.empty())
         {
-            auto& file_entry = file_stack_.back().active_file;
-            assert(file_entry);
-
-            return file_entry.GetFile();
+            return kErrorInvalidFileDescriptor;
         }
-        else
+        const auto& file_entry = file_stack_.back().active_file;
+        // If not EOF, determine reason for invalid state.
+        if (!file_entry.HasOpenFile())
         {
-            return nullptr;
+            return kErrorInvalidFileDescriptor;
         }
+        else if (file_entry.IsError())
+        {
+            return kErrorReadingFile;
+        }
+
+        return kErrorNone;
+    }
+
+    bool AtEof() const
+    {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+        return file_stack_.back().active_file.AtEof();
     }
 
   private:
@@ -205,9 +209,13 @@ class FileProcessor
             Ref(Ref&&)      = delete;
 
             std::string GetFilename() const;
-            FILE*       GetFile() const;
+            bool        AtEof() const;
+            bool        IsError() const;
+            bool        IsValid() const;
+            bool        HasOpenFile() const;
             bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-            explicit    operator bool() const { return GetFile() != nullptr; }
+            bool        ReadBytes(void* buffer, size_t bytes);
+            explicit    operator bool() const { return HasOpenFile(); }
 
           private:
             ActiveFiles& active_file;
@@ -215,21 +223,25 @@ class FileProcessor
             Ref(ActiveFiles& active_file_);
         };
 
-        ActiveFiles(const std::string& filename, FILE* fd) : filename_(filename), fd_(fd), ref_count_(0) {}
+        ActiveFiles() = default;
 
         friend class Ref;
         Ref GetRef();
+
+        bool FileOpen(const std::string& filename);
 
         void FileClose();
         bool IsFileOpen() const { return (fd_ != nullptr); }
         bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
 
         std::string GetFilename() const { return filename_; }
-        FILE*       GetFile() const { return fd_; }
+
+        bool ReadBytes(void* buffer, size_t bytes);
 
       private:
-        void IncRef();
-        void DecRef();
+        FILE* GetFile() const { return fd_; }
+        void  IncRef();
+        void  DecRef();
 
         std::string filename_;
         FILE*       fd_{ nullptr };
@@ -254,10 +266,7 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            const auto& file_desc = file_stack_.back().active_file.GetFile();
-            assert(file_desc);
-
-            return (file_desc && !feof(file_desc) && !ferror(file_desc));
+            return file_stack_.back().active_file.IsValid();
         }
         else
         {

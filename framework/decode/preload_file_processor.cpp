@@ -300,7 +300,7 @@ bool PreloadFileProcessor::ProcessBlocks()
             }
             else
             {
-                if (feof(GetFileDescriptor()) == 0)
+                if (!AtEof())
                 {
                     // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as
                     // it assumes that the block header has been successfully read and will print an incomplete
@@ -323,22 +323,19 @@ bool PreloadFileProcessor::ProcessBlocks()
 
 bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = 0;
     if (status_ == PreloadStatus::kReplay)
     {
+        size_t bytes_read = 0;
         bytes_read = preload_buffer_.Read(buffer, buffer_size);
         if (preload_buffer_.ReplayFinished())
         {
             status_ = PreloadStatus::kInactive;
         }
-    }
-    else
-    {
-        bytes_read = util::platform::FileRead(buffer, buffer_size, GetFileDescriptor());
+        bytes_read_ += bytes_read;
+        return bytes_read == buffer_size;
     }
 
-    bytes_read_ += bytes_read;
-    return bytes_read == buffer_size;
+    return FileProcessor::ReadBytes(buffer, buffer_size);
 }
 
 GFXRECON_END_NAMESPACE(decode)

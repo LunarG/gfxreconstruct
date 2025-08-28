@@ -128,9 +128,10 @@ bool FileProcessor::OpenFile(const std::string& filename)
         active_files_.erase(active_file_it);
     }
 
-    FILE* fd;
-    int   result = util::platform::FileOpen(&fd, filename.c_str(), "rb");
-    if (result || fd == nullptr)
+    auto active_file = std::make_unique<ActiveFiles>();
+    bool opened      = active_file->FileOpen(filename);
+
+    if (!opened || !active_file->IsFileOpen())
     {
         GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
         error_state_ = kErrorOpeningFile;
@@ -138,7 +139,6 @@ bool FileProcessor::OpenFile(const std::string& filename)
     }
     else
     {
-        auto active_file = std::make_unique<ActiveFiles>(filename, fd);
         active_files_.emplace(std::make_pair(filename, std::move(active_file)));
         error_state_ = kErrorNone;
     }
@@ -160,15 +160,7 @@ bool FileProcessor::ProcessNextFrame()
     }
     else
     {
-        // If not EOF, determine reason for invalid state.
-        if (GetFileDescriptor() == nullptr)
-        {
-            error_state_ = kErrorInvalidFileDescriptor;
-        }
-        else if (ferror(GetFileDescriptor()))
-        {
-            error_state_ = kErrorReadingFile;
-        }
+        error_state_ = CheckFileStatus();
     }
 
     return success;
@@ -459,7 +451,7 @@ bool FileProcessor::ProcessBlocks()
             }
             else
             {
-                if (!feof(GetFileDescriptor()))
+                if (!AtEof())
                 {
                     // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
                     // assumes that the block header has been successfully read and will print an incomplete block at
@@ -548,10 +540,12 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    const auto& file_entry = file_stack_.back().active_file;
+    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
+    // without forcing use of mutability
+    auto& file_entry = file_stack_.back().active_file;
     assert(file_entry);
 
-    if (util::platform::FileRead(buffer, buffer_size, file_entry.GetFile()))
+    if (file_entry.ReadBytes(buffer, buffer_size))
     {
         bytes_read_ += buffer_size;
         return true;
@@ -628,11 +622,11 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
 
 void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
 {
-    const auto file_desc = file_stack_.back().active_file.GetFile();
-    assert(file_desc);
+    assert(!file_stack_.empty());
+    const auto& file_entry = file_stack_.back().active_file;
 
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
-    if (feof(file_desc) && !ferror(file_desc))
+    if (file_entry.AtEof() && !file_entry.IsError())
     {
         GFXRECON_LOG_WARNING("Incomplete block at end of file");
     }
@@ -2473,6 +2467,23 @@ FileProcessor::ActiveFiles::Ref FileProcessor::ActiveFiles::GetRef()
     return Ref(*this);
 }
 
+bool FileProcessor::ActiveFiles::FileOpen(const std::string& filename)
+{
+    if (IsFileOpen())
+    {
+        FileClose();
+    }
+
+    const int  result  = util::platform::FileOpen(&fd_, filename.c_str(), "rb");
+    const bool success = result == 0;
+
+    if (success)
+    {
+        filename_ = filename;
+    }
+    return success;
+}
+
 void FileProcessor::ActiveFiles::FileClose()
 {
     if (fd_)
@@ -2489,6 +2500,12 @@ bool FileProcessor::ActiveFiles::FileSeek(int64_t offset, util::platform::FileSe
         return util::platform::FileSeek(fd_, offset, origin);
     }
     return false;
+}
+
+bool FileProcessor::ActiveFiles::ReadBytes(void* buffer, size_t bytes)
+{
+    assert(fd_);
+    return util::platform::FileRead(buffer, bytes, fd_);
 }
 
 void FileProcessor::ActiveFiles::IncRef()
@@ -2521,12 +2538,42 @@ std::string FileProcessor::ActiveFiles::Ref::GetFilename() const
     return active_file.GetFilename();
 }
 
-FILE* FileProcessor::ActiveFiles::Ref::GetFile() const
+bool FileProcessor::ActiveFiles::Ref::AtEof() const
 {
-    return active_file.GetFile();
+    FILE* fd = active_file.GetFile();
+    if (fd)
+    {
+        return feof(fd) != 0;
+    }
+    return true;
 }
 
-inline bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
+bool FileProcessor::ActiveFiles::Ref::IsError() const
+{
+    FILE* fd = active_file.GetFile();
+    if (fd)
+    {
+        return ferror(fd) != 0;
+    }
+    return true;
+}
+
+bool FileProcessor::ActiveFiles::Ref::IsValid() const
+{
+    return !IsError() && !AtEof();
+}
+
+bool FileProcessor::ActiveFiles::Ref::HasOpenFile() const
+{
+    return active_file.GetFile() != nullptr;
+}
+
+bool FileProcessor::ActiveFiles::Ref::ReadBytes(void* buffer, size_t bytes)
+{
+    return active_file.ReadBytes(buffer, bytes);
+}
+
+bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
 {
     return active_file.FileSeek(offset, origin);
 }
