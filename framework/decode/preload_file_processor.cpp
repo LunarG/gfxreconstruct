@@ -300,7 +300,7 @@ bool PreloadFileProcessor::ProcessBlocks()
             }
             else
             {
-                if (feof(GetFileDescriptor()) == 0)
+                if (!AtEof())
                 {
                     // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as
                     // it assumes that the block header has been successfully read and will print an incomplete
@@ -321,11 +321,15 @@ bool PreloadFileProcessor::ProcessBlocks()
     return success;
 }
 
+// NOTE: WIP WIP WIP -- need to refactor this to take advantage of mapped spans to minimize copies
+//       Also, until that's done the preload file process will be broken... (unless we disable spans... for the preload)
+//
+//       But the real question is, if mapped file input is running correctly, do we still need it?
 bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = 0;
     if (status_ == PreloadStatus::kReplay)
     {
+        size_t bytes_read = 0;
         bytes_read = preload_buffer_.Read(buffer, buffer_size);
         bytes_read_ += bytes_read;
         if (preload_buffer_.ReplayFinished())
