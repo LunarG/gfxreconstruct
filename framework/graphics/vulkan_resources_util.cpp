@@ -1788,7 +1788,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                 command_buffer = cmd_buf_it->second;
             }
 
-            VkImage copy_image = tmp_data[i].resolve_image != VK_NULL_HANDLE ? tmp_data[i].resolve_image : img.image;
+            VkImage copy_image = img.image;
 
             if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
@@ -1810,6 +1810,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                     tmp_data[i] = {};
                     continue;
                 }
+
+                GFXRECON_ASSERT(tmp_data[i].resolve_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].resolve_image;
             }
 
             tmp_data[i].transition_aspect = img.aspect;
@@ -1835,9 +1838,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             // Blit image to change dimensions or convert format
             if (tmp_data[i].use_blit)
             {
-                VkImage blit_src = tmp_data[i].resolve_image ? tmp_data[i].resolve_image : img.image;
-                result           = BlitImage(command_buffer,
-                                   blit_src,
+                result = BlitImage(command_buffer,
+                                   copy_image,
                                    img.format,
                                    dst_format,
                                    img.type,
@@ -1852,8 +1854,6 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
-                copy_image = tmp_data[i].scaled_image != VK_NULL_HANDLE ? tmp_data[i].scaled_image : copy_image;
-
                 if (result != VK_SUCCESS)
                 {
                     last_error = result;
@@ -1862,6 +1862,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                     tmp_data[i] = {};
                     continue;
                 }
+
+                GFXRECON_ASSERT(tmp_data[i].scaled_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].scaled_image;
             }
 
             if (!img.external_format)
