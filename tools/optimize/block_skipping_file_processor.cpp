@@ -203,7 +203,7 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
             }
             else
             {
-                if (!feof(GetFileDescriptor()))
+                if (!AtEof())
                 {
                     // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
                     // assumes that the block header has been successfully read and will print an incomplete block at

@@ -30,11 +30,13 @@
 #include "decode/api_decoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/file_input_stream.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,6 +44,9 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+using FileInputStream    = util::FStreamFileInputStream;
+using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
 
 class FileProcessor
 {
@@ -114,15 +119,7 @@ class FileProcessor
             return true;
         }
 
-        const auto file_desc = file_stack_.front().active_file.GetFile();
-        if (file_desc)
-        {
-            return (feof(file_desc) != 0);
-        }
-        else
-        {
-            return false;
-        }
+        return file_stack_.front().active_file->IsEof();
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -175,71 +172,36 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
-    FILE* GetFileDescriptor()
+    Error CheckFileStatus() const
     {
-        assert(!file_stack_.empty());
-
-        if (!file_stack_.empty())
+        if (file_stack_.empty())
         {
-            auto& file_entry = file_stack_.back().active_file;
-            assert(file_entry);
-
-            return file_entry.GetFile();
+            return kErrorInvalidFileDescriptor;
         }
-        else
+        const auto& active_file = file_stack_.back().active_file;
+        // If not EOF, determine reason for invalid state.
+        if (!active_file->IsOpen())
         {
-            return nullptr;
+            return kErrorInvalidFileDescriptor;
         }
+        else if (active_file->IsError())
+        {
+            return kErrorReadingFile;
+        }
+
+        return kErrorNone;
+    }
+
+    bool AtEof() const
+    {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+        return file_stack_.back().active_file->IsEof();
     }
 
   private:
-    // Must be define before the Seek calls below
-    class ActiveFiles
-    {
-      public:
-        class Ref
-        {
-          public:
-            ~Ref();
-            Ref(const Ref&) = delete;
-            Ref(Ref&&)      = delete;
-
-            std::string GetFilename() const;
-            FILE*       GetFile() const;
-            bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-            explicit    operator bool() const { return GetFile() != nullptr; }
-
-          private:
-            ActiveFiles& active_file;
-            friend class ActiveFiles;
-            Ref(ActiveFiles& active_file_);
-        };
-
-        ActiveFiles(const std::string& filename, FILE* fd) : filename_(filename), fd_(fd), ref_count_(0) {}
-
-        friend class Ref;
-        Ref GetRef();
-
-        void FileClose();
-        bool IsFileOpen() const { return (fd_ != nullptr); }
-        bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-
-        std::string GetFilename() const { return filename_; }
-        FILE*       GetFile() const { return fd_; }
-
-      private:
-        void IncRef();
-        void DecRef();
-
-        std::string filename_;
-        FILE*       fd_{ nullptr };
-        size_t      ref_count_{ 0 };
-    };
-
-    using ActiveFilePtr      = std::unique_ptr<ActiveFiles>;
-    using ActiveFileMap      = std::unordered_map<std::string, ActiveFilePtr>;
-    using ActiveFileIterator = ActiveFileMap::iterator;
-
     bool ProcessFileHeader();
 
     virtual bool ProcessBlocks();
@@ -254,10 +216,7 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            const auto& file_desc = file_stack_.back().active_file.GetFile();
-            assert(file_desc);
-
-            return (file_desc && !feof(file_desc) && !ferror(file_desc));
+            return file_stack_.back().active_file->IsValid();
         }
         else
         {
@@ -265,9 +224,7 @@ class FileProcessor
         }
     }
 
-    bool OpenFile(const std::string& filename);
-
-    bool SeekActiveFile(ActiveFiles::Ref& file_entry, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -297,14 +254,12 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    ActiveFileMap active_files_;
-
     struct ActiveFileContext
     {
-        ActiveFileContext(const ActiveFileIterator& active_file_, bool execute_til_eof_ = false) :
-            active_file(active_file_->second->GetRef()), execute_till_eof(execute_til_eof_){};
+        ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
+            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
 
-        ActiveFiles::Ref active_file;
+        FileInputStreamPtr active_file;
         uint32_t    remaining_commands{ 0 };
         bool        execute_till_eof{ false };
     };
