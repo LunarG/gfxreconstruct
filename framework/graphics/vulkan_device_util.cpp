@@ -344,6 +344,7 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&  
 
     if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
+        // properties needs to match VulkanReplayConsumerBase::SetPhysicalDeviceProperties2.
         // pNext-chaining
         VkPhysicalDeviceDriverProperties driver_properties = {};
         driver_properties.sType                            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
@@ -351,12 +352,17 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&  
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties = {};
         raytracing_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
 
+        VkPhysicalDeviceAccelerationStructurePropertiesKHR acc_str_properties = {};
+        acc_str_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+
+        driver_properties.pNext     = &acc_str_properties;
         raytracing_properties.pNext = &driver_properties;
         device_properties2.pNext    = &raytracing_properties;
 
         instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties2);
-        replay_device_info->raytracing_properties = raytracing_properties;
-        replay_device_info->driver_properties     = driver_properties;
+        replay_device_info->raytracing_properties             = raytracing_properties;
+        replay_device_info->driver_properties                 = driver_properties;
+        replay_device_info->acceleration_structure_properties = acc_str_properties;
     }
     else
     {

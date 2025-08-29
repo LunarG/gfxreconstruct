@@ -172,6 +172,13 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceDriverProperties>                   driver_properties;
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+
+    bool IsProperiesNull()
+    {
+        // Not include memory properties.
+        return properties == std::nullopt || driver_properties == std::nullopt ||
+               raytracing_properties == std::nullopt || acceleration_structure_properties == std::nullopt;
+    }
 };
 
 template <typename T>
