@@ -33,6 +33,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class PreloadFileProcessor : public FileProcessor
 {
   public:
+    using Base = FileProcessor;
+    using Self = PreloadFileProcessor;
     PreloadFileProcessor();
 
     // Preloads *count* frames to continuous, expandable memory buffer
@@ -57,7 +59,7 @@ class PreloadFileProcessor : public FileProcessor
         inline void* Add(T* data)
         {
             return &*container_.insert(
-                container_.end(), reinterpret_cast<char*>(data), reinterpret_cast<char*>(data) + sizeof(T));
+                container_.end(), reinterpret_cast<const char*>(data), reinterpret_cast<const char*>(data) + sizeof(T));
         }
 
         // Allocates *size* bytes in the preload buffer
@@ -84,7 +86,7 @@ class PreloadFileProcessor : public FileProcessor
     } status_;
 
     template <typename T>
-    bool ReadParameterBytes(format::BlockHeader& block_header, T& data, PreloadBuffer& preload_buffer)
+    bool ReadParameterBytes(const format::BlockHeader& block_header, T& data, PreloadBuffer& preload_buffer)
     {
         preload_buffer.Reserve(sizeof(block_header) + block_header.size);
         preload_buffer.Add(&block_header);
@@ -94,7 +96,7 @@ class PreloadFileProcessor : public FileProcessor
         return ReadBytes(parameter_buffer, parameters_size);
     }
 
-    bool ReadParameterBytes(format::BlockHeader& block_header, PreloadBuffer& preload_buffer)
+    bool ReadParameterBytes(const format::BlockHeader& block_header, PreloadBuffer& preload_buffer)
     {
         preload_buffer.Reserve(sizeof(block_header) + block_header.size);
         preload_buffer.Add(&block_header);
@@ -103,8 +105,20 @@ class PreloadFileProcessor : public FileProcessor
         return ReadBytes(parameter_buffer, parameters_size);
     }
 
+    bool PreloadRecording() const { return status_ == PreloadStatus::kRecord; }
+    template <format::BlockType BlockId, typename SubBlockId>
+    constexpr ProcessBlockResult RecordPreloadBlock(const format::BlockHeader& block_header, SubBlockId sub_block_id);
+
     bool ProcessBlocks() override;
 
+    // For the static polymorphism, we have to allow the generic implementations
+    // to access our protected and private contents
+    friend bool Base::ProcessBlocksImpl<Self>();
+    template <typename Derived, format::BlockType BlockId>
+    friend Base::ProcessBlockResult Base::ProcessBlockClause(const format::BlockHeader& block_header);
+
+    // This is the critical differentiator for this FileProcessing class, it can either access recorded blocks or the
+    // current file
     bool ReadBytes(void* buffer, size_t buffer_size) override;
 };
 
