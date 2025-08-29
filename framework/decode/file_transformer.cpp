@@ -377,8 +377,10 @@ bool FileTransformer::ReadCompressedParameterBuffer(size_t  compressed_buffer_si
             parameter_buffer_.resize(expected_uncompressed_size);
         }
 
-        size_t uncompressed_size = compressor_->Decompress(
-            compressed_buffer_size, compressed_parameter_buffer_, expected_uncompressed_size, &parameter_buffer_);
+        size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
+                                                           compressed_parameter_buffer_.data(),
+                                                           expected_uncompressed_size,
+                                                           &parameter_buffer_);
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
             *uncompressed_buffer_size = uncompressed_size;

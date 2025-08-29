@@ -321,6 +321,10 @@ bool PreloadFileProcessor::ProcessBlocks()
     return success;
 }
 
+// NOTE: WIP WIP WIP -- need to refactor this to take advantage of mapped spans to minimize copies
+//       Also, until that's done the preload file process will be broken... (unless we disable spans... for the preload)
+//
+//       But the real question is, if mapped file input is running correctly, do we still need it?
 bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
     if (status_ == PreloadStatus::kReplay)

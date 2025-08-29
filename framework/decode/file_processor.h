@@ -30,6 +30,7 @@
 #include "decode/api_decoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/file_input_stream.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -42,6 +43,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+using FileInputStream = util::FStreamFileInputStream;
 
 class FileProcessor
 {
@@ -114,7 +117,7 @@ class FileProcessor
             return true;
         }
 
-        return file_stack_.front().active_file.AtEof();
+        return file_stack_.front().active_file.IsEof();
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -175,7 +178,7 @@ class FileProcessor
         }
         const auto& file_entry = file_stack_.back().active_file;
         // If not EOF, determine reason for invalid state.
-        if (!file_entry.HasOpenFile())
+        if (!file_entry.IsOpen())
         {
             return kErrorInvalidFileDescriptor;
         }
@@ -193,14 +196,15 @@ class FileProcessor
         {
             return true;
         }
-        return file_stack_.back().active_file.AtEof();
+        return file_stack_.back().active_file.IsEof();
     }
 
   private:
     // Must be define before the Seek calls below
-    class ActiveFiles
+    class ActiveFiles : public FileInputStream
     {
       public:
+        using InputStream = FileInputStream;
         class Ref
         {
           public:
@@ -209,13 +213,16 @@ class FileProcessor
             Ref(Ref&&)      = delete;
 
             std::string GetFilename() const;
-            bool        AtEof() const;
-            bool        IsError() const;
-            bool        IsValid() const;
-            bool        HasOpenFile() const;
-            bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-            bool        ReadBytes(void* buffer, size_t bytes);
-            explicit    operator bool() const { return HasOpenFile(); }
+
+            bool IsEof() const;
+            bool IsError() const;
+            bool IsValid() const;
+            bool IsOpen() const;
+
+            explicit operator bool() const { return IsOpen(); }
+
+            bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+            bool ReadBytes(void* buffer, size_t bytes);
 
           private:
             ActiveFiles& active_file;
@@ -228,23 +235,10 @@ class FileProcessor
         friend class Ref;
         Ref GetRef();
 
-        bool FileOpen(const std::string& filename);
-
-        void FileClose();
-        bool IsFileOpen() const { return (fd_ != nullptr); }
-        bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-
-        std::string GetFilename() const { return filename_; }
-
-        bool ReadBytes(void* buffer, size_t bytes);
-
       private:
-        FILE* GetFile() const { return fd_; }
-        void  IncRef();
-        void  DecRef();
+        void IncRef();
+        void DecRef();
 
-        std::string filename_;
-        FILE*       fd_{ nullptr };
         size_t      ref_count_{ 0 };
     };
 
