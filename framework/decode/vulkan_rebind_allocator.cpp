@@ -1125,7 +1125,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                         // This lock is important so that we don't call vkBind... and/or vkMap... simultaneously
                         // on the same VkDeviceMemory from multiple threads.
-                        VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                        VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                         result = functions_.bind_video_session_memory(device_, video_session, 1, &modified_bind_info);
                         break;
                     }
@@ -2401,7 +2401,7 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
                 VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
                 VMA_ASSERT(pBlock && "GetDeviceMemoryCommitment to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 functions_.get_device_memory_commitment(device_, modified_mem, committed_memory_in_bytes);
                 break;
             }
@@ -2443,7 +2443,7 @@ void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float
                 VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
                 VMA_ASSERT(pBlock && "SetDeviceMemoryPriority to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 functions_.set_device_memory_priority(device_, modified_mem, priority);
                 break;
             }
@@ -2490,7 +2490,7 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
                 VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryRemoteAddressNV to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 result = functions_.get_memory_remote_address_nv(device_, &modified_get_mem_remote_addr_info, address);
                 break;
             }
@@ -2581,7 +2581,7 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
                 VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryFd to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 result = functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
                 break;
             }
@@ -2764,7 +2764,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
                 VmaDeviceMemoryBlock* const pBlock = allocation->GetBlock();
                 VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
                 break;
             }
@@ -3110,7 +3110,7 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
                 VMA_ASSERT(pBlock &&
                            "GetDeviceMemoryOpaqueCaptureAddress to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                VmaMutexLock lock(pBlock->GetMapAndBindMutex(), allocator_->m_UseMutex);
                 result = functions_.get_device_memory_opaque_capture_address(device_, &modified_info);
                 break;
             }
