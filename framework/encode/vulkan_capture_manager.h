@@ -1817,6 +1817,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::mutex sparse_resource_mutex;
 
 #if ENABLE_OPENXR_SUPPORT
+    std::mutex        fence_mutex;
     std::set<VkFence> valid_fences_;
 #endif
 
