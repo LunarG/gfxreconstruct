@@ -3098,8 +3098,12 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                     modified_extensions.begin(), modified_extensions.end(), [ext_name](const char* extension) {
                         return util::platform::StringCompare(ext_name, extension) == 0;
                     });
-                modified_extensions.erase(iter);
-                faked_extensions_.push_back(ext_name);
+                if (iter != modified_extensions.end())
+                {
+                    GFXRECON_LOG_WARNING("faking extension-support for: %s", ext_name);
+                    modified_extensions.erase(iter);
+                    faked_extensions_.push_back(ext_name);
+                }
                 return true;
             }
             return false;
