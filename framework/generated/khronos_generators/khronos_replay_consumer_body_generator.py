@@ -715,6 +715,8 @@ class KhronosReplayConsumerBodyGenerator():
                                     value.name
                                 )
                                 if api_data.has_pool_allocations and self.is_pool_allocation(name):
+                                    preexpr.append("PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());".format(value.name, value.name))
+                                    postexpr.append("ClearRecaptureHandleIds();")
                                     postexpr.append(
                                         'AddPoolHandles<{pool_info_type}, {info_type}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -730,6 +732,8 @@ class KhronosReplayConsumerBodyGenerator():
                                         )
                                     )
                                 else:
+                                    preexpr.append("PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());".format(value.name, value.name))
+                                    postexpr.append("ClearRecaptureHandleIds();")
                                     postexpr.append(
                                         'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -751,6 +755,8 @@ class KhronosReplayConsumerBodyGenerator():
                                     length_name, value.name
                                 )
                                 if api_data.has_pool_allocations and self.is_pool_allocation(name):
+                                    preexpr.append("PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());".format(value.name, value.name))
+                                    postexpr.append("ClearRecaptureHandleIds();")
                                     postexpr.append(
                                         'AddPoolHandles<{}, {}>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Get{poolbasetype}Info, &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -780,6 +786,8 @@ class KhronosReplayConsumerBodyGenerator():
                                                 basetype=value.base_type
                                             )
                                         )
+                                    preexpr.append("PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());".format(value.name, value.name))
+                                    postexpr.append("ClearRecaptureHandleIds();")
                                     postexpr.append(
                                         'AddHandles<{}>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -922,6 +930,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
                                 )
+                                preexpr.append("PushRecaptureHandleId({}->GetPointer());".format(value.name))
+                                postexpr.append("ClearRecaptureHandleIds();")
                                 postexpr.append(
                                     'AddHandle<{}>({}, {}->GetPointer(), {}, &CommonObjectInfoTable::Add{}Info);'
                                     .format(
@@ -937,6 +947,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 expr = '{}->SetConsumerData(0, &handle_info);'.format(
                                     value.name
                                 )
+                                preexpr.append("PushRecaptureHandleId({}->GetPointer());".format(value.name))
+                                postexpr.append("ClearRecaptureHandleIds();")
                                 postexpr.append(
                                     'AddHandle<{}>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::Add{basetype}Info);'
                                     .format(
