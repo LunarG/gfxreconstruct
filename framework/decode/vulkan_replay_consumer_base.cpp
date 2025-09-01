@@ -1577,9 +1577,9 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceI
     replay_device_info->properties = *replay_properties;
 }
 
-void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceInfo*          physical_device_info,
-                                                           const VkPhysicalDeviceProperties2* capture_properties,
-                                                           const VkPhysicalDeviceProperties2* replay_properties)
+void VulkanReplayConsumerBase::SetPhysicalDeviceProperties2(VulkanPhysicalDeviceInfo*          physical_device_info,
+                                                            const VkPhysicalDeviceProperties2* capture_properties,
+                                                            const VkPhysicalDeviceProperties2* replay_properties)
 {
     SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
 
@@ -1587,6 +1587,13 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(VulkanPhysicalDeviceI
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(capture_properties))
     {
         physical_device_info->capture_raytracing_properties = *ray_capture_props;
+    }
+
+    if (auto driver_properties_replay_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDriverProperties>(replay_properties))
+    {
+        physical_device_info->replay_device_info->driver_properties        = *driver_properties_replay_props;
+        physical_device_info->replay_device_info->driver_properties->pNext = nullptr;
     }
 
     if (auto ray_replay_props =
@@ -1727,7 +1734,7 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(VulkanInstanceInfo*       insta
         VkPhysicalDevice replay_device      = replay_devices[i];
         auto             replay_device_info = &instance_info->replay_device_info[replay_device];
 
-        if (replay_device_info->properties == std::nullopt)
+        if (replay_device_info->IsPropertiesNull())
         {
             graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                   GetInstanceTable(physical_device_info->handle),
@@ -1813,7 +1820,7 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(VulkanInstanceInfo*       
             auto replay_device      = replay_group_prop.physicalDevices[j];
             auto replay_device_info = &instance_info->replay_device_info[replay_device];
 
-            if (replay_device_info->properties == std::nullopt)
+            if (replay_device_info->IsPropertiesNull())
             {
                 graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                       GetInstanceTable(physical_device_info->handle),
@@ -1868,7 +1875,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       insta
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
-    if (replay_device_info->properties == std::nullopt)
+    if (replay_device_info->IsPropertiesNull())
     {
         graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                               GetInstanceTable(physical_device_info->handle),
@@ -1892,7 +1899,7 @@ void VulkanReplayConsumerBase::GetMatchingDevice(VulkanInstanceInfo*       insta
             // Skip the current physical device, which we already know is not a match.
             if (physical_device != current_device)
             {
-                if (replay_info.properties == std::nullopt)
+                if (replay_info.IsPropertiesNull())
                 {
                     graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                           GetInstanceTable(physical_device),
@@ -3647,7 +3654,7 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
 
     // This can be set by ProcessSetDevicePropertiesCommand, but older files will not contain that data.
     auto capture_properties = pProperties->GetPointer();
-    SetPhysicalDeviceProperties(physical_device_info, capture_properties, replay_properties);
+    SetPhysicalDeviceProperties2(physical_device_info, capture_properties, replay_properties);
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
