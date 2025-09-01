@@ -62,12 +62,13 @@ CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mu
 bool                                           CommonCaptureManager::initialize_log_ = true;
 std::atomic<format::HandleId> CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
 uint64_t                      CommonCaptureManager::default_unique_id_offset_ = 0;
+bool                          CommonCaptureManager::force_default_unique_id_  = false;
 std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
     uint64_t result = 0;
-    if (unique_id_stack_.empty())
+    if (force_default_unique_id_ || unique_id_stack_.empty())
     {
         result = GetDefaultUniqueId();
     }

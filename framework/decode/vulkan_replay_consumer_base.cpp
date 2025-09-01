@@ -1272,6 +1272,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
     if (options_.preserve_capture_data)
     {
         gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
+        gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
     }
 }
 
