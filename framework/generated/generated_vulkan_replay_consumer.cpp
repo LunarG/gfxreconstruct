@@ -7187,12 +7187,11 @@ void VulkanReplayConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
         GFXRECON_LOG_DEBUG("Skip vkGetRefreshCycleDurationGOOGLE for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
-    VkRefreshCycleDurationGOOGLE* out_pDisplayTimingProperties = pDisplayTimingProperties->IsNull() ? nullptr : pDisplayTimingProperties->AllocateOutputData(1);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+    auto in_swapchain = GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain);
+    pDisplayTimingProperties->IsNull() ? nullptr : pDisplayTimingProperties->AllocateOutputData(1);
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetRefreshCycleDurationGOOGLE(in_device, in_swapchain, out_pDisplayTimingProperties);
+    VkResult replay_result = OverrideGetRefreshCycleDurationGOOGLE(GetDeviceTable(in_device->handle)->GetRefreshCycleDurationGOOGLE, returnValue, in_device, in_swapchain, pDisplayTimingProperties);
     CheckResult("vkGetRefreshCycleDurationGOOGLE", returnValue, replay_result, call_info);
 }
 
@@ -7209,16 +7208,15 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingGOOGLE(
         GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingGOOGLE for offscreen.");
         return;
     }
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
-    uint32_t* out_pPresentationTimingCount = pPresentationTimingCount->IsNull() ? nullptr : pPresentationTimingCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanSwapchainKHRInfo>("vkGetPastPresentationTimingGOOGLE", returnValue, swapchain, kSwapchainKHRArrayGetPastPresentationTimingGOOGLE, pPresentationTimingCount, pPresentationTimings, &CommonObjectInfoTable::GetVkSwapchainKHRInfo));
-    VkPastPresentationTimingGOOGLE* out_pPresentationTimings = pPresentationTimings->IsNull() ? nullptr : pPresentationTimings->AllocateOutputData(*out_pPresentationTimingCount);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+    auto in_swapchain = GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain);
+    pPresentationTimingCount->IsNull() ? nullptr : pPresentationTimingCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanSwapchainKHRInfo>("vkGetPastPresentationTimingGOOGLE", returnValue, swapchain, kSwapchainKHRArrayGetPastPresentationTimingGOOGLE, pPresentationTimingCount, pPresentationTimings, &CommonObjectInfoTable::GetVkSwapchainKHRInfo));
+    if (!pPresentationTimings->IsNull()) { pPresentationTimings->AllocateOutputData(*pPresentationTimingCount->GetOutputPointer()); }
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetPastPresentationTimingGOOGLE(in_device, in_swapchain, out_pPresentationTimingCount, out_pPresentationTimings);
+    VkResult replay_result = OverrideGetPastPresentationTimingGOOGLE(GetDeviceTable(in_device->handle)->GetPastPresentationTimingGOOGLE, returnValue, in_device, in_swapchain, pPresentationTimingCount, pPresentationTimings);
     CheckResult("vkGetPastPresentationTimingGOOGLE", returnValue, replay_result, call_info);
 
-    if (pPresentationTimings->IsNull()) { SetOutputArrayCount<VulkanSwapchainKHRInfo>(swapchain, kSwapchainKHRArrayGetPastPresentationTimingGOOGLE, *out_pPresentationTimingCount, &CommonObjectInfoTable::GetVkSwapchainKHRInfo); }
+    if (pPresentationTimings->IsNull()) { SetOutputArrayCount<VulkanSwapchainKHRInfo>(swapchain, kSwapchainKHRArrayGetPastPresentationTimingGOOGLE, *pPresentationTimingCount->GetOutputPointer(), &CommonObjectInfoTable::GetVkSwapchainKHRInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleEXT(

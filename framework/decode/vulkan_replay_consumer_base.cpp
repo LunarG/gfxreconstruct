@@ -3086,33 +3086,42 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     if (graphics::feature_util::GetDeviceExtensions(
             physical_device, instance_table->EnumerateDeviceExtensionProperties, &available_extensions) == VK_SUCCESS)
     {
-        // If VK_EXT_frame_boundary is not supported but requested, fake it
-        bool ext_frame_boundary_is_supported =
-            graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-        bool ext_frame_boundary_is_requested =
-            graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-
-        if (ext_frame_boundary_is_requested && !ext_frame_boundary_is_supported)
-        {
-            auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
-                return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
-            });
-            modified_extensions.erase(iter);
-
-            VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info);
-
-            while (current->pNext != nullptr)
+        // helper to 'fake' support for certain extensions, if necessary.
+        // checks if an extension is requested, but not supported.
+        // if so, the extension will be removed from 'modified_extensions' and added to 'faked_extensions_'.
+        auto sanitize_faked_extension =
+            [this, &available_extensions, &modified_extensions](const char* ext_name) -> bool {
+            if (graphics::feature_util::IsSupportedExtension(modified_extensions, ext_name) &&
+                !graphics::feature_util::IsSupportedExtension(available_extensions, ext_name))
             {
-                if (current->pNext->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
+                auto iter = std::find_if(
+                    modified_extensions.begin(), modified_extensions.end(), [ext_name](const char* extension) {
+                        return util::platform::StringCompare(ext_name, extension) == 0;
+                    });
+                if (iter != modified_extensions.end())
                 {
-                    current->pNext = current->pNext->pNext;
-                    GFXRECON_LOG_WARNING(
-                        "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
-                    break;
+                    GFXRECON_LOG_WARNING("faking extension-support for: %s", ext_name);
+                    modified_extensions.erase(iter);
+                    faked_extensions_.push_back(ext_name);
+                    return true;
                 }
-                current = current->pNext;
+            }
+            return false;
+        };
+
+        // Fake VK_EXT_frame_boundary if requested, but not supported
+        if (sanitize_faked_extension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+        {
+            // also remove related feature-struct from pnext-chain
+            if (graphics::vulkan_struct_remove_pnext<VkPhysicalDeviceFrameBoundaryFeaturesEXT>(&modified_create_info))
+            {
+                GFXRECON_LOG_WARNING(
+                    "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
             }
         }
+
+        // Fake VK_GOOGLE_display_timing if requested, but not supported
+        sanitize_faked_extension(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
 
         if (options_.remove_unsupported_features)
         {
@@ -7135,6 +7144,11 @@ VkResult VulkanReplayConsumerBase::OverrideResetDescriptorPool(PFN_vkResetDescri
     pool_info->child_ids.clear();
 
     return func(device_info->handle, pool_info->handle, flags);
+}
+
+bool VulkanReplayConsumerBase::IsExtensionBeingFaked(const char* extension)
+{
+    return graphics::feature_util::IsSupportedExtension(faked_extensions_, extension);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
@@ -11336,6 +11350,38 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
         }
     }
     func(in_device, in_shader_module, in_pAllocator);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
+    PFN_vkGetPastPresentationTimingGOOGLE                         func,
+    VkResult                                                      original_result,
+    const VulkanDeviceInfo*                                       device_info,
+    const VulkanSwapchainKHRInfo*                                 swapchain_info,
+    PointerDecoder<uint32_t>*                                     pPresentationTimingCount,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings)
+{
+    if (!IsExtensionBeingFaked(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME))
+    {
+        return func(device_info->handle,
+                    swapchain_info->handle,
+                    pPresentationTimingCount->GetPointer(),
+                    pPresentationTimings->GetPointer());
+    }
+    return VK_SUCCESS;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetRefreshCycleDurationGOOGLE(
+    PFN_vkGetRefreshCycleDurationGOOGLE                         func,
+    VkResult                                                    original_result,
+    const VulkanDeviceInfo*                                     device_info,
+    const VulkanSwapchainKHRInfo*                               swapchain_info,
+    StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties)
+{
+    if (!IsExtensionBeingFaked(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME))
+    {
+        return func(device_info->handle, swapchain_info->handle, pDisplayTimingProperties->GetPointer());
+    }
+    return VK_SUCCESS;
 }
 
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(
