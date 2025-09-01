@@ -3116,7 +3116,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             faked_extensions_.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
         }
 
-        // Fake VK_GOOGLE_display_timing if querried but not supported
+        // Fake VK_GOOGLE_display_timing if requested, but not supported
         if (graphics::feature_util::IsSupportedExtension(modified_extensions,
                                                          VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME) &&
             !graphics::feature_util::IsSupportedExtension(available_extensions,
