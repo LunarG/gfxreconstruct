@@ -1892,6 +1892,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
 
+    //! faked extensions is a list of currently bypassed extensions.
+    //! goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
 
   protected:

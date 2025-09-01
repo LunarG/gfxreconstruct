@@ -3086,48 +3086,38 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     if (graphics::feature_util::GetDeviceExtensions(
             physical_device, instance_table->EnumerateDeviceExtensionProperties, &available_extensions) == VK_SUCCESS)
     {
-        // If VK_EXT_frame_boundary is not supported but requested, fake it
-        bool ext_frame_boundary_is_supported =
-            graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-        bool ext_frame_boundary_is_requested =
-            graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-
-        if (ext_frame_boundary_is_requested && !ext_frame_boundary_is_supported)
-        {
-            auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
-                return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
-            });
-            modified_extensions.erase(iter);
-
-            VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info);
-
-            while (current->pNext != nullptr)
+        // helper to 'fake' support for certain extensions, if necessary.
+        // checks if an extension is requested, but not supported.
+        // if so, the extension will be removed from 'modified_extensions' and added to 'faked_extensions_'.
+        auto sanitize_faked_extension =
+            [this, &available_extensions, &modified_extensions](const char* ext_name) -> bool {
+            if (graphics::feature_util::IsSupportedExtension(modified_extensions, ext_name) &&
+                !graphics::feature_util::IsSupportedExtension(available_extensions, ext_name))
             {
-                if (current->pNext->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
-                {
-                    current->pNext = current->pNext->pNext;
-                    GFXRECON_LOG_WARNING(
-                        "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
-                    break;
-                }
-                current = current->pNext;
+                auto iter = std::find_if(
+                    modified_extensions.begin(), modified_extensions.end(), [ext_name](const char* extension) {
+                        return util::platform::StringCompare(ext_name, extension) == 0;
+                    });
+                modified_extensions.erase(iter);
+                faked_extensions_.push_back(ext_name);
+                return true;
             }
+            return false;
+        };
 
-            faked_extensions_.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+        // Fake VK_EXT_frame_boundary if requested, but not supported
+        if (sanitize_faked_extension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+        {
+            // also remove related feature-struct from pnext-chain
+            if (graphics::vulkan_struct_remove_pnext<VkPhysicalDeviceFrameBoundaryFeaturesEXT>(&modified_create_info))
+            {
+                GFXRECON_LOG_WARNING(
+                    "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
+            }
         }
 
         // Fake VK_GOOGLE_display_timing if requested, but not supported
-        if (graphics::feature_util::IsSupportedExtension(modified_extensions,
-                                                         VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME) &&
-            !graphics::feature_util::IsSupportedExtension(available_extensions,
-                                                          VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME))
-        {
-            auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
-                return util::platform::StringCompare(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME, extension) == 0;
-            });
-            modified_extensions.erase(iter);
-            faked_extensions_.push_back(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
-        }
+        sanitize_faked_extension(VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
 
         if (options_.remove_unsupported_features)
         {
