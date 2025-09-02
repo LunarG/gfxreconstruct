@@ -4993,19 +4993,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT* data, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUTES* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const _SECURITY_ATTRIBUTES& decoded_value = *data->decoded_value;
-        const Decoded__SECURITY_ATTRIBUTES& meta_struct = *data;
-        FieldToJson(jdata["nLength"], decoded_value.nLength, options);
-        FieldToJson(jdata["lpSecurityDescriptor"], meta_struct.lpSecurityDescriptor, options);
-        Bool32ToJson(jdata["bInheritHandle"], decoded_value.bInheritHandle, options);
-    }
-}
-
 // TODO Move all these manual functions out of the generator and into a .cpp file.
 
 /// @defgroup custom_dx12_struct_decoders_to_json_bodies Custom implementations for
@@ -5013,17 +5000,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUT
 /// We put the custom implementations in the generator Python rather than
 /// creating a whole new compilation unit for them.
 /** @{*/
-
-// Decoded_LARGE_INTEGER won't be generated as it is a <winnt.h> struct rather than D3D12.
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* data, const JsonOptions& options)
-{
-    using namespace util;
-    if (data && data->decoded_value)
-    {
-        const LARGE_INTEGER& decoded_value = *data->decoded_value;
-        FieldToJson(jdata, decoded_value.QuadPart, options);
-    }
-}
 
 // Generated version tries to read the struct members rather than doing the "fake enum" thing.
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID* data, const JsonOptions& options)

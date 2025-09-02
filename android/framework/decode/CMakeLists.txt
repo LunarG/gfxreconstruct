@@ -10,6 +10,11 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_object_info_table.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_common_struct_decoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_common_struct_decoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_common_struct_decoders_forward.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_common_struct_to_json.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_common_struct_to_json.cpp
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.h>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.cpp>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders_forward.h>

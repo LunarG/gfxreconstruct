@@ -72,11 +72,6 @@ size_t
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper);
 
-// Platform types.
-struct Decoded_LARGE_INTEGER;
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper);
-
 // Types requiring special processing.
 struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC;
 struct Decoded_D3D12_STATE_OBJECT_DESC;

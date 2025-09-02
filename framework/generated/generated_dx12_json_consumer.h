@@ -952,7 +952,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pObject,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
         PointerDecoder<uint64_t, void*>* pHandle) override;
@@ -3010,7 +3010,7 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         HRESULT return_value,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
         PointerDecoder<uint64_t, void*>* pHandle) override;

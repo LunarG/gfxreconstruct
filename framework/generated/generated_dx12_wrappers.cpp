@@ -57,7 +57,6 @@
 #include <Unknwnbase.h>
 #include <guiddef.h>
 #include <windef.h>
-#include <minwinbase.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -33155,12 +33154,6 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory7_Wrapper::UnregisterAdaptersChangedEvent(
 
 /*
 ** This part is generated from windef.h in Windows SDK: 10.0.26100.0
-**
-*/
-
-
-/*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 

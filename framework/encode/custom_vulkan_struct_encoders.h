@@ -21,9 +21,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H
-#define GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#ifndef GFXRECON_ENCODE_CUSTOM_VULKAN_STRUCT_ENCODERS_H
+#define GFXRECON_ENCODE_CUSTOM_VULKAN_STRUCT_ENCODERS_H
 
+#include "encode/custom_common_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
@@ -52,12 +53,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutToken
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value);
 
-// Platform defined structures that are external to Vulkan.
-void EncodeStruct(ParameterEncoder* encoder, const ACL& value);
-void EncodeStruct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
-void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#endif // GFXRECON_ENCODE_CUSTOM_VULKAN_STRUCT_ENCODERS_H
