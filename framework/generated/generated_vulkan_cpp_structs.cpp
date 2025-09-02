@@ -33,9 +33,6 @@
 #include "generated/generated_vulkan_cpp_consumer_extension.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
-#include <locale>
-#include <codecvt>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -11163,8 +11160,7 @@ std::string GenerateStruct_VkExportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkExportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11180,8 +11176,7 @@ std::string GenerateStruct_VkImportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalMemoryHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkImportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11386,8 +11381,7 @@ std::string GenerateStruct_VkExportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkExportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11405,8 +11399,7 @@ std::string GenerateStruct_VkImportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << "VkSemaphoreImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalSemaphoreHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkImportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11563,8 +11556,7 @@ std::string GenerateStruct_VkExportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkExportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11597,8 +11589,7 @@ std::string GenerateStruct_VkImportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << "VkFenceImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalFenceHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << conv.to_bytes(structInfo->name) << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkImportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;

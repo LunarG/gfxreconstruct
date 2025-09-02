@@ -186,8 +186,6 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
     # Method override
     def beginFile(self, genOpts):
-        if not genOpts.is_header:
-            genOpts.begin_end_file_data.system_headers.extend(['locale', 'codecvt'])
         VulkanBaseGenerator.beginFile(self, genOpts)
         self.is_header = genOpts.is_header
         self.newline()
@@ -498,8 +496,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
         arg_name = struct_prefix + arg.name
         struct_arg = None
         if arg.platform_full_type == 'LPCWSTR':
-            local_body.append('\tstd::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;\n')
-            struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << conv.to_bytes({arg_name}) << ")"'
+            struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << util::strings::convert_wstring_to_utf8({arg_name}) << ")"'
         else:
             struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << {arg_name} << ")"'
         local_body.append(makeOutStructSet(struct_arg, locals(), isFirstArg, isLastArg, indent))
