@@ -1277,7 +1277,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
 {
-    if (options_.capture && id != nullptr)
+    if (options_.capture && id != nullptr && *id < kRecaptureHandleIdOffset)
     {
         encode::CommonCaptureManager::PushUniqueId(*id);
     }
@@ -1291,7 +1291,11 @@ void VulkanReplayConsumerBase::PushRecaptureHandleIds(const format::HandleId* id
         {
             for (uint64_t i = 0; i < id_count; ++i)
             {
-                encode::CommonCaptureManager::PushUniqueId(id_array[id_count - i - 1]);
+                auto id = id_array[id_count - i - 1];
+                if (id < kRecaptureHandleIdOffset)
+                {
+                    encode::CommonCaptureManager::PushUniqueId(id);
+                }
             }
         }
     }
