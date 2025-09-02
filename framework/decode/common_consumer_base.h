@@ -58,6 +58,10 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
                                                        const char*                                   env_string)
     {}
 
+    virtual void PushRecaptureHandleId(const format::HandleId* id) {}
+    virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) {}
+    virtual void ClearRecaptureHandleIds() {}
+
   protected:
     uint64_t frame_number_{ 0 };
 };
