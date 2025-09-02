@@ -86,7 +86,7 @@ std::string_view ViewOfCharArray(const char* array, const size_t capacity)
     return std::string_view(array, zero_end - array);
 }
 
-std::string convert_wstring_to_utf8(const std::wstring_view &wstr)
+std::string convert_wstring_to_utf8(const std::wstring_view& wstr)
 {
 #if defined(__clang__)
 #pragma clang diagnostic push
