@@ -54,6 +54,9 @@ void RemoveWhitespace(std::string& str);
 /// to the given capacity as a protection against ill-formed input.
 std::string_view ViewOfCharArray(const char* array, const size_t capacity);
 
+/// Convert a std::wstring to an UTF-8 encoded std::string
+std::string convert_wstring_to_utf8(const std::wstring& wstr);
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
