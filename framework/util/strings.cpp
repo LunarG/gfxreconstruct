@@ -22,6 +22,7 @@
 */
 
 #include "util/strings.h"
+#include <algorithm>
 #include <sstream>
 #include <locale>
 #include <codecvt>
