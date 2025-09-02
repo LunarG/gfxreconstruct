@@ -1624,9 +1624,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                            PFN_vkCreateInstance      create_instance,
                            PFN_vkCreateDevice        create_device);
 
-    void PushRecaptureHandleId(const format::HandleId* id);
-    void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count);
-    void ClearRecaptureHandleIds();
+    virtual void PushRecaptureHandleId(const format::HandleId* id) override;
+    virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
+    virtual void ClearRecaptureHandleIds() override;
 
     //// End recapture members
 
