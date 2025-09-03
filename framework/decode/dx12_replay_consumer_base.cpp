@@ -997,6 +997,7 @@ void Dx12ReplayConsumerBase::PostProcessExternalObject(
         case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
         case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
             break;
+        case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
         case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
         case format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle:
         case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName:
