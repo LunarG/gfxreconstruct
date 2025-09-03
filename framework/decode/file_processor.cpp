@@ -516,14 +516,24 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
     assert(compressor_ != nullptr);
 
     const uint8_t* compressed_data = nullptr;
-
-    if (compressed_buffer_size > compressed_parameter_buffer_.size())
+    if constexpr (!FileInputStream::HasReadSpanSupport())
     {
-        compressed_parameter_buffer_.resize(compressed_buffer_size);
+        if (compressed_buffer_size > compressed_parameter_buffer_.size())
+        {
+            compressed_parameter_buffer_.resize(compressed_buffer_size);
+        }
+        if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
+        {
+            compressed_data = compressed_parameter_buffer_.data();
+        }
     }
-    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
+    else
     {
-        compressed_data = compressed_parameter_buffer_.data();
+        util::MappedSpan read_span = ReadSpan(compressed_buffer_size);
+        if (!read_span.empty())
+        {
+            compressed_data = reinterpret_cast<const uint8_t*>(read_span.data());
+        }
     }
 
     if (compressed_data)
@@ -557,6 +567,21 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
         return true;
     }
     return false;
+}
+util::MappedSpan FileProcessor::ReadSpan(size_t bytes)
+{
+    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
+    // without forcing use of mutability
+    auto& file_entry = file_stack_.back().active_file;
+    assert(file_entry);
+
+    util::MappedSpan read_span = file_entry.ReadSpan(bytes);
+    if (!read_span.empty())
+    {
+        // Note: WIP WIP WIP Should this += read_span.size() instead...
+        bytes_read_ += bytes;
+    }
+    return read_span;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
@@ -2526,6 +2551,15 @@ bool FileProcessor::ActiveFiles::Ref::IsOpen() const
 bool FileProcessor::ActiveFiles::Ref::ReadBytes(void* buffer, size_t bytes)
 {
     return active_file.ReadBytes(buffer, bytes);
+}
+
+util::MappedSpan FileProcessor::ActiveFiles::Ref::ReadSpan(size_t bytes)
+{
+    if constexpr (FileInputStream::HasReadSpanSupport())
+    {
+        return active_file.ReadSpan(bytes);
+    }
+    return util::MappedSpan();
 }
 
 bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
