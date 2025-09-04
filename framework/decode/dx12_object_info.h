@@ -92,33 +92,6 @@ struct D3D12StateObjectInfo;
 struct D3D12ResourceInfo;
 struct D3D12CommandSignatureInfo;
 
-// Util function for getting the extra info object from a DxObjectInfo.
-template <typename T>
-T* GetExtraInfo(DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
-template <typename T>
-const T* GetExtraInfo(const DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
 struct MappedMemoryInfo
 {
     uint32_t count{ 0 };     ///< Number of times that the memory has been mapped.
@@ -222,6 +195,33 @@ struct DxObjectInfo
     std::unique_ptr<DxObjectExtraInfo>                     extra_info;
     std::unordered_map<VariableLengthArrayIndices, size_t> array_counts;
 };
+
+// Util function for getting the extra info object from a DxObjectInfo.
+template <typename T>
+T* GetExtraInfo(DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
+
+template <typename T>
+const T* GetExtraInfo(const DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
 
 struct DxgiSwapchainInfo : DxObjectExtraInfo
 {

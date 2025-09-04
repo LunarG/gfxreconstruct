@@ -24,6 +24,8 @@
 #include "util/strings.h"
 #include <algorithm>
 #include <sstream>
+#include <locale>
+#include <codecvt>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -82,6 +84,30 @@ std::string_view ViewOfCharArray(const char* array, const size_t capacity)
 {
     const char* zero_end = std::find(array, array + capacity, 0);
     return std::string_view(array, zero_end - array);
+}
+
+std::string convert_wstring_to_utf8(const std::wstring_view& wstr)
+{
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> conv;
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+    return conv.to_bytes(wstr.data(), wstr.data() + wstr.length());
 }
 
 GFXRECON_END_NAMESPACE(strings)

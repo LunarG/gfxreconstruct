@@ -162,7 +162,8 @@ void WrapStruct(const D3D12_DRED_ALLOCATION_NODE1* value)
 {
     if(value->pObject)
     {
-        WrapObject(IID_IUnknown, reinterpret_cast<void**>(&const_cast<IUnknown*>(value->pObject)), nullptr);
+        IUnknown* casted = const_cast<IUnknown*>(value->pObject);
+        WrapObject(IID_IUnknown, reinterpret_cast<void**>(&casted), nullptr);
     }
 }
 

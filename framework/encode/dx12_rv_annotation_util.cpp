@@ -79,8 +79,7 @@ void RvAnnotationUtil::AddRvAnnotation(void** result)
                 auto shader_id = graphics::PackDx12ShaderIdentifier((uint8_t*)*result);
                 if (shader_id != zero_id)
                 {
-                    auto& annotated_shader_id = annotated_shader_ids_.find(*result);
-                    if (annotated_shader_id == annotated_shader_ids_.end())
+                    if (!annotated_shader_ids_.contains(*result))
                     {
                         uint64_t shader_id_mask = manager->GetShaderIDMask();
                         memcpy(shader_id.data() + D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES - sizeof(shader_id_mask),

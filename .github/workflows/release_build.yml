@@ -131,7 +131,7 @@ jobs:
         run: .github/workflows/scripts/build-dependencies-macos.sh
       - name: Run build script
         run: |
-          python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
+          python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0
       - name: Prepare artifacts
         run: |
           cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/

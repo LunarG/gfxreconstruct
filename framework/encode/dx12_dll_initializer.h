@@ -26,6 +26,7 @@
 #include "util/defines.h"
 #include "util/platform.h"
 #include "util/file_path.h"
+#include "util/interception/hooking_detours.h"
 
 #include <string>
 #include <windows.h>
