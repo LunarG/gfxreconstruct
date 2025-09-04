@@ -24,6 +24,7 @@
 #include "util/defines.h"
 #include "util/logging.h"
 #include "mark_injected_commands.h"
+#include "encode/capture_manager.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -57,6 +58,10 @@ void BeginInjectedCommands()
     injecting_api_calls_g = true;
 #endif
 
+    // When replay is injecting commands, force Handle ID generation to generate a new, default ID instead of using any
+    // Handle IDs that were specified using CommonCaptureManager::PushUniqueId().
+    encode::CommonCaptureManager::SetForceDefaultUniqueId(true);
+
     BeginInjectCommands_fp(InjectCommandsData_ptr);
 }
 
@@ -69,6 +74,8 @@ void EndInjectedCommands()
 #endif
 
     EndInjectCommands_fp(InjectCommandsData_ptr);
+
+    encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
 }
 
 GFXRECON_END_NAMESPACE(decode)
