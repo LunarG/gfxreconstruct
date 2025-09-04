@@ -71,10 +71,10 @@ size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
     return data_size;
 }
 
-size_t ZstdCompressor::Decompress(const size_t                compressed_size,
-                                  const std::vector<uint8_t>& compressed_data,
-                                  const size_t                expected_uncompressed_size,
-                                  std::vector<uint8_t>*       uncompressed_data) const
+size_t ZstdCompressor::Decompress(const size_t          compressed_size,
+                                  const uint8_t*        compressed_data,
+                                  const size_t          expected_uncompressed_size,
+                                  std::vector<uint8_t>* uncompressed_data) const
 {
     size_t data_size = 0;
 
@@ -85,7 +85,7 @@ size_t ZstdCompressor::Decompress(const size_t                compressed_size,
 
     size_t uncompressed_size_generated = ZSTD_decompress(reinterpret_cast<char*>(uncompressed_data->data()),
                                                          expected_uncompressed_size,
-                                                         reinterpret_cast<const char*>(compressed_data.data()),
+                                                         reinterpret_cast<const char*>(compressed_data),
                                                          compressed_size);
 
     if (!ZSTD_isError(uncompressed_size_generated))
