@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_replay_dump_resources_common.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -2372,8 +2373,10 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        if (dst_img_format_props.maxExtent.width < static_cast<uint32_t>(static_cast<float>(extent.width) * scale) ||
-            dst_img_format_props.maxExtent.height < static_cast<uint32_t>(static_cast<float>(extent.height) * scale))
+        const VkExtent3D scaled_extent = decode::ScaleExtent(extent, scale);
+        if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
+            (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
+            (dst_img_format_props.maxExtent.depth < scaled_extent.depth))
         {
             return false;
         }
