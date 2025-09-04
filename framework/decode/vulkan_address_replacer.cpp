@@ -547,8 +547,10 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             continue;
         }
         auto& descriptor_set_binding_info = it->second;
+
+        // we expect a buffer or inline-uniform-block
         GFXRECON_ASSERT(!descriptor_set_binding_info.buffer_info.empty() ||
-                        !descriptor_set_binding_info.buffer_info.empty());
+                        !descriptor_set_binding_info.inline_uniform_block.empty());
 
         for (auto& [binding, desc_buffer_info] : descriptor_set_binding_info.buffer_info)
         {
