@@ -109,15 +109,27 @@ std::string FileProcessor::ApplyAbsolutePath(const std::string& file)
 
 bool FileProcessor::ProcessNextFrame()
 {
+    auto block_processor = [this]() { return this->ProcessBlocksOneFrame(); };
+    return DoProcessNextFrame(block_processor);
+}
+
+bool FileProcessor::ProcessBlocksOneFrame()
+{
+    for (ApiDecoder* decoder : decoders_)
+    {
+        decoder->SetCurrentFrameNumber(current_frame_number_);
+    }
+    return ProcessBlocks();
+}
+
+bool FileProcessor::DoProcessNextFrame(const std::function<bool()>& block_processor)
+{
     bool success = IsFileValid();
 
     if (success)
     {
-        for (ApiDecoder* decoder : decoders_)
-        {
-            decoder->SetCurrentFrameNumber(current_frame_number_);
-        }
-        success = ProcessBlocks();
+
+        success = block_processor();
     }
     else
     {
@@ -412,29 +424,7 @@ bool FileProcessor::ProcessBlocks()
             }
             else
             {
-                if (!AtEof())
-                {
-                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
-                    // assumes that the block header has been successfully read and will print an incomplete block at
-                    // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
-                    // we print nothing at EOF, or print an error message and set the error code directly when not at
-                    // EOF.
-                    GFXRECON_LOG_ERROR("Failed to read block header (frame %u block %" PRIu64 ")",
-                                       current_frame_number_,
-                                       block_index_);
-                    error_state_ = kErrorReadingBlockHeader;
-                }
-                else
-                {
-                    assert(!file_stack_.empty());
-
-                    ActiveFileContext& current_file = GetCurrentFile();
-                    if (current_file.execute_till_eof)
-                    {
-                        file_stack_.pop_back();
-                        success = !file_stack_.empty();
-                    }
-                }
+                success = HandleBlockEof("read", true);
             }
         }
         ++block_index_;
@@ -2452,6 +2442,45 @@ void FileProcessor::PrintBlockInfo() const
         GFXRECON_LOG_INFO(
             "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
     }
+}
+
+bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
+{
+
+    bool success = false;
+    if (!AtEof())
+    {
+        // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+        // assumes that the block header has been successfully read and will print an incomplete block at
+        // end of file warning when the file is at EOF without an error. For this case (the normal EOF case)
+        // we print nothing at EOF, or print an error message and set the error code directly when not at
+        // EOF.
+        if (report_frame_and_block)
+        {
+            GFXRECON_LOG_ERROR("Failed to %s block header (frame %u block %" PRIu64 ")",
+                               operation,
+                               current_frame_number_,
+                               block_index_);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to %s block header", operation);
+        }
+
+        error_state_ = kErrorReadingBlockHeader;
+    }
+    else
+    {
+        GFXRECON_ASSERT(!file_stack_.empty());
+
+        ActiveFileContext& current_file = GetCurrentFile();
+        if (current_file.execute_till_eof)
+        {
+            file_stack_.pop_back();
+            success = !file_stack_.empty();
+        }
+    }
+    return success;
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -106,5 +106,29 @@ std::string GetCompressionTypeName(CompressionType type)
     return "";
 }
 
+const char* ToString(BlockType type)
+{
+    switch (type)
+    {
+        case kFrameMarkerBlock:
+            return "frame marker";
+        case kStateMarkerBlock:
+            return "state marker";
+        case kMetaDataBlock:
+        case kCompressedMetaDataBlock:
+            return "meta-data";
+        case kFunctionCallBlock:
+        case kCompressedFunctionCallBlock:
+            return "function call";
+        case kAnnotation:
+            return "annotation";
+        case kMethodCallBlock:
+        case kCompressedMethodCallBlock:
+            return "method call";
+        case kUnknownBlock:
+            return "unknown";
+    }
+    return "INVALID BLOCK TYPE";
+}
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

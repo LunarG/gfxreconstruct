@@ -31,6 +31,7 @@
 #include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/file_input_stream.h"
 
 #include <algorithm>
@@ -38,6 +39,7 @@
 #include <cstdio>
 #include <deque>
 #include <memory>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -132,24 +134,26 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
+    bool IsFrameDelimiter(format::ApiCallId call_id) const;
+
   protected:
+    bool DoProcessNextFrame(const std::function<bool()>& block_processor);
+    bool ProcessBlocksOneFrame();
+
     bool ContinueDecoding();
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
     virtual bool ReadBytes(void* buffer, size_t buffer_size);
 
-    bool SkipBytes(size_t skip_size);
+    virtual bool SkipBytes(size_t skip_size);
 
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
     bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
-    bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
-
-    bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
     void HandleBlockReadError(Error error_code, const char* error_message);
 
@@ -161,6 +165,8 @@ class FileProcessor
     bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
 
     void PrintBlockInfo() const;
+
+    bool HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
     uint64_t                 current_frame_number_;
@@ -271,8 +277,7 @@ class FileProcessor
   private:
     ActiveFileContext& GetCurrentFile()
     {
-        assert(file_stack_.size());
-
+        GFXRECON_ASSERT(file_stack_.size());
         return file_stack_.back();
     }
 
