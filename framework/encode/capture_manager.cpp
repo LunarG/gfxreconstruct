@@ -384,8 +384,6 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     rv_annotation_info_.rv_annotation = trace_settings.rv_anotation_info.rv_annotation;
     if (rv_annotation_info_.rv_annotation == true)
     {
-        force_file_flush_            = true;
-        force_command_serialization_ = true;
         if (trace_settings.rv_anotation_info.annotation_mask_rand == true)
         {
             rv_annotation_info_.gpuva_mask      = static_cast<uint16_t>(std::rand() % 0xffff);
