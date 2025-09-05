@@ -48,16 +48,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DrawCallsDumpingContext::DrawCallsDumpingContext(const DrawCallIndices*       draw_indices,
-                                                 const RenderPassIndices*     renderpass_indices,
-                                                 CommonObjectInfoTable&       object_info_table,
-                                                 const VulkanReplayOptions&   options,
-                                                 VulkanDumpResourcesDelegate& delegate,
-                                                 const util::Compressor*      compressor) :
+DrawCallsDumpingContext::DrawCallsDumpingContext(const CommandIndices*          draw_indices,
+                                                 const RenderPassIndices*       renderpass_indices,
+                                                 const CommandImageSubresource& dc_subresources,
+                                                 CommonObjectInfoTable&         object_info_table,
+                                                 const VulkanReplayOptions&     options,
+                                                 VulkanDumpResourcesDelegate&   delegate,
+                                                 const util::Compressor*        compressor) :
     original_command_buffer_info_(nullptr),
-    current_cb_index_(0), active_renderpass_(nullptr), active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr },
-    current_renderpass_(0), current_subpass_(0), delegate_(delegate), options_(options), compressor_(compressor),
-    current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
+    current_cb_index_(0), dc_subresources_(dc_subresources), active_renderpass_(nullptr),
+    active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
+    delegate_(delegate), options_(options), compressor_(compressor), current_render_pass_type_(kNone),
+    aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr)
 {
@@ -1146,11 +1148,18 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         res_info.dumped_data                       = VulkanDelegateImageDumpedData();
         auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
+        const VkImageSubresourceRange subresource_range = {
+            GetFormatAspects(image_info->format),
+            0,
+            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+            0,
+            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+        };
         VkResult res = DumpImage(before_command ? dumped_rt.dumped_image_before : dumped_rt.dumped_image,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                  options_.dump_resources_scale,
                                  options_.dump_resources_dump_raw_images,
-                                 options_.dump_resources_dump_all_image_subresources,
+                                 subresource_range,
                                  dumped_image_data.data,
                                  device_info,
                                  device_table_,
@@ -1207,11 +1216,18 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             res_info.dumped_data                       = VulkanDelegateImageDumpedData();
             auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
+            const VkImageSubresourceRange subresource_range = {
+                GetFormatAspects(image_info->format),
+                0,
+                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                0,
+                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+            };
             VkResult res = DumpImage(before_command ? dumped_rt.dumped_image_before : dumped_rt.dumped_image,
                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                      options_.dump_resources_scale,
                                      options_.dump_resources_dump_raw_images,
-                                     options_.dump_resources_dump_all_image_subresources,
+                                     subresource_range,
                                      dumped_image_data.data,
                                      device_info,
                                      device_table_,
@@ -1260,6 +1276,10 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
     const VulkanDelegateDumpResourceContext res_info_base(instance_table_, device_table_, compressor_);
 
+    CommandImageSubresourceIterator cmd_subresources_entry;
+    cmd_subresources_entry    = dc_subresources_.find(dc_index);
+    const bool cull_resources = cmd_subresources_entry != dc_subresources_.end();
+
     auto dc_param_entry = draw_call_params_.find(dc_index);
     GFXRECON_ASSERT(dc_param_entry != draw_call_params_.end());
 
@@ -1283,6 +1303,23 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
 
                             if (image_info == nullptr)
+                            {
+                                continue;
+                            }
+
+                            // Cull dumped descriptors
+                            VkImageSubresourceRange subresource_range = {
+                                GetFormatAspects(image_info->format),
+                                0,
+                                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                                0,
+                                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+                            };
+                            if (cull_resources && CullDescriptor(cmd_subresources_entry,
+                                                                 desc_set_index,
+                                                                 desc_binding_index,
+                                                                 array_index,
+                                                                 &subresource_range))
                             {
                                 continue;
                             }
@@ -1321,7 +1358,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                          options_.dump_resources_scale,
                                                          options_.dump_resources_dump_raw_images,
-                                                         options_.dump_resources_dump_all_image_subresources,
+                                                         subresource_range,
                                                          image_raw_data.data,
                                                          device_info,
                                                          device_table_,
@@ -1376,6 +1413,14 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         {
                             continue;
                         }
+
+                        // Cull dumped descriptors
+                        if (cull_resources &&
+                            CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, array_index))
+                        {
+                            continue;
+                        }
+
                         const VkDeviceSize offset = buf_desc_info->offset;
                         const VkDeviceSize range  = buf_desc_info->range;
                         const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
@@ -1451,6 +1496,13 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             continue;
                         }
 
+                        // Cull dumped descriptors
+                        if (cull_resources &&
+                            CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, array_index))
+                        {
+                            continue;
+                        }
+
                         const VkDeviceSize offset = buf_desc_info.offset;
                         const VkDeviceSize range  = buf_desc_info.range;
                         const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
@@ -1515,6 +1567,12 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 {
+                    // Cull dumped descriptors
+                    if (cull_resources && CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, 0))
+                    {
+                        continue;
+                    }
+
                     auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                         DumpResourceType::kInlineUniformBufferDescriptor,
                         bcb_index,
@@ -3344,7 +3402,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
             const uint64_t execute_commands_index = ex_com.first;
             for (const DrawCallsDumpingContext* secondary_context : ex_com.second)
             {
-                const DrawCallIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
+                const CommandIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
 
                 if (IsInsideRange(secondary_dcs, dc_index))
                 {
