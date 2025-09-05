@@ -95,6 +95,8 @@ util::Compressor* CreateCompressor(CompressionType type);
 
 std::string GetCompressionTypeName(CompressionType type);
 
+const char* ToString(BlockType type);
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
