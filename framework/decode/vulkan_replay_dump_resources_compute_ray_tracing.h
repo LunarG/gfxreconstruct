@@ -46,12 +46,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext
 {
   public:
-    DispatchTraceRaysDumpingContext(const std::vector<uint64_t>* dispatch_indices,
-                                    const std::vector<uint64_t>* trace_rays_indices,
-                                    CommonObjectInfoTable&       object_info_table,
-                                    const VulkanReplayOptions&   options,
-                                    VulkanDumpResourcesDelegate& delegate,
-                                    const util::Compressor*      compressor);
+    DispatchTraceRaysDumpingContext(const CommandIndices*          dispatch_indices,
+                                    const CommandImageSubresource& disp_indices,
+                                    const CommandIndices*          trace_rays_indices,
+                                    const CommandImageSubresource& tr_indices,
+                                    CommonObjectInfoTable&         object_info_table,
+                                    const VulkanReplayOptions&     options,
+                                    VulkanDumpResourcesDelegate&   delegate,
+                                    const util::Compressor*        compressor);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -141,8 +143,10 @@ class DispatchTraceRaysDumpingContext
 
     const VulkanCommandBufferInfo* original_command_buffer_info_;
     VkCommandBuffer                DR_command_buffer_;
-    std::vector<uint64_t>          dispatch_indices_;
-    std::vector<uint64_t>          trace_rays_indices_;
+    CommandIndices                 dispatch_indices_;
+    CommandImageSubresource        disp_subresources_;
+    CommandIndices                 trace_rays_indices_;
+    CommandImageSubresource        tr_subresources_;
     VulkanDumpResourcesDelegate&   delegate_;
     const VulkanReplayOptions&     options_;
     const util::Compressor*        compressor_;

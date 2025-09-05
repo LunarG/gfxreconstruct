@@ -101,6 +101,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                        std::forward_as_tuple(bcb_index),
                                        std::forward_as_tuple(&options.Draw_Indices[i],
                                                              &options.RenderPass_Indices[i],
+                                                             options.DrawSubresources,
                                                              *object_info_table,
                                                              options,
                                                              *active_delegate_,
@@ -115,9 +116,11 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::forward_as_tuple((options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size())
                                           ? &options.Dispatch_Indices[i]
                                           : nullptr,
+                                      options.DispatchSubresources,
                                       (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
                                           ? &options.TraceRays_Indices[i]
                                           : nullptr,
+                                      options.TraceRaysSubresources,
                                       *object_info_table_,
                                       options,
                                       *active_delegate_,
@@ -150,6 +153,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                        std::forward_as_tuple(bcb_index),
                                                        std::forward_as_tuple(nullptr,
                                                                              &options.RenderPass_Indices[i],
+                                                                             options.DrawSubresources,
                                                                              *object_info_table,
                                                                              options,
                                                                              *active_delegate_,
@@ -175,11 +179,16 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 {
                     if (primary_disp_context == nullptr)
                     {
-                        dispatch_ray_contexts.emplace(
-                            std::piecewise_construct,
-                            std::forward_as_tuple(bcb_index),
-                            std::forward_as_tuple(
-                                nullptr, nullptr, *object_info_table_, options, *active_delegate_, compressor_.get()));
+                        dispatch_ray_contexts.emplace(std::piecewise_construct,
+                                                      std::forward_as_tuple(bcb_index),
+                                                      std::forward_as_tuple(nullptr,
+                                                                            options.DispatchSubresources,
+                                                                            nullptr,
+                                                                            options.TraceRaysSubresources,
+                                                                            *object_info_table_,
+                                                                            options,
+                                                                            *active_delegate_,
+                                                                            compressor_.get()));
 
                         primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
                     }

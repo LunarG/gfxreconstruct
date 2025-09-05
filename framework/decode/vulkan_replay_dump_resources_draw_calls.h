@@ -61,12 +61,13 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const DrawCallIndices*       dc_indices_,
-                            const RenderPassIndices*     rp_indices,
-                            CommonObjectInfoTable&       object_info_table,
-                            const VulkanReplayOptions&   options,
-                            VulkanDumpResourcesDelegate& delegate,
-                            const util::Compressor*      compressor);
+    DrawCallsDumpingContext(const CommandIndices*          dc_indices,
+                            const RenderPassIndices*       rp_indices,
+                            const CommandImageSubresource& dc_subresources,
+                            CommonObjectInfoTable&         object_info_table,
+                            const VulkanReplayOptions&     options,
+                            VulkanDumpResourcesDelegate&   delegate,
+                            const util::Compressor*        compressor);
 
     ~DrawCallsDumpingContext();
 
@@ -223,8 +224,9 @@ class DrawCallsDumpingContext
     VulkanCommandBufferInfo*     original_command_buffer_info_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
-    DrawCallIndices              dc_indices_;
+    CommandIndices               dc_indices_;
     RenderPassIndices            RP_indices_;
+    CommandImageSubresource      dc_subresources_;
     const VulkanRenderPassInfo*  active_renderpass_;
     const VulkanFramebufferInfo* active_framebuffer_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;
@@ -663,9 +665,9 @@ class DrawCallsDumpingContext
     using DrawCallParameters = std::unordered_map<uint64_t, std::unique_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
-    DrawCallParameters&    GetDrawCallParameters() { return draw_call_params_; }
-    DrawCallIndices&       GetDrawCallIndices() { return dc_indices_; }
-    const DrawCallIndices& GetDrawCallIndices() const { return dc_indices_; }
+    DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
+    CommandIndices&       GetDrawCallIndices() { return dc_indices_; }
+    const CommandIndices& GetDrawCallIndices() const { return dc_indices_; }
 
     struct
     {

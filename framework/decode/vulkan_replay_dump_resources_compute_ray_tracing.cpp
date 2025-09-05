@@ -50,19 +50,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vector<uint64_t>* dispatch_indices,
-                                                                 const std::vector<uint64_t>* trace_rays_indices,
-                                                                 CommonObjectInfoTable&       object_info_table,
-                                                                 const VulkanReplayOptions&   options,
-                                                                 VulkanDumpResourcesDelegate& delegate,
-                                                                 const util::Compressor*      compressor) :
+DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const CommandIndices*          dispatch_indices,
+                                                                 const CommandImageSubresource& disp_subresources,
+                                                                 const CommandIndices*          trace_rays_indices,
+                                                                 const CommandImageSubresource& tr_subresources,
+                                                                 CommonObjectInfoTable&         object_info_table,
+                                                                 const VulkanReplayOptions&     options,
+                                                                 VulkanDumpResourcesDelegate&   delegate,
+                                                                 const util::Compressor*        compressor) :
     original_command_buffer_info_(nullptr),
-    DR_command_buffer_(VK_NULL_HANDLE), delegate_(delegate), options_(options), compressor_(compressor),
-    bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
-    parent_device_(VK_NULL_HANDLE), instance_table_(nullptr), object_info_table_(object_info_table),
-    replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0), current_trace_rays_index_(0),
-    reached_end_command_buffer_(false)
+    DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
+    delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
+    bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
+    device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
+    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
+    current_trace_rays_index_(0), reached_end_command_buffer_(false)
 {
     if (dispatch_indices != nullptr)
     {
@@ -1202,6 +1204,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         is_dispatch ? dis_params->second->mutable_resources_clones_before
                     : tr_params->second->mutable_resources_clones_before;
 
+    const CommandImageSubresource&  command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
+    CommandImageSubresourceIterator cmd_subresources_entry;
+    cmd_subresources_entry    = command_subresources.find(cmd_index);
+    const bool cull_resources = cmd_subresources_entry != command_subresources.end();
+
     if (mutable_resources_clones.images.empty() && mutable_resources_clones.buffers.empty())
     {
         assert(mutable_resources_clones_before.images.empty() && mutable_resources_clones_before.buffers.empty());
@@ -1226,6 +1233,23 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     for (size_t i = 0; i < mutable_resources_clones.images.size(); ++i)
     {
         GFXRECON_ASSERT(mutable_resources_clones.images[i].new_image_info.handle != VK_NULL_HANDLE);
+
+        // Cull dumped descriptors
+        VkImageSubresourceRange subresource_range = {
+            GetFormatAspects(mutable_resources_clones.images[i].new_image_info.format),
+            0,
+            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+            0,
+            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+        };
+        if (cull_resources && CullDescriptor(cmd_subresources_entry,
+                                             mutable_resources_clones.images[i].desc_set,
+                                             mutable_resources_clones.images[i].desc_binding,
+                                             mutable_resources_clones.images[i].array_index,
+                                             &subresource_range))
+        {
+            continue;
+        }
 
         if (!IsImageDumpable(instance_table_, object_info_table_, &mutable_resources_clones.images[i].new_image_info))
         {
@@ -1257,7 +1281,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                  options_.dump_resources_scale,
                                  options_.dump_resources_dump_raw_images,
-                                 options_.dump_resources_dump_all_image_subresources,
+                                 subresource_range,
                                  dumped_image_data.data,
                                  device_info,
                                  device_table_,
@@ -1291,7 +1315,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                             options_.dump_resources_scale,
                             options_.dump_resources_dump_raw_images,
-                            options_.dump_resources_dump_all_image_subresources,
+                            subresource_range,
                             dumped_image_data.data,
                             device_info,
                             device_table_,
@@ -1317,6 +1341,15 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     for (size_t i = 0; i < mutable_resources_clones.buffers.size(); ++i)
     {
         GFXRECON_ASSERT(mutable_resources_clones.buffers[i].new_buffer_info.handle != VK_NULL_HANDLE);
+
+        // Cull dumped descriptors
+        if (cull_resources && CullDescriptor(cmd_subresources_entry,
+                                             mutable_resources_clones.buffers[i].desc_set,
+                                             mutable_resources_clones.buffers[i].desc_binding,
+                                             mutable_resources_clones.buffers[i].array_index))
+        {
+            continue;
+        }
 
         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
             DumpResourceType::kDispatchTraceRaysBuffer,
@@ -1416,6 +1449,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
     const DumpResourcesCommandType resource_type =
         is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing;
 
+    const CommandImageSubresource&  command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
+    CommandImageSubresourceIterator cmd_subresources_entry;
+    cmd_subresources_entry    = command_subresources.find(cmd_index);
+    const bool cull_resources = cmd_subresources_entry != command_subresources.end();
+
     const VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
 
     assert(original_command_buffer_info_);
@@ -1440,6 +1478,23 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             const VulkanImageInfo* img_info =
                                 object_info_table_.GetVkImageInfo(img_desc.image_view_info->image_id);
                             if (img_info == nullptr)
+                            {
+                                continue;
+                            }
+
+                            // Cull dumped descriptors
+                            VkImageSubresourceRange subresource_range = {
+                                GetFormatAspects(img_info->format),
+                                0,
+                                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                                0,
+                                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+                            };
+                            if (cull_resources && CullDescriptor(cmd_subresources_entry,
+                                                                 desc_set_index,
+                                                                 desc_binding_index,
+                                                                 array_index,
+                                                                 &subresource_range))
                             {
                                 continue;
                             }
@@ -1478,7 +1533,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                                          img_info->intermediate_layout,
                                                          options_.dump_resources_scale,
                                                          options_.dump_resources_dump_raw_images,
-                                                         options_.dump_resources_dump_all_image_subresources,
+                                                         subresource_range,
                                                          dumped_image_data.data,
                                                          device_info,
                                                          device_table_,
@@ -1517,6 +1572,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         {
                             continue;
                         }
+
+                        // Cull dumped descriptors
+                        if (cull_resources &&
+                            CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, array_index))
+                        {
+                            continue;
+                        }
+
                         const VkDeviceSize offset = buf_desc->offset;
                         const VkDeviceSize range  = buf_desc->range;
                         const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
@@ -1586,6 +1649,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             continue;
                         }
 
+                        // Cull dumped descriptors
+                        if (cull_resources &&
+                            CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, array_index))
+                        {
+                            continue;
+                        }
+
                         const VkDeviceSize offset = buf_desc.offset;
                         const VkDeviceSize range  = buf_desc.range;
                         const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
@@ -1646,6 +1716,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 {
+                    // Cull dumped descriptors
+                    if (cull_resources && CullDescriptor(cmd_subresources_entry, desc_set_index, desc_binding_index, 0))
+                    {
+                        continue;
+                    }
+
                     auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                         DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor,
                         bcb_index,

@@ -34,6 +34,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(parse_dump_resources)
@@ -159,6 +160,163 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
     return false;
 }
 
+static VkImageAspectFlags StrToImageAspectFlagBits(const std::string& str)
+{
+    VkImageAspectFlags flags = VK_IMAGE_ASPECT_NONE;
+
+    if (str.find("VK_IMAGE_ASPECT_COLOR_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_DEPTH_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_STENCIL_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_PLANE_0_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_PLANE_0_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_PLANE_1_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_PLANE_1_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_PLANE_2_BIT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_PLANE_2_BIT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT;
+    }
+
+    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT") != std::string::npos)
+    {
+        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT;
+    }
+
+    return flags;
+}
+
+template <typename json_iterator>
+static void ExtractIndexAndDescriptors(const json_iterator                  it,
+                                       decode::Index                        bcb_index,
+                                       std::vector<decode::CommandIndices>& cmd_indices,
+                                       decode::CommandImageSubresource&     command_subresources)
+{
+    if (it->is_number())
+    {
+        cmd_indices[bcb_index].push_back(*it);
+    }
+    else
+    {
+        const decode::Index cmd_index = it->at("Index");
+        cmd_indices[bcb_index].push_back(cmd_index);
+
+        if (it->contains("Descriptors"))
+        {
+            const auto& subresources = it->at("Descriptors");
+            for (const auto& sr : subresources)
+            {
+                const uint32_t set     = sr["Set"];
+                const uint32_t binding = sr["Binding"];
+                const uint32_t ai      = sr["ArrayIndex"];
+
+                VkImageSubresourceRange subresource_range;
+                if (sr.contains("SubresourceRange"))
+                {
+                    const auto&              range      = sr["SubresourceRange"];
+                    const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
+                    const uint32_t           base_level = range["BaseMipLevel"];
+                    const uint32_t           base_layer = range["BaseArrayLayer"];
+
+                    uint32_t level_count;
+                    if (range["LevelCount"].is_number())
+                    {
+                        level_count = range["LevelCount"];
+                    }
+                    else
+                    {
+                        const std::string level_count_str = range["LevelCount"];
+                        if (!level_count_str.compare("VK_REMAINING_MIP_LEVELS"))
+                        {
+                            level_count = VK_REMAINING_MIP_LEVELS;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "The string \"%s\", that is being passed as \"LevelCount\" for command index: %" PRIu64
+                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
+                                ", is not recognized and will be ignored (will use 1 instead).",
+                                level_count_str.c_str(),
+                                cmd_index,
+                                set,
+                                binding,
+                                ai);
+                            level_count = 1;
+                        }
+                    }
+
+                    uint32_t layer_count;
+                    if (range["LayerCount"].is_number())
+                    {
+                        layer_count = range["LayerCount"];
+                    }
+                    else
+                    {
+                        const std::string layer_count_str = range["LayerCount"];
+                        if (!layer_count_str.compare("VK_REMAINING_ARRAY_LAYERS"))
+                        {
+                            layer_count = VK_REMAINING_ARRAY_LAYERS;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "The string \"%s\", that is being passed as \"LayerCount\" for command index: %" PRIu64
+                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
+                                ", is not recognized and will be ignored (will use 1 instead).",
+                                layer_count_str.c_str(),
+                                cmd_index,
+                                set,
+                                binding,
+                                ai);
+                            layer_count = 1;
+                        }
+                    }
+
+                    subresource_range = { aspect, base_level, level_count, base_layer, layer_count };
+                }
+                else
+                {
+                    subresource_range = {
+                        VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                    };
+                }
+                command_subresources[cmd_index].emplace(decode::DescriptorTuple{ set, binding, ai }, subresource_range);
+            }
+        }
+    }
+}
+
 // Function to parse the --dump-resoures argument, specifically vulkan_replay_options.dump_resources.
 // If the text of the argument looks like it is for DX12 dump resources, it quietly returns.
 
@@ -222,9 +380,12 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
             {
                 vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DRAW][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_DRAW][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_DRAW][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs[decode::DUMP_ARG_DRAW][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.Draw_Indices, vulkan_replay_options.DrawSubresources);
                 }
             }
 
@@ -245,20 +406,24 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRACE_RAYS].size(); idx0++)
             {
                 vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(
-                        jargs[decode::DUMP_ARG_TRACE_RAYS][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.TraceRays_Indices, vulkan_replay_options.TraceRaysSubresources);
                 }
             }
 
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DISPATCH].size(); idx0++)
             {
                 vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DISPATCH][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_DISPATCH][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_DISPATCH][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(
-                        jargs[decode::DUMP_ARG_DISPATCH][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.Dispatch_Indices, vulkan_replay_options.DispatchSubresources);
                 }
             }
 

@@ -25,6 +25,7 @@
 
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_options.h"
 #include "util/logging.h"
 #include "vulkan/vulkan_core.h"
 #include "util/defines.h"
@@ -458,7 +459,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
-                   bool                                 dump_all_subresources,
+                   const VkImageSubresourceRange&       subresource_range,
                    std::vector<DumpedRawData>&          data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
@@ -490,6 +491,8 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
 
 void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
 
+VkImageAspectFlags GetFormatAspects(VkFormat format);
+
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
 
 void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::string>& stage_names);
@@ -516,6 +519,34 @@ static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
 
     return scaled_extent;
 }
+
+static constexpr VkImageSubresourceRange
+ConvertRemainingToSpecificNumber(const VkImageSubresourceRange& subresource_range, const VulkanImageInfo* image_info)
+{
+    GFXRECON_ASSERT(image_info != nullptr);
+    GFXRECON_ASSERT(image_info->level_count >= subresource_range.baseMipLevel);
+    GFXRECON_ASSERT(image_info->layer_count - subresource_range.baseArrayLayer);
+
+    const VkImageSubresourceRange modified_subresource_range = {
+        subresource_range.aspectMask,
+        subresource_range.baseMipLevel,
+        subresource_range.levelCount == VK_REMAINING_MIP_LEVELS
+            ? image_info->level_count - subresource_range.baseMipLevel
+            : subresource_range.levelCount,
+        subresource_range.baseArrayLayer,
+        subresource_range.layerCount == VK_REMAINING_ARRAY_LAYERS
+            ? image_info->layer_count - subresource_range.baseArrayLayer
+            : subresource_range.layerCount
+    };
+
+    return modified_subresource_range;
+}
+
+bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
+                    uint32_t                        desc_set,
+                    uint32_t                        binding,
+                    uint32_t                        array_index,
+                    VkImageSubresourceRange*        subresource_range = nullptr);
 
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;

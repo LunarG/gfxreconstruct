@@ -422,7 +422,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
-                   bool                                 dump_all_subresources,
+                   const VkImageSubresourceRange&       subresource_range,
                    std::vector<DumpedRawData>&          data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
@@ -475,11 +475,14 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
     dumped_image.dumped_format  = dst_format;
 
+    const VkImageSubresourceRange modified_subresource_range =
+        ConvertRemainingToSpecificNumber(subresource_range, image_info);
+
     std::vector<VkImageAspectFlagBits> aspects;
-    GetFormatAspects(image_info->format, aspects);
+    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
 
     const uint32_t total_subresources =
-        dump_all_subresources ? (aspects.size() * (image_info->layer_count * image_info->level_count)) : 1;
+        aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
 
     data.resize(total_subresources);
 
@@ -555,9 +558,13 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             return result;
         }
 
-        for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+        for (uint32_t mip = modified_subresource_range.baseMipLevel;
+             mip < modified_subresource_range.baseMipLevel + modified_subresource_range.levelCount;
+             ++mip)
         {
-            for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+            for (uint32_t layer = modified_subresource_range.baseArrayLayer;
+                 layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
+                 ++layer)
             {
                 const VkExtent3D subresource_extent        = ScaleToMipLevel(image_info->extent, mip);
                 const VkExtent3D subresource_scaled_extent = ScaleToMipLevel(scaled_extent, mip);
@@ -575,22 +582,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                            offsetted_data,
                                            subresource_sizes[sub_res_idx]);
                 ++data_index;
-
-                if (!dump_all_subresources)
-                {
-                    break;
-                }
             }
-
-            if (!dump_all_subresources)
-            {
-                break;
-            }
-        }
-
-        if (!dump_all_subresources)
-        {
-            break;
         }
     }
 
@@ -779,6 +771,13 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspec
             ++it;
         }
     }
+}
+
+VkImageAspectFlags GetFormatAspects(VkFormat format)
+{
+    VkImageAspectFlags aspects = graphics::GetFormatAspects(format);
+    aspects &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
+    return aspects;
 }
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags)
@@ -1133,6 +1132,27 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamily
     }
 
     return index;
+}
+
+bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
+                    uint32_t                        desc_set,
+                    uint32_t                        binding,
+                    uint32_t                        array_index,
+                    VkImageSubresourceRange*        subresource_range)
+{
+    const DescriptorTuple tuple                   = DescriptorTuple{ desc_set, binding, array_index };
+    const auto            image_subresource_entry = cmd_subresources_entry->second.find(tuple);
+    if (image_subresource_entry == cmd_subresources_entry->second.end())
+    {
+        return true;
+    }
+
+    if (subresource_range != nullptr)
+    {
+        *subresource_range = image_subresource_entry->second;
+    }
+
+    return false;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
