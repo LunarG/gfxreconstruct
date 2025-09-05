@@ -33,6 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class PreloadFileProcessor : public FileProcessor
 {
   public:
+    using Base = FileProcessor;
     PreloadFileProcessor();
 
     // Preloads *count* frames to continuous, expandable memory buffer
