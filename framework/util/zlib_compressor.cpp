@@ -71,10 +71,10 @@ size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
     return copy_size;
 }
 
-size_t ZlibCompressor::Decompress(const size_t                compressed_size,
-                                  const std::vector<uint8_t>& compressed_data,
-                                  const size_t                expected_uncompressed_size,
-                                  std::vector<uint8_t>*       uncompressed_data) const
+size_t ZlibCompressor::Decompress(const size_t          compressed_size,
+                                  const uint8_t*        compressed_data,
+                                  const size_t          expected_uncompressed_size,
+                                  std::vector<uint8_t>* uncompressed_data) const
 {
     size_t copy_size = 0;
 
@@ -90,7 +90,7 @@ size_t ZlibCompressor::Decompress(const size_t                compressed_size,
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, compressed_size);
     decompress_stream.avail_in = static_cast<uInt>(compressed_size);
-    decompress_stream.next_in  = const_cast<Bytef*>(compressed_data.data());
+    decompress_stream.next_in  = const_cast<Bytef*>(compressed_data);
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, expected_uncompressed_size);
     decompress_stream.avail_out = static_cast<uInt>(expected_uncompressed_size);

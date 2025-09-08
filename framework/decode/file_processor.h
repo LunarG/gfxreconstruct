@@ -30,6 +30,7 @@
 #include "decode/api_decoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/file_input_stream.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -42,6 +43,16 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// WIP WIP WIP Enable memory mapped file support on Windows platforms.
+// TODO: Test and enable on POSIX platforms.
+#ifdef WIN32
+// Currently, memory mapped file support is only tested Windows platforms.
+// A POSIX implementation has been sketched, but not even compile tested.
+using FileInputStream = util::MappedFileInputStream;
+#else
+using FileInputStream = util::FStreamFileInputStream;
+#endif
 
 class FileProcessor
 {
@@ -114,15 +125,7 @@ class FileProcessor
             return true;
         }
 
-        const auto file_desc = file_stack_.front().active_file.GetFile();
-        if (file_desc)
-        {
-            return (feof(file_desc) != 0);
-        }
-        else
-        {
-            return false;
-        }
+        return file_stack_.front().active_file.IsEof();
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -139,6 +142,8 @@ class FileProcessor
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
+    // NOTE: WIP WIP No "preload" overload of this... (do we want one, or still need preload?)
+    virtual util::MappedSpan ReadSpan(size_t buffer_size);
     virtual bool ReadBytes(void* buffer, size_t buffer_size);
 
     bool SkipBytes(size_t skip_size);
@@ -175,28 +180,41 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
-    FILE* GetFileDescriptor()
+    Error CheckFileStatus() const
     {
-        assert(!file_stack_.empty());
-
-        if (!file_stack_.empty())
+        if (file_stack_.empty())
         {
-            auto& file_entry = file_stack_.back().active_file;
-            assert(file_entry);
-
-            return file_entry.GetFile();
+            return kErrorInvalidFileDescriptor;
         }
-        else
+        const auto& file_entry = file_stack_.back().active_file;
+        // If not EOF, determine reason for invalid state.
+        if (!file_entry.IsOpen())
         {
-            return nullptr;
+            return kErrorInvalidFileDescriptor;
         }
+        else if (file_entry.IsError())
+        {
+            return kErrorReadingFile;
+        }
+
+        return kErrorNone;
+    }
+
+    bool AtEof() const
+    {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+        return file_stack_.back().active_file.IsEof();
     }
 
   private:
     // Must be define before the Seek calls below
-    class ActiveFiles
+    class ActiveFiles : public FileInputStream
     {
       public:
+        using InputStream = FileInputStream;
         class Ref
         {
           public:
@@ -205,9 +223,17 @@ class FileProcessor
             Ref(Ref&&)      = delete;
 
             std::string GetFilename() const;
-            FILE*       GetFile() const;
-            bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-            explicit    operator bool() const { return GetFile() != nullptr; }
+
+            bool IsEof() const;
+            bool IsError() const;
+            bool IsValid() const;
+            bool IsOpen() const;
+
+            explicit operator bool() const { return IsOpen(); }
+
+            bool             FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+            util::MappedSpan ReadSpan(size_t bytes);
+            bool             ReadBytes(void* buffer, size_t bytes);
 
           private:
             ActiveFiles& active_file;
@@ -215,24 +241,15 @@ class FileProcessor
             Ref(ActiveFiles& active_file_);
         };
 
-        ActiveFiles(const std::string& filename, FILE* fd) : filename_(filename), fd_(fd), ref_count_(0) {}
+        ActiveFiles() = default;
 
         friend class Ref;
         Ref GetRef();
-
-        void FileClose();
-        bool IsFileOpen() const { return (fd_ != nullptr); }
-        bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-
-        std::string GetFilename() const { return filename_; }
-        FILE*       GetFile() const { return fd_; }
 
       private:
         void IncRef();
         void DecRef();
 
-        std::string filename_;
-        FILE*       fd_{ nullptr };
         size_t      ref_count_{ 0 };
     };
 
@@ -254,10 +271,7 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            const auto& file_desc = file_stack_.back().active_file.GetFile();
-            assert(file_desc);
-
-            return (file_desc && !feof(file_desc) && !ferror(file_desc));
+            return file_stack_.back().active_file.IsValid();
         }
         else
         {

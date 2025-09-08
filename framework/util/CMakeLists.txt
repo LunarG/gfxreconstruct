@@ -39,6 +39,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info.h

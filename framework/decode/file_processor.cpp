@@ -65,7 +65,7 @@ FileProcessor::~FileProcessor()
 
     for (auto& file : active_files_)
     {
-        file.second->FileClose();
+        file.second->Close();
     }
 
     DecodeAllocator::DestroyInstance();
@@ -121,16 +121,17 @@ bool FileProcessor::OpenFile(const std::string& filename)
     // If the file is closed but present in the map, remove it from the map and open a new instance
     if (active_file_it != active_files_.end())
     {
-        if (active_file_it->second->IsFileOpen())
+        if (active_file_it->second->IsOpen())
         {
             return true;
         }
         active_files_.erase(active_file_it);
     }
 
-    FILE* fd;
-    int   result = util::platform::FileOpen(&fd, filename.c_str(), "rb");
-    if (result || fd == nullptr)
+    auto active_file = std::make_unique<ActiveFiles>();
+    bool opened      = active_file->Open(filename);
+
+    if (!opened || !active_file->IsOpen())
     {
         GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
         error_state_ = kErrorOpeningFile;
@@ -138,7 +139,6 @@ bool FileProcessor::OpenFile(const std::string& filename)
     }
     else
     {
-        auto active_file = std::make_unique<ActiveFiles>(filename, fd);
         active_files_.emplace(std::make_pair(filename, std::move(active_file)));
         error_state_ = kErrorNone;
     }
@@ -160,15 +160,7 @@ bool FileProcessor::ProcessNextFrame()
     }
     else
     {
-        // If not EOF, determine reason for invalid state.
-        if (GetFileDescriptor() == nullptr)
-        {
-            error_state_ = kErrorInvalidFileDescriptor;
-        }
-        else if (ferror(GetFileDescriptor()))
-        {
-            error_state_ = kErrorReadingFile;
-        }
+        error_state_ = CheckFileStatus();
     }
 
     return success;
@@ -459,7 +451,7 @@ bool FileProcessor::ProcessBlocks()
             }
             else
             {
-                if (!feof(GetFileDescriptor()))
+                if (!AtEof())
                 {
                     // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
                     // assumes that the block header has been successfully read and will print an incomplete block at
@@ -523,12 +515,28 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
     // This should only be null if initialization failed.
     assert(compressor_ != nullptr);
 
-    if (compressed_buffer_size > compressed_parameter_buffer_.size())
+    const uint8_t* compressed_data = nullptr;
+    if constexpr (!FileInputStream::HasReadSpanSupport())
     {
-        compressed_parameter_buffer_.resize(compressed_buffer_size);
+        if (compressed_buffer_size > compressed_parameter_buffer_.size())
+        {
+            compressed_parameter_buffer_.resize(compressed_buffer_size);
+        }
+        if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
+        {
+            compressed_data = compressed_parameter_buffer_.data();
+        }
+    }
+    else
+    {
+        util::MappedSpan read_span = ReadSpan(compressed_buffer_size);
+        if (!read_span.empty())
+        {
+            compressed_data = reinterpret_cast<const uint8_t*>(read_span.data());
+        }
     }
 
-    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
+    if (compressed_data)
     {
         if (parameter_buffer_.size() < expected_uncompressed_size)
         {
@@ -536,7 +544,7 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
         }
 
         size_t uncompressed_size = compressor_->Decompress(
-            compressed_buffer_size, compressed_parameter_buffer_, expected_uncompressed_size, &parameter_buffer_);
+            compressed_buffer_size, compressed_data, expected_uncompressed_size, &parameter_buffer_);
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
             *uncompressed_buffer_size = uncompressed_size;
@@ -548,15 +556,32 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    const auto& file_entry = file_stack_.back().active_file;
+    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
+    // without forcing use of mutability
+    auto& file_entry = file_stack_.back().active_file;
     assert(file_entry);
 
-    if (util::platform::FileRead(buffer, buffer_size, file_entry.GetFile()))
+    if (file_entry.ReadBytes(buffer, buffer_size))
     {
         bytes_read_ += buffer_size;
         return true;
     }
     return false;
+}
+util::MappedSpan FileProcessor::ReadSpan(size_t bytes)
+{
+    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
+    // without forcing use of mutability
+    auto& file_entry = file_stack_.back().active_file;
+    assert(file_entry);
+
+    util::MappedSpan read_span = file_entry.ReadSpan(bytes);
+    if (!read_span.empty())
+    {
+        // Note: WIP WIP WIP Should this += read_span.size() instead...
+        bytes_read_ += bytes;
+    }
+    return read_span;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
@@ -628,11 +653,11 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
 
 void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
 {
-    const auto file_desc = file_stack_.back().active_file.GetFile();
-    assert(file_desc);
+    assert(!file_stack_.empty());
+    const auto& file_entry = file_stack_.back().active_file;
 
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
-    if (feof(file_desc) && !ferror(file_desc))
+    if (file_entry.IsEof() && !file_entry.IsError())
     {
         GFXRECON_LOG_WARNING("Incomplete block at end of file");
     }
@@ -2473,24 +2498,6 @@ FileProcessor::ActiveFiles::Ref FileProcessor::ActiveFiles::GetRef()
     return Ref(*this);
 }
 
-void FileProcessor::ActiveFiles::FileClose()
-{
-    if (fd_)
-    {
-        util::platform::FileClose(fd_);
-        fd_ = nullptr;
-    }
-}
-
-bool FileProcessor::ActiveFiles::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
-{
-    if (fd_)
-    {
-        return util::platform::FileSeek(fd_, offset, origin);
-    }
-    return false;
-}
-
 void FileProcessor::ActiveFiles::IncRef()
 {
     ref_count_++;
@@ -2502,7 +2509,7 @@ void FileProcessor::ActiveFiles::DecRef()
     ref_count_--;
     if (ref_count_ == 0)
     {
-        FileClose();
+        Close();
     }
 }
 
@@ -2521,12 +2528,41 @@ std::string FileProcessor::ActiveFiles::Ref::GetFilename() const
     return active_file.GetFilename();
 }
 
-FILE* FileProcessor::ActiveFiles::Ref::GetFile() const
+bool FileProcessor::ActiveFiles::Ref::IsEof() const
 {
-    return active_file.GetFile();
+    return active_file.IsEof();
 }
 
-inline bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
+bool FileProcessor::ActiveFiles::Ref::IsError() const
+{
+    return active_file.IsError();
+}
+
+bool FileProcessor::ActiveFiles::Ref::IsValid() const
+{
+    return active_file.IsValid();
+}
+
+bool FileProcessor::ActiveFiles::Ref::IsOpen() const
+{
+    return active_file.IsOpen();
+}
+
+bool FileProcessor::ActiveFiles::Ref::ReadBytes(void* buffer, size_t bytes)
+{
+    return active_file.ReadBytes(buffer, bytes);
+}
+
+util::MappedSpan FileProcessor::ActiveFiles::Ref::ReadSpan(size_t bytes)
+{
+    if constexpr (FileInputStream::HasReadSpanSupport())
+    {
+        return active_file.ReadSpan(bytes);
+    }
+    return util::MappedSpan();
+}
+
+bool FileProcessor::ActiveFiles::Ref::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
 {
     return active_file.FileSeek(offset, origin);
 }
