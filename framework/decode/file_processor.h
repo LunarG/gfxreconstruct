@@ -114,10 +114,10 @@ class FileProcessor
             return true;
         }
 
-        const auto file_entry = active_files_.find(file_stack_.front().filename);
-        if (file_entry != active_files_.end())
+        const auto file_desc = file_stack_.front().active_file.GetFile();
+        if (file_desc)
         {
-            return (feof(file_entry->second.fd) != 0);
+            return (feof(file_desc) != 0);
         }
         else
         {
@@ -181,10 +181,10 @@ class FileProcessor
 
         if (!file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
-            assert(file_entry != active_files_.end());
+            auto& file_entry = file_stack_.back().active_file;
+            assert(file_entry);
 
-            return file_entry->second.fd;
+            return file_entry.GetFile();
         }
         else
         {
@@ -193,6 +193,53 @@ class FileProcessor
     }
 
   private:
+    // Must be define before the Seek calls below
+    class ActiveFiles
+    {
+      public:
+        class Ref
+        {
+          public:
+            ~Ref();
+            Ref(const Ref&) = delete;
+            Ref(Ref&&)      = delete;
+
+            std::string GetFilename() const;
+            FILE*       GetFile() const;
+            bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+            explicit    operator bool() const { return GetFile() != nullptr; }
+
+          private:
+            ActiveFiles& active_file;
+            friend class ActiveFiles;
+            Ref(ActiveFiles& active_file_);
+        };
+
+        ActiveFiles(const std::string& filename, FILE* fd) : filename_(filename), fd_(fd), ref_count_(0) {}
+
+        friend class Ref;
+        Ref GetRef();
+
+        void FileClose();
+        bool IsFileOpen() const { return (fd_ != nullptr); }
+        bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+
+        std::string GetFilename() const { return filename_; }
+        FILE*       GetFile() const { return fd_; }
+
+      private:
+        void IncRef();
+        void DecRef();
+
+        std::string filename_;
+        FILE*       fd_{ nullptr };
+        size_t      ref_count_{ 0 };
+    };
+
+    using ActiveFilePtr      = std::unique_ptr<ActiveFiles>;
+    using ActiveFileMap      = std::unordered_map<std::string, ActiveFilePtr>;
+    using ActiveFileIterator = ActiveFileMap::iterator;
+
     bool ProcessFileHeader();
 
     virtual bool ProcessBlocks();
@@ -207,10 +254,10 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
-            assert(file_entry != active_files_.end());
+            const auto& file_desc = file_stack_.back().active_file.GetFile();
+            assert(file_desc);
 
-            return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
+            return (file_desc && !feof(file_desc) && !ferror(file_desc));
         }
         else
         {
@@ -220,7 +267,7 @@ class FileProcessor
 
     bool OpenFile(const std::string& filename);
 
-    bool SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SeekActiveFile(ActiveFiles::Ref& file_entry, int64_t offset, util::platform::FileSeekOrigin origin);
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -250,24 +297,14 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    struct ActiveFiles
-    {
-        ActiveFiles() {}
-
-        ActiveFiles(FILE* fd_) : fd(fd_) {}
-
-        FILE* fd{ nullptr };
-    };
-
-    std::unordered_map<std::string, ActiveFiles> active_files_;
+    ActiveFileMap active_files_;
 
     struct ActiveFileContext
     {
-        ActiveFileContext(std::string filename_) : filename(std::move(filename_)){};
-        ActiveFileContext(std::string filename_, bool execute_till_eof_) :
-            filename(std::move(filename_)), execute_till_eof(execute_till_eof_){};
+        ActiveFileContext(const ActiveFileIterator& active_file_, bool execute_til_eof_ = false) :
+            active_file(active_file_->second->GetRef()), execute_till_eof(execute_til_eof_){};
 
-        std::string filename;
+        ActiveFiles::Ref active_file;
         uint32_t    remaining_commands{ 0 };
         bool        execute_till_eof{ false };
     };

@@ -57,8 +57,7 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  VulkanDumpResourcesDelegate& delegate,
                                                                  const util::Compressor*      compressor) :
     original_command_buffer_info_(nullptr),
-    DR_command_buffer_(VK_NULL_HANDLE), dump_resources_before_(options.dump_resources_before), delegate_(delegate),
-    dump_immutable_resources_(options.dump_resources_dump_immutable_resources), compressor_(compressor),
+    DR_command_buffer_(VK_NULL_HANDLE), delegate_(delegate), options_(options), compressor_(compressor),
     bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
     parent_device_(VK_NULL_HANDLE), instance_table_(nullptr), object_info_table_(object_info_table),
@@ -216,10 +215,9 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
                 if (binding.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                     binding.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                 {
-                    for (const auto& [array_index, buf_desc] : bound_descriptor_sets[binding_index].buffer_info)
+                    for (auto& [array_index, buf_desc] : bound_descriptor_sets[binding_index].buffer_info)
                     {
-                        bound_descriptor_sets[binding_index].buffer_info[array_index].offset +=
-                            pDynamicOffsets[dynamic_offset_index];
+                        buf_desc.offset += pDynamicOffsets[dynamic_offset_index];
                         ++dynamic_offset_index;
                     }
                 }
@@ -238,7 +236,7 @@ bool DispatchTraceRaysDumpingContext::MustDumpDispatch(uint64_t index) const
         return false;
     }
 
-    for (size_t i = dump_resources_before_ ? current_dispatch_index_ / 2 : current_dispatch_index_;
+    for (size_t i = options_.dump_resources_before ? current_dispatch_index_ / 2 : current_dispatch_index_;
          i < dispatch_indices_.size();
          ++i)
     {
@@ -264,7 +262,7 @@ bool DispatchTraceRaysDumpingContext::MustDumpTraceRays(uint64_t index) const
         return false;
     }
 
-    for (size_t i = dump_resources_before_ ? current_trace_rays_index_ / 2 : current_trace_rays_index_;
+    for (size_t i = options_.dump_resources_before ? current_trace_rays_index_ / 2 : current_trace_rays_index_;
          i < trace_rays_indices_.size();
          ++i)
     {
@@ -421,9 +419,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     {
         copy.srcSubresource.mipLevel = i;
         copy.dstSubresource.mipLevel = i;
-        copy.extent.width            = std::max((src_image_info->extent.width >> i), static_cast<uint32_t>(1));
-        copy.extent.height           = std::max((src_image_info->extent.height >> i), static_cast<uint32_t>(1));
-        copy.extent.depth            = std::max((src_image_info->extent.depth >> i), static_cast<uint32_t>(1));
+        copy.extent                  = ScaleToMipLevel(src_image_info->extent, i);
 
         copies[i] = copy;
     }
@@ -745,7 +741,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         assert(img_info);
 
                         auto& new_entry          = resource_backup_context.images.emplace_back();
-                        new_entry.original_image = img_info;
+                        new_entry.new_image_info = *img_info;
                         new_entry.stages         = stage_flags;
                         new_entry.desc_type      = desc_type;
                         new_entry.desc_set       = desc_set_index;
@@ -756,7 +752,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                   device_table_,
                                                   replay_device_phys_mem_props_,
                                                   img_info,
-                                                  &new_entry.image,
+                                                  &new_entry.new_image_info.handle,
                                                   &new_entry.image_memory);
                         if (res != VK_SUCCESS)
                         {
@@ -766,7 +762,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                             return res;
                         }
 
-                        CopyImageResource(img_info, new_entry.image);
+                        CopyImageResource(img_info, new_entry.new_image_info.handle);
                     }
                 }
                 break;
@@ -782,7 +778,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         }
 
                         auto& new_entry           = resource_backup_context.buffers.emplace_back();
-                        new_entry.original_buffer = buf_info;
+                        new_entry.new_buffer_info = *buf_info;
                         new_entry.stages          = stage_flags;
                         new_entry.desc_type       = desc_type;
                         new_entry.desc_set        = desc_set_index;
@@ -795,7 +791,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                    device_table_,
                                                    replay_device_phys_mem_props_,
                                                    buf_info,
-                                                   &new_entry.buffer,
+                                                   &new_entry.new_buffer_info.handle,
                                                    &new_entry.buffer_memory,
                                                    new_entry.cloned_size);
 
@@ -807,7 +803,8 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc->offset, new_entry.cloned_size, new_entry.buffer);
+                        CopyBufferResource(
+                            buf_info, buf_desc->offset, new_entry.cloned_size, new_entry.new_buffer_info.handle);
                     }
                 }
                 break;
@@ -824,7 +821,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         }
 
                         auto& new_entry           = resource_backup_context.buffers.emplace_back();
-                        new_entry.original_buffer = buf_info;
+                        new_entry.new_buffer_info = *buf_info;
                         new_entry.stages          = stage_flags;
                         new_entry.desc_type       = desc_type;
                         new_entry.desc_set        = desc_set_index;
@@ -837,7 +834,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                                                    device_table_,
                                                    replay_device_phys_mem_props_,
                                                    buf_info,
-                                                   &new_entry.buffer,
+                                                   &new_entry.new_buffer_info.handle,
                                                    &new_entry.buffer_memory,
                                                    new_entry.cloned_size);
 
@@ -849,7 +846,8 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                             return res;
                         }
 
-                        CopyBufferResource(buf_info, buf_desc.offset, new_entry.cloned_size, new_entry.buffer);
+                        CopyBufferResource(
+                            buf_info, buf_desc.offset, new_entry.cloned_size, new_entry.new_buffer_info.handle);
                     }
                 }
                 break;
@@ -887,40 +885,41 @@ void DispatchTraceRaysDumpingContext::DestroyMutableResourcesClones()
         DispatchParams& dis_params = *params.second;
         for (size_t i = 0; i < dis_params.mutable_resources_clones.images.size(); ++i)
         {
-            assert(dis_params.mutable_resources_clones.images[i].original_image != nullptr);
             const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(
-                dis_params.mutable_resources_clones.images[i].original_image->parent_id);
+                dis_params.mutable_resources_clones.images[i].new_image_info.parent_id);
             assert(device_info != nullptr);
             VkDevice device = device_info->handle;
 
             device_table_->FreeMemory(device, dis_params.mutable_resources_clones.images[i].image_memory, nullptr);
-            device_table_->DestroyImage(device, dis_params.mutable_resources_clones.images[i].image, nullptr);
+            device_table_->DestroyImage(
+                device, dis_params.mutable_resources_clones.images[i].new_image_info.handle, nullptr);
 
-            if (dump_resources_before_)
+            if (options_.dump_resources_before)
             {
                 device_table_->FreeMemory(
                     device, dis_params.mutable_resources_clones_before.images[i].image_memory, nullptr);
                 device_table_->DestroyImage(
-                    device, dis_params.mutable_resources_clones_before.images[i].image, nullptr);
+                    device, dis_params.mutable_resources_clones_before.images[i].new_image_info.handle, nullptr);
             }
         }
 
         for (size_t i = 0; i < dis_params.mutable_resources_clones.buffers.size(); ++i)
         {
-            assert(dis_params.mutable_resources_clones.buffers[i].original_buffer != nullptr);
             const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(
-                dis_params.mutable_resources_clones.buffers[i].original_buffer->parent_id);
+                dis_params.mutable_resources_clones.buffers[i].new_buffer_info.parent_id);
             assert(device_info != nullptr);
             VkDevice device = device_info->handle;
 
             device_table_->FreeMemory(device, dis_params.mutable_resources_clones.buffers[i].buffer_memory, nullptr);
-            device_table_->DestroyBuffer(device, dis_params.mutable_resources_clones.buffers[i].buffer, nullptr);
-            if (dump_resources_before_)
+            device_table_->DestroyBuffer(
+                device, dis_params.mutable_resources_clones.buffers[i].new_buffer_info.handle, nullptr);
+
+            if (options_.dump_resources_before)
             {
                 device_table_->FreeMemory(
                     device, dis_params.mutable_resources_clones_before.buffers[i].buffer_memory, nullptr);
                 device_table_->DestroyBuffer(
-                    device, dis_params.mutable_resources_clones_before.buffers[i].buffer, nullptr);
+                    device, dis_params.mutable_resources_clones_before.buffers[i].new_buffer_info.handle, nullptr);
             }
         }
     }
@@ -932,39 +931,41 @@ void DispatchTraceRaysDumpingContext::DestroyMutableResourcesClones()
         TraceRaysParams& tr_params = *params.second;
         for (size_t i = 0; i < tr_params.mutable_resources_clones.images.size(); ++i)
         {
-            assert(tr_params.mutable_resources_clones.images[i].original_image != nullptr);
             const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(
-                tr_params.mutable_resources_clones.images[i].original_image->parent_id);
+                tr_params.mutable_resources_clones.images[i].new_image_info.parent_id);
             assert(device_info != nullptr);
             VkDevice device = device_info->handle;
 
             device_table_->FreeMemory(device, tr_params.mutable_resources_clones.images[i].image_memory, nullptr);
-            device_table_->DestroyImage(device, tr_params.mutable_resources_clones.images[i].image, nullptr);
+            device_table_->DestroyImage(
+                device, tr_params.mutable_resources_clones.images[i].new_image_info.handle, nullptr);
 
-            if (dump_resources_before_)
+            if (options_.dump_resources_before)
             {
                 device_table_->FreeMemory(
                     device, tr_params.mutable_resources_clones_before.images[i].image_memory, nullptr);
-                device_table_->DestroyImage(device, tr_params.mutable_resources_clones_before.images[i].image, nullptr);
+                device_table_->DestroyImage(
+                    device, tr_params.mutable_resources_clones_before.images[i].new_image_info.handle, nullptr);
             }
         }
 
         for (size_t i = 0; i < tr_params.mutable_resources_clones.buffers.size(); ++i)
         {
-            assert(tr_params.mutable_resources_clones.buffers[i].original_buffer != nullptr);
             const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(
-                tr_params.mutable_resources_clones.buffers[i].original_buffer->parent_id);
+                tr_params.mutable_resources_clones.buffers[i].new_buffer_info.parent_id);
             assert(device_info != nullptr);
             VkDevice device = device_info->handle;
 
             device_table_->FreeMemory(device, tr_params.mutable_resources_clones.buffers[i].buffer_memory, nullptr);
-            device_table_->DestroyBuffer(device, tr_params.mutable_resources_clones.buffers[i].buffer, nullptr);
-            if (dump_resources_before_)
+            device_table_->DestroyBuffer(
+                device, tr_params.mutable_resources_clones.buffers[i].new_buffer_info.handle, nullptr);
+
+            if (options_.dump_resources_before)
             {
                 device_table_->FreeMemory(
                     device, tr_params.mutable_resources_clones_before.buffers[i].buffer_memory, nullptr);
                 device_table_->DestroyBuffer(
-                    device, tr_params.mutable_resources_clones_before.buffers[i].buffer, nullptr);
+                    device, tr_params.mutable_resources_clones_before.buffers[i].new_buffer_info.handle, nullptr);
             }
         }
     }
@@ -1042,19 +1043,23 @@ void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
-    VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence)
+VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue             queue,
+                                                                uint64_t            qs_index,
+                                                                uint64_t            bcb_index,
+                                                                const VkSubmitInfo& submit_info,
+                                                                VkFence             fence,
+                                                                bool                use_semaphores)
 {
     VkSubmitInfo si;
     si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     si.pNext                = nullptr;
-    si.waitSemaphoreCount   = submit_info.waitSemaphoreCount;
-    si.pWaitSemaphores      = submit_info.pWaitSemaphores;
-    si.pWaitDstStageMask    = submit_info.pWaitDstStageMask;
+    si.waitSemaphoreCount   = use_semaphores ? submit_info.waitSemaphoreCount : 0;
+    si.pWaitSemaphores      = use_semaphores ? submit_info.pWaitSemaphores : nullptr;
+    si.pWaitDstStageMask    = use_semaphores ? submit_info.pWaitDstStageMask : nullptr;
     si.commandBufferCount   = 1;
     si.pCommandBuffers      = &DR_command_buffer_;
-    si.signalSemaphoreCount = submit_info.signalSemaphoreCount;
-    si.pSignalSemaphores    = submit_info.pSignalSemaphores;
+    si.signalSemaphoreCount = use_semaphores ? submit_info.signalSemaphoreCount : 0;
+    si.pSignalSemaphores    = use_semaphores ? submit_info.pSignalSemaphores : nullptr;
 
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
@@ -1118,7 +1123,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             return res;
         }
 
-        if (dump_immutable_resources_)
+        if (options_.dump_resources_dump_immutable_resources)
         {
             res = DumpDescriptors(qs_index, bcb_index, disp_index, true);
             if (res != VK_SUCCESS)
@@ -1128,19 +1133,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        VulkanDumpDrawCallInfo draw_call_info{};
-        draw_call_info.type                         = DumpResourceType::kDispatchInfo;
-        draw_call_info.instance_table               = instance_table_;
-        draw_call_info.device_table                 = device_table_;
-        draw_call_info.object_info_table            = &object_info_table_;
-        draw_call_info.device_info                  = device_info;
-        draw_call_info.original_command_buffer_info = original_command_buffer_info_;
-        draw_call_info.bcb_index                    = bcb_index;
-        draw_call_info.qs_index                     = qs_index;
-        draw_call_info.cmd_index                    = disp_index;
-        draw_call_info.disp_param                   = disp_params.get();
-
-        delegate_.DumpDrawCallInfo(draw_call_info, instance_table_);
+        const VulkanDelegateDumpDrawCallContext draw_call_info(
+            DumpResourcesCommandType::kCompute, instance_table_, device_table_, disp_params.get());
+        delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
     for (const auto& [tr_index, tr_params] : trace_rays_params_)
@@ -1155,7 +1150,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             return res;
         }
 
-        if (dump_immutable_resources_)
+        if (options_.dump_resources_dump_immutable_resources)
         {
             res = DumpDescriptors(qs_index, bcb_index, tr_index, false);
             if (res != VK_SUCCESS)
@@ -1165,29 +1160,17 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
             }
         }
 
-        VulkanDumpDrawCallInfo draw_call_info{};
-        draw_call_info.type                         = DumpResourceType::kTraceRaysIndex;
-        draw_call_info.instance_table               = instance_table_;
-        draw_call_info.device_table                 = device_table_;
-        draw_call_info.object_info_table            = &object_info_table_;
-        draw_call_info.device_info                  = device_info;
-        draw_call_info.original_command_buffer_info = original_command_buffer_info_;
-        draw_call_info.bcb_index                    = bcb_index;
-        draw_call_info.qs_index                     = qs_index;
-        draw_call_info.cmd_index                    = tr_index;
-        draw_call_info.tr_param                     = tr_params.get();
-
-        delegate_.DumpDrawCallInfo(draw_call_info, instance_table_);
+        const VulkanDelegateDumpDrawCallContext draw_call_info(
+            DumpResourcesCommandType::kRayTracing, instance_table_, device_table_, tr_params.get());
+        delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
     // Clean up references to dumped descriptors in case this command buffer is submitted again
     dispatch_dumped_descriptors_.buffer_descriptors.clear();
     dispatch_dumped_descriptors_.image_descriptors.clear();
-    dispatch_dumped_descriptors_.inline_uniform_blocks.clear();
 
     trace_rays_dumped_descriptors_.buffer_descriptors.clear();
     trace_rays_dumped_descriptors_.image_descriptors.clear();
-    trace_rays_dumped_descriptors_.inline_uniform_blocks.clear();
 
     assert(res == VK_SUCCESS);
     return VK_SUCCESS;
@@ -1198,8 +1181,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                                                uint64_t cmd_index,
                                                                bool     is_dispatch)
 {
-    const auto dis_params = dispatch_params_.find(cmd_index);
-    const auto tr_params  = trace_rays_params_.find(cmd_index);
+    auto dis_params = dispatch_params_.find(cmd_index);
+    auto tr_params  = trace_rays_params_.find(cmd_index);
 
     if (is_dispatch && (dis_params == dispatch_params_.end()))
     {
@@ -1225,151 +1208,185 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         return VK_SUCCESS;
     }
 
+    DumpedResourcesInfo& dumped_resources =
+        is_dispatch ? dis_params->second->dumped_resources : tr_params->second->dumped_resources;
+
+    dumped_resources.bcb_index = bcb_index;
+    dumped_resources.cmd_index = cmd_index;
+    dumped_resources.qs_index  = qs_index;
+
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     assert(device_info);
 
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
+    const VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
 
-    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table_,
-                                                *instance_table_,
-                                                *phys_dev_info->replay_device_info->memory_properties);
-
-    VulkanDumpResourceInfo res_info_base{};
-    res_info_base.device_info                  = device_info;
-    res_info_base.device_table                 = device_table_;
-    res_info_base.instance_table               = instance_table_;
-    res_info_base.object_info_table            = &object_info_table_;
-    res_info_base.original_command_buffer_info = original_command_buffer_info_;
-    res_info_base.cmd_index                    = cmd_index;
-    res_info_base.qs_index                     = qs_index;
-    res_info_base.bcb_index                    = bcb_index;
-    res_info_base.compressor                   = compressor_;
-
-    if (dump_resources_before_)
-    {
-        // Dump images
-        for (size_t i = 0; i < mutable_resources_clones_before.images.size(); ++i)
-        {
-            assert(mutable_resources_clones_before.images[i].original_image != nullptr);
-            assert(mutable_resources_clones_before.images[i].image != VK_NULL_HANDLE);
-
-            VulkanImageInfo modified_image_info = *mutable_resources_clones_before.images[i].original_image;
-            modified_image_info.handle          = mutable_resources_clones_before.images[i].image;
-
-            VulkanDumpResourceInfo res_info = res_info_base;
-            res_info.type                   = DumpResourceType::kDispatchTraceRaysImage;
-            res_info.is_dispatch            = is_dispatch;
-            res_info.before_cmd             = true;
-            res_info.image_info             = &modified_image_info;
-            res_info.set                    = mutable_resources_clones_before.images[i].desc_set;
-            res_info.binding                = mutable_resources_clones_before.images[i].desc_binding;
-            res_info.array_index            = mutable_resources_clones_before.images[i].array_index;
-            res_info.stages                 = mutable_resources_clones_before.images[i].stages;
-            auto res                        = delegate_.DumpResource(res_info);
-            if (res != VK_SUCCESS)
-            {
-                return res;
-            }
-        }
-
-        // Dump buffers
-        for (size_t i = 0; i < mutable_resources_clones_before.buffers.size(); ++i)
-        {
-            GFXRECON_ASSERT(mutable_resources_clones_before.buffers[i].original_buffer != nullptr);
-            GFXRECON_ASSERT(mutable_resources_clones_before.buffers[i].buffer != VK_NULL_HANDLE);
-
-            VulkanDumpResourceInfo res_info = res_info_base;
-            VkResult res = resource_util.ReadFromBufferResource(mutable_resources_clones_before.buffers[i].buffer,
-                                                                mutable_resources_clones_before.buffers[i].cloned_size,
-                                                                0,
-                                                                transfer_queue_index,
-                                                                res_info.data);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
-                return res;
-            }
-
-            res_info.type        = DumpResourceType::kDispatchTraceRaysBuffer;
-            res_info.is_dispatch = is_dispatch;
-            res_info.before_cmd  = true;
-            res_info.set         = mutable_resources_clones_before.buffers[i].desc_set;
-            res_info.binding     = mutable_resources_clones_before.buffers[i].desc_binding;
-            res_info.array_index = mutable_resources_clones_before.buffers[i].array_index;
-            res_info.stages      = mutable_resources_clones_before.buffers[i].stages;
-            res                  = delegate_.DumpResource(res_info);
-            if (res != VK_SUCCESS)
-            {
-                return res;
-            }
-        }
-    }
-
+    // Dump images
     for (size_t i = 0; i < mutable_resources_clones.images.size(); ++i)
     {
-        assert(mutable_resources_clones.images[i].original_image != nullptr);
-        assert(mutable_resources_clones.images[i].image != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(mutable_resources_clones.images[i].new_image_info.handle != VK_NULL_HANDLE);
 
-        VulkanImageInfo modified_image_info = *mutable_resources_clones.images[i].original_image;
-        modified_image_info.handle          = mutable_resources_clones.images[i].image;
+        if (!IsImageDumpable(instance_table_, object_info_table_, &mutable_resources_clones.images[i].new_image_info))
+        {
+            continue;
+        }
 
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kDispatchTraceRaysImage;
-        res_info.is_dispatch            = is_dispatch;
-        res_info.before_cmd             = false;
-        res_info.image_info             = &modified_image_info;
-        res_info.set                    = mutable_resources_clones.images[i].desc_set;
-        res_info.binding                = mutable_resources_clones.images[i].desc_binding;
-        res_info.array_index            = mutable_resources_clones.images[i].array_index;
-        res_info.stages                 = mutable_resources_clones.images[i].stages;
-        auto res                        = delegate_.DumpResource(res_info);
+        auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+            DumpResourceType::kDispatchTraceRaysImage,
+            bcb_index,
+            cmd_index,
+            qs_index,
+            mutable_resources_clones.images[i].stages,
+            mutable_resources_clones.images[i].desc_type,
+            mutable_resources_clones.images[i].desc_set,
+            mutable_resources_clones.images[i].desc_binding,
+            mutable_resources_clones.images[i].array_index,
+            &mutable_resources_clones.images[i].new_image_info,
+            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+
+        // Dump the "after" resource
+        VulkanDelegateDumpResourceContext res_info = res_info_base;
+        res_info.dumped_resource                   = &new_dumped_desc;
+        res_info.dumped_data                       = VulkanDelegateImageDumpedData();
+        auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
+
+        auto& dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+
+        VkResult res = DumpImage(dumped_image,
+                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                 options_.dump_resources_scale,
+                                 options_.dump_resources_dump_raw_images,
+                                 options_.dump_resources_dump_all_image_subresources,
+                                 dumped_image_data.data,
+                                 device_info,
+                                 device_table_,
+                                 instance_table_,
+                                 object_info_table_);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from image descriptor %" PRIu64 " failed (%s)",
+                               mutable_resources_clones.images[i].new_image_info.capture_id,
+                               util::ToString(res).c_str());
+
+            dumped_resources.dumped_descriptors.pop_back();
+
             return res;
+        }
+
+        delegate_.DumpResource(res_info);
+
+        // Dump the "before" resource
+        if (options_.dump_resources_before)
+        {
+            GFXRECON_ASSERT(mutable_resources_clones_before.images[i].new_image_info.handle != VK_NULL_HANDLE);
+            GFXRECON_ASSERT(!mutable_resources_clones_before.images.empty());
+
+            new_dumped_desc.has_before = true;
+            new_dumped_desc.dumped_resource_before =
+                DumpedImage(&mutable_resources_clones_before.images[i].new_image_info);
+
+            DumpedImage& dumped_image_before = std::get<DumpedImage>(new_dumped_desc.dumped_resource_before);
+            res                              = DumpImage(dumped_image_before,
+                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                            options_.dump_resources_scale,
+                            options_.dump_resources_dump_raw_images,
+                            options_.dump_resources_dump_all_image_subresources,
+                            dumped_image_data.data,
+                            device_info,
+                            device_table_,
+                            instance_table_,
+                            object_info_table_);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Reading from image descriptor %" PRIu64 " failed (%s)",
+                                   mutable_resources_clones.images[i].new_image_info.capture_id,
+                                   util::ToString(res).c_str());
+
+                dumped_resources.dumped_descriptors.pop_back();
+
+                return res;
+            }
+
+            res_info.before_command = true;
+            delegate_.DumpResource(res_info);
         }
     }
 
     // Dump buffers
     for (size_t i = 0; i < mutable_resources_clones.buffers.size(); ++i)
     {
-        assert(mutable_resources_clones.buffers[i].original_buffer != nullptr);
-        assert(mutable_resources_clones.buffers[i].buffer != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(mutable_resources_clones.buffers[i].new_buffer_info.handle != VK_NULL_HANDLE);
 
-        VulkanDumpResourceInfo res_info = res_info_base;
-        VkResult               res = resource_util.ReadFromBufferResource(mutable_resources_clones.buffers[i].buffer,
-                                                            mutable_resources_clones.buffers[i].cloned_size,
-                                                            0,
-                                                            transfer_queue_index,
-                                                            res_info.data);
+        auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+            DumpResourceType::kDispatchTraceRaysBuffer,
+            bcb_index,
+            cmd_index,
+            qs_index,
+            mutable_resources_clones.buffers[i].stages,
+            mutable_resources_clones.buffers[i].desc_type,
+            mutable_resources_clones.buffers[i].desc_set,
+            mutable_resources_clones.buffers[i].desc_binding,
+            mutable_resources_clones.buffers[i].array_index,
+            &mutable_resources_clones.buffers[i].new_buffer_info,
+            0,
+            mutable_resources_clones.buffers[i].cloned_size,
+            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+
+        // Dump the "after" resource
+        VulkanDelegateDumpResourceContext res_info = res_info_base;
+        res_info.dumped_resource                   = &new_dumped_desc;
+        res_info.dumped_data                       = VulkanDelegateBufferDumpedData();
+        auto& dumped_buffer_data                   = std::get<VulkanDelegateBufferDumpedData>(res_info.dumped_data);
+
+        auto&    dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+        VkResult res           = DumpBuffer(
+            dumped_buffer, dumped_buffer_data.data, device_info, device_table_, instance_table_, object_info_table_);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
+            GFXRECON_LOG_ERROR("Reading from buffer descriptor %" PRIu64 " failed (%s)",
+                               mutable_resources_clones.buffers[i].new_buffer_info.capture_id,
+                               util::ToString<VkResult>(res).c_str())
+
+            dumped_resources.dumped_descriptors.pop_back();
+
             return res;
         }
 
-        res_info.type        = DumpResourceType::kDispatchTraceRaysBuffer;
-        res_info.is_dispatch = is_dispatch;
-        res_info.before_cmd  = false;
-        res_info.set         = mutable_resources_clones.buffers[i].desc_set;
-        res_info.binding     = mutable_resources_clones.buffers[i].desc_binding;
-        res_info.array_index = mutable_resources_clones.buffers[i].array_index;
-        res_info.stages      = mutable_resources_clones.buffers[i].stages;
-        res                  = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
+        delegate_.DumpResource(res_info);
+
+        // Dump the "before" resource
+        if (options_.dump_resources_before)
         {
-            return res;
+            GFXRECON_ASSERT(!mutable_resources_clones_before.buffers.empty());
+            GFXRECON_ASSERT(mutable_resources_clones_before.buffers[i].new_buffer_info.handle != VK_NULL_HANDLE);
+
+            new_dumped_desc.has_before = true;
+            new_dumped_desc.dumped_resource_before =
+                DumpedBuffer(&mutable_resources_clones_before.buffers[i].new_buffer_info,
+                             0,
+                             mutable_resources_clones_before.buffers[i].cloned_size);
+
+            auto& dumped_buffer_before = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource_before);
+            res                        = DumpBuffer(dumped_buffer_before,
+                             dumped_buffer_data.data,
+                             device_info,
+                             device_table_,
+                             instance_table_,
+                             object_info_table_);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Reading from buffer descriptor %" PRIu64 " failed (%s)",
+                                   mutable_resources_clones_before.buffers[i].new_buffer_info.capture_id,
+                                   util::ToString<VkResult>(res).c_str())
+
+                dumped_resources.dumped_descriptors.pop_back();
+
+                return res;
+            }
+
+            res_info.before_command = true;
+            delegate_.DumpResource(res_info);
         }
     }
 
@@ -1386,30 +1403,25 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                                           uint64_t cmd_index,
                                                           bool     is_dispatch)
 {
-    // Create a list of all descriptors referenced by all commands
-    std::unordered_set<const VulkanImageInfo*> image_descriptors;
-
-    struct buffer_descriptor_info
-    {
-        VkDeviceSize offset;
-        VkDeviceSize range;
-    };
-    std::unordered_map<const VulkanBufferInfo*, buffer_descriptor_info> buffer_descriptors;
-
-    struct inline_uniform_block_info
-    {
-        uint32_t                    set;
-        uint32_t                    binding;
-        const std::vector<uint8_t>* data;
-    };
-    std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
-
     DumpedDescriptors& dumped_descriptors = is_dispatch ? dispatch_dumped_descriptors_ : trace_rays_dumped_descriptors_;
     GFXRECON_ASSERT((dispatch_params_.find(cmd_index) != dispatch_params_.end()) ||
                     (trace_rays_params_.find(cmd_index) != trace_rays_params_.end()));
     const BoundDescriptorSets& referenced_descriptors = is_dispatch
                                                             ? (dispatch_params_[cmd_index]->referenced_descriptors)
                                                             : (trace_rays_params_[cmd_index]->referenced_descriptors);
+
+    DumpedResourcesInfo& dumped_resources =
+        is_dispatch ? dispatch_params_[cmd_index]->dumped_resources : trace_rays_params_[cmd_index]->dumped_resources;
+
+    const DumpResourcesCommandType resource_type =
+        is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing;
+
+    const VulkanDelegateDumpResourceContext res_info_base{ instance_table_, device_table_, compressor_ };
+
+    assert(original_command_buffer_info_);
+    assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    assert(device_info);
 
     for (const auto& [desc_set_index, desc_set_info] : referenced_descriptors)
     {
@@ -1421,17 +1433,75 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                 case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
-                    for (const auto& img_desc : desc_binding_info.image_info)
+                    for (const auto& [array_index, img_desc] : desc_binding_info.image_info)
                     {
-                        if (img_desc.second.image_view_info != nullptr)
+                        if (img_desc.image_view_info != nullptr)
                         {
                             const VulkanImageInfo* img_info =
-                                object_info_table_.GetVkImageInfo(img_desc.second.image_view_info->image_id);
-                            if (img_info != nullptr && dumped_descriptors.image_descriptors.find(img_info) ==
-                                                           dumped_descriptors.image_descriptors.end())
+                                object_info_table_.GetVkImageInfo(img_desc.image_view_info->image_id);
+                            if (img_info == nullptr)
                             {
-                                image_descriptors.insert(img_info);
-                                dumped_descriptors.image_descriptors.insert(img_info);
+                                continue;
+                            }
+
+                            if (!IsImageDumpable(instance_table_, object_info_table_, img_info))
+                            {
+                                GFXRECON_LOG_ERROR("Image %" PRIu64
+                                                   " cannot be dumped as not supported/missing features",
+                                                   img_info->capture_id);
+                                continue;
+                            }
+
+                            auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+                                DumpResourceType::kDispatchTraceRaysImageDescriptor,
+                                bcb_index,
+                                cmd_index,
+                                qs_index,
+                                desc_binding_info.stage_flags,
+                                desc_binding_info.desc_type,
+                                desc_set_index,
+                                desc_binding_index,
+                                array_index,
+                                img_info,
+                                resource_type);
+
+                            auto&       new_dumped_image   = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+                            const auto& dumped_descs_entry = dumped_descriptors.image_descriptors.find(img_info);
+                            if (dumped_descs_entry == dumped_descriptors.image_descriptors.end())
+                            {
+                                VulkanDelegateDumpResourceContext res_info = res_info_base;
+                                res_info.dumped_resource                   = &new_dumped_desc;
+                                res_info.dumped_data                       = VulkanDelegateImageDumpedData();
+                                auto& dumped_image_data = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
+
+                                VkResult res = DumpImage(new_dumped_image,
+                                                         img_info->intermediate_layout,
+                                                         options_.dump_resources_scale,
+                                                         options_.dump_resources_dump_raw_images,
+                                                         options_.dump_resources_dump_all_image_subresources,
+                                                         dumped_image_data.data,
+                                                         device_info,
+                                                         device_table_,
+                                                         instance_table_,
+                                                         object_info_table_);
+                                if (res != VK_SUCCESS)
+                                {
+                                    GFXRECON_LOG_ERROR("Reading from image descriptor %" PRIu64 " failed (%s)",
+                                                       img_info->capture_id,
+                                                       util::ToString(res).c_str());
+
+                                    dumped_resources.dumped_descriptors.pop_back();
+
+                                    return res;
+                                }
+
+                                delegate_.DumpResource(res_info);
+
+                                dumped_descriptors.image_descriptors.emplace(img_info, new_dumped_image);
+                            }
+                            else
+                            {
+                                new_dumped_image.CopyDumpedInfo(dumped_descs_entry->second);
                             }
                         }
                     }
@@ -1440,18 +1510,66 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                 case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                 {
-                    for (const auto& buf_desc : desc_binding_info.texel_buffer_view_info)
+                    for (const auto& [array_index, buf_desc] : desc_binding_info.texel_buffer_view_info)
                     {
-                        const VulkanBufferInfo* buffer_info =
-                            object_info_table_.GetVkBufferInfo(buf_desc.second->buffer_id);
-                        if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                          dumped_descriptors.buffer_descriptors.end())
+                        const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(buf_desc->buffer_id);
+                        if (buffer_info == nullptr)
                         {
-                            buffer_descriptors.emplace(std::piecewise_construct,
-                                                       std::forward_as_tuple(buffer_info),
-                                                       std::forward_as_tuple(buffer_descriptor_info{
-                                                           buf_desc.second->offset, buf_desc.second->range }));
-                            dumped_descriptors.buffer_descriptors.insert(buffer_info);
+                            continue;
+                        }
+                        const VkDeviceSize offset = buf_desc->offset;
+                        const VkDeviceSize range  = buf_desc->range;
+                        const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+
+                        auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+                            DumpResourceType::kDispatchTraceRaysBufferDescriptor,
+                            bcb_index,
+                            cmd_index,
+                            qs_index,
+                            desc_binding_info.stage_flags,
+                            desc_binding_info.desc_type,
+                            desc_set_index,
+                            desc_binding_index,
+                            array_index,
+                            buffer_info,
+                            offset,
+                            size,
+                            resource_type);
+
+                        const auto& dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(buffer_info);
+                        if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
+                        {
+                            const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                            VulkanDelegateDumpResourceContext res_info = res_info_base;
+                            res_info.dumped_resource                   = &new_dumped_desc;
+                            res_info.dumped_data                       = VulkanDelegateBufferDumpedData();
+                            auto dumped_buffer_data = std::get<VulkanDelegateBufferDumpedData>(res_info.dumped_data);
+
+                            VkResult res = DumpBuffer(new_dumped_buffer,
+                                                      dumped_buffer_data.data,
+                                                      device_info,
+                                                      device_table_,
+                                                      instance_table_,
+                                                      object_info_table_);
+                            if (res != VK_SUCCESS)
+                            {
+                                GFXRECON_LOG_ERROR("Reading from buffer descriptor %" PRIu64 " failed (%s)",
+                                                   buffer_info->capture_id,
+                                                   util::ToString(res).c_str());
+
+                                dumped_resources.dumped_descriptors.pop_back();
+
+                                return res;
+                            }
+
+                            delegate_.DumpResource(res_info);
+
+                            dumped_descriptors.buffer_descriptors.emplace(buffer_info, new_dumped_buffer);
+                        }
+                        else
+                        {
+                            auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
                         }
                     }
                 }
@@ -1460,19 +1578,91 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                 case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                 {
-                    for (const auto& buf_desc : desc_binding_info.buffer_info)
+                    for (const auto& [array_index, buf_desc] : desc_binding_info.buffer_info)
                     {
-                        const VulkanBufferInfo* buffer_info = buf_desc.second.buffer_info;
-                        if (buffer_info != nullptr && dumped_descriptors.buffer_descriptors.find(buffer_info) ==
-                                                          dumped_descriptors.buffer_descriptors.end())
+                        const VulkanBufferInfo* buffer_info = buf_desc.buffer_info;
+                        if (buffer_info == nullptr)
                         {
-                            buffer_descriptors.emplace(std::piecewise_construct,
-                                                       std::forward_as_tuple(buffer_info),
-                                                       std::forward_as_tuple(buffer_descriptor_info{
-                                                           buf_desc.second.offset, buf_desc.second.range }));
-                            dumped_descriptors.buffer_descriptors.insert(buffer_info);
+                            continue;
+                        }
+
+                        const VkDeviceSize offset = buf_desc.offset;
+                        const VkDeviceSize range  = buf_desc.range;
+                        const VkDeviceSize size   = range == VK_WHOLE_SIZE ? buffer_info->size - offset : range;
+
+                        auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+                            DumpResourceType::kDispatchTraceRaysBufferDescriptor,
+                            bcb_index,
+                            cmd_index,
+                            qs_index,
+                            desc_binding_info.stage_flags,
+                            desc_binding_info.desc_type,
+                            desc_set_index,
+                            desc_binding_index,
+                            array_index,
+                            buffer_info,
+                            offset,
+                            size,
+                            resource_type);
+
+                        const auto dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(buffer_info);
+                        if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
+                        {
+                            const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                            VulkanDelegateDumpResourceContext res_info = res_info_base;
+                            res_info.dumped_resource                   = &new_dumped_desc;
+                            res_info.dumped_data                       = VulkanDelegateBufferDumpedData();
+                            auto& dumped_buffer_data = std::get<VulkanDelegateBufferDumpedData>(res_info.dumped_data);
+
+                            VkResult res = DumpBuffer(new_dumped_buffer,
+                                                      dumped_buffer_data.data,
+                                                      device_info,
+                                                      device_table_,
+                                                      instance_table_,
+                                                      object_info_table_);
+                            if (res != VK_SUCCESS)
+                            {
+                                GFXRECON_LOG_ERROR("Reading from buffer descriptor %" PRIu64 " failed (%s)",
+                                                   buffer_info->capture_id,
+                                                   util::ToString(res).c_str());
+
+                                dumped_resources.dumped_descriptors.pop_back();
+
+                                return res;
+                            }
+
+                            delegate_.DumpResource(res_info);
+
+                            dumped_descriptors.buffer_descriptors.emplace(buffer_info, new_dumped_buffer);
+                        }
+                        else
+                        {
+                            auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
+                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
                         }
                     }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+                        DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor,
+                        bcb_index,
+                        cmd_index,
+                        qs_index,
+                        desc_binding_info.stage_flags,
+                        desc_binding_info.desc_type,
+                        desc_set_index,
+                        desc_binding_index,
+                        resource_type);
+
+                    VulkanDelegateDumpResourceContext res_info = res_info_base;
+                    res_info.dumped_resource                   = &new_dumped_desc;
+                    res_info.dumped_data                       = VulkanDelegateImageDumpedData();
+                    auto& dumped_buffer_data = std::get<VulkanDelegateBufferDumpedData>(res_info.dumped_data);
+                    dumped_buffer_data.data  = desc_binding_info.inline_uniform_block;
+                    delegate_.DumpResource(res_info);
                 }
                 break;
 
@@ -1484,108 +1674,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                     break;
 
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                {
-                    if (dumped_descriptors.inline_uniform_blocks.find(&(desc_binding_info.inline_uniform_block)) ==
-                        dumped_descriptors.inline_uniform_blocks.end())
-                    {
-                        inline_uniform_blocks[&(desc_binding_info.inline_uniform_block)] = {
-                            desc_set_index, desc_binding_index, &(desc_binding_info.inline_uniform_block)
-                        };
-                        dumped_descriptors.inline_uniform_blocks.insert(&(desc_binding_info.inline_uniform_block));
-                    }
-                }
-                break;
-
                 default:
                     GFXRECON_LOG_WARNING_ONCE("%s(): Descriptor type (%s) not handled",
                                               __func__,
                                               util::ToString<VkDescriptorType>(desc_binding_info.desc_type).c_str());
                     break;
             }
-        }
-    }
-
-    assert(original_command_buffer_info_);
-    assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
-    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
-    assert(device_info);
-
-    VulkanDumpResourceInfo res_info_base{};
-    res_info_base.device_info                  = device_info;
-    res_info_base.device_table                 = device_table_;
-    res_info_base.instance_table               = instance_table_;
-    res_info_base.object_info_table            = &object_info_table_;
-    res_info_base.original_command_buffer_info = original_command_buffer_info_;
-    res_info_base.cmd_index                    = cmd_index;
-    res_info_base.qs_index                     = qs_index;
-    res_info_base.bcb_index                    = bcb_index;
-    res_info_base.is_dispatch                  = is_dispatch;
-    res_info_base.compressor                   = compressor_;
-
-    for (const auto& img_info : image_descriptors)
-    {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kDispatchTraceRaysImageDescriptor;
-        res_info.image_info             = img_info;
-        auto res                        = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
-        }
-    }
-
-    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
-    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
-    {
-        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
-        return VK_ERROR_UNKNOWN;
-    }
-
-    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table_,
-                                                *instance_table_,
-                                                *phys_dev_info->replay_device_info->memory_properties);
-
-    for (const auto& buf : buffer_descriptors)
-    {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.buffer_info            = buf.first;
-        const VkDeviceSize offset       = buf.second.offset;
-        const VkDeviceSize range        = buf.second.range;
-        const VkDeviceSize size         = range == VK_WHOLE_SIZE ? res_info.buffer_info->size - offset : range;
-
-        VkResult res = resource_util.ReadFromBufferResource(
-            res_info.buffer_info->handle, size, offset, transfer_queue_index, res_info.data);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
-            return res;
-        }
-
-        res_info.type = DumpResourceType::kDispatchTraceRaysBufferDescriptor;
-        res           = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
-        }
-    }
-
-    for (const auto& iub : inline_uniform_blocks)
-    {
-        VulkanDumpResourceInfo res_info = res_info_base;
-        res_info.type                   = DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor;
-        res_info.set                    = iub.second.set;
-        res_info.binding                = iub.second.binding;
-        res_info.data                   = *iub.second.data;
-        auto res                        = delegate_.DumpResource(res_info);
-        if (res != VK_SUCCESS)
-        {
-            return res;
         }
     }
 

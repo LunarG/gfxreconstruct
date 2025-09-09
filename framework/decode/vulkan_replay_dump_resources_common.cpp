@@ -22,58 +22,68 @@
 
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
-#include "util/compressor.h"
-#include "util/logging.h"
-#include "util/image_writer.h"
-#include "util/buffer_writer.h"
+#include "decode/vulkan_object_info_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "util/logging.h"
 #include "graphics/vulkan_resources_util.h"
+#include "util/platform.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <sstream>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
+bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
+                     const VulkanObjectInfoTable&         object_info_table,
+                     const VulkanImageInfo*               image_info)
 {
-    switch (format)
+    GFXRECON_ASSERT(instance_table != nullptr);
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    const VulkanDeviceInfo* device = object_info_table.GetVkDeviceInfo(image_info->parent_id);
+    if (device == nullptr)
     {
-        case VK_FORMAT_R8G8B8_SRGB:
-        case VK_FORMAT_R8G8B8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_RGB;
-
-        case VK_FORMAT_R8G8B8A8_SRGB:
-        case VK_FORMAT_R8G8B8A8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_RGBA;
-
-        case VK_FORMAT_B8G8R8_SRGB:
-        case VK_FORMAT_B8G8R8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_BGR;
-
-        case VK_FORMAT_B8G8R8A8_SRGB:
-        case VK_FORMAT_B8G8R8A8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_BGRA;
-
-        case VK_FORMAT_D32_SFLOAT:
-        case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
-
-        case VK_FORMAT_D24_UNORM_S8_UINT:
-        case VK_FORMAT_X8_D24_UNORM_PACK32:
-            return util::imagewriter::DataFormats::kFormat_D24_UNORM;
-
-        case VK_FORMAT_D16_UNORM:
-            return util::imagewriter::DataFormats::kFormat_D16_UNORM;
-
-        default:
-            GFXRECON_LOG_ERROR("%s isn't supported in VkFormatToImageWriterDataFormat",
-                               util::ToString<VkFormat>(format).c_str());
-            return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
+        return false;
     }
+
+    VkFormatProperties format_properties{};
+    instance_table->GetPhysicalDeviceFormatProperties(device->parent, image_info->format, &format_properties);
+
+    // A format might no be supported on the replay implementation. Check before attempting to dump
+    if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
+         format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
+        (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
+         format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
+    {
+        GFXRECON_LOG_WARNING("Format %s is not supported by the implementation",
+                             util::ToString<VkFormat>(image_info->format).c_str());
+        return false;
+    }
+
+    // Check for multisampled images that cannot be resolved
+    if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
+    {
+        if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
+             (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+            (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
+             (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))
+        {
+            GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
+                                 "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
+                                 util::ToString<VkFormat>(image_info->format).c_str());
+            return false;
+        }
+    }
+
+    return true;
 }
 
 const char* ImageFileExtension(DumpedImageFormat image_format)
@@ -408,32 +418,23 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     }
 }
 
-VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
-                         const VulkanDeviceInfo*              device_info,
-                         const graphics::VulkanDeviceTable*   device_table,
-                         const graphics::VulkanInstanceTable* instance_table,
-                         CommonObjectInfoTable&               object_info_table,
-                         const std::vector<std::string>&      filenames,
-                         float                                scale,
-                         bool&                                scaling_supported,
-                         util::ScreenshotFormat               image_file_format,
-                         const util::Compressor*              compressor,
-                         bool                                 dump_all_subresources,
-                         bool                                 dump_image_raw,
-                         bool                                 dump_separate_alpha,
-                         VkImageLayout                        layout)
+VkResult DumpImage(DumpedImage&                         dumped_image,
+                   VkImageLayout                        layout,
+                   float                                scale,
+                   bool                                 dump_image_raw,
+                   bool                                 dump_all_subresources,
+                   std::vector<DumpedRawData>&          data,
+                   const VulkanDeviceInfo*              device_info,
+                   const graphics::VulkanDeviceTable*   device_table,
+                   const graphics::VulkanInstanceTable* instance_table,
+                   CommonObjectInfoTable&               object_info_table)
 {
-    assert(image_info != nullptr);
-    assert(device_info != nullptr);
-    assert(device_table != nullptr);
-    assert(instance_table != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
 
-    std::vector<VkImageAspectFlagBits> aspects;
-    GetFormatAspects(image_info->format, aspects);
-
-    const uint32_t total_files =
-        dump_all_subresources ? (aspects.size() * image_info->layer_count * image_info->level_count) : aspects.size();
-    assert(total_files == filenames.size());
+    const VulkanImageInfo* image_info = dumped_image.image_info;
+    GFXRECON_ASSERT(image_info != nullptr);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -444,14 +445,56 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    const VkFormat dst_format = dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
-
-    uint32_t f = 0;
-    for (size_t i = 0; i < aspects.size(); ++i)
+    // Choose the format in which the image will be dumped from the gpu into the host memory
+    VkFormat dst_format;
     {
-        const VkImageAspectFlagBits aspect = aspects[i];
+        // When dumping images raw, the data will be fetched in the same format, otherwise they will be transformed into
+        // a VK_FORMAT_B8G8R8A8_* format, more suitable for dumping in an image file.
+        const VkFormat target_format =
+            dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
 
-        std::vector<uint8_t>  data;
+        if (target_format != image_info->format)
+        {
+            // Check if we can convert the image into the desired format
+            const bool is_blit_supported =
+                resource_util.IsBlitSupported(image_info->format, image_info->tiling, target_format);
+
+            // If we cannot convert then we will dump the image verbatim into a binary finaly
+            dst_format = is_blit_supported ? target_format : image_info->format;
+        }
+        else
+        {
+            dst_format = image_info->format;
+        }
+    }
+
+    // Scale can be greater than one so we need to check if we can scale that much
+    const bool scaling_supported = resource_util.IsScalingSupported(
+        image_info->format, image_info->tiling, dst_format, image_info->type, image_info->extent, scale);
+
+    dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
+    dumped_image.dumped_format  = dst_format;
+
+    std::vector<VkImageAspectFlagBits> aspects;
+    GetFormatAspects(image_info->format, aspects);
+
+    const uint32_t total_subresources =
+        dump_all_subresources ? (aspects.size() * (image_info->layer_count * image_info->level_count)) : 1;
+
+    data.resize(total_subresources);
+
+    // data will hold dumped data for all aspects and sub resources, total_files in total.
+    // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
+    // For that readon keep a different counter for the data vector
+    size_t data_index = 0;
+    for (const auto aspect : aspects)
+    {
+        // We don't support stencil output yet
+        if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            continue;
+        }
+
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
 
@@ -474,38 +517,24 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         image_resource.dst_format           = dst_format;
         image_resource.all_layers_per_level = false;
 
-        scaling_supported = resource_util.IsScalingSupported(image_resource.format,
-                                                             image_resource.tiling,
-                                                             dst_format,
-                                                             image_resource.type,
-                                                             image_resource.extent,
-                                                             scale);
-        const bool blit_supported =
-            resource_util.IsBlitSupported(image_resource.format, image_resource.tiling, dst_format);
-        const bool use_blit = (image_resource.format != dst_format && blit_supported) ||
-                              (image_resource.scale != 1.0f && scaling_supported);
-
-        VkExtent3D scaled_extent = {
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.height) * scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.depth) * scale, 1.0f))
-        };
+        const VkExtent3D scaled_extent =
+            (scale != 1.0f && scaling_supported) ? ScaleExtent(image_info->extent, scale) : image_info->extent;
 
         image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(use_blit ? dst_format : image_resource.format,
-                                                       image_resource.type,
-                                                       use_blit ? scaled_extent : image_resource.extent,
-                                                       image_resource.level_count,
-                                                       image_resource.layer_count,
-                                                       image_resource.tiling,
+            resource_util.GetImageResourceSizesOptimal(dst_format,
+                                                       image_info->type,
+                                                       scaling_supported ? scaled_extent : image_info->extent,
+                                                       image_info->level_count,
+                                                       image_info->layer_count,
+                                                       image_info->tiling,
                                                        aspect,
                                                        &subresource_offsets,
                                                        &subresource_sizes,
-                                                       image_resource.all_layers_per_level);
+                                                       false);
 
         if (!image_resource.resource_size)
         {
-            GFXRECON_LOG_ERROR("Unsupported format. Image cannot be dumped");
+            GFXRECON_LOG_WARNING("Unsupported format. Image cannot be dumped");
             // This should not prohibit us from dumping other images though. Treat it as a no error
             return VK_SUCCESS;
         }
@@ -515,121 +544,37 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
             return VK_ERROR_INITIALIZATION_FAILED;
         }
 
-        VkResult result = resource_util.ReadImageResource(image_resource, data);
+        DumpedRawData raw_data;
+        VkResult      result = resource_util.ReadImageResource(image_resource, raw_data);
 
         if (result != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
-                               image_info->capture_id,
-                               util::ToString<VkResult>(result).c_str())
+            GFXRECON_LOG_WARNING("Reading from image resource %" PRIu64 " failed (%s)",
+                                 image_info->capture_id,
+                                 util::ToString<VkResult>(result).c_str())
             return result;
         }
-
-        const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                           device_table,
-                                                                           instance_table,
-                                                                           object_info_table,
-                                                                           image_info->format,
-                                                                           image_info->tiling,
-                                                                           image_info->type,
-                                                                           image_file_format,
-                                                                           dump_image_raw);
 
         for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
         {
             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
             {
-                const std::string& filename = filenames[f++];
+                const VkExtent3D subresource_extent        = ScaleToMipLevel(image_info->extent, mip);
+                const VkExtent3D subresource_scaled_extent = ScaleToMipLevel(scaled_extent, mip);
 
-                // We don't support stencil output yet
-                if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
-                    continue;
+                dumped_image.dumped_subresources.emplace_back(
+                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
 
-                const uint32_t sub_res_idx    = mip * image_info->layer_count + layer;
-                const void*    offsetted_data = reinterpret_cast<const void*>(
-                    reinterpret_cast<const uint8_t*>(data.data()) + subresource_offsets[sub_res_idx]);
+                const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
+                const void*    offsetted_data =
+                    reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
-                if (output_image_format != KFormatRaw)
-                {
-                    const util::imagewriter::DataFormats image_writer_format =
-                        VkFormatToImageWriterDataFormat(dst_format);
-                    assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
-
-                    if (scale != 1.0f && scaling_supported)
-                    {
-                        scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
-                        scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
-                        scaled_extent.depth  = image_info->extent.depth;
-                    }
-                    else
-                    {
-                        scaled_extent = image_info->extent;
-                    }
-
-                    scaled_extent.width  = std::max(1u, scaled_extent.width >> mip);
-                    scaled_extent.height = std::max(1u, scaled_extent.height >> mip);
-                    scaled_extent.depth  = std::max(1u, scaled_extent.depth >> mip);
-
-                    const uint32_t texel_size = vkuFormatElementSizeWithAspect(dst_format, aspect);
-                    const uint32_t stride     = texel_size * scaled_extent.width;
-
-                    if (output_image_format == kFormatBMP)
-                    {
-                        if (dump_separate_alpha)
-                        {
-                            util::imagewriter::WriteBmpImageSeparateAlpha(filename,
-                                                                          scaled_extent.width,
-                                                                          scaled_extent.height,
-                                                                          offsetted_data,
-                                                                          stride,
-                                                                          image_writer_format);
-                        }
-                        else
-                        {
-                            util::imagewriter::WriteBmpImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             offsetted_data,
-                                                             stride,
-                                                             image_writer_format,
-                                                             vkuFormatHasAlpha(image_info->format));
-                        }
-                    }
-                    else if (output_image_format == KFormatPNG)
-                    {
-                        if (dump_separate_alpha)
-                        {
-                            util::imagewriter::WritePngImageSeparateAlpha(filename,
-                                                                          scaled_extent.width,
-                                                                          scaled_extent.height,
-                                                                          offsetted_data,
-                                                                          stride,
-                                                                          image_writer_format);
-                        }
-                        else
-                        {
-                            util::imagewriter::WritePngImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             offsetted_data,
-                                                             stride,
-                                                             image_writer_format,
-                                                             vkuFormatHasAlpha(image_info->format));
-                        }
-                    }
-                }
-                else
-                {
-                    if (!dump_image_raw)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "%s format is not handled. Images with that format will be dump as a plain binary file.",
-                            util::ToString<VkFormat>(image_info->format).c_str());
-                    }
-
-                    util::bufferwriter::WriteBuffer(
-                        filename, offsetted_data, subresource_sizes[sub_res_idx], compressor);
-                }
+                data[data_index].resize(subresource_sizes[sub_res_idx]);
+                util::platform::MemoryCopy(data[data_index].data(),
+                                           subresource_sizes[sub_res_idx],
+                                           offsetted_data,
+                                           subresource_sizes[sub_res_idx]);
+                ++data_index;
 
                 if (!dump_all_subresources)
                 {
@@ -642,9 +587,60 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                 break;
             }
         }
+
+        if (!dump_all_subresources)
+        {
+            break;
+        }
     }
 
-    assert(f == total_files);
+    GFXRECON_ASSERT(data_index == total_subresources);
+
+    return VK_SUCCESS;
+}
+
+VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
+                    DumpedRawData&                       data,
+                    const VulkanDeviceInfo*              device_info,
+                    const graphics::VulkanDeviceTable*   device_table,
+                    const graphics::VulkanInstanceTable* instance_table,
+                    CommonObjectInfoTable&               object_info_table)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
+
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    assert(phys_dev_info);
+
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
+
+    const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
+    GFXRECON_ASSERT(buffer_info != nullptr);
+
+    GFXRECON_ASSERT(dumped_buffer.size);
+    GFXRECON_ASSERT(dumped_buffer.size != VK_WHOLE_SIZE);
+    GFXRECON_ASSERT(dumped_buffer.offset != VK_WHOLE_SIZE);
+
+    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
+
+    VkResult res = resource_util.ReadFromBufferResource(
+        buffer_info->handle, dumped_buffer.size, dumped_buffer.offset, transfer_queue_index, data);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Failed reading from buffer %" PRIu64, buffer_info->parent_id);
+        return res;
+    }
+
     return VK_SUCCESS;
 }
 
@@ -783,56 +779,6 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspec
             ++it;
         }
     }
-}
-
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
-                                       const graphics::VulkanDeviceTable*   device_table,
-                                       const graphics::VulkanInstanceTable* instance_table,
-                                       VulkanObjectInfoTable&               object_info_table,
-                                       VkFormat                             src_format,
-                                       VkImageTiling                        src_image_tiling,
-                                       VkImageType                          type,
-                                       util::ScreenshotFormat               image_file_format,
-                                       bool                                 dump_raw)
-{
-    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    // If there's a request for images to be dumped as raw bin files
-    if (dump_raw)
-    {
-        return KFormatRaw;
-    }
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table,
-                                                *instance_table,
-                                                *phys_dev_info->replay_device_info->memory_properties);
-
-    // Image cannot be converted into a format compatible for dumping in an image file
-    const VkFormat dst_format        = ChooseDestinationImageFormat(src_format);
-    bool           is_blit_supported = resource_util.IsBlitSupported(src_format, src_image_tiling, dst_format);
-    if (!vkuFormatIsDepthOrStencil(src_format) && src_format != dst_format && !is_blit_supported)
-    {
-        return KFormatRaw;
-    }
-
-    // Choose the requested preference for image file extension
-    switch (image_file_format)
-    {
-        case util::ScreenshotFormat::kBmp:
-            return kFormatBMP;
-
-        case util::ScreenshotFormat::kPng:
-            return KFormatPNG;
-
-        default:
-            assert(0);
-            return KFormatRaw;
-    }
-
-    return KFormatRaw;
 }
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags)

@@ -71,6 +71,8 @@ class CommonCaptureManager
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
+    static void SetInitializeLog(bool initialize_log) { initialize_log_ = initialize_log; }
+
     using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
     using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
     static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
@@ -526,6 +528,7 @@ class CommonCaptureManager
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
     static std::atomic<format::HandleId>                  unique_id_counter_;
     static ApiCallMutexT                                  api_call_mutex_;
+    static bool                                           initialize_log_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
