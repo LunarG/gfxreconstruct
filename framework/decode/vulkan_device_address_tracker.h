@@ -99,15 +99,6 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
 
     /**
-     * @brief   Retrieve an acceleration-structure by providing a capture-time VkDeviceAddress.
-     *
-     * @param   capture_address  a capture-time VkDeviceAddress for an acceleration-structure.
-     * @return  a const-pointer to a found AccelerationStructureKHRInfo or nullptr.
-     */
-    [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
-    GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
-
-    /**
      * @brief   Retrieve an acceleration-structure info-struct by providing its vulkan-handle.
      *
      * @param   handle  a replay-time VkAccelerationStructureKHR handle.

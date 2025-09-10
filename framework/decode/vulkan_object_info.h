@@ -410,8 +410,8 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
 
-    // acceleration-structures defined for buffer-range
-    std::unordered_set<VkDeviceAddress> acceleration_structures;
+    // acceleration-structure capture/replay addresses defined for buffer-range
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> acceleration_structures;
 };
 
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>

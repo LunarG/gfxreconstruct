@@ -5996,9 +5996,9 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
 
     // free potential shadow-resources associated with this buffer
     auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    for (VkDeviceAddress as_address : buffer_info->acceleration_structures)
+    for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
     {
-        address_replacer.DestroyShadowResources(as_address);
+        address_replacer.DestroyShadowResources(capture_address);
     }
 
     // remove from device-address tracking
@@ -8813,7 +8813,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
         acceleration_structure_info->replay_address  = buffer_info->replay_address + replay_create_info->offset;
 
         // keep track of AS in buffer-metadata
-        buffer_info->acceleration_structures.insert(acceleration_structure_info->replay_address);
+        buffer_info->acceleration_structures[acceleration_structure_info->capture_address] =
+            acceleration_structure_info->replay_address;
     }
 
     // even when available, the feature also requires allocator-support
@@ -9301,7 +9302,7 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     if (buffer_info != nullptr)
     {
         // if not already present, keep track of AS<->VkBuffer association
-        buffer_info->acceleration_structures.insert(replay_address);
+        buffer_info->acceleration_structures[acceleration_structure_info->capture_address] = replay_address;
     }
 
     // track device-address

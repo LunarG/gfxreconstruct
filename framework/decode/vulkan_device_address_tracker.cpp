@@ -64,6 +64,11 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const VulkanBufferInfo* buffer_inf
         buffer_replay_addresses_.erase(buffer_info->replay_address);
         buffer_handles_.erase(buffer_info->handle);
         address_lookup_helper_map_.erase(buffer_info->capture_address);
+
+        for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
+        {
+            acceleration_structure_capture_addresses_.erase(capture_address);
+        }
     }
 }
 
@@ -93,7 +98,6 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 {
     if (acceleration_structure_info != nullptr)
     {
-        acceleration_structure_capture_addresses_.erase(acceleration_structure_info->capture_address);
         acceleration_structure_handles_.erase(acceleration_structure_info->handle);
     }
 }
@@ -163,18 +167,6 @@ VulkanDeviceAddressTracker::GetBufferInfo(VkDeviceAddress                       
                 return found_buffer;
             }
         }
-    }
-    return nullptr;
-}
-
-const VulkanAccelerationStructureKHRInfo*
-VulkanDeviceAddressTracker::GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const
-{
-    auto address_it = acceleration_structure_capture_addresses_.find(capture_address);
-    if (address_it != acceleration_structure_capture_addresses_.end())
-    {
-        const auto& [found_address, acceleration_structure_handle] = *address_it;
-        return object_info_table_.GetVkAccelerationStructureKHRInfo(acceleration_structure_handle);
     }
     return nullptr;
 }

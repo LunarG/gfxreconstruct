@@ -1067,7 +1067,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // now definitely requiring address-replacement
                 force_replace = true;
 
-                auto& replacement_as = shadow_as_map_[acceleration_structure_info->replay_address];
+                auto& replacement_as = shadow_as_map_[acceleration_structure_info->capture_address];
 
                 if (replacement_as.handle == VK_NULL_HANDLE)
                 {
@@ -1196,21 +1196,14 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
         auto acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
         for (const auto& [capture_address, replay_address] : acceleration_structure_map)
         {
-            auto* accel_info = address_tracker.GetAccelerationStructureByCaptureDeviceAddress(capture_address);
-            GFXRECON_ASSERT(accel_info != nullptr);
-
             if (force_replace || capture_address != replay_address)
             {
                 auto new_address = replay_address;
 
-                // extra look-up required for potentially replaced AS
-                if (accel_info != nullptr)
+                auto shadow_as_it = shadow_as_map_.find(capture_address);
+                if (shadow_as_it != shadow_as_map_.end())
                 {
-                    auto shadow_as_it = shadow_as_map_.find(replay_address);
-                    if (shadow_as_it != shadow_as_map_.end())
-                    {
-                        new_address = shadow_as_it->second.address;
-                    }
+                    new_address = shadow_as_it->second.address;
                 }
 
                 // store addresses we will need to replace
@@ -1277,7 +1270,7 @@ void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
 
         if (acceleration_structure_info != nullptr)
         {
-            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
+            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
             if (shadow_as_it != shadow_as_map_.end())
             {
                 acceleration_structures[i] = shadow_as_it->second.handle;
@@ -1326,7 +1319,7 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
 
                 if (acceleration_structure_info != nullptr)
                 {
-                    auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
+                    auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
                     if (acceleration_structure_it != shadow_as_map_.end())
                     {
                         // we found an existing replacement-structure -> swap
@@ -1777,7 +1770,7 @@ bool VulkanAddressReplacer::swap_acceleration_structure_handle(
 
         if (acceleration_structure_info != nullptr)
         {
-            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->replay_address);
+            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
             if (shadow_as_it != shadow_as_map_.end())
             {
                 handle = shadow_as_it->second.handle;
