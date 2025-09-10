@@ -82,6 +82,16 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
         {
             acceleration_structure_capture_addresses_[acceleration_structure_info->capture_address] =
                 acceleration_structure_info->capture_id;
+
+            auto* buffer_info = GetBufferByHandle(acceleration_structure_info->buffer);
+
+            // associated buffer has already queried a device-address, meaning we also got the AS device-address
+            if (buffer_info != nullptr && buffer_info->replay_address != 0)
+            {
+                // if not already present, keep track of AS<->VkBuffer association
+                buffer_info->acceleration_structures[acceleration_structure_info->capture_address] =
+                    acceleration_structure_info->replay_address;
+            }
         }
 
         // track vulkan-handle

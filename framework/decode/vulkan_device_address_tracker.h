@@ -95,7 +95,7 @@ class VulkanDeviceAddressTracker
      * @param   handle  a capture-time VkBuffer handle.
      * @return  a (const-) pointer to a found BufferInfo or nullptr.
      */
-    [[nodiscard]] VulkanBufferInfo* GetBufferByHandle(VkBuffer handle);
+    [[nodiscard]] VulkanBufferInfo*       GetBufferByHandle(VkBuffer handle);
     [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
 
     /**

@@ -1793,13 +1793,19 @@ void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR ha
     }
 }
 
-void VulkanAddressReplacer::DestroyShadowResources(VkDeviceAddress acceleration_structure)
+void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo* buffer_info)
 {
-    auto remove_shadow_as_it = shadow_as_map_.find(acceleration_structure);
-    if (remove_shadow_as_it != shadow_as_map_.end())
+    if (buffer_info != nullptr)
     {
-        MarkInjectedCommandsHelper mark_injected_commands_helper;
-        shadow_as_map_.erase(remove_shadow_as_it);
+        for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
+        {
+            auto remove_shadow_as_it = shadow_as_map_.find(capture_address);
+            if (remove_shadow_as_it != shadow_as_map_.end())
+            {
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
+                shadow_as_map_.erase(remove_shadow_as_it);
+            }
+        }
     }
 }
 

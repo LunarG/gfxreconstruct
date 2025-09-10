@@ -319,9 +319,9 @@ class VulkanAddressReplacer
      * @brief   DestroyShadowResources should be called upon destruction of a VkBuffer-handle,
      *          allowing this class to free potential resources associated with it.
      *
-     * @param   handle  a provided VkAccelerationStructureKHR handle
+     * @param   buffer_info  a provided VulkanBufferInfo struct
      */
-    void DestroyShadowResources(VkDeviceAddress acceleration_structure);
+    void DestroyShadowResources(const VulkanBufferInfo* buffer_info);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkCommandBuffer handle,

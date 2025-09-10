@@ -5995,11 +5995,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
 
     // free potential shadow-resources associated with this buffer
-    auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
-    {
-        address_replacer.DestroyShadowResources(capture_address);
-    }
+    GetDeviceAddressReplacer(device_info).DestroyShadowResources(buffer_info);
 
     // remove from device-address tracking
     GetDeviceAddressTracker(device_info).RemoveBuffer(buffer_info);
@@ -8803,7 +8799,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     acceleration_structure_info->offset     = replay_create_info->offset;
     acceleration_structure_info->size       = replay_create_info->size;
 
-    auto&       address_tracker = GetDeviceAddressTracker(device_info);
+    auto& address_tracker = GetDeviceAddressTracker(device_info);
     auto* buffer_info     = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
 
     // associated buffer has already queried a device-address, meaning we also got the AS device-address
@@ -8811,10 +8807,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     {
         acceleration_structure_info->capture_address = buffer_info->capture_address + replay_create_info->offset;
         acceleration_structure_info->replay_address  = buffer_info->replay_address + replay_create_info->offset;
-
-        // keep track of AS in buffer-metadata
-        buffer_info->acceleration_structures[acceleration_structure_info->capture_address] =
-            acceleration_structure_info->replay_address;
     }
 
     // even when available, the feature also requires allocator-support
@@ -9291,6 +9283,13 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     VulkanAccelerationStructureKHRInfo* acceleration_structure_info =
         GetObjectInfoTable().GetVkAccelerationStructureKHRInfo(pInfo->GetMetaStructPointer()->accelerationStructure);
     GFXRECON_ASSERT(acceleration_structure_info != nullptr);
+
+    // if already set during AS-creation, expect addresses to match
+    if (acceleration_structure_info->capture_address)
+    {
+        GFXRECON_ASSERT(acceleration_structure_info->capture_address == original_result);
+        GFXRECON_ASSERT(acceleration_structure_info->replay_address == replay_address);
+    }
     acceleration_structure_info->capture_address = original_result;
     acceleration_structure_info->replay_address  = replay_address;
 
@@ -9300,9 +9299,6 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
 
     if (buffer_info != nullptr)
     {
-        // if not already present, keep track of AS<->VkBuffer association
-        buffer_info->acceleration_structures[acceleration_structure_info->capture_address] = replay_address;
-
         // buffer has not queried its address (yet), so we start tracking it here
         if (buffer_info->capture_address == 0)
         {
