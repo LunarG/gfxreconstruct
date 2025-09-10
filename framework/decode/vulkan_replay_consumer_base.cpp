@@ -9297,13 +9297,25 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     auto& address_tracker = GetDeviceAddressTracker(device_info);
     auto* buffer_info     = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
     GFXRECON_ASSERT(buffer_info != nullptr);
-    GFXRECON_ASSERT(replay_address == buffer_info->replay_address + acceleration_structure_info->offset);
 
     if (buffer_info != nullptr)
     {
         // if not already present, keep track of AS<->VkBuffer association
         buffer_info->acceleration_structures[acceleration_structure_info->capture_address] = replay_address;
+
+        // buffer has not queried its address (yet), so we start tracking it here
+        if (buffer_info->capture_address == 0)
+        {
+            buffer_info->capture_address =
+                acceleration_structure_info->capture_address - acceleration_structure_info->offset;
+            buffer_info->replay_address =
+                acceleration_structure_info->replay_address - acceleration_structure_info->offset;
+            address_tracker.TrackBuffer(buffer_info);
+        }
     }
+
+    // we expect to know the corresponding buffer-device-address
+    GFXRECON_ASSERT(replay_address == buffer_info->replay_address + acceleration_structure_info->offset);
 
     // track device-address
     address_tracker.TrackAccelerationStructure(acceleration_structure_info);
