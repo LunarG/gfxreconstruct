@@ -97,6 +97,7 @@ jobs:
           - {
             name: "Windows MSVC Release",
             os: windows-latest,
+            arch: "x64",
             artifact: "gfxreconstruct-dev-windows-msvc-release",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-release",
             type: "release",
@@ -106,8 +107,29 @@ jobs:
           - {
             name: "Windows MSVC Debug",
             os: windows-latest,
+            arch: "x64",
             artifact: "gfxreconstruct-dev-windows-msvc-debug",
             test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "cl", cxx: "cl"
+          }
+          - {
+            name: "Windows MSVC Arm64 Release",
+            os: windows-arm64,
+            arch: "arm64",
+            artifact: "gfxreconstruct-dev-windows-msvc-arm64-release",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-arm64-release",
+            type: "release",
+            build_dir: "build",
+            cc: "cl", cxx: "cl"
+          }
+          - {
+            name: "Windows MSVC Arm64 Debug",
+            os: windows-arm64,
+            arch: "arm64",
+            artifact: "gfxreconstruct-dev-windows-msvc-arm64-debug",
+            test_failure_artifact: "gfxreconstruct-dev-test-failure-windows-msvc-arm64-debug",
             type: "debug",
             build_dir: "dbuild",
             cc: "cl", cxx: "cl"
@@ -121,12 +143,14 @@ jobs:
       run: pip install ply
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.config.arch }}
     - name: Install SDK 26100
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
         sdk-version: 26100
     - name: Set WindowsSDKVersion
-      run:
+      run: |
         echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
     - name: Clone repository from merge of PR branch and dev branch
       uses: actions/checkout@v4
@@ -138,29 +162,44 @@ jobs:
         git diff --exit-code
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+        $arch = "${{ matrix.config.arch }}"
+        $config = "${{ matrix.config.type }}"
+        if ($arch -eq "arm64") {
+          python scripts\build.py --skip-check-code-style --config $config --arch arm64 --parallel 0 --test-apps
+        } else {
+          python scripts\build.py --skip-check-code-style --config $config --parallel 0 --test-apps
+        }
     - name: Run test app test cases
       id: test_apps
       run: |
+        $arch = "${{ matrix.config.arch }}"
+        if ($arch -eq "arm64") {
+          $testDir = "${{matrix.config.build_dir}}\windows\arm64\output\test"
+        } else {
+          $testDir = "${{matrix.config.build_dir}}\windows\x64\output\test"
+        }
         curl.exe -o vulkan-sdk.zip https://sdk.lunarg.com/sdk/download/1.3.296.0/windows/VulkanRT-1.3.296.0-Components.zip
         Expand-Archive vulkan-sdk.zip -DestinationPath $pwd\vulkan-sdk
         $env:Path += ";$pwd\vulkan-sdk\VulkanRT-1.3.296.0-Components\x64"
-        cd ${{matrix.config.build_dir}}\windows\x64\output\test
+        cd $testDir
         ./run-tests.ps1
     - name: Upload test failure artifacts
       uses: actions/upload-artifact@v4
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
-        path: ${{matrix.config.build_dir}}\windows\x64\output\test
+        path: |
+          ${{ matrix.config.build_dir }}\windows\${{ matrix.config.arch }}\output\test
     - name: Prepare artifacts
       run: |
-        copy LICENSE.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        copy LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        copy USAGE_desktop_D3D12.md ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        copy USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        copy layer\vk_layer_settings.txt ${{ matrix.config.build_dir }}\windows\x64\output\bin\
-        move ${{ matrix.config.build_dir }}\windows\x64\output\bin gfxreconstruct-dev
+        $arch = "${{ matrix.config.arch }}"
+        $binDir = "${{ matrix.config.build_dir }}\windows\$arch\output\bin"
+        copy LICENSE.txt $binDir
+        copy LICENSE_ThirdParty.txt $binDir
+        copy USAGE_desktop_D3D12.md $binDir
+        copy USAGE_desktop_Vulkan.md $binDir
+        copy layer\vk_layer_settings.txt $binDir
+        move $binDir gfxreconstruct-dev
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
