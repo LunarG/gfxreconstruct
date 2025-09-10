@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanDeviceAddressTracker
 {
   public:
-    explicit VulkanDeviceAddressTracker(const VulkanObjectInfoTable& object_info_table);
+    explicit VulkanDeviceAddressTracker(VulkanObjectInfoTable& object_info_table);
 
     //! prevent copying
     VulkanDeviceAddressTracker(const VulkanDeviceAddressTracker&) = delete;
@@ -93,8 +93,9 @@ class VulkanDeviceAddressTracker
      * @brief   Retrieve a buffer info-struct by providing its vulkan-handle.
      *
      * @param   handle  a capture-time VkBuffer handle.
-     * @return  a const-pointer to a found BufferInfo or nullptr.
+     * @return  a (const-) pointer to a found BufferInfo or nullptr.
      */
+    [[nodiscard]] VulkanBufferInfo* GetBufferByHandle(VkBuffer handle);
     [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
 
     /**
@@ -144,7 +145,7 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
                                                         const buffer_address_map_t& address_map) const;
 
-    const VulkanObjectInfoTable&                          object_info_table_;
+    VulkanObjectInfoTable&                                object_info_table_;
     buffer_address_map_t                                  buffer_capture_addresses_, buffer_replay_addresses_;
     std::unordered_map<VkDeviceAddress, format::HandleId> acceleration_structure_capture_addresses_;
 

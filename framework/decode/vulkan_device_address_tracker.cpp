@@ -26,7 +26,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanDeviceAddressTracker::VulkanDeviceAddressTracker(const VulkanObjectInfoTable& object_info_table) :
+VulkanDeviceAddressTracker::VulkanDeviceAddressTracker(VulkanObjectInfoTable& object_info_table) :
     object_info_table_(object_info_table)
 {}
 
@@ -108,6 +108,17 @@ const decode::VulkanBufferInfo*
 decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const
 {
     return GetBufferInfo(replay_address, buffer_replay_addresses_);
+}
+
+VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle)
+{
+    auto handle_it = buffer_handles_.find(handle);
+    if (handle_it != buffer_handles_.end())
+    {
+        const auto& [h, handle_id] = *handle_it;
+        return object_info_table_.GetVkBufferInfo(handle_id);
+    }
+    return nullptr;
 }
 
 const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle) const
