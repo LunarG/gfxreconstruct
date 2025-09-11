@@ -128,6 +128,7 @@ def CreateReplayParser():
     parser.add_argument('--wait-before-present', action='store_true', default=False, help='Force wait on completion of queue operations for all queues before calling Present. This is needed for accurate acquisition of instrumentation data on some platforms.')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('--swapchain', metavar='MODE', choices=['virtual', 'captured', 'offscreen'], help='Choose a swapchain mode to replay. Available modes are: virtual, captured, offscreen (forwarded to replay tool)')
+    parser.add_argument('--present-mode', metavar='MODE', choices=['capture', 'immediate', 'mailbox', 'fifo', 'fifo_relaxed'], help='Set swapchain\'s VkPresentModeKHR. Available modes are: auto, immediate, mailbox, fifo, fifo_relaxed (forwarded to replay tool)')
     parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
@@ -270,6 +271,10 @@ def MakeExtrasString(args):
     if args.swapchain:
         arg_list.append('--swapchain')
         arg_list.append('{}'.format(args.swapchain))
+
+    if args.present_mode:
+        arg_list.append('--present-mode')
+        arg_list.append('{}'.format(args.present_mode))
 
     if args.offscreen_swapchain_frame_boundary:
         arg_list.append('--offscreen-swapchain-frame-boundary')
