@@ -343,7 +343,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
 
             if (output_image_format == kFormatBMP)
             {
-                if (options_.dump_resources_dump_all_image_subresources)
+                if (options_.dump_resources_dump_separate_alpha)
                 {
                     util::imagewriter::WriteBmpImageSeparateAlpha(
                         filename,
