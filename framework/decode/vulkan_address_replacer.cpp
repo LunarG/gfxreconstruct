@@ -1193,7 +1193,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     {
         // prepare linear hashmap
         storage_bda_binary_.clear();
-        auto acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
+        const auto& acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
         for (const auto& [capture_address, replay_address] : acceleration_structure_map)
         {
             if (force_replace || capture_address != replay_address)

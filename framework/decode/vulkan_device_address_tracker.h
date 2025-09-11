@@ -112,7 +112,8 @@ class VulkanDeviceAddressTracker
      *
      * @return  a lookup-table for acceleration-structure addresses.
      */
-    [[nodiscard]] std::unordered_map<VkDeviceAddress, VkDeviceAddress> GetAccelerationStructureDeviceAddressMap() const;
+    [[nodiscard]] const std::unordered_map<VkDeviceAddress, VkDeviceAddress>&
+    GetAccelerationStructureDeviceAddressMap() const;
 
     //! aggregate to group an address and size
     struct device_address_range_t
@@ -136,9 +137,9 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
                                                         const buffer_address_map_t& address_map) const;
 
-    VulkanObjectInfoTable&                                object_info_table_;
-    buffer_address_map_t                                  buffer_capture_addresses_, buffer_replay_addresses_;
-    std::unordered_map<VkDeviceAddress, format::HandleId> acceleration_structure_capture_addresses_;
+    VulkanObjectInfoTable&                               object_info_table_;
+    buffer_address_map_t                                 buffer_capture_addresses_, buffer_replay_addresses_;
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> acceleration_structure_addresses_;
 
     std::unordered_map<VkBuffer, format::HandleId>                   buffer_handles_;
     std::unordered_map<VkAccelerationStructureKHR, format::HandleId> acceleration_structure_handles_;

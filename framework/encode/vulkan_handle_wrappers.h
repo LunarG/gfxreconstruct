@@ -481,8 +481,6 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         // The offset from the above address to start reading the VkAccelerationStructureInstanceKHR structures
         uint32_t offset;
     };
-
-    // TODO: Fabian, check wtf
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 
     const PipelineWrapper* bound_pipelines[vulkan_state_info::PipelineBindPoints::kBindPoint_count]{ nullptr };
