@@ -58,6 +58,11 @@ jobs:
         else
           python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
         fi
+    - name: Debug permissions
+      run: |
+        ls -ld /home/runner/work/gfxreconstruct/gfxreconstruct/build/linux/x64/output/test
+        ls -ld /home/runner/work/gfxreconstruct/gfxreconstruct/build/linux/x64/output/test/res
+        whoami
     - name: Run test app test cases
       id: test_apps
       run: |
