@@ -242,7 +242,7 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
 
     if (dumped_buffer.compressed_size)
     {
-        json_entry["compressedSize"] = dumped_buffer.size;
+        json_entry["compressedSize"] = dumped_buffer.compressed_size;
     }
 }
 
