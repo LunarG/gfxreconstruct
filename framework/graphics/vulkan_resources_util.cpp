@@ -422,11 +422,10 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                                    VkDeviceSize*              current_row_remaining_size_ptr)
 {
     bool         is_texel_block_size = false;
-    VkDeviceSize texel_size          = 0;
+    VkDeviceSize texel_size;
     uint16_t     block_width = 0, block_height = 0;
-    bool         result = GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
 
-    if (!result)
+    if (GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height))
     {
         // The image format is not supported
         return false;
@@ -464,9 +463,9 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             if (z >= extent.depth)
             {
                 // offset_to_subresource_data_start is beyond the range of subresource data. Because current
-                // Vulakn specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
+                // Vulkan specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
                 // exist;
-                result = false;
+                return false;
             }
             else
             {
@@ -586,7 +585,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
         *current_row_remaining_size_ptr = current_row_remaining_size;
     }
 
-    return result;
+    return true;
 }
 
 // Get the offset which is relative to the start of subresource data for a location (pointed by texel

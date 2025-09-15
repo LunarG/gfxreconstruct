@@ -6860,8 +6860,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
     // Replace shader in 'override_info'
     std::unique_ptr<char[]> file_code;
-    const uint32_t* const   orig_code = original_info->pCode;
-    const size_t            orig_size = original_info->codeSize;
     uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_shader_dir, file_name);
@@ -8101,7 +8099,9 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         // If a swapchain was removed, pNext stucts that reference the swapchain need to be modified as well.
         if (!removed_swapchain_indices_.empty())
         {
-            const VkBaseInStructure* next = reinterpret_cast<const VkBaseInStructure*>(modified_present_info.pNext);
+            VkBaseInStructure* next =
+                reinterpret_cast<VkBaseInStructure*>(const_cast<void*>(modified_present_info.pNext));
+            VkBaseInStructure* prev = reinterpret_cast<VkBaseInStructure*>(&modified_present_info);
             while (next != nullptr)
             {
                 switch (next->sType)
@@ -8128,7 +8128,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                 static_cast<uint32_t>(modified_device_masks_.size());
                             modified_device_group_present_info.pDeviceMasks = modified_device_masks_.data();
                             modified_device_group_present_info.mode         = pNext->mode;
-                            pNext                                           = &modified_device_group_present_info;
+                            prev->pNext = (const VkBaseInStructure*)&modified_device_group_present_info;
                         }
                         break;
                     }
@@ -8152,7 +8152,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                             modified_present_region_info.swapchainCount =
                                 static_cast<uint32_t>(modified_regions_.size());
                             modified_present_region_info.pRegions = modified_regions_.data();
-                            pNext                                 = &modified_present_region_info;
+                            prev->pNext = (const VkBaseInStructure*)&modified_present_region_info;
                         }
                         break;
                     }
@@ -8175,7 +8175,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                             modified_present_times_info.pNext          = pNext->pNext;
                             modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times_.size());
                             modified_present_times_info.pTimes         = modified_times_.data();
-                            pNext                                      = &modified_present_times_info;
+                            prev->pNext = (const VkBaseInStructure*)&modified_present_times_info;
                         }
                         break;
                     }
@@ -8183,7 +8183,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         break;
                 }
 
-                next = reinterpret_cast<const VkBaseInStructure*>(next->pNext);
+                prev = next;
+                next = const_cast<VkBaseInStructure*>(next->pNext);
             }
         }
 
@@ -11141,6 +11142,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         create_info->codeSize = file_size;
                         GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
                         replaced_file_code.emplace_back(std::move(file_code));
+                        util::platform::FileClose(fp);
                     }
                 }
                 pNext = const_cast<VkBaseInStructure*>(base->pNext);
@@ -11285,8 +11287,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     for (size_t i = 0; i < create_info_count; i++)
     {
         auto*       create_info = &create_infos[i];
-        const void* orig_code   = create_info->pCode;
-        size_t      orig_size   = create_info->codeSize;
         uint64_t    handle_id   = shaders[i];
         std::string file_name   = "sh" + std::to_string(handle_id);
         std::string file_path   = util::filepath::Join(options_.replace_shader_dir, file_name);
@@ -11304,6 +11304,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
             create_info->codeSize = file_size;
             GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
             replaced_file_code.emplace_back(std::move(file_code));
+            util::platform::FileClose(fp);
         }
     }
 

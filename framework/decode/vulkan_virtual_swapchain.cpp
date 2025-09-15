@@ -52,15 +52,16 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
                                                     const graphics::VulkanDeviceTable*    device_table)
 {
-    VkDevice                 device = VK_NULL_HANDLE;
+    VkDevice                 device          = VK_NULL_HANDLE;
+    VkPhysicalDevice         physical_device = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
 
     if (device_info != nullptr)
     {
         device = device_info->handle;
+        physical_device = device_info->parent;
     }
-    device_table_                    = device_table;
-    VkPhysicalDevice physical_device = device_info->parent;
+    device_table_ = device_table;
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
     modified_create_info.imageUsage =
