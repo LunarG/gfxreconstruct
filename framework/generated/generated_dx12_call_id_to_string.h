@@ -788,11 +788,20 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Tools1_ClearReservedGPUVARangesList:
         out = L"ID3D12Tools1_ClearReservedGPUVARangesList";
         break;
+    case format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState:
+        out = L"ID3D12Tools2_SetApplicationSpecificDriverState";
+        break;
     case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
         out = L"ID3D12PageableTools_GetAllocation";
         break;
     case format::ApiCallId::ApiCall_ID3D12DeviceTools_SetNextAllocationAddress:
         out = L"ID3D12DeviceTools_SetNextAllocationAddress";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState:
+        out = L"ID3D12DeviceTools1_GetApplicationSpecificDriverState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus:
+        out = L"ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus";
         break;
     case format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion:
         out = L"ID3D12SDKConfiguration_SetSDKVersion";

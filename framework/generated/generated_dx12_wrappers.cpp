@@ -17341,6 +17341,68 @@ void STDMETHODCALLTYPE ID3D12Tools1_Wrapper::ClearReservedGPUVARangesList()
     manager->DecrementCallScope();
 }
 
+ID3D12Tools2_Wrapper::ID3D12Tools2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Tools1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12Tools2_Wrapper::SetApplicationSpecificDriverState(
+    IUnknown* pAdapter,
+    ID3DBlob* pBlob)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            manager,
+            this,
+            pAdapter,
+            pBlob);
+
+        result = GetWrappedObjectAs<ID3D12Tools2>()->SetApplicationSpecificDriverState(
+            encode::GetWrappedObject<IUnknown>(pAdapter),
+            encode::GetWrappedObject<ID3D10Blob>(pBlob));
+
+        Encode_ID3D12Tools2_SetApplicationSpecificDriverState(
+            this,
+            result,
+            pAdapter,
+            pBlob);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            manager,
+            this,
+            result,
+            pAdapter,
+            pBlob);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12Tools2>()->SetApplicationSpecificDriverState(
+            pAdapter,
+            pBlob);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12PageableTools_Wrapper::ID3D12PageableTools_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12PageableToolsInfo>();
@@ -17479,6 +17541,113 @@ void STDMETHODCALLTYPE ID3D12DeviceTools_Wrapper::SetNextAllocationAddress(
     }
 
     manager->DecrementCallScope();
+}
+
+ID3D12DeviceTools1_Wrapper::ID3D12DeviceTools1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12DeviceTools_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12DeviceTools1_Wrapper::GetApplicationSpecificDriverState(
+    ID3DBlob** ppBlob)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            manager,
+            this,
+            ppBlob);
+
+        result = GetWrappedObjectAs<ID3D12DeviceTools1>()->GetApplicationSpecificDriverState(
+            ppBlob);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), nullptr);
+        }
+
+        Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+            this,
+            result,
+            ppBlob);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            manager,
+            this,
+            result,
+            ppBlob);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceTools1>()->GetApplicationSpecificDriverState(
+            ppBlob);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS STDMETHODCALLTYPE ID3D12DeviceTools1_Wrapper::GetApplicationSpecificDriverBlobStatus()
+{
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D12DeviceTools1>()->GetApplicationSpecificDriverBlobStatus();
+
+        Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12DeviceTools1>()->GetApplicationSpecificDriverBlobStatus();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
 }
 
 ID3D12SDKConfiguration_Wrapper::ID3D12SDKConfiguration_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)

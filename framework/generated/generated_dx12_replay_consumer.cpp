@@ -9690,6 +9690,38 @@ void Dx12ReplayConsumer::Process_ID3D12Tools1_ClearReservedGPUVARangesList(
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pAdapter,
+    format::HandleId                            pBlob)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pAdapter,
+            pBlob);
+        auto in_pAdapter = MapObject<IUnknown>(pAdapter);
+        auto in_pBlob = MapObject<ID3D10Blob>(pBlob);
+        auto replay_result = reinterpret_cast<ID3D12Tools2*>(replay_object->object)->SetApplicationSpecificDriverState(in_pAdapter,
+                                                                                                                       in_pBlob);
+        CheckReplayResult("ID3D12Tools2_SetApplicationSpecificDriverState", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pAdapter,
+            pBlob);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12PageableTools_GetAllocation(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -9737,6 +9769,61 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
             call_info,
             replay_object,
             nextAllocationVirtualAddress);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    HandlePointerDecoder<ID3D10Blob*>*          ppBlob)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            ppBlob);
+        if(!ppBlob->IsNull()) ppBlob->SetHandleLength(1);
+        auto out_p_ppBlob    = ppBlob->GetPointer();
+        auto out_hp_ppBlob   = ppBlob->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D12DeviceTools1*>(replay_object->object)->GetApplicationSpecificDriverState(out_hp_ppBlob);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState);
+        }
+        CheckReplayResult("ID3D12DeviceTools1_GetApplicationSpecificDriverState", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            ppBlob);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        auto replay_result = reinterpret_cast<ID3D12DeviceTools1*>(replay_object->object)->GetApplicationSpecificDriverBlobStatus();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 

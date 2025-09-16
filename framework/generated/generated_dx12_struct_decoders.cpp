@@ -1067,6 +1067,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Supported));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2976,6 +2988,54 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ByteOffset));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubdivisionLevel));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC* value = wrapper->decoded_value;
+
+    wrapper->OpacityMicromapIndexBuffer = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE>();
+    wrapper->OpacityMicromapIndexBuffer->decoded_value = &(value->OpacityMicromapIndexBuffer);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->OpacityMicromapIndexBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->OpacityMicromapIndexFormat));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->OpacityMicromapBaseLocation));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->OpacityMicromapArray));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* value = wrapper->decoded_value;
+
+    wrapper->pTriangles = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC>>();
+    bytes_read += wrapper->pTriangles->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pTriangles = wrapper->pTriangles->GetPointer();
+    wrapper->pOmmLinkage = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC>>();
+    bytes_read += wrapper->pOmmLinkage->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOmmLinkage = wrapper->pOmmLinkage->GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3034,7 +3094,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytes));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBottomLevelAccelerationStructurePointers));
+    bytes_read += ValueDecoder::DecodeUnionValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->));
 
     return bytes_read;
 }
@@ -3068,6 +3128,37 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SER
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytesIncludingHeader));
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeserializedSizeInBytes));
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBottomLevelAccelerationStructurePointersAfterHeader));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* value = wrapper->decoded_value;
+
+    wrapper->DriverMatchingIdentifier = DecodeAllocator::Allocate<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>();
+    wrapper->DriverMatchingIdentifier->decoded_value = &(value->DriverMatchingIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DriverMatchingIdentifier);
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytesIncludingHeader));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DeserializedSizeInBytes));
+    bytes_read += ValueDecoder::DecodeUnionValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->HeaderPostambleType));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_SERIALIZED_BLOCK* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Type));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBlockPointersAfterHeader));
 
     return bytes_read;
 }
@@ -3110,6 +3201,39 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Count));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubdivisionLevel));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Format));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumOmmHistogramEntries));
+    wrapper->pOmmHistogram = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY>>();
+    bytes_read += wrapper->pOmmHistogram->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pOmmHistogram = wrapper->pOmmHistogram->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->InputBuffer));
+    wrapper->PerOmmDescs = DecodeAllocator::Allocate<Decoded_D3D12_GPU_VIRTUAL_ADDRESS_AND_STRIDE>();
+    wrapper->PerOmmDescs->decoded_value = &(value->PerOmmDescs);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->PerOmmDescs);
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -3137,6 +3261,43 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ResultDataMaxSizeInBytes));
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ScratchDataSizeInBytes));
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->UpdateScratchDataSizeInBytes));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DestBuffer));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->InfoType));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CurrentSizeInBytes));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DecodedSizeInBytes));
 
     return bytes_read;
 }

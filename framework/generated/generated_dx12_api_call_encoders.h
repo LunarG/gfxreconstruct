@@ -282,6 +282,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PREDICATIO
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_HARDWARE_COPY& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RESOURCE_ALLOCATION_INFO& value);
@@ -1595,6 +1597,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_AABB& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_AABBS_DESC& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC& value);
@@ -1609,13 +1617,27 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_DATA_DRIVER_
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SERIALIZED_BLOCK& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_INSTANCE_DESC& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& value);
 
 void Encode_ID3D12Device5_CreateLifetimeTracker(
     ID3D12Device5_Wrapper* wrapper,
@@ -2088,6 +2110,12 @@ void Encode_ID3D12Tools1_ReserveGPUVARangesAtCreate(
 void Encode_ID3D12Tools1_ClearReservedGPUVARangesList(
     ID3D12Tools1_Wrapper* wrapper);
 
+void Encode_ID3D12Tools2_SetApplicationSpecificDriverState(
+    ID3D12Tools2_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pAdapter,
+    ID3DBlob* pBlob);
+
 void Encode_ID3D12PageableTools_GetAllocation(
     ID3D12PageableTools_Wrapper* wrapper,
     HRESULT return_value,
@@ -2096,6 +2124,15 @@ void Encode_ID3D12PageableTools_GetAllocation(
 void Encode_ID3D12DeviceTools_SetNextAllocationAddress(
     ID3D12DeviceTools_Wrapper* wrapper,
     D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress);
+
+void Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+    ID3D12DeviceTools1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3DBlob** ppBlob);
+
+void Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+    ID3D12DeviceTools1_Wrapper* wrapper,
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBRESOURCE_DATA& value);
 

@@ -5036,6 +5036,26 @@ void Dx12JsonConsumer::Process_ID3D12Tools1_ClearReservedGPUVARangesList(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        format::HandleId pBlob)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools2", object_id, "SetApplicationSpecificDriverState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAdapter"], pAdapter, options);
+        FieldToJson(args["pBlob"], pBlob, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12PageableTools_GetAllocation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -5067,6 +5087,37 @@ void Dx12JsonConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
     {
         FieldToJsonAsHex(args["nextAllocationVirtualAddress"], nextAllocationVirtualAddress, options);
     }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<ID3D10Blob*>* ppBlob)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools1", object_id, "GetApplicationSpecificDriverState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppBlob"], ppBlob, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools1", object_id, "GetApplicationSpecificDriverBlobStatus");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 

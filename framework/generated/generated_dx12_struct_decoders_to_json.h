@@ -112,6 +112,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_PREDICATION* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO1* pObj, const util::JsonOptions& options);
@@ -255,6 +256,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GPU_VIRTUAL_
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_AABB* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* pObj, const util::JsonOptions& options);
@@ -262,12 +266,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCRUMB_NODE* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_BREADCRUMB_CONTEXT* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCRUMB_NODE1* pObj, const util::JsonOptions& options);
@@ -429,6 +440,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATU
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_PREDICATION& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_ALLOCATION_INFO1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
@@ -572,6 +584,9 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GPU_V
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_AABB& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
@@ -579,12 +594,19 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_INSTANCE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCRUMB_NODE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_BREADCRUMB_CONTEXT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_AUTO_BREADCRUMB_NODE1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
