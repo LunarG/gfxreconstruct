@@ -76,7 +76,7 @@ It may contain more commands represented by Metadata commands but it should be p
 Capture should avoid changing the content of the application’s graphics commands.  Some exceptions are necessary in order to save information required for replay or modify data so that replay is possible.
 
 * Implications:  
-  * It *may* be acceptable for the user to *request* an annotated or altered capture.  (e.g. A user may wish to save the GPU buffers used by drawing commands at capture time.  However, the preferred technique for altering the application’s graphics command stream and saving additional information for a specialization of GFXR is to make an additional upchain or downchain layer separate from GFXR. For APIs without a formal third-party layering procedure (e.g. DirectX 12), we may implement a plugin architecture for pre- or post- function and method call alteration of commands.)  
+  * It *may* be acceptable for the user (through capture layer configuration from, as examples, environment variables, Android properties, or calls into the capture layer from another API layer or the application being captured) to *request* an annotated or altered capture.  (e.g. A user may wish to save the GPU buffers used by drawing commands at capture time.  However, the preferred technique for altering the application’s graphics command stream and saving additional information for a specialization of GFXR is to make an additional upchain or downchain layer separate from GFXR. For APIs without a formal third-party layering procedure (e.g. DirectX 12), we may implement a plugin architecture for pre- or post- function and method call alteration of commands.)
   * Combined with the above principle “A capture file should contain as much as possible of all the graphics API calls made by the application”, a corollary is that API calls modified in capture should be stored in their original form in the capture file; a MetaData Command may encode additional information to signal to the replay application to also modify the calls on replay.  
 * Benefits:  
   * GFXR limits the differences between running the application with and without the capture layer.  GFXR increases confidence that replay of the capture file will closely match the application’s execution without the capture layer.  
@@ -92,7 +92,9 @@ Capture should avoid changing the content of the application’s graphics comman
 
 **Replay without user intervention in the **same** **environment** as capture is an explicit goal. **
 
-Replay on the same GPU model as capture, on the same operating system, with the same driver revision, under the same or lower load conditions without additional user-provided options **is** an explicit goal.
+Replay on the same GPU model as capture, on the same operating system, with the same driver revision, under the same or lower load conditions without additional user-provided options **is** an explicit goal.  
+
+Replay on GPUs, operating systems, OS revisions, and driver revisions that differ from the capture environment, while a lower priority than replay on the same environment, is highly desired.  Therefore capture must not make portable replay impossible.
 
 * Implications:  
   * Include modifications to the sequence of commands without which replay *in the same environment* would be unlikely to succeed.  An example is “Virtual Swapchain”, without which swapchain image indices are likely to differ between capture and replay for all presentation modes except FIFO.  
