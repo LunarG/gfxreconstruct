@@ -94,7 +94,8 @@ VulkanStateWriter::VulkanStateWriter(
     util::FileOutputStream*                                                 asset_file_stream,
     const std::string*                                                      asset_file_name,
     VulkanStateWriter::AssetFileOffsetsInfo*                                asset_file_offsets) :
-    output_stream_(output_stream), compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
+    output_stream_(output_stream),
+    compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
     get_unique_id_(std::move(get_unique_id_fn)), device_address_trackers_(device_address_trackers),
     asset_file_stream_(asset_file_stream), asset_file_offsets_(asset_file_offsets),
     command_writer_(CommandWriter(thread_data, output_stream, compressor_))
@@ -1817,8 +1818,8 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
     }
 }
 
-void VulkanStateWriter::WriteAccelerationStructureBuildState(
-    const gfxrecon::format::HandleId& device, encode::AccelerationStructureKHRBuildCommandData& command)
+void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
+                                                             encode::AccelerationStructureKHRBuildCommandData& command)
 {
     for (auto& [handle_id, buffer] : command.input_buffers)
     {
