@@ -24,9 +24,12 @@ import os
 import sys
 
 # Relative path to dxgi code generators for trace encode/decode.
-GENERATOR_PATH = './dx12_generators'
-LIB_CPPHEADERPARSER_PATH = '../../external'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+COMMON_GENERATOR_PATH = os.path.join(SCRIPT_DIR, 'common')
+GENERATOR_PATH = os.path.join(SCRIPT_DIR, 'dx12_generators')
+LIB_CPPHEADERPARSER_PATH = os.path.normpath(
+    os.path.join(SCRIPT_DIR, '..', '..', 'external')
+)
 
 # File names to provide to the dxgi generator script.
 GENERATE_TARGETS = [
@@ -87,7 +90,6 @@ WINAPI_SOURCE_LIST = [
     ['um\\Unknwnbase.h', ['IUnknown']],
     ['shared\\guiddef.h', ['GUID']],
     ['shared\\windef.h', ['tagRECT', 'tagPOINT']],
-    ['um\\minwinbase.h', ['_SECURITY_ATTRIBUTES']],
 ]
 
 if __name__ == '__main__':
@@ -108,11 +110,15 @@ if __name__ == '__main__':
         WINDOWS_SDK_DIR = env['WindowsSdkDir']
 
     CURRENT_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
+    COMMON_GENERATOR_DIR = os.path.normpath(
+        os.path.join(CURRENT_DIR, COMMON_GENERATOR_PATH)
+    )
     GENERATOR_DIR = os.path.normpath(os.path.join(CURRENT_DIR, GENERATOR_PATH))
     LIB_CPPHEADERPARSER_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, LIB_CPPHEADERPARSER_PATH)
     )
 
+    sys.path.append(COMMON_GENERATOR_DIR)
     sys.path.append(GENERATOR_DIR)
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 

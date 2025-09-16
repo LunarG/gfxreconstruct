@@ -36,9 +36,10 @@
 /// should be used when dumping a JSON representation while following the
 /// pointers.
 
-#include "generated/generated_dx12_struct_decoders_forward.h"
+#include "decode/custom_common_struct_to_json.h"
 #include "decode/custom_dx12_struct_decoders_forward.h"
-#include "generated_dx12_enum_to_json.h"
+#include "generated/generated_dx12_enum_to_json.h"
+#include "generated/generated_dx12_struct_decoders_forward.h"
 #include "util/defines.h"
 #include "nlohmann/json.hpp"
 
@@ -362,7 +363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_QUANTIZA
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagRECT* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT* pObj, const util::JsonOptions& options);
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUTES* pObj, const util::JsonOptions& options);
 
 // Reference versions of above which simply pipe through to the pointer versions.
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMMAND_QUEUE_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
@@ -679,13 +679,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_JPEG_Q
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_GUID& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagRECT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_tagPOINT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
-inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded__SECURITY_ATTRIBUTES& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 
-// Custom, manually written implementations whose prototypes haven't been generated above:
-
-/// <winnt.h> Named union type with two structs and a uint64_t inside.
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER* pObj, const util::JsonOptions& options);
-inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEGER& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -21,8 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
-#define GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#ifndef GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODER_DECLARATIONS_H
+#define GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODER_DECLARATIONS_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
@@ -76,16 +76,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemoryT
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyImageToMemoryInfo* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageToMemoryCopy* wrapper);
 
-// Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
-struct Decoded_ACL;
-struct Decoded_SECURITY_DESCRIPTOR;
-struct Decoded_SECURITY_ATTRIBUTES;
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#endif // GFXRECON_DECODE_CUSTOM_VULKAN_STRUCT_DECODER_DECLARATIONS_H

@@ -956,7 +956,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         format::HandleId object_id,
         HRESULT return_value,
         format::HandleId pObject,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD Access,
         WStringDecoder* Name,
         PointerDecoder<uint64_t, void*>* pHandle){}
@@ -3014,7 +3014,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         HRESULT return_value,
-        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES>* pAttributes,
         DWORD dwAccess,
         WStringDecoder* lpName,
         PointerDecoder<uint64_t, void*>* pHandle){}

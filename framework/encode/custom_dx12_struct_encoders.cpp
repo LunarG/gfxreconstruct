@@ -446,11 +446,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
-{
-    encoder->EncodeInt64Value(value.QuadPart);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value)
 {
     encoder->EncodeSizeTValue(value.SizeInBytes);

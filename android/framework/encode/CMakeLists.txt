@@ -10,6 +10,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/command_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/command_writer.cpp
+		   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_common_struct_encoders.h
+		   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_common_struct_encoders.cpp
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_encoder_commands.h>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.h>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/encode/custom_openxr_api_call_encoders.cpp>
