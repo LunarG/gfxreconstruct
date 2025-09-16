@@ -1043,6 +1043,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
+            GFXRECON_ASSERT(acceleration_structure_info != nullptr);
+
             if (acceleration_structure_info != nullptr)
             {
                 auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);

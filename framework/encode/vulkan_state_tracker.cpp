@@ -513,6 +513,11 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
         }
 
         // track all AS builds as regular builds, we'll have no AS to 'update'
+        GFXRECON_ASSERT(wrapper->address != 0 && wrapper->size != 0);
+        dst_command.type                                   = wrapper->type;
+        dst_command.buffer                                 = wrapper->buffer->handle;
+        dst_command.size                                   = wrapper->size;
+        dst_command.offset                                 = wrapper->offset;
         dst_command.geometry_info.mode                     = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
         dst_command.geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
 
@@ -556,18 +561,9 @@ void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer  
     GFXRECON_ASSERT(wrapper != nullptr && wrapper->buffer != nullptr);
 
     // find AS build state in associated buffer
-    auto build_state_it = wrapper->buffer->acceleration_structures.find(wrapper->address);
-    if (build_state_it != wrapper->buffer->acceleration_structures.end())
-    {
-        auto& build_state               = build_state_it->second;
-        build_state.latest_copy_command = { wrapper->device->handle_id, *info };
-    }
-    else
-    {
-        GFXRECON_LOG_WARNING("Unable to retrieve build-state for acceleration-structure %d from associated buffer %d",
-                             wrapper->handle_id,
-                             wrapper->buffer->handle_id);
-    }
+    auto& build_state               = wrapper->buffer->acceleration_structures[wrapper->address];
+    build_state.type                = wrapper->type;
+    build_state.latest_copy_command = { wrapper->device->handle_id, *info };
 }
 
 void VulkanStateTracker::TrackWriteAccelerationStructuresPropertiesCommand(

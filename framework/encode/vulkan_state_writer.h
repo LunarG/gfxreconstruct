@@ -40,6 +40,7 @@
 #include "util/thread_data.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan_handle_wrapper_util.h"
 
 #include <cstdint>
 #include <set>
@@ -57,7 +58,7 @@ class VulkanStateWriter
     VulkanStateWriter(util::FileOutputStream*                                                 output_stream,
                       util::Compressor*                                                       compressor,
                       util::ThreadData*                                                       thread_data,
-                      std::function<format::HandleId()>                                       get_unique_id_fn,
+                      vulkan_wrappers::PFN_GetHandleId                                        get_unique_id_fn,
                       const std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker>& device_address_trackers,
                       util::FileOutputStream*                  asset_file_stream  = nullptr,
                       const std::string*                       asset_file_name    = nullptr,
@@ -423,6 +424,9 @@ class VulkanStateWriter
     void WriteDestroyASInputBuffer(encode::AccelerationStructureInputBuffer& buffer);
     void EndAccelerationStructureSection(format::HandleId device_id);
 
+    void WriteRecreateAccelerationHandle(encode::AccelerationStructureKHRBuildCommandData& command);
+    void WriteDestroyAccelerationHandle(const encode::AccelerationStructureKHRBuildCommandData& command);
+
     void WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset);
 
     void WriteDebugUtilsState(const VulkanStateTable& state_table);
@@ -437,7 +441,7 @@ class VulkanStateWriter
     uint64_t                 blocks_written_{ 0 };
 
     // helper to retrieve a unique id, e.g. from a CaptureManager
-    std::function<format::HandleId()> get_unique_id_;
+    vulkan_wrappers::PFN_GetHandleId get_unique_id_;
 
     // Keeps track of buffer- and acceleration-structure device addresses
     const std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker>& device_address_trackers_;

@@ -40,12 +40,12 @@ struct DeviceWrapper;
 struct AccelerationStructureInputBuffer
 {
     // Required data to correctly create a buffer
-    VkBuffer                        handle{ VK_NULL_HANDLE };
-    format::HandleId                handle_id{ format::kNullHandleId };
-    vulkan_wrappers::DeviceWrapper* bind_device{ nullptr };
-    uint32_t                        queue_family_index{ 0 };
-    VkDeviceSize                    created_size{ 0 };
-    VkBufferUsageFlags              usage{ 0 };
+    VkBuffer                              handle{ VK_NULL_HANDLE };
+    format::HandleId                      handle_id{ format::kNullHandleId };
+    const vulkan_wrappers::DeviceWrapper* bind_device{ nullptr };
+    uint32_t                              queue_family_index{ 0 };
+    VkDeviceSize                          created_size{ 0 };
+    VkBufferUsageFlags                    usage{ 0 };
 
     bool destroyed{ false };
 
@@ -61,6 +61,13 @@ struct AccelerationStructureInputBuffer
 
 struct AccelerationStructureKHRBuildCommandData
 {
+    VkAccelerationStructureTypeKHR type               = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
+    VkBuffer                       buffer             = VK_NULL_HANDLE;
+    VkDeviceSize                   size               = 0;
+    VkDeviceSize                   offset             = 0;
+    format::HandleId               replaced_handle_id = format::kNullHandleId;
+    VkAccelerationStructureKHR     replaced_handle    = VK_NULL_HANDLE;
+
     VkAccelerationStructureBuildGeometryInfoKHR                            geometry_info;
     std::unique_ptr<uint8_t[]>                                             geometry_info_memory;
     std::vector<VkAccelerationStructureBuildRangeInfoKHR>                  build_range_infos;
@@ -81,8 +88,7 @@ struct AccelerationStructureWritePropertiesCommandData
 
 struct AccelerationStructureBuildState
 {
-    VkAccelerationStructureTypeKHR type;
-
+    VkAccelerationStructureTypeKHR                                 type = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
     std::optional<AccelerationStructureKHRBuildCommandData>        latest_build_command{ std::nullopt };
     std::optional<AccelerationStructureCopyCommandData>            latest_copy_command{ std::nullopt };
     std::optional<AccelerationStructureWritePropertiesCommandData> latest_write_properties_command{ std::nullopt };
