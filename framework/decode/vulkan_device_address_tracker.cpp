@@ -26,7 +26,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanDeviceAddressTracker::VulkanDeviceAddressTracker(const VulkanObjectInfoTable& object_info_table) :
+VulkanDeviceAddressTracker::VulkanDeviceAddressTracker(VulkanObjectInfoTable& object_info_table) :
     object_info_table_(object_info_table)
 {}
 
@@ -64,6 +64,11 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const VulkanBufferInfo* buffer_inf
         buffer_replay_addresses_.erase(buffer_info->replay_address);
         buffer_handles_.erase(buffer_info->handle);
         address_lookup_helper_map_.erase(buffer_info->capture_address);
+
+        for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
+        {
+            acceleration_structure_addresses_.erase(capture_address);
+        }
     }
 }
 
@@ -75,8 +80,18 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
         // track capture device address
         if (acceleration_structure_info->capture_address != 0)
         {
-            acceleration_structure_capture_addresses_[acceleration_structure_info->capture_address] =
-                acceleration_structure_info->capture_id;
+            acceleration_structure_addresses_[acceleration_structure_info->capture_address] =
+                acceleration_structure_info->replay_address;
+
+            auto* buffer_info = GetBufferByHandle(acceleration_structure_info->buffer);
+
+            // associated buffer has already queried a device-address, meaning we also got the AS device-address
+            if (buffer_info != nullptr && buffer_info->replay_address != 0)
+            {
+                // if not already present, keep track of AS<->VkBuffer association
+                buffer_info->acceleration_structures[acceleration_structure_info->capture_address] =
+                    acceleration_structure_info->replay_address;
+            }
         }
 
         // track vulkan-handle
@@ -93,7 +108,6 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 {
     if (acceleration_structure_info != nullptr)
     {
-        acceleration_structure_capture_addresses_.erase(acceleration_structure_info->capture_address);
         acceleration_structure_handles_.erase(acceleration_structure_info->handle);
     }
 }
@@ -108,6 +122,17 @@ const decode::VulkanBufferInfo*
 decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const
 {
     return GetBufferInfo(replay_address, buffer_replay_addresses_);
+}
+
+VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle)
+{
+    auto handle_it = buffer_handles_.find(handle);
+    if (handle_it != buffer_handles_.end())
+    {
+        const auto& [h, handle_id] = *handle_it;
+        return object_info_table_.GetVkBufferInfo(handle_id);
+    }
+    return nullptr;
 }
 
 const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle) const
@@ -156,18 +181,6 @@ VulkanDeviceAddressTracker::GetBufferInfo(VkDeviceAddress                       
     return nullptr;
 }
 
-const VulkanAccelerationStructureKHRInfo*
-VulkanDeviceAddressTracker::GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const
-{
-    auto address_it = acceleration_structure_capture_addresses_.find(capture_address);
-    if (address_it != acceleration_structure_capture_addresses_.end())
-    {
-        const auto& [found_address, acceleration_structure_handle] = *address_it;
-        return object_info_table_.GetVkAccelerationStructureKHRInfo(acceleration_structure_handle);
-    }
-    return nullptr;
-}
-
 [[nodiscard]] const VulkanAccelerationStructureKHRInfo*
 VulkanDeviceAddressTracker::GetAccelerationStructureByHandle(VkAccelerationStructureKHR handle) const
 {
@@ -180,21 +193,10 @@ VulkanDeviceAddressTracker::GetAccelerationStructureByHandle(VkAccelerationStruc
     return nullptr;
 }
 
-std::unordered_map<VkDeviceAddress, VkDeviceAddress>
+const std::unordered_map<VkDeviceAddress, VkDeviceAddress>&
 VulkanDeviceAddressTracker::GetAccelerationStructureDeviceAddressMap() const
 {
-    std::unordered_map<VkDeviceAddress, VkDeviceAddress> ret;
-    for (const auto& [address, handleId] : acceleration_structure_capture_addresses_)
-    {
-        const VulkanAccelerationStructureKHRInfo* acceleration_structure_info =
-            object_info_table_.GetVkAccelerationStructureKHRInfo(handleId);
-
-        if (acceleration_structure_info != nullptr && acceleration_structure_info->replay_address != 0)
-        {
-            ret[address] = acceleration_structure_info->replay_address;
-        }
-    }
-    return ret;
+    return acceleration_structure_addresses_;
 }
 
 const std::unordered_map<VkDeviceAddress, VulkanDeviceAddressTracker::device_address_range_t>&
