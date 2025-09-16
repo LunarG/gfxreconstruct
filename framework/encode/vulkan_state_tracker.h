@@ -67,6 +67,7 @@ class VulkanStateTracker
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
@@ -88,6 +89,7 @@ class VulkanStateTracker
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        &asset_file_offsets_);

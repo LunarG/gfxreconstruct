@@ -112,6 +112,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.h
                     ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_acceleration_structure_build_state.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_layer_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_layer_settings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.h
