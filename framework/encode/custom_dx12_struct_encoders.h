@@ -54,9 +54,13 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value);
+void EncodeStruct(ParameterEncoder*                                                                encoder,
+                  const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value);
 
 // Platform types.
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& value);
 
 // Types requiring special processing.
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value);

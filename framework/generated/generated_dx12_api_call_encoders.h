@@ -1597,8 +1597,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_AABB& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_AABBS_DESC& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& value);
@@ -1611,13 +1609,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SERIALIZED_BLOCK& value);
 

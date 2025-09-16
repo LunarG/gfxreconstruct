@@ -4933,13 +4933,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_AAB
     EncodeStruct(encoder, value.AABBs);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& value)
-{
-    encoder->EncodeUInt32Value(value.ByteOffset);
-    encoder->EncodeUInt32Value(value.SubdivisionLevel);
-    encoder->EncodeEnumValue(value.Format);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& value)
 {
     EncodeStruct(encoder, value.OpacityMicromapIndexBuffer);
@@ -4976,12 +4969,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
     encoder->EncodeUInt32Value(value.NumDescs);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value)
-{
-    encoder->EncodeUInt64Value(value.SerializedSizeInBytes);
-    
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& value)
 {
     EncodeStruct(encoder, value.DriverOpaqueGUID);
@@ -4994,15 +4981,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_A
     encoder->EncodeUInt64Value(value.SerializedSizeInBytesIncludingHeader);
     encoder->EncodeUInt64Value(value.DeserializedSizeInBytes);
     encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructurePointersAfterHeader);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value)
-{
-    EncodeStruct(encoder, value.DriverMatchingIdentifier);
-    encoder->EncodeUInt64Value(value.SerializedSizeInBytesIncludingHeader);
-    encoder->EncodeUInt64Value(value.DeserializedSizeInBytes);
-    
-    encoder->EncodeEnumValue(value.HeaderPostambleType);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SERIALIZED_BLOCK& value)
