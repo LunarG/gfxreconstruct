@@ -1909,7 +1909,6 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
     // handle was deleted. we'll require one for rebuilding, so encode calls to create a temporary AS+buffer
     if (as_destroyed)
     {
-        GFXRECON_LOG_WARNING("encountered deleted AccelerationStructureKHR handle -> WriteRecreateAccelerationHandle");
         WriteRecreateAccelerationHandle(command);
     }
 
@@ -1924,7 +1923,6 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
 
     if (as_destroyed)
     {
-        GFXRECON_LOG_WARNING("temporary AccelerationStructureKHR handle -> cleanup");
         WriteDestroyAccelerationHandle(command);
     }
 }
