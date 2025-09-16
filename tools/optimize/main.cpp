@@ -52,7 +52,7 @@
 #if defined(WIN32)
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 615;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 616;
 }
 extern "C"
 {

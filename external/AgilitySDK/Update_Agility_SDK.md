@@ -1,5 +1,5 @@
 # Current Agility SDK Version 
-- Version: `1.615.1` https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.615.1
+- Version: `1.616.1` https://www.nuget.org/packages/Microsoft.Direct3D.D3D12/1.616.1
 
 # Download Agility SDK
 - Find the target version in this webiste https://devblogs.microsoft.com/directx/directx12agility/.
