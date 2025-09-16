@@ -112,12 +112,16 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.h
                     ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_layer_settings.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_layer_settings.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_common.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_common.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_entry_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp
@@ -183,6 +187,13 @@ target_link_libraries(gfxrecon_encode
                       vulkan_registry
                       OpenXR
                       platform_specific)
+
+if (BSD)
+
+find_library(LIBBSD_LIBRARY NAMES bsd PATHS /usr/lib/x86_64-linux-gnu)
+target_link_libraries(gfxrecon_encode ${LIBBSD_LIBRARY})
+
+endif()
 
 common_build_directives(gfxrecon_encode)
 

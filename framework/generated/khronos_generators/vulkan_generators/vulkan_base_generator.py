@@ -65,6 +65,8 @@ _emit_extensions = []
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
+    "VK_ARM_tensors",
+    "VK_ARM_data_graph",
     ## @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
     "VK_EXT_descriptor_buffer",
     "VK_EXT_metal_objects",
@@ -77,7 +79,8 @@ _remove_extensions = [
     "VK_QNX_external_memory_screen_buffer",
     "VK_NV_cuda_kernel_launch",
     "VK_NV_cluster_acceleration_structure",
-    "VK_NV_external_compute_queue"
+    "VK_NV_external_compute_queue",
+    "VK_OHOS_surface",
 ]
 
 # Turn lists of names/patterns into matching regular expressions.

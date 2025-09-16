@@ -172,6 +172,13 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceDriverProperties>                   driver_properties;
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+
+    bool IsPropertiesNull()
+    {
+        // Not include memory properties.
+        return properties == std::nullopt || driver_properties == std::nullopt ||
+               raytracing_properties == std::nullopt || acceleration_structure_properties == std::nullopt;
+    }
 };
 
 template <typename T>
@@ -228,7 +235,6 @@ typedef VulkanObjectInfo<VkDisplayModeKHR>                     VulkanDisplayMode
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>             VulkanDebugReportCallbackEXTInfo;
 typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>           VulkanIndirectCommandsLayoutNVInfo;
 typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>             VulkanDebugUtilsMessengerEXTInfo;
-typedef VulkanObjectInfo<VkAccelerationStructureNV>            VulkanAccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL>      VulkanPerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                        VulkanMicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>               VulkanOpticalFlowSessionNVInfo;
@@ -308,25 +314,48 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
 {
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
-    std::unique_ptr<VulkanResourceAllocator> allocator;
+    std::shared_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
 
     // Map pipeline ID to ray tracing shader group handle capture replay data.
-    std::unordered_map<format::HandleId, const std::vector<uint8_t>> shader_group_handles;
+    std::unordered_map<format::HandleId, std::vector<uint8_t>> shader_group_handles;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
-    std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+    std::shared_ptr<VulkanResourceInitializer> resource_initializer;
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
-    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-    std::vector<bool>                                      queue_family_index_enabled;
+    struct EnabledQueueFamilyFlags
+    {
+        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
+
+        std::vector<bool> queue_family_index_enabled;
+    } enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
+
+    // For use with device deduplication
+    format::HandleId duplicate_source_id{ format::kNullHandleId };
+
+    void copy_characteristics(const VulkanDeviceInfo* source_info)
+    {
+        parent                     = source_info->parent;
+        allocator                  = source_info->allocator;
+        array_counts               = source_info->array_counts;
+        opaque_addresses           = source_info->opaque_addresses;
+        shader_group_handles       = source_info->shader_group_handles;
+        extensions                 = source_info->extensions;
+        resource_initializer       = source_info->resource_initializer;
+        property_feature_info      = source_info->property_feature_info;
+        enabled_queue_family_flags = source_info->enabled_queue_family_flags;
+        replay_device_group        = source_info->replay_device_group;
+        duplicate_source_id        = source_info->capture_id;
+    }
 };
 
 struct VulkanQueueInfo : public VulkanObjectInfo<VkQueue>
@@ -375,14 +404,21 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 
+    std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
+
     VkBufferUsageFlags usage{ 0 };
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
+
+    // acceleration-structure capture/replay addresses defined for buffer-range
+    std::unordered_map<VkDeviceAddress, VkDeviceAddress> acceleration_structures;
 };
 
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
+    VkDeviceSize     offset{ 0 };
+    VkDeviceSize     range{ 0 };
 };
 
 struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
@@ -399,6 +435,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+
+    std::vector<VkMemoryPropertyFlags> sparse_memory_property_flags;
 
     VkImageUsageFlags     usage{ 0 };
     VkImageType           type{};
@@ -487,6 +525,9 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
         VkFormat format;
         uint32_t offset;
     };
+
+    // Aggregated shader stages flags
+    VkShaderStageFlags shader_stages{ 0 };
 
     // One entry per binding
     using VertexInputBindingMap = std::unordered_map<uint32_t, InputBindingDescription>;
@@ -608,7 +649,7 @@ struct VulkanVideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used for memory portability.
-    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
+    VulkanResourceAllocator::ResourceData allocator_data;
 
     // This is only used when loading the initial state for trimmed files.
     std::vector<VkMemoryPropertyFlags> memory_property_flags;
@@ -644,33 +685,16 @@ struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<VkImageLayout>           attachment_description_final_layouts;
     std::vector<VkAttachmentDescription> attachment_descs;
 
-    struct SubpassReferences
+    std::vector<uint8_t> create_info;
+    enum FuncVersion
     {
-        VkSubpassDescriptionFlags          flags;
-        VkPipelineBindPoint                pipeline_bind_point;
-        std::vector<VkAttachmentReference> input_att_refs;
-        std::vector<VkAttachmentReference> color_att_refs;
-        std::vector<VkAttachmentReference> resolve_att_refs;
-        std::vector<uint32_t>              preserve_att_refs;
-
-        bool                  has_depth;
-        VkAttachmentReference depth_att_ref;
+        kCreateRenderPass,
+        kCreateRenderPass2,
+        kCreateRenderPass2KHR
     };
+    FuncVersion func_version;
 
-    // The attachment references per subpass
-    std::vector<SubpassReferences> subpass_refs;
-
-    std::vector<VkSubpassDependency> dependencies;
-
-    // Multiview info
-    bool has_multiview{ false };
-
-    struct
-    {
-        std::vector<uint32_t> view_masks;
-        std::vector<int32_t>  view_offsets;
-        std::vector<uint32_t> correlation_masks;
-    } multiview;
+    std::vector<format::HandleId> begin_renderpass_override_attachments;
 };
 
 struct VulkanDescriptorTypeImageInfo
@@ -714,7 +738,18 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
     VkAccelerationStructureTypeKHR type = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
 
     //! associated buffer
-    VkBuffer buffer = VK_NULL_HANDLE;
+    VkBuffer     buffer = VK_NULL_HANDLE;
+    VkDeviceSize offset = 0;
+    VkDeviceSize size   = 0;
+};
+
+struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAccelerationStructureNV>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
+
+    // This is only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
 };
 
 //

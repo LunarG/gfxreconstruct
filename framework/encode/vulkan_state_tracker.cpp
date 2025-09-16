@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2019-2024 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -60,6 +61,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
     {
         // Clear command data on command buffer reset.
+        wrapper->one_time_submission = false;
         wrapper->command_data.Clear();
         wrapper->pending_layouts.clear();
         wrapper->recorded_queries.clear();
@@ -77,6 +79,25 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         {
             wrapper->command_handles[i].clear();
         }
+    }
+
+    // Determine command buffer's state
+    switch (call_id)
+    {
+        case format::ApiCallId::ApiCall_vkBeginCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kRecording;
+            break;
+
+        case format::ApiCallId::ApiCall_vkEndCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kExecutable;
+            break;
+
+        case format::ApiCallId::ApiCall_vkResetCommandBuffer:
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInitial;
+            break;
+
+        default:
+            break;
     }
 
     if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
@@ -108,6 +129,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
 
     for (const auto& entry : wrapper->child_buffers)
     {
+        entry.second->one_time_submission = false;
         entry.second->command_data.Clear();
         entry.second->pending_layouts.clear();
         entry.second->recorded_queries.clear();
@@ -125,6 +147,8 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         {
             entry.second->command_handles[i].clear();
         }
+
+        entry.second->state = vulkan_wrappers::CommandBufferWrapper::kInitial;
     }
 }
 
@@ -225,13 +249,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface;
-
-    entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
-    entry.surface_capabilities.pNext               = nullptr;
-    entry.surface_capabilities.surfaceCapabilities = *capabilities;
+    entry = vulkan_wrappers::SurfaceCapabilities{ surface, *capabilities };
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevice                       physical_device,
@@ -244,23 +262,20 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
     auto& entry   = wrapper->surface_capabilities[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
         physical_device)];
 
-    entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-    entry.surface_info.pNext   = nullptr;
-    entry.surface_info.surface = surface_info.surface;
+    auto& surface_capabilities2 = entry.emplace<vulkan_wrappers::SurfaceCapabilities2>();
 
+    surface_capabilities2.surface_info = surface_info;
     if (surface_info.pNext != nullptr)
     {
-        entry.surface_info.pNext = vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
+        surface_capabilities2.surface_info.pNext =
+            vulkan_trackers::TrackStruct(surface_info.pNext, surface_capabilities2.surface_info_pnext_memory);
     }
 
-    entry.surface_capabilities.sType               = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
-    entry.surface_capabilities.pNext               = nullptr;
-    entry.surface_capabilities.surfaceCapabilities = surface_capabilities->surfaceCapabilities;
-
+    surface_capabilities2.surface_capabilities = *surface_capabilities;
     if (surface_capabilities->pNext != nullptr)
     {
-        entry.surface_capabilities.pNext =
-            vulkan_trackers::TrackStruct(surface_capabilities->pNext, entry.surface_capabilities_pnext_memory);
+        surface_capabilities2.surface_capabilities.pNext = vulkan_trackers::TrackStruct(
+            surface_capabilities->pNext, surface_capabilities2.surface_capabilities_pnext_memory);
     }
 }
 
@@ -277,21 +292,8 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice     
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        entry.surface_info.pNext   = nullptr;
-        entry.surface_info.surface = surface;
-
-        std::vector<VkSurfaceFormat2KHR> surface_formats(format_count);
-
-        for (uint32_t i = 0; i < format_count; ++i)
-        {
-            surface_formats[i].sType         = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
-            surface_formats[i].pNext         = nullptr;
-            surface_formats[i].surfaceFormat = formats[i];
-        }
-        entry.surface_format_count = format_count;
-        entry.surface_formats =
-            vulkan_trackers::TrackStructs(surface_formats.data(), format_count, entry.surface_formats_memory);
+        entry = vulkan_wrappers::SurfaceFormats{ surface,
+                                                 std::vector<VkSurfaceFormatKHR>(formats, formats + format_count) };
     }
 }
 
@@ -308,19 +310,18 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
         auto& entry   = wrapper->surface_formats[vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(
             physical_device)];
 
-        entry.surface_info.sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
-        entry.surface_info.pNext   = nullptr;
-        entry.surface_info.surface = surface_info.surface;
+        auto& surface_formats2 = entry.emplace<vulkan_wrappers::SurfaceFormats2>();
 
+        surface_formats2.surface_info = surface_info;
         if (surface_info.pNext != nullptr)
         {
-            entry.surface_info.pNext =
-                vulkan_trackers::TrackStruct(surface_info.pNext, entry.surface_info_pnext_memory);
+            surface_formats2.surface_info.pNext =
+                vulkan_trackers::TrackStruct(surface_info.pNext, surface_formats2.surface_info_pnext_memory);
         }
 
-        entry.surface_format_count = surface_format_count;
-        entry.surface_formats =
-            vulkan_trackers::TrackStructs(surface_formats, surface_format_count, entry.surface_formats_memory);
+        surface_formats2.surface_format_count = surface_format_count;
+        surface_formats2.surface_formats      = vulkan_trackers::TrackStructs(
+            surface_formats, surface_format_count, surface_formats2.surface_formats_memory);
     }
 }
 
@@ -511,15 +512,10 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                                                  pp_buildRange_infos[i] + build_info.geometryCount);
         }
 
-        if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR)
-        {
-            wrapper->latest_build_command_ = std::move(dst_command);
-        }
-        else if (build_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR)
-        {
-            wrapper->latest_update_command_ = std::move(dst_command);
-        }
-
+        // track all AS builds as regular builds, we'll have no AS to 'update'
+        dst_command.geometry_info.mode                     = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+        dst_command.geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
+        wrapper->latest_build_command_                     = std::move(dst_command);
         wrapper->blas.clear();
 
         for (uint32_t g = 0; g < build_info.geometryCount; ++g)
@@ -612,7 +608,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     if (wrapper->external_format || wrapper->external_memory_android)
     {
         const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
-        VkMemoryRequirements     image_mem_reqs;
+        VkMemoryRequirements               image_mem_reqs;
         device_table->GetImageMemoryRequirements(device, image, &image_mem_reqs);
         wrapper->size = image_mem_reqs.size;
     }
@@ -852,6 +848,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                                                    uint32_t                    copy_count,
                                                    const VkCopyDescriptorSet*  copies)
 {
+    std::unique_lock<std::mutex> lock(state_table_mutex_);
+
     // When processing descriptor updates, we pack the unique handle ID into the stored
     // VkWriteDescriptorSet/VkCopyDescriptorSet handles so that the state writer can determine if the object still
     // exists at state write time by checking for the ID in the active state table.
@@ -2023,6 +2021,44 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
     assert(wrapper != nullptr);
     wrapper->create_parameters = nullptr;
 
+    wrapper->asset_map_lock.lock();
+
+    // If the memory gets destroyed before the asset(s) it's bound to, dump the AS as we would in the DestroyBuffer call
+    for (const auto& bound_asset : wrapper->bound_assets)
+    {
+        state_table_.VisitWrappers([&bound_asset, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
+            GFXRECON_ASSERT(acc_wrapper);
+            if (acc_wrapper->latest_build_command_)
+            {
+                auto& command = *acc_wrapper->latest_build_command_;
+
+                // This works even if the bound asset is not a buffer, as they all derive from HandleWrapper and
+                // handle_id will contain a valid value
+                auto buffer_wrapper = static_cast<vulkan_wrappers::BufferWrapper*>(bound_asset);
+
+                auto it = command.input_buffers.find(buffer_wrapper->handle_id);
+                if (it != command.input_buffers.end())
+                {
+                    vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
+                    buffer.destroyed                                                        = true;
+                    auto [resource_util, created] = resource_utils_.try_emplace(
+                        buffer.bind_device->handle,
+                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
+                                                      buffer.bind_device->physical_device->handle,
+                                                      buffer.bind_device->layer_table,
+                                                      *buffer.bind_device->physical_device->layer_table_ref,
+                                                      buffer.bind_device->physical_device->memory_properties));
+                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
+                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
+                    resource_util->second.ReadFromBufferResource(
+                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                }
+            }
+        });
+    }
+
+    wrapper->asset_map_lock.unlock();
+
     const auto& entry = device_memory_addresses_map.find(wrapper->address);
     if (entry != device_memory_addresses_map.end())
     {
@@ -2040,50 +2076,48 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
         device_address_trackers_[wrapper->bind_device->handle].RemoveBuffer(wrapper);
     }
 
-    state_table_.VisitWrappers([&wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
-        GFXRECON_ASSERT(acc_wrapper);
-        for (auto& command : { &acc_wrapper->latest_build_command_, &acc_wrapper->latest_update_command_ })
-        {
-            if (!command || !command->has_value())
-            {
-                continue;
-            }
+    vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
+        state_table_.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-            auto it = (*command)->input_buffers.find(wrapper->handle_id);
-            if (it != (*command)->input_buffers.end())
-            {
-                vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
-                buffer.destroyed                                                        = true;
-                auto [resource_util, created]                                           = resource_utils_.try_emplace(
-                    buffer.bind_device->handle,
-                    graphics::VulkanResourcesUtil(buffer.bind_device->handle,
-                                                  buffer.bind_device->physical_device->handle,
-                                                  buffer.bind_device->layer_table,
-                                                  *buffer.bind_device->physical_device->layer_table_ref,
-                                                  buffer.bind_device->physical_device->memory_properties));
-                buffer.bind_device->layer_table.GetBufferMemoryRequirements(
-                    buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
-                resource_util->second.ReadFromBufferResource(
-                    buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
-            }
-        }
-    });
+    state_table_.VisitWrappers(
+        [&wrapper, mem_wrapper, this](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
+            GFXRECON_ASSERT(acc_wrapper);
 
-    if (wrapper->bind_memory_id != format::kNullHandleId)
+            // If the memory bound to this resource has already been destroyed, skip reading the buffer data.
+            if (acc_wrapper->latest_build_command_ && mem_wrapper != nullptr)
+            {
+                auto& command = *acc_wrapper->latest_build_command_;
+
+                auto it = command.input_buffers.find(wrapper->handle_id);
+                if (it != command.input_buffers.end())
+                {
+                    vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer& buffer = it->second;
+                    buffer.destroyed                                                        = true;
+                    auto [resource_util, created] = resource_utils_.try_emplace(
+                        buffer.bind_device->handle,
+                        graphics::VulkanResourcesUtil(buffer.bind_device->handle,
+                                                      buffer.bind_device->physical_device->handle,
+                                                      buffer.bind_device->layer_table,
+                                                      *buffer.bind_device->physical_device->layer_table_ref,
+                                                      buffer.bind_device->physical_device->memory_properties));
+                    buffer.bind_device->layer_table.GetBufferMemoryRequirements(
+                        buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
+                    resource_util->second.ReadFromBufferResource(
+                        buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                }
+            }
+        });
+
+    if (wrapper->bind_memory_id != format::kNullHandleId && mem_wrapper != nullptr)
     {
-        vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
-            state_table_.GetVulkanDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-        if (mem_wrapper != nullptr)
+        mem_wrapper->asset_map_lock.lock();
+        auto bind_entry = mem_wrapper->bound_assets.find(wrapper);
+        if (bind_entry != mem_wrapper->bound_assets.end())
         {
-            mem_wrapper->asset_map_lock.lock();
-            auto bind_entry = mem_wrapper->bound_assets.find(wrapper);
-            if (bind_entry != mem_wrapper->bound_assets.end())
-            {
-                mem_wrapper->bound_assets.erase(bind_entry);
-            }
-            mem_wrapper->asset_map_lock.unlock();
+            mem_wrapper->bound_assets.erase(bind_entry);
         }
+        mem_wrapper->asset_map_lock.unlock();
     }
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
@@ -2382,8 +2416,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
     wrapper->bindings.clear();
 }
 
-void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               command_buffer_count,
-                                                     const VkCommandBuffer* command_buffers)
+void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               command_buffer_count,
+                                                      const VkCommandBuffer* command_buffers)
 {
     if (!command_buffer_count || !command_buffers)
     {
@@ -2392,10 +2426,16 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
 
     for (uint32_t c = 0; c < command_buffer_count; ++c)
     {
-        const vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[c]);
         const auto device_wrapper = cmd_buf_wrapper->parent_pool->device;
 
+        // Update command buffer state
+        cmd_buf_wrapper->state = cmd_buf_wrapper->one_time_submission
+                                     ? vulkan_wrappers::CommandBufferWrapper::kInvalid
+                                     : vulkan_wrappers::CommandBufferWrapper::kExecutable;
+
+        // Track acceleration structures
         for (const auto& tlas_build_info : cmd_buf_wrapper->tlas_build_info_map)
         {
             // Sanity checks. Build infos with one of these 0 should not be inserted in the map
@@ -2455,11 +2495,11 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
             {
                 // If PageGuardManager is not used or if it couldn't find the memory id it means that
                 // we need to map the memory.
-                VkDevice                 device        = dev_mem_wrapper->parent_device->handle;
-                const graphics::VulkanDeviceTable* device_table  = vulkan_wrappers::GetDeviceTable(device);
-                const VkDeviceSize       map_size      = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
-                void*                    mapped_memory = nullptr;
-                const VkResult           result =
+                VkDevice                           device       = dev_mem_wrapper->parent_device->handle;
+                const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
+                const VkDeviceSize                 map_size = sizeof(VkAccelerationStructureInstanceKHR) * blas_count;
+                void*                              mapped_memory = nullptr;
+                const VkResult                     result =
                     device_table->MapMemory(device, dev_mem_wrapper->handle, total_offset, map_size, 0, &mapped_memory);
 
                 if (result == VK_SUCCESS)
@@ -2491,7 +2531,7 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 // If we had to map the device memory unmap it now
                 if (needs_unmapping)
                 {
-                    VkDevice                 device       = dev_mem_wrapper->parent_device->handle;
+                    VkDevice                           device       = dev_mem_wrapper->parent_device->handle;
                     const graphics::VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(device);
                     device_table->UnmapMemory(device, dev_mem_wrapper->handle);
                 }
@@ -3255,9 +3295,12 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
                 vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
                         pRenderingInfo->pColorAttachments[i].imageView);
-                assert(img_view_wrapper != nullptr);
 
-                wrapper->modified_assets.insert(img_view_wrapper->image);
+                // The image view is allowed to be null
+                if (img_view_wrapper != nullptr)
+                {
+                    wrapper->modified_assets.insert(img_view_wrapper->image);
+                }
             }
         }
 
@@ -3966,6 +4009,18 @@ void VulkanStateTracker::TrackSetDebugUtilsObjectTagEXT(VkDevice                
                         nullptr,
                         std::make_shared<util::MemoryOutputStream>(object_tag_parameter_buffer->GetData(),
                                                                    object_tag_parameter_buffer->GetDataSize()));
+}
+
+void VulkanStateTracker::TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags)
+{
+    if ((flags & VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
+    {
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+        if (wrapper != nullptr)
+        {
+            wrapper->one_time_submission = true;
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

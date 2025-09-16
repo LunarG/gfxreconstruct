@@ -14,16 +14,35 @@ if (${D3D12_SUPPORT})
 
     # Find the build architecture.
     set(DXC_ARCH "")
-    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
-        set(DXC_ARCH "arm64")
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(DXC_ARCH "x64")
-    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(DXC_ARCH "x86")
+    # Some IDEs pass -A in lowercase or in mixed case.
+    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
+    # can't assume ${CMAKE_GENERATOR_PLATFORM} is always defined and/or non-empty!
+    if(NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+        string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
+        if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+            set(DXC_ARCH "arm64")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            set(DXC_ARCH "x64")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            set(DXC_ARCH "x86")
+        endif()
+    else()
+        # No target platform is specified. Try to compute using native tools architecture.
+        string(TOUPPER "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}" NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE)
+
+        if(NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64")
+            set(DXC_ARCH "arm64")
+        else()
+            if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+                set(DXC_ARCH "x64")
+            elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+                set(DXC_ARCH "x86")
+            endif()
+        endif()
     endif()
 
     if(DXC_ARCH)
-    
+        message(STATUS "Selected DXC_ARCH: ${DXC_ARCH}")
         set(DXC_SDK_DIR "${CMAKE_BINARY_DIR}/external/DXC")
         set(DXC_SDK_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2407/dxc_2024_07_31.zip")
         

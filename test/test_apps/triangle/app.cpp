@@ -26,12 +26,6 @@
 
 #include <triangle_app.h>
 
-// #ifdef __ANDROID__
-// #include <android_native_app_glue.h>
-// #else
-// #include <SDL3/SDL_main.h>
-// #endif
-
 namespace gfxrecon
 {
 

@@ -94,6 +94,7 @@ def CreateReplayParser():
     parser.add_argument('-p', '--push-file', metavar='LOCAL_FILE', help='Local file to push to the location on device specified by <file>')
     parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
     parser.add_argument('--log-level', metavar='LEVEL', help='Specify highest level message to log. Options are: debug, info, warning, error, and fatal. Default is info. (forwarded to replay tool)')
+    parser.add_argument('--log-timestamps', action='store_true', help='Output a timestamp in front of each log message. (forwarded to replay tool)')
     parser.add_argument('--log-file', metavar='DEVICE_FILE', help='Write log messages to a file at the specified path instead of logcat (forwarded to replay tool)')
     parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
@@ -107,6 +108,7 @@ def CreateReplayParser():
     parser.add_argument('--screenshot-prefix', metavar='PREFIX', help='Prefix to apply to the screenshot file name.  Default is "screenshot" (forwarded to replay tool)')
     parser.add_argument('--screenshot-size', metavar='SIZE', help='Screenshot dimensions. Ignored if --screenshot-scale is specified.  Expected format is <width>x<height>.')
     parser.add_argument('--screenshot-scale', metavar='SCALE', help='Scale screenshot dimensions. Overrides --screenshot-size, if specified. Expects a number which can be decimal')
+    parser.add_argument('--capture', action='store_true', default=False, help='Capture the replaying GFXR file. Capture option behavior and usage is the same as when capturing with the GFXR layer. The capture functionality is included in the `gfxrecon-replay` executable--no GFXR capture layer is added to the Vulkan layer chain.')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache and skip calls to vkGetPipelineCacheData (forwarded to replay tool)')
     parser.add_argument('--surface-index', metavar='N', help='Restrict rendering to the Nth surface object created.  Used with captures that include multiple surfaces.  Default is -1 (render to all surfaces; forwarded to replay tool)')
@@ -142,6 +144,8 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-all-image-subresources', action='store_true', default=False, help= 'Dump all available mip levels and layers when dumping images.')
     parser.add_argument('--dump-resources-dump-raw-images', action='store_true', default=False, help= 'Dump images verbatim as raw binary files.')
     parser.add_argument('--dump-resources-dump-separate-alpha', action='store_true', default=False, help= 'Dump image alpha in a separate image file.')
+    parser.add_argument('--dump-resources-dump-unused-vertex-bindings', action='store_true', default=False, help= 'Dump a vertex binding even if no vertex attributes references it.')
+    parser.add_argument('--dump-resources-binary-file-compression-type', metavar='FORMAT', choices=['none', 'lz4', 'zlib', 'zstd'], help='Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib, zstd]. Default is none (no compression).')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
@@ -162,6 +166,9 @@ def MakeExtrasString(args):
     if args.log_level:
         arg_list.append('--log-level')
         arg_list.append('{}'.format(args.log_level))
+
+    if args.log_timestamps:
+        arg_list.append('--log-timestamps')
 
     if args.log_file:
         arg_list.append('--log-file')
@@ -211,6 +218,9 @@ def MakeExtrasString(args):
     if args.screenshot_scale:
         arg_list.append('--screenshot-scale')
         arg_list.append('{}'.format(args.screenshot_scale))
+
+    if args.capture:
+        arg_list.append('--capture')
 
     if args.sfa:
         arg_list.append('--sfa')
@@ -325,6 +335,13 @@ def MakeExtrasString(args):
 
     if args.dump_resources_dump_separate_alpha:
         arg_list.append('--dump-resources-dump-separate-alpha')
+
+    if args.dump_resources_dump_unused_vertex_bindings:
+        arg_list.append('--dump-resources-dump-unused-vertex-bindings')
+
+    if args.dump_resources_binary_file_compression_type:
+        arg_list.append('--dump-resources-binary-file-compression-type')
+        arg_list.append('{}'.format(args.dump_resources_binary_file_compression_type))
 
     if args.pbi_all:
         arg_list.append('--pbi-all')

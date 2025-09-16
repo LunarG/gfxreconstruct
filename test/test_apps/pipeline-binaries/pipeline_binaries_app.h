@@ -32,9 +32,6 @@ GFXRECON_BEGIN_NAMESPACE(pipeline_binaries)
 
 class App : public gfxrecon::test::TestAppBase
 {
-  public:
-    App() = default;
-
   private:
     VkPhysicalDeviceDynamicRenderingFeatures  dynamic_rendering_features_;
     VkPhysicalDevicePipelineBinaryFeaturesKHR pipeline_binary_features_;

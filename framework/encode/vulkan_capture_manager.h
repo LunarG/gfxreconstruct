@@ -375,7 +375,17 @@ class VulkanCaptureManager : public ApiCaptureManager
                                             const VkCommandBufferAllocateInfo* pAllocateInfo,
                                             VkCommandBuffer*                   pCommandBuffers);
 
-    VkResult OverrideBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
+    void PreProcess_vkBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
+
+    void PostProcess_vkBeginCommandBuffer(VkResult                        result,
+                                          VkCommandBuffer                 commandBuffer,
+                                          const VkCommandBufferBeginInfo* pBeginInfo)
+    {
+        if (IsCaptureModeTrack() && result == VK_SUCCESS)
+        {
+            state_tracker_->TrackBeginCommandBuffer(commandBuffer, pBeginInfo->flags);
+        }
+    }
 
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
@@ -1735,6 +1745,11 @@ class VulkanCaptureManager : public ApiCaptureManager
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data) override;
 
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
+    {
+        return layer_settings_;
+    }
+
   private:
     struct HardwareBufferInfo
     {
@@ -1788,6 +1803,7 @@ class VulkanCaptureManager : public ApiCaptureManager
   private:
     void QueueSubmitWriteFillMemoryCmd();
 
+    static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
     static graphics::VulkanLayerTable               vulkan_layer_table_;
     std::set<vulkan_wrappers::DeviceMemoryWrapper*> mapped_memory_; // Track mapped memory for unassisted tracking mode.
@@ -1803,6 +1819,8 @@ class VulkanCaptureManager : public ApiCaptureManager
 #if ENABLE_OPENXR_SUPPORT
     std::set<VkFence> valid_fences_;
 #endif
+
+    CaptureSettings::TraceSettings layer_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -34,10 +34,6 @@ const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 class App : public gfxrecon::test::TestAppBase
 {
-  public:
-    App() = default;
-
-  private:
     VkQueue graphics_queue_;
     VkQueue present_queue_;
 

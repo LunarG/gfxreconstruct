@@ -29,20 +29,26 @@ add_executable(${TARGET_NAME} "")
 
 target_sources(${TARGET_NAME}
                PRIVATE
-               ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
+                   ${CMAKE_CURRENT_LIST_DIR}/test_launcher.cpp)
 
-target_include_directories(${TARGET_NAME} PUBLIC
-        ${CMAKE_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${TARGET_NAME}
+                           PUBLIC
+                               ${CMAKE_BINARY_DIR}
+                               ${CMAKE_CURRENT_SOURCE_DIR}
+                               ${CMAKE_SOURCE_DIR})
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image
+    gfxrecon-testapp-ahb
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
+    gfxrecon-testapp-set-environment
     gfxrecon-testapp-shader-objects
     gfxrecon-testapp-sparse-resources
-    gfxrecon-testapp-triangle)
+    gfxrecon-testapp-triangle
+    gfxrecon-testapp-triangle-extra-device
+)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
     list(APPEND GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES

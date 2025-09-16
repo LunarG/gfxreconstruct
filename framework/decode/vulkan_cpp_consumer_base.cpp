@@ -340,6 +340,7 @@ void VulkanCppConsumerBase::PrintOutGlobalVar()
         }
 
         util::platform::FileClose(global_file_);
+        global_file_ = nullptr;
     }
     else
     {
@@ -461,6 +462,7 @@ void VulkanCppConsumerBase::Destroy()
         {
             WriteMainFooter();
             util::platform::FileClose(main_file_);
+            main_file_ = nullptr;
             if (platform_ != GfxToCppPlatform::PLATFORM_ANDROID)
             {
                 PrintOutCMakeFile();

@@ -24,6 +24,7 @@
 #define GFXRECON_UTIL_BUFFER_WRITER_H
 
 #include "util/defines.h"
+#include "util/compressor.h"
 
 #include <string>
 
@@ -31,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-bool WriteBuffer(const std::string& filename, const void* data, size_t size);
+size_t WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor = nullptr);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(util)

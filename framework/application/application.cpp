@@ -58,19 +58,20 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name, decode::FileProcessor* file_processor) :
-    Application(name, std::string(), file_processor)
+    Application(name, file_processor, std::string(), nullptr)
 {}
 
 Application::Application(const std::string&     name,
+                         decode::FileProcessor* file_processor,
                          const std::string&     cli_wsi_extension,
-                         decode::FileProcessor* file_processor) :
+                         void*                  platform_specific_wsi_data) :
     name_(name),
     file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
     cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
 {
     if (!cli_wsi_extension_.empty())
     {
-        InitializeWsiContext(cli_wsi_extension_.c_str());
+        InitializeWsiContext(cli_wsi_extension_.c_str(), platform_specific_wsi_data);
     }
 }
 

@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,6 +59,7 @@ CommonCaptureManager*                          CommonCaptureManager::singleton_;
 std::mutex                                     CommonCaptureManager::instance_lock_;
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
+bool                                           CommonCaptureManager::initialize_log_ = true;
 
 std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
 
@@ -112,33 +113,38 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             GFXRECON_LOG_WARNING("Failed registering atexit");
         }
 
-        // Initialize logging to report only errors (to stderr).
-        util::Log::Settings stderr_only_log_settings;
-        stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-        stderr_only_log_settings.output_errors_to_stderr = true;
-        util::Log::Init(stderr_only_log_settings);
+        if (initialize_log_)
+        {
+            // Initialize logging to report only errors (to stderr).
+            util::Log::Settings stderr_only_log_settings;
+            stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
+            stderr_only_log_settings.output_errors_to_stderr = true;
+            util::Log::Init(stderr_only_log_settings);
+        }
 
         // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
         // resolve. Get capture settings which can be different per capture manager.
         default_settings_ = api_capture_singleton->GetDefaultTraceSettings();
         capture_settings_ = api_capture_singleton->GetDefaultTraceSettings();
 
-        // Load log settings.
-        CaptureSettings::LoadLogSettings(&capture_settings_);
+        if (initialize_log_)
+        {
+            // Load log settings.
+            CaptureSettings::LoadLogSettings(&capture_settings_);
 
-        // Reinitialize logging with values retrieved from settings.
-        util::Log::Release();
-        util::Log::Init(capture_settings_.GetLogSettings());
+            // Reinitialize logging with values retrieved from settings.
+            util::Log::Release();
+            util::Log::Init(capture_settings_.GetLogSettings());
+        }
 
         // Load all settings with final logging settings active.
-        CaptureSettings::LoadSettings(&capture_settings_);
+        CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
 
         CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
-
         // Initialize capture manager with default settings.
         success = Initialize(api_capture_singleton->GetApiFamily(), base_filename, trace_settings);
         if (!success)
@@ -212,6 +218,94 @@ void CommonCaptureManager::DestroyInstance(ApiCaptureManager* api_capture_manage
     }
 }
 
+bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_name)
+{
+    bool matches = false;
+
+    if (desired_name.length() > 0)
+    {
+        std::string application_name;
+#if defined(__APPLE__) || defined(__FreeBSD__)
+
+        application_name = getprogname();
+
+#elif defined(__linux__)
+
+        char command_line[1024] = { 0 };
+        // Read the application name from the command-line from this process
+        FILE* fp = fopen("/proc/self/cmdline", "r");
+        if (fp)
+        {
+            char* str = fgets(command_line, sizeof(command_line), fp);
+            fclose(fp);
+            if (str != nullptr)
+            {
+                std::string cmd_line_string = command_line;
+
+                // If there are directory slashes, remove the directory before the name
+                std::size_t location = cmd_line_string.find_last_of('/');
+                if (location != std::string::npos)
+                {
+                    std::string tmp_string = cmd_line_string.substr(location + 1);
+                    cmd_line_string        = tmp_string;
+                }
+
+                // Now get the string before the first space
+                application_name = cmd_line_string.substr(0, cmd_line_string.find(' '));
+            }
+        }
+
+#elif defined(WIN32)
+
+        char  ascii_name[MAX_PATH];
+#ifdef UNICODE
+        WCHAR wide_string[MAX_PATH];
+        GetModuleFileName(NULL, wide_string, MAX_PATH);
+        WideCharToMultiByte(CP_ACP, 0, wide_string, lstrlen(wide_string), ascii_name, MAX_PATH, NULL, NULL);
+#else
+        GetModuleFileNameA(NULL, ascii_name, MAX_PATH);
+#endif
+        std::string cmd_line_string = ascii_name;
+
+        // If there are directory slashes, remove the directory before the name
+        std::size_t location = cmd_line_string.find_last_of('\\');
+        if (location != std::string::npos)
+        {
+            std::string tmp_string = cmd_line_string.substr(location + 1);
+            cmd_line_string        = tmp_string;
+        }
+
+        // Now get the string before the first space
+        application_name = cmd_line_string.substr(0, cmd_line_string.find(' '));
+
+#else
+        GFXRECON_ERROR_FATAL_ONCE("Unable to determine process name for this platform");
+
+        // Force to true so we capture everything
+        matches = true;
+#endif
+
+        if (application_name == desired_name)
+        {
+            GFXRECON_LOG_INFO_ONCE("Process name %s matches current process, enabling capture", desired_name.c_str());
+            matches = true;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING_ONCE("Process name %s does not match current process %s, disabling capture.",
+                                      desired_name.c_str(),
+                                      application_name.c_str());
+        }
+    }
+    else
+    {
+        // Weird case of empty name, so just return matches always
+        matches = true;
+    }
+
+    return matches;
+}
+
 std::vector<uint32_t> CalcScreenshotIndices(std::vector<util::UintRange> ranges, uint32_t interval)
 {
     // Take a range of frames and convert it to a flat list of indices
@@ -273,6 +367,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     screenshot_indices_   = CalcScreenshotIndices(trace_settings.screenshot_ranges, trace_settings.screenshot_interval);
     screenshot_prefix_    = PrepScreenshotPrefix(trace_settings.screenshot_dir);
     disable_dxr_          = trace_settings.disable_dxr;
+    disable_meta_command_ = trace_settings.disable_meta_command;
     accel_struct_padding_ = trace_settings.accel_struct_padding;
     iunknown_wrapping_    = trace_settings.iunknown_wrapping;
     force_command_serialization_     = trace_settings.force_command_serialization;
@@ -346,84 +441,98 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         page_guard_memory_mode_        = kMemoryModeDisabled;
     }
 
-    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
-        trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawCalls &&
-        trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
+    bool capturing_process = true;
+    if (!trace_settings.capture_process_name.empty())
     {
-        // Use default kModeWrite capture mode.
-        success = CreateCaptureFile(api_family, base_filename_);
+        if (!ProcessMatchesCaptureName(trace_settings.capture_process_name))
+        {
+            capture_mode_     = kModeDisabled;
+            capturing_process = false;
+        }
     }
-    else
+
+    if (capturing_process)
     {
-        GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
-
-        // Override default kModeWrite capture mode.
-        trim_enabled_            = true;
-        trim_boundary_           = trace_settings.trim_boundary;
-        quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
-
-        // Check if trim ranges were specified.
-        if (!trace_settings.trim_ranges.empty())
+        if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
+            trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawCalls &&
+            trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
         {
-            GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
-                            (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
-
-            trim_ranges_ = trace_settings.trim_ranges;
-
-            // Determine if trim starts at the first frame
-            if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) && (trim_ranges_[0].first == current_frame_))
-            {
-                // When capturing from the first frame, state tracking only needs to be enabled if there is more than
-                // one capture range.
-                if (trim_ranges_.size() > 1)
-                {
-                    capture_mode_ = kModeWriteAndTrack;
-                }
-
-                success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
-            }
-            else
-            {
-                capture_mode_ = kModeTrack;
-            }
-        }
-        // Check if trim is enabled by hot-key trigger at the first frame.
-        else if (!trace_settings.trim_key.empty() ||
-                 trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
-        {
-            // Capture key/trigger only support frames as trim boundaries.
-            GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
-
-            trim_key_                       = trace_settings.trim_key;
-            trim_key_frames_                = trace_settings.trim_key_frames;
-            previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
-
-            // Enable state tracking when hotkey pressed
-            if (IsTrimHotkeyPressed() ||
-                trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
-            {
-                capture_mode_         = kModeWriteAndTrack;
-                trim_key_first_frame_ = current_frame_;
-
-                success = CreateCaptureFile(api_family,
-                                            util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
-            }
-            else
-            {
-                capture_mode_ = kModeTrack;
-            }
-        }
-        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawCalls)
-        {
-            trim_draw_calls_ = trace_settings.trim_draw_calls;
-            capture_mode_    = kModeTrack;
+            // Use default kModeWrite capture mode.
+            success = CreateCaptureFile(api_family, base_filename_);
         }
         else
         {
-            // if/else blocks above should have covered all "else" cases from the parent conditional.
-            GFXRECON_ASSERT(false);
-            trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
-            capture_mode_  = kModeTrack;
+            GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
+
+            // Override default kModeWrite capture mode.
+            trim_enabled_            = true;
+            trim_boundary_           = trace_settings.trim_boundary;
+            quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
+
+            // Check if trim ranges were specified.
+            if (!trace_settings.trim_ranges.empty())
+            {
+                GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
+                                (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
+
+                trim_ranges_ = trace_settings.trim_ranges;
+
+                // Determine if trim starts at the first frame
+                if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) &&
+                    (trim_ranges_[0].first == current_frame_))
+                {
+                    // When capturing from the first frame, state tracking only needs to be enabled if there is more
+                    // than one capture range.
+                    if (trim_ranges_.size() > 1)
+                    {
+                        capture_mode_ = kModeWriteAndTrack;
+                    }
+
+                    success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
+                }
+                else
+                {
+                    capture_mode_ = kModeTrack;
+                }
+            }
+            // Check if trim is enabled by hot-key trigger at the first frame.
+            else if (!trace_settings.trim_key.empty() ||
+                     trace_settings.runtime_capture_trigger != CaptureSettings::RuntimeTriggerState::kNotUsed)
+            {
+                // Capture key/trigger only support frames as trim boundaries.
+                GFXRECON_ASSERT(trim_boundary_ == CaptureSettings::TrimBoundary::kFrames);
+
+                trim_key_                       = trace_settings.trim_key;
+                trim_key_frames_                = trace_settings.trim_key_frames;
+                previous_runtime_trigger_state_ = trace_settings.runtime_capture_trigger;
+
+                // Enable state tracking when hotkey pressed
+                if (IsTrimHotkeyPressed() ||
+                    trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
+                {
+                    capture_mode_         = kModeWriteAndTrack;
+                    trim_key_first_frame_ = current_frame_;
+
+                    success = CreateCaptureFile(api_family,
+                                                util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
+                }
+                else
+                {
+                    capture_mode_ = kModeTrack;
+                }
+            }
+            else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawCalls)
+            {
+                trim_draw_calls_ = trace_settings.trim_draw_calls;
+                capture_mode_    = kModeTrack;
+            }
+            else
+            {
+                // if/else blocks above should have covered all "else" cases from the parent conditional.
+                GFXRECON_ASSERT(false);
+                trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+                capture_mode_  = kModeTrack;
+            }
         }
     }
 
@@ -497,7 +606,7 @@ bool CommonCaptureManager::IsCaptureModeWrite() const
 
 bool CommonCaptureManager::IsCaptureModeDisabled() const
 {
-    return (GetCaptureMode() & kModeDisabled) == kModeDisabled;
+    return GetCaptureMode() == kModeDisabled;
 }
 
 ParameterEncoder* CommonCaptureManager::InitApiCallCapture(format::ApiCallId call_id)
@@ -1076,8 +1185,12 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
 
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
 {
-    bool success      = true;
-    capture_filename_ = base_filename;
+    bool success = true;
+
+    util::filepath::FileInfo info{};
+    util::filepath::GetApplicationInfo(info);
+
+    capture_filename_ = util::filepath::ExpandPathVariables(info, base_filename);
 
     if (timestamp_filename_)
     {
@@ -1091,8 +1204,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename_.c_str());
         WriteFileHeader();
 
-        gfxrecon::util::filepath::FileInfo info{};
-        gfxrecon::util::filepath::GetApplicationInfo(info);
         WriteExeFileInfo(api_family, info);
 
         // Save parameters of the capture in an annotation.
@@ -1124,62 +1235,20 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
         // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
         std::string env_vars;
-#ifdef _WINDOWS
-        const LPCH env_string  = GetEnvironmentStrings();
-        int        offset      = 0;
-        int        base_offset = 0;
 
-        // Initial loop to count total length
-        while (env_string[offset] != '\0')
+        for (const auto& name : capture_settings_.GetTraceSettings().capture_environment)
         {
-            const char* c = env_string + offset;
-
-            while (env_string[offset] != '\0') offset += 1;
-            offset += 1;
-
-            // Environment variables starting with '=' are relics from the DOS era and can be ignored
-            // Said variables are always at the front, so we can simply bump base_offset to skip them
-            // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
-            if (*c == '=')
-                base_offset = offset;
+            const auto value = util::platform::GetEnv(name.c_str());
+            if (!value.empty())
+            {
+                GFXRECON_LOG_INFO("Capturing environment variable %s", name.c_str());
+                env_vars += name;
+                env_vars += '=';
+                env_vars += value;
+                env_vars += format::kEnvironmentStringDelimeter;
+            }
         }
-        env_vars.reserve(offset - base_offset);
-        offset = base_offset;
 
-        // Second loop to copy string data into allocated buffer
-        while (env_string[offset] != '\0')
-        {
-            const char* c = env_string + offset;
-            env_vars += c;
-            env_vars += format::kEnvironmentStringDelimeter;
-
-            // Advance offset until it points to next null byte of string
-            while (env_string[offset] != '\0') offset += 1;
-
-            // Advance offset to point at the first character of the next string
-            // or null if we're out of strings
-            offset += 1;
-        }
-        FreeEnvironmentStrings(env_string);
-#elif __unix__
-        int    current      = 0;
-        size_t total_length = 0;
-        // Initial loop to count total length
-        while (environ[current] != nullptr)
-        {
-            total_length += util::platform::StringLength(environ[current]);
-            current += 1;
-        }
-        current = 0;
-        env_vars.reserve(total_length);
-        // Second loop to copy string data into allocated buffer
-        while (environ[current] != nullptr)
-        {
-            env_vars += environ[current];
-            env_vars += format::kEnvironmentStringDelimeter;
-            current += 1;
-        }
-#endif
         if (!env_vars.empty())
         {
             env_vars[env_vars.size() - 1] = '\0';

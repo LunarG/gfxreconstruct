@@ -58,6 +58,7 @@ def usage_message():
         '                                 [--compression-type {LZ4,ZLIB,ZSTD,NONE}]',
         '                                 [--file-flush]',
         '                                 [--log-level {debug,info,warn,error,fatal}]',
+        '                                 [--log-timestamps]',
         '                                 [--log-file <file>]',
         '                                 [--memory-tracking-mode {page_guard,assisted,unassisted}]',
         '                                 [--capture-layer <capture_layer_path>',
@@ -152,6 +153,9 @@ def create_argument_parser():
     parser.add_argument(
         '--log-level', dest='log_level', choices=LOG_LEVEL_CHOICES,
         help='Specify highest level message to log, default is info')
+    parser.add_argument(
+        '--log-timestamps', dest='log_timestamps', action='store_const', const='true',
+        help='Output a timestamp in front of each log message.')
     parser.add_argument(
         '--log-file', dest='log_file', metavar='<log_file>',
         help='Write log messages to a file at the specified path. Default is: Empty string (file logging disabled)')

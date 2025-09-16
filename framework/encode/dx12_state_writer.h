@@ -117,6 +117,8 @@ class Dx12StateWriter
     // Returns true if memory information was successfully retrieved and written and false otherwise.
     bool WriteCreateHeapAllocationCmd(const void* address);
 
+    void WriteHeapMakeResidentCmd(const ID3D12Heap_Wrapper* wrapper);
+
     void WriteDescriptorState(const Dx12StateTable& state_table);
 
     void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);

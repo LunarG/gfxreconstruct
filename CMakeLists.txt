@@ -170,9 +170,25 @@ if (MSVC)
     message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: " ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
 
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
-    if (CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
-        set(GFXR_ARM_WINDOWS_BUILD TRUE)
-    endif ()
+    # These checks help also keeping `cmake-gui` behaviour consistent when default values are passed.
+
+    # Some IDEs pass -A in lowercase or in mixed case.
+    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
+    # can't assume ${CMAKE_GENERATOR_PLATFORM} is always defined and/or non-empty!
+    if(NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+        string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
+        if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+            set(GFXR_ARM_WINDOWS_BUILD TRUE)
+        endif()
+    else()
+        # No target platform is specified. Try to compute using native tools architecture.
+        string(TOUPPER "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}" NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE)
+        if(NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64")
+            set(GFXR_ARM_WINDOWS_BUILD TRUE)
+        endif()
+    endif()
+
+    message(STATUS "GFXR_ARM_WINDOWS_BUILD: " ${GFXR_ARM_WINDOWS_BUILD})
 
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set(PRECOMPILED_ARCH "64")
@@ -182,7 +198,7 @@ if (MSVC)
 
     if (GFXR_ARM_WINDOWS_BUILD)
         set(PRECOMPILED_ARCH "64-arm")
-    endif ()
+    endif (GFXR_ARM_WINDOWS_BUILD)
 
     set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
@@ -206,7 +222,7 @@ if (MSVC)
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.
-        set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
+        set(EXPECTED_WIN_SDK_VER "10.0.26100.0")
         if (NOT ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} STREQUAL ${EXPECTED_WIN_SDK_VER})
             message(WARNING
                     "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
@@ -230,8 +246,13 @@ if (MSVC)
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif ()
 
-    # Add option to enable/disable AGS support.
-    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
+    if(NOT ${GFXR_ARM_WINDOWS_BUILD})
+        # Add option to enable/disable AGS support. Only supported on non-ARM64 builds.
+        option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Not supported on Windows on ARM64. Ignored if D3D12_SUPPORT=OFF." ON)
+    else()
+        set(GFXRECON_AGS_SUPPORT OFF)
+        message(STATUS "GFXRECON_AGS_SUPPORT is disabled for Windows on ARM64 builds.")
+    endif()
 
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
@@ -385,6 +406,7 @@ target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}
 
 add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
+    option(DYNAMIC_LOADER "" OFF)
     add_subdirectory(${PROJECT_SOURCE_DIR}/external/OpenXR-SDK)
     target_include_directories(OpenXR INTERFACE ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)

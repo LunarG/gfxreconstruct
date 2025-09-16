@@ -302,7 +302,7 @@ option values.
 
 | Option                                         | Property                                                      | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------------------------- | ------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capture File Name                              | debug.gfxrecon.capture_file                                   | STRING  | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Capture File Name                              | debug.gfxrecon.capture_file                                   | STRING  | Path to use when creating the capture file. Supports variable patterns for dynamic file paths, such as `${AppName}` (the application package name) and `${InternalDataPath}` (app's internal data directory, Android only). For example, `/sdcard/${AppName}/capture.gfxr` will expand to `/sdcard/com.example.your-android-app/capture.gfxr`. Default is: `/sdcard/gfxrecon_capture.gfxr` |
 | Capture Specific Frames                        | debug.gfxrecon.capture_frames                                 | STRING  | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).                                                                                                                                                                                                                                                                                                                                                                  |
 | Quit after capturing frame ranges              | debug.gfxrecon.quit_after_capture_frames                      | BOOL    | Setting it to `true` will force the application to terminate once all frame ranges specified by `debug.gfxrecon.capture_frames` have been captured. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Capture trigger for Android                    | debug.gfxrecon.capture_android_trigger                        | BOOL    | Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). Default is not set.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -360,6 +360,52 @@ A sample layer settings file, documenting each available setting, can be found
 in the GFXReconstruct GitHub repository at `layer/vk_layer_settings.txt`. Most
 binary distributions of the GFXReconstruct software will also include a sample
 settings file.
+
+#### Layer Settings via VK_EXT_layer_settings
+
+An alternative way to configure the GFXReconstruct Vulkan capture layer is via the Vulkan
+`VK_EXT_layer_settings` extension, which allows settings to be passed directly through the
+Vulkan API at instance creation time. This is especially useful in environments where
+environment variables and settings files are not available or convenient (such as some
+launchers or embedded systems).
+
+GFXReconstruct supports reading capture options from `VkLayerSettingEXT` structures
+provided in the `pNext` chain of `VkInstanceCreateInfo` when creating a Vulkan instance.
+This allows you to specify settings programmatically, without relying on environment
+variables or external files.
+
+To use this feature, add a `VkLayerSettingsCreateInfoEXT` structure to the `pNext` chain
+of your `VkInstanceCreateInfo`, and include settings for the
+`VK_LAYER_LUNARG_gfxreconstruct` layer. For example, to set the capture file name:
+
+```c
+const char* capture_file_value[] = { "my_capture.gfxr" };
+
+VkLayerSettingEXT capture_file_setting = {
+    .pLayerName = "VK_LAYER_LUNARG_gfxreconstruct",
+    .pSettingName = "capture_file",
+    .type = VK_LAYER_SETTING_TYPE_STRING_EXT,
+    .valueCount = 1,
+    .pValues = capture_file_value,
+};
+
+VkLayerSettingsCreateInfoEXT layer_settings_info = {
+    .sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
+    .pNext = NULL,
+    .settingCount = 1,
+    .pSettings = &capture_file_setting
+};
+
+VkInstanceCreateInfo instance_info = {
+    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    .pNext = &layer_settings_info,
+    // ... other fields ...
+};
+```
+
+Supported settings include:
+
+- `capture_file` (string): Path to use when creating the capture file (same as `GFXRECON_CAPTURE_FILE`).
 
 #### Selecting Settings for the page_guard Memory Tracking Mode
 
@@ -702,7 +748,7 @@ The `gfxrecon.py replay` command has the following usage:
 
 ```text
 usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
-                          [--log-file DEVICE_FILE]
+                          [--log-timestamps] [--log-file DEVICE_FILE]
                           [--debug-messenger-level LEVEL] [--pause-frame N]
                           [--paused] [--cpu-mask binary_mask]
                           [--screenshot-all] [--screenshots RANGES]
@@ -710,6 +756,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-prefix PREFIX]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
+                          [--capture]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
                           [--use-colorspace-fallback]
@@ -757,6 +804,7 @@ options:
   --log-level LEVEL     Specify highest level message to log. Options are:
                         debug, info, warning, error, and fatal. Default is
                         info. (forwarded to replay tool)
+  --log-timestamps      Output a timestamp in front of each log message.
   --log-file DEVICE_FILE
                         Write log messages to a file at the specified path
                         instead of logcat (forwarded to replay tool)
@@ -812,6 +860,12 @@ options:
                         Scale screenshot dimensions. Overrides --screenshot-
                         size, if specified. Expects a number which can be
                         decimal
+  --capture             Capture the replaying GFXR file. Capture uses the same log
+                        options as replay. All other capture option behavior and
+                        usage is the same as when capturing with the GFXR layer. The
+                        capture functionality is included in the `gfxrecon-replay`
+                        executable--no GFXR capture layer is added to the Vulkan layer
+                        chain.
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during

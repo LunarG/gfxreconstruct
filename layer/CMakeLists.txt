@@ -26,6 +26,9 @@
 # Description: CMake script for layer target
 ###############################################################################
 
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
+
 if (D3D12_SUPPORT)
     set (LINK_ARCH "x64")
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -48,8 +51,8 @@ add_library(VkLayer_gfxreconstruct SHARED "")
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
-                   ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.h
+                   ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.cpp
                    ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
               )

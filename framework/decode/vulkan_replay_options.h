@@ -27,6 +27,7 @@
 #include "decode/replay_options.h"
 
 #include "decode/vulkan_resource_allocator.h"
+#include "format/format.h"
 #include "util/defines.h"
 
 #include <cstdint>
@@ -58,7 +59,7 @@ using RenderPassIndices     = std::vector<std::vector<Index>>;
 using DispatchIndices       = std::vector<Index>;
 using TraceRaysIndices      = std::vector<Index>;
 using ExecuteCommandIndices = std::vector<Index>;
-using ExecuteCommands       = std::unordered_map<uint64_t, ExecuteCommandIndices>;
+using ExecuteCommands       = std::unordered_map<Index, ExecuteCommandIndices>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -67,6 +68,7 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
+    bool                         capture{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
@@ -109,6 +111,9 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_all_image_subresources{ false };
     bool  dump_resources_dump_raw_images{ false };
     bool  dump_resources_dump_separate_alpha{ false };
+    bool  dump_resources_dump_unused_vertex_bindings{ false };
+
+    format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 
     bool preload_measurement_range{ false };
 

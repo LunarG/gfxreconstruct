@@ -1,7 +1,7 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
  ** Copyright (c) 2018-2025 LunarG, Inc.
- ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+ ** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
  ** copy of this software and associated documentation files (the "Software"),
@@ -34,12 +34,14 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "encode/vulkan_capture_common.h"
+#include "encode/vulkan_capture_layer_settings.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_feature_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
@@ -61,12 +63,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+std::mutex                 VulkanCaptureManager::instance_lock_;
 VulkanCaptureManager*      VulkanCaptureManager::singleton_ = nullptr;
 graphics::VulkanLayerTable VulkanCaptureManager::vulkan_layer_table_;
 
 bool VulkanCaptureManager::CreateInstance()
 {
-
     bool result = CommonCaptureManager::CreateInstance<VulkanCaptureManager>();
     GFXRECON_ASSERT(singleton_);
 
@@ -80,6 +82,8 @@ bool VulkanCaptureManager::CreateInstance()
 
 VulkanCaptureManager* VulkanCaptureManager::InitSingleton()
 {
+    std::lock_guard<std::mutex> instance_lock(instance_lock_);
+
     if (!singleton_)
     {
         singleton_ = new VulkanCaptureManager();
@@ -478,7 +482,6 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
             else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
             {
                 constexpr size_t byte_stride = 1;
-                GFXRECON_ASSERT(entry->stride == byte_stride);
 
                 UpdateTemplateEntryInfo inline_uniform_info;
                 inline_uniform_info.binding       = entry->dstBinding;
@@ -487,7 +490,7 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
                 // count is interpreted as number of bytes here
                 inline_uniform_info.count  = entry->descriptorCount;
                 inline_uniform_info.offset = entry->offset;
-                inline_uniform_info.stride = entry->stride;
+                inline_uniform_info.stride = byte_stride;
                 inline_uniform_info.type   = type;
 
                 info->inline_uniform_block_count += entry->descriptorCount;
@@ -547,6 +550,12 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
                                                       VkInstance*                  pInstance)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (InitSingleton() == nullptr)
+    {
+        return result;
+    }
+    singleton_->layer_settings_ = GetVulkanLayerTraceSettings(pCreateInfo);
 
     if (CreateInstance())
     {
@@ -633,7 +642,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    assert(pCreateInfo_unwrapped != nullptr);
+    GFXRECON_ASSERT(pCreateInfo_unwrapped != nullptr);
 
     const graphics::VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
     auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
@@ -646,6 +655,10 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
     size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
     const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
     std::vector<const char*> modified_extensions;
+
+    std::vector<VkExtensionProperties> supported_extensions;
+    graphics::feature_util::GetDeviceExtensions(
+        physicalDevice, instance_table->EnumerateDeviceExtensionProperties, &supported_extensions);
 
     bool has_ext_mem      = false;
     bool has_ext_mem_host = false;
@@ -679,6 +692,40 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         if (!has_ext_mem_host)
         {
             modified_extensions.push_back(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
+        }
+    }
+
+    // Check if VK_EXT_frame_boundary need to be faked (querried but not actually supported by the capture device)
+    VkBaseOutStructure*                       frame_boundary_features_parent = nullptr;
+    VkPhysicalDeviceFrameBoundaryFeaturesEXT* frame_boundary_features        = nullptr;
+    if (graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME) &&
+        !graphics::feature_util::IsSupportedExtension(supported_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+    {
+        auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
+            return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
+        });
+        modified_extensions.erase(iter);
+
+        frame_boundary_features_parent = (VkBaseOutStructure*)pCreateInfo_unwrapped;
+
+        while (frame_boundary_features_parent->pNext != nullptr &&
+               frame_boundary_features_parent->pNext->sType !=
+                   VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
+        {
+            frame_boundary_features_parent = frame_boundary_features_parent->pNext;
+        }
+
+        if (frame_boundary_features_parent->pNext == nullptr)
+        {
+            frame_boundary_features_parent = nullptr;
+        }
+        else
+        {
+            frame_boundary_features =
+                reinterpret_cast<VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(frame_boundary_features_parent->pNext);
+            frame_boundary_features_parent->pNext = frame_boundary_features_parent->pNext->pNext;
+            GFXRECON_LOG_WARNING(
+                "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from capture device creation");
         }
     }
 
@@ -724,7 +771,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     if (result == VK_SUCCESS)
     {
-        assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
+        GFXRECON_ASSERT((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
 
         auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(*pDevice);
 
@@ -742,11 +789,16 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
-            assert(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                   wrapper->queue_family_creation_flags.end());
+            GFXRECON_ASSERT(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+                            wrapper->queue_family_creation_flags.end());
             wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
             wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
+    }
+
+    if (frame_boundary_features != nullptr)
+    {
+        frame_boundary_features_parent->pNext = reinterpret_cast<VkBaseOutStructure*>(frame_boundary_features);
     }
 
     // Restore modified property/feature create info values to the original application values
@@ -1506,6 +1558,8 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
                     device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
                     deferred_operation_wrapper->create_infos[i].groupCount;
 
+                pipeline_wrapper->num_shader_group_handles = deferred_operation_wrapper->create_infos[i].groupCount;
+
                 std::vector<uint8_t> data(data_size);
                 result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
                     device_wrapper->handle,
@@ -1693,27 +1747,6 @@ VkResult VulkanCaptureManager::OverrideAllocateCommandBuffers(VkDevice          
         }
     }
     return result;
-}
-
-VkResult VulkanCaptureManager::OverrideBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
-                                                          const VkCommandBufferBeginInfo* pBeginInfo)
-{
-    auto handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto pBeginInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pBeginInfo, handle_unwrap_memory);
-
-    auto modified_begin_info = (*pBeginInfo_unwrapped);
-
-    const auto command_buffer_wrapper =
-        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-
-    // If command buffer level is primary, pInheritanceInfo must be ignored
-    if (command_buffer_wrapper && command_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY &&
-        modified_begin_info.pInheritanceInfo != nullptr)
-    {
-        modified_begin_info.pInheritanceInfo = nullptr;
-    }
-
-    return vulkan_wrappers::GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, &modified_begin_info);
 }
 
 void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          result,
@@ -1986,8 +2019,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
             // Combined size of all layers in a mip level.
             std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.image,
-                                                                                img.format,
+            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.format,
                                                                                 img.type,
                                                                                 img.extent,
                                                                                 img.level_count,
@@ -2846,8 +2878,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
         {
             for (uint32_t s = 0; s < submitCount; ++s)
             {
-                state_tracker_->TrackTlasToBlasDependencies(pSubmits[s].commandBufferCount,
-                                                            pSubmits[s].pCommandBuffers);
+                state_tracker_->TrackCommandBuffersSubmision(pSubmits[s].commandBufferCount,
+                                                             pSubmits[s].pCommandBuffers);
             }
         }
     }
@@ -2892,7 +2924,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
                 }
             }
 
-            state_tracker_->TrackTlasToBlasDependencies(command_buffs.size(), command_buffs.data());
+            state_tracker_->TrackCommandBuffersSubmision(command_buffs.size(), command_buffs.data());
         }
     }
 }
@@ -3301,6 +3333,19 @@ void VulkanCaptureManager::PreProcess_vkWaitForFences(
     }
 }
 #endif
+
+void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
+                                                           const VkCommandBufferBeginInfo* pBeginInfo)
+{
+    const auto* cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+
+    // If command buffer level is primary, pInheritanceInfo must be ignored
+    if (cmd_buffer_wrapper != nullptr && cmd_buffer_wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+    {
+        // const_cast to avoid changes to code-gen
+        const_cast<VkCommandBufferBeginInfo*>(pBeginInfo)->pInheritanceInfo = nullptr;
+    }
+}
 
 void VulkanCaptureManager::PostProcess_vkCmdBindPipeline(VkCommandBuffer     commandBuffer,
                                                          VkPipelineBindPoint pipelineBindPoint,

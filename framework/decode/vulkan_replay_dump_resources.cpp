@@ -26,6 +26,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
+#include "format/format_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
@@ -56,6 +57,12 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     user_delegate_(nullptr), active_delegate_(nullptr)
 {
     capture_filename = std::filesystem::path(options.capture_filename).stem().string();
+
+    if (options.dump_resources_binary_file_compression_type != format::CompressionType::kNone)
+    {
+        compressor_ = std::unique_ptr<util::Compressor>(
+            format::CreateCompressor(options.dump_resources_binary_file_compression_type));
+    }
 
     if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
     {
@@ -96,7 +103,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              &options.RenderPass_Indices[i],
                                                              *object_info_table,
                                                              options,
-                                                             *active_delegate_));
+                                                             *active_delegate_,
+                                                             compressor_.get()));
         }
 
         if (has_dispatch)
@@ -105,23 +113,15 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::piecewise_construct,
                 std::forward_as_tuple(bcb_index),
                 std::forward_as_tuple((options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size())
-                                          ? options.Dispatch_Indices[i]
-                                          : DispatchIndices(),
+                                          ? &options.Dispatch_Indices[i]
+                                          : nullptr,
                                       (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
-                                          ? options.TraceRays_Indices[i]
-                                          : TraceRaysIndices(),
+                                          ? &options.TraceRays_Indices[i]
+                                          : nullptr,
                                       *object_info_table_,
                                       options,
-                                      *active_delegate_));
-        }
-
-        if (has_secondaries && !has_draw)
-        {
-            draw_call_contexts.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(bcb_index),
-                std::forward_as_tuple(
-                    nullptr, &options.RenderPass_Indices[i], *object_info_table, options, *active_delegate_));
+                                      *active_delegate_,
+                                      compressor_.get()));
         }
     }
 
@@ -136,31 +136,53 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const uint64_t bcb_index = options.BeginCommandBuffer_Indices[i];
 
         DrawCallsDumpingContext* primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
-        if (primary_dc_context != nullptr)
+        for (auto& [execute_commands_index, secondary_bcbs] : options.ExecuteCommands_Indices[i])
         {
-            for (auto& execute_commands : options.ExecuteCommands_Indices[i])
+            for (auto& secondary_bcb : secondary_bcbs)
             {
-                const uint64_t execute_commands_index = execute_commands.first;
-                for (auto& secondary_bcb : execute_commands.second)
+                DrawCallsDumpingContext* dc_secondary_context = FindDrawCallCommandBufferContext(secondary_bcb);
+                if (dc_secondary_context != nullptr)
                 {
-                    DrawCallsDumpingContext* dc_secondary_context = FindDrawCallCommandBufferContext(secondary_bcb);
-                    GFXRECON_ASSERT(dc_secondary_context != nullptr);
+                    if (primary_dc_context == nullptr)
+                    {
+                        auto new_primary =
+                            draw_call_contexts.emplace(std::piecewise_construct,
+                                                       std::forward_as_tuple(bcb_index),
+                                                       std::forward_as_tuple(nullptr,
+                                                                             &options.RenderPass_Indices[i],
+                                                                             *object_info_table,
+                                                                             options,
+                                                                             *active_delegate_,
+                                                                             compressor_.get()));
+
+                        primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
+                    }
+
                     primary_dc_context->AssignSecondary(execute_commands_index, dc_secondary_context);
                 }
             }
         }
 
         DispatchTraceRaysDumpingContext* primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
-        if (primary_disp_context != nullptr)
+        for (auto& execute_commands : options.ExecuteCommands_Indices[i])
         {
-            for (auto& execute_commands : options.ExecuteCommands_Indices[i])
+            const uint64_t execute_commands_index = execute_commands.first;
+            for (auto& secondary : execute_commands.second)
             {
-                const uint64_t execute_commands_index = execute_commands.first;
-                for (auto& secondary : execute_commands.second)
+                DispatchTraceRaysDumpingContext* disp_secondary_context =
+                    FindDispatchRaysCommandBufferContext(secondary);
+                if (disp_secondary_context != nullptr)
                 {
-                    DispatchTraceRaysDumpingContext* disp_secondary_context =
-                        FindDispatchRaysCommandBufferContext(secondary);
-                    GFXRECON_ASSERT(disp_secondary_context != nullptr)
+                    if (primary_disp_context == nullptr)
+                    {
+                        dispatch_ray_contexts.emplace(
+                            std::piecewise_construct,
+                            std::forward_as_tuple(bcb_index),
+                            std::forward_as_tuple(
+                                nullptr, nullptr, *object_info_table_, options, *active_delegate_, compressor_.get()));
+
+                        primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
+                    }
                     primary_disp_context->AssignSecondary(execute_commands_index, disp_secondary_context);
                 }
             }
@@ -730,17 +752,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
         const VulkanFramebufferInfo* framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
+        VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
-        // optional: override the image-attachments stored in framebuffer-info
-        // when using VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
-        std::optional<std::vector<format::HandleId>> override_attachment_image_views;
-
+        // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
         if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
             VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
         {
-            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
             const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
                 pRenderPassBegin->GetMetaStructPointer()->pNext);
             GFXRECON_ASSERT(attachment_begin_info);
@@ -749,14 +767,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
             const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
             GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
-            override_attachment_image_views = { handle_ids, handle_ids + num_attachments };
+            render_pass_info->begin_renderpass_override_attachments.assign(handle_ids, handle_ids + num_attachments);
         }
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
         // It will be handled by DrawCallsDumpingContext::BeginRenderPass
         const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-        VkResult    res                   = dc_context->BeginRenderPass(
-            render_pass_info, framebuffer_info, renderpass_begin_info, contents, override_attachment_image_views);
+        VkResult res = dc_context->BeginRenderPass(render_pass_info, framebuffer_info, renderpass_begin_info, contents);
         assert(res == VK_SUCCESS);
     }
     else if (dc_context != nullptr)
@@ -795,12 +812,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
         const VulkanFramebufferInfo* framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
+        VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
-
-        // optional: override the image-attachments stored in framebuffer-info
-        // when using VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
-        std::optional<std::vector<format::HandleId>> override_attachment_image_views;
 
         if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
             VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
@@ -814,17 +827,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
             const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
             GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
-            override_attachment_image_views = { handle_ids, handle_ids + num_attachments };
+            render_pass_info->begin_renderpass_override_attachments.assign(handle_ids, handle_ids + num_attachments);
         }
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
         // It will be handled by DrawCallsDumpingContext::BeginRenderPass
         const auto* renderpass_begin_info = pRenderPassBegin->GetPointer();
-        VkResult    res                   = dc_context->BeginRenderPass(render_pass_info,
-                                                   framebuffer_info,
-                                                   renderpass_begin_info,
-                                                   pSubpassBeginInfo->GetPointer()->contents,
-                                                   override_attachment_image_views);
+        VkResult    res                   = dc_context->BeginRenderPass(
+            render_pass_info, framebuffer_info, renderpass_begin_info, pSubpassBeginInfo->GetPointer()->contents);
 
         assert(res == VK_SUCCESS);
     }
@@ -1070,6 +1080,68 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     {
         dr_context->BindDescriptorSets(
             pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
+    const ApiCallInfo&                                      call_info,
+    PFN_vkCmdBindDescriptorSets2                            func,
+    VkCommandBuffer                                         original_command_buffer,
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
+{
+    const auto bind_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+
+    std::vector<VkPipelineBindPoint> bind_points =
+        ShaderStageFlagsToPipelineBindPoints(bind_meta->decoded_value->stageFlags);
+
+    const auto layout_info = object_info_table_->GetVkPipelineLayoutInfo(bind_meta->layout);
+
+    std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(bind_meta->decoded_value->descriptorSetCount, nullptr);
+
+    for (uint32_t i = 0; i < bind_meta->decoded_value->descriptorSetCount; ++i)
+    {
+        const VulkanDescriptorSetInfo* desc_set_info =
+            object_info_table_->GetVkDescriptorSetInfo(bind_meta->pDescriptorSets.GetPointer()[i]);
+        desc_set_infos[i] = desc_set_info;
+    }
+
+    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
+    if (dc_context)
+    {
+        for (const auto bind_point : bind_points)
+        {
+            dc_context->BindDescriptorSets(bind_point,
+                                           bind_meta->decoded_value->firstSet,
+                                           desc_set_infos,
+                                           bind_meta->decoded_value->dynamicOffsetCount,
+                                           bind_meta->decoded_value->pDynamicOffsets);
+        }
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, pBindDescriptorSetsInfo->GetPointer());
+    }
+
+    VkCommandBuffer dr_cmd_buf = GetDispatchRaysCommandBuffer(original_command_buffer);
+    if (dr_cmd_buf != VK_NULL_HANDLE)
+    {
+        func(dr_cmd_buf, pBindDescriptorSetsInfo->GetPointer());
+    }
+
+    DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(original_command_buffer);
+    if (dr_context)
+    {
+        for (const auto bind_point : bind_points)
+        {
+            dr_context->BindDescriptorSets(bind_point,
+                                           bind_meta->decoded_value->firstSet,
+                                           desc_set_infos,
+                                           bind_meta->decoded_value->dynamicOffsetCount,
+                                           bind_meta->decoded_value->pDynamicOffsets);
+        }
     }
 }
 
@@ -1906,8 +1978,12 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                res = dr_context->DumpDispatchTraceRays(
-                    queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
+                res = dr_context->DumpDispatchTraceRays(queue,
+                                                        index,
+                                                        cmd_buf_begin_map_[command_buffer_handles[o]],
+                                                        modified_submit_infos[s],
+                                                        fence,
+                                                        !submitted);
                 if (res != VK_SUCCESS)
                 {
                     Release();
@@ -2181,6 +2257,12 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
             {
                 pipeline_info->desc_set_layouts = ppl_layout_info->desc_set_layouts;
             }
+        }
+
+        // Aggregate used shader stages flags
+        for (uint32_t ss = 0; ss < in_p_create_infos[i].stageCount; ++ss)
+        {
+            pipeline_info->shader_stages |= static_cast<VkShaderStageFlags>(in_p_create_infos[i].pStages[ss].stage);
         }
     }
 }

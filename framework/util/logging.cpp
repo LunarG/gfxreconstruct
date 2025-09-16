@@ -22,6 +22,7 @@
 */
 
 #include "util/logging.h"
+#include "util/date_time.h"
 
 #include <cstdarg>
 #include <string>
@@ -67,6 +68,7 @@ void Log::Init(Severity    min_severity,
                bool        flush_after_write,
                bool        break_on_error,
                bool        output_detailed_log_info,
+               bool        output_timestamps,
                bool        write_to_console,
                bool        errors_to_stderr,
                bool        output_to_os_debug_string,
@@ -91,6 +93,7 @@ void Log::Init(Severity    min_severity,
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
@@ -98,6 +101,7 @@ void Log::Init(Severity    min_severity,
     settings_.flush_after_write         = flush_after_write;
     settings_.break_on_error            = break_on_error;
     settings_.output_detailed_log_info  = output_detailed_log_info;
+    settings_.output_timestamps         = output_timestamps;
     settings_.write_to_console          = write_to_console;
     settings_.output_errors_to_stderr   = errors_to_stderr;
     settings_.output_to_os_debug_string = output_to_os_debug_string;
@@ -124,6 +128,7 @@ void Log::Init(const util::Log::Settings& settings)
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
@@ -163,6 +168,12 @@ void Log::LogMessage(
         // Only add a string prefix if this isn't a string that always outputs.
         prefix += "[";
         prefix += process_tag;
+        if (settings_.output_timestamps)
+        {
+            prefix += "]";
+            prefix += "[";
+            prefix += std::to_string(util::datetime::GetBootTime());
+        }
         prefix += "] ";
         prefix += SeverityToString(severity);
         if (settings_.output_detailed_log_info)

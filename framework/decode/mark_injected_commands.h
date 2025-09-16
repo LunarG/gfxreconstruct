@@ -37,7 +37,7 @@ using PFN_SetInjectedCommandCallbacks = void (*)(PFN_BeginInjectedCommands, PFN_
 // A void * pointer allows passing optional data that will be forwared into both callbacks.
 //
 // SetInjectedCommandCallbacks can be discovered through dlsym/GetProcAddress.
-extern "C" GFXRECON_EXPORT void
+extern "C" void
 SetInjectedCommandCallbacks(PFN_BeginInjectedCommands begin_fp, PFN_EndInjectedCommands end_fp, void* data);
 
 void BeginInjectedCommands();

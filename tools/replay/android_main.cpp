@@ -32,6 +32,10 @@
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
 
+// Includes for recapture
+#include "encode/vulkan_capture_manager.h"
+#include "recapture_vulkan_entry.h"
+
 #if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_tracked_object_info_table.h"
 #include "generated/generated_openxr_decoder.h"
@@ -71,14 +75,28 @@ static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
 extern "C"
 {
-    GFXRECON_EXPORT uint64_t MainGetCurrentBlockIndex()
+    uint64_t MainGetCurrentBlockIndex()
     {
-        return file_processor->GetCurrentBlockIndex();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetCurrentBlockIndex();
+        }
+        else
+        {
+            return 0;
+        }
     }
 
-    GFXRECON_EXPORT bool MainGetLoadingTrimmedState()
+    bool MainGetLoadingTrimmedState()
     {
-        return file_processor->GetLoadingTrimmedState();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetLoadingTrimmedState();
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
@@ -136,9 +154,8 @@ void android_main(struct android_app* app)
             }
             else
             {
-                auto application =
-                    std::make_shared<gfxrecon::application::Application>(kApplicationName, file_processor.get());
-                application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
+                auto application = std::make_shared<gfxrecon::application::Application>(
+                    kApplicationName, file_processor.get(), VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
@@ -146,6 +163,21 @@ void android_main(struct android_app* app)
 
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::InitSingleton();
+
+                    // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
+                    // calls into the capture layer instead of directly into the loader and Vulkan runtime.
+                    vulkan_replay_consumer.SetGetInstanceProcAddrOverride(
+                        gfxrecon::vulkan_recapture::GetInstanceProcAddr);
+
+                    // Set the capture manager's instance and device creation callbacks.
+                    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(
+                        gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                        gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                }
 
                 ApiReplayOptions  api_replay_options;
                 ApiReplayConsumer api_replay_consumer;
@@ -204,6 +236,7 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
                 openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
                 openxr_replay_consumer.SetAndroidApp(app);
+                openxr_replay_consumer.SetFpsInfo(&fps_info);
                 openxr_decoder.AddConsumer(&openxr_replay_consumer);
                 file_processor->AddDecoder(&openxr_decoder);
 #endif
@@ -248,6 +281,11 @@ void android_main(struct android_app* app)
                 else
                 {
                     GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                }
+
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::DestroySingleton();
                 }
             }
         }

@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
                            PUBLIC
+                               ${GFXRECON_SOURCE_DIR}
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
@@ -55,6 +56,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-shader-objects
     gfxrecon-testapp-sparse-resources
     gfxrecon-testapp-triangle
+    gfxrecon-testapp-triangle-extra-device
     gfxrecon-testapp-external-memory-fd-export
     gfxrecon-testapp-external-memory-fd-import
     gfxrecon-testapp-wait-for-present

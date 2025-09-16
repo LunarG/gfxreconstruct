@@ -29,6 +29,7 @@ add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util
 add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/decode ${PROJECT_SOURCE_DIR}/../../framework/decode/build/tools/quest_replay/${ANDROID_ABI})
+add_subdirectory(../../framework/encode ${PROJECT_SOURCE_DIR}/../../framework/encode/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/application ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/quest_replay_openxr/${ANDROID_ABI})
 
@@ -38,11 +39,15 @@ add_library(gfxrecon-quest-replay
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.cpp
+                ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.h
+                ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
 target_include_directories(gfxrecon-quest-replay
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${GFXRECON_SOURCE_DIR}
                                ${CMAKE_BINARY_DIR})
 
 target_include_directories(gfxrecon-quest-replay PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
@@ -53,14 +58,11 @@ target_link_libraries(
         nlohmann_json
         gfxrecon_application
         gfxrecon_decode
+        gfxrecon_encode
         gfxrecon_graphics
         gfxrecon_format
         platform_specific
         OpenXR::openxr_loader)
-
-target_link_options(gfxrecon-quest-replay
-    PRIVATE
-        LINKER:--version-script=${GFXRECON_SOURCE_DIR}/tools/replay/replay-android.map)
 else()
     message(WARNING "OpenXR support disabled!")
 endif()

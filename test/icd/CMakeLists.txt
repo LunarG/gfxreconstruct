@@ -25,7 +25,8 @@ endif()
 set(MOCK_ICD_NAME VkICD_mock_icd)
 set(GENERATED generated)
 
-option(BUILD_MOCK_ANDROID_SUPPORT "Build with Android Platform headers" OFF)
+# Enable for testing Android-specific functionalities such as hardware buffers.
+option(BUILD_MOCK_ANDROID_SUPPORT "Build with Android Platform headers" ON)
 
 if(WIN32)
     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DVK_USE_PLATFORM_WIN32_KHX -DWIN32_LEAN_AND_MEAN)
@@ -51,7 +52,7 @@ endif()
 
 add_library(VkICD_mock_icd MODULE)
 target_sources(VkICD_mock_icd PRIVATE mock_icd.cpp)
-target_link_libraries(VkICD_mock_icd PRIVATE Vulkan::Headers)
+target_link_libraries(VkICD_mock_icd PUBLIC gfxrecon_android_mock PRIVATE Vulkan::Headers)
 
 target_include_directories(VkICD_mock_icd PUBLIC
     ${GENERATED}

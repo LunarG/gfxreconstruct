@@ -35,19 +35,15 @@
 
 #include <vulkan/vulkan_core.h>
 
-#ifndef __ANDROID__
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#include <android_native_app_glue.h>
 #endif
 
 #include "test_app_dispatch.h"
 #include "mock_icd_test_config.h"
 
-#if defined(__ANDROID__)
-#include <android_native_app_glue.h>
-#endif
-
-#include <util/defines.h>
+#include <util/argument_parser.h>
+#include <application/application.h>
 
 #ifdef VK_MAKE_API_VERSION
 #define VKB_MAKE_VK_VERSION(variant, major, minor, patch) VK_MAKE_API_VERSION(variant, major, minor, patch)
@@ -79,9 +75,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test)
 
 std::runtime_error vulkan_exception(const char* message, VkResult result);
-#ifndef __ANDROID__
-std::runtime_error sdl_exception();
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(detail)
 
@@ -1025,11 +1018,6 @@ class SwapchainBuilder
     } info;
 };
 
-#ifndef __ANDROID__
-SDL_Window*  create_window_sdl(const char* window_name, bool resizable, int width, int height);
-void         destroy_window_sdl(SDL_Window* window);
-VkSurfaceKHR create_surface_sdl(VkInstance instance, SDL_Window* window, VkAllocationCallbacks* allocator = nullptr);
-#endif
 VkSurfaceKHR create_surface_headless(VkInstance                  instance,
                                      vkb::InstanceDispatchTable& disp,
                                      VkAllocationCallbacks*      callbacks = nullptr);
@@ -1079,24 +1067,22 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
 
 struct InitInfo
 {
-#ifdef __ANDROID__
-    android_app* android_app;
-#else
-    SDL_Window* window;
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    struct android_app* android_app = nullptr;
 #endif
     Instance                   instance;
     vkb::InstanceDispatchTable inst_disp;
-    VkSurfaceKHR               surface;
+    decode::WindowFactory*     window_factory = nullptr;
+    decode::Window*            window         = nullptr;
+    VkSurfaceKHR               surface        = VK_NULL_HANDLE;
     PhysicalDevice             physical_device;
     Device                     device;
     vkb::DispatchTable         disp;
     Swapchain                  swapchain;
     std::vector<VkImage>       swapchain_images;
     std::vector<VkImageView>   swapchain_image_views;
-    vkmock::TestConfig*        test_config;
+    vkmock::TestConfig*        test_config = nullptr;
 };
-
-InitInfo device_initialization(const std::string& window_name);
 
 void cleanup_init(InitInfo& init);
 
@@ -1107,9 +1093,11 @@ class TestAppBase
   public:
     virtual ~TestAppBase();
 
+    void SetApplication(std::unique_ptr<application::Application> application) { app = std::move(application); }
+
     void run(const std::string& window_name);
 
-#ifdef __ANDROID__
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
     void set_android_app(struct android_app*);
 #endif
   protected:
@@ -1135,6 +1123,8 @@ class TestAppBase
     uint32_t find_memory_type(uint32_t memoryTypeBits, VkMemoryPropertyFlags memory_property_flags);
 
     InitInfo init;
+
+    std::unique_ptr<application::Application> app;
 };
 
 GFXRECON_END_NAMESPACE(test)

@@ -25,7 +25,7 @@
 
 #include <test_app_base.h>
 
-#include <util/defines.h>
+#include <application/application.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(test_app)
@@ -35,10 +35,6 @@ const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
 class App : public gfxrecon::test::TestAppBase
 {
-  public:
-    App() = default;
-
-  private:
     VkQueue graphics_queue_;
     VkQueue present_queue_;
 

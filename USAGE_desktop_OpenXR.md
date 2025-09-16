@@ -26,7 +26,15 @@ to one of these other documents:
 
 ## EXPERIMENTAL FEATURE!!!
 
-Be aware the OpenXR support within GFXReconstruct is an experimental feature, with restricted functionality and testing. See List of Known Limitations below.
+Be aware the OpenXR support within GFXReconstruct is an experimental feature,
+with restricted functionality and testing.
+Because of this, it is not enabled in the SDK built version of GFXReconstruct.
+
+If OpenXR support is desired, please pull the source down from the
+GitHub repo and build manually.
+
+Additionally, see the list of
+[Known Limitations](#openxr-capture-known-limitations] below.
 
 
 ## Index

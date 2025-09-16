@@ -24,8 +24,6 @@
 # Description: CMake script for Android test app base
 ###############################################################################
 
-find_package(SDL3)
-
 add_library(gfxrecon-testapp-base STATIC ${GFXRECON_SOURCE_DIR}/test/test_apps/common/test_app_base.cpp)
 target_include_directories(gfxrecon-testapp-base
                            PRIVATE
@@ -38,12 +36,15 @@ target_include_directories(gfxrecon-testapp-base
 set(FRAMEWORK_DIR ${GFXRECON_ANDROID_DIR}/framework)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
 add_subdirectory(${FRAMEWORK_DIR}/util ${FRAMEWORK_DIR}/util/build/${ANDROID_ABI})
+add_subdirectory(${FRAMEWORK_DIR}/decode ${FRAMEWORK_DIR}/decode/build/${ANDROID_ABI})
+add_subdirectory(${FRAMEWORK_DIR}/graphics ${FRAMEWORK_DIR}/graphics/build/${ANDROID_ABI})
+add_subdirectory(${FRAMEWORK_DIR}/format ${FRAMEWORK_DIR}/format/build/${ANDROID_ABI})
+add_subdirectory(${FRAMEWORK_DIR}/application ${FRAMEWORK_DIR}/application/build/${ANDROID_ABI})
 
 target_link_libraries(gfxrecon-testapp-base
+    PUBLIC
     gfxrecon_util
-    native_app_glue
-    SDL3::SDL3-static
-    vulkan_registry)
+    gfxrecon_application)
 
 
 macro(common_build_directives TARGET)
@@ -61,6 +62,7 @@ add_test_app(host-image-copy)
 add_test_app(multisample-depth)
 add_test_app(pipeline-binaries)
 add_test_app(triangle)
+add_test_app(triangle-extra-device)
 add_test_app(shader-objects)
 add_test_app(sparse-resources)
 add_test_app(wait-for-present)

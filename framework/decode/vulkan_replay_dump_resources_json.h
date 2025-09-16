@@ -24,8 +24,8 @@
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 
 #include "util/json_util.h"
-#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -59,22 +59,21 @@ class VulkanReplayDumpResourcesJson
 
     nlohmann::ordered_json& GetCurrentSubEntry();
 
-    void InsertImageInfo(nlohmann::ordered_json& json_entry,
-                         VkFormat                image_format,
-                         VkImageType             image_type,
-                         format::HandleId        image_id,
-                         const VkExtent3D&       extent,
-                         const std::string&      filename,
-                         VkImageAspectFlagBits   aspect,
-                         bool                    scale_failed,
-                         uint32_t                mip_level       = 0,
-                         uint32_t                array_layer     = 0,
-                         bool                    separate_alpha  = false,
-                         const std::string*      filename_before = nullptr);
+    void InsertImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
+                                    const DumpedImage::DumpedImageSubresource& subresource,
+                                    VkFormat                                   format,
+                                    bool                                       separate_alpha,
+                                    bool                                       dumped_raw);
 
-    void InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                          const VulkanBufferInfo* buffer_info,
-                          const std::string&      filename);
+    void InsertBeforeImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
+                                          const DumpedImage::DumpedImageSubresource& subresource,
+                                          VkFormat                                   format,
+                                          bool                                       separate_alpha,
+                                          bool                                       dumped_raw);
+
+    void InsertBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
+
+    void InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
 
     uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
 

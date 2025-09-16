@@ -381,7 +381,31 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
         }
 
         StandardCreateWrite(wrapper);
+        if (wrapper_info->heap_flags & D3D12_HEAP_FLAG_CREATE_NOT_RESIDENT)
+        {
+            WriteHeapMakeResidentCmd(wrapper);
+        }
     });
+}
+
+void Dx12StateWriter::WriteHeapMakeResidentCmd(const ID3D12Heap_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    GFXRECON_ASSERT(wrapper->GetObjectInfo() != nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+
+    UINT                  num_objects  = 1;
+    HRESULT               return_value = S_OK;
+    const ID3D12Pageable* ppObjects[1];
+    ppObjects[0] = reinterpret_cast<const ID3D12Pageable*>(wrapper);
+
+    encoder_.EncodeUInt32Value(num_objects);
+    encoder_.EncodeObjectArray(ppObjects, num_objects);
+    encoder_.EncodeInt32Value(return_value);
+    WriteMethodCall(
+        format::ApiCallId::ApiCall_ID3D12Device_MakeResident, wrapper_info->create_object_id, &parameter_stream_);
+    parameter_stream_.Clear();
 }
 
 bool Dx12StateWriter::WriteCreateHeapAllocationCmd(const void* address)
@@ -1067,6 +1091,9 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
     std::vector<ID3D12CommandList_Wrapper*> direct_command_lists;
     std::vector<ID3D12CommandList_Wrapper*> open_command_lists;
 
+    const bool trim_to_draw_enabled =
+        (D3D12CaptureManager::Get()->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls);
+
     state_table.VisitWrappers([&](ID3D12CommandList_Wrapper* list_wrapper) {
         GFXRECON_ASSERT(list_wrapper != nullptr);
         GFXRECON_ASSERT(list_wrapper->GetWrappedObject() != nullptr);
@@ -1077,6 +1104,10 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
 
         GFXRECON_ASSERT(list_info->create_parameters != nullptr);
         GFXRECON_ASSERT(list_info->create_object_id != format::kNullHandleId);
+
+        // When trim to draw is enabled, skip command lists that do not contain the target draw calls.
+        if (trim_to_draw_enabled && !list_info->is_trim_target)
+            return;
 
         // Write create calls and commands for bundle command lists. Keep track of primary and open command lists to be
         // written afterward.

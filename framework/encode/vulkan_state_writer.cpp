@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_writer.h"
 
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/vulkan_capture_common.h"
@@ -91,7 +92,8 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                  ou
                                      util::FileOutputStream*                  asset_file_stream,
                                      const std::string*                       asset_file_name,
                                      VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets) :
-    output_stream_(output_stream), compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
+    output_stream_(output_stream),
+    compressor_(compressor), thread_data_(thread_data), encoder_(&parameter_stream_),
     get_unique_id_(std::move(get_unique_id_fn)), asset_file_stream_(asset_file_stream),
     asset_file_offsets_(asset_file_offsets), command_writer_(CommandWriter(thread_data, output_stream, compressor_))
 {
@@ -159,7 +161,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Resource creation.
     WriteBufferState(state_table);
-    StandardCreateWrite<vulkan_wrappers::ImageWrapper>(state_table);
+    WriteImageState(state_table);
     WriteDeviceMemoryState(state_table);
 
     // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
@@ -240,10 +242,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     auto done = std::chrono::high_resolution_clock::now();
     uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
-    GFXRECON_LOG_INFO("--------------------------------------")
-    GFXRECON_LOG_INFO("%s()", __func__)
-    GFXRECON_LOG_INFO("  saved in %u ms", time);
-    GFXRECON_LOG_INFO("--------------------------------------")
+    GFXRECON_LOG_INFO("%s() saved in %u ms", __func__, time);
 
     return blocks_written_;
     // clang-format on
@@ -313,10 +312,19 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_table)
 {
-    std::set<util::MemoryOutputStream*>                       processed;
-    std::vector<const vulkan_wrappers::CommandBufferWrapper*> primary;
+    std::set<util::MemoryOutputStream*>                 processed;
+    std::vector<vulkan_wrappers::CommandBufferWrapper*> primary;
 
-    state_table.VisitWrappers([&](const vulkan_wrappers::CommandBufferWrapper* wrapper) {
+    // Because secondaries can reference other secondaries we need to do a first pass over all alive command buffers
+    // to detect all invalid secondaries.
+    state_table.VisitWrappers([&](vulkan_wrappers::CommandBufferWrapper* wrapper) {
+        if (wrapper->level == VK_COMMAND_BUFFER_LEVEL_SECONDARY && !CheckCommandHandles(wrapper, state_table))
+        {
+            wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInvalid;
+        }
+    });
+
+    state_table.VisitWrappers([&](vulkan_wrappers::CommandBufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         // Filter duplicate calls to vkAllocateCommandBuffers for command buffers that were allocated by the same API
@@ -1044,7 +1052,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                 {
                     if (output_stream_ != nullptr)
                     {
-                        assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
+                        assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
                         const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
                         WriteExecuteFromFile(asset_file_name_, 1, offset);
                     }
@@ -1066,7 +1074,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         }
         else
         {
-            assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
+            assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
             offset = (*asset_file_offsets_)[wrapper->handle_id];
         }
 
@@ -1243,15 +1251,33 @@ void VulkanStateWriter::WriteSurfaceKhrState(const VulkanStateTable& state_table
 
         for (const auto& entry : wrapper->surface_capabilities)
         {
-            WriteResizeWindowCmd(wrapper->handle_id,
-                                 entry.second.surface_capabilities.surfaceCapabilities.currentExtent.width,
-                                 entry.second.surface_capabilities.surfaceCapabilities.currentExtent.height);
-            WriteGetPhysicalDeviceSurfaceCapabilities(entry.first, wrapper->handle_id, entry.second, state_table);
+            if (auto capabilities = std::get_if<vulkan_wrappers::SurfaceCapabilities>(&entry.second))
+            {
+                WriteResizeWindowCmd(wrapper->handle_id,
+                                     capabilities->surface_capabilities.currentExtent.width,
+                                     capabilities->surface_capabilities.currentExtent.height);
+                WriteGetPhysicalDeviceSurfaceCapabilities(entry.first, wrapper->handle_id, *capabilities, state_table);
+            }
+            else if (auto capabilities2 = std::get_if<vulkan_wrappers::SurfaceCapabilities2>(&entry.second))
+            {
+                WriteResizeWindowCmd(wrapper->handle_id,
+                                     capabilities2->surface_capabilities.surfaceCapabilities.currentExtent.width,
+                                     capabilities2->surface_capabilities.surfaceCapabilities.currentExtent.height);
+                WriteGetPhysicalDeviceSurfaceCapabilities2(
+                    entry.first, wrapper->handle_id, *capabilities2, state_table);
+            }
         }
 
         for (const auto& entry : wrapper->surface_formats)
         {
-            WriteGetPhysicalDeviceSurfaceFormats(entry.first, wrapper->handle_id, entry.second, state_table);
+            if (auto formats = std::get_if<vulkan_wrappers::SurfaceFormats>(&entry.second))
+            {
+                WriteGetPhysicalDeviceSurfaceFormats(entry.first, wrapper->handle_id, *formats, state_table);
+            }
+            else if (auto formats2 = std::get_if<vulkan_wrappers::SurfaceFormats2>(&entry.second))
+            {
+                WriteGetPhysicalDeviceSurfaceFormats2(entry.first, wrapper->handle_id, *formats2, state_table);
+            }
         }
 
         for (const auto& entry : wrapper->surface_present_modes)
@@ -1428,6 +1454,26 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* image_wrapper) {
+        // Skip create call for swapchain images, i.e. vkGetSwapchainImagesKHR
+        // This call is already emitted by the state setup for the parent swapchain
+        if (image_wrapper->is_swapchain_image)
+        {
+            return;
+        }
+        // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+        // all reference the same parameter buffer.
+        if (processed.find(image_wrapper->create_parameters.get()) == processed.end())
+        {
+            WriteFunctionCall(image_wrapper->create_call_id, image_wrapper->create_parameters.get());
+            processed.insert(image_wrapper->create_parameters.get());
+        }
     });
 }
 
@@ -1681,8 +1727,6 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         std::vector<AccelerationStructureBuildCommandData*>          tlas_build;
         std::vector<AccelerationStructureWritePropertiesCommandData> write_properties;
         std::vector<VkCopyAccelerationStructureInfoKHR>              copy_infos;
-        std::vector<AccelerationStructureBuildCommandData*>          blas_update;
-        std::vector<AccelerationStructureBuildCommandData*>          tlas_update;
     };
 
     std::unordered_map<format::HandleId, AccelerationStructureCommands> commands;
@@ -1693,32 +1737,20 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
         auto& per_device_container                                            = commands[wrapper->device->handle_id];
         std::vector<AccelerationStructureBuildCommandData*>* build_container  = nullptr;
-        std::vector<AccelerationStructureBuildCommandData*>* update_container = nullptr;
 
         if (wrapper->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
         {
             build_container  = &per_device_container.blas_build;
-            update_container = &per_device_container.blas_update;
         }
         else if (wrapper->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
         {
             build_container  = &per_device_container.tlas_build;
-            update_container = &per_device_container.tlas_update;
         }
 
         if (wrapper->latest_build_command_)
         {
             build_container->push_back(&wrapper->latest_build_command_.value());
             for (const auto& [handle_id, buffer] : wrapper->latest_build_command_->input_buffers)
-            {
-                max_resource_size = std::max(max_resource_size, buffer.bytes.size());
-            }
-        }
-
-        if (wrapper->latest_update_command_)
-        {
-            update_container->push_back(&wrapper->latest_update_command_.value());
-            for (const auto& [handle_id, buffer] : wrapper->latest_update_command_->input_buffers)
             {
                 max_resource_size = std::max(max_resource_size, buffer.bytes.size());
             }
@@ -1763,15 +1795,6 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             WriteAccelerationStructureBuildState(device, *tlas_build);
         }
 
-        for (auto& blas_update : command.blas_update)
-        {
-            WriteAccelerationStructureBuildState(device, *blas_update);
-        }
-
-        for (auto& tlas_update : command.tlas_update)
-        {
-            WriteAccelerationStructureBuildState(device, *tlas_update);
-        }
         EndAccelerationStructureSection(device);
     }
 }
@@ -2274,7 +2297,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
         {
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(buffer_wrapper->handle_id) != (*asset_file_offsets_).end());
+                assert(asset_file_offsets_->find(buffer_wrapper->handle_id) != asset_file_offsets_->end());
                 const int64_t offset = (*asset_file_offsets_)[buffer_wrapper->handle_id];
                 WriteExecuteFromFile(asset_file_name_, 1, offset);
             }
@@ -2582,9 +2605,14 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         {
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end());
-                const int64_t offset = (*asset_file_offsets_)[image_wrapper->handle_id];
-                WriteExecuteFromFile(asset_file_name_, 1, offset);
+                // It is possible that an image could not be dumped in the asset file (i.e. multisampled).
+                // We will still clear its flag to false but there won't be an entry in the offsets map
+                const auto& asset_file_offset_entry = asset_file_offsets_->find(image_wrapper->handle_id);
+                if (asset_file_offset_entry != asset_file_offsets_->end())
+                {
+                    const int64_t offset = asset_file_offset_entry->second;
+                    WriteExecuteFromFile(asset_file_name_, 1, offset);
+                }
             }
         }
     }
@@ -3015,8 +3043,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     else
                     {
                         snapshot_info.resource_size =
-                            resource_util.GetImageResourceSizesOptimal(wrapper->handle,
-                                                                       wrapper->format,
+                            resource_util.GetImageResourceSizesOptimal(wrapper->format,
                                                                        wrapper->image_type,
                                                                        wrapper->extent,
                                                                        wrapper->mip_levels,
@@ -3186,10 +3213,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     auto     done = std::chrono::high_resolution_clock::now();
     uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
 
-    GFXRECON_LOG_INFO("--------------------------------------")
-    GFXRECON_LOG_INFO("%s()", __func__)
-    GFXRECON_LOG_INFO("  saved in %u ms", time);
-    GFXRECON_LOG_INFO("--------------------------------------")
+    GFXRECON_LOG_INFO("%s()  saved in %u ms", __func__, time)
 }
 
 void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_table)
@@ -3375,10 +3399,25 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(
     const VkResult result = VK_SUCCESS;
 
     encoder_.EncodeHandleIdValue(physical_device_id);
+    encoder_.EncodeHandleIdValue(surface_id);
+    EncodeStructPtr(&encoder_, &capabilities.surface_capabilities);
+    encoder_.EncodeEnumValue(result);
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR, &parameter_stream_);
+    parameter_stream_.Clear();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities2(
+    format::HandleId                             physical_device_id,
+    format::HandleId                             surface_id,
+    const vulkan_wrappers::SurfaceCapabilities2& capabilities,
+    const VulkanStateTable&                      state_table)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(physical_device_id);
     EncodeStructPtr(&encoder_, &capabilities.surface_info);
     EncodeStructPtr(&encoder_, &capabilities.surface_capabilities);
     encoder_.EncodeEnumValue(result);
-
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR, &parameter_stream_);
     parameter_stream_.Clear();
 }
@@ -3388,15 +3427,43 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
                                                              const vulkan_wrappers::SurfaceFormats& formats,
                                                              const VulkanStateTable&                state_table)
 {
-    const VkResult result = VK_SUCCESS;
+    const VkResult result       = VK_SUCCESS;
+    const uint32_t format_count = formats.surface_formats.size();
 
-    uint32_t format_count = formats.surface_format_count;
+    // First write the call to retrieve the size.
+    encoder_.EncodeHandleIdValue(physical_device_id);
+    encoder_.EncodeHandleIdValue(surface_id);
+    encoder_.EncodeUInt32Ptr(&format_count);
+    EncodeStructArray<VkSurfaceFormatKHR>(&encoder_, nullptr, 0);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR, &parameter_stream_);
+    parameter_stream_.Clear();
+
+    // Then write the call with the data.
+    encoder_.EncodeHandleIdValue(physical_device_id);
+    encoder_.EncodeHandleIdValue(surface_id);
+    encoder_.EncodeUInt32Ptr(&format_count);
+    EncodeStructArray(&encoder_, formats.surface_formats.data(), format_count);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR, &parameter_stream_);
+    parameter_stream_.Clear();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats2(format::HandleId physical_device_id,
+                                                              format::HandleId surface_id,
+                                                              const vulkan_wrappers::SurfaceFormats2& formats,
+                                                              const VulkanStateTable&                 state_table)
+{
+    const VkResult result       = VK_SUCCESS;
+    uint32_t       format_count = formats.surface_format_count;
 
     // First write the call to retrieve the size.
     encoder_.EncodeHandleIdValue(physical_device_id);
     EncodeStructPtr(&encoder_, &formats.surface_info);
     encoder_.EncodeUInt32Ptr(&format_count);
-    EncodeStructArray<VkSurfaceFormatKHR>(&encoder_, nullptr, 0);
+    EncodeStructArray<VkSurfaceFormat2KHR>(&encoder_, nullptr, 0);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
@@ -3630,8 +3697,8 @@ void VulkanStateWriter::WriteCommandExecution(format::HandleId            queue_
     parameter_stream_.Clear();
 }
 
-void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::CommandBufferWrapper* wrapper,
-                                                   const VulkanStateTable&                      state_table)
+void VulkanStateWriter::WriteCommandBufferCommands(vulkan_wrappers::CommandBufferWrapper* wrapper,
+                                                   const VulkanStateTable&                state_table)
 {
     assert(wrapper != nullptr);
 
@@ -3657,6 +3724,10 @@ void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::Comman
         }
 
         assert(offset == data_size);
+    }
+    else
+    {
+        wrapper->state = vulkan_wrappers::CommandBufferWrapper::kInvalid;
     }
 }
 
@@ -4339,7 +4410,10 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
         case vulkan_state_info::CommandHandleType::BufferViewHandle:
             return IsBufferViewValid(handle_id, state_table);
         case vulkan_state_info::CommandHandleType::CommandBufferHandle:
-            return (state_table.GetVulkanCommandBufferWrapper(handle_id) != nullptr);
+        {
+            const vulkan_wrappers::CommandBufferWrapper* wrapper = state_table.GetVulkanCommandBufferWrapper(handle_id);
+            return (wrapper != nullptr && wrapper->state == vulkan_wrappers::CommandBufferWrapper::kExecutable);
+        }
         case vulkan_state_info::CommandHandleType::DescriptorSetHandle:
             return (state_table.GetVulkanDescriptorSetWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::EventHandle:

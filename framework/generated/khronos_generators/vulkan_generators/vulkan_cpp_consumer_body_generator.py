@@ -457,6 +457,9 @@ def makeObjectType(handle_value):
     elif handle_value.endswith('FUCHSIA'):
         extension = '_FUCHSIA'
         value = handle_value[2:-7]
+    elif handle_value.endswith('ARM'):
+        extension = '_ARM'
+        value = handle_value[2:-3]
     else:
         value = handle_value[2:]
 

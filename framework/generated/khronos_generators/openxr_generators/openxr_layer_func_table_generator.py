@@ -54,7 +54,7 @@ class OpenXrLayerFuncTableGeneratorOptions(OpenXrBaseGeneratorOptions):
         self.begin_end_file_data.specific_headers.extend((
             'encode/custom_openxr_api_call_encoders.h',
             'generated/generated_openxr_api_call_encoders.h',
-            'layer/trace_layer.h',
+            'layer/layer_vulkan_entry.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.system_headers.append('unordered_map')
@@ -96,7 +96,7 @@ class OpenXrLayerFuncTableGenerator(OpenXrBaseGenerator, KhronosLayerFuncTableGe
     def endFile(self):
         """Method override."""
 
-        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100)
+        KhronosLayerFuncTableGenerator.write_layer_func_table_contents(self, self.LAYER_FUNCTIONS, 100, 'Layer')
         self.newline()
 
         # Finish processing in superclass

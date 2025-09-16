@@ -438,6 +438,7 @@ struct ID3D12HeapInfo : public DxWrapperInfo
     D3D12_MEMORY_POOL         memory_pool{};
     uint64_t                  heap_size{ 0 };
     D3D12_GPU_VIRTUAL_ADDRESS gpu_va{ 0 };
+    D3D12_HEAP_FLAGS          heap_flags{ D3D12_HEAP_FLAG_NONE };
 
     const void* open_existing_address{ nullptr }; ///< Address used to create heap with OpenExistingHeapFromAddress.
 };
@@ -502,7 +503,8 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
     std::array<graphics::dx12::CommandSet, 3>    split_command_sets;
     bool                                         is_split_commandlist{ false };
     uint32_t                                     find_target_draw_call_count{ 0 };
-    std::shared_ptr<const ID3D12CommandListInfo> target_bundle_commandlist_info{ false };
+    std::shared_ptr<const ID3D12CommandListInfo> target_bundle_commandlist_info;
+    bool                                         is_trim_target{ false };
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

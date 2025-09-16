@@ -201,6 +201,8 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    virtual void SetCurrentFrameNumber(uint64_t frame_number) override;
+
     void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                               size_t         buffer_size) override;
 

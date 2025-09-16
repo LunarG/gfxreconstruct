@@ -736,7 +736,7 @@ void Process_vkCmdBindDescriptorSets2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindDescriptorSets2                func,
     VkCommandBuffer                             commandBuffer,
-    const VkBindDescriptorSetsInfo*             pBindDescriptorSetsInfo);
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
 
 void Process_vkCmdPushConstants2(
     const ApiCallInfo&                          call_info,
@@ -992,7 +992,7 @@ void Process_vkCmdBindDescriptorSets2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindDescriptorSets2KHR             func,
     VkCommandBuffer                             commandBuffer,
-    const VkBindDescriptorSetsInfo*             pBindDescriptorSetsInfo);
+    StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo);
 
 void Process_vkCmdPushConstants2KHR(
     const ApiCallInfo&                          call_info,
@@ -1462,7 +1462,8 @@ void Process_vkCmdSetDepthBias2EXT(
 void Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDispatchTileQCOM                   func,
-    VkCommandBuffer                             commandBuffer);
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchTileInfoQCOM*               pDispatchTileInfo);
 
 void Process_vkCmdBeginPerTileExecutionQCOM(
     const ApiCallInfo&                          call_info,

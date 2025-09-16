@@ -52,7 +52,11 @@ const std::vector<std::string> kLoaderLibNames = {
 #endif
 };
 
-util::platform::LibraryHandle InitializeLoader();
+/// @brief Initialize the Vulkan loader by loading the Vulkan library.
+/// @param loader_path Optional path to the Vulkan loader library. If not provided, the function will search for
+/// `kLoaderLibNames` in the system library paths.
+/// @return A handle to the loaded Vulkan library, or nullptr if the library could not be loaded.
+util::platform::LibraryHandle InitializeLoader(const char* loader_path = nullptr);
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 
@@ -70,6 +74,16 @@ static inline void copy_dispatch_table_from_device(VkDevice device, VkCommandBuf
     // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
     *reinterpret_cast<void**>(handle) = *reinterpret_cast<void**>(device);
 }
+
+/**
+ * @brief   StripWaitSemaphores can be used to remove all wait-semaphores for a provided VkSubmitInfo.
+ *          Respective pointer in submit_info will be set to nullptr and count to zero.
+ *
+ * @param   submit_info     a provided VkSubmitInfo(2) struct
+ * @return  an array of Semaphores that have been stripped/removed from submit_info
+ */
+std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo* submit_info);
+std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2* submit_info);
 
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
