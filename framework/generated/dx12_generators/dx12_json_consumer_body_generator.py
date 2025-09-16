@@ -159,7 +159,22 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             # Generate a correct FieldToJson for each argument:
             for parameter in method_info['parameters']:
                 value = self.get_value_info(parameter)
-                code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+
+                function_call = self.make_field_to_json("args", value, "options") + "\n"
+
+                ## Special case for pointers to flag sets defined by enums:
+                ## (easier than having pointer decoder versions of each flagset type's FieldToString)
+                if value.is_pointer and function_call.startswith("FieldToJson_"):
+                    code += '    if (!{}->IsNull())\n'.format(value.name)
+                    code += '    {{\n'
+                    code += '        ' + function_call
+                    code += '    }}\n'
+                    code += '    else\n'
+                    code += '    {{\n'
+                    code += '        FieldToJson(args["{}"], nullptr, options);\n'.format(value.name)
+                    code += '    }}\n'
+                else:
+                    code += "    " + function_call
             code += "}}\n"
 
         code += "writer_->WriteBlockEnd();"
