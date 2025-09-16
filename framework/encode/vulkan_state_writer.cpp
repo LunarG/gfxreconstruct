@@ -1739,9 +1739,8 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* buffer_wrapper) {
         GFXRECON_ASSERT(buffer_wrapper != nullptr && buffer_wrapper->device != VK_NULL_HANDLE);
-        GFXRECON_ASSERT(device_address_trackers_.count(buffer_wrapper->device) > 0);
 
-        if (buffer_wrapper->acceleration_structures.empty())
+        if (buffer_wrapper->acceleration_structures.empty() || !device_address_trackers_.count(buffer_wrapper->device))
         {
             return;
         }
@@ -1832,6 +1831,11 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
     }
 
     UpdateAddresses(command);
+
+    // check for deleted handles, create replacements
+    auto* as_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+        command.geometry_info.dstAccelerationStructure, false);
+
     EncodeAccelerationStructureBuildMetaCommand(device, command);
     for (auto& [handle_id, buffer] : command.input_buffers)
     {
