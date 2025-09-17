@@ -980,7 +980,7 @@ def gen_target(args):
                 file=sys.stderr
             )
             write(
-                '* options.emitEtensions    =',
+                '* options.emitExtensions    =',
                 options.emitExtensions,
                 file=sys.stderr
             )
