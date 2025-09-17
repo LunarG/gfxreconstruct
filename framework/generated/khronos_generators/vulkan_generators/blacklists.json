@@ -37,6 +37,7 @@
     "VkPerformanceValueINTEL",
     "VkPushDescriptorSetWithTemplateInfo",
     "VkAccelerationStructureGeometryKHR",
+    "VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX",
     "VkAccelerationStructureMotionInstanceNV",
     "VkIndirectExecutionSetInfoEXT",
     "VkIndirectExecutionSetCreateInfoEXT",

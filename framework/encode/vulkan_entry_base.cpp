@@ -82,6 +82,10 @@ const std::vector<VulkanEntryBase::VulkanLayerExtensionProps> VulkanEntryBase::k
 /// An alphabetical list of device extensions which we do not report upstream if
 /// other layers or ICDs expose them to us.
 const std::vector<const char*> VulkanEntryBase::kVulkanUnsupportedDeviceExtensions = {
+    VK_KHR_VIDEO_DECODE_H264_EXTENSION_NAME,
+    VK_KHR_VIDEO_DECODE_H265_EXTENSION_NAME,
+    VK_KHR_VIDEO_ENCODE_H264_EXTENSION_NAME,
+    VK_KHR_VIDEO_ENCODE_H265_EXTENSION_NAME,
     VK_AMDX_SHADER_ENQUEUE_EXTENSION_NAME,
     VK_ARM_TENSORS_EXTENSION_NAME,
     VK_ARM_DATA_GRAPH_EXTENSION_NAME,
