@@ -59,6 +59,7 @@ class ApiCaptureManager
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
     bool                IsCaptureModeWrite() const { return common_manager_->IsCaptureModeWrite(); }
+    bool                IsCaptureModeTrim() const { return common_manager_->IsCaptureModeTrim(); }
     bool                IsCaptureModeDisabled() const { return common_manager_->IsCaptureModeDisabled(); }
     bool IsCaptureSkippingCurrentThread() const { return common_manager_->IsCaptureSkippingCurrentThread(); }
 
@@ -135,12 +136,6 @@ class ApiCaptureManager
     }
 
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
-
-    void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
-                                          std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
-    {
-        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count, current_lock);
-    }
 
     void CheckStartCaptureForTrackMode(uint32_t                                               current_boundary_count,
                                        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)

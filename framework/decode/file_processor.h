@@ -106,6 +106,11 @@ class FileProcessor
 
     FileProcessor(uint64_t block_limit);
 
+    void SetBlockHandlerCallback(std::function<void(const ParsedBlock& parsed_block)> block_handler_callback)
+    {
+        block_handler_callback_ = block_handler_callback;
+    }
+
     virtual ~FileProcessor();
 
     void WaitDecodersIdle();
@@ -205,6 +210,8 @@ class FileProcessor
     AnnotationHandler*       annotation_handler_;
     BlockReadError           error_state_;
     uint64_t                 bytes_read_;
+
+    std::function<void(const ParsedBlock& parsed_block)> block_handler_callback_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;

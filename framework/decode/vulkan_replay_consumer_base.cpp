@@ -349,7 +349,6 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
     if (fps_info_ != nullptr)
     {
@@ -1262,9 +1261,25 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     }
 }
 
-void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
-                                                 PFN_vkCreateInstance      create_instance,
-                                                 PFN_vkCreateDevice        create_device)
+void VulkanReplayConsumerBase::WriteTrimBlockForRecapture(const ParsedBlock& parsed_block)
+{
+    GFXRECON_ASSERT(options_.capture_copy_data);
+
+    auto data = parsed_block.GetBlockData().data();
+    auto size = parsed_block.GetBlockData().size();
+    GFXRECON_ASSERT(data != nullptr && size > 0);
+
+    auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+    if (vulkan_capture_manager && vulkan_capture_manager->IsCaptureModeTrim())
+    {
+        vulkan_capture_manager->WriteToFile(data, size);
+    }
+}
+
+void VulkanReplayConsumerBase::SetupForRecaptureInReplay(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                                                         PFN_vkCreateInstance      create_instance,
+                                                         PFN_vkCreateDevice        create_device,
+                                                         FileProcessor*            file_processor)
 {
     GFXRECON_ASSERT(options_.capture);
 
@@ -1273,12 +1288,14 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
     get_instance_proc_addr_ = get_instance_proc_addr;
 
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
+    gfxrecon::encode::CommonCaptureManager::SetupForRecaptureInReplay(kRecaptureHandleIdOffset,
+                                                                      options_.capture_copy_data);
 
-    // Logger is already initialized by replay, so inform capture manager not to initialize it again.
-    gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
-
-    gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
-    gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+    if (options_.capture_copy_data)
+    {
+        file_processor->SetBlockHandlerCallback(
+            std::bind(&VulkanReplayConsumerBase::WriteTrimBlockForRecapture, this, std::placeholders::_1));
+    }
 }
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
@@ -1337,7 +1354,7 @@ void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
 
-    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecapture()
+    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecaptureInReplay
     if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -3018,6 +3035,18 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
     if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
     {
+        if (options_.capture_copy_data)
+        {
+            auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+            GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+            if (vulkan_capture_manager->GetTrimBoundary() != encode::CaptureSettings::TrimBoundary::kFrames)
+            {
+                GFXRECON_LOG_ERROR(
+                    "The --capture-copy-data option is only valid when frame-based trimming is enabled. Exiting.");
+                exit(-1);
+            }
+        }
+
         auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
         assert(instance_info);
         PostCreateInstanceUpdateState(*replay_instance, create_state.modified_create_info, *instance_info);

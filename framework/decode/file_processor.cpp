@@ -37,9 +37,9 @@ const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
-    annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
-    pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
-    loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
+    annotation_handler_(nullptr), compressor_(nullptr), block_handler_callback_(nullptr), block_index_(0),
+    block_limit_(0), pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false),
+    first_frame_(kFirstFrame + 1), loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -308,6 +308,11 @@ bool FileProcessor::ProcessBlocks()
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
                     ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+
+                    if (block_handler_callback_ != nullptr)
+                    {
+                        block_handler_callback_(parsed_block);
+                    }
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
