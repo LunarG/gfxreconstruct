@@ -394,6 +394,7 @@ struct VulkanDeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
     VulkanResourceAllocator::MemoryData allocator_data{ 0 };
 };
 
+struct VulkanAccelerationStructureKHRInfo;
 struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
 {
     // The following values are only used for memory portability.
@@ -410,8 +411,9 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
 
-    // acceleration-structure capture/replay addresses defined for buffer-range
-    std::unordered_map<VkDeviceAddress, VkDeviceAddress> acceleration_structures;
+    // map acceleration-structure capture-addresses to existing (alias) AS-handles
+    std::unordered_map<VkDeviceAddress, std::unordered_set<const VulkanAccelerationStructureKHRInfo*>>
+        acceleration_structures;
 };
 
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
