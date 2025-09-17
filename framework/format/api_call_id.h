@@ -1354,6 +1354,11 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12GBVDiagnostics_GBVReserved0                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1166),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1167),
 
+    // Agility SDK 1.616.1
+    ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState                                        = MakeApiCallId(ApiFamily_D3D12, 0x1168),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState                                  = MakeApiCallId(ApiFamily_D3D12, 0x1169),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus                             = MakeApiCallId(ApiFamily_D3D12, 0x116a),
+
     // AGS API
     // amd_ags.h
     ApiCall_Ags_agsInitialize_6_0_1                                                               = MakeApiCallId(ApiFamily_AGS, 0x1000),

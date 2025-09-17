@@ -1848,6 +1848,13 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id){}
 
+    virtual void Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        format::HandleId pBlob){}
+
     virtual void Process_ID3D12PageableTools_GetAllocation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1858,6 +1865,17 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress){}
+
+    virtual void Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<ID3D10Blob*>* ppBlob){}
+
+    virtual void Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value){}
 
     virtual void Process_ID3D12SDKConfiguration_SetSDKVersion(
         const ApiCallInfo& call_info,

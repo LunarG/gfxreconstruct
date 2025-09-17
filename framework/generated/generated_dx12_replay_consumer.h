@@ -1844,6 +1844,13 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id) override;
 
+    virtual void Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        format::HandleId pBlob) override;
+
     virtual void Process_ID3D12PageableTools_GetAllocation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1854,6 +1861,17 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         D3D12_GPU_VIRTUAL_ADDRESS nextAllocationVirtualAddress) override;
+
+    virtual void Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<ID3D10Blob*>* ppBlob) override;
+
+    virtual void Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value) override;
 
     virtual void Process_ID3D12SDKConfiguration_SetSDKVersion(
         const ApiCallInfo& call_info,
