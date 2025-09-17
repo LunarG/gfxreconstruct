@@ -80,6 +80,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ~VulkanReplayConsumerBase() override;
 
     void BeginProcessBlock(const ParsedBlock* parsed_block) override;
+    void EndProcessBlock() override;
 
     void SetCurrentFrameNumber(uint64_t frame_number) override;
 
@@ -1643,22 +1644,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanReplayDumpResources> resource_dumper_;
 
     //// Begin recapture members
-  private:
-    // UINT64_MAX =                                      18446744073709551615ULL
-    static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
-
   public:
     // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
     // For example, this is used during recapture to return the capture layer's Vulkan functions.
-    void SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
-                           PFN_vkCreateInstance      create_instance,
-                           PFN_vkCreateDevice        create_device);
+    void SetupForRecaptureInReplay(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                                   PFN_vkCreateInstance      create_instance,
+                                   PFN_vkCreateDevice        create_device,
+                                   FileProcessor*            file_processor);
 
     virtual void PushRecaptureHandleId(const format::HandleId* id) override;
     virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
     virtual void ClearRecaptureHandleIds() override;
     virtual bool IsRecapture() override { return options_.capture; }
 
+  private:
+    // UINT64_MAX =                                      18446744073709551615ULL
+    static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
+
+    void WriteTrimBlockForRecapture(const ParsedBlock* parsed_block);
     //// End recapture members
 
   private:

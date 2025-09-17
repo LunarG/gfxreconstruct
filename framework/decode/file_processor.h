@@ -214,6 +214,8 @@ class FileProcessor
     BlockIOError             error_state_;
     uint64_t                 bytes_read_;
 
+    std::function<void(const ParsedBlock& parsed_block)> block_handler_callback_;
+
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
 
