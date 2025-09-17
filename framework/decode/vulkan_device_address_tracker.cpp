@@ -109,13 +109,10 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
     if (acceleration_structure_info != nullptr)
     {
         acceleration_structure_handles_.erase(acceleration_structure_info->handle);
-
         auto* buffer_info = GetBufferByHandle(acceleration_structure_info->buffer);
 
-        // associated buffer has already queried a device-address, meaning we also got the AS device-address
         if (buffer_info != nullptr)
         {
-            // if not already present, keep track of AS<->VkBuffer association
             buffer_info->acceleration_structures[acceleration_structure_info->capture_address].erase(
                 acceleration_structure_info);
         }
