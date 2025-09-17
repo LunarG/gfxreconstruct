@@ -71,7 +71,7 @@ class BlockBuffer
     bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
 
     BlockSpan ReadSpan(size_t buffer_size);
-    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
+    BlockSpan ReadSpanAt(size_t buffer_size, size_t at) const;
 
     size_t                     Size() const { return block_span_.size(); }
     const format::BlockHeader& Header() const { return header_; }
