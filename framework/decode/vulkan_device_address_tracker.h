@@ -99,6 +99,23 @@ class VulkanDeviceAddressTracker
     [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
 
     /**
+     * @brief   Retrieve a set of acceleration-structure handles by providing a capture-time VkDeviceAddress.
+     *
+     * @note    AccelerationStructures can be aliases and reference the same buffer.
+     *          There is also a direct correspondence between AS-addresses and the address of associated buffers.
+     *
+     *          -> AS-address == buffer-address + AS-offset
+     *
+     *          So this function is just a helper and will look-up an associated buffer instead,
+     *          and delegate the actual query to that.
+     *
+     * @param   capture_address  a capture-time VkDeviceAddress for an acceleration-structure.
+     * @return  a const-ref to a set of (alias) const AccelerationStructureKHRInfo*.
+     */
+    [[nodiscard]] const std::unordered_set<const VulkanAccelerationStructureKHRInfo*>&
+    GetAccelerationStructuresByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
+
+    /**
      * @brief   Retrieve an acceleration-structure info-struct by providing its vulkan-handle.
      *
      * @param   handle  a replay-time VkAccelerationStructureKHR handle.
