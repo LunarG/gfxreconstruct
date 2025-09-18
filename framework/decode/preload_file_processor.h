@@ -45,18 +45,23 @@ class PreloadFileProcessor : public FileProcessor
 
   private:
     bool ReadBytes(void* buffer, size_t buffer_size) override;
+    util::DataSpan ReadSpan(size_t buffer_size) override;
     bool SkipBytes(size_t skip_size) override;
+
+    // These don't need virtual/override as they are specific to PreloadFileProcessor
+    bool PeekBytes(void* buffer, size_t buffer_size);
+    bool PeekBlockHeader(format::BlockHeader* block_header);
 
     class BlockBuffer
     {
       public:
-        bool IsValid() const { return data_.get() != nullptr; }
-        bool IsEof() const { return read_pos_ >= size_; }
+        bool IsValid() const { return block_span_.data() != nullptr; }
+        bool IsEof() const { return read_pos_ >= block_span_.size(); }
 
         template <typename T>
         bool Read(T& value)
         {
-            bool success = Read<T>(value, read_pos_);
+            bool success = ReadAt<T>(value, read_pos_);
             if (success)
             {
                 read_pos_ += sizeof(T);
@@ -65,34 +70,31 @@ class PreloadFileProcessor : public FileProcessor
         }
 
         template <typename T>
-        bool Read(T& value, size_t at) const
+        bool ReadAt(T& value, size_t at) const
         {
             // Ensure that this isn't being misused.
             static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
             if (IsAvailableAt(sizeof(value), at))
             {
-                memcpy(&value, data_.get() + at, sizeof(value));
+                memcpy(&value, block_span_.data() + at, sizeof(value));
                 return true;
             }
             return false;
         }
 
         bool ReadBytes(void* buffer, size_t buffer_size);
+        bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
 
-        bool ReadBytes(void* buffer, size_t buffer_size, size_t at) const;
+        util::DataSpan ReadSpan(size_t buffer_size);
+        util::DataSpan ReadSpanAt(size_t buffer_size, size_t at);
 
-        size_t Size() const { return size_; }
+        size_t Size() const { return block_span_.size(); }
 
         size_t ReadPos() const { return read_pos_; }
 
-        BlockBuffer(const format::BlockHeader& header) : header_(header)
-        {
-            size_ = header.size + sizeof(header);
-            data_ = std::make_unique<char[]>(size_);
-            memcpy(data_.get(), &header, sizeof(header));
-        }
-
-        char* GetPayload() { return data_.get() + sizeof(format::BlockHeader); }
+        BlockBuffer(const format::BlockHeader& header, util::DataSpan&& block_span) :
+            header_(header), block_span_(std::move(block_span))
+        {}
 
         bool IsFrameDelimiter(const FileProcessor& file_processor) const;
 
@@ -103,13 +105,11 @@ class PreloadFileProcessor : public FileProcessor
 
       private:
         format::BlockHeader header_;
-        size_t              size_{ 0 };
         size_t              read_pos_{ 0 };
-
-        std::unique_ptr<char[]> data_;
+        util::DataSpan      block_span_;
     };
 
-    void AdvanceBlockAtEof(const BlockBuffer& block_buffer);
+    BlockBuffer* GetCurrentBlockBuffer();
     bool AddBlockBuffer(const format::BlockHeader& header);
 
     std::deque<BlockBuffer> pending_block_buffers_;

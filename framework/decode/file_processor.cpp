@@ -469,28 +469,21 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
                                                   size_t* uncompressed_buffer_size)
 {
     // This should only be null if initialization failed.
-    assert(compressor_ != nullptr);
+    GFXRECON_ASSERT(compressor_ != nullptr);
 
-    const uint8_t* compressed_data = nullptr;
-
-    if (compressed_buffer_size > compressed_parameter_buffer_.size())
+    util::DataSpan compressed_span = ReadSpan(compressed_buffer_size);
+    if (!compressed_span.empty())
     {
-        compressed_parameter_buffer_.resize(compressed_buffer_size);
-    }
-    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
-    {
-        compressed_data = compressed_parameter_buffer_.data();
-    }
-
-    if (compressed_data)
-    {
+        // Resize the buffer
         if (parameter_buffer_.size() < expected_uncompressed_size)
         {
             parameter_buffer_.resize(expected_uncompressed_size);
         }
 
-        size_t uncompressed_size = compressor_->Decompress(
-            compressed_buffer_size, compressed_data, expected_uncompressed_size, &parameter_buffer_);
+        size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
+                                                           compressed_span.GetDataAs<uint8_t>(),
+                                                           expected_uncompressed_size,
+                                                           &parameter_buffer_);
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
             *uncompressed_buffer_size = uncompressed_size;
@@ -513,6 +506,21 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
         return true;
     }
     return false;
+}
+util::DataSpan FileProcessor::ReadSpan(size_t bytes)
+{
+    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
+    // without forcing use of mutability
+    auto& active_file = file_stack_.back().active_file;
+    GFXRECON_ASSERT(active_file);
+
+    util::DataSpan read_span = active_file->ReadSpan(bytes);
+    if (!read_span.empty())
+    {
+        // Note: WIP WIP WIP Should this += read_span.size() instead...
+        bytes_read_ += bytes;
+    }
+    return read_span;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
