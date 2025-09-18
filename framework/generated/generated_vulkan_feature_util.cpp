@@ -2097,21 +2097,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
-            {
-                const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(next);
-                VkPhysicalDeviceShaderUntypedPointersFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->shaderUntypedPointers == VK_TRUE) && (query.shaderUntypedPointers == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature shaderUntypedPointers %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(currentNext)->shaderUntypedPointers =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             {
                 const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(next);

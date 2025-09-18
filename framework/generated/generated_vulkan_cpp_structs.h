@@ -1078,8 +1078,6 @@ std::string GenerateStruct_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR(std
 
 std::string GenerateStruct_VkTraceRaysIndirectCommand2KHR(std::ostream &out, const VkTraceRaysIndirectCommand2KHR* structInfo, Decoded_VkTraceRaysIndirectCommand2KHR* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDevicePresentId2FeaturesKHR(std::ostream &out, const VkPhysicalDevicePresentId2FeaturesKHR* structInfo, Decoded_VkPhysicalDevicePresentId2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer);

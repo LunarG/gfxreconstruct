@@ -444,7 +444,6 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceFragmentShaderBar
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR; }
-template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderUntypedPointersFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkSurfaceCapabilitiesPresentId2KHR>(){ return VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_ID_2_KHR; }
 template <> constexpr VkStructureType GetSType<VkPresentId2KHR>(){ return VK_STRUCTURE_TYPE_PRESENT_ID_2_KHR; }
@@ -525,8 +524,8 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance7Prope
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiPropertiesListKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR; }
-template <> constexpr VkStructureType GetSType<VkMemoryBarrierAccessFlags3KHR>(){ return VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance8FeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR; }
+template <> constexpr VkStructureType GetSType<VkMemoryBarrierAccessFlags3KHR>(){ return VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance9FeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance9PropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR; }
 template <> constexpr VkStructureType GetSType<VkQueueFamilyOwnershipTransferPropertiesKHR>(){ return VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR; }

@@ -331,52 +331,16 @@ std::string GenerateStruct_StdVideoAV1TileInfo(std::ostream &out, const StdVideo
                                                                          &structInfo->flags,
                                                                          metaInfo->flags,
                                                                          consumer);
-    std::string pmi_col_starts_array = "NULL";
-    if (structInfo->pMiColStarts != NULL) {
-        std::string pmi_col_starts_values;
-        for (uint32_t idx0 = 0; idx0 < structInfo->TileCols; ++idx0) {
-            pmi_col_starts_values += std::to_string(structInfo->pMiColStarts[idx0]) + ", ";
-        }
-        pmi_col_starts_array = "pMiColStarts_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint16_t " << pmi_col_starts_array << "[] = {" << pmi_col_starts_values << "};" << std::endl;
-    }
-    std::string pmi_row_starts_array = "NULL";
-    if (structInfo->pMiRowStarts != NULL) {
-        std::string pmi_row_starts_values;
-        for (uint32_t idx0 = 0; idx0 < structInfo->TileRows; ++idx0) {
-            pmi_row_starts_values += std::to_string(structInfo->pMiRowStarts[idx0]) + ", ";
-        }
-        pmi_row_starts_array = "pMiRowStarts_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint16_t " << pmi_row_starts_array << "[] = {" << pmi_row_starts_values << "};" << std::endl;
-    }
-    std::string pwidth_in_sbs_minus1_array = "NULL";
-    if (structInfo->pWidthInSbsMinus1 != NULL) {
-        std::string pwidth_in_sbs_minus1_values;
-        for (uint32_t idx0 = 0; idx0 < structInfo->TileCols; ++idx0) {
-            pwidth_in_sbs_minus1_values += std::to_string(structInfo->pWidthInSbsMinus1[idx0]) + ", ";
-        }
-        pwidth_in_sbs_minus1_array = "pWidthInSbsMinus1_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint16_t " << pwidth_in_sbs_minus1_array << "[] = {" << pwidth_in_sbs_minus1_values << "};" << std::endl;
-    }
-    std::string pheight_in_sbs_minus1_array = "NULL";
-    if (structInfo->pHeightInSbsMinus1 != NULL) {
-        std::string pheight_in_sbs_minus1_values;
-        for (uint32_t idx0 = 0; idx0 < structInfo->TileRows; ++idx0) {
-            pheight_in_sbs_minus1_values += std::to_string(structInfo->pHeightInSbsMinus1[idx0]) + ", ";
-        }
-        pheight_in_sbs_minus1_array = "pHeightInSbsMinus1_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint16_t " << pheight_in_sbs_minus1_array << "[] = {" << pheight_in_sbs_minus1_values << "};" << std::endl;
-    }
     struct_body << "\t" << flags_info_var << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->TileCols) << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->TileRows) << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->context_update_tile_id << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->tile_size_bytes_minus_1) << "," << std::endl;
     struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
-    struct_body << "\t\t\t" << pmi_col_starts_array << "," << std::endl;
-    struct_body << "\t\t\t" << pmi_row_starts_array << "," << std::endl;
-    struct_body << "\t\t\t" << pwidth_in_sbs_minus1_array << "," << std::endl;
-    struct_body << "\t\t\t" << pheight_in_sbs_minus1_array << ",";
+    struct_body << "\t\t\t" << structInfo->pMiColStarts << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->pMiRowStarts << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->pWidthInSbsMinus1 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->pHeightInSbsMinus1 << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TileInfo");
     out << "\t\t" << "StdVideoAV1TileInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -1108,53 +1072,29 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
                                                                                           &structInfo->flags,
                                                                                           metaInfo->flags,
                                                                                           consumer);
-    std::string pref_list0_mod_operations_array = "NULL";
+    std::string pref_list0_mod_operations_struct = "NULL";
     if (structInfo->pRefList0ModOperations != NULL) {
-        pref_list0_mod_operations_array = "pRefList0ModOperations_" + std::to_string(consumer.GetNextId());
-        std::string pref_list0_mod_operations_names;
-        for (uint32_t idx = 0; idx < structInfo->refList0ModOpCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pRefList0ModOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                 structInfo->pRefList0ModOperations + idx,
-                                                                                 metaInfo->pRefList0ModOperations->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
-            pref_list0_mod_operations_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list0_mod_operations_array << "[] = {" << pref_list0_mod_operations_names << "};" << std::endl;
+        pref_list0_mod_operations_struct = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                                            structInfo->pRefList0ModOperations,
+                                                                                            metaInfo->pRefList0ModOperations->GetMetaStructPointer(),
+                                                                                            consumer);
+        pref_list0_mod_operations_struct.insert(0, "&");
     }
-    std::string pref_list1_mod_operations_array = "NULL";
+    std::string pref_list1_mod_operations_struct = "NULL";
     if (structInfo->pRefList1ModOperations != NULL) {
-        pref_list1_mod_operations_array = "pRefList1ModOperations_" + std::to_string(consumer.GetNextId());
-        std::string pref_list1_mod_operations_names;
-        for (uint32_t idx = 0; idx < structInfo->refList1ModOpCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pRefList1ModOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                 structInfo->pRefList1ModOperations + idx,
-                                                                                 metaInfo->pRefList1ModOperations->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
-            pref_list1_mod_operations_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list1_mod_operations_array << "[] = {" << pref_list1_mod_operations_names << "};" << std::endl;
+        pref_list1_mod_operations_struct = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                                            structInfo->pRefList1ModOperations,
+                                                                                            metaInfo->pRefList1ModOperations->GetMetaStructPointer(),
+                                                                                            consumer);
+        pref_list1_mod_operations_struct.insert(0, "&");
     }
-    std::string pref_pic_marking_operations_array = "NULL";
+    std::string pref_pic_marking_operations_struct = "NULL";
     if (structInfo->pRefPicMarkingOperations != NULL) {
-        pref_pic_marking_operations_array = "pRefPicMarkingOperations_" + std::to_string(consumer.GetNextId());
-        std::string pref_pic_marking_operations_names;
-        for (uint32_t idx = 0; idx < structInfo->refPicMarkingOpCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pRefPicMarkingOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
-                                                                                    structInfo->pRefPicMarkingOperations + idx,
-                                                                                    metaInfo->pRefPicMarkingOperations->GetMetaStructPointer() + idx,
-                                                                                    consumer);
-            }
-            pref_pic_marking_operations_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoEncodeH264RefPicMarkingEntry " << pref_pic_marking_operations_array << "[] = {" << pref_pic_marking_operations_names << "};" << std::endl;
+        pref_pic_marking_operations_struct = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
+                                                                                                 structInfo->pRefPicMarkingOperations,
+                                                                                                 metaInfo->pRefPicMarkingOperations->GetMetaStructPointer(),
+                                                                                                 consumer);
+        pref_pic_marking_operations_struct.insert(0, "&");
     }
     struct_body << "\t" << flags_info_var << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l0_active_minus1) << "," << std::endl;
@@ -1165,9 +1105,9 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
     struct_body << "\t\t\t" << std::to_string(structInfo->refList1ModOpCount) << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->refPicMarkingOpCount) << "," << std::endl;
     struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
-    struct_body << "\t\t\t" << pref_list0_mod_operations_array << "," << std::endl;
-    struct_body << "\t\t\t" << pref_list1_mod_operations_array << "," << std::endl;
-    struct_body << "\t\t\t" << pref_pic_marking_operations_array << ",";
+    struct_body << "\t\t\t" << pref_list0_mod_operations_struct << "," << std::endl;
+    struct_body << "\t\t\t" << pref_list1_mod_operations_struct << "," << std::endl;
+    struct_body << "\t\t\t" << pref_pic_marking_operations_struct << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH264ReferenceListsInfo");
     out << "\t\t" << "StdVideoEncodeH264ReferenceListsInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -1365,11 +1305,6 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
                                                                      &structInfo->flags,
                                                                      metaInfo->flags,
                                                                      consumer);
-    std::string poffset_for_ref_frame_array = "NULL";
-    if (structInfo->pOffsetForRefFrame != NULL) {
-        poffset_for_ref_frame_array = "pOffsetForRefFrame_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "int32_t " << poffset_for_ref_frame_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pOffsetForRefFrame, structInfo->num_ref_frames_in_pic_order_cnt_cycle) << ";" << std::endl;
-    }
     std::string pscaling_lists_struct = "NULL";
     if (structInfo->pScalingLists != NULL) {
         pscaling_lists_struct = GenerateStruct_StdVideoH264ScalingLists(out,
@@ -1408,7 +1343,6 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
     struct_body << "\t\t\t" << structInfo->frame_crop_top_offset << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->frame_crop_bottom_offset << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->reserved2 << "," << std::endl;
-    struct_body << "\t\t\t" << poffset_for_ref_frame_array << "," << std::endl;
     struct_body << "\t\t\t" << pscaling_lists_struct << "," << std::endl;
     struct_body << "\t\t\t" << psequence_parameter_set_vui_struct << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH264SequenceParameterSet");
@@ -11390,20 +11324,6 @@ std::string GenerateStruct_VkTraceRaysIndirectCommand2KHR(std::ostream &out, con
     struct_body << "\t\t\t" << structInfo->depth << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "traceRaysIndirectCommand2KHR");
     out << "\t\t" << "VkTraceRaysIndirectCommand2KHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->shaderUntypedPointers << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderUntypedPointersFeaturesKHR");
-    out << "\t\t" << "VkPhysicalDeviceShaderUntypedPointersFeaturesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

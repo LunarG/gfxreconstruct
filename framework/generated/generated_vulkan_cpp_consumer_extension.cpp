@@ -2163,16 +2163,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR(out,
-                                                                 casted_struct,
-                                                                 decoded_struct,
-                                                                 consumer);
-
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());

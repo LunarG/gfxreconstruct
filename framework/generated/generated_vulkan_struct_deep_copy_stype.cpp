@@ -1609,10 +1609,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(pNext), 1, out_ptr);
@@ -1933,13 +1929,13 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkMemoryBarrierAccessFlags3KHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkMemoryBarrierAccessFlags3KHR*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
