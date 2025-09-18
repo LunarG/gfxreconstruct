@@ -81,6 +81,19 @@ _remove_extensions = [
     "VK_NV_cluster_acceleration_structure",
     "VK_NV_external_compute_queue",
     "VK_OHOS_surface",
+    "VK_AMDX_dense_geometry_format",
+    "VK_KHR_video_decode_h265",
+    "VK_KHR_video_encode_h265",
+    "VK_KHR_video_maintenance2",
+]
+
+# Exclude *video* extensions from code generation.  This excludes all
+# generation of struct and enums under these video extensions
+# TODO: This should probably behave like _remove_extensions 
+_remove_video_extensions = [
+    "vulkan_video_codec_h265std",
+    "vulkan_video_codec_h265std_decode",
+    "vulkan_video_codec_h265std_encode",
 ]
 
 # Turn lists of names/patterns into matching regular expressions.
@@ -294,9 +307,27 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
         if not self.VIDEO_TREE:
             return
 
+        # Which video types should be omitted
+        omit_video_types = set()
+
+        # for all extensions in _remove_video_extensions, collect types
+        # that should not be omitted.
+        extensions = self.VIDEO_TREE.find('extensions')
+        for element in extensions.iter('extension'):
+            name = element.get('name')
+            if name in _remove_video_extensions:
+                for type_element in element.iter('type'):
+                    omit_video_types.add(type_element.get('name'))
+
         types = self.VIDEO_TREE.find('types')
         for element in types.iter('type'):
             name = element.get('name')
+
+            # if this type (struct) was in a removed video extension,
+            # don't process it
+            if name in omit_video_types:
+                continue
+
             category = element.get('category')
             if name and category and (category == 'struct' or category == 'union'):
                 self.struct_names.add(name)
@@ -305,6 +336,12 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
+
+            # if this enum group was in a removed video extension,
+            # don't process it
+            if group_name in omit_video_types:
+                continue
+
             self.enum_names.add(group_name)
             enumerants = dict()
             for elem in element.findall('enum'):
