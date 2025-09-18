@@ -143,9 +143,9 @@ class FileProcessor
 
     bool ContinueDecoding();
 
-    bool ReadBlockHeader(format::BlockHeader* block_header);
-
-    virtual bool ReadBytes(void* buffer, size_t buffer_size);
+    bool                   ReadBlockHeader(format::BlockHeader* block_header);
+    virtual util::DataSpan ReadSpan(size_t buffer_size);
+    virtual bool           ReadBytes(void* buffer, size_t buffer_size);
 
     virtual bool SkipBytes(size_t skip_size);
 
@@ -225,7 +225,7 @@ class FileProcessor
     {
         if (!file_stack_.empty())
         {
-            return file_stack_.back().active_file->IsValid();
+            return file_stack_.back().active_file->IsReady();
         }
         else
         {
@@ -252,7 +252,6 @@ class FileProcessor
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                parameter_buffer_;
-    std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
     uint64_t                            block_limit_;
@@ -263,6 +262,9 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
+    std::string absolute_path_;
+
+  protected:
     struct ActiveFileContext
     {
         ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
@@ -272,9 +274,8 @@ class FileProcessor
         uint32_t    remaining_commands{ 0 };
         bool        execute_till_eof{ false };
     };
-    std::deque<ActiveFileContext> file_stack_;
 
-    std::string absolute_path_;
+    std::deque<ActiveFileContext> file_stack_;
 
   private:
     ActiveFileContext& GetCurrentFile()
