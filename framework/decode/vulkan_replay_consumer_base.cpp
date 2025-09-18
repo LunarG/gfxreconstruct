@@ -7520,9 +7520,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                     break;
             }
 
-            VulkanPhysicalDeviceInfo* physical_device_info =
-                object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
-
             auto instance_table = GetInstanceTable(physical_device_info->parent);
 
             uint32_t present_mode_count;
@@ -7535,15 +7532,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                                                                     &present_mode_count,
                                                                     supported_present_modes.data());
 
-            bool is_supported = false;
-            for (VkPresentModeKHR supported_present_mode : supported_present_modes)
-            {
-                if (supported_present_mode == present_mode)
-                {
-                    is_supported = true;
-                    break;
-                }
-            }
+            bool is_supported =
+                std::find(supported_present_modes.begin(), supported_present_modes.end(), present_mode) !=
+                supported_present_modes.end();
 
             if (is_supported)
             {
