@@ -1322,7 +1322,8 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
                 if (acceleration_structure_info != nullptr)
                 {
                     auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
-                    if (acceleration_structure_it != shadow_as_map_.end())
+                    if (acceleration_structure_it != shadow_as_map_.end() &&
+                        acceleration_structure_it->second.storage.num_bytes > 0)
                     {
                         // we found an existing replacement-structure -> swap
                         auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
