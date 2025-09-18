@@ -574,6 +574,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgrou
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesPresentId2KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPresentId2KHR& value);
@@ -658,8 +659,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance7P
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredApiPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredApiPropertiesListKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance8FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrierAccessFlags3KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance8FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance9FeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance9PropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyOwnershipTransferPropertiesKHR& value);

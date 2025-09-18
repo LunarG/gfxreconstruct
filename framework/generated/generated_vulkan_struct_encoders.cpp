@@ -149,7 +149,7 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoH264SequenceParameter
     encoder->EncodeUInt32Value(value.frame_crop_top_offset);
     encoder->EncodeUInt32Value(value.frame_crop_bottom_offset);
     encoder->EncodeUInt32Value(value.reserved2);
-    encoder->EncodeInt32Ptr(value.pOffsetForRefFrame);
+    encoder->EncodeInt32Array(value.pOffsetForRefFrame, value.num_ref_frames_in_pic_order_cnt_cycle);
     EncodeStructPtr(encoder, value.pScalingLists);
     EncodeStructPtr(encoder, value.pSequenceParameterSetVui);
 }
@@ -299,9 +299,9 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264ReferenceLi
     encoder->EncodeUInt8Value(value.refList1ModOpCount);
     encoder->EncodeUInt8Value(value.refPicMarkingOpCount);
     encoder->EncodeUInt8Array(value.reserved1, 7);
-    EncodeStructPtr(encoder, value.pRefList0ModOperations);
-    EncodeStructPtr(encoder, value.pRefList1ModOperations);
-    EncodeStructPtr(encoder, value.pRefPicMarkingOperations);
+    EncodeStructArray(encoder, value.pRefList0ModOperations, value.refList0ModOpCount);
+    EncodeStructArray(encoder, value.pRefList1ModOperations, value.refList1ModOpCount);
+    EncodeStructArray(encoder, value.pRefPicMarkingOperations, value.refPicMarkingOpCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoEncodeH264PictureInfo& value)
@@ -567,10 +567,10 @@ void EncodeStruct(ParameterEncoder* encoder, const StdVideoAV1TileInfo& value)
     encoder->EncodeUInt16Value(value.context_update_tile_id);
     encoder->EncodeUInt8Value(value.tile_size_bytes_minus_1);
     encoder->EncodeUInt8Array(value.reserved1, 7);
-    encoder->EncodeUInt16Ptr(value.pMiColStarts);
-    encoder->EncodeUInt16Ptr(value.pMiRowStarts);
-    encoder->EncodeUInt16Ptr(value.pWidthInSbsMinus1);
-    encoder->EncodeUInt16Ptr(value.pHeightInSbsMinus1);
+    encoder->EncodeUInt16Array(value.pMiColStarts, value.TileCols);
+    encoder->EncodeUInt16Array(value.pMiRowStarts, value.TileRows);
+    encoder->EncodeUInt16Array(value.pWidthInSbsMinus1, value.TileCols);
+    encoder->EncodeUInt16Array(value.pHeightInSbsMinus1, value.TileRows);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const StdVideoAV1CDEF& value)
@@ -5459,6 +5459,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommand2KH
     encoder->EncodeUInt32Value(value.depth);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderUntypedPointers);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -6177,19 +6184,19 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredApiVul
     EncodeStruct(encoder, value.properties);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance8FeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.maintenance8);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrierAccessFlags3KHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.srcAccessMask3);
     encoder->EncodeFlags64Value(value.dstAccessMask3);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance8FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maintenance8);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance9FeaturesKHR& value)

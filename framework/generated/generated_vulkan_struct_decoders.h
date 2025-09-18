@@ -5186,6 +5186,15 @@ struct Decoded_VkTraceRaysIndirectCommand2KHR
     VkTraceRaysIndirectCommand2KHR* decoded_value{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderUntypedPointersFeaturesKHR;
+
+    VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR;
@@ -5991,20 +6000,20 @@ struct Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR
     Decoded_VkPhysicalDeviceProperties2* properties{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceMaintenance8FeaturesKHR
-{
-    using struct_type = VkPhysicalDeviceMaintenance8FeaturesKHR;
-
-    VkPhysicalDeviceMaintenance8FeaturesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkMemoryBarrierAccessFlags3KHR
 {
     using struct_type = VkMemoryBarrierAccessFlags3KHR;
 
     VkMemoryBarrierAccessFlags3KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance8FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance8FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance8FeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
