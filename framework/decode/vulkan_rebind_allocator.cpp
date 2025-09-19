@@ -2900,7 +2900,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                         VkMemoryRequirements requirements;
                         functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
 
-                        requirements.size = mem_alloc_info->allocation_size;
+                        requirements.size = bind.pBinds[m_i].size;
 
                         auto usage = GetBufferMemoryUsage(
                             res_alloc_info->usage,
@@ -2959,7 +2959,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
 
-                        requirements.size = mem_alloc_info->allocation_size;
+                        requirements.size = bind.pBinds[m_i].size;
 
                         auto usage = GetImageMemoryUsage(
                             res_alloc_info->usage,
@@ -3018,7 +3018,9 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
 
-                        requirements.size = mem_alloc_info->allocation_size;
+                        // TODO: Set the exact size in requirements.size for allocating sparse image memory.
+                        requirements.size = std::min(requirements.size,
+                                                     mem_alloc_info->allocation_size - bind.pBinds[m_i].memoryOffset);
 
                         auto usage = GetImageMemoryUsage(
                             res_alloc_info->usage,
