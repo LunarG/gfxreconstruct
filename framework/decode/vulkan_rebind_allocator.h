@@ -429,13 +429,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
         VkMemoryRequirements    mem_req{};
         VmaAllocationCreateInfo alc_create_info{};
+        VkDeviceSize            offset_from_original_device_memory{ 0 };
 
         VmaAllocation     allocation{ VK_NULL_HANDLE };
         VmaAllocationInfo allocation_info{};
 
         bool             is_host_visible{ false };
         void*            mapped_pointer{ nullptr };
-        VkDeviceSize     original_offset{ 0 };
         VkDeviceSize     rebind_offset{ 0 };
         VkDeviceSize     original_size{ 0 };
         VkDeviceSize     rebind_size{ 0 };
@@ -445,7 +445,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                            const VmaAllocationCreateInfo& create_info) const
         {
             // memory offset and size is in the range. mem_req and create_info are the same.
-            if (((offset >= original_offset) && ((offset + req.size) <= (original_offset + mem_req.size))) &&
+            if (((offset >= offset_from_original_device_memory) &&
+                 ((offset + req.size) <= (offset_from_original_device_memory + mem_req.size))) &&
                 ((req.alignment == mem_req.alignment) && (req.memoryTypeBits == mem_req.memoryTypeBits) &&
                  (create_info.flags == alc_create_info.flags) && (create_info.usage == alc_create_info.usage) &&
                  (create_info.requiredFlags == alc_create_info.requiredFlags) &&
@@ -601,6 +602,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                     ResourceAllocInfo&                      resource_alloc_info,
                                     MemoryAllocInfo&                        memory_alloc_info,
                                     VmaMemoryInfo**                         vma_mem_info);
+
+    // If it's bind by vma function, like vmaBindBufferMemory2, vmaBindBufferImage2, get the offset from it.
+    VkDeviceSize GetRebindOffsetFromVMA(VkDeviceSize original_offset, const VmaMemoryInfo& vma_mem_info);
+
+    // If it bind by vk function, like vkBindVideoSessionMemory, vkQueueBindSparse, get the offset from it.
+    VkDeviceSize GetRebindOffsetFromOriginalDeviceMemory(VkDeviceSize         original_offset,
+                                                         const VmaMemoryInfo& vma_mem_info);
 
     VkResult VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
                                VkDeviceSize                original_offset,

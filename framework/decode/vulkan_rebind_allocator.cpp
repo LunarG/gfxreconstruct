@@ -666,11 +666,11 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
         return VK_SUCCESS;
     }
 
-    VmaMemoryInfo mem_info   = {};
-    mem_info.memory_info     = &memory_alloc_info;
-    mem_info.mem_req         = requirements;
-    mem_info.alc_create_info = create_info;
-    mem_info.original_offset = memory_offset;
+    VmaMemoryInfo mem_info                      = {};
+    mem_info.memory_info                        = &memory_alloc_info;
+    mem_info.mem_req                            = requirements;
+    mem_info.alc_create_info                    = create_info;
+    mem_info.offset_from_original_device_memory = memory_offset;
 
     auto result =
         vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
@@ -745,11 +745,11 @@ void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&     resource_allo
         // memory_alloc_info->original_content out of bounds
         VkDeviceSize copy_size =
             std::min(vma_mem_info.allocation_info.size,
-                     memory_alloc_info.allocation_size - vma_mem_info.original_offset);
+                     memory_alloc_info.allocation_size - vma_mem_info.offset_from_original_device_memory);
 
         WriteBoundResource(&resource_alloc_info,
                            &vma_mem_info,
-                           vma_mem_info.original_offset,
+                           vma_mem_info.offset_from_original_device_memory,
                            0,
                            copy_size,
                            memory_alloc_info.original_content.get());
@@ -787,7 +787,9 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
         {
             GFXRECON_ASSERT(vma_mem_info);
 
-            result = vmaBindBufferMemory(allocator_, vma_mem_info->allocation, buffer);
+            auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
+
+            result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, nullptr);
 
             if (result >= 0)
             {
@@ -844,8 +846,10 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                     GFXRECON_ASSERT(vma_mem_info);
 
                     auto bind_info = &bind_infos[i];
+                    auto offset    = GetRebindOffsetFromVMA(bind_info->memoryOffset, *vma_mem_info);
 
-                    result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, 0, buffer, bind_info->pNext);
+                    result =
+                        vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, offset, buffer, bind_info->pNext);
 
                     if (result >= 0)
                     {
@@ -936,11 +940,11 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
         return VK_SUCCESS;
     }
 
-    VmaMemoryInfo mem_info   = {};
-    mem_info.memory_info     = &memory_alloc_info;
-    mem_info.mem_req         = requirements;
-    mem_info.alc_create_info = create_info;
-    mem_info.original_offset = memory_offset;
+    VmaMemoryInfo mem_info                      = {};
+    mem_info.memory_info                        = &memory_alloc_info;
+    mem_info.mem_req                            = requirements;
+    mem_info.alc_create_info                    = create_info;
+    mem_info.offset_from_original_device_memory = memory_offset;
 
     auto result =
         vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
@@ -951,6 +955,18 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
     }
     return result;
+}
+
+VkDeviceSize VulkanRebindAllocator::GetRebindOffsetFromVMA(VkDeviceSize         original_offset,
+                                                           const VmaMemoryInfo& vma_mem_info)
+{
+    return original_offset - vma_mem_info.offset_from_original_device_memory;
+}
+
+VkDeviceSize VulkanRebindAllocator::GetRebindOffsetFromOriginalDeviceMemory(VkDeviceSize         original_offset,
+                                                                            const VmaMemoryInfo& vma_mem_info)
+{
+    return GetRebindOffsetFromVMA(original_offset, vma_mem_info) + vma_mem_info.allocation_info.offset;
 }
 
 VkResult VulkanRebindAllocator::BindImageMemory(VkImage                                 image,
@@ -995,7 +1011,9 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
             {
                 GFXRECON_ASSERT(vma_mem_info);
 
-                result = vmaBindImageMemory(allocator_, vma_mem_info->allocation, image);
+                auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
+
+                result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, nullptr);
 
                 if (result >= 0)
                 {
@@ -1073,7 +1091,10 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
                         auto bind_info = &bind_infos[i];
 
-                        result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, 0, image, bind_info->pNext);
+                        auto offset = GetRebindOffsetFromVMA(memory_offset, *vma_mem_info);
+
+                        result =
+                            vmaBindImageMemory2(allocator_, vma_mem_info->allocation, offset, image, bind_info->pNext);
 
                         if (result >= 0)
                         {
@@ -1149,7 +1170,8 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                 VkBindVideoSessionMemoryInfoKHR modified_bind_info = bind_info;
                 modified_bind_info.memory                          = vma_mem_info->allocation_info.deviceMemory;
-                modified_bind_info.memoryOffset                    = vma_mem_info->allocation_info.offset;
+                modified_bind_info.memoryOffset =
+                    GetRebindOffsetFromOriginalDeviceMemory(bind_info.memoryOffset, *vma_mem_info);
 
                 switch (vma_mem_info->allocation->GetType())
                 {
@@ -1868,7 +1890,7 @@ bool VulkanRebindAllocator::TranslateMemoryRange(const VmaMemoryInfo*     bound_
         return false;
     }
 
-    VkDeviceSize resource_start = bound_memory_info->original_offset;
+    VkDeviceSize resource_start = bound_memory_info->offset_from_original_device_memory;
 
     // This should correspond to the offset to the end of the resource at capture time.
     //
@@ -2373,11 +2395,11 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
         return VK_SUCCESS;
     }
 
-    VmaMemoryInfo mem_info   = {};
-    mem_info.memory_info     = &memory_alloc_info;
-    mem_info.mem_req         = mem_req;
-    mem_info.alc_create_info = create_info;
-    mem_info.original_offset = original_offset;
+    VmaMemoryInfo mem_info                      = {};
+    mem_info.memory_info                        = &memory_alloc_info;
+    mem_info.mem_req                            = mem_req;
+    mem_info.alc_create_info                    = create_info;
+    mem_info.offset_from_original_device_memory = original_offset;
 
     auto result = allocator_->AllocateMemory(mem_req,
                                              false,
@@ -2633,13 +2655,6 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
     }
 
     bool is_last = false;
-    VkDeviceMemory memory  = VK_NULL_HANDLE;
-    VkDeviceSize   offset  = 0;
-    if (vma_mem_info)
-    {
-        memory = vma_mem_info->allocation_info.deviceMemory;
-        offset = vma_mem_info->allocation_info.offset;
-    }
     VkBindSparseInfo                  modified_bind_info = original_bind_info;
     VkSparseBufferMemoryBindInfo      modified_buf_bind_info{};
     VkSparseImageOpaqueMemoryBindInfo modified_img_op_bind_info{};
@@ -2662,8 +2677,14 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = memory;
-            modified_mem_bind.memoryOffset = offset;
+            modified_mem_bind.memory       = VK_NULL_HANDLE;
+            modified_mem_bind.memoryOffset = 0;
+            if (vma_mem_info)
+            {
+                modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                modified_mem_bind.memoryOffset =
+                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+            }
 
             modified_buf_bind_info           = bind;
             modified_buf_bind_info.bindCount = 1;
@@ -2689,8 +2710,14 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = memory;
-            modified_mem_bind.memoryOffset = offset;
+            modified_mem_bind.memory       = VK_NULL_HANDLE;
+            modified_mem_bind.memoryOffset = 0;
+            if (vma_mem_info)
+            {
+                modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                modified_mem_bind.memoryOffset =
+                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+            }
 
             modified_img_op_bind_info           = bind;
             modified_img_op_bind_info.bindCount = 1;
@@ -2715,8 +2742,14 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_img_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_img_mem_bind.memory       = memory;
-            modified_img_mem_bind.memoryOffset = offset;
+            modified_img_mem_bind.memory       = VK_NULL_HANDLE;
+            modified_img_mem_bind.memoryOffset = 0;
+            if (vma_mem_info)
+            {
+                modified_img_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                modified_img_mem_bind.memoryOffset =
+                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+            }
 
             modified_img_bind_info           = bind;
             modified_img_bind_info.bindCount = 1;
