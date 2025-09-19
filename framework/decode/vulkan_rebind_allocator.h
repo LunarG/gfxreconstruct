@@ -644,7 +644,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                           uint32_t                  object_bind_index,
                                           uint32_t                  memory_bind_index,
                                           std::vector<VkSemaphore>& semaphores,
-                                          const VmaMemoryInfo*      vma_mem_info);
+                                          ResourceData              allocator_data,
+                                          MemoryData                allocator_mem_data,
+                                          VkMemoryPropertyFlags     mem_properties);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;

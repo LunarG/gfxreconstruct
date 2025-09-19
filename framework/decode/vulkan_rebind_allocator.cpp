@@ -2642,7 +2642,9 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
                                                              uint32_t                  object_bind_index,
                                                              uint32_t                  memory_bind_index,
                                                              std::vector<VkSemaphore>& semaphores,
-                                                             const VmaMemoryInfo*      vma_mem_info)
+                                                             ResourceData              allocator_data,
+                                                             MemoryData                allocator_mem_data,
+                                                             VkMemoryPropertyFlags     mem_properties)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -2653,8 +2655,12 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
                            "QueueBindSparse. Failed to set pSignalSemaphores");
         return result;
     }
+    auto           res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+    auto           mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_mem_data);
+    VmaMemoryInfo* vma_mem_info   = nullptr;
+    bool           is_last        = false;
+    uint64_t       object_handle  = 0;
 
-    bool is_last = false;
     VkBindSparseInfo                  modified_bind_info = original_bind_info;
     VkSparseBufferMemoryBindInfo      modified_buf_bind_info{};
     VkSparseImageOpaqueMemoryBindInfo modified_img_op_bind_info{};
@@ -2666,24 +2672,36 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
     {
         case QueueBindSparseType::kBindBuffer:
         {
-            const auto& bind = original_bind_info.pBufferBinds[object_bind_index];
+            const auto& bind         = original_bind_info.pBufferBinds[object_bind_index];
+            const auto& mem_bind     = bind.pBinds[memory_bind_index];
+            object_handle            = VK_HANDLE_TO_UINT64(bind.buffer);
+            modified_mem_bind        = mem_bind;
+            modified_mem_bind.memory = VK_NULL_HANDLE;
 
-            if (is_last_bind_info &&
-                (original_bind_info.imageOpaqueBindCount == 0 && original_bind_info.imageBindCount == 0) &&
-                (object_bind_index == (original_bind_info.bufferBindCount - 1)) &&
-                (memory_bind_index == (bind.bindCount - 1)))
+            // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
+            if (mem_alloc_info)
             {
-                is_last = true;
-            }
+                VkMemoryRequirements requirements;
+                functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
+                requirements.size = mem_bind.size;
 
-            modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = VK_NULL_HANDLE;
-            modified_mem_bind.memoryOffset = 0;
-            if (vma_mem_info)
-            {
+                auto usage = GetBufferMemoryUsage(
+                    res_alloc_info->usage,
+                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                    requirements);
+
+                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                if (result < 0)
+                {
+                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
+                                         util::ToString<VkResult>(result).c_str());
+                    return result;
+                }
+
+                GFXRECON_ASSERT(vma_mem_info);
                 modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
                 modified_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+                    GetRebindOffsetFromOriginalDeviceMemory(mem_bind.memoryOffset, *vma_mem_info);
             }
 
             modified_buf_bind_info           = bind;
@@ -2696,27 +2714,48 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             modified_bind_info.pImageOpaqueBinds    = nullptr;
             modified_bind_info.imageBindCount       = 0;
             modified_bind_info.pImageBinds          = nullptr;
-            break;
-        }
-        case QueueBindSparseType::kBindImageOpaqueMemory:
-        {
-            const auto& bind = original_bind_info.pImageOpaqueBinds[object_bind_index];
 
-            if (is_last_bind_info && (original_bind_info.imageBindCount == 0) &&
-                (object_bind_index == (original_bind_info.imageOpaqueBindCount - 1)) &&
+            if (is_last_bind_info &&
+                (original_bind_info.imageOpaqueBindCount == 0 && original_bind_info.imageBindCount == 0) &&
+                (object_bind_index == (original_bind_info.bufferBindCount - 1)) &&
                 (memory_bind_index == (bind.bindCount - 1)))
             {
                 is_last = true;
             }
+            break;
+        }
+        case QueueBindSparseType::kBindImageOpaqueMemory:
+        {
+            const auto& bind         = original_bind_info.pImageOpaqueBinds[object_bind_index];
+            const auto& mem_bind     = bind.pBinds[memory_bind_index];
+            object_handle            = VK_HANDLE_TO_UINT64(bind.image);
+            modified_mem_bind        = mem_bind;
+            modified_mem_bind.memory = VK_NULL_HANDLE;
 
-            modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = VK_NULL_HANDLE;
-            modified_mem_bind.memoryOffset = 0;
-            if (vma_mem_info)
+            if (mem_alloc_info)
             {
+                VkMemoryRequirements requirements;
+                functions_.get_image_memory_requirements(device_, bind.image, &requirements);
+                requirements.size = mem_bind.size;
+
+                auto usage = GetImageMemoryUsage(
+                    res_alloc_info->usage,
+                    res_alloc_info->tiling,
+                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                    requirements);
+
+                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                if (result < 0)
+                {
+                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
+                                         util::ToString<VkResult>(result).c_str());
+                    return result;
+                }
+
+                GFXRECON_ASSERT(vma_mem_info);
                 modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
                 modified_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+                    GetRebindOffsetFromOriginalDeviceMemory(modified_mem_bind.memoryOffset, *vma_mem_info);
             }
 
             modified_img_op_bind_info           = bind;
@@ -2729,26 +2768,49 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             modified_bind_info.pImageOpaqueBinds    = &modified_img_op_bind_info;
             modified_bind_info.imageBindCount       = 0;
             modified_bind_info.pImageBinds          = nullptr;
-            break;
-        }
-        case QueueBindSparseType::kBindImageMemory:
-        {
-            const auto& bind = original_bind_info.pImageBinds[object_bind_index];
 
-            if (is_last_bind_info && (object_bind_index == (original_bind_info.imageBindCount - 1)) &&
+            if (is_last_bind_info && (original_bind_info.imageBindCount == 0) &&
+                (object_bind_index == (original_bind_info.imageOpaqueBindCount - 1)) &&
                 (memory_bind_index == (bind.bindCount - 1)))
             {
                 is_last = true;
             }
+            break;
+        }
+        case QueueBindSparseType::kBindImageMemory:
+        {
+            const auto& bind             = original_bind_info.pImageBinds[object_bind_index];
+            const auto& mem_bind         = bind.pBinds[memory_bind_index];
+            object_handle                = VK_HANDLE_TO_UINT64(bind.image);
+            modified_img_mem_bind        = mem_bind;
+            modified_img_mem_bind.memory = VK_NULL_HANDLE;
 
-            modified_img_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_img_mem_bind.memory       = VK_NULL_HANDLE;
-            modified_img_mem_bind.memoryOffset = 0;
-            if (vma_mem_info)
+            if (mem_alloc_info)
             {
+                VkMemoryRequirements requirements;
+                functions_.get_image_memory_requirements(device_, bind.image, &requirements);
+
+                // TODO: Set the exact size in requirements.size for allocating sparse image memory.
+                requirements.size =
+                    std::min(requirements.size, mem_alloc_info->allocation_size - mem_bind.memoryOffset);
+
+                auto usage = GetImageMemoryUsage(
+                    res_alloc_info->usage,
+                    res_alloc_info->tiling,
+                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                    requirements);
+
+                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                if (result < 0)
+                {
+                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
+                                         util::ToString<VkResult>(result).c_str());
+                }
+
+                GFXRECON_ASSERT(vma_mem_info);
                 modified_img_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
                 modified_img_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(bind.pBinds[memory_bind_index].memoryOffset, *vma_mem_info);
+                    GetRebindOffsetFromOriginalDeviceMemory(modified_img_mem_bind.memoryOffset, *vma_mem_info);
             }
 
             modified_img_bind_info           = bind;
@@ -2761,6 +2823,12 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             modified_bind_info.pImageOpaqueBinds    = nullptr;
             modified_bind_info.imageBindCount       = 1;
             modified_bind_info.pImageBinds          = &modified_img_bind_info;
+
+            if (is_last_bind_info && (object_bind_index == (original_bind_info.imageBindCount - 1)) &&
+                (memory_bind_index == (bind.bindCount - 1)))
+            {
+                is_last = true;
+            }
             break;
         }
         default:
@@ -2804,7 +2872,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
         modified_bind_info.pSignalSemaphores    = &signal_semaphore;
     }
 
-    if (vma_mem_info == nullptr)
+    if (vma_mem_info == nullptr || vma_mem_info->allocation == VK_NULL_HANDLE)
     {
         result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
     }
@@ -2829,6 +2897,12 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             default:
                 VMA_ASSERT(0);
         }
+    }
+
+    if (result == VK_SUCCESS && mem_alloc_info != nullptr)
+    {
+        UpdateAllocInfo(
+            *res_alloc_info, object_handle, MemoryInfoType::kSparse, *mem_alloc_info, *vma_mem_info, mem_properties);
     }
     return result;
 }
@@ -2886,58 +2960,19 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
             for (uint32_t buf_i = 0; buf_i < bind_info.bufferBindCount; ++buf_i)
             {
-                const auto& bind           = bind_info.pBufferBinds[buf_i];
-                auto        res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buf_datas[alc_buf_i]);
-
-                for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
+                for (uint32_t m_i = 0; m_i < bind_info.pBufferBinds[buf_i].bindCount; ++m_i)
                 {
-                    auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
-                    VmaMemoryInfo* vma_mem_info = nullptr;
-
-                    // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
-                    if (mem_alloc_info)
-                    {
-                        VkMemoryRequirements requirements;
-                        functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
-
-                        requirements.size = bind.pBinds[m_i].size;
-
-                        auto usage = GetBufferMemoryUsage(
-                            res_alloc_info->usage,
-                            capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                            requirements);
-
-                        result = VmaAllocateMemory(
-                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
-                        if (result < 0)
-                        {
-                            GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
-                                                 util::ToString<VkResult>(result).c_str());
-                        }
-                    }
-
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
-                    {
-                        result = ProcessSingleQueueBindSparse(queue,
-                                                              fence,
-                                                              QueueBindSparseType::kBindBuffer,
-                                                              bind_info,
-                                                              is_last_bind_info,
-                                                              buf_i,
-                                                              m_i,
-                                                              semaphores,
-                                                              vma_mem_info);
-
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
-                        {
-                            UpdateAllocInfo(*res_alloc_info,
-                                            VK_HANDLE_TO_UINT64(bind.buffer),
-                                            MemoryInfoType::kSparse,
-                                            *mem_alloc_info,
-                                            *vma_mem_info,
-                                            bind_buf_mem_properties[alc_buf_mem_i]);
-                        }
-                    }
+                    result = ProcessSingleQueueBindSparse(queue,
+                                                          fence,
+                                                          QueueBindSparseType::kBindBuffer,
+                                                          bind_info,
+                                                          is_last_bind_info,
+                                                          buf_i,
+                                                          m_i,
+                                                          semaphores,
+                                                          allocator_buf_datas[alc_buf_i],
+                                                          allocator_buf_mem_datas[alc_buf_mem_i],
+                                                          bind_buf_mem_properties[alc_buf_mem_i]);
                     ++alc_buf_mem_i;
                 }
                 ++alc_buf_i;
@@ -2945,59 +2980,19 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
             for (uint32_t img_op_i = 0; img_op_i < bind_info.imageOpaqueBindCount; ++img_op_i)
             {
-                const auto& bind           = bind_info.pImageOpaqueBinds[img_op_i];
-                auto        res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_op_datas[alc_img_op_i]);
-
-                for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
+                for (uint32_t m_i = 0; m_i < bind_info.pImageOpaqueBinds[img_op_i].bindCount; ++m_i)
                 {
-                    auto mem_alloc_info =
-                        reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
-                    VmaMemoryInfo* vma_mem_info = nullptr;
-
-                    if (mem_alloc_info)
-                    {
-                        VkMemoryRequirements requirements;
-                        functions_.get_image_memory_requirements(device_, bind.image, &requirements);
-
-                        requirements.size = bind.pBinds[m_i].size;
-
-                        auto usage = GetImageMemoryUsage(
-                            res_alloc_info->usage,
-                            res_alloc_info->tiling,
-                            capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                            requirements);
-
-                        result = VmaAllocateMemory(
-                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
-                        if (result < 0)
-                        {
-                            GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
-                                                 util::ToString<VkResult>(result).c_str());
-                        }
-                    }
-
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
-                    {
-                        result = ProcessSingleQueueBindSparse(queue,
-                                                              fence,
-                                                              QueueBindSparseType::kBindImageOpaqueMemory,
-                                                              bind_info,
-                                                              is_last_bind_info,
-                                                              img_op_i,
-                                                              m_i,
-                                                              semaphores,
-                                                              vma_mem_info);
-
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
-                        {
-                            UpdateAllocInfo(*res_alloc_info,
-                                            VK_HANDLE_TO_UINT64(bind.image),
-                                            MemoryInfoType::kSparse,
-                                            *mem_alloc_info,
-                                            *vma_mem_info,
-                                            bind_img_op_mem_properties[alc_img_op_mem_i]);
-                        }
-                    }
+                    result = ProcessSingleQueueBindSparse(queue,
+                                                          fence,
+                                                          QueueBindSparseType::kBindImageOpaqueMemory,
+                                                          bind_info,
+                                                          is_last_bind_info,
+                                                          img_op_i,
+                                                          m_i,
+                                                          semaphores,
+                                                          allocator_img_op_datas[alc_img_op_i],
+                                                          allocator_img_op_mem_datas[alc_img_op_mem_i],
+                                                          bind_img_op_mem_properties[alc_img_op_mem_i]);
                     ++alc_img_op_mem_i;
                 }
                 ++alc_img_op_i;
@@ -3005,60 +3000,19 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
             for (uint32_t img_i = 0; img_i < bind_info.imageBindCount; ++img_i)
             {
-                const auto& bind           = bind_info.pImageBinds[img_i];
-                auto        res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_datas[alc_img_i]);
-
-                for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
+                for (uint32_t m_i = 0; m_i < bind_info.pImageBinds[img_i].bindCount; ++m_i)
                 {
-                    auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
-                    VmaMemoryInfo* vma_mem_info = nullptr;
-
-                    if (mem_alloc_info)
-                    {
-                        VkMemoryRequirements requirements;
-                        functions_.get_image_memory_requirements(device_, bind.image, &requirements);
-
-                        // TODO: Set the exact size in requirements.size for allocating sparse image memory.
-                        requirements.size = std::min(requirements.size,
-                                                     mem_alloc_info->allocation_size - bind.pBinds[m_i].memoryOffset);
-
-                        auto usage = GetImageMemoryUsage(
-                            res_alloc_info->usage,
-                            res_alloc_info->tiling,
-                            capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                            requirements);
-
-                        result = VmaAllocateMemory(
-                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
-                        if (result < 0)
-                        {
-                            GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
-                                                 util::ToString<VkResult>(result).c_str());
-                        }
-                    }
-
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
-                    {
-                        result = ProcessSingleQueueBindSparse(queue,
-                                                              fence,
-                                                              QueueBindSparseType::kBindImageMemory,
-                                                              bind_info,
-                                                              is_last_bind_info,
-                                                              img_i,
-                                                              m_i,
-                                                              semaphores,
-                                                              vma_mem_info);
-
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
-                        {
-                            UpdateAllocInfo(*res_alloc_info,
-                                            VK_HANDLE_TO_UINT64(bind.image),
-                                            MemoryInfoType::kSparse,
-                                            *mem_alloc_info,
-                                            *vma_mem_info,
-                                            bind_img_mem_properties[alc_img_mem_i]);
-                        }
-                    }
+                    result = ProcessSingleQueueBindSparse(queue,
+                                                          fence,
+                                                          QueueBindSparseType::kBindImageMemory,
+                                                          bind_info,
+                                                          is_last_bind_info,
+                                                          img_i,
+                                                          m_i,
+                                                          semaphores,
+                                                          allocator_img_datas[alc_img_i],
+                                                          allocator_img_mem_datas[alc_img_mem_i],
+                                                          bind_img_mem_properties[alc_img_mem_i]);
                     ++alc_img_mem_i;
                 }
                 ++alc_img_i;
