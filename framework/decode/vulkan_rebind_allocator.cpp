@@ -293,19 +293,10 @@ void VulkanRebindAllocator::DestroyBuffer(VkBuffer                     buffer,
         // It could bind sparse memories. It could have plural memories.
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info.memory_info;
+            auto mem_alc_info = mem_info->memory_info;
             if (mem_alc_info != nullptr)
             {
                 mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(buffer));
-            }
-
-            if (mem_info.allocation != VK_NULL_HANDLE)
-            {
-                if (mem_info.mapped_pointer != nullptr)
-                {
-                    vmaUnmapMemory(allocator_, mem_info.allocation);
-                }
-                vmaFreeMemory(allocator_, mem_info.allocation);
             }
         }
         delete resource_alloc_info;
@@ -363,19 +354,10 @@ void VulkanRebindAllocator::DestroyImage(VkImage                      image,
         // It could bind sparse memories. It could have plural memories.
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info.memory_info;
+            auto mem_alc_info = mem_info->memory_info;
             if (mem_alc_info != nullptr)
             {
                 mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(image));
-            }
-
-            if (mem_info.allocation != VK_NULL_HANDLE)
-            {
-                if (mem_info.mapped_pointer != nullptr)
-                {
-                    vmaUnmapMemory(allocator_, mem_info.allocation);
-                }
-                vmaFreeMemory(allocator_, mem_info.allocation);
             }
         }
         delete resource_alloc_info;
@@ -429,19 +411,10 @@ void VulkanRebindAllocator::DestroyVideoSession(VkVideoSessionKHR            ses
 
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info.memory_info;
+            auto mem_alc_info = mem_info->memory_info;
             if (mem_alc_info != nullptr)
             {
                 mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(session));
-            }
-
-            if (mem_info.allocation != VK_NULL_HANDLE)
-            {
-                if (mem_info.mapped_pointer != nullptr)
-                {
-                    vmaUnmapMemory(allocator_, mem_info.allocation);
-                }
-                vmaFreeMemory(allocator_, mem_info.allocation);
             }
         }
         delete resource_alloc_info;
@@ -630,16 +603,35 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
             functions_.free_memory(device_, memory_alloc_info->ahb_memory, allocator_->GetAllocationCallbacks());
         }
 
-        for (const auto& entry : memory_alloc_info->original_objects)
+        for (auto entry_obj = memory_alloc_info->original_objects.begin();
+             entry_obj != memory_alloc_info->original_objects.end();)
         {
-            for (auto& entry_bound : entry.second->bound_memory_infos)
+            auto resource_alloc_info = entry_obj->second;
+            for (auto entry_mem = resource_alloc_info->bound_memory_infos.begin();
+                 entry_mem != resource_alloc_info->bound_memory_infos.end();)
             {
-                if (entry_bound.memory_info == memory_alloc_info)
+                if ((*entry_mem)->memory_info->capture_id == memory_alloc_info->capture_id)
                 {
-                    entry_bound.memory_info = nullptr;
+                    entry_mem = resource_alloc_info->bound_memory_infos.erase(entry_mem);
+                }
+                else
+                {
+                    ++entry_mem;
                 }
             }
+            ++entry_obj;
         }
+        memory_alloc_info->original_objects.clear();
+
+        for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
+        {
+            if (mem_info->mapped_pointer != nullptr)
+            {
+                vmaUnmapMemory(allocator_, mem_info->allocation);
+            }
+            vmaFreeMemory(allocator_, mem_info->allocation);
+        }
+        memory_alloc_info->vma_mem_infos.clear();
 
         delete memory_alloc_info;
     }
@@ -647,17 +639,17 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
 
 VkResult
 VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                                buffer,
+                                               VkDeviceSize                            memory_offset,
                                                const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-                                               const ResourceAllocInfo&                resource_alloc_info,
-                                               const MemoryAllocInfo&                  memory_alloc_info,
-                                               VmaAllocation&                          allocation,
-                                               VmaAllocationInfo&                      allocation_info)
+                                               ResourceAllocInfo&                      resource_alloc_info,
+                                               MemoryAllocInfo&                        memory_alloc_info,
+                                               VmaMemoryInfo**                         vma_mem_info)
 {
     VkMemoryRequirements requirements;
     functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
     requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
 
-    VmaAllocationCreateInfo create_info;
+    VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
     create_info.usage =
         GetBufferMemoryUsage(resource_alloc_info.usage,
@@ -669,21 +661,37 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    return vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &allocation, &allocation_info);
+    if (FindVmaMemoryInfo(memory_alloc_info, memory_offset, requirements, create_info, vma_mem_info))
+    {
+        return VK_SUCCESS;
+    }
+
+    VmaMemoryInfo mem_info   = {};
+    mem_info.memory_info     = &memory_alloc_info;
+    mem_info.mem_req         = requirements;
+    mem_info.alc_create_info = create_info;
+    mem_info.original_offset = memory_offset;
+
+    auto result =
+        vmaAllocateMemoryForBuffer(allocator_, buffer, &create_info, &mem_info.allocation, &mem_info.allocation_info);
+
+    if (result >= 0)
+    {
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+    }
+    return result;
 }
 
-void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&       resource_alloc_info,
-                                            uint64_t                 object_handle,
-                                            MemoryInfoType           memory_info_type,
-                                            VkDeviceSize             memory_offset,
-                                            const VmaAllocation&     allocation,
-                                            const VmaAllocationInfo& allocation_info,
-                                            MemoryAllocInfo&         memory_alloc_info,
-                                            VkMemoryPropertyFlags&   bind_memory_property)
+void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&     resource_alloc_info,
+                                            uint64_t               object_handle,
+                                            MemoryInfoType         memory_info_type,
+                                            MemoryAllocInfo&       memory_alloc_info,
+                                            VmaMemoryInfo&         vma_mem_info,
+                                            VkMemoryPropertyFlags& bind_memory_property)
 {
     resource_alloc_info.memory_info_type = memory_info_type;
 
-    BoundMemoryInfo* mem_info = nullptr;
     switch (memory_info_type)
     {
         case MemoryInfoType::kBasic:
@@ -692,33 +700,38 @@ void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&       resource_al
             {
                 resource_alloc_info.bound_memory_infos.resize(1);
             }
-            mem_info = &resource_alloc_info.bound_memory_infos[0];
+            resource_alloc_info.bound_memory_infos[0] = &vma_mem_info;
             break;
         }
         case MemoryInfoType::kSparse:
         case MemoryInfoType::kVideoSession:
         {
-            resource_alloc_info.bound_memory_infos.resize(resource_alloc_info.bound_memory_infos.size() + 1);
-            mem_info = &resource_alloc_info.bound_memory_infos.back();
+            bool is_found = false;
+            for (const auto& mem_info : resource_alloc_info.bound_memory_infos)
+            {
+                if (mem_info == &vma_mem_info)
+                {
+                    is_found = true;
+                    break;
+                }
+            }
+
+            if (!is_found)
+            {
+                resource_alloc_info.bound_memory_infos.push_back(&vma_mem_info);
+            }
             break;
         }
         default:
             break;
     }
 
-    mem_info->allocation      = allocation;
-    mem_info->mapped_pointer  = nullptr;
-    mem_info->memory_info     = &memory_alloc_info;
-    mem_info->original_offset = memory_offset;
-    mem_info->rebind_offset   = allocation_info.offset;
-    mem_info->rebind_size     = allocation_info.size;
-
     VkMemoryPropertyFlags property_flags =
-        replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+        replay_memory_properties_.memoryTypes[vma_mem_info.allocation_info.memoryType].propertyFlags;
 
     if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
     {
-        mem_info->is_host_visible = true;
+        vma_mem_info.is_host_visible = true;
     }
 
     memory_alloc_info.original_objects.insert(std::make_pair(object_handle, &resource_alloc_info));
@@ -730,16 +743,22 @@ void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&       resource_al
 
         // If the buffer is bigger at replay time than at capture time, you don't want to read
         // memory_alloc_info->original_content out of bounds
-        VkDeviceSize copy_size = std::min(allocation_info.size, memory_alloc_info.allocation_size - memory_offset);
+        VkDeviceSize copy_size =
+            std::min(vma_mem_info.allocation_info.size,
+                     memory_alloc_info.allocation_size - vma_mem_info.original_offset);
 
-        WriteBoundResource(
-            &resource_alloc_info, mem_info, memory_offset, 0, copy_size, memory_alloc_info.original_content.get());
+        WriteBoundResource(&resource_alloc_info,
+                           &vma_mem_info,
+                           vma_mem_info.original_offset,
+                           0,
+                           copy_size,
+                           memory_alloc_info.original_content.get());
     }
 
     bind_memory_property = property_flags;
 
     SetBindingDebugUtilsNameAndTag(
-        &memory_alloc_info, &resource_alloc_info, allocation_info.deviceMemory, object_handle);
+        &memory_alloc_info, &resource_alloc_info, vma_mem_info.allocation_info.deviceMemory, object_handle);
 }
 
 VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                                buffer,
@@ -757,27 +776,26 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
     if ((buffer != VK_NULL_HANDLE) && (allocator_buffer_data != 0) && (allocator_memory_data != 0) &&
         (bind_memory_properties != nullptr))
     {
-        VmaAllocation     allocation = VK_NULL_HANDLE;
-        VmaAllocationInfo allocation_info{};
         auto              resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buffer_data);
         auto              memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+        VmaMemoryInfo*    vma_mem_info        = nullptr;
 
         result = AllocateMemoryForBuffer(
-            buffer, device_memory_properties, *resource_alloc_info, *memory_alloc_info, allocation, allocation_info);
+            buffer, memory_offset, device_memory_properties, *resource_alloc_info, *memory_alloc_info, &vma_mem_info);
 
         if (result >= 0)
         {
-            result = vmaBindBufferMemory(allocator_, allocation, buffer);
+            GFXRECON_ASSERT(vma_mem_info);
+
+            result = vmaBindBufferMemory(allocator_, vma_mem_info->allocation, buffer);
 
             if (result >= 0)
             {
                 UpdateAllocInfo(*resource_alloc_info,
                                 VK_HANDLE_TO_UINT64(buffer),
                                 MemoryInfoType::kBasic,
-                                memory_offset,
-                                allocation,
-                                allocation_info,
                                 *memory_alloc_info,
+                                *vma_mem_info,
                                 *bind_memory_properties);
             }
         }
@@ -810,33 +828,32 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
 
             if ((buffer != VK_NULL_HANDLE) && (allocator_buffer_data != 0) && (allocator_memory_data != 0))
             {
-                VmaAllocation     allocation = VK_NULL_HANDLE;
-                VmaAllocationInfo allocation_info{};
-                auto              resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buffer_data);
-                auto              memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                auto           resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buffer_data);
+                auto           memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                VmaMemoryInfo* vma_mem_info        = nullptr;
 
                 result = AllocateMemoryForBuffer(buffer,
+                                                 bind_infos[i].memoryOffset,
                                                  capture_memory_properties_,
                                                  *resource_alloc_info,
                                                  *memory_alloc_info,
-                                                 allocation,
-                                                 allocation_info);
+                                                 &vma_mem_info);
 
                 if (result >= 0)
                 {
+                    GFXRECON_ASSERT(vma_mem_info);
+
                     auto bind_info = &bind_infos[i];
 
-                    result = vmaBindBufferMemory2(allocator_, allocation, 0, buffer, bind_info->pNext);
+                    result = vmaBindBufferMemory2(allocator_, vma_mem_info->allocation, 0, buffer, bind_info->pNext);
 
                     if (result >= 0)
                     {
                         UpdateAllocInfo(*resource_alloc_info,
                                         VK_HANDLE_TO_UINT64(buffer),
                                         MemoryInfoType::kBasic,
-                                        bind_info->memoryOffset,
-                                        allocation,
-                                        allocation_info,
                                         *memory_alloc_info,
+                                        *vma_mem_info,
                                         bind_memory_properties[i]);
                     }
                 }
@@ -892,16 +909,16 @@ VkResult VulkanRebindAllocator::AllocateAHBMemory(MemoryAllocInfo* memory_alloc_
 }
 
 VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                                 image,
+                                                       VkDeviceSize                            memory_offset,
                                                        const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-                                                       const ResourceAllocInfo&                resource_alloc_info,
-                                                       const MemoryAllocInfo&                  memory_alloc_info,
-                                                       VmaAllocation&                          allocation,
-                                                       VmaAllocationInfo&                      allocation_info)
+                                                       ResourceAllocInfo&                      resource_alloc_info,
+                                                       MemoryAllocInfo&                        memory_alloc_info,
+                                                       VmaMemoryInfo**                         vma_mem_info)
 {
     VkMemoryRequirements requirements;
     functions_.get_image_memory_requirements(device_, image, &requirements);
 
-    VmaAllocationCreateInfo create_info;
+    VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
     create_info.usage =
         GetImageMemoryUsage(resource_alloc_info.usage,
@@ -914,7 +931,26 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    return vmaAllocateMemoryForImage(allocator_, image, &create_info, &allocation, &allocation_info);
+    if (FindVmaMemoryInfo(memory_alloc_info, memory_offset, requirements, create_info, vma_mem_info))
+    {
+        return VK_SUCCESS;
+    }
+
+    VmaMemoryInfo mem_info   = {};
+    mem_info.memory_info     = &memory_alloc_info;
+    mem_info.mem_req         = requirements;
+    mem_info.alc_create_info = create_info;
+    mem_info.original_offset = memory_offset;
+
+    auto result =
+        vmaAllocateMemoryForImage(allocator_, image, &create_info, &mem_info.allocation, &mem_info.allocation_info);
+
+    if (result >= 0)
+    {
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
+    }
+    return result;
 }
 
 VkResult VulkanRebindAllocator::BindImageMemory(VkImage                                 image,
@@ -945,26 +981,29 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
         }
         else
         {
-            VmaAllocation     allocation = VK_NULL_HANDLE;
-            VmaAllocationInfo allocation_info{};
-            auto              resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
+            auto           resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
+            VmaMemoryInfo* vma_mem_info        = nullptr;
 
-            result = AllocateMemoryForImage(
-                image, device_memory_properties, *resource_alloc_info, *memory_alloc_info, allocation, allocation_info);
+            result = AllocateMemoryForImage(image,
+                                            memory_offset,
+                                            device_memory_properties,
+                                            *resource_alloc_info,
+                                            *memory_alloc_info,
+                                            &vma_mem_info);
 
             if (result >= 0)
             {
-                result = vmaBindImageMemory(allocator_, allocation, image);
+                GFXRECON_ASSERT(vma_mem_info);
+
+                result = vmaBindImageMemory(allocator_, vma_mem_info->allocation, image);
 
                 if (result >= 0)
                 {
                     UpdateAllocInfo(*resource_alloc_info,
                                     VK_HANDLE_TO_UINT64(image),
                                     MemoryInfoType::kBasic,
-                                    memory_offset,
-                                    allocation,
-                                    allocation_info,
                                     *memory_alloc_info,
+                                    *vma_mem_info,
                                     *bind_memory_properties);
                 }
             }
@@ -998,11 +1037,11 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
 
             if ((image != VK_NULL_HANDLE) && (allocator_image_data != 0) && (allocator_memory_data != 0))
             {
-                auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                auto         memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                VkDeviceSize memory_offset     = bind_infos[i].memoryOffset;
+
                 if (memory_alloc_info->ahb)
                 {
-                    VkDeviceSize memory_offset = bind_infos[i].memoryOffset;
-
                     result = AllocateAHBMemory(memory_alloc_info, image);
 
                     if (result >= 0)
@@ -1018,32 +1057,31 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
                 }
                 else
                 {
-                    VmaAllocation     allocation = VK_NULL_HANDLE;
-                    VmaAllocationInfo allocation_info{};
-                    auto              resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
+                    auto           resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_image_data);
+                    VmaMemoryInfo* vma_mem_info        = nullptr;
 
                     result = AllocateMemoryForImage(image,
+                                                    memory_offset,
                                                     capture_memory_properties_,
                                                     *resource_alloc_info,
                                                     *memory_alloc_info,
-                                                    allocation,
-                                                    allocation_info);
+                                                    &vma_mem_info);
 
                     if (result >= 0)
                     {
+                        GFXRECON_ASSERT(vma_mem_info);
+
                         auto bind_info = &bind_infos[i];
 
-                        result = vmaBindImageMemory2(allocator_, allocation, 0, image, bind_info->pNext);
+                        result = vmaBindImageMemory2(allocator_, vma_mem_info->allocation, 0, image, bind_info->pNext);
 
                         if (result >= 0)
                         {
                             UpdateAllocInfo(*resource_alloc_info,
                                             VK_HANDLE_TO_UINT64(image),
                                             MemoryInfoType::kBasic,
-                                            bind_info->memoryOffset,
-                                            allocation,
-                                            allocation_info,
                                             *memory_alloc_info,
+                                            *vma_mem_info,
                                             bind_memory_properties[i]);
                         }
                     }
@@ -1101,18 +1139,19 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
             auto usage = GetVideoSeesionMemoryUsage(
                 capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags, requirements);
 
-            VmaAllocation allocation = VK_NULL_HANDLE;
-            auto          result     = VmaAllocateMemory(requirements, usage, allocation);
+            VmaMemoryInfo* vma_mem_info = nullptr;
+
+            auto result =
+                VmaAllocateMemory(*memory_alloc_info, bind_info.memoryOffset, requirements, usage, &vma_mem_info);
             if (result >= 0)
             {
-                VmaAllocationInfo allocation_info{};
-                allocator_->GetAllocationInfo(allocation, &allocation_info);
+                GFXRECON_ASSERT(vma_mem_info);
 
                 VkBindVideoSessionMemoryInfoKHR modified_bind_info = bind_info;
-                modified_bind_info.memory                          = allocation_info.deviceMemory;
-                modified_bind_info.memoryOffset                    = allocation_info.offset;
+                modified_bind_info.memory                          = vma_mem_info->allocation_info.deviceMemory;
+                modified_bind_info.memoryOffset                    = vma_mem_info->allocation_info.offset;
 
-                switch (allocation->GetType())
+                switch (vma_mem_info->allocation->GetType())
                 {
                     case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
                     {
@@ -1121,7 +1160,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                     }
                     case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
                     {
-                        VmaDeviceMemoryBlock* const pBlock = allocation->GetBlock();
+                        VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
                         VMA_ASSERT(pBlock && "Binding Video Seesion to allocation that doesn't belong to any block.");
 
                         // This lock is important so that we don't call vkBind... and/or vkMap... simultaneously
@@ -1139,10 +1178,8 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                     UpdateAllocInfo(*resource_alloc_info,
                                     VK_HANDLE_TO_UINT64(video_session),
                                     MemoryInfoType::kVideoSession,
-                                    bind_info.memoryOffset,
-                                    allocation,
-                                    allocation_info,
                                     *memory_alloc_info,
+                                    *vma_mem_info,
                                     bind_memory_properties[bind_i]);
                 }
             }
@@ -1248,18 +1285,18 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectNameEXT(VkDevice             
         {
             case VK_OBJECT_TYPE_DEVICE_MEMORY:
             {
-                std::vector<VmaAllocation> allocations;
-                GetVmaAllocations(allocator_data, allocations);
+                MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+                GFXRECON_ASSERT(memory_alloc_info);
 
-                if (allocations.empty())
+                if (memory_alloc_info->vma_mem_infos.empty())
                 {
-                    MemoryAllocInfo* memory_alloc_info  = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
                     memory_alloc_info->debug_utils_name = name_info->pObjectName;
                     return VK_SUCCESS;
                 }
                 else
                 {
-                    name_info->objectHandle = VK_HANDLE_TO_UINT64(allocations[0]->GetMemory());
+                    name_info->objectHandle =
+                        VK_HANDLE_TO_UINT64(memory_alloc_info->vma_mem_infos[0]->allocation_info.deviceMemory);
                     break;
                 }
                 break;
@@ -1274,7 +1311,7 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectNameEXT(VkDevice             
                 bool found_memory_info = false;
                 for (const auto& mem_info : resource_alloc_info->bound_memory_infos)
                 {
-                    if (mem_info.memory_info)
+                    if (mem_info->memory_info)
                     {
                         found_memory_info = true;
                         break;
@@ -1308,14 +1345,13 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectTagEXT(VkDevice              
         {
             case VK_OBJECT_TYPE_DEVICE_MEMORY:
             {
-                std::vector<VmaAllocation> allocations;
-                GetVmaAllocations(allocator_data, allocations);
+                MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+                GFXRECON_ASSERT(memory_alloc_info);
 
-                if (allocations.empty())
+                if (memory_alloc_info->vma_mem_infos.empty())
                 {
-                    MemoryAllocInfo*      memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
-                    std::vector<uint8_t>& buffer            = memory_alloc_info->debug_utils_tag;
-                    const uint8_t*        data              = reinterpret_cast<const uint8_t*>(tag_info->pTag);
+                    std::vector<uint8_t>& buffer = memory_alloc_info->debug_utils_tag;
+                    const uint8_t*        data   = reinterpret_cast<const uint8_t*>(tag_info->pTag);
 
                     buffer.clear();
                     buffer.insert(buffer.end(), data, data + tag_info->tagSize);
@@ -1325,7 +1361,8 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectTagEXT(VkDevice              
                 }
                 else
                 {
-                    tag_info->objectHandle = VK_HANDLE_TO_UINT64(allocations[0]->GetMemory());
+                    tag_info->objectHandle =
+                        VK_HANDLE_TO_UINT64(memory_alloc_info->vma_mem_infos[0]->allocation_info.deviceMemory);
                     break;
                 }
                 break;
@@ -1340,7 +1377,7 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectTagEXT(VkDevice              
                 bool found_memory_info = false;
                 for (const auto& mem_info : resource_alloc_info->bound_memory_infos)
                 {
-                    if (mem_info.memory_info)
+                    if (mem_info->memory_info)
                     {
                         found_memory_info = true;
                         break;
@@ -1407,7 +1444,7 @@ VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_
             {
                 for (auto& entry_bound : entry.second->bound_memory_infos)
                 {
-                    UpdateBoundResource(entry.second, &entry_bound, write_start, write_end, data);
+                    UpdateBoundResource(entry.second, entry_bound, write_start, write_end, data);
                 }
             }
 
@@ -1538,7 +1575,7 @@ void VulkanRebindAllocator::ReportQueueBindSparseIncompatibility(VkQueue        
 }
 
 void VulkanRebindAllocator::WriteBoundResourceDirect(ResourceAllocInfo* resource_alloc_info,
-                                                     BoundMemoryInfo*   bound_memory_info,
+                                                     VmaMemoryInfo*     bound_memory_info,
                                                      size_t             src_offset,
                                                      size_t             dst_offset,
                                                      size_t             data_size,
@@ -1613,7 +1650,7 @@ void VulkanRebindAllocator::WriteBoundResourceDirect(ResourceAllocInfo* resource
 }
 
 void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resource_alloc_info,
-                                                      BoundMemoryInfo*   bound_memory_info,
+                                                      VmaMemoryInfo*     bound_memory_info,
                                                       size_t             src_offset,
                                                       size_t             dst_offset,
                                                       size_t             data_size,
@@ -1771,7 +1808,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 }
 
 void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
-                                               BoundMemoryInfo*   bound_memory_info,
+                                               VmaMemoryInfo*     bound_memory_info,
                                                VkDeviceSize       src_offset,
                                                VkDeviceSize       dst_offset,
                                                VkDeviceSize       data_size,
@@ -1817,8 +1854,7 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
     }
 }
 
-bool VulkanRebindAllocator::TranslateMemoryRange(const ResourceAllocInfo* resource_alloc_info,
-                                                 const BoundMemoryInfo*   bound_memory_info,
+bool VulkanRebindAllocator::TranslateMemoryRange(const VmaMemoryInfo*     bound_memory_info,
                                                  VkDeviceSize             original_start,
                                                  VkDeviceSize             original_end,
                                                  VkDeviceSize*            src_offset,
@@ -1882,7 +1918,7 @@ bool VulkanRebindAllocator::TranslateMemoryRange(const ResourceAllocInfo* resour
 }
 
 void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
-                                                BoundMemoryInfo*   bound_memory_info,
+                                                VmaMemoryInfo*     bound_memory_info,
                                                 VkDeviceSize       write_start,
                                                 VkDeviceSize       write_end,
                                                 const uint8_t*     data)
@@ -1893,16 +1929,14 @@ void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_allo
     VkDeviceSize dst_offset = 0;
     VkDeviceSize data_size  = 0;
 
-    if (TranslateMemoryRange(
-            resource_alloc_info, bound_memory_info, write_start, write_end, &src_offset, &dst_offset, &data_size))
+    if (TranslateMemoryRange(bound_memory_info, write_start, write_end, &src_offset, &dst_offset, &data_size))
     {
         WriteBoundResource(resource_alloc_info, bound_memory_info, src_offset, dst_offset, data_size, data);
     }
 }
 
 VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
-    ResourceAllocInfo* resource_alloc_info,
-    BoundMemoryInfo*   bound_memory_info,
+    VmaMemoryInfo*     bound_memory_info,
     VkDeviceSize       original_start,
     VkDeviceSize       original_end,
     VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
@@ -1912,8 +1946,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
     VkDeviceSize dst_offset = 0;
     VkDeviceSize data_size  = 0;
 
-    if (TranslateMemoryRange(
-            resource_alloc_info, bound_memory_info, original_start, original_end, &src_offset, &dst_offset, &data_size))
+    if (TranslateMemoryRange(bound_memory_info, original_start, original_end, &src_offset, &dst_offset, &data_size))
     {
         if (bound_memory_info->mapped_pointer == nullptr)
         {
@@ -1961,8 +1994,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
                 {
                     for (auto& entry_bound : entry.second->bound_memory_infos)
                     {
-                        if (UpdateMappedMemoryRange(entry.second, &entry_bound, range_start, range_end, update_func) !=
-                            VK_SUCCESS)
+                        if (UpdateMappedMemoryRange(entry_bound, range_start, range_end, update_func) != VK_SUCCESS)
                         {
                             result = VK_ERROR_MEMORY_MAP_FAILED;
                         }
@@ -2230,9 +2262,9 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
         {
             auto& mem_info = resource_alloc_info->bound_memory_infos[0];
 
-            if (mem_info.mapped_pointer == nullptr)
+            if (mem_info->mapped_pointer == nullptr)
             {
-                result = vmaMapMemory(allocator_, mem_info.allocation, &mem_info.mapped_pointer);
+                result = vmaMapMemory(allocator_, mem_info->allocation, &mem_info->mapped_pointer);
             }
             else
             {
@@ -2241,7 +2273,7 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
 
             if (result == VK_SUCCESS)
             {
-                (*data) = reinterpret_cast<uint8_t*>(mem_info.mapped_pointer);
+                (*data) = reinterpret_cast<uint8_t*>(mem_info->mapped_pointer);
             }
         }
 
@@ -2321,11 +2353,13 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     }
 }
 
-VkResult VulkanRebindAllocator::VmaAllocateMemory(const VkMemoryRequirements& mem_req,
-                                                  const VmaMemoryUsage        usage,
-                                                  VmaAllocation&              allocation)
+VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
+                                                  VkDeviceSize                original_offset,
+                                                  const VkMemoryRequirements& mem_req,
+                                                  VmaMemoryUsage              usage,
+                                                  VmaMemoryInfo**             vma_mem_info)
 {
-    VmaAllocationCreateInfo create_info;
+    VmaAllocationCreateInfo create_info{};
     create_info.flags          = 0;
     create_info.usage          = usage;
     create_info.requiredFlags  = 0;
@@ -2334,63 +2368,57 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(const VkMemoryRequirements& me
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    return allocator_->AllocateMemory(mem_req,
-                                      false,
-                                      false,
-                                      VK_NULL_HANDLE,
-                                      VK_NULL_HANDLE,
-                                      VmaBufferImageUsage::UNKNOWN,
-                                      create_info,
-                                      VMA_SUBALLOCATION_TYPE_FREE,
-                                      1,
-                                      &allocation);
-}
-
-void VulkanRebindAllocator::GetVmaAllocations(MemoryData allocator_data, std::vector<VmaAllocation>& allocations)
-{
-    auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
-
-    if (memory_alloc_info == nullptr)
+    if (FindVmaMemoryInfo(memory_alloc_info, original_offset, mem_req, create_info, vma_mem_info))
     {
-        return;
+        return VK_SUCCESS;
     }
 
-    for (const auto& res_alc : memory_alloc_info->original_objects)
+    VmaMemoryInfo mem_info   = {};
+    mem_info.memory_info     = &memory_alloc_info;
+    mem_info.mem_req         = mem_req;
+    mem_info.alc_create_info = create_info;
+    mem_info.original_offset = original_offset;
+
+    auto result = allocator_->AllocateMemory(mem_req,
+                                             false,
+                                             false,
+                                             VK_NULL_HANDLE,
+                                             VK_NULL_HANDLE,
+                                             VmaBufferImageUsage::UNKNOWN,
+                                             create_info,
+                                             VMA_SUBALLOCATION_TYPE_FREE,
+                                             1,
+                                             &mem_info.allocation);
+    if (result >= 0)
     {
-        for (const auto& mem_info : res_alc.second->bound_memory_infos)
-        {
-            const auto alc = mem_info.allocation;
-            if (alc != VK_NULL_HANDLE)
-            {
-                allocations.push_back(alc);
-            }
-        }
+        allocator_->GetAllocationInfo(mem_info.allocation, &mem_info.allocation_info);
+
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
     }
+    return result;
 }
 
 void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
                                                       VkDeviceSize*  committed_memory_in_bytes,
                                                       MemoryData     allocator_data)
 {
-    VkDeviceMemory modified_mem = VK_NULL_HANDLE;
+    VkDeviceMemory   modified_mem      = VK_NULL_HANDLE;
+    MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    GFXRECON_ASSERT(memory_alloc_info);
 
-    std::vector<VmaAllocation> alcs;
-    GetVmaAllocations(allocator_data, alcs);
-
-    if (alcs.empty())
+    if (memory_alloc_info->vma_mem_infos.empty())
     {
         GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetDeviceMemoryCommitment");
         return;
     }
 
-    for (const auto& alc : alcs)
+    for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
-        VmaAllocationInfo allocation_info{};
-        allocator_->GetAllocationInfo(alc, &allocation_info);
+        GFXRECON_ASSERT(mem_info->allocation);
+        modified_mem = mem_info->allocation_info.deviceMemory;
 
-        modified_mem = allocation_info.deviceMemory;
-
-        switch (alc->GetType())
+        switch (mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -2399,7 +2427,7 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetDeviceMemoryCommitment to allocation that doesn't belong to any block.");
 
                 VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
@@ -2414,25 +2442,22 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
 
 void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data)
 {
-    VkDeviceMemory modified_mem = VK_NULL_HANDLE;
+    VkDeviceMemory   modified_mem      = VK_NULL_HANDLE;
+    MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    GFXRECON_ASSERT(memory_alloc_info);
 
-    std::vector<VmaAllocation> alcs;
-    GetVmaAllocations(allocator_data, alcs);
-
-    if (alcs.empty())
+    if (memory_alloc_info->vma_mem_infos.empty())
     {
         GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip SetDeviceMemoryPriority");
         return;
     }
 
-    for (const auto& alc : alcs)
+    for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
-        VmaAllocationInfo allocation_info{};
-        allocator_->GetAllocationInfo(alc, &allocation_info);
+        GFXRECON_ASSERT(mem_info->allocation);
+        modified_mem = mem_info->allocation_info.deviceMemory;
 
-        modified_mem = allocation_info.deviceMemory;
-
-        switch (alc->GetType())
+        switch (mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -2441,7 +2466,7 @@ void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "SetDeviceMemoryPriority to allocation that doesn't belong to any block.");
 
                 VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
@@ -2459,12 +2484,11 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
                                                 VkRemoteAddressNV*                    address,
                                                 MemoryData                            allocator_data)
 {
-    auto modified_get_mem_remote_addr_info = *memory_get_remote_address_info;
+    auto             modified_get_mem_remote_addr_info = *memory_get_remote_address_info;
+    MemoryAllocInfo* memory_alloc_info                 = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    GFXRECON_ASSERT(memory_alloc_info);
 
-    std::vector<VmaAllocation> alcs;
-    GetVmaAllocations(allocator_data, alcs);
-
-    if (alcs.empty())
+    if (memory_alloc_info->vma_mem_infos.empty())
     {
         GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetMemoryRemoteAddressNV");
         return VK_SUCCESS;
@@ -2472,14 +2496,12 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
 
     auto result = VK_ERROR_INITIALIZATION_FAILED;
 
-    for (const auto& alc : alcs)
+    for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
-        VmaAllocationInfo allocation_info{};
-        allocator_->GetAllocationInfo(alc, &allocation_info);
+        GFXRECON_ASSERT(mem_info->allocation);
+        modified_get_mem_remote_addr_info.memory = mem_info->allocation_info.deviceMemory;
 
-        modified_get_mem_remote_addr_info.memory = allocation_info.deviceMemory;
-
-        switch (alc->GetType())
+        switch (mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -2488,7 +2510,7 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryRemoteAddressNV to allocation that doesn't belong to any block.");
 
                 VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
@@ -2550,12 +2572,11 @@ VulkanRebindAllocator::BindAccelerationStructureMemoryNV(uint32_t               
 VkResult
 VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int* pFd, MemoryData allocator_data)
 {
-    auto modified_get_fd_info = *get_fd_info;
+    auto             modified_get_fd_info = *get_fd_info;
+    MemoryAllocInfo* memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    GFXRECON_ASSERT(memory_alloc_info);
 
-    std::vector<VmaAllocation> alcs;
-    GetVmaAllocations(allocator_data, alcs);
-
-    if (alcs.empty())
+    if (memory_alloc_info->vma_mem_infos.empty())
     {
         GFXRECON_LOG_WARNING("There's no allocations or memory is VK_NULL_HANDLE. Skip GetMemoryFd");
         return VK_SUCCESS;
@@ -2563,14 +2584,12 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
 
     auto result = VK_ERROR_INITIALIZATION_FAILED;
 
-    for (const auto& alc : alcs)
+    for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
-        VmaAllocationInfo allocation_info{};
-        allocator_->GetAllocationInfo(alc, &allocation_info);
+        GFXRECON_ASSERT(mem_info->allocation);
+        modified_get_fd_info.memory = mem_info->allocation_info.deviceMemory;
 
-        modified_get_fd_info.memory = allocation_info.deviceMemory;
-
-        switch (alc->GetType())
+        switch (mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -2579,7 +2598,7 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryFd to allocation that doesn't belong to any block.");
 
                 VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
@@ -2601,8 +2620,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
                                                              uint32_t                  object_bind_index,
                                                              uint32_t                  memory_bind_index,
                                                              std::vector<VkSemaphore>& semaphores,
-                                                             const VmaAllocation&      allocation,
-                                                             const VmaAllocationInfo&  allocation_info)
+                                                             const VmaMemoryInfo*      vma_mem_info)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -2615,7 +2633,13 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
     }
 
     bool is_last = false;
-
+    VkDeviceMemory memory  = VK_NULL_HANDLE;
+    VkDeviceSize   offset  = 0;
+    if (vma_mem_info)
+    {
+        memory = vma_mem_info->allocation_info.deviceMemory;
+        offset = vma_mem_info->allocation_info.offset;
+    }
     VkBindSparseInfo                  modified_bind_info = original_bind_info;
     VkSparseBufferMemoryBindInfo      modified_buf_bind_info{};
     VkSparseImageOpaqueMemoryBindInfo modified_img_op_bind_info{};
@@ -2638,8 +2662,8 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = allocation_info.deviceMemory;
-            modified_mem_bind.memoryOffset = allocation_info.offset;
+            modified_mem_bind.memory       = memory;
+            modified_mem_bind.memoryOffset = offset;
 
             modified_buf_bind_info           = bind;
             modified_buf_bind_info.bindCount = 1;
@@ -2665,8 +2689,8 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_mem_bind.memory       = allocation_info.deviceMemory;
-            modified_mem_bind.memoryOffset = allocation_info.offset;
+            modified_mem_bind.memory       = memory;
+            modified_mem_bind.memoryOffset = offset;
 
             modified_img_op_bind_info           = bind;
             modified_img_op_bind_info.bindCount = 1;
@@ -2691,8 +2715,8 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
 
             modified_img_mem_bind              = bind.pBinds[memory_bind_index];
-            modified_img_mem_bind.memory       = allocation_info.deviceMemory;
-            modified_img_mem_bind.memoryOffset = allocation_info.offset;
+            modified_img_mem_bind.memory       = memory;
+            modified_img_mem_bind.memoryOffset = offset;
 
             modified_img_bind_info           = bind;
             modified_img_bind_info.bindCount = 1;
@@ -2747,13 +2771,13 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
         modified_bind_info.pSignalSemaphores    = &signal_semaphore;
     }
 
-    if (allocation == VK_NULL_HANDLE)
+    if (vma_mem_info == nullptr)
     {
         result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
     }
     else
     {
-        switch (allocation->GetType())
+        switch (vma_mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -2762,7 +2786,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = allocation->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
 
                 VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
@@ -2776,18 +2800,17 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
     return result;
 }
 
-bool VulkanRebindAllocator::FindBoundMemory(const ResourceAllocInfo* resource_alloc_info,
-                                            format::HandleId         memory_capture_id,
-                                            VkDeviceSize             original_offset,
-                                            VmaAllocation&           allocation,
-                                            VmaAllocationInfo&       allocation_info)
+bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
+                                              VkDeviceSize                   original_offset,
+                                              const VkMemoryRequirements&    mem_req,
+                                              const VmaAllocationCreateInfo& alc_create_info,
+                                              VmaMemoryInfo**                vma_mem_info)
 {
-    for (const auto& mem_info : resource_alloc_info->bound_memory_infos)
+    for (auto& mem_info : memory_alloc_info.vma_mem_infos)
     {
-        if (mem_info.memory_info->capture_id == memory_capture_id && mem_info.original_offset == original_offset)
+        if (mem_info->is_compatible(original_offset, mem_req, alc_create_info))
         {
-            allocation = mem_info.allocation;
-            allocator_->GetAllocationInfo(allocation, &allocation_info);
+            *vma_mem_info = mem_info.get();
             return true;
         }
     }
@@ -2835,28 +2858,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
                 for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
                 {
-                    VmaAllocation     allocation = VK_NULL_HANDLE;
-                    VmaAllocationInfo allocation_info{};
-
-                    auto is_bound       = false;
                     auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
-
-                    if (mem_alloc_info)
-                    {
-                        // Since BindSparse could re-bind, it needs to find the existing allocation first, intead of
-                        // allocating a new one. If it always create a new allocation, the new allocation might not be
-                        // filled with data. Plus, BindSparse could bind the same memory with different offset, so it
-                        // needs to create a new allocation for this case. Only the same memory and same offset could
-                        // re-use the existing allocation.
-                        is_bound = FindBoundMemory(res_alloc_info,
-                                                   mem_alloc_info->capture_id,
-                                                   bind.pBinds[m_i].memoryOffset,
-                                                   allocation,
-                                                   allocation_info);
-                    }
+                    VmaMemoryInfo* vma_mem_info = nullptr;
 
                     // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
-                    if (mem_alloc_info && !is_bound)
+                    if (mem_alloc_info)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
@@ -2868,20 +2874,16 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                             capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
                             requirements);
 
-                        result = VmaAllocateMemory(requirements, usage, allocation);
-
-                        if (result >= 0)
-                        {
-                            allocator_->GetAllocationInfo(allocation, &allocation_info);
-                        }
-                        else
+                        result = VmaAllocateMemory(
+                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
+                        if (result < 0)
                         {
                             GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
                                                  util::ToString<VkResult>(result).c_str());
                         }
                     }
 
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
+                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
                                                               fence,
@@ -2891,18 +2893,15 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                               buf_i,
                                                               m_i,
                                                               semaphores,
-                                                              allocation,
-                                                              allocation_info);
+                                                              vma_mem_info);
 
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr && !is_bound)
+                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
                         {
                             UpdateAllocInfo(*res_alloc_info,
                                             VK_HANDLE_TO_UINT64(bind.buffer),
                                             MemoryInfoType::kSparse,
-                                            bind.pBinds[m_i].memoryOffset,
-                                            allocation,
-                                            allocation_info,
                                             *mem_alloc_info,
+                                            *vma_mem_info,
                                             bind_buf_mem_properties[alc_buf_mem_i]);
                         }
                     }
@@ -2918,23 +2917,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
                 for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
                 {
-                    VmaAllocation     allocation = VK_NULL_HANDLE;
-                    VmaAllocationInfo allocation_info{};
-
-                    auto is_bound = false;
                     auto mem_alloc_info =
                         reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
+                    VmaMemoryInfo* vma_mem_info = nullptr;
 
                     if (mem_alloc_info)
-                    {
-                        is_bound = FindBoundMemory(res_alloc_info,
-                                                   mem_alloc_info->capture_id,
-                                                   bind.pBinds[m_i].memoryOffset,
-                                                   allocation,
-                                                   allocation_info);
-                    }
-
-                    if (mem_alloc_info && !is_bound)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
@@ -2947,20 +2934,16 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                             capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
                             requirements);
 
-                        result = VmaAllocateMemory(requirements, usage, allocation);
-
-                        if (result >= 0)
-                        {
-                            allocator_->GetAllocationInfo(allocation, &allocation_info);
-                        }
-                        else
+                        result = VmaAllocateMemory(
+                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
+                        if (result < 0)
                         {
                             GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
                                                  util::ToString<VkResult>(result).c_str());
                         }
                     }
 
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
+                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
                                                               fence,
@@ -2970,18 +2953,15 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                               img_op_i,
                                                               m_i,
                                                               semaphores,
-                                                              allocation,
-                                                              allocation_info);
+                                                              vma_mem_info);
 
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr && !is_bound)
+                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
                         {
                             UpdateAllocInfo(*res_alloc_info,
                                             VK_HANDLE_TO_UINT64(bind.image),
                                             MemoryInfoType::kSparse,
-                                            bind.pBinds[m_i].memoryOffset,
-                                            allocation,
-                                            allocation_info,
                                             *mem_alloc_info,
+                                            *vma_mem_info,
                                             bind_img_op_mem_properties[alc_img_op_mem_i]);
                         }
                     }
@@ -2997,22 +2977,10 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
                 for (uint32_t m_i = 0; m_i < bind.bindCount; ++m_i)
                 {
-                    VmaAllocation     allocation = VK_NULL_HANDLE;
-                    VmaAllocationInfo allocation_info{};
-
-                    auto is_bound       = false;
                     auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
+                    VmaMemoryInfo* vma_mem_info = nullptr;
 
                     if (mem_alloc_info)
-                    {
-                        is_bound = FindBoundMemory(res_alloc_info,
-                                                   mem_alloc_info->capture_id,
-                                                   bind.pBinds[m_i].memoryOffset,
-                                                   allocation,
-                                                   allocation_info);
-                    }
-
-                    if (mem_alloc_info && !is_bound)
                     {
                         VkMemoryRequirements requirements;
                         functions_.get_image_memory_requirements(device_, bind.image, &requirements);
@@ -3025,20 +2993,16 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                             capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
                             requirements);
 
-                        result = VmaAllocateMemory(requirements, usage, allocation);
-
-                        if (result >= 0)
-                        {
-                            allocator_->GetAllocationInfo(allocation, &allocation_info);
-                        }
-                        else
+                        result = VmaAllocateMemory(
+                            *mem_alloc_info, bind.pBinds[m_i].memoryOffset, requirements, usage, &vma_mem_info);
+                        if (result < 0)
                         {
                             GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
                                                  util::ToString<VkResult>(result).c_str());
                         }
                     }
 
-                    if (result == VK_SUCCESS || mem_alloc_info == nullptr || is_bound)
+                    if (result == VK_SUCCESS || mem_alloc_info == nullptr)
                     {
                         result = ProcessSingleQueueBindSparse(queue,
                                                               fence,
@@ -3048,18 +3012,15 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                               img_i,
                                                               m_i,
                                                               semaphores,
-                                                              allocation,
-                                                              allocation_info);
+                                                              vma_mem_info);
 
-                        if (result == VK_SUCCESS && mem_alloc_info != nullptr && !is_bound)
+                        if (result == VK_SUCCESS && mem_alloc_info != nullptr)
                         {
                             UpdateAllocInfo(*res_alloc_info,
                                             VK_HANDLE_TO_UINT64(bind.image),
                                             MemoryInfoType::kSparse,
-                                            bind.pBinds[m_i].memoryOffset,
-                                            allocation,
-                                            allocation_info,
                                             *mem_alloc_info,
+                                            *vma_mem_info,
                                             bind_img_mem_properties[alc_img_mem_i]);
                         }
                     }
@@ -3077,12 +3038,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                                     MemoryData allocator_data)
 {
-    auto modified_info = *info;
+    auto             modified_info     = *info;
+    MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    GFXRECON_ASSERT(memory_alloc_info);
 
-    std::vector<VmaAllocation> alcs;
-    GetVmaAllocations(allocator_data, alcs);
-
-    if (alcs.empty())
+    if (memory_alloc_info->vma_mem_infos.empty())
     {
         GFXRECON_LOG_WARNING(
             "There's no allocations or memory is VK_NULL_HANDLE. Skip GetDeviceMemoryOpaqueCaptureAddress");
@@ -3091,14 +3051,12 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
 
     uint64_t result = 0;
 
-    for (const auto& alc : alcs)
+
+    for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
-        VmaAllocationInfo allocation_info{};
-        allocator_->GetAllocationInfo(alc, &allocation_info);
+        modified_info.memory = mem_info->allocation_info.deviceMemory;
 
-        modified_info.memory = allocation_info.deviceMemory;
-
-        switch (alc->GetType())
+        switch (mem_info->allocation->GetType())
         {
             case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
             {
@@ -3107,7 +3065,7 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
             }
             case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
             {
-                VmaDeviceMemoryBlock* const pBlock = alc->GetBlock();
+                VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock &&
                            "GetDeviceMemoryOpaqueCaptureAddress to allocation that doesn't belong to any block.");
 
