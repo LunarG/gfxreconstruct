@@ -421,12 +421,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         kVideoSession // array: video_session
     };
 
-    // Create a new allocation for a binding memory case. The binding offset is allocation_info's offset, instead of
-    // original offset.
+    // Create a new allocation for a binding memory case.
     struct VmaMemoryInfo
     {
-        MemoryAllocInfo* memory_info{ nullptr }; // If memory_info is nullptr, the memory could be free.
-
+        MemoryAllocInfo*        memory_info{ nullptr };
         VkMemoryRequirements    mem_req{};
         VmaAllocationCreateInfo alc_create_info{};
         VkDeviceSize            offset_from_original_device_memory{ 0 };
@@ -436,9 +434,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
         bool             is_host_visible{ false };
         void*            mapped_pointer{ nullptr };
-        VkDeviceSize     rebind_offset{ 0 };
-        VkDeviceSize     original_size{ 0 };
-        VkDeviceSize     rebind_size{ 0 };
 
         bool is_compatible(VkDeviceSize                   offset,
                            const VkMemoryRequirements&    req,
@@ -464,8 +459,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     struct ResourceAllocInfo
     {
         MemoryInfoType              memory_info_type;
-        std::vector<VmaMemoryInfo*> bound_memory_infos;
-        std::vector<VkDeviceSize>   original_sizes; // video_session is array, the others are single.
+        std::vector<VmaMemoryInfo*> bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
         VkObjectType                object_type{ VK_OBJECT_TYPE_UNKNOWN };
         VkFlags                     usage{ 0 };
         VkImageTiling               tiling{};

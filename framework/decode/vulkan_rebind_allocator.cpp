@@ -401,7 +401,6 @@ void VulkanRebindAllocator::DestroyVideoSession(VkVideoSessionKHR            ses
                                                 const VkAllocationCallbacks* allocation_callbacks,
                                                 ResourceData                 allocator_data)
 {
-    // TODO: VMA doesn't support video session(vmaDestroyVideoSession). Do it ourselves until VMA support it.
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
     GFXRECON_ASSERT(session != VK_NULL_HANDLE);
 
@@ -427,17 +426,6 @@ void VulkanRebindAllocator::GetBufferMemoryRequirements(VkBuffer              bu
                                                         VkMemoryRequirements* memory_requirements,
                                                         ResourceData          allocator_data)
 {
-    if (allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->original_sizes.empty())
-        {
-            resource_alloc_info->original_sizes.resize(1);
-        }
-        resource_alloc_info->original_sizes[0] = memory_requirements->size;
-    }
-
     functions_.get_buffer_memory_requirements(device_, buffer, memory_requirements);
 }
 
@@ -445,17 +433,6 @@ void VulkanRebindAllocator::GetBufferMemoryRequirements2(const VkBufferMemoryReq
                                                          VkMemoryRequirements2*                 memory_requirements,
                                                          ResourceData                           allocator_data)
 {
-    if (allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->original_sizes.empty())
-        {
-            resource_alloc_info->original_sizes.resize(1);
-        }
-        resource_alloc_info->original_sizes[0] = memory_requirements->memoryRequirements.size;
-    }
-
     functions_.get_buffer_memory_requirements2(device_, info, memory_requirements);
 }
 
@@ -496,17 +473,6 @@ void VulkanRebindAllocator::GetImageMemoryRequirements(VkImage               ima
                                                        VkMemoryRequirements* memory_requirements,
                                                        ResourceData          allocator_data)
 {
-    if (allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->original_sizes.empty())
-        {
-            resource_alloc_info->original_sizes.resize(1);
-        }
-        resource_alloc_info->original_sizes[0] = memory_requirements->size;
-    }
-
     functions_.get_image_memory_requirements(device_, image, memory_requirements);
 }
 
@@ -514,17 +480,6 @@ void VulkanRebindAllocator::GetImageMemoryRequirements2(const VkImageMemoryRequi
                                                         VkMemoryRequirements2*                memory_requirements,
                                                         ResourceData                          allocator_data)
 {
-    if (allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-
-        if (resource_alloc_info->original_sizes.empty())
-        {
-            resource_alloc_info->original_sizes.resize(1);
-        }
-        resource_alloc_info->original_sizes[0] = memory_requirements->memoryRequirements.size;
-    }
-
     functions_.get_image_memory_requirements2(device_, info, memory_requirements);
 }
 
@@ -534,17 +489,6 @@ VulkanRebindAllocator::GetVideoSessionMemoryRequirementsKHR(VkVideoSessionKHR vi
                                                             VkVideoSessionMemoryRequirementsKHR* memory_requirements,
                                                             ResourceData                         allocator_data)
 {
-    if (memory_requirements != nullptr && allocator_data != 0)
-    {
-        auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-        resource_alloc_info->original_sizes.resize(*memory_requirements_count);
-
-        for (uint32_t i = 0; i < *memory_requirements_count; ++i)
-        {
-            resource_alloc_info->original_sizes[i] = memory_requirements[i].memoryRequirements.size;
-        }
-    }
-
     return functions_.get_video_session_memory_requirements(
         device_, video_session, memory_requirements_count, memory_requirements);
 }
@@ -1126,8 +1070,6 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                                                        const MemoryData*                      allocator_memory_datas,
                                                        VkMemoryPropertyFlags*                 bind_memory_properties)
 {
-    // TODO: VMA doesn't support video session(vmaAllocateMemoryForVideoSession and vmaBindVideoSessionMemory).
-    //       Do it ourselves until VMA support it.
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     if ((video_session != VK_NULL_HANDLE) && (bind_infos != nullptr) && (allocator_session_data != 0) &&
@@ -1891,15 +1833,15 @@ bool VulkanRebindAllocator::TranslateMemoryRange(const VmaMemoryInfo*     bound_
     }
 
     VkDeviceSize resource_start = bound_memory_info->offset_from_original_device_memory;
+    auto         original_size  = bound_memory_info->memory_info->allocation_size;
+    auto         rebind_size    = bound_memory_info->mem_req.size;
 
     // This should correspond to the offset to the end of the resource at capture time.
     //
     // However, if the rebind size is smaller than the original size, we don't want data_size to be big enough to cause
     // an overflow, so the original size is artifically clamped to the rebind size.
     VkDeviceSize resource_end =
-        resource_start + (bound_memory_info->original_size != 0
-                              ? std::min(bound_memory_info->original_size, bound_memory_info->rebind_size)
-                              : bound_memory_info->rebind_size);
+        resource_start + (original_size != 0 ? std::min(original_size, rebind_size) : rebind_size);
 
     // Range ends are exclusive.
     if ((resource_end <= original_start) || (original_end <= resource_start))
