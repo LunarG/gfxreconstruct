@@ -1818,12 +1818,12 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
     }
 }
 
-bool VulkanRebindAllocator::TranslateMemoryRange(const VmaMemoryInfo*     bound_memory_info,
-                                                 VkDeviceSize             original_start,
-                                                 VkDeviceSize             original_end,
-                                                 VkDeviceSize*            src_offset,
-                                                 VkDeviceSize*            dst_offset,
-                                                 VkDeviceSize*            data_size)
+bool VulkanRebindAllocator::TranslateMemoryRange(const VmaMemoryInfo* bound_memory_info,
+                                                 VkDeviceSize         original_start,
+                                                 VkDeviceSize         original_end,
+                                                 VkDeviceSize*        src_offset,
+                                                 VkDeviceSize*        dst_offset,
+                                                 VkDeviceSize*        data_size)
 {
     assert((src_offset != nullptr) && (dst_offset != nullptr) && (data_size));
 
@@ -1900,9 +1900,9 @@ void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_allo
 }
 
 VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
-    VmaMemoryInfo*     bound_memory_info,
-    VkDeviceSize       original_start,
-    VkDeviceSize       original_end,
+    VmaMemoryInfo* bound_memory_info,
+    VkDeviceSize   original_start,
+    VkDeviceSize   original_end,
     VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult     result     = VK_SUCCESS;
@@ -2981,7 +2981,6 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
     }
 
     uint64_t result = 0;
-
 
     for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
     {
