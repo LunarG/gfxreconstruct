@@ -19,6 +19,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/clock_cache.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp

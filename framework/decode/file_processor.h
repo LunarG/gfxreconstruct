@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
+#include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_input_stream.h"
@@ -274,6 +275,17 @@ class FileProcessor
 
         return file_stack_.back();
     }
+
+    struct InputStreamGetKey
+    {
+        const std::string& operator()(const FileInputStreamPtr& input_stream)
+        {
+            GFXRECON_ASSERT(input_stream);
+            return input_stream->GetFilename();
+        }
+    };
+    using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
+    ActiveStreamCache stream_cache_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
