@@ -30,7 +30,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class FStreamFileInputStream
 {
   public:
-    std::string GetFilename() const { return filename_; }
+    const std::string& GetFilename() const { return filename_; }
     ~FStreamFileInputStream() { Close(); }
     bool IsOpen() const { return fd_ != nullptr; }
     bool IsEof() const { return IsOpen() && (feof(fd_) != 0); }

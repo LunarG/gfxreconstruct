@@ -561,16 +561,37 @@ bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigi
 bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till_eof)
 {
 
-    FileInputStreamPtr active_file = std::make_shared<FileInputStream>();
-    bool               opened      = active_file->Open(filename);
+    // Look for the name stream in the cache
+    auto cached_stream = stream_cache_.Lookup(filename);
 
-    if (!opened || !active_file->IsOpen())
+    FileInputStreamPtr active_file;
+    if (cached_stream.has_value())
     {
-        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
-        error_state_ = kErrorOpeningFile;
-        return false;
+        active_file = std::move(*cached_stream);
+
+        // Only valid streams in the cache
+        GFXRECON_ASSERT(active_file);
+        GFXRECON_ASSERT(active_file->IsOpen());
+    }
+    else
+    {
+        // No stream in cache, create one
+        active_file = std::make_shared<FileInputStream>();
+        bool opened = active_file->Open(filename);
+
+        if (!opened || !active_file->IsOpen())
+        {
+            GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
+            error_state_ = kErrorOpeningFile;
+            return false;
+        }
+
+        // It's possible we'll want to use the input streams more than once, (kExecuteBlocksFromFile, usage often
+        // does in test cases), so we'll stash off the stream's shared pointer to a cache
+        stream_cache_.Insert(active_file);
     }
 
+    // Now that we have a new stream or old, push it on the stack
     file_stack_.emplace_back(std::move(active_file), execute_till_eof);
     error_state_ = kErrorNone;
     return true;
