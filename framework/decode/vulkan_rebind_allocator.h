@@ -447,8 +447,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                  (create_info.requiredFlags == alc_create_info.requiredFlags) &&
                  (create_info.preferredFlags == alc_create_info.preferredFlags) &&
                  (create_info.memoryTypeBits == alc_create_info.memoryTypeBits) &&
-                 (create_info.pool == alc_create_info.pool) && (create_info.pUserData == alc_create_info.pUserData) &&
-                 (create_info.priority == alc_create_info.priority)))
+                 (create_info.pool == alc_create_info.pool) && (create_info.priority == alc_create_info.priority)))
             {
                 return true;
             }
