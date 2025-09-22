@@ -721,7 +721,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                         barrier.oldLayout           = cat->intermediate_layout;
                         barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                         barrier.image               = cat->handle;
-                        barrier.subresourceRange    = { graphics::GetFormatAspectMask(cat->format),
+                        barrier.subresourceRange    = { graphics::GetFormatAspects(cat->format),
                                                         0,
                                                         VK_REMAINING_MIP_LEVELS,
                                                         0,
@@ -1010,7 +1010,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     {
         VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
 
-        img_barrier.subresourceRange.aspectMask = graphics::GetFormatAspectMask(image_info->format);
+        img_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_info->format);
 
         img_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         img_barrier.newLayout     = entry->second.depth_attachment_layout;

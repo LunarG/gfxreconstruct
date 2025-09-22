@@ -365,7 +365,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.image               = src_image_info->handle;
     img_barrier.subresourceRange    = {
-           graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           graphics::GetFormatAspects(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     assert(device_table_ != nullptr);
@@ -403,14 +403,14 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
 
     std::vector<VkImageCopy> copies(src_image_info->level_count, VkImageCopy());
     VkImageCopy              copy;
-    copy.srcSubresource.aspectMask     = graphics::GetFormatAspectMask(src_image_info->format);
+    copy.srcSubresource.aspectMask     = graphics::GetFormatAspects(src_image_info->format);
     copy.srcSubresource.baseArrayLayer = 0;
     copy.srcSubresource.layerCount     = src_image_info->layer_count;
     copy.srcOffset.x                   = 0;
     copy.srcOffset.y                   = 0;
     copy.srcOffset.z                   = 0;
 
-    copy.dstSubresource.aspectMask     = graphics::GetFormatAspectMask(src_image_info->format);
+    copy.dstSubresource.aspectMask     = graphics::GetFormatAspects(src_image_info->format);
     copy.dstSubresource.baseArrayLayer = 0;
     copy.dstSubresource.layerCount     = src_image_info->layer_count;
     copy.dstOffset.x                   = 0;

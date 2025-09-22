@@ -457,8 +457,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                         {
                             image_barrier.newLayout = image_layout;
                             image_barrier.image     = image;
-                            image_barrier.subresourceRange.aspectMask =
-                                graphics::GetFormatAspectMask(image_entry->format);
+                            image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
 
                             result = device_table_->BeginCommandBuffer(transition_command, &begin_info);
 
@@ -657,7 +656,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
                     if (result == VK_SUCCESS)
                     {
                         image_barrier.image                       = image;
-                        image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspectMask(image_entry->format);
+                        image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
                         present_info.pImageIndices                = &image_index;
 
                         result = device_table_->BeginCommandBuffer(command, &begin_info);

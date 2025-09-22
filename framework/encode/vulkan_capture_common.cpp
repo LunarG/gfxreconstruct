@@ -402,7 +402,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         sampler_ycbcr_conversion_info.pNext                        = nullptr;
         sampler_ycbcr_conversion_info.conversion                   = ycbcr_conversion;
 
-        auto ahb_image_aspect_mask = graphics::GetFormatAspectMask(format_properties.format);
+        auto ahb_image_aspect_mask = graphics::GetFormatAspects(format_properties.format);
 
         VkImageViewCreateInfo image_view_create_info;
         image_view_create_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -508,7 +508,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         if (vk_result == VK_SUCCESS)
             vk_result = device_table->BindImageMemory(device, host_image, host_image_memory, 0);
 
-        auto host_image_aspect_mask = graphics::GetFormatAspectMask(host_image_format);
+        auto host_image_aspect_mask = graphics::GetFormatAspects(host_image_format);
 
         VkImageViewCreateInfo host_image_view_create_info{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, nullptr };
         host_image_view_create_info.flags                           = 0u;

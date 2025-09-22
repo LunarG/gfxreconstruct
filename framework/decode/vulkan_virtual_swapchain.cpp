@@ -523,7 +523,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
                 VK_NULL_HANDLE,                         // image
                 VkImageSubresourceRange{
-                    graphics::GetFormatAspectMask(swapchain_info->format),
+                    graphics::GetFormatAspects(swapchain_info->format),
                     0,
                     image_create_info.mipLevels,
                     0,
@@ -811,7 +811,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
 
-        auto aspect_mask       = graphics::GetFormatAspectMask(swapchain_info->format);
+        auto aspect_mask       = graphics::GetFormatAspects(swapchain_info->format);
         subresource.aspectMask = aspect_mask;
         initial_barrier_virtual_image.subresourceRange.aspectMask   = aspect_mask;
         final_barrier_virtual_image.subresourceRange.aspectMask     = aspect_mask;
