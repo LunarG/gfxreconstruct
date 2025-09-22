@@ -290,7 +290,12 @@ bool FileProcessor::ProcessBlocks()
 
             if (success)
             {
-                if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
+                if (SkipBlockProcessing())
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                    success = SkipBytes(static_cast<size_t>(block_header.size));
+                }
+                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
                 {
                     format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
 
