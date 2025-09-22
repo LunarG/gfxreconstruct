@@ -162,56 +162,31 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
 static VkImageAspectFlags StrToImageAspectFlagBits(const std::string& str)
 {
+    static const std::map<std::string, VkImageAspectFlagBits> aspect_flags = {
+        { "VK_IMAGE_ASPECT_COLOR_BIT", VK_IMAGE_ASPECT_COLOR_BIT },
+        { "VK_IMAGE_ASPECT_DEPTH_BIT", VK_IMAGE_ASPECT_DEPTH_BIT },
+        { "VK_IMAGE_ASPECT_STENCIL_BIT", VK_IMAGE_ASPECT_STENCIL_BIT },
+        { "VK_IMAGE_ASPECT_METADATA_BIT", VK_IMAGE_ASPECT_METADATA_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_0_BIT", VK_IMAGE_ASPECT_PLANE_0_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_1_BIT", VK_IMAGE_ASPECT_PLANE_1_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_2_BIT", VK_IMAGE_ASPECT_PLANE_2_BIT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT },
+        { "VK_IMAGE_ASPECT_PLANE_0_BIT_KHR", VK_IMAGE_ASPECT_PLANE_0_BIT_KHR },
+        { "VK_IMAGE_ASPECT_PLANE_1_BIT_KHR", VK_IMAGE_ASPECT_PLANE_1_BIT_KHR },
+        { "VK_IMAGE_ASPECT_PLANE_2_BIT_KHR", VK_IMAGE_ASPECT_PLANE_2_BIT_KHR }
+    };
+
     VkImageAspectFlags flags = VK_IMAGE_ASPECT_NONE;
 
-    if (str.find("VK_IMAGE_ASPECT_COLOR_BIT") != std::string::npos)
+    for (const auto& aspect : aspect_flags)
     {
-        flags |= VK_IMAGE_ASPECT_COLOR_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_DEPTH_BIT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_DEPTH_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_STENCIL_BIT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_PLANE_0_BIT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_PLANE_0_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_PLANE_1_BIT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_PLANE_1_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_PLANE_2_BIT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_PLANE_2_BIT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT;
-    }
-
-    if (str.find("VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT") != std::string::npos)
-    {
-        flags |= VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT;
+        if (str.find(aspect.first) != std::string::npos)
+        {
+            flags |= aspect.second;
+        }
     }
 
     return flags;
@@ -311,7 +286,8 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                         VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
                     };
                 }
-                command_subresources[cmd_index].emplace(decode::DescriptorTuple{ set, binding, ai }, subresource_range);
+                command_subresources[cmd_index].emplace(decode::DescriptorLocation{ set, binding, ai },
+                                                        subresource_range);
             }
         }
     }

@@ -486,18 +486,12 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
 
     data.resize(total_subresources);
 
-    // data will hold dumped data for all aspects and sub resources, total_files in total.
+    // data will hold dumped data for all aspects and sub resources, total_subresources in total.
     // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
-    // For that readon keep a different counter for the data vector
+    // For that reason keep a different counter for the data vector
     size_t data_index = 0;
     for (const auto aspect : aspects)
     {
-        // We don't support stencil output yet
-        if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-        {
-            continue;
-        }
-
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
 
@@ -753,31 +747,6 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     }
 
     return VK_SUCCESS;
-}
-
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects)
-{
-    aspects.clear();
-    graphics::GetFormatAspects(format, &aspects);
-
-    for (auto it = aspects.begin(); it < aspects.end();)
-    {
-        if (*it == VK_IMAGE_ASPECT_STENCIL_BIT)
-        {
-            it = aspects.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-VkImageAspectFlags GetFormatAspects(VkFormat format)
-{
-    VkImageAspectFlags aspects = graphics::GetFormatAspects(format);
-    aspects &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
-    return aspects;
 }
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags)
@@ -1140,8 +1109,8 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
                     uint32_t                        array_index,
                     VkImageSubresourceRange*        subresource_range)
 {
-    const DescriptorTuple tuple                   = DescriptorTuple{ desc_set, binding, array_index };
-    const auto            image_subresource_entry = cmd_subresources_entry->second.find(tuple);
+    const DescriptorLocation desc_loc                = DescriptorLocation{ desc_set, binding, array_index };
+    const auto               image_subresource_entry = cmd_subresources_entry->second.find(desc_loc);
     if (image_subresource_entry == cmd_subresources_entry->second.end())
     {
         return true;

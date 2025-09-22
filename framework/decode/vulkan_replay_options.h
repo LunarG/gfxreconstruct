@@ -54,19 +54,19 @@ enum class SkipGetFenceStatus
     COUNT
 };
 
-using Index                 = uint64_t;
-using CommandIndices        = std::vector<Index>;
-using RenderPassIndices     = std::vector<std::vector<Index>>;
-using ExecuteCommands       = std::unordered_map<Index, CommandIndices>;
+using Index             = uint64_t;
+using CommandIndices    = std::vector<Index>;
+using RenderPassIndices = std::vector<std::vector<Index>>;
+using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
 
-struct DescriptorTuple
+struct DescriptorLocation
 {
-    bool const operator==(const DescriptorTuple& other) const
+    bool const operator==(const DescriptorLocation& other) const
     {
         return set == other.set && binding == other.binding && array_index == other.array_index;
     }
 
-    bool const operator<(const DescriptorTuple& other) const
+    bool const operator<(const DescriptorLocation& other) const
     {
         if (set == other.set)
         {
@@ -90,7 +90,8 @@ struct DescriptorTuple
     uint32_t array_index;
 };
 
-using CommandImageSubresource = std::unordered_map<decode::Index, std::map<DescriptorTuple, VkImageSubresourceRange>>;
+using CommandImageSubresource =
+    std::unordered_map<decode::Index, std::map<DescriptorLocation, VkImageSubresourceRange>>;
 using CommandImageSubresourceIterator = CommandImageSubresource::const_iterator;
 
 // Default color attachment index selection for dump resources feature.

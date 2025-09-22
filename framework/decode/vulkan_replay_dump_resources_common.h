@@ -489,10 +489,6 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
                         VkBuffer*                               new_buffer,
                         VkDeviceMemory*                         new_memory);
 
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
-
-VkImageAspectFlags GetFormatAspects(VkFormat format);
-
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
 
 void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::string>& stage_names);

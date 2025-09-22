@@ -47,9 +47,9 @@ class DispatchTraceRaysDumpingContext
 {
   public:
     DispatchTraceRaysDumpingContext(const CommandIndices*          dispatch_indices,
-                                    const CommandImageSubresource& disp_indices,
+                                    const CommandImageSubresource& disp_subresources,
                                     const CommandIndices*          trace_rays_indices,
-                                    const CommandImageSubresource& tr_indices,
+                                    const CommandImageSubresource& tr_subresources,
                                     CommonObjectInfoTable&         object_info_table,
                                     const VulkanReplayOptions&     options,
                                     VulkanDumpResourcesDelegate&   delegate,
