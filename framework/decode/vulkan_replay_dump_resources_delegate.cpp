@@ -29,6 +29,7 @@
 #include "util/logging.h"
 #include <cstddef>
 #include <unordered_set>
+#include <vulkan/vulkan_core.h>
 
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
@@ -179,42 +180,57 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDu
     return bytes_written ? true : false;
 }
 
-static constexpr util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
+static constexpr util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat              format,
+                                                                                VkImageAspectFlagBits aspect)
 {
-    switch (format)
+    if (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
     {
-        case VK_FORMAT_R8G8B8_SRGB:
-        case VK_FORMAT_R8G8B8_UNORM:
+        if (format == VK_FORMAT_R8G8B8_SRGB || format == VK_FORMAT_R8G8B8_UNORM)
+        {
             return util::imagewriter::DataFormats::kFormat_RGB;
-
-        case VK_FORMAT_R8G8B8A8_SRGB:
-        case VK_FORMAT_R8G8B8A8_UNORM:
+        }
+        else if (format == VK_FORMAT_R8G8B8A8_SRGB || format == VK_FORMAT_R8G8B8A8_UNORM)
+        {
             return util::imagewriter::DataFormats::kFormat_RGBA;
-
-        case VK_FORMAT_B8G8R8_SRGB:
-        case VK_FORMAT_B8G8R8_UNORM:
+        }
+        else if (format == VK_FORMAT_B8G8R8_SRGB || format == VK_FORMAT_B8G8R8_UNORM)
+        {
             return util::imagewriter::DataFormats::kFormat_BGR;
-
-        case VK_FORMAT_B8G8R8A8_SRGB:
-        case VK_FORMAT_B8G8R8A8_UNORM:
+        }
+        else if (format == VK_FORMAT_B8G8R8A8_SRGB || format == VK_FORMAT_B8G8R8A8_UNORM)
+        {
             return util::imagewriter::DataFormats::kFormat_BGRA;
-
-        case VK_FORMAT_D32_SFLOAT:
-        case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
-
-        case VK_FORMAT_D24_UNORM_S8_UINT:
-        case VK_FORMAT_X8_D24_UNORM_PACK32:
-            return util::imagewriter::DataFormats::kFormat_D24_UNORM;
-
-        case VK_FORMAT_D16_UNORM:
-            return util::imagewriter::DataFormats::kFormat_D16_UNORM;
-
-        default:
-            GFXRECON_LOG_ERROR("%s isn't supported in VkFormatToImageWriterDataFormat",
-                               util::ToString<VkFormat>(format).c_str());
-            return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
+        }
     }
+    else if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+    {
+        if (format == VK_FORMAT_D32_SFLOAT || format == VK_FORMAT_D32_SFLOAT_S8_UINT)
+        {
+            return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
+        }
+        else if (format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_X8_D24_UNORM_PACK32)
+        {
+            return util::imagewriter::DataFormats::kFormat_D24_UNORM;
+        }
+        else if (format == VK_FORMAT_D16_UNORM || format == VK_FORMAT_D16_UNORM_S8_UINT)
+        {
+            return util::imagewriter::DataFormats::kFormat_D16_UNORM;
+        }
+    }
+    else if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D16_UNORM_S8_UINT ||
+            format == VK_FORMAT_D24_UNORM_S8_UINT)
+        {
+            return util::imagewriter::DataFormats::kFormat_S8_UINT;
+        }
+    }
+
+    GFXRECON_LOG_WARNING("%s(): Unrecognized format - aspect combination (%s - %s)",
+                         __func__,
+                         util::ToString(format).c_str(),
+                         util::ToString(aspect).c_str());
+    return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
 }
 
 static const std::unordered_set<VkFormat> FormatsDumpedAsImages = {
@@ -335,7 +351,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
         if (output_image_format != KFormatRaw)
         {
             const util::imagewriter::DataFormats image_writer_format =
-                VkFormatToImageWriterDataFormat(dumped_image->dumped_format);
+                VkFormatToImageWriterDataFormat(dumped_image->dumped_format, sub_res.aspect);
             assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
 
             const uint32_t texel_size = vkuFormatElementSizeWithAspect(dumped_image->dumped_format, sub_res.aspect);

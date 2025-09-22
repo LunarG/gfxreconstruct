@@ -1236,7 +1236,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
         // Cull dumped descriptors
         VkImageSubresourceRange subresource_range = {
-            GetFormatAspects(mutable_resources_clones.images[i].new_image_info.format),
+            graphics::GetFormatAspects(mutable_resources_clones.images[i].new_image_info.format),
             0,
             options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
             0,
@@ -1484,7 +1484,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                             // Cull dumped descriptors
                             VkImageSubresourceRange subresource_range = {
-                                GetFormatAspects(img_info->format),
+                                graphics::GetFormatAspects(img_info->format),
                                 0,
                                 options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
                                 0,

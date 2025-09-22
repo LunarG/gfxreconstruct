@@ -1149,7 +1149,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
         const VkImageSubresourceRange subresource_range = {
-            GetFormatAspects(image_info->format),
+            graphics::GetFormatAspects(image_info->format),
             0,
             options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
             0,
@@ -1217,7 +1217,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
             const VkImageSubresourceRange subresource_range = {
-                GetFormatAspects(image_info->format),
+                graphics::GetFormatAspects(image_info->format),
                 0,
                 options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
                 0,
@@ -1309,7 +1309,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                             // Cull dumped descriptors
                             VkImageSubresourceRange subresource_range = {
-                                GetFormatAspects(image_info->format),
+                                graphics::GetFormatAspects(image_info->format),
                                 0,
                                 options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
                                 0,
