@@ -210,8 +210,10 @@ class FileProcessor
 
   private:
     bool ProcessFileHeader();
+    bool ProcessBlocks();
 
-    virtual bool ProcessBlocks();
+    // NOTE: SkipBlockProcessing can't be const as derived class updates state.
+    virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
 
     bool ReadParameterBuffer(size_t buffer_size);
 
