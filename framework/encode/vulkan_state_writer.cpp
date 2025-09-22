@@ -3185,7 +3185,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                             // stencil aspect.
                             if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
                             {
-                                aspect_flags = graphics::GetFormatAspectMask(wrapper->format);
+                                aspect_flags = graphics::GetFormatAspects(wrapper->format);
                                 WriteImageSubresourceLayouts(wrapper, aspect_flags);
                             }
                         }

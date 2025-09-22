@@ -294,8 +294,6 @@ void AspectFlagsToFlagBits(VkImageAspectFlags aspect_mask, std::vector<VkImageAs
 
 VkImageAspectFlags GetFormatAspects(VkFormat format);
 
-VkImageAspectFlags GetFormatAspectMask(VkFormat format);
-
 VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
 
 bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
