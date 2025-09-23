@@ -541,8 +541,8 @@ class CommonCaptureManager
     static bool                                           initialize_log_;
     static std::atomic<format::HandleId>                  default_unique_id_counter_;
     static uint64_t                                       default_unique_id_offset_;
-    static bool                                           force_default_unique_id_;
-    static std::vector<format::HandleId>                  unique_id_stack_;
+    static thread_local bool                              force_default_unique_id_;
+    static thread_local std::vector<format::HandleId>     unique_id_stack_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
