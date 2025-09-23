@@ -60,10 +60,10 @@ std::mutex                                     CommonCaptureManager::instance_lo
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
-std::atomic<format::HandleId> CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
-uint64_t                      CommonCaptureManager::default_unique_id_offset_ = 0;
-bool                          CommonCaptureManager::force_default_unique_id_  = false;
-std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
+std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
+uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
+thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
+thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
