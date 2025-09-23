@@ -106,7 +106,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
 {
     VkFormat dst_format;
 
-    if (vkuFormatIsSRGB(format))
+    if (vkuFormatIsSRGB(format) || vkuFormatIsSFLOAT(format) || vkuFormatIsSNORM(format))
     {
         dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8_SRGB;
     }
