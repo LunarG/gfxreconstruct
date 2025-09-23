@@ -40,6 +40,8 @@
 #pragma GCC diagnostic ignored "-Wcpp"
 #endif
 
+// avoid compilation issues with c++20 / 32bit
+#define VULKAN_HPP_NO_SPACESHIP_OPERATOR
 #include "vulkan/vulkan_hash.hpp"
 #include "vulkan/vulkan_structs.hpp"
 
