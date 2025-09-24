@@ -649,6 +649,9 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
+    // query if dedicated allocations are required
+    VkMemoryDedicatedRequirementsKHR dedicated_req = GetDedicatedRequirements(buffer);
+
     if (FindVmaMemoryInfo(memory_alloc_info, memory_offset, requirements, create_info, vma_mem_info))
     {
         return VK_SUCCESS;
@@ -657,6 +660,8 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
     mem_info.mem_req                            = requirements;
+    mem_info.requires_dedicated_allocation      = dedicated_req.requiresDedicatedAllocation;
+    mem_info.prefers_dedicated_allocation       = dedicated_req.prefersDedicatedAllocation;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
@@ -665,7 +670,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
 
     if (result >= 0)
     {
-        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
     }
     return result;
@@ -912,6 +917,9 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     VkMemoryRequirements requirements;
     functions_.get_image_memory_requirements(device_, image, &requirements);
 
+    // query if dedicated allocations are required
+    VkMemoryDedicatedRequirementsKHR dedicated_req = GetDedicatedRequirements(image);
+
     VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
     create_info.usage =
@@ -933,6 +941,8 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
     mem_info.mem_req                            = requirements;
+    mem_info.requires_dedicated_allocation      = dedicated_req.requiresDedicatedAllocation;
+    mem_info.prefers_dedicated_allocation       = dedicated_req.prefersDedicatedAllocation;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
@@ -941,7 +951,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
 
     if (result >= 0)
     {
-        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
     }
     return result;
@@ -2386,6 +2396,8 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
     mem_info.mem_req                            = mem_req;
+    mem_info.requires_dedicated_allocation      = false;
+    mem_info.prefers_dedicated_allocation       = false;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = original_offset;
 
@@ -2403,7 +2415,7 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
     {
         allocator_->GetAllocationInfo(mem_info.allocation, &mem_info.allocation_info);
 
-        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(std::move(mem_info)));
+        memory_alloc_info.vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
         *vma_mem_info = memory_alloc_info.vma_mem_infos.back().get();
     }
     return result;
@@ -2893,6 +2905,34 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             *res_alloc_info, object_handle, MemoryInfoType::kSparse, *mem_alloc_info, *vma_mem_info, mem_properties);
     }
     return result;
+}
+
+VkMemoryDedicatedRequirementsKHR VulkanRebindAllocator::GetDedicatedRequirements(VkBuffer buffer)
+{
+    VkBufferMemoryRequirementsInfo2 info{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2 };
+    info.buffer = buffer;
+
+    VkMemoryDedicatedRequirementsKHR mem_dedicated_req = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR };
+
+    VkMemoryRequirements2 memory_requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
+    memory_requirements.pNext = &mem_dedicated_req;
+
+    functions_.get_buffer_memory_requirements2(device_, &info, &memory_requirements);
+    return mem_dedicated_req;
+}
+
+VkMemoryDedicatedRequirementsKHR VulkanRebindAllocator::GetDedicatedRequirements(VkImage image)
+{
+    VkImageMemoryRequirementsInfo2 info{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2 };
+    info.image = image;
+
+    VkMemoryDedicatedRequirementsKHR mem_dedicated_req = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR };
+
+    VkMemoryRequirements2 memory_requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
+    memory_requirements.pNext = &mem_dedicated_req;
+
+    functions_.get_image_memory_requirements2(device_, &info, &memory_requirements);
+    return mem_dedicated_req;
 }
 
 bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
