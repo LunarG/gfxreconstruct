@@ -1125,14 +1125,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             continue;
         }
 
-        const VulkanImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
-
-        if (!IsImageDumpable(instance_table_, object_info_table_, image_info))
-        {
-            continue;
-        }
-
-        auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kRtv,
+        const VulkanImageInfo* image_info     = render_targets_[rp][sp].color_att_imgs[i];
+        const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
+        auto&                  dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kRtv,
                                                                               bcb_index,
                                                                               dc_index,
                                                                               qs_index,
@@ -1140,8 +1135,13 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                                                               sp,
                                                                               static_cast<uint32_t>(i),
                                                                               before_command,
-                                                                              image_info)
-                                                    : *(dumped_rts.begin() + i);
+                                                                              image_info,
+                                                                              can_dump_image)
+                                                                     : *(dumped_rts.begin() + i);
+        if (can_dump_image != ImageDumpResult::kCanDump)
+        {
+            continue;
+        }
 
         VulkanDelegateDumpResourceContext res_info = res_info_base;
         res_info.dumped_resource                   = &dumped_rt;
@@ -1196,21 +1196,23 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     {
         const VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
 
-        if (IsImageDumpable(instance_table_, object_info_table_, image_info))
-        {
-            // The "before" depth target will be at the back() of the vector
-            GFXRECON_ASSERT(image_info != nullptr);
-            auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kDsv,
-                                                                                  bcb_index,
-                                                                                  dc_index,
-                                                                                  qs_index,
-                                                                                  rp,
-                                                                                  sp,
-                                                                                  DEPTH_ATTACHMENT,
-                                                                                  before_command,
-                                                                                  image_info)
-                                                        : dumped_rts.back();
+        const ImageDumpResult can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
+        // The "before" depth target will be at the back() of the vector
+        GFXRECON_ASSERT(image_info != nullptr);
+        auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kDsv,
+                                                                              bcb_index,
+                                                                              dc_index,
+                                                                              qs_index,
+                                                                              rp,
+                                                                              sp,
+                                                                              DEPTH_ATTACHMENT,
+                                                                              before_command,
+                                                                              image_info,
+                                                                              can_dump_image)
+                                                    : dumped_rts.back();
 
+        if (can_dump_image == ImageDumpResult::kCanDump)
+        {
             VulkanDelegateDumpResourceContext res_info = res_info_base;
             res_info.dumped_resource                   = &dumped_rt;
             res_info.dumped_data                       = VulkanDelegateImageDumpedData();
@@ -1324,10 +1326,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 continue;
                             }
 
-                            if (!IsImageDumpable(instance_table_, object_info_table_, image_info))
-                            {
-                                continue;
-                            }
+                            const ImageDumpResult can_dump_image =
+                                CanDumpImage(instance_table_, device_info->parent, image_info);
 
                             auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                                 DumpResourceType::kImageDescriptor,
@@ -1342,7 +1342,13 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 desc_binding_index,
                                 array_index,
                                 image_info,
+                                can_dump_image,
                                 DumpResourcesCommandType::kGraphics);
+
+                            if (can_dump_image != ImageDumpResult::kCanDump)
+                            {
+                                continue;
+                            }
 
                             auto&      new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
                             const auto dumped_desc_entry =

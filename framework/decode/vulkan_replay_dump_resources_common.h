@@ -95,6 +95,13 @@ enum class DumpResourceType
     kDispatchTraceRaysInlineUniformBufferDescriptor,
 };
 
+enum ImageDumpResult
+{
+    kCanDump,
+    kCanNotResolve,
+    kFormatNotSupported
+};
+
 struct DumpedFile
 {
     DumpedFile() = default;
@@ -129,7 +136,9 @@ struct DumpedImage
 {
     DumpedImage() = default;
 
-    DumpedImage(const VulkanImageInfo* i_f) : image_info(i_f), scaling_failed(false), dumped_raw(false) {}
+    DumpedImage(const VulkanImageInfo* i_f, ImageDumpResult cd) :
+        image_info(i_f), scaling_failed(false), dumped_raw(false), can_dump(cd)
+    {}
 
     const VulkanImageInfo* image_info{ nullptr };
 
@@ -166,6 +175,8 @@ struct DumpedImage
         dumped_format       = other.dumped_format;
         dumped_subresources = other.dumped_subresources;
     }
+
+    ImageDumpResult can_dump;
 };
 
 struct DumpedResourceBase
@@ -296,10 +307,11 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 b,
                      uint32_t                 ai,
                      const VulkanImageInfo*   img_info,
+                     ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
         stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing image descriptors
@@ -313,10 +325,11 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 b,
                      uint32_t                 ai,
                      const VulkanImageInfo*   img_info,
+                     ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs),
         stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
@@ -386,13 +399,14 @@ struct DumpedRenderTarget : DumpedResourceBase
                        uint64_t               sp,
                        uint32_t               l,
                        bool                   before,
-                       const VulkanImageInfo* img_info) :
+                       const VulkanImageInfo* img_info,
+                       ImageDumpResult        cd) :
         DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        location(l), dumped_image(img_info)
+        location(l), dumped_image(img_info, cd)
     {
         if (before)
         {
-            dumped_image_before = DumpedImage(img_info);
+            dumped_image_before = DumpedImage(img_info, cd);
         }
     }
 
@@ -451,9 +465,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                                           int32_t                     vertex_offset,
                                           VkIndexType                 type);
 
-bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
-                     const VulkanObjectInfoTable&         object_info_table,
-                     const VulkanImageInfo*               image_info);
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
+                             VkPhysicalDevice                     phys_dev,
+                             const VulkanImageInfo*               image_info);
 
 VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
