@@ -424,9 +424,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (must_dump)
     {
-        dc_context->InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
+        dc_params =
+            dc_context->InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
     CommandBufferIterator first, last;
@@ -446,7 +448,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
     {
         assert(dc_context != nullptr);
 
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -476,9 +478,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     }
 
     // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedParameters(
+        dc_params = dc_context->InsertNewDrawIndexedParameters(
             dc_index, index_count, instance_count, first_index, vertexOffset, first_instance);
     }
 
@@ -498,7 +501,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -527,9 +530,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     }
 
     // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+        dc_params = dc_context->InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
     CommandBufferIterator first, last;
@@ -548,7 +552,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -576,9 +580,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+        dc_params =
+            dc_context->InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
     CommandBufferIterator first, last;
@@ -597,7 +603,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -628,16 +634,17 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewIndirectCountParameters(dc_index,
-                                                     buffer_info,
-                                                     offset,
-                                                     count_buffer_info,
-                                                     count_buffer_offset,
-                                                     max_draw_count,
-                                                     stride,
-                                                     drawcall_type);
+        dc_params = dc_context->InsertNewIndirectCountParameters(dc_index,
+                                                                 buffer_info,
+                                                                 offset,
+                                                                 count_buffer_info,
+                                                                 count_buffer_offset,
+                                                                 max_draw_count,
+                                                                 stride,
+                                                                 drawcall_type);
     }
 
     CommandBufferIterator first, last;
@@ -662,7 +669,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -694,16 +701,17 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedIndirectCountParameters(dc_index,
-                                                                buffer_info,
-                                                                offset,
-                                                                count_buffer_info,
-                                                                count_buffer_offset,
-                                                                max_draw_count,
-                                                                stride,
-                                                                drawcall_type);
+        dc_params = dc_context->InsertNewDrawIndexedIndirectCountParameters(dc_index,
+                                                                            buffer_info,
+                                                                            offset,
+                                                                            count_buffer_info,
+                                                                            count_buffer_offset,
+                                                                            max_draw_count,
+                                                                            stride,
+                                                                            drawcall_type);
     }
 
     CommandBufferIterator first, last;
@@ -728,7 +736,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }

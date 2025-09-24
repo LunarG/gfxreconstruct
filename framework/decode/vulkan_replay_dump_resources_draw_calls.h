@@ -44,6 +44,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DrawCallsDumpingContext
 {
   public:
+    // Forward declaration
+    struct DrawCallParams;
+
     enum DrawCallType
     {
         kDraw,
@@ -133,7 +136,8 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
-    void FinalizeCommandBuffer();
+    // When this is called for a command buffer that corresponds to a before command, dc_params should be null
+    void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
@@ -147,32 +151,23 @@ class DrawCallsDumpingContext
 
     VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
 
-    void InsertNewDrawParameters(
+    DrawCallParams* InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
 
-    void InsertNewDrawIndexedParameters(uint64_t index,
-                                        uint32_t index_count,
-                                        uint32_t instance_count,
-                                        uint32_t first_index,
-                                        int32_t  vertexOffset,
-                                        uint32_t first_instance);
+    DrawCallParams* InsertNewDrawIndexedParameters(uint64_t index,
+                                                   uint32_t index_count,
+                                                   uint32_t instance_count,
+                                                   uint32_t first_index,
+                                                   int32_t  vertexOffset,
+                                                   uint32_t first_instance);
 
-    void InsertNewDrawIndirectParameters(
+    DrawCallParams* InsertNewDrawIndirectParameters(
         uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void InsertNewDrawIndexedIndirectParameters(
+    DrawCallParams* InsertNewDrawIndexedIndirectParameters(
         uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void InsertNewIndirectCountParameters(uint64_t                index,
-                                          const VulkanBufferInfo* buffer_info,
-                                          VkDeviceSize            offset,
-                                          const VulkanBufferInfo* count_buffer_info,
-                                          VkDeviceSize            count_buffer_offset,
-                                          uint32_t                max_draw_count,
-                                          uint32_t                stride,
-                                          DrawCallType            drawcall_type);
-
-    void InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
+    DrawCallParams* InsertNewIndirectCountParameters(uint64_t                index,
                                                      const VulkanBufferInfo* buffer_info,
                                                      VkDeviceSize            offset,
                                                      const VulkanBufferInfo* count_buffer_info,
@@ -180,6 +175,15 @@ class DrawCallsDumpingContext
                                                      uint32_t                max_draw_count,
                                                      uint32_t                stride,
                                                      DrawCallType            drawcall_type);
+
+    DrawCallParams* InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
+                                                                const VulkanBufferInfo* buffer_info,
+                                                                VkDeviceSize            offset,
+                                                                const VulkanBufferInfo* count_buffer_info,
+                                                                VkDeviceSize            count_buffer_offset,
+                                                                uint32_t                max_draw_count,
+                                                                uint32_t                stride,
+                                                                DrawCallType            drawcall_type);
 
     void Release();
 
