@@ -1738,7 +1738,7 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(VulkanInstanceInfo*       insta
         {
             graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                   GetInstanceTable(physical_device_info->handle),
-                                                                  physical_device_info->handle,
+                                                                  replay_device,
                                                                   replay_device_info);
         }
 
@@ -1824,7 +1824,7 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(VulkanInstanceInfo*       
             {
                 graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_info,
                                                                       GetInstanceTable(physical_device_info->handle),
-                                                                      physical_device_info->handle,
+                                                                      replay_device,
                                                                       replay_device_info);
             }
 
