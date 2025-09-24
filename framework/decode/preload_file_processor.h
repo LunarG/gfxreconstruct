@@ -44,76 +44,13 @@ class PreloadFileProcessor : public FileProcessor
     bool PreloadBlocksOneFrame();
 
   private:
-    bool ReadBytes(void* buffer, size_t buffer_size) override;
-    util::DataSpan ReadSpan(size_t buffer_size) override;
-    bool SkipBytes(size_t skip_size) override;
+    bool GetBlockBuffer(BlockBuffer& block_buffer) override;
 
-    // These don't need virtual/override as they are specific to PreloadFileProcessor
-    bool PeekBytes(void* buffer, size_t buffer_size);
-    bool PeekBlockHeader(format::BlockHeader* block_header);
-
-    class BlockBuffer
-    {
-      public:
-        bool IsValid() const { return block_span_.data() != nullptr; }
-        bool IsEof() const { return read_pos_ >= block_span_.size(); }
-
-        template <typename T>
-        bool Read(T& value)
-        {
-            bool success = ReadAt<T>(value, read_pos_);
-            if (success)
-            {
-                read_pos_ += sizeof(T);
-            }
-            return success;
-        }
-
-        template <typename T>
-        bool ReadAt(T& value, size_t at) const
-        {
-            // Ensure that this isn't being misused.
-            static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
-            if (IsAvailableAt(sizeof(value), at))
-            {
-                memcpy(&value, block_span_.data() + at, sizeof(value));
-                return true;
-            }
-            return false;
-        }
-
-        bool ReadBytes(void* buffer, size_t buffer_size);
-        bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
-
-        util::DataSpan ReadSpan(size_t buffer_size);
-        util::DataSpan ReadSpanAt(size_t buffer_size, size_t at);
-
-        size_t Size() const { return block_span_.size(); }
-
-        size_t ReadPos() const { return read_pos_; }
-
-        BlockBuffer(const format::BlockHeader& header, util::DataSpan&& block_span) :
-            header_(header), block_span_(std::move(block_span))
-        {}
-
-        bool IsFrameDelimiter(const FileProcessor& file_processor) const;
-
-        bool SeekForward(size_t size);
-
-        bool IsAvailable(size_t size) const { return IsAvailableAt(size, read_pos_); }
-        bool IsAvailableAt(size_t size, size_t at) const { return Size() >= (at + size); }
-
-      private:
-        format::BlockHeader header_;
-        size_t              read_pos_{ 0 };
-        util::DataSpan      block_span_;
-    };
-
-    BlockBuffer* GetCurrentBlockBuffer();
-    bool AddBlockBuffer(const format::BlockHeader& header);
-
-    std::deque<BlockBuffer> pending_block_buffers_;
-    std::deque<BlockBuffer> block_buffers_;
+    // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
+    //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
+    //       the compact choice
+    std::deque<util::DataSpan> pending_block_data_;
+    std::deque<util::DataSpan> preload_block_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
