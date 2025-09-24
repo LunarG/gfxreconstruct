@@ -148,7 +148,7 @@ void DrawCallsDumpingContext::Release()
     current_cb_index_   = 0;
 }
 
-void DrawCallsDumpingContext::InsertNewDrawParameters(
+DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawParameters(
     uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance)
 {
     auto [entry_it, success] = draw_call_params_.insert(
@@ -157,14 +157,17 @@ void DrawCallsDumpingContext::InsertNewDrawParameters(
               DrawCallType::kDraw, vertex_count, instance_count, first_vertex, first_instance) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
-                                                             uint32_t index_count,
-                                                             uint32_t instance_count,
-                                                             uint32_t first_index,
-                                                             int32_t  vertexOffset,
-                                                             uint32_t first_instance)
+DrawCallsDumpingContext::DrawCallParams*
+DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
+                                                        uint32_t index_count,
+                                                        uint32_t instance_count,
+                                                        uint32_t first_index,
+                                                        int32_t  vertexOffset,
+                                                        uint32_t first_instance)
 {
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
@@ -172,9 +175,11 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
               DrawCallType::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
+DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
     uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
     auto [entry_it, success] = draw_call_params_.insert(
@@ -182,9 +187,11 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
           std::make_unique<DrawCallParams>(DrawCallType::kDrawIndirect, buffer_info, offset, draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
+DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
     uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride)
 {
     auto [entry_it, success] =
@@ -193,16 +200,19 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
                                        DrawCallType::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t                index,
-                                                               const VulkanBufferInfo* buffer_info,
-                                                               VkDeviceSize            offset,
-                                                               const VulkanBufferInfo* count_buffer_info,
-                                                               VkDeviceSize            count_buffer_offset,
-                                                               uint32_t                max_draw_count,
-                                                               uint32_t                stride,
-                                                               DrawCallType            drawcall_type)
+DrawCallsDumpingContext::DrawCallParams*
+DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t                index,
+                                                          const VulkanBufferInfo* buffer_info,
+                                                          VkDeviceSize            offset,
+                                                          const VulkanBufferInfo* count_buffer_info,
+                                                          VkDeviceSize            count_buffer_offset,
+                                                          uint32_t                max_draw_count,
+                                                          uint32_t                stride,
+                                                          DrawCallType            drawcall_type)
 {
     GFXRECON_ASSERT(drawcall_type == kDrawIndirectCount || drawcall_type == kDrawIndirectCountKHR ||
                     drawcall_type == kDrawIndirectCountAMD);
@@ -212,16 +222,19 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
-void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
-                                                                          const VulkanBufferInfo* buffer_info,
-                                                                          VkDeviceSize            offset,
-                                                                          const VulkanBufferInfo* count_buffer_info,
-                                                                          VkDeviceSize            count_buffer_offset,
-                                                                          uint32_t                max_draw_count,
-                                                                          uint32_t                stride,
-                                                                          DrawCallType            drawcall_type)
+DrawCallsDumpingContext::DrawCallParams*
+DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
+                                                                     const VulkanBufferInfo* buffer_info,
+                                                                     VkDeviceSize            offset,
+                                                                     const VulkanBufferInfo* count_buffer_info,
+                                                                     VkDeviceSize            count_buffer_offset,
+                                                                     uint32_t                max_draw_count,
+                                                                     uint32_t                stride,
+                                                                     DrawCallType            drawcall_type)
 {
     GFXRECON_ASSERT(drawcall_type == kDrawIndexedIndirectCount || drawcall_type == kDrawIndexedIndirectCountKHR ||
                     drawcall_type == kDrawIndexedIndirectCountAMD);
@@ -231,6 +244,8 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
+
+    return entry_it->second.get();
 }
 
 VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_params)
@@ -664,7 +679,7 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
     // NOTE: for indirect draws, we defer copying the indirect command-buffer until FinalizeCommandBuffer
 }
 
-void DrawCallsDumpingContext::FinalizeCommandBuffer()
+void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
     assert((current_render_pass_type_ == kRenderPass || current_render_pass_type_ == kDynamicRendering) ||
            command_buffer_level_ == DumpResourcesCommandBufferLevel::kSecondary);
@@ -728,14 +743,16 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
         }
     }
 
-    for (const auto& [draw_index, params] : draw_call_params_)
+    // Copy indirect draw params.
+    // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_) represents
+    // both "before" and "after" case, we should do this only once. For the "before" commands dc_params in
+    // FinalizeCommandBuffer() will be null so we distinquish between "befre" and "after" and call
+    // CopyDrawIndirectParameters() just once.
+    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type))
     {
-        // Copy indirect draw params
-        if (IsDrawCallIndirect(params->type))
-        {
-            CopyDrawIndirectParameters(*params);
-        }
+        CopyDrawIndirectParameters(*dc_params);
     }
+
     device_table_->EndCommandBuffer(current_command_buffer);
 
     // Increment index of command buffer that is going to be finalized next
@@ -846,18 +863,24 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         const uint64_t              sp       = RP_index.second;
         const uint64_t              rp       = RP_index.first;
 
-        // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers
-        // into the DrawCallParams
-        res = FetchDrawIndirectParams(dc_index);
-        if (res != VK_SUCCESS)
+        // Some things need to be dumped once. It shouldn't matter if this is for the "before" or "after" command buffer
+        // but we need to distinguish between the two in order to make sure we make each thing once.
+        const bool is_before_command = !options_.dump_resources_before || options_.dump_resources_before && !(cb % 2);
+
+        // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers into the DrawCallParams.
+        if (is_before_command)
         {
-            GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).", util::ToString<VkResult>(res).c_str())
-            return res;
+            res = FetchDrawIndirectParams(dc_index);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).",
+                                   util::ToString<VkResult>(res).c_str())
+                return res;
+            }
         }
 
         // Dump vertex/index buffers
-        if (options_.dump_resources_dump_vertex_index_buffer &&
-            (!options_.dump_resources_before || options_.dump_resources_before && !(cb % 2)))
+        if (options_.dump_resources_dump_vertex_index_buffer && is_before_command)
         {
             res = DumpVertexIndexBuffers(qs_index, bcb_index, dc_index);
             if (res != VK_SUCCESS)
@@ -876,8 +899,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump immutable resources
-        if (options_.dump_resources_dump_immutable_resources &&
-            (!options_.dump_resources_before || options_.dump_resources_before && !(cb % 2)))
+        if (options_.dump_resources_dump_immutable_resources && is_before_command)
         {
             res = DumpDescriptors(qs_index, bcb_index, dc_index, rp);
             if (res != VK_SUCCESS)
