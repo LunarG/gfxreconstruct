@@ -804,10 +804,10 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
     return result;
 }
 
-util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  value_string,
-                                                         util::Log::Severity default_value)
+util::LoggingSeverity CaptureSettings::ParseLogLevelString(const std::string&    value_string,
+                                                           util::LoggingSeverity default_value)
 {
-    util::Log::Severity result;
+    util::LoggingSeverity result;
 
     if (!util::Log::StringToSeverity(value_string, result))
     {

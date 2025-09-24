@@ -519,8 +519,8 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
-    gfxrecon::util::Log::Severity log_level;
-    const std::string&            value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
+    gfxrecon::util::LoggingSeverity log_level;
+    const std::string&              value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
     if (value_string.empty() || !gfxrecon::util::Log::StringToSeverity(value_string, log_level))
     {
         log_level = gfxrecon::decode::kDefaultLogLevel;
@@ -535,6 +535,10 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_timestamps         = arg_parser.IsOptionSet(kLogTimestampsOption);
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
+    if (log_settings.file_name.size() > 0)
+    {
+        log_settings.write_to_file = true;
+    }
 }
 
 static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)

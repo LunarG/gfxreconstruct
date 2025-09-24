@@ -45,7 +45,7 @@ const gfxrecon::format::HandleId kDeviceId        = 6;
 
 TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     gfxrecon::decode::CommonObjectInfoTable info_table;
 
