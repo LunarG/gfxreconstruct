@@ -293,10 +293,31 @@ void VulkanRebindAllocator::DestroyBuffer(VkBuffer                     buffer,
         // It could bind sparse memories. It could have plural memories.
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info->memory_info;
-            if (mem_alc_info != nullptr)
+            --mem_info->reference_count;
+            if ((mem_info->reference_count == 0) && (mem_info->allocation != VK_NULL_HANDLE))
             {
-                mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(buffer));
+                if (mem_info->mapped_pointer != nullptr)
+                {
+                    vmaUnmapMemory(allocator_, mem_info->allocation);
+                }
+                vmaFreeMemory(allocator_, mem_info->allocation);
+            }
+
+            auto mem_alc_info = mem_info->memory_info;
+            GFXRECON_ASSERT(mem_alc_info != VK_NULL_HANDLE);
+            mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(buffer));
+
+            for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)
+            {
+                if (entry->get() == mem_info)
+                {
+                    mem_alc_info->vma_mem_infos.erase(entry);
+                    break;
+                }
+                else
+                {
+                    ++entry;
+                }
             }
         }
         delete resource_alloc_info;
@@ -354,10 +375,31 @@ void VulkanRebindAllocator::DestroyImage(VkImage                      image,
         // It could bind sparse memories. It could have plural memories.
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info->memory_info;
-            if (mem_alc_info != nullptr)
+            --mem_info->reference_count;
+            if ((mem_info->reference_count == 0) && (mem_info->allocation != VK_NULL_HANDLE))
             {
-                mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(image));
+                if (mem_info->mapped_pointer != nullptr)
+                {
+                    vmaUnmapMemory(allocator_, mem_info->allocation);
+                }
+                vmaFreeMemory(allocator_, mem_info->allocation);
+            }
+
+            auto mem_alc_info = mem_info->memory_info;
+            GFXRECON_ASSERT(mem_alc_info != VK_NULL_HANDLE);
+            mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(image));
+
+            for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)
+            {
+                if (entry->get() == mem_info)
+                {
+                    mem_alc_info->vma_mem_infos.erase(entry);
+                    break;
+                }
+                else
+                {
+                    ++entry;
+                }
             }
         }
         delete resource_alloc_info;
@@ -410,10 +452,31 @@ void VulkanRebindAllocator::DestroyVideoSession(VkVideoSessionKHR            ses
 
         for (auto& mem_info : resource_alloc_info->bound_memory_infos)
         {
-            auto mem_alc_info = mem_info->memory_info;
-            if (mem_alc_info != nullptr)
+            --mem_info->reference_count;
+            if ((mem_info->reference_count == 0) && (mem_info->allocation != VK_NULL_HANDLE))
             {
-                mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(session));
+                if (mem_info->mapped_pointer != nullptr)
+                {
+                    vmaUnmapMemory(allocator_, mem_info->allocation);
+                }
+                vmaFreeMemory(allocator_, mem_info->allocation);
+            }
+
+            auto mem_alc_info = mem_info->memory_info;
+            GFXRECON_ASSERT(mem_alc_info != VK_NULL_HANDLE);
+            mem_alc_info->original_objects.erase(VK_HANDLE_TO_UINT64(session));
+
+            for (auto entry = mem_alc_info->vma_mem_infos.begin(); entry != mem_alc_info->vma_mem_infos.end();)
+            {
+                if (entry->get() == mem_info)
+                {
+                    mem_alc_info->vma_mem_infos.erase(entry);
+                    break;
+                }
+                else
+                {
+                    ++entry;
+                }
             }
         }
         delete resource_alloc_info;
@@ -547,35 +610,16 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
             functions_.free_memory(device_, memory_alloc_info->ahb_memory, allocator_->GetAllocationCallbacks());
         }
 
-        for (auto entry_obj = memory_alloc_info->original_objects.begin();
-             entry_obj != memory_alloc_info->original_objects.end();)
+        for (const auto& entry : memory_alloc_info->original_objects)
         {
-            auto resource_alloc_info = entry_obj->second;
-            for (auto entry_mem = resource_alloc_info->bound_memory_infos.begin();
-                 entry_mem != resource_alloc_info->bound_memory_infos.end();)
+            for (auto& entry_bound : entry.second->bound_memory_infos)
             {
-                if ((*entry_mem)->memory_info->capture_id == memory_alloc_info->capture_id)
+                if (entry_bound->memory_info == memory_alloc_info)
                 {
-                    entry_mem = resource_alloc_info->bound_memory_infos.erase(entry_mem);
-                }
-                else
-                {
-                    ++entry_mem;
+                    entry_bound->memory_info = nullptr;
                 }
             }
-            ++entry_obj;
         }
-        memory_alloc_info->original_objects.clear();
-
-        for (const auto& mem_info : memory_alloc_info->vma_mem_infos)
-        {
-            if (mem_info->mapped_pointer != nullptr)
-            {
-                vmaUnmapMemory(allocator_, mem_info->allocation);
-            }
-            vmaFreeMemory(allocator_, mem_info->allocation);
-        }
-        memory_alloc_info->vma_mem_infos.clear();
 
         delete memory_alloc_info;
     }
@@ -645,6 +689,7 @@ void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&     resource_allo
                 resource_alloc_info.bound_memory_infos.resize(1);
             }
             resource_alloc_info.bound_memory_infos[0] = &vma_mem_info;
+            ++vma_mem_info.reference_count;
             break;
         }
         case MemoryInfoType::kSparse:
@@ -663,6 +708,7 @@ void VulkanRebindAllocator::UpdateAllocInfo(ResourceAllocInfo&     resource_allo
             if (!is_found)
             {
                 resource_alloc_info.bound_memory_infos.push_back(&vma_mem_info);
+                ++vma_mem_info.reference_count;
             }
             break;
         }

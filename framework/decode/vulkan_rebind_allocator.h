@@ -428,6 +428,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkMemoryRequirements    mem_req{};
         VmaAllocationCreateInfo alc_create_info{};
         VkDeviceSize            offset_from_original_device_memory{ 0 };
+        uint64_t                reference_count{ 0 };
 
         VmaAllocation     allocation{ VK_NULL_HANDLE };
         VmaAllocationInfo allocation_info{};
