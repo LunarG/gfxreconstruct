@@ -1446,9 +1446,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                             if (!IsImageDumpable(instance_table_, object_info_table_, img_info))
                             {
-                                GFXRECON_LOG_ERROR("Image %" PRIu64
-                                                   " cannot be dumped as not supported/missing features",
-                                                   img_info->capture_id);
                                 continue;
                             }
 
