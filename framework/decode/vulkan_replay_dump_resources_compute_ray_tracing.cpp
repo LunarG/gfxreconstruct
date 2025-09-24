@@ -1251,10 +1251,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             continue;
         }
 
-        if (!IsImageDumpable(instance_table_, object_info_table_, &mutable_resources_clones.images[i].new_image_info))
-        {
-            continue;
-        }
+        const ImageDumpResult can_dump_image =
+            CanDumpImage(instance_table_, device_info->parent, &mutable_resources_clones.images[i].new_image_info);
 
         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
             DumpResourceType::kDispatchTraceRaysImage,
@@ -1267,7 +1265,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             mutable_resources_clones.images[i].desc_binding,
             mutable_resources_clones.images[i].array_index,
             &mutable_resources_clones.images[i].new_image_info,
+            can_dump_image,
             is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+
+        if (can_dump_image != ImageDumpResult::kCanDump)
+        {
+            continue;
+        }
 
         // Dump the "after" resource
         VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1308,7 +1312,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
             new_dumped_desc.has_before = true;
             new_dumped_desc.dumped_resource_before =
-                DumpedImage(&mutable_resources_clones_before.images[i].new_image_info);
+                DumpedImage(&mutable_resources_clones_before.images[i].new_image_info, can_dump_image);
 
             DumpedImage& dumped_image_before = std::get<DumpedImage>(new_dumped_desc.dumped_resource_before);
             res                              = DumpImage(dumped_image_before,
@@ -1499,13 +1503,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                 continue;
                             }
 
-                            if (!IsImageDumpable(instance_table_, object_info_table_, img_info))
-                            {
-                                GFXRECON_LOG_ERROR("Image %" PRIu64
-                                                   " cannot be dumped as not supported/missing features",
-                                                   img_info->capture_id);
-                                continue;
-                            }
+                            const ImageDumpResult can_dump_image =
+                                CanDumpImage(instance_table_, device_info->parent, img_info);
 
                             auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                                 DumpResourceType::kDispatchTraceRaysImageDescriptor,
@@ -1518,7 +1517,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                 desc_binding_index,
                                 array_index,
                                 img_info,
+                                can_dump_image,
                                 resource_type);
+
+                            if (can_dump_image != ImageDumpResult::kCanDump)
+                            {
+                                continue;
+                            }
 
                             auto&       new_dumped_image   = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
                             const auto& dumped_descs_entry = dumped_descriptors.image_descriptors.find(img_info);

@@ -802,25 +802,39 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
             rt_entry["scaleFailed"] = true;
         }
 
-        for (size_t sr = 0; sr < image.dumped_subresources.size(); ++sr)
+        if (image.can_dump == ImageDumpResult::kCanDump)
         {
-            const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource = image.dumped_subresources[sr];
-            auto&                                      subresource_json_entry    = rt_entry["subresources"];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  image.dumped_raw);
-
-            if (options_.dump_resources_before)
+            for (size_t sr = 0; sr < image.dumped_subresources.size(); ++sr)
             {
-                const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
-                    rt.dumped_image_before.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_before_sub_resource,
-                                                            image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            image.dumped_raw);
+                const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource = image.dumped_subresources[sr];
+                auto&                                      subresource_json_entry    = rt_entry["subresources"];
+                dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                      dumped_image_sub_resource,
+                                                      image_info->format,
+                                                      options_.dump_resources_dump_separate_alpha,
+                                                      image.dumped_raw);
+
+                if (options_.dump_resources_before)
+                {
+                    const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
+                        rt.dumped_image_before.dumped_subresources[sr];
+                    dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                                dumped_image_before_sub_resource,
+                                                                image_info->format,
+                                                                options_.dump_resources_dump_separate_alpha,
+                                                                image.dumped_raw);
+                }
+            }
+        }
+        else
+        {
+            if (image.can_dump == ImageDumpResult::kCanNotResolve)
+            {
+                rt_entry["dumpFailure"] = "CouldNotResolve";
+            }
+            else if (image.can_dump == ImageDumpResult::kFormatNotSupported)
+            {
+                rt_entry["dumpFailure"] = "FormatNotSupported";
             }
         }
     }
@@ -921,15 +935,29 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
                         desc_json_entry["scaleFailed"] = true;
                     }
 
-                    for (size_t sr = 0; sr < image->dumped_subresources.size(); ++sr)
+                    if (image->can_dump == ImageDumpResult::kCanDump)
                     {
-                        const auto& dumped_image_sub_resource = image->dumped_subresources[sr];
-                        auto&       subresource_json_entry    = desc_json_entry["subresources"];
-                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                              dumped_image_sub_resource,
-                                                              image_info->format,
-                                                              options_.dump_resources_dump_separate_alpha,
-                                                              image->dumped_raw);
+                        for (size_t sr = 0; sr < image->dumped_subresources.size(); ++sr)
+                        {
+                            const auto& dumped_image_sub_resource = image->dumped_subresources[sr];
+                            auto&       subresource_json_entry    = desc_json_entry["subresources"];
+                            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                                  dumped_image_sub_resource,
+                                                                  image_info->format,
+                                                                  options_.dump_resources_dump_separate_alpha,
+                                                                  image->dumped_raw);
+                        }
+                    }
+                    else
+                    {
+                        if (image->can_dump == ImageDumpResult::kCanNotResolve)
+                        {
+                            desc_json_entry["dumpFailure"] = "CouldNotResolve";
+                        }
+                        else if (image->can_dump == ImageDumpResult::kFormatNotSupported)
+                        {
+                            desc_json_entry["dumpFailure"] = "FormatNotSupported";
+                        }
                     }
                 }
             }
@@ -1171,30 +1199,45 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysDescriptorsJso
                     entry["scaleFailed"] = true;
                 }
 
-                for (size_t sr = 0; sr < dumped_image->dumped_subresources.size(); ++sr)
+                if (dumped_image->can_dump == ImageDumpResult::kCanDump)
                 {
-                    const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource =
-                        dumped_image->dumped_subresources[sr];
-
-                    auto& subresource_json_entry = entry["subresources"];
-                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                          dumped_image_sub_resource,
-                                                          img_info->format,
-                                                          options_.dump_resources_dump_separate_alpha,
-                                                          dumped_image->dumped_raw);
-                    if (options_.dump_resources_before)
+                    for (size_t sr = 0; sr < dumped_image->dumped_subresources.size(); ++sr)
                     {
-                        const DumpedImage* dumped_image_before = std::get_if<DumpedImage>(&desc.dumped_resource_before);
-                        GFXRECON_ASSERT(dumped_image_before != nullptr);
+                        const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource =
+                            dumped_image->dumped_subresources[sr];
 
-                        const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
-                            dumped_image_before->dumped_subresources[sr];
+                        auto& subresource_json_entry = entry["subresources"];
+                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                              dumped_image_sub_resource,
+                                                              img_info->format,
+                                                              options_.dump_resources_dump_separate_alpha,
+                                                              dumped_image->dumped_raw);
+                        if (options_.dump_resources_before)
+                        {
+                            const DumpedImage* dumped_image_before =
+                                std::get_if<DumpedImage>(&desc.dumped_resource_before);
+                            GFXRECON_ASSERT(dumped_image_before != nullptr);
 
-                        dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                                    dumped_image_before_sub_resource,
-                                                                    img_info->format,
-                                                                    options_.dump_resources_dump_separate_alpha,
-                                                                    dumped_image->dumped_raw);
+                            const DumpedImage::DumpedImageSubresource& dumped_image_before_sub_resource =
+                                dumped_image_before->dumped_subresources[sr];
+
+                            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                                        dumped_image_before_sub_resource,
+                                                                        img_info->format,
+                                                                        options_.dump_resources_dump_separate_alpha,
+                                                                        dumped_image->dumped_raw);
+                        }
+                    }
+                }
+                else
+                {
+                    if (dumped_image->can_dump == ImageDumpResult::kCanNotResolve)
+                    {
+                        entry["dumpFailure"] = "CouldNotResolve";
+                    }
+                    else if (dumped_image->can_dump == ImageDumpResult::kFormatNotSupported)
+                    {
+                        entry["dumpFailure"] = "FormatNotSupported";
                     }
                 }
             }
