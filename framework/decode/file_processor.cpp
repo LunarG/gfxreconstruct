@@ -818,12 +818,11 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
 bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCallId call_id, bool& should_break)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
 
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info{ block_index_ };
-    bool        success = read_bytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    bool        success = block_buffer.Read(call_info.thread_id);
 
     if (success)
     {
@@ -833,7 +832,7 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
         if (format::IsBlockCompressed(block_header.type))
         {
             parameter_buffer_size -= sizeof(uncompressed_size);
-            success = read_bytes(&uncompressed_size, sizeof(uncompressed_size));
+            success = block_buffer.Read(uncompressed_size);
 
             if (success)
             {
@@ -904,15 +903,14 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
 bool FileProcessor::ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCallId call_id, bool& should_break)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
 
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;
     format::HandleId object_id             = 0;
     ApiCallInfo      call_info{ block_index_ };
 
-    bool success = read_bytes(&object_id, sizeof(object_id));
-    success      = success && read_bytes(&call_info.thread_id, sizeof(call_info.thread_id));
+    bool success = block_buffer.Read(object_id);
+    success      = success && block_buffer.Read(call_info.thread_id);
 
     if (success)
     {
@@ -922,7 +920,7 @@ bool FileProcessor::ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCall
         if (format::IsBlockCompressed(block_header.type))
         {
             parameter_buffer_size -= sizeof(uncompressed_size);
-            success = read_bytes(&uncompressed_size, sizeof(uncompressed_size));
+            success = block_buffer.Read(uncompressed_size);
 
             if (success)
             {
@@ -997,19 +995,17 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 {
     bool success = false;
 
-    const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
-
+    const format::BlockHeader& block_header   = block_buffer.Header();
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
     if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.memory_id, sizeof(header.memory_id));
-        success = success && read_bytes(&header.memory_offset, sizeof(header.memory_offset));
-        success = success && read_bytes(&header.memory_size, sizeof(header.memory_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.memory_id);
+        success = success && block_buffer.Read(header.memory_offset);
+        success = success && block_buffer.Read(header.memory_size);
 
         if (success)
         {
@@ -1068,8 +1064,8 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::FillMemoryResourceValueCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.resource_value_count, sizeof(header.resource_value_count));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.resource_value_count);
 
         if (success)
         {
@@ -1120,10 +1116,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::ResizeWindowCommand command;
 
-        success = read_bytes(&command.thread_id, sizeof(command.thread_id));
-        success = success && read_bytes(&command.surface_id, sizeof(command.surface_id));
-        success = success && read_bytes(&command.width, sizeof(command.width));
-        success = success && read_bytes(&command.height, sizeof(command.height));
+        success = block_buffer.Read(command.thread_id);
+        success = success && block_buffer.Read(command.surface_id);
+        success = success && block_buffer.Read(command.width);
+        success = success && block_buffer.Read(command.height);
 
         if (success)
         {
@@ -1148,11 +1144,11 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::ResizeWindowCommand2 command;
 
-        success = read_bytes(&command.thread_id, sizeof(command.thread_id));
-        success = success && read_bytes(&command.surface_id, sizeof(command.surface_id));
-        success = success && read_bytes(&command.width, sizeof(command.width));
-        success = success && read_bytes(&command.height, sizeof(command.height));
-        success = success && read_bytes(&command.pre_transform, sizeof(command.pre_transform));
+        success = block_buffer.Read(command.thread_id);
+        success = success && block_buffer.Read(command.surface_id);
+        success = success && block_buffer.Read(command.width);
+        success = success && block_buffer.Read(command.height);
+        success = success && block_buffer.Read(command.pre_transform);
 
         if (success)
         {
@@ -1173,25 +1169,26 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kExeFileInfoCommand)
     {
         format::ExeFileInfoBlock header;
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
+        success = block_buffer.Read(header.thread_id);
 
-        success =
-            success && read_bytes(&header.info_record.ProductVersion, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.FileVersion, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success = success && read_bytes(&header.info_record.AppVersion,
-                                        sizeof(uint32_t) * gfxrecon::util::filepath::kFileVersionSize);
-        success = success && read_bytes(&header.info_record.AppName, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.CompanyName, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.FileDescription, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.InternalName, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.OriginalFilename, gfxrecon::util::filepath::kMaxFilePropertySize);
-        success =
-            success && read_bytes(&header.info_record.ProductName, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.ProductVersion,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.FileVersion,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.AppVersion,
+                                                    sizeof(uint32_t) * gfxrecon::util::filepath::kFileVersionSize);
+        success = success &&
+                  block_buffer.ReadBytes(&header.info_record.AppName, gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.CompanyName,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.FileDescription,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.InternalName,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.OriginalFilename,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
+        success = success && block_buffer.ReadBytes(&header.info_record.ProductName,
+                                                    gfxrecon::util::filepath::kMaxFilePropertySize);
 
         if (success)
         {
@@ -1207,9 +1204,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kDriverInfoCommand)
     {
         format::DriverInfoBlock header;
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
+        success = block_buffer.Read(header.thread_id);
 
-        success = success && read_bytes(&header.driver_record, gfxrecon::util::filepath::kMaxDriverInfoSize);
+        success =
+            success && block_buffer.ReadBytes(&header.driver_record, gfxrecon::util::filepath::kMaxDriverInfoSize);
 
         if (success)
         {
@@ -1226,7 +1224,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::DisplayMessageCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
+        success = block_buffer.Read(header.thread_id);
 
         if (success)
         {
@@ -1268,16 +1266,16 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             "This capture contains a deprecated metacommand to create an AHardwareBuffer.  While still supported, this "
             "metacommand may not correctly represent some state of the captured AHardwareBuffer.");
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.memory_id, sizeof(header.memory_id));
-        success = success && read_bytes(&header.buffer_id, sizeof(header.buffer_id));
-        success = success && read_bytes(&header.format, sizeof(header.format));
-        success = success && read_bytes(&header.width, sizeof(header.width));
-        success = success && read_bytes(&header.height, sizeof(header.height));
-        success = success && read_bytes(&header.stride, sizeof(header.stride));
-        success = success && read_bytes(&header.usage, sizeof(header.usage));
-        success = success && read_bytes(&header.layers, sizeof(header.layers));
-        success = success && read_bytes(&header.planes, sizeof(header.planes));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.memory_id);
+        success = success && block_buffer.Read(header.buffer_id);
+        success = success && block_buffer.Read(header.format);
+        success = success && block_buffer.Read(header.width);
+        success = success && block_buffer.Read(header.height);
+        success = success && block_buffer.Read(header.stride);
+        success = success && block_buffer.Read(header.usage);
+        success = success && block_buffer.Read(header.layers);
+        success = success && block_buffer.Read(header.planes);
 
         if (success)
         {
@@ -1287,7 +1285,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::HardwareBufferPlaneInfo entry;
 
-                if (!read_bytes(&entry, sizeof(entry)))
+                if (!block_buffer.Read(entry))
                 {
                     success = false;
                     break;
@@ -1340,16 +1338,16 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::CreateHardwareBufferCommandHeader_deprecated2 header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.memory_id, sizeof(header.memory_id));
-        success = success && read_bytes(&header.buffer_id, sizeof(header.buffer_id));
-        success = success && read_bytes(&header.format, sizeof(header.format));
-        success = success && read_bytes(&header.width, sizeof(header.width));
-        success = success && read_bytes(&header.height, sizeof(header.height));
-        success = success && read_bytes(&header.stride, sizeof(header.stride));
-        success = success && read_bytes(&header.usage, sizeof(header.usage));
-        success = success && read_bytes(&header.layers, sizeof(header.layers));
-        success = success && read_bytes(&header.planes, sizeof(header.planes));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.memory_id);
+        success = success && block_buffer.Read(header.buffer_id);
+        success = success && block_buffer.Read(header.format);
+        success = success && block_buffer.Read(header.width);
+        success = success && block_buffer.Read(header.height);
+        success = success && block_buffer.Read(header.stride);
+        success = success && block_buffer.Read(header.usage);
+        success = success && block_buffer.Read(header.layers);
+        success = success && block_buffer.Read(header.planes);
 
         if (success)
         {
@@ -1359,7 +1357,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::HardwareBufferPlaneInfo entry;
 
-                if (!read_bytes(&entry, sizeof(entry)))
+                if (!block_buffer.Read(entry))
                 {
                     success = false;
                     break;
@@ -1412,17 +1410,17 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::CreateHardwareBufferCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.memory_id, sizeof(header.memory_id));
-        success = success && read_bytes(&header.buffer_id, sizeof(header.buffer_id));
-        success = success && read_bytes(&header.format, sizeof(header.format));
-        success = success && read_bytes(&header.width, sizeof(header.width));
-        success = success && read_bytes(&header.height, sizeof(header.height));
-        success = success && read_bytes(&header.stride, sizeof(header.stride));
-        success = success && read_bytes(&header.usage, sizeof(header.usage));
-        success = success && read_bytes(&header.layers, sizeof(header.layers));
-        success = success && read_bytes(&header.planes, sizeof(header.planes));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.memory_id);
+        success = success && block_buffer.Read(header.buffer_id);
+        success = success && block_buffer.Read(header.format);
+        success = success && block_buffer.Read(header.width);
+        success = success && block_buffer.Read(header.height);
+        success = success && block_buffer.Read(header.stride);
+        success = success && block_buffer.Read(header.usage);
+        success = success && block_buffer.Read(header.layers);
+        success = success && block_buffer.Read(header.planes);
 
         if (success)
         {
@@ -1432,7 +1430,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::HardwareBufferPlaneInfo entry;
 
-                if (!read_bytes(&entry, sizeof(entry)))
+                if (!block_buffer.Read(entry))
                 {
                     success = false;
                     break;
@@ -1485,8 +1483,8 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::DestroyHardwareBufferCommand command;
 
-        success = read_bytes(&command.thread_id, sizeof(command.thread_id));
-        success = success && read_bytes(&command.buffer_id, sizeof(command.buffer_id));
+        success = block_buffer.Read(command.thread_id);
+        success = success && block_buffer.Read(command.buffer_id);
 
         if (success)
         {
@@ -1510,9 +1508,9 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::CreateHeapAllocationCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.allocation_id, sizeof(header.allocation_id));
-        success = success && read_bytes(&header.allocation_size, sizeof(header.allocation_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.allocation_id);
+        success = success && block_buffer.Read(header.allocation_size);
 
         if (success)
         {
@@ -1534,15 +1532,15 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::SetDevicePropertiesCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.physical_device_id, sizeof(header.physical_device_id));
-        success = success && read_bytes(&header.api_version, sizeof(header.api_version));
-        success = success && read_bytes(&header.driver_version, sizeof(header.driver_version));
-        success = success && read_bytes(&header.vendor_id, sizeof(header.vendor_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.device_type, sizeof(header.device_type));
-        success = success && read_bytes(&header.pipeline_cache_uuid, format::kUuidSize);
-        success = success && read_bytes(&header.device_name_len, sizeof(header.device_name_len));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.physical_device_id);
+        success = success && block_buffer.Read(header.api_version);
+        success = success && block_buffer.Read(header.driver_version);
+        success = success && block_buffer.Read(header.vendor_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.device_type);
+        success = success && block_buffer.ReadBytes(&header.pipeline_cache_uuid, format::kUuidSize);
+        success = success && block_buffer.Read(header.device_name_len);
 
         if (success)
         {
@@ -1550,7 +1548,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
             if (header.device_name_len < format::kMaxPhysicalDeviceNameSize)
             {
-                success                             = success && read_bytes(&device_name, header.device_name_len);
+                success = success && block_buffer.ReadBytes(&device_name, header.device_name_len);
                 device_name[header.device_name_len] = '\0';
             }
 
@@ -1591,10 +1589,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::SetDeviceMemoryPropertiesCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.physical_device_id, sizeof(header.physical_device_id));
-        success = success && read_bytes(&header.memory_type_count, sizeof(header.memory_type_count));
-        success = success && read_bytes(&header.memory_heap_count, sizeof(header.memory_heap_count));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.physical_device_id);
+        success = success && block_buffer.Read(header.memory_type_count);
+        success = success && block_buffer.Read(header.memory_heap_count);
 
         if (success)
         {
@@ -1605,7 +1603,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::DeviceMemoryType type;
 
-                if (!read_bytes(&type, sizeof(type)))
+                if (!block_buffer.Read(type))
                 {
                     success = false;
                     break;
@@ -1618,7 +1616,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::DeviceMemoryHeap heap;
 
-                if (!read_bytes(&heap, sizeof(heap)))
+                if (!block_buffer.Read(heap))
                 {
                     success = false;
                     break;
@@ -1657,10 +1655,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::SetOpaqueAddressCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.object_id, sizeof(header.object_id));
-        success = success && read_bytes(&header.address, sizeof(header.address));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.object_id);
+        success = success && block_buffer.Read(header.address);
 
         if (success)
         {
@@ -1685,10 +1683,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::SetRayTracingShaderGroupHandlesCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.pipeline_id, sizeof(header.pipeline_id));
-        success = success && read_bytes(&header.data_size, sizeof(header.data_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.pipeline_id);
+        success = success && block_buffer.Read(header.data_size);
 
         // Read variable size shader group handle data into parameter_data.
         util::DataSpan parameter_data;
@@ -1725,11 +1723,11 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::SetSwapchainImageStateCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.swapchain_id, sizeof(header.swapchain_id));
-        success = success && read_bytes(&header.last_presented_image, sizeof(header.last_presented_image));
-        success = success && read_bytes(&header.image_info_count, sizeof(header.image_info_count));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.swapchain_id);
+        success = success && block_buffer.Read(header.last_presented_image);
+        success = success && block_buffer.Read(header.image_info_count);
 
         if (success)
         {
@@ -1739,7 +1737,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             {
                 format::SwapchainImageStateInfo entry;
 
-                if (!read_bytes(&entry, sizeof(entry)))
+                if (!block_buffer.Read(entry))
                 {
                     success = false;
                     break;
@@ -1781,10 +1779,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::BeginResourceInitCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.max_resource_size, sizeof(header.max_resource_size));
-        success = success && read_bytes(&header.max_copy_size, sizeof(header.max_copy_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.max_resource_size);
+        success = success && block_buffer.Read(header.max_copy_size);
 
         if (success)
         {
@@ -1809,8 +1807,8 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::EndResourceInitCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
 
         if (success)
         {
@@ -1831,10 +1829,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::InitBufferCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.buffer_id, sizeof(header.buffer_id));
-        success = success && read_bytes(&header.data_size, sizeof(header.data_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.buffer_id);
+        success = success && block_buffer.Read(header.data_size);
 
         if (success)
         {
@@ -1893,18 +1891,19 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         format::InitImageCommandHeader header;
         std::vector<uint64_t>          level_sizes;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.image_id, sizeof(header.image_id));
-        success = success && read_bytes(&header.data_size, sizeof(header.data_size));
-        success = success && read_bytes(&header.aspect, sizeof(header.aspect));
-        success = success && read_bytes(&header.layout, sizeof(header.layout));
-        success = success && read_bytes(&header.level_count, sizeof(header.level_count));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.image_id);
+        success = success && block_buffer.Read(header.data_size);
+        success = success && block_buffer.Read(header.aspect);
+        success = success && block_buffer.Read(header.layout);
+        success = success && block_buffer.Read(header.level_count);
 
         if (success && (header.level_count > 0))
         {
             level_sizes.resize(header.level_count);
-            success = success && read_bytes(level_sizes.data(), header.level_count * sizeof(level_sizes[0]));
+            success =
+                success && block_buffer.ReadBytes(level_sizes.data(), header.level_count * sizeof(level_sizes[0]));
         }
 
         util::DataSpan parameter_data;
@@ -1964,14 +1963,14 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::InitSubresourceCommandHeader header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.device_id, sizeof(header.device_id));
-        success = success && read_bytes(&header.resource_id, sizeof(header.resource_id));
-        success = success && read_bytes(&header.subresource, sizeof(header.subresource));
-        success = success && read_bytes(&header.initial_state, sizeof(header.initial_state));
-        success = success && read_bytes(&header.resource_state, sizeof(header.resource_state));
-        success = success && read_bytes(&header.barrier_flags, sizeof(header.barrier_flags));
-        success = success && read_bytes(&header.data_size, sizeof(header.data_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.resource_id);
+        success = success && block_buffer.Read(header.subresource);
+        success = success && block_buffer.Read(header.initial_state);
+        success = success && block_buffer.Read(header.resource_state);
+        success = success && block_buffer.Read(header.barrier_flags);
+        success = success && block_buffer.Read(header.data_size);
 
         if (success)
         {
@@ -2027,16 +2026,15 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         // Parse command header.
         format::InitDx12AccelerationStructureCommandHeader header;
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success &&
-                  read_bytes(&header.dest_acceleration_structure_data, sizeof(header.dest_acceleration_structure_data));
-        success = success && read_bytes(&header.copy_source_gpu_va, sizeof(header.copy_source_gpu_va));
-        success = success && read_bytes(&header.copy_mode, sizeof(header.copy_mode));
-        success = success && read_bytes(&header.inputs_type, sizeof(header.inputs_type));
-        success = success && read_bytes(&header.inputs_flags, sizeof(header.inputs_flags));
-        success = success && read_bytes(&header.inputs_num_instance_descs, sizeof(header.inputs_num_instance_descs));
-        success = success && read_bytes(&header.inputs_num_geometry_descs, sizeof(header.inputs_num_geometry_descs));
-        success = success && read_bytes(&header.inputs_data_size, sizeof(header.inputs_data_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.dest_acceleration_structure_data);
+        success = success && block_buffer.Read(header.copy_source_gpu_va);
+        success = success && block_buffer.Read(header.copy_mode);
+        success = success && block_buffer.Read(header.inputs_type);
+        success = success && block_buffer.Read(header.inputs_flags);
+        success = success && block_buffer.Read(header.inputs_num_instance_descs);
+        success = success && block_buffer.Read(header.inputs_num_geometry_descs);
+        success = success && block_buffer.Read(header.inputs_data_size);
 
         // Parse geometry descs.
         std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
@@ -2045,22 +2043,16 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             for (uint32_t i = 0; i < header.inputs_num_geometry_descs; ++i)
             {
                 format::InitDx12AccelerationStructureGeometryDesc geom_desc;
-                success = success && read_bytes(&geom_desc.geometry_type, sizeof(geom_desc.geometry_type));
-                success = success && read_bytes(&geom_desc.geometry_flags, sizeof(geom_desc.geometry_flags));
-                success = success && read_bytes(&geom_desc.aabbs_count, sizeof(geom_desc.aabbs_count));
-                success = success && read_bytes(&geom_desc.aabbs_stride, sizeof(geom_desc.aabbs_stride));
-                success = success &&
-                          read_bytes(&geom_desc.triangles_has_transform, sizeof(geom_desc.triangles_has_transform));
-                success =
-                    success && read_bytes(&geom_desc.triangles_index_format, sizeof(geom_desc.triangles_index_format));
-                success = success &&
-                          read_bytes(&geom_desc.triangles_vertex_format, sizeof(geom_desc.triangles_vertex_format));
-                success =
-                    success && read_bytes(&geom_desc.triangles_index_count, sizeof(geom_desc.triangles_index_count));
-                success =
-                    success && read_bytes(&geom_desc.triangles_vertex_count, sizeof(geom_desc.triangles_vertex_count));
-                success = success &&
-                          read_bytes(&geom_desc.triangles_vertex_stride, sizeof(geom_desc.triangles_vertex_stride));
+                success = success && block_buffer.Read(geom_desc.geometry_type);
+                success = success && block_buffer.Read(geom_desc.geometry_flags);
+                success = success && block_buffer.Read(geom_desc.aabbs_count);
+                success = success && block_buffer.Read(geom_desc.aabbs_stride);
+                success = success && block_buffer.Read(geom_desc.triangles_has_transform);
+                success = success && block_buffer.Read(geom_desc.triangles_index_format);
+                success = success && block_buffer.Read(geom_desc.triangles_vertex_format);
+                success = success && block_buffer.Read(geom_desc.triangles_index_count);
+                success = success && block_buffer.Read(geom_desc.triangles_vertex_count);
+                success = success && block_buffer.Read(geom_desc.triangles_vertex_stride);
                 geom_descs.push_back(geom_desc);
             }
         }
@@ -2118,30 +2110,19 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         format::DxgiAdapterInfoCommandHeader adapter_info_header;
         memset(&adapter_info_header, 0, sizeof(adapter_info_header));
 
-        success = read_bytes(&adapter_info_header.thread_id, sizeof(adapter_info_header.thread_id));
+        success = block_buffer.Read(adapter_info_header.thread_id);
 
-        success = success && read_bytes(&adapter_info_header.adapter_desc.Description,
-                                        sizeof(adapter_info_header.adapter_desc.Description));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.VendorId,
-                                        sizeof(adapter_info_header.adapter_desc.VendorId));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.DeviceId,
-                                        sizeof(adapter_info_header.adapter_desc.DeviceId));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.SubSysId,
-                                        sizeof(adapter_info_header.adapter_desc.SubSysId));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.Revision,
-                                        sizeof(adapter_info_header.adapter_desc.Revision));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.DedicatedVideoMemory,
-                                        sizeof(adapter_info_header.adapter_desc.DedicatedVideoMemory));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.DedicatedSystemMemory,
-                                        sizeof(adapter_info_header.adapter_desc.DedicatedSystemMemory));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.SharedSystemMemory,
-                                        sizeof(adapter_info_header.adapter_desc.SharedSystemMemory));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.LuidLowPart,
-                                        sizeof(adapter_info_header.adapter_desc.LuidLowPart));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.LuidHighPart,
-                                        sizeof(adapter_info_header.adapter_desc.LuidHighPart));
-        success = success && read_bytes(&adapter_info_header.adapter_desc.extra_info,
-                                        sizeof(adapter_info_header.adapter_desc.extra_info));
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.Description);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.VendorId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DeviceId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.SubSysId);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.Revision);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DedicatedVideoMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.DedicatedSystemMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.SharedSystemMemory);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidLowPart);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.LuidHighPart);
+        success = success && block_buffer.Read(adapter_info_header.adapter_desc.extra_info);
 
         if (success)
         {
@@ -2160,13 +2141,9 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
         memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
 
-        success = read_bytes(&dx12_runtime_info_header.thread_id, sizeof(dx12_runtime_info_header.thread_id));
-
-        success = success && read_bytes(&dx12_runtime_info_header.runtime_info.version,
-                                        sizeof(dx12_runtime_info_header.runtime_info.version));
-
-        success = success && read_bytes(&dx12_runtime_info_header.runtime_info.src,
-                                        sizeof(dx12_runtime_info_header.runtime_info.src));
+        success = block_buffer.Read(dx12_runtime_info_header.thread_id);
+        success = success && block_buffer.Read(dx12_runtime_info_header.runtime_info.version);
+        success = success && block_buffer.Read(dx12_runtime_info_header.runtime_info.src);
 
         if (success)
         {
@@ -2186,10 +2163,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
         format::ParentToChildDependencyHeader header;
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.dependency_type, sizeof(header.dependency_type));
-        success = success && read_bytes(&header.parent_id, sizeof(header.parent_id));
-        success = success && read_bytes(&header.child_count, sizeof(header.child_count));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.dependency_type);
+        success = success && block_buffer.Read(header.parent_id);
+        success = success && block_buffer.Read(header.child_count);
 
         if (success)
         {
@@ -2202,7 +2179,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
                     for (uint32_t i = 0; i < header.child_count; ++i)
                     {
-                        success = success && read_bytes(&blases[i], sizeof(blases[i]));
+                        success = success && block_buffer.Read(blases[i]);
                     }
 
                     if (success)
@@ -2239,8 +2216,8 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
     {
         format::SetEnvironmentVariablesCommand header;
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.string_length, sizeof(header.string_length));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.string_length);
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
@@ -2338,15 +2315,15 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kExecuteBlocksFromFile)
     {
         format::ExecuteBlocksFromFile exec_from_file;
-        success = read_bytes(&exec_from_file.thread_id, sizeof(exec_from_file.thread_id));
-        success = success && read_bytes(&exec_from_file.n_blocks, sizeof(exec_from_file.n_blocks));
-        success = success && read_bytes(&exec_from_file.offset, sizeof(exec_from_file.offset));
-        success = success && read_bytes(&exec_from_file.filename_length, sizeof(exec_from_file.filename_length));
+        success = block_buffer.Read(exec_from_file.thread_id);
+        success = success && block_buffer.Read(exec_from_file.n_blocks);
+        success = success && block_buffer.Read(exec_from_file.offset);
+        success = success && block_buffer.Read(exec_from_file.filename_length);
 
         if (success)
         {
             std::string filename_c_str(exec_from_file.filename_length, '\0');
-            success = success && read_bytes(filename_c_str.data(), exec_from_file.filename_length);
+            success = success && block_buffer.ReadBytes(filename_c_str.data(), exec_from_file.filename_length);
             if (success)
             {
                 std::string filename = util::filepath::Join(absolute_path_, filename_c_str);
@@ -2386,12 +2363,12 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         format::ViewRelativeLocation Location;
         format::ThreadId             thread_id;
-        success = read_bytes(&thread_id, sizeof(thread_id));
+        success = block_buffer.Read(thread_id);
 
         format::ViewRelativeLocation location;
         if (success)
         {
-            success = read_bytes(&location, sizeof(location));
+            success = block_buffer.Read(location);
         }
 
         if (success)
@@ -2413,13 +2390,11 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     {
         format::InitializeMetaCommand header;
 
-        success = read_bytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && read_bytes(&header.capture_id, sizeof(header.capture_id));
-        success = success && read_bytes(&header.block_index, sizeof(header.block_index));
-        success = success && read_bytes(&header.total_number_of_initializemetacommand,
-                                        sizeof(header.total_number_of_initializemetacommand));
-        success = success && read_bytes(&header.initialization_parameters_data_size,
-                                        sizeof(header.initialization_parameters_data_size));
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.capture_id);
+        success = success && block_buffer.Read(header.block_index);
+        success = success && block_buffer.Read(header.total_number_of_initializemetacommand);
+        success = success && block_buffer.Read(header.initialization_parameters_data_size);
 
         if (success)
         {
@@ -2497,11 +2472,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 bool FileProcessor::ProcessFrameMarker(BlockBuffer& block_buffer, format::MarkerType marker_type, bool& should_break)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
 
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
     uint64_t frame_number = 0;
-    bool     success      = read_bytes(&frame_number, sizeof(frame_number));
+    bool     success      = block_buffer.Read(frame_number);
 
     if (success)
     {
@@ -2551,10 +2525,9 @@ bool FileProcessor::ProcessFrameMarker(BlockBuffer& block_buffer, format::Marker
 bool FileProcessor::ProcessStateMarker(BlockBuffer& block_buffer, format::MarkerType marker_type)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
 
     uint64_t frame_number = 0;
-    bool     success      = read_bytes(&frame_number, sizeof(frame_number));
+    bool     success      = block_buffer.Read(frame_number);
 
     if (success)
     {
@@ -2597,14 +2570,13 @@ bool FileProcessor::ProcessStateMarker(BlockBuffer& block_buffer, format::Marker
 bool FileProcessor::ProcessAnnotation(BlockBuffer& block_buffer, format::AnnotationType annotation_type)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
-    auto read_bytes = [&block_buffer](void* buffer, size_t bytes) { return block_buffer.ReadBytes(buffer, bytes); };
+    bool                       success      = false;
 
-    bool                                             success      = false;
     decltype(format::AnnotationHeader::label_length) label_length = 0;
     decltype(format::AnnotationHeader::data_length)  data_length  = 0;
 
-    success = read_bytes(&label_length, sizeof(label_length));
-    success = success && read_bytes(&data_length, sizeof(data_length));
+    success = block_buffer.Read(label_length);
+    success = success && block_buffer.Read(data_length);
     if (success)
     {
         if ((label_length > 0) || (data_length > 0))
