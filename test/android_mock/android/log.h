@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <assert.h>
+
 typedef enum android_LogPriority
 {
     ANDROID_LOG_UNKNOWN = 0,
@@ -30,6 +32,11 @@ typedef enum android_LogPriority
     ANDROID_LOG_FATAL,
     ANDROID_LOG_SILENT,
 } android_LogPriority;
+
+static int __android_log_assert(int prio, const char* tag, const char* fmt, ...)
+{
+    return 0;
+}
 
 static int __android_log_print(int prio, const char* tag, const char* fmt, ...)
 {

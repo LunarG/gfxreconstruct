@@ -126,11 +126,10 @@ int main(int argc, const char** argv)
         ProcessDisableDebugPopup(arg_parser);
     }
 
-    // Reinitialize logging with values retrieved from command line arguments
+    // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
-    gfxrecon::util::Log::Release();
-    gfxrecon::util::Log::Init(log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     try
     {

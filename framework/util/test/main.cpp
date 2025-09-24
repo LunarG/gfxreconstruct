@@ -39,7 +39,7 @@ using namespace gfxrecon::util::datetime;
 TEST_CASE("Quote", "[to_string]")
 {
     using namespace gfxrecon::util;
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     REQUIRE(gfxrecon::util::Quote("") == "\"\"");
     REQUIRE(gfxrecon::util::Quote(std::string("")) == "\"\"");
@@ -57,7 +57,7 @@ TEST_CASE("Quote", "[to_string]")
 TEST_CASE("Enum64ToString", "[to_string]")
 {
     using namespace gfxrecon::util;
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_NONE) == "VK_ACCESS_2_NONE");
     REQUIRE(VkAccessFlagBits2ToString(VK_ACCESS_2_OPTICAL_FLOW_WRITE_BIT_NV) ==
@@ -115,7 +115,7 @@ TEST_CASE("Enum64ToString", "[to_string]")
 
 TEST_CASE("to_binary_fixed_width", "[to_string]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
     REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(0)) == "0b00000000");
     REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(255)) == "0b11111111");
     REQUIRE(gfxrecon::util::to_binary_fixed_width(uint8_t(1)) == "0b00000001");
@@ -151,7 +151,7 @@ TEST_CASE("to_binary_fixed_width", "[to_string]")
 
 TEST_CASE("TabRight", "[strings]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     REQUIRE(gfxrecon::util::strings::TabRight("") == "\t");
     REQUIRE(gfxrecon::util::strings::TabRight("\n") == "\t\n\t");
@@ -168,7 +168,7 @@ TEST_CASE("SplitString", "[strings]")
     using std::string;
     auto s = [](auto x) { return string{ x }; };
 
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     REQUIRE(gfxrecon::util::strings::SplitString("", '+') == std::vector<string>());
     REQUIRE(gfxrecon::util::strings::SplitString("a", '.') == std::vector<string>({ s("a") }));
@@ -195,7 +195,7 @@ TEST_CASE("RemoveWhitespace", "[strings]")
     using std::string;
     auto s = [](auto x) { return string{ x }; };
 
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     string s1{ "1 2 3 4 5 6 7 8 9 10" };
     gfxrecon::util::strings::RemoveWhitespace(s1);
@@ -232,7 +232,7 @@ TEST_CASE("RemoveWhitespace", "[strings]")
 
 TEST_CASE("UtcString", "[datetime]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kDebugSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kDebug);
 
     // Looking for clean output like zero: 1970-01-01T00:00:00Z
     REQUIRE(UtcString(0) == "1970-01-01T00:00:00Z");
@@ -408,7 +408,7 @@ TEST_CASE("ExpandPathVariables", "[strings]")
 {
     using namespace gfxrecon::util;
 
-    Log::Init(Log::kDebugSeverity);
+    Log::Init(LoggingSeverity::kDebug);
 
     filepath::FileInfo info{};
 

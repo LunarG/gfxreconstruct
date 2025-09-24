@@ -169,11 +169,8 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
 
         if (initialize_log_)
         {
-            // Initialize logging to report only errors (to stderr).
-            util::Log::Settings stderr_only_log_settings;
-            stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-            stderr_only_log_settings.output_errors_to_stderr = true;
-            util::Log::Init(stderr_only_log_settings);
+            // Initialize logging
+            util::Log::Init();
         }
 
         // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
@@ -186,9 +183,8 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             // Load log settings.
             CaptureSettings::LoadLogSettings(&capture_settings_);
 
-            // Reinitialize logging with values retrieved from settings.
-            util::Log::Release();
-            util::Log::Init(capture_settings_.GetLogSettings());
+            // And then update the log with those settings
+            util::Log::UpdateWithSettings(capture_settings_.GetLogSettings());
         }
 
         // Load all settings with final logging settings active.

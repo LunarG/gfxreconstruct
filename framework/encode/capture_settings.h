@@ -320,7 +320,8 @@ class CaptureSettings
     static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
                                                               format::CompressionType default_value);
 
-    static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
+    static util::LoggingSeverity ParseLogLevelString(const std::string&    value_string,
+                                                     util::LoggingSeverity default_value);
 
     static void ParseUintRangeList(const std::string&            value_string,
                                    std::vector<util::UintRange>* frames,
