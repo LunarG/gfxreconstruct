@@ -633,35 +633,42 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
                                                MemoryAllocInfo&                        memory_alloc_info,
                                                VmaMemoryInfo**                         vma_mem_info)
 {
-    VkMemoryRequirements requirements;
-    functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
-    requirements.alignment = std::max<VkDeviceSize>(requirements.alignment, min_buffer_alignment_);
+    VkMemoryRequirements mem_reqs                      = {};
+    bool                 requires_dedicated_allocation = false;
+    bool                 prefers_dedicated_allocation  = false;
+    allocator_->GetBufferMemoryRequirements(
+        buffer, mem_reqs, requires_dedicated_allocation, prefers_dedicated_allocation);
+
+    mem_reqs.alignment = std::max<VkDeviceSize>(mem_reqs.alignment, min_buffer_alignment_);
 
     VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
     create_info.usage =
         GetBufferMemoryUsage(resource_alloc_info.usage,
                              device_memory_properties.memoryTypes[memory_alloc_info.original_index].propertyFlags,
-                             requirements);
+                             mem_reqs);
     create_info.requiredFlags  = 0;
     create_info.preferredFlags = 0;
     create_info.memoryTypeBits = 0;
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    // query if dedicated allocations are required
-    VkMemoryDedicatedRequirementsKHR dedicated_req = GetDedicatedRequirements(buffer);
-
-    if (FindVmaMemoryInfo(memory_alloc_info, memory_offset, requirements, create_info, vma_mem_info))
+    if (FindVmaMemoryInfo(memory_alloc_info,
+                          memory_offset,
+                          mem_reqs,
+                          requires_dedicated_allocation,
+                          prefers_dedicated_allocation,
+                          create_info,
+                          vma_mem_info))
     {
         return VK_SUCCESS;
     }
 
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
-    mem_info.mem_req                            = requirements;
-    mem_info.requires_dedicated_allocation      = dedicated_req.requiresDedicatedAllocation;
-    mem_info.prefers_dedicated_allocation       = dedicated_req.prefersDedicatedAllocation;
+    mem_info.mem_req                            = mem_reqs;
+    mem_info.requires_dedicated_allocation      = requires_dedicated_allocation;
+    mem_info.prefers_dedicated_allocation       = prefers_dedicated_allocation;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
@@ -914,11 +921,11 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
                                                        MemoryAllocInfo&                        memory_alloc_info,
                                                        VmaMemoryInfo**                         vma_mem_info)
 {
-    VkMemoryRequirements requirements;
-    functions_.get_image_memory_requirements(device_, image, &requirements);
-
-    // query if dedicated allocations are required
-    VkMemoryDedicatedRequirementsKHR dedicated_req = GetDedicatedRequirements(image);
+    VkMemoryRequirements mem_reqs                      = {};
+    bool                 requires_dedicated_allocation = false;
+    bool                 prefers_dedicated_allocation  = false;
+    allocator_->GetImageMemoryRequirements(
+        image, mem_reqs, requires_dedicated_allocation, prefers_dedicated_allocation);
 
     VmaAllocationCreateInfo create_info{};
     create_info.flags = 0;
@@ -926,23 +933,29 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
         GetImageMemoryUsage(resource_alloc_info.usage,
                             resource_alloc_info.tiling,
                             device_memory_properties.memoryTypes[memory_alloc_info.original_index].propertyFlags,
-                            requirements);
+                            mem_reqs);
     create_info.requiredFlags  = 0;
     create_info.preferredFlags = 0;
     create_info.memoryTypeBits = 0;
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    if (FindVmaMemoryInfo(memory_alloc_info, memory_offset, requirements, create_info, vma_mem_info))
+    if (FindVmaMemoryInfo(memory_alloc_info,
+                          memory_offset,
+                          mem_reqs,
+                          requires_dedicated_allocation,
+                          prefers_dedicated_allocation,
+                          create_info,
+                          vma_mem_info))
     {
         return VK_SUCCESS;
     }
 
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
-    mem_info.mem_req                            = requirements;
-    mem_info.requires_dedicated_allocation      = dedicated_req.requiresDedicatedAllocation;
-    mem_info.prefers_dedicated_allocation       = dedicated_req.prefersDedicatedAllocation;
+    mem_info.mem_req                            = mem_reqs;
+    mem_info.requires_dedicated_allocation      = requires_dedicated_allocation;
+    mem_info.prefers_dedicated_allocation       = prefers_dedicated_allocation;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = memory_offset;
 
@@ -1160,8 +1173,15 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
             VmaMemoryInfo* vma_mem_info = nullptr;
 
-            auto result =
-                VmaAllocateMemory(*memory_alloc_info, bind_info.memoryOffset, requirements, usage, &vma_mem_info);
+            auto result = VmaAllocateMemory(*memory_alloc_info,
+                                            bind_info.memoryOffset,
+                                            requirements,
+                                            false,
+                                            false,
+                                            VK_NULL_HANDLE,
+                                            VK_NULL_HANDLE,
+                                            usage,
+                                            &vma_mem_info);
             if (result >= 0)
             {
                 GFXRECON_ASSERT(vma_mem_info);
@@ -2375,7 +2395,11 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
 
 VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
                                                   VkDeviceSize                original_offset,
-                                                  const VkMemoryRequirements& mem_req,
+                                                  const VkMemoryRequirements& mem_reqs,
+                                                  bool                        requires_dedicated_allocation,
+                                                  bool                        prefers_dedicated_allocation,
+                                                  VkBuffer                    dedicated_buffer,
+                                                  VkImage                     dedicated_image,
                                                   VmaMemoryUsage              usage,
                                                   VmaMemoryInfo**             vma_mem_info)
 {
@@ -2388,27 +2412,44 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
     create_info.pool           = VK_NULL_HANDLE;
     create_info.pUserData      = nullptr;
 
-    if (FindVmaMemoryInfo(memory_alloc_info, original_offset, mem_req, create_info, vma_mem_info))
+    if (FindVmaMemoryInfo(memory_alloc_info,
+                          original_offset,
+                          mem_reqs,
+                          requires_dedicated_allocation,
+                          prefers_dedicated_allocation,
+                          create_info,
+                          vma_mem_info))
     {
         return VK_SUCCESS;
     }
 
     VmaMemoryInfo mem_info                      = {};
     mem_info.memory_info                        = &memory_alloc_info;
-    mem_info.mem_req                            = mem_req;
-    mem_info.requires_dedicated_allocation      = false;
-    mem_info.prefers_dedicated_allocation       = false;
+    mem_info.mem_req                            = mem_reqs;
+    mem_info.requires_dedicated_allocation      = requires_dedicated_allocation;
+    mem_info.prefers_dedicated_allocation       = prefers_dedicated_allocation;
     mem_info.alc_create_info                    = create_info;
     mem_info.offset_from_original_device_memory = original_offset;
 
-    auto result = allocator_->AllocateMemory(mem_req,
-                                             false,
-                                             false,
-                                             VK_NULL_HANDLE,
-                                             VK_NULL_HANDLE,
+    VmaSuballocationType suballoc_type = VmaSuballocationType::VMA_SUBALLOCATION_TYPE_FREE;
+
+    if (dedicated_buffer != VK_NULL_HANDLE)
+    {
+        suballoc_type = VmaSuballocationType::VMA_SUBALLOCATION_TYPE_BUFFER;
+    }
+    else if (dedicated_image != VK_NULL_HANDLE)
+    {
+        suballoc_type = VmaSuballocationType::VMA_SUBALLOCATION_TYPE_IMAGE_UNKNOWN;
+    }
+
+    auto result = allocator_->AllocateMemory(mem_reqs,
+                                             requires_dedicated_allocation,
+                                             prefers_dedicated_allocation,
+                                             dedicated_buffer,
+                                             dedicated_image,
                                              VmaBufferImageUsage::UNKNOWN,
                                              create_info,
-                                             VMA_SUBALLOCATION_TYPE_FREE,
+                                             suballoc_type,
                                              1,
                                              &mem_info.allocation);
     if (result >= 0)
@@ -2681,16 +2722,29 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
             // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
             if (mem_alloc_info)
             {
-                VkMemoryRequirements requirements;
-                functions_.get_buffer_memory_requirements(device_, bind.buffer, &requirements);
-                requirements.size = mem_bind.size;
+                VkMemoryRequirements mem_reqs                      = {};
+                bool                 requires_dedicated_allocation = false;
+                bool                 prefers_dedicated_allocation  = false;
+                allocator_->GetBufferMemoryRequirements(
+                    bind.buffer, mem_reqs, requires_dedicated_allocation, prefers_dedicated_allocation);
+
+                mem_reqs.alignment = std::max<VkDeviceSize>(mem_reqs.alignment, min_buffer_alignment_);
+                mem_reqs.size      = mem_bind.size;
 
                 auto usage = GetBufferMemoryUsage(
                     res_alloc_info->usage,
                     capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    requirements);
+                    mem_reqs);
 
-                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                result = VmaAllocateMemory(*mem_alloc_info,
+                                           mem_bind.memoryOffset,
+                                           mem_reqs,
+                                           requires_dedicated_allocation,
+                                           prefers_dedicated_allocation,
+                                           bind.buffer,
+                                           VK_NULL_HANDLE,
+                                           usage,
+                                           &vma_mem_info);
                 if (result < 0)
                 {
                     GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
@@ -2734,17 +2788,29 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
 
             if (mem_alloc_info)
             {
-                VkMemoryRequirements requirements;
-                functions_.get_image_memory_requirements(device_, bind.image, &requirements);
-                requirements.size = mem_bind.size;
+                VkMemoryRequirements mem_reqs                      = {};
+                bool                 requires_dedicated_allocation = false;
+                bool                 prefers_dedicated_allocation  = false;
+                allocator_->GetImageMemoryRequirements(
+                    bind.image, mem_reqs, requires_dedicated_allocation, prefers_dedicated_allocation);
+
+                mem_reqs.size = mem_bind.size;
 
                 auto usage = GetImageMemoryUsage(
                     res_alloc_info->usage,
                     res_alloc_info->tiling,
                     capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    requirements);
+                    mem_reqs);
 
-                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                result = VmaAllocateMemory(*mem_alloc_info,
+                                           mem_bind.memoryOffset,
+                                           mem_reqs,
+                                           requires_dedicated_allocation,
+                                           prefers_dedicated_allocation,
+                                           VK_NULL_HANDLE,
+                                           bind.image,
+                                           usage,
+                                           &vma_mem_info);
                 if (result < 0)
                 {
                     GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
@@ -2787,20 +2853,30 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
 
             if (mem_alloc_info)
             {
-                VkMemoryRequirements requirements;
-                functions_.get_image_memory_requirements(device_, bind.image, &requirements);
+                VkMemoryRequirements mem_reqs                      = {};
+                bool                 requires_dedicated_allocation = false;
+                bool                 prefers_dedicated_allocation  = false;
+                allocator_->GetImageMemoryRequirements(
+                    bind.image, mem_reqs, requires_dedicated_allocation, prefers_dedicated_allocation);
 
                 // TODO: Set the exact size in requirements.size for allocating sparse image memory.
-                requirements.size =
-                    std::min(requirements.size, mem_alloc_info->allocation_size - mem_bind.memoryOffset);
+                mem_reqs.size = std::min(mem_reqs.size, mem_alloc_info->allocation_size - mem_bind.memoryOffset);
 
                 auto usage = GetImageMemoryUsage(
                     res_alloc_info->usage,
                     res_alloc_info->tiling,
                     capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    requirements);
+                    mem_reqs);
 
-                result = VmaAllocateMemory(*mem_alloc_info, mem_bind.memoryOffset, requirements, usage, &vma_mem_info);
+                result = VmaAllocateMemory(*mem_alloc_info,
+                                           mem_bind.memoryOffset,
+                                           mem_reqs,
+                                           requires_dedicated_allocation,
+                                           prefers_dedicated_allocation,
+                                           VK_NULL_HANDLE,
+                                           bind.image,
+                                           usage,
+                                           &vma_mem_info);
                 if (result < 0)
                 {
                     GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
@@ -2907,40 +2983,19 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
     return result;
 }
 
-VkMemoryDedicatedRequirementsKHR VulkanRebindAllocator::GetDedicatedRequirements(VkBuffer buffer)
-{
-    VkBufferMemoryRequirementsInfo2 info{ VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2 };
-    info.buffer = buffer;
-
-    VkMemoryDedicatedRequirementsKHR mem_dedicated_req = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR };
-
-    VkMemoryRequirements2 memory_requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
-    memory_requirements.pNext = &mem_dedicated_req;
-
-    functions_.get_buffer_memory_requirements2(device_, &info, &memory_requirements);
-    return mem_dedicated_req;
-}
-
-VkMemoryDedicatedRequirementsKHR VulkanRebindAllocator::GetDedicatedRequirements(VkImage image)
-{
-    VkImageMemoryRequirementsInfo2 info{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2 };
-    info.image = image;
-
-    VkMemoryDedicatedRequirementsKHR mem_dedicated_req = { VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR };
-
-    VkMemoryRequirements2 memory_requirements{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
-    memory_requirements.pNext = &mem_dedicated_req;
-
-    functions_.get_image_memory_requirements2(device_, &info, &memory_requirements);
-    return mem_dedicated_req;
-}
-
 bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                               VkDeviceSize                   original_offset,
                                               const VkMemoryRequirements&    mem_req,
+                                              bool                           requires_dedicated_allocation,
+                                              bool                           prefers_dedicated_allocation,
                                               const VmaAllocationCreateInfo& alc_create_info,
                                               VmaMemoryInfo**                vma_mem_info)
 {
+    if (requires_dedicated_allocation || prefers_dedicated_allocation)
+    {
+        return false;
+    }
+
     for (auto& mem_info : memory_alloc_info.vma_mem_infos)
     {
         if (mem_info->is_compatible(original_offset, mem_req, alc_create_info))

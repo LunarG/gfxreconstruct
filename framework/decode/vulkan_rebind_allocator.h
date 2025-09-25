@@ -424,10 +424,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // Create a new allocation for a binding memory case.
     struct VmaMemoryInfo
     {
-        MemoryAllocInfo*        memory_info{ nullptr };
-        VkMemoryRequirements    mem_req{};
-        bool                    requires_dedicated_allocation = false;
-        bool                    prefers_dedicated_allocation  = false;
+        MemoryAllocInfo*     memory_info{ nullptr };
+        VkMemoryRequirements mem_req{};
+
+        // If requires_dedicated_allocation or prefers_dedicated_allocation is true, the object should have an its own
+        // memory, not shared.
+        bool requires_dedicated_allocation = false;
+        bool prefers_dedicated_allocation  = false;
+
         VmaAllocationCreateInfo alc_create_info{};
         VkDeviceSize            offset_from_original_device_memory{ 0 };
         uint64_t                reference_count{ 0 };
@@ -443,14 +447,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                          const VmaAllocationCreateInfo& create_info) const
         {
             // memory offset and size is in the range. mem_req and create_info are the same.
-            if (((offset >= offset_from_original_device_memory) &&
-                 ((offset + req.size) <= (offset_from_original_device_memory + mem_req.size))) &&
-                ((req.alignment == mem_req.alignment) && (req.memoryTypeBits == mem_req.memoryTypeBits) &&
-                 (create_info.flags == alc_create_info.flags) && (create_info.usage == alc_create_info.usage) &&
-                 (create_info.requiredFlags == alc_create_info.requiredFlags) &&
-                 (create_info.preferredFlags == alc_create_info.preferredFlags) &&
-                 (create_info.memoryTypeBits == alc_create_info.memoryTypeBits) &&
-                 (create_info.pool == alc_create_info.pool) && (create_info.priority == alc_create_info.priority)) &&
+            if ((offset >= offset_from_original_device_memory) &&
+                ((offset + req.size) <= (offset_from_original_device_memory + mem_req.size)) &&
+                (req.alignment == mem_req.alignment) && (req.memoryTypeBits == mem_req.memoryTypeBits) &&
+                (create_info.flags == alc_create_info.flags) && (create_info.usage == alc_create_info.usage) &&
+                (create_info.requiredFlags == alc_create_info.requiredFlags) &&
+                (create_info.preferredFlags == alc_create_info.preferredFlags) &&
+                (create_info.memoryTypeBits == alc_create_info.memoryTypeBits) &&
+                (create_info.pool == alc_create_info.pool) && (create_info.priority == alc_create_info.priority) &&
                 !requires_dedicated_allocation && !prefers_dedicated_allocation)
             {
                 return true;
@@ -462,8 +466,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     struct ResourceAllocInfo
     {
         MemoryInfoType              memory_info_type;
-        bool                    requires_dedicated_allocation = false;
-        bool                    prefers_dedicated_allocation  = false;
         std::vector<VmaMemoryInfo*> bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
         VkObjectType                object_type{ VK_OBJECT_TYPE_UNKNOWN };
         VkFlags                     usage{ 0 };
@@ -611,13 +613,19 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     VkResult VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
                                VkDeviceSize                original_offset,
-                               const VkMemoryRequirements& mem_req,
+                               const VkMemoryRequirements& mem_reqs,
+                               bool                        requires_dedicated_allocation,
+                               bool                        prefers_dedicated_allocation,
+                               VkBuffer                    dedicated_buffer,
+                               VkImage                     dedicated_image,
                                VmaMemoryUsage              usage,
                                VmaMemoryInfo**             vma_mem_info);
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                   VkDeviceSize                   original_offset,
                                   const VkMemoryRequirements&    mem_req,
+                                  bool                           requires_dedicated_allocation,
+                                  bool                           prefers_dedicated_allocation,
                                   const VmaAllocationCreateInfo& alc_create_info,
                                   VmaMemoryInfo**                vma_mem_info);
 
@@ -646,9 +654,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                           ResourceData              allocator_data,
                                           MemoryData                allocator_mem_data,
                                           VkMemoryPropertyFlags     mem_properties);
-
-    VkMemoryDedicatedRequirementsKHR GetDedicatedRequirements(VkBuffer);
-    VkMemoryDedicatedRequirementsKHR GetDedicatedRequirements(VkImage);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;
