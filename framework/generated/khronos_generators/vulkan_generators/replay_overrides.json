@@ -167,6 +167,7 @@
     "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
     "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
     "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE",
-    "vkGetPhysicalDeviceSurfaceFormatsKHR" : "OverrideGetPhysicalDeviceSurfaceFormatsKHR"
+    "vkGetPhysicalDeviceSurfaceFormatsKHR" : "OverrideGetPhysicalDeviceSurfaceFormatsKHR",
+    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR"
   }
 }

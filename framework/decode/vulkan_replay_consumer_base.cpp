@@ -7320,6 +7320,35 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormats2KHR(
+    PFN_vkGetPhysicalDeviceSurfaceFormats2KHR                      func,
+    VkResult                                                       original_result,
+    decode::VulkanPhysicalDeviceInfo*                              physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* surface_info,
+    PointerDecoder<uint32_t>*                                      pSurfaceFormatCount,
+    StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>*             pSurfaceFormats)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
+
+    uint32_t*            surface_format_count = pSurfaceFormatCount->GetPointer();
+    VkSurfaceFormat2KHR* surface_formats      = pSurfaceFormats->GetPointer();
+
+    VkResult result =
+        func(physical_device_info->handle, surface_info->GetPointer(), surface_format_count, surface_formats);
+
+    if (surface_formats != nullptr)
+    {
+        // init optional value
+        physical_device_info->surface_formats.emplace();
+
+        for (uint32_t i = 0; i < *surface_format_count; ++i)
+        {
+            physical_device_info->surface_formats->push_back(surface_formats[i].surfaceFormat);
+        }
+    }
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     PFN_vkCreateSwapchainKHR                                      func,
     VkResult                                                      original_result,
