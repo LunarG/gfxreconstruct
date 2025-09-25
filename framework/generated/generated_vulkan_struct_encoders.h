@@ -954,6 +954,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkScreenSurfaceCreateInfoQNX&
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceColorWriteEnableFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRgbConversionCapabilitiesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeProfileRgbConversionInfoVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewMinLodFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewMinLodCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawFeaturesEXT& value);

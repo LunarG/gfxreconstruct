@@ -8715,6 +8715,40 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitivesGen
     encoder->EncodeUInt32Value(value.primitivesGeneratedQueryWithNonZeroStreams);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.videoEncodeRgbConversion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRgbConversionCapabilitiesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.rgbModels);
+    encoder->EncodeFlagsValue(value.rgbRanges);
+    encoder->EncodeFlagsValue(value.xChromaOffsets);
+    encoder->EncodeFlagsValue(value.yChromaOffsets);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeProfileRgbConversionInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.performEncodeRgbConversion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.rgbModel);
+    encoder->EncodeEnumValue(value.rgbRange);
+    encoder->EncodeEnumValue(value.xChromaOffset);
+    encoder->EncodeEnumValue(value.yChromaOffset);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewMinLodFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

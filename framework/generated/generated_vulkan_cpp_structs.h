@@ -1832,6 +1832,14 @@ std::string GenerateStruct_VkPipelineColorWriteCreateInfoEXT(std::ostream &out, 
 
 std::string GenerateStruct_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT(std::ostream &out, const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* structInfo, Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeProfileRgbConversionInfoVALVE(std::ostream &out, const VkVideoEncodeProfileRgbConversionInfoVALVE* structInfo, Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeRgbConversionCapabilitiesVALVE(std::ostream &out, const VkVideoEncodeRgbConversionCapabilitiesVALVE* structInfo, Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkVideoEncodeSessionRgbConversionCreateInfoVALVE(std::ostream &out, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE* structInfo, Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkImageViewMinLodCreateInfoEXT(std::ostream &out, const VkImageViewMinLodCreateInfoEXT* structInfo, Decoded_VkImageViewMinLodCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceImageViewMinLodFeaturesEXT(std::ostream &out, const VkPhysicalDeviceImageViewMinLodFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);

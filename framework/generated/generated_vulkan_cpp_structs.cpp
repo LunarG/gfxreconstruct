@@ -18368,6 +18368,68 @@ std::string GenerateStruct_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT(s
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->videoEncodeRgbConversion << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVideoEncodeRgbConversionFeaturesVALVE");
+    out << "\t\t" << "VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeProfileRgbConversionInfoVALVE(std::ostream &out, const VkVideoEncodeProfileRgbConversionInfoVALVE* structInfo, Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->performEncodeRgbConversion << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeProfileRgbConversionInfoVALVE");
+    out << "\t\t" << "VkVideoEncodeProfileRgbConversionInfoVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeRgbConversionCapabilitiesVALVE(std::ostream &out, const VkVideoEncodeRgbConversionCapabilitiesVALVE* structInfo, Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbModelConversionFlagsVALVE(" << structInfo->rgbModels << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbRangeCompressionFlagsVALVE(" << structInfo->rgbRanges << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagsVALVE(" << structInfo->xChromaOffsets << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagsVALVE(" << structInfo->yChromaOffsets << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeRgbConversionCapabilitiesVALVE");
+    out << "\t\t" << "VkVideoEncodeRgbConversionCapabilitiesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeSessionRgbConversionCreateInfoVALVE(std::ostream &out, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE* structInfo, Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbModelConversionFlagBitsVALVE(" << structInfo->rgbModel << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbRangeCompressionFlagBitsVALVE(" << structInfo->rgbRange << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagBitsVALVE(" << structInfo->xChromaOffset << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagBitsVALVE(" << structInfo->yChromaOffset << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeSessionRgbConversionCreateInfoVALVE");
+    out << "\t\t" << "VkVideoEncodeSessionRgbConversionCreateInfoVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkImageViewMinLodCreateInfoEXT(std::ostream &out, const VkImageViewMinLodCreateInfoEXT* structInfo, Decoded_VkImageViewMinLodCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

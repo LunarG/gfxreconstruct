@@ -8774,6 +8774,42 @@ struct Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE;
+
+    VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE
+{
+    using struct_type = VkVideoEncodeRgbConversionCapabilitiesVALVE;
+
+    VkVideoEncodeRgbConversionCapabilitiesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE
+{
+    using struct_type = VkVideoEncodeProfileRgbConversionInfoVALVE;
+
+    VkVideoEncodeProfileRgbConversionInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE
+{
+    using struct_type = VkVideoEncodeSessionRgbConversionCreateInfoVALVE;
+
+    VkVideoEncodeSessionRgbConversionCreateInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceImageViewMinLodFeaturesEXT;

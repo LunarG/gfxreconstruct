@@ -3854,6 +3854,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            {
+                const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(next);
+                VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->videoEncodeRgbConversion == VK_TRUE) && (query.videoEncodeRgbConversion == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature videoEncodeRgbConversion %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(currentNext)->videoEncodeRgbConversion =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             {
                 const VkPhysicalDeviceImageViewMinLodFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceImageViewMinLodFeaturesEXT*>(next);

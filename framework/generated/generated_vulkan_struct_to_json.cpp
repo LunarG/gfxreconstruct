@@ -14097,6 +14097,64 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["videoEncodeRgbConversion"] = static_cast<bool>(decoded_value.videoEncodeRgbConversion);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkVideoEncodeRgbConversionCapabilitiesVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t(),jdata["rgbModels"], decoded_value.rgbModels, options);
+        FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t(),jdata["rgbRanges"], decoded_value.rgbRanges, options);
+        FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t(),jdata["xChromaOffsets"], decoded_value.xChromaOffsets, options);
+        FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t(),jdata["yChromaOffsets"], decoded_value.yChromaOffsets, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkVideoEncodeProfileRgbConversionInfoVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["performEncodeRgbConversion"] = static_cast<bool>(decoded_value.performEncodeRgbConversion);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkVideoEncodeSessionRgbConversionCreateInfoVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["rgbModel"], decoded_value.rgbModel, options);
+        FieldToJson(jdata["rgbRange"], decoded_value.rgbRange, options);
+        FieldToJson(jdata["xChromaOffset"], decoded_value.xChromaOffset, options);
+        FieldToJson(jdata["yChromaOffset"], decoded_value.yChromaOffset, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -20595,6 +20653,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(data->GetMetaStructPointer());
@@ -21799,6 +21864,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeQualityLevelInfoKHR*>(data->GetMetaStructPointer());
@@ -21834,9 +21906,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeSessionIntraRefreshCreateInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

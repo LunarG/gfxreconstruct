@@ -5522,6 +5522,10 @@ template <> std::string ToString<VkStructureType>(const VkStructureType& value, 
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR";
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE";
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE: return "VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE";
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE: return "VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE";
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE: return "VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT";
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT: return "VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT";
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT: return "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT";
@@ -6587,6 +6591,54 @@ template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(const 
 template <> std::string ToString<VkVideoEncodeRateControlModeFlagBitsKHR>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
 {
     return BitmaskToString<VkVideoEncodeRateControlModeFlagBitsKHR>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>(const VkVideoEncodeRgbChromaOffsetFlagBitsVALVE& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeRgbChromaOffsetFlagBitsVALVE";
+}
+
+template <> std::string ToString<VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeRgbChromaOffsetFlagBitsVALVE>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeRgbModelConversionFlagBitsVALVE>(const VkVideoEncodeRgbModelConversionFlagBitsVALVE& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeRgbModelConversionFlagBitsVALVE";
+}
+
+template <> std::string ToString<VkVideoEncodeRgbModelConversionFlagBitsVALVE>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeRgbModelConversionFlagBitsVALVE>(vkFlags);
+}
+
+template <> std::string ToString<VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>(const VkVideoEncodeRgbRangeCompressionFlagBitsVALVE& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE";
+    case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE: return "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE";
+    default: break;
+    }
+    return "Unhandled VkVideoEncodeRgbRangeCompressionFlagBitsVALVE";
+}
+
+template <> std::string ToString<VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkVideoEncodeRgbRangeCompressionFlagBitsVALVE>(vkFlags);
 }
 
 template <> std::string ToString<VkVideoEncodeTuningModeKHR>(const VkVideoEncodeTuningModeKHR& value, ToStringFlags, uint32_t, uint32_t)
