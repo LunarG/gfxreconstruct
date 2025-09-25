@@ -638,6 +638,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentFeedbackLoopInfoE
 void EncodeStruct(ParameterEncoder* encoder, const VkCalibratedTimestampInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSetDescriptorBufferOffsetsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkStridedDeviceAddressRangeKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryIndirectCommandKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryIndirectInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageIndirectCommandKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageIndirectInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeIntraRefreshCapabilitiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionIntraRefreshCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeIntraRefreshInfoKHR& value);
@@ -954,6 +961,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkScreenSurfaceCreateInfoQNX&
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceColorWriteEnableFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorWriteCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRgbConversionCapabilitiesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeProfileRgbConversionInfoVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewMinLodFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewMinLodCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiDrawFeaturesEXT& value);

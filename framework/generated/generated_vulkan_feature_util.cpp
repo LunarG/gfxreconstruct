@@ -2313,6 +2313,28 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(next);
+                VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->indirectMemoryCopy == VK_TRUE) && (query.indirectMemoryCopy == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature indirectMemoryCopy %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(currentNext)->indirectMemoryCopy =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->indirectMemoryToImageCopy == VK_TRUE) && (query.indirectMemoryToImageCopy == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature indirectMemoryToImageCopy %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(currentNext)->indirectMemoryToImageCopy =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR:
             {
                 const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(next);
@@ -3850,6 +3872,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature primitivesGeneratedQueryWithNonZeroStreams %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(currentNext)->primitivesGeneratedQueryWithNonZeroStreams =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            {
+                const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(next);
+                VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->videoEncodeRgbConversion == VK_TRUE) && (query.videoEncodeRgbConversion == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature videoEncodeRgbConversion %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(currentNext)->videoEncodeRgbConversion =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

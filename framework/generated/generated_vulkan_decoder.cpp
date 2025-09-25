@@ -8352,6 +8352,42 @@ size_t VulkanDecoder::Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(const
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdCopyMemoryIndirectKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR> pCopyMemoryIndirectInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyMemoryIndirectInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyMemoryIndirectKHR(call_info, commandBuffer, &pCopyMemoryIndirectInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyMemoryToImageIndirectKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR> pCopyMemoryToImageIndirectInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyMemoryToImageIndirectInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyMemoryToImageIndirectKHR(call_info, commandBuffer, &pCopyMemoryToImageIndirectInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkFrameBoundaryANDROID(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -15700,6 +15736,12 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT:
         Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR:
+        Decode_vkCmdCopyMemoryIndirectKHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR:
+        Decode_vkCmdCopyMemoryToImageIndirectKHR(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkFrameBoundaryANDROID:
         Decode_vkFrameBoundaryANDROID(call_info, parameter_buffer, buffer_size);

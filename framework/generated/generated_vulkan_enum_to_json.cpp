@@ -1466,6 +1466,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAcquireProfilingLockFlag
     jdata = to_hex_fixed_width(value);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAddressCopyFlagBitsKHR& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR:
+            jdata = "VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR";
+            break;
+        case VK_ADDRESS_COPY_SPARSE_BIT_KHR:
+            jdata = "VK_ADDRESS_COPY_SPARSE_BIT_KHR";
+            break;
+        case VK_ADDRESS_COPY_PROTECTED_BIT_KHR:
+            jdata = "VK_ADDRESS_COPY_PROTECTED_BIT_KHR";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkAntiLagModeAMD& value, const JsonOptions& options)
 {
     switch (value) {
@@ -4979,6 +4997,9 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
         case VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM:
             jdata = "VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM";
             break;
+        case VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR:
+            jdata = "VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR";
+            break;
         case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
             jdata = "VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR";
             break;
@@ -7575,6 +7596,9 @@ void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, cons
             break;
         case VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM:
             jdata = "VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM";
+            break;
+        case VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR:
+            jdata = "VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -11052,6 +11076,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE";
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT";
             break;
@@ -11177,9 +11213,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_NV";
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_NV:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_NV";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_NV";
@@ -11801,6 +11834,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
             jdata = "VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_INDIRECT_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_COPY_MEMORY_INDIRECT_INFO_KHR";
+            break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR:
+            jdata = "VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR";
             break;
         case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
             jdata = "VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV";
@@ -13149,6 +13194,60 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlMo
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbChromaOffsetFlagBitsVALVE& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbModelConversionFlagBitsVALVE& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbRangeCompressionFlagBitsVALVE& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE";
+            break;
+        case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE:
+            jdata = "VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeTuningModeKHR& value, const JsonOptions& options)
 {
     switch (value) {
@@ -13506,6 +13605,28 @@ void FieldToJson(VkAccessFlags3KHR_t, nlohmann::ordered_json& jdata, const VkFla
 void FieldToJson(VkAcquireProfilingLockFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     jdata = to_hex_fixed_width(flags);
+}
+
+void FieldToJson(VkAddressCopyFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR:
+                return std::string("VK_ADDRESS_COPY_DEVICE_LOCAL_BIT_KHR");
+            case VK_ADDRESS_COPY_SPARSE_BIT_KHR:
+                return std::string("VK_ADDRESS_COPY_SPARSE_BIT_KHR");
+            case VK_ADDRESS_COPY_PROTECTED_BIT_KHR:
+                return std::string("VK_ADDRESS_COPY_PROTECTED_BIT_KHR");
+        }
+        return to_hex_fixed_width(flags);
+    });
 }
 
 void FieldToJson(VkAndroidSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
@@ -14736,6 +14857,8 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_FORMAT_FEATURE_2_OPTICAL_FLOW_COST_BIT_NV");
             case VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM:
                 return std::string("VK_FORMAT_FEATURE_2_TENSOR_DATA_GRAPH_BIT_ARM");
+            case VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR:
+                return std::string("VK_FORMAT_FEATURE_2_COPY_IMAGE_INDIRECT_DST_BIT_KHR");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR:
                 return std::string("VK_FORMAT_FEATURE_2_VIDEO_ENCODE_QUANTIZATION_DELTA_MAP_BIT_KHR");
             case VK_FORMAT_FEATURE_2_VIDEO_ENCODE_EMPHASIS_MAP_BIT_KHR:
@@ -16105,6 +16228,8 @@ void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const V
                 return std::string("VK_PIPELINE_STAGE_2_CONVERT_COOPERATIVE_VECTOR_MATRIX_BIT_NV");
             case VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM:
                 return std::string("VK_PIPELINE_STAGE_2_DATA_GRAPH_BIT_ARM");
+            case VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR:
+                return std::string("VK_PIPELINE_STAGE_2_COPY_INDIRECT_BIT_KHR");
         }
         return to_hex_fixed_width(flags);
     });
@@ -17468,6 +17593,72 @@ void FieldToJson(VkVideoEncodeRateControlModeFlagsKHR_t, nlohmann::ordered_json&
                 return std::string("VK_VIDEO_ENCODE_RATE_CONTROL_MODE_CBR_BIT_KHR");
             case VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR:
                 return std::string("VK_VIDEO_ENCODE_RATE_CONTROL_MODE_VBR_BIT_KHR");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_COSITED_EVEN_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_CHROMA_OFFSET_MIDPOINT_BIT_VALVE");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_RGB_IDENTITY_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_IDENTITY_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_709_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_601_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_MODEL_CONVERSION_YCBCR_2020_BIT_VALVE");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_FULL_RANGE_BIT_VALVE");
+            case VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE:
+                return std::string("VK_VIDEO_ENCODE_RGB_RANGE_COMPRESSION_NARROW_RANGE_BIT_VALVE");
         }
         return to_hex_fixed_width(flags);
     });

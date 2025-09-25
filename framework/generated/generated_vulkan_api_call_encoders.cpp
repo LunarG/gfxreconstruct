@@ -15902,6 +15902,77 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
 
 }
 
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR>::Dispatch(manager, commandBuffer, pCopyMemoryIndirectInfo);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pCopyMemoryIndirectInfo);
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMemoryIndirectKHR(commandBuffer, pCopyMemoryIndirectInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR>::Dispatch(manager, commandBuffer, pCopyMemoryIndirectInfo);
+
+}
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR>::Dispatch(manager, commandBuffer, pCopyMemoryToImageIndirectInfo);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pCopyMemoryToImageIndirectInfo);
+        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdCopyMemoryToImageIndirectKHRHandles, pCopyMemoryToImageIndirectInfo);
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkCopyMemoryToImageIndirectInfoKHR* pCopyMemoryToImageIndirectInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCopyMemoryToImageIndirectInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdCopyMemoryToImageIndirectKHR(commandBuffer, pCopyMemoryToImageIndirectInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR>::Dispatch(manager, commandBuffer, pCopyMemoryToImageIndirectInfo);
+
+}
+
 VKAPI_ATTR void VKAPI_CALL vkFrameBoundaryANDROID(
     VkDevice                                    device,
     VkSemaphore                                 semaphore,

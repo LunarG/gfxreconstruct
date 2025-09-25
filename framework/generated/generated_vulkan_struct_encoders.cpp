@@ -6017,6 +6017,67 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorBufferEmbedde
     encoder->EncodeUInt32Value(value.set);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkStridedDeviceAddressRangeKHR& value)
+{
+    encoder->EncodeUInt64Value(value.address);
+    encoder->EncodeUInt64Value(value.size);
+    encoder->EncodeUInt64Value(value.stride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryIndirectCommandKHR& value)
+{
+    encoder->EncodeUInt64Value(value.srcAddress);
+    encoder->EncodeUInt64Value(value.dstAddress);
+    encoder->EncodeUInt64Value(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryIndirectInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.srcCopyFlags);
+    encoder->EncodeFlagsValue(value.dstCopyFlags);
+    encoder->EncodeUInt32Value(value.copyCount);
+    EncodeStruct(encoder, value.copyAddressRange);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageIndirectCommandKHR& value)
+{
+    encoder->EncodeUInt64Value(value.srcAddress);
+    encoder->EncodeUInt32Value(value.bufferRowLength);
+    encoder->EncodeUInt32Value(value.bufferImageHeight);
+    EncodeStruct(encoder, value.imageSubresource);
+    EncodeStruct(encoder, value.imageOffset);
+    EncodeStruct(encoder, value.imageExtent);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageIndirectInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.srcCopyFlags);
+    encoder->EncodeUInt32Value(value.copyCount);
+    EncodeStruct(encoder, value.copyAddressRange);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.dstImage);
+    encoder->EncodeEnumValue(value.dstImageLayout);
+    EncodeStructArray(encoder, value.pImageSubresources, value.copyCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.indirectMemoryCopy);
+    encoder->EncodeUInt32Value(value.indirectMemoryToImageCopy);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.supportedQueues);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeIntraRefreshCapabilitiesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -8713,6 +8774,40 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitivesGen
     encoder->EncodeUInt32Value(value.primitivesGeneratedQuery);
     encoder->EncodeUInt32Value(value.primitivesGeneratedQueryWithRasterizerDiscard);
     encoder->EncodeUInt32Value(value.primitivesGeneratedQueryWithNonZeroStreams);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.videoEncodeRgbConversion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeRgbConversionCapabilitiesVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.rgbModels);
+    encoder->EncodeFlagsValue(value.rgbRanges);
+    encoder->EncodeFlagsValue(value.xChromaOffsets);
+    encoder->EncodeFlagsValue(value.yChromaOffsets);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeProfileRgbConversionInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.performEncodeRgbConversion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.rgbModel);
+    encoder->EncodeEnumValue(value.rgbRange);
+    encoder->EncodeEnumValue(value.xChromaOffset);
+    encoder->EncodeEnumValue(value.yChromaOffset);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewMinLodFeaturesEXT& value)

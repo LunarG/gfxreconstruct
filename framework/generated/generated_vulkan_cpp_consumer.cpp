@@ -9482,6 +9482,49 @@ void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT);
 }
+void VulkanCppConsumer::Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcopy_memory_indirect_info;
+    std::string pcopy_memory_indirect_info_struct = GenerateStruct_VkCopyMemoryIndirectInfoKHR(stream_pcopy_memory_indirect_info,
+                                                                                               pCopyMemoryIndirectInfo->GetPointer(),
+                                                                                               pCopyMemoryIndirectInfo->GetMetaStructPointer(),
+                                                                                               *this);
+    fprintf(file, "%s", stream_pcopy_memory_indirect_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdCopyMemoryIndirectKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdCopyMemoryIndirectKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pcopy_memory_indirect_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcopy_memory_to_image_indirect_info;
+    std::string pcopy_memory_to_image_indirect_info_struct = GenerateStruct_VkCopyMemoryToImageIndirectInfoKHR(stream_pcopy_memory_to_image_indirect_info,
+                                                                                                               pCopyMemoryToImageIndirectInfo->GetPointer(),
+                                                                                                               pCopyMemoryToImageIndirectInfo->GetMetaStructPointer(),
+                                                                                                               *this);
+    fprintf(file, "%s", stream_pcopy_memory_to_image_indirect_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdCopyMemoryToImageIndirectKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdCopyMemoryToImageIndirectKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pcopy_memory_to_image_indirect_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR);
+}
 void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

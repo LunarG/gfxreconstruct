@@ -2643,6 +2643,26 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR(out,
+                                                              casted_struct,
+                                                              decoded_struct,
+                                                              consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -4790,6 +4810,46 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                     casted_struct,
                                                                     decoded_struct,
                                                                     consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE(out,
+                                                                      casted_struct,
+                                                                      decoded_struct,
+                                                                      consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeProfileRgbConversionInfoVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeProfileRgbConversionInfoVALVE(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeRgbConversionCapabilitiesVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeRgbConversionCapabilitiesVALVE(out,
+                                                            casted_struct,
+                                                            decoded_struct,
+                                                            consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkVideoEncodeSessionRgbConversionCreateInfoVALVE(out,
+                                                                 casted_struct,
+                                                                 decoded_struct,
+                                                                 consumer);
 
                 break;
             }

@@ -484,6 +484,11 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo) override;
 
+    virtual void Process_vkCmdCopyMemoryToImageIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo) override;
+
     virtual void Process_vkCmdBindTransformFeedbackBuffersEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

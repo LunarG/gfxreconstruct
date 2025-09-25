@@ -281,6 +281,8 @@ void MapStructHandles(Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper, cons
 
 void MapStructHandles(Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkCopyMemoryToImageIndirectInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkVideoEncodeQuantizationMapInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkDebugMarkerObjectNameInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);

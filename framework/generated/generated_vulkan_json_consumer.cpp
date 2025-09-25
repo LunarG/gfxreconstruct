@@ -6489,6 +6489,34 @@ void VulkanExportJsonConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplers
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdCopyMemoryIndirectKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pCopyMemoryIndirectInfo"], pCopyMemoryIndirectInfo, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkCmdCopyMemoryToImageIndirectKHR");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer), json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["commandBuffer"], commandBuffer, json_options);
+        FieldToJson(args["pCopyMemoryToImageIndirectInfo"], pCopyMemoryToImageIndirectInfo, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

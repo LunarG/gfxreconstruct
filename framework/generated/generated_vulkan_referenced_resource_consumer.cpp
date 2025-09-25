@@ -1635,6 +1635,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+{
+    assert(pCopyMemoryToImageIndirectInfo != nullptr);
+
+    if (!pCopyMemoryToImageIndirectInfo->IsNull() && (pCopyMemoryToImageIndirectInfo->HasData()))
+    {
+        auto pCopyMemoryToImageIndirectInfo_ptr = pCopyMemoryToImageIndirectInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryToImageIndirectInfo_ptr->dstImage);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
