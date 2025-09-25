@@ -3859,16 +3859,16 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
         GFXRECON_LOG_DEBUG("Skip vkGetPhysicalDeviceSurfaceFormatsKHR for offscreen.");
         return;
     }
-    VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
-    VkSurfaceKHR in_surface = MapHandle<VulkanSurfaceKHRInfo>(surface, &CommonObjectInfoTable::GetVkSurfaceKHRInfo);
-    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(surface)->surface_creation_skipped) { return; }
-    uint32_t* out_pSurfaceFormatCount = pSurfaceFormatCount->IsNull() ? nullptr : pSurfaceFormatCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanSurfaceKHRInfo>("vkGetPhysicalDeviceSurfaceFormatsKHR", returnValue, surface, kSurfaceKHRArrayGetPhysicalDeviceSurfaceFormatsKHR, pSurfaceFormatCount, pSurfaceFormats, &CommonObjectInfoTable::GetVkSurfaceKHRInfo));
-    VkSurfaceFormatKHR* out_pSurfaceFormats = pSurfaceFormats->IsNull() ? nullptr : pSurfaceFormats->AllocateOutputData(*out_pSurfaceFormatCount);
+    auto in_physicalDevice = GetObjectInfoTable().GetVkPhysicalDeviceInfo(physicalDevice);
+    auto in_surface = GetObjectInfoTable().GetVkSurfaceKHRInfo(surface);
+    if (in_surface == nullptr || in_surface->surface_creation_skipped) { return; }
+    pSurfaceFormatCount->IsNull() ? nullptr : pSurfaceFormatCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanSurfaceKHRInfo>("vkGetPhysicalDeviceSurfaceFormatsKHR", returnValue, surface, kSurfaceKHRArrayGetPhysicalDeviceSurfaceFormatsKHR, pSurfaceFormatCount, pSurfaceFormats, &CommonObjectInfoTable::GetVkSurfaceKHRInfo));
+    if (!pSurfaceFormats->IsNull()) { pSurfaceFormats->AllocateOutputData(*pSurfaceFormatCount->GetOutputPointer()); }
 
-    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceSurfaceFormatsKHR(in_physicalDevice, in_surface, out_pSurfaceFormatCount, out_pSurfaceFormats);
+    VkResult replay_result = OverrideGetPhysicalDeviceSurfaceFormatsKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceSurfaceFormatsKHR, returnValue, in_physicalDevice, in_surface, pSurfaceFormatCount, pSurfaceFormats);
     CheckResult("vkGetPhysicalDeviceSurfaceFormatsKHR", returnValue, replay_result, call_info);
 
-    if (pSurfaceFormats->IsNull()) { SetOutputArrayCount<VulkanSurfaceKHRInfo>(surface, kSurfaceKHRArrayGetPhysicalDeviceSurfaceFormatsKHR, *out_pSurfaceFormatCount, &CommonObjectInfoTable::GetVkSurfaceKHRInfo); }
+    if (pSurfaceFormats->IsNull()) { SetOutputArrayCount<VulkanSurfaceKHRInfo>(surface, kSurfaceKHRArrayGetPhysicalDeviceSurfaceFormatsKHR, *pSurfaceFormatCount->GetOutputPointer(), &CommonObjectInfoTable::GetVkSurfaceKHRInfo); }
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(

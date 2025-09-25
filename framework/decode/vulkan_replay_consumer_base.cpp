@@ -3904,8 +3904,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
               ((original_result == VK_EVENT_RESET) && (result == VK_EVENT_SET))) &&
              (++retries <= kMaxEventStatusRetries));
 
-//    return result;
-    return original_result;// tmp: silence log-spam
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
@@ -7299,6 +7298,28 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
     return func(device_info->handle, info);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR          func,
+    VkResult                                          original_result,
+    decode::VulkanPhysicalDeviceInfo*                 physical_device_info,
+    decode::VulkanSurfaceKHRInfo*                     surface_info,
+    PointerDecoder<uint32_t>*                         pSurfaceFormatCount,
+    StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
+
+    uint32_t*           surface_format_count = pSurfaceFormatCount->GetPointer();
+    VkSurfaceFormatKHR* surface_formats      = pSurfaceFormats->GetPointer();
+
+    VkResult result = func(physical_device_info->handle, surface_info->handle, surface_format_count, surface_formats);
+
+    if (surface_formats != nullptr)
+    {
+        physical_device_info->surface_formats = { surface_formats, surface_formats + *surface_format_count };
+    }
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     PFN_vkCreateSwapchainKHR                                      func,
     VkResult                                                      original_result,
@@ -7380,10 +7401,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 supported_extension_iterator == instance_info->util_info.enabled_extensions.end();
         }
 
-        // TODO check if 'replay_create_info->imageFormat' is supported
-        bool img_format_supported = replay_create_info->imageFormat != VK_FORMAT_A2B10G10R10_UNORM_PACK32;
-        if (!img_format_supported)
+        // check if 'replay_create_info->imageFormat' is supported,
+        // do nothing if we got no information about available surfaces
+        bool surface_format_supported = !physical_device_info->surface_formats;
+        if (physical_device_info->surface_formats)
         {
+            for (const auto& supported : *physical_device_info->surface_formats)
+            {
+                if (supported.format == replay_create_info->imageFormat)
+                {
+                    surface_format_supported = true;
+                }
+            }
+        }
+
+        if (!surface_format_supported)
+        {
+            // fallback to a safe surface-format
             modified_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
         }
 
@@ -9880,6 +9914,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
 
     VkImageViewCreateInfo modified_create_info = *create_info;
 
+    auto* img_info = GetObjectInfoTable().GetVkImageInfo(create_info_decoder->GetMetaStructPointer()->image);
+    GFXRECON_ASSERT(img_info != nullptr);
+
     // If image has external format, this format is undefined.
     if (modified_create_info.format == VK_FORMAT_UNDEFINED)
     {
@@ -9890,9 +9927,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
             modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
         }
     }
-    else if (modified_create_info.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32)
+    else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
     {
-        modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
+        // for swapchain-images set image-view to actual format, avoid issues with distorted HDR-colors
+        modified_create_info.format = img_info->format;
     }
 
     VkResult result = func(device, &modified_create_info, allocator, out_view);
@@ -11093,28 +11131,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
                     (pPipelines != nullptr) && !pPipelines->IsNull() && (pPipelines->GetHandlePointer() != nullptr));
 
-    VkDevice in_device         = device_info->handle;
-    auto*    in_p_create_infos = const_cast<VkGraphicsPipelineCreateInfo*>(pCreateInfos->GetPointer());
-    const VkAllocationCallbacks* in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
-    VkPipeline*                  out_pipelines             = pPipelines->GetHandlePointer();
+    VkDevice                            in_device                 = device_info->handle;
+    const VkGraphicsPipelineCreateInfo* in_p_create_infos         = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks*        in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
+    VkPipeline*                         out_pipelines             = pPipelines->GetHandlePointer();
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
-
-    for (uint32_t i = 0; i < create_info_count; ++i)
-    {
-        if (auto* rendering_create_info =
-                graphics::vulkan_struct_get_pnext<VkPipelineRenderingCreateInfo>(&in_p_create_infos[i]))
-        {
-            for (uint32_t c = 0; c < rendering_create_info->colorAttachmentCount; ++c)
-            {
-                if (rendering_create_info->pColorAttachmentFormats[c] == VK_FORMAT_A2B10G10R10_UNORM_PACK32)
-                {
-                    GFXRECON_LOG_INFO(
-                        "OverrideCreateGraphicsPipelines: JUMANJI detected 'VK_FORMAT_A2B10G10R10_UNORM_PACK32'");
-                    ((VkFormat*)rendering_create_info->pColorAttachmentFormats)[c] = VK_FORMAT_B8G8R8A8_UNORM;
-                }
-            }
-        }
-    }
 
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
