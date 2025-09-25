@@ -457,7 +457,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                 (create_info.pool == alc_create_info.pool) && (create_info.priority == alc_create_info.priority) &&
                 !requires_dedicated_allocation && !prefers_dedicated_allocation)
             {
-                return true;
+                // GetRebindOffsetFromOriginalDeviceMemory
+                auto offset_from_device_memory = offset - offset_from_original_device_memory + allocation_info.offset;
+                // memoryOffset is must be an integer multiple of the VkMemoryRequirements::alignment
+                if (offset_from_device_memory % req.alignment == 0)
+                {
+                    return true;
+                }
             }
             return false;
         }
