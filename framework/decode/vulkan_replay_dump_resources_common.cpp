@@ -108,7 +108,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
 
     if (vkuFormatIsSRGB(format))
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8_SRGB;
+        dst_format = VK_FORMAT_B8G8R8A8_SRGB;
     }
     else if (vkuFormatIsDepthOrStencil(format))
     {
@@ -118,7 +118,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
     }
     else
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_UNORM : VK_FORMAT_B8G8R8_UNORM;
+        dst_format = VK_FORMAT_B8G8R8A8_UNORM;
     }
 
     return dst_format;
