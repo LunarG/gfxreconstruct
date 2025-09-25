@@ -7440,6 +7440,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 if (supported.format == replay_create_info->imageFormat)
                 {
                     surface_format_supported = true;
+                    break;
                 }
             }
         }
@@ -7448,6 +7449,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         {
             // fallback to a safe surface-format
             modified_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+            GFXRECON_LOG_WARNING_ONCE(
+                "Replay adjusted unsupported surface imageFormat (%d) to VK_FORMAT_B8G8R8A8_UNORM",
+                replay_create_info->imageFormat);
         }
 
         if (colorspace_extension_used_unsupported)
