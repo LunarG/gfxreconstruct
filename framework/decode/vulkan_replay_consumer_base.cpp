@@ -7298,6 +7298,57 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
     return func(device_info->handle, info);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR          func,
+    VkResult                                          original_result,
+    decode::VulkanPhysicalDeviceInfo*                 physical_device_info,
+    decode::VulkanSurfaceKHRInfo*                     surface_info,
+    PointerDecoder<uint32_t>*                         pSurfaceFormatCount,
+    StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
+
+    uint32_t*           surface_format_count = pSurfaceFormatCount->GetPointer();
+    VkSurfaceFormatKHR* surface_formats      = pSurfaceFormats->GetPointer();
+
+    VkResult result = func(physical_device_info->handle, surface_info->handle, surface_format_count, surface_formats);
+
+    if (surface_formats != nullptr)
+    {
+        physical_device_info->surface_formats = { surface_formats, surface_formats + *surface_format_count };
+    }
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormats2KHR(
+    PFN_vkGetPhysicalDeviceSurfaceFormats2KHR                      func,
+    VkResult                                                       original_result,
+    decode::VulkanPhysicalDeviceInfo*                              physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* surface_info,
+    PointerDecoder<uint32_t>*                                      pSurfaceFormatCount,
+    StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>*             pSurfaceFormats)
+{
+    GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
+
+    uint32_t*            surface_format_count = pSurfaceFormatCount->GetPointer();
+    VkSurfaceFormat2KHR* surface_formats      = pSurfaceFormats->GetPointer();
+
+    VkResult result =
+        func(physical_device_info->handle, surface_info->GetPointer(), surface_format_count, surface_formats);
+
+    if (surface_formats != nullptr)
+    {
+        // init optional value
+        physical_device_info->surface_formats.emplace();
+
+        for (uint32_t i = 0; i < *surface_format_count; ++i)
+        {
+            physical_device_info->surface_formats->push_back(surface_formats[i].surfaceFormat);
+        }
+    }
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     PFN_vkCreateSwapchainKHR                                      func,
     VkResult                                                      original_result,
@@ -7314,15 +7365,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     VkResult result             = VK_SUCCESS;
     auto     replay_create_info = pCreateInfo->GetPointer();
     GFXRECON_ASSERT(replay_create_info != nullptr);
-    auto replay_swapchain = pSwapchain->GetHandlePointer();
-    auto swapchain_info   = reinterpret_cast<VulkanSwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
-    assert(swapchain_info != nullptr);
+    VkSwapchainKHR* replay_swapchain = pSwapchain->GetHandlePointer();
+    auto*           swapchain_info   = reinterpret_cast<VulkanSwapchainKHRInfo*>(pSwapchain->GetConsumerData(0));
+    GFXRECON_ASSERT(swapchain_info != nullptr);
+
+    VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
 
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
     if (replay_create_info->surface != VK_NULL_HANDLE)
     {
-        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
-
         // Ensure that the window has been resized properly.  For Android, this ensures that we will set the proper
         // screen orientation when the swapchain pre-transform specifies a 90 or 270 degree rotation for older files
         // that do not include a ResizeWindowCmd2 command.
@@ -7379,6 +7430,30 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 supported_extension_iterator == instance_info->util_info.enabled_extensions.end();
         }
 
+        // check if 'replay_create_info->imageFormat' is supported,
+        // do nothing if we got no information about available surfaces
+        bool surface_format_supported = !physical_device_info->surface_formats;
+        if (physical_device_info->surface_formats)
+        {
+            for (const auto& supported : *physical_device_info->surface_formats)
+            {
+                if (supported.format == replay_create_info->imageFormat)
+                {
+                    surface_format_supported = true;
+                    break;
+                }
+            }
+        }
+
+        if (!surface_format_supported)
+        {
+            // fallback to a safe surface-format
+            modified_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+            GFXRECON_LOG_WARNING_ONCE(
+                "Replay adjusted unsupported surface imageFormat (%d) to VK_FORMAT_B8G8R8A8_UNORM",
+                replay_create_info->imageFormat);
+        }
+
         if (colorspace_extension_used_unsupported)
         {
             if (options_.use_colorspace_fallback)
@@ -7395,41 +7470,31 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             }
         }
 
-        const VkBaseInStructure* current = reinterpret_cast<const VkBaseInStructure*>(modified_create_info.pNext);
-        while (current != nullptr)
+        if (auto* compression_control =
+                graphics::vulkan_struct_get_pnext<VkImageCompressionControlEXT>(&modified_create_info))
         {
-            if (current->sType == VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT)
+            swapchain_info->compression_control = std::make_shared<VkImageCompressionControlEXT>(*compression_control);
+            VkImageCompressionControlEXT* copy_target = swapchain_info->compression_control.get();
+            copy_target->pNext                        = nullptr;
+
+            // If the fixed rate flags are present, then create a copy for the internal version of
+            // the structure used to pass to swapchain image creation.
+            if (compression_control->compressionControlPlaneCount > 0 &&
+                compression_control->pFixedRateFlags != nullptr)
             {
-                const VkImageCompressionControlEXT* compression_control =
-                    reinterpret_cast<const VkImageCompressionControlEXT*>(current);
-
-                swapchain_info->compression_control =
-                    std::make_shared<VkImageCompressionControlEXT>(*compression_control);
-                VkImageCompressionControlEXT* copy_target = swapchain_info->compression_control.get();
-
-                // If the fixed rate flags are present, then create a copy for the internal version of
-                // the structure used to pass to swapchain image creation.
-                if (compression_control->compressionControlPlaneCount > 0 &&
-                    compression_control->pFixedRateFlags != nullptr)
-                {
-                    std::copy(compression_control->pFixedRateFlags,
-                              compression_control->pFixedRateFlags + compression_control->compressionControlPlaneCount,
-                              std::back_inserter(swapchain_info->compression_fixed_rate_flags));
-                    copy_target->pFixedRateFlags = swapchain_info->compression_fixed_rate_flags.data();
-                }
-                else
-                {
-                    // Set everything as if the count was 0 because it could only get here if there was
-                    // nothing in it already, or there was no valid data.
-                    copy_target->compressionControlPlaneCount = 0;
-                    copy_target->pFixedRateFlags              = nullptr;
-                    swapchain_info->compression_fixed_rate_flags.clear();
-                }
-                copy_target->pNext = nullptr;
-                break;
+                std::copy(compression_control->pFixedRateFlags,
+                          compression_control->pFixedRateFlags + compression_control->compressionControlPlaneCount,
+                          std::back_inserter(swapchain_info->compression_fixed_rate_flags));
+                copy_target->pFixedRateFlags = swapchain_info->compression_fixed_rate_flags.data();
             }
-
-            current = current->pNext;
+            else
+            {
+                // Set everything as if the count was 0 because it could only get here if there was
+                // nothing in it already, or there was no valid data.
+                copy_target->compressionControlPlaneCount = 0;
+                copy_target->pFixedRateFlags              = nullptr;
+                swapchain_info->compression_fixed_rate_flags.clear();
+            }
         }
 
         result = swapchain_->CreateSwapchainKHR(original_result,
@@ -7455,14 +7520,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         swapchain_info->surface_id = format::kNullHandleId;
     }
 
-    swapchain_info->image_flags        = replay_create_info->flags;
-    swapchain_info->image_array_layers = replay_create_info->imageArrayLayers;
-    swapchain_info->image_usage        = replay_create_info->imageUsage;
-    swapchain_info->image_sharing_mode = replay_create_info->imageSharingMode;
+    swapchain_info->image_flags        = modified_create_info.flags;
+    swapchain_info->image_array_layers = modified_create_info.imageArrayLayers;
+    swapchain_info->image_usage        = modified_create_info.imageUsage;
+    swapchain_info->image_sharing_mode = modified_create_info.imageSharingMode;
     swapchain_info->device_info        = device_info;
-    swapchain_info->width              = replay_create_info->imageExtent.width;
-    swapchain_info->height             = replay_create_info->imageExtent.height;
-    swapchain_info->format             = replay_create_info->imageFormat;
+    swapchain_info->width              = modified_create_info.imageExtent.width;
+    swapchain_info->height             = modified_create_info.imageExtent.height;
+    swapchain_info->format             = modified_create_info.imageFormat;
 
     if ((result == VK_SUCCESS) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
@@ -9882,6 +9947,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
 
     VkImageViewCreateInfo modified_create_info = *create_info;
 
+    auto* img_info = GetObjectInfoTable().GetVkImageInfo(create_info_decoder->GetMetaStructPointer()->image);
+    GFXRECON_ASSERT(img_info != nullptr);
+
     // If image has external format, this format is undefined.
     if (modified_create_info.format == VK_FORMAT_UNDEFINED)
     {
@@ -9891,6 +9959,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
             // The imported image is expected to have RGBA8 format.
             modified_create_info.format = VK_FORMAT_R8G8B8A8_UNORM;
         }
+    }
+    else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
+    {
+        // for swapchain-images set image-view to actual format, avoid issues with distorted HDR-colors
+        modified_create_info.format = img_info->format;
     }
 
     VkResult result = func(device, &modified_create_info, allocator, out_view);
