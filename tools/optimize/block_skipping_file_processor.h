@@ -43,7 +43,7 @@ class BlockSkippingFileProcessor : public FileProcessor
     bool IsSkippingFinished();
 
   private:
-    virtual bool ProcessBlocks() override;
+    bool         SkipBlockProcessing() override;
     bool         ShouldSkipBlock();
 
   private:
