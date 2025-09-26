@@ -621,6 +621,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentFeedba
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCalibratedTimestampInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetDescriptorBufferOffsetsInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAddressRangeKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryIndirectCommandKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryIndirectInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageIndirectCommandKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageIndirectInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeIntraRefreshCapabilitiesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessionIntraRefreshCreateInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeIntraRefreshInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
@@ -937,6 +944,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkScreenSurfaceCre
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorWriteCreateInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewMinLodCreateInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());

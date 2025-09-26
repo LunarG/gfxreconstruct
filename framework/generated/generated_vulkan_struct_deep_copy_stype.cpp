@@ -1849,6 +1849,22 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_INDIRECT_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkCopyMemoryIndirectInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkCopyMemoryToImageIndirectInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(pNext), 1, out_ptr);
@@ -2960,6 +2976,22 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeRgbConversionCapabilitiesVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeProfileRgbConversionInfoVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(

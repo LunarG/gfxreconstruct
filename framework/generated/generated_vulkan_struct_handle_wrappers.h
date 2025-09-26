@@ -281,6 +281,8 @@ void UnwrapStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwra
 
 void UnwrapStructHandles(VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkCopyMemoryToImageIndirectInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkVideoEncodeQuantizationMapInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);

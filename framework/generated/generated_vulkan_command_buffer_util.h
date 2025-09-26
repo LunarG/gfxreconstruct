@@ -197,6 +197,8 @@ void TrackCmdSetDescriptorBufferOffsets2EXTHandles(vulkan_wrappers::CommandBuffe
 
 void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
+void TrackCmdCopyMemoryToImageIndirectKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyMemoryToImageIndirectInfoKHR* pCopyMemoryToImageIndirectInfo);
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
 void TrackCmdBeginTransformFeedbackEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);

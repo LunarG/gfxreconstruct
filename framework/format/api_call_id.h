@@ -803,6 +803,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetImageViewOpaqueCaptureDescriptorDataEXT                                          = MakeApiCallId(ApiFamily_Vulkan, 0x133e),
     ApiCall_vkGetSamplerOpaqueCaptureDescriptorDataEXT                                            = MakeApiCallId(ApiFamily_Vulkan, 0x133f),
     ApiCall_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT                              = MakeApiCallId(ApiFamily_Vulkan, 0x1340),
+    ApiCall_vkCmdCopyMemoryIndirectKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1341),
+    ApiCall_vkCmdCopyMemoryToImageIndirectKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1342),
 
     ApiCall_VulkanLast,
 

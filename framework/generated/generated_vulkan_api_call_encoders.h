@@ -2098,6 +2098,14 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
+
 VKAPI_ATTR void VKAPI_CALL vkFrameBoundaryANDROID(
     VkDevice                                    device,
     VkSemaphore                                 semaphore,

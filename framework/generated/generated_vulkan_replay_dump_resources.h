@@ -1024,6 +1024,18 @@ void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
 
+void Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryIndirectKHR              func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo);
+
+void Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryToImageIndirectKHR       func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
+
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDebugMarkerBeginEXT                func,
