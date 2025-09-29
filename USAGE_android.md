@@ -779,8 +779,8 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--flush-measurement-range]
                           [--flush-inside-measurement-range] [--sgfs STATUS]
                           [--sgfr FRAME-RANGES] [--wait-before-present]
-                          [-m MODE] [--swapchain MODE] [--vssb]
-                          [--use-captured-swapchain-indices]
+                          [-m MODE] [--swapchain MODE] [--present-mode MODE]
+                          [--vssb] [--use-captured-swapchain-indices]
                           [--dump-resources DUMP_RESOURCES]
                           [--dump-resources-before-draw]
                           [--dump-resources-image-format FORMAT]
@@ -965,6 +965,9 @@ options:
   --swapchain MODE      Choose a swapchain mode to replay. Available modes
                         are: virtual, captured, offscreen (forwarded to replay
                         tool)
+  --present-mode MODE   Set swapchain's VkPresentModeKHR. Available modes are:
+                        capture, immediate, mailbox, fifo, fifo_relaxed
+                        (forwarded to replay tool)
   --vssb, --virtual-swapchain-skip-blit
                         Skip blit to real swapchain to gain performance during
                         replay.
