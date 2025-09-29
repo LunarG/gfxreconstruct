@@ -868,7 +868,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         format::FillMemoryResourceValueCommandHeader header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-        success = ReadBytes(&header.resource_value_count, sizeof(header.resource_value_count));
+        success = success && ReadBytes(&header.resource_value_count, sizeof(header.resource_value_count));
 
         if (success)
         {

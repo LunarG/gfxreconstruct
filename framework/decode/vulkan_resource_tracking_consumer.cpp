@@ -813,14 +813,12 @@ void VulkanResourceTrackingConsumer::CalculateReplayBindingOffsetAndMemoryAlloca
             // during trace and update the replay binding offset  and then memory allocation size
             // accordingly.
 
-            VkDeviceSize replay_bind_offset = (*resources)[0]->GetTraceBindOffset();
-
             // loop through the bound resources and update replay resource binding offset
             // based on the memory alignment requirement and update memory allocation size
             for (size_t i = 0; i < (*resources).size(); i++)
             {
                 // assign replay bind offset to be the same as trace offset first
-                replay_bind_offset = (*resources)[i]->GetTraceBindOffset();
+                VkDeviceSize replay_bind_offset = (*resources)[i]->GetTraceBindOffset();
 
                 // make sure the assigned replay bind offset have the same alignment count as trace bind offset
                 // if trace alignment number is valid
