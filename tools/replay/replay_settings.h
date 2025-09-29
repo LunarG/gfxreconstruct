@@ -48,7 +48,7 @@ const char kArguments[] =
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-"
     "image-format,--dump-resources-dir,--dump-resources-binary-file-compression-type,"
     "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
-    "pipeline-cache,--quit-after-frame";
+    "pipeline-cache,--quit-after-frame,--present-mode";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -76,7 +76,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>] [--present-mode <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--vssb | --virtual-swapchain-skip-blit]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
@@ -268,6 +268,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand windows. To see rendering, add the --screenshots option.");
+    GFXRECON_WRITE_CONSOLE("  --present-mode <mode>\tSet swapchain's VkPresentModeKHR.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable modes are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: Present mode used at capture time.", kPresentModeCapture);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_IMMEDIATE_KHR", kPresentModeImmediate);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_MAILBOX_KHR", kPresentModeMailbox);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_KHR", kPresentModeFifo);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_RELAXED_KHR", kPresentModeFifoRelaxed);
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");

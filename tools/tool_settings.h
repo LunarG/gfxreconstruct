@@ -124,6 +124,7 @@ const char kQuitAfterFrameArgument[]             = "--quit-after-frame";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
+const char kPresentModeOption[]                  = "--present-mode";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -202,6 +203,12 @@ const char kMemoryTranslationRebind[]  = "rebind";
 const char kSwapchainVirtual[]   = "virtual";
 const char kSwapchainCaptured[]  = "captured";
 const char kSwapchainOffscreen[] = "offscreen";
+
+const char kPresentModeCapture[]     = "capture";
+const char kPresentModeImmediate[]   = "immediate";
+const char kPresentModeMailbox[]     = "mailbox";
+const char kPresentModeFifo[]        = "fifo";
+const char kPresentModeFifoRelaxed[] = "fifo_relaxed";
 
 const char kScreenshotFormatBmp[] = "bmp";
 const char kScreenshotFormatPng[] = "png";
@@ -1134,6 +1141,32 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         {
             GFXRECON_LOG_WARNING("Ignoring unrecognized \"--swapchain\" option: %s", swapchain_option.c_str());
         }
+    }
+
+    auto present_mode_option = arg_parser.GetArgumentValue(kPresentModeOption);
+    if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeCapture, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kCapture;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeImmediate, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kImmediate;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeMailbox, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kMailbox;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifo, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifo;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifoRelaxed, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifoRelaxed;
+    }
+    else if (!present_mode_option.empty())
+    {
+        GFXRECON_LOG_WARNING("Ignoring unrecognized \"--present-mode\" option: %s", present_mode_option.c_str());
     }
 
     if (arg_parser.IsOptionSet(kColorspaceFallback))

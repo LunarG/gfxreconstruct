@@ -7495,6 +7495,56 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             }
         }
 
+        if (options_.present_mode_option != util::PresentModeOption::kCapture)
+        {
+            VkPresentModeKHR present_mode = modified_create_info.presentMode;
+
+            switch (options_.present_mode_option)
+            {
+                case util::PresentModeOption::kImmediate:
+                    present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                    break;
+                case util::PresentModeOption::kMailbox:
+                    present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
+                    break;
+                case util::PresentModeOption::kFifo:
+                    present_mode = VK_PRESENT_MODE_FIFO_KHR;
+                    break;
+                case util::PresentModeOption::kFifoRelaxed:
+                    present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+                    break;
+                default:
+                    // If something else, just leave it untouched.
+                    break;
+            }
+
+            auto instance_table = GetInstanceTable(physical_device_info->parent);
+
+            uint32_t present_mode_count;
+            instance_table->GetPhysicalDeviceSurfacePresentModesKHR(
+                physical_device_info->handle, modified_create_info.surface, &present_mode_count, nullptr);
+
+            std::vector<VkPresentModeKHR> supported_present_modes(present_mode_count);
+            instance_table->GetPhysicalDeviceSurfacePresentModesKHR(physical_device_info->handle,
+                                                                    modified_create_info.surface,
+                                                                    &present_mode_count,
+                                                                    supported_present_modes.data());
+
+            bool is_supported =
+                std::find(supported_present_modes.begin(), supported_present_modes.end(), present_mode) !=
+                supported_present_modes.end();
+
+            if (is_supported)
+            {
+                modified_create_info.presentMode = present_mode;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Swapchain present mode '%s' is requested but not supported",
+                                   util::ToString<VkPresentModeKHR>(present_mode).c_str())
+            }
+        }
+
         result = swapchain_->CreateSwapchainKHR(original_result,
                                                 func,
                                                 device_info,

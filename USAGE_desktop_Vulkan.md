@@ -621,6 +621,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [-m <mode> | --memory-translation <mode>]
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
+                        [--present-mode <mode>]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
@@ -783,6 +784,13 @@ Optional arguments:
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
                                         and windows. To see rendering, add the --screenshots option.
+  --present-mode <mode> Set swapchain's VkPresentModeKHR.
+                        Available modes are:
+                            capture: Present mode used at capture time.
+                            immediate: VK_PRESENT_MODE_IMMEDIATE_KHR
+                            mailbox: VK_PRESENT_MODE_MAILBOX_KHR
+                            fifo: VK_PRESENT_MODE_FIFO_KHR
+                            fifo_relaxed: VK_PRESENT_MODE_FIFO_RELAXED_KHR
   --vssb
                         Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
