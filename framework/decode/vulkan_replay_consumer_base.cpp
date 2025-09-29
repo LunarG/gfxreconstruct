@@ -8146,95 +8146,75 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
             }
         }
 
-        // If a swapchain was removed, pNext stucts that reference the swapchain need to be modified as well.
+        // If a swapchain was removed, pNext structs that reference that swapchain need to be modified as well.
         if (!removed_swapchain_indices_.empty())
         {
-            VkBaseInStructure* next =
-                reinterpret_cast<VkBaseInStructure*>(const_cast<void*>(modified_present_info.pNext));
-            VkBaseInStructure* prev = reinterpret_cast<VkBaseInStructure*>(&modified_present_info);
-            while (next != nullptr)
+            if (const auto* device_group_present_info =
+                    graphics::vulkan_struct_get_pnext<VkDeviceGroupPresentInfoKHR>(&modified_present_info))
             {
-                switch (next->sType)
+                if (device_group_present_info->pDeviceMasks != nullptr)
                 {
-                    case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
+                    for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
                     {
-                        const VkDeviceGroupPresentInfoKHR* pNext =
-                            reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(next);
-
-                        if (pNext->pDeviceMasks != nullptr)
+                        if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
                         {
-                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
-                            {
-                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
-                                {
-                                    modified_device_masks_.push_back(pNext->pDeviceMasks[i]);
-                                }
-                            }
-
-                            assert(valid_swapchains_.size() == modified_device_masks_.size());
-
-                            modified_device_group_present_info.pNext = pNext->pNext;
-                            modified_device_group_present_info.swapchainCount =
-                                static_cast<uint32_t>(modified_device_masks_.size());
-                            modified_device_group_present_info.pDeviceMasks = modified_device_masks_.data();
-                            modified_device_group_present_info.mode         = pNext->mode;
-                            prev->pNext = (const VkBaseInStructure*)&modified_device_group_present_info;
+                            modified_device_masks_.push_back(device_group_present_info->pDeviceMasks[i]);
                         }
-                        break;
                     }
-                    case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
-                    {
-                        const VkPresentRegionsKHR* pNext = reinterpret_cast<const VkPresentRegionsKHR*>(next);
 
-                        if (pNext->pRegions != nullptr)
-                        {
-                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
-                            {
-                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
-                                {
-                                    modified_regions_.push_back(pNext->pRegions[i]);
-                                }
-                            }
+                    GFXRECON_ASSERT(valid_swapchains_.size() == modified_device_masks_.size());
+                    modified_device_group_present_info.swapchainCount =
+                        static_cast<uint32_t>(modified_device_masks_.size());
+                    modified_device_group_present_info.pDeviceMasks = modified_device_masks_.data();
+                    modified_device_group_present_info.mode         = device_group_present_info->mode;
 
-                            assert(valid_swapchains_.size() == modified_regions_.size());
-
-                            modified_present_region_info.pNext = pNext->pNext;
-                            modified_present_region_info.swapchainCount =
-                                static_cast<uint32_t>(modified_regions_.size());
-                            modified_present_region_info.pRegions = modified_regions_.data();
-                            prev->pNext = (const VkBaseInStructure*)&modified_present_region_info;
-                        }
-                        break;
-                    }
-                    case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
-                    {
-                        const VkPresentTimesInfoGOOGLE* pNext = reinterpret_cast<const VkPresentTimesInfoGOOGLE*>(next);
-
-                        if (pNext->pTimes != nullptr)
-                        {
-                            for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
-                            {
-                                if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
-                                {
-                                    modified_times_.push_back(pNext->pTimes[i]);
-                                }
-                            }
-
-                            assert(valid_swapchains_.size() == modified_times_.size());
-
-                            modified_present_times_info.pNext          = pNext->pNext;
-                            modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times_.size());
-                            modified_present_times_info.pTimes         = modified_times_.data();
-                            prev->pNext = (const VkBaseInStructure*)&modified_present_times_info;
-                        }
-                        break;
-                    }
-                    default:
-                        break;
+                    // replace previous VkDeviceGroupPresentInfoKHR
+                    graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_device_group_present_info);
                 }
+            }
 
-                prev = next;
-                next = const_cast<VkBaseInStructure*>(next->pNext);
+            if (const auto* present_regions =
+                    graphics::vulkan_struct_get_pnext<VkPresentRegionsKHR>(&modified_present_info))
+            {
+                if (present_regions->pRegions != nullptr)
+                {
+                    for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+                    {
+                        if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
+                        {
+                            modified_regions_.push_back(present_regions->pRegions[i]);
+                        }
+                    }
+
+                    GFXRECON_ASSERT(valid_swapchains_.size() == modified_regions_.size());
+                    modified_present_region_info.swapchainCount = static_cast<uint32_t>(modified_regions_.size());
+                    modified_present_region_info.pRegions       = modified_regions_.data();
+
+                    // replacing previous VkPresentRegionsKHR
+                    graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_present_region_info);
+                }
+            }
+
+            if (const auto* present_times_info =
+                    graphics::vulkan_struct_get_pnext<VkPresentTimesInfoGOOGLE>(&modified_present_info))
+            {
+                if (present_times_info->pTimes != nullptr)
+                {
+                    for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+                    {
+                        if (removed_swapchain_indices_.find(i) == removed_swapchain_indices_.end())
+                        {
+                            modified_times_.push_back(present_times_info->pTimes[i]);
+                        }
+                    }
+
+                    GFXRECON_ASSERT(valid_swapchains_.size() == modified_times_.size());
+                    modified_present_times_info.swapchainCount = static_cast<uint32_t>(modified_times_.size());
+                    modified_present_times_info.pTimes         = modified_times_.data();
+
+                    // replace previous VkPresentTimesInfoGOOGLE
+                    graphics::vulkan_struct_add_pnext(&modified_present_info, &modified_present_times_info);
+                }
             }
         }
 
