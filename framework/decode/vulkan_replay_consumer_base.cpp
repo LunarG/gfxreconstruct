@@ -7370,6 +7370,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
     VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
 
+    // might be passed via pNext-chain
+    std::optional<VkImageFormatListCreateInfo> format_list_create_info;
+    constexpr VkFormat fallback_color_formats[2] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_B8G8R8A8_SRGB };
+
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
     if (replay_create_info->surface != VK_NULL_HANDLE)
     {
@@ -7446,8 +7450,33 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         if (!surface_format_supported)
         {
+            // handle VK_KHR_swapchain_mutable_format
+            if (modified_create_info.flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
+            {
+                bool mutable_srgb = false;
+                if (auto* format_list_pnext =
+                        graphics::vulkan_struct_get_pnext<VkImageFormatListCreateInfo>(&modified_create_info))
+                {
+                    for (uint32_t i = 0; i < format_list_pnext->viewFormatCount; ++i)
+                    {
+                        if (vkuFormatIsSRGB(format_list_pnext->pViewFormats[0]))
+                        {
+                            mutable_srgb = true;
+                            break;
+                        }
+                    }
+
+                    // overwrite existing VkImageFormatListCreateInfo
+                    format_list_create_info                  = *format_list_pnext;
+                    format_list_create_info->viewFormatCount = mutable_srgb ? 2 : 1;
+                    format_list_create_info->pViewFormats    = fallback_color_formats;
+                    graphics::vulkan_struct_add_pnext<VkImageFormatListCreateInfo>(&modified_create_info,
+                                                                                   &format_list_create_info.value());
+                }
+            }
+
             // fallback to a safe surface-format
-            modified_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+            modified_create_info.imageFormat = fallback_color_formats[0];
             GFXRECON_LOG_WARNING_ONCE(
                 "Replay adjusted unsupported surface imageFormat (%d) to VK_FORMAT_B8G8R8A8_UNORM",
                 replay_create_info->imageFormat);
