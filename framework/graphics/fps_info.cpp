@@ -106,7 +106,22 @@ void FpsInfo::EndFrame(uint64_t frame)
     if (started_measurement_ && !ended_measurement_)
     {
         int64_t frame_end_time = util::datetime::GetTimestamp();
-        frame_durations_.push_back(util::datetime::DiffTimestamps(frame_start_time_, frame_end_time));
+        int64_t frame_duration = util::datetime::DiffTimestamps(frame_start_time_, frame_end_time);
+
+        // We need to check this because of the "frame stuttering" induced by the first frame end marker...
+        uint64_t index = frame - measurement_start_frame_;
+        if (index < frame_durations_.size())
+        {
+            frame_durations_[index] += frame_duration;
+        }
+        else if (index == frame_durations_.size())
+        {
+            frame_durations_.push_back(frame_duration);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("A frame counting error occured. Measurements will be wrong.");
+        }
 
         // Measurement frame range end is non-inclusive, as opposed to trim frame range
         if (frame >= measurement_end_frame_ - 1)
@@ -143,9 +158,54 @@ void FpsInfo::EndFile(uint64_t frame)
 
 void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
 {
-    replay_start_frame_  = static_cast<int64_t>(frame_number);
-    replay_start_time_   = static_cast<uint64_t>(util::datetime::GetTimestamp());
-    started_measurement_ = false; // End of loading trimmed state, so we reset the measurement if it started too soon
+    replay_start_frame_ = static_cast<int64_t>(frame_number);
+    replay_start_time_  = static_cast<uint64_t>(util::datetime::GetTimestamp());
+
+    if (started_measurement_)
+    {
+        GFXRECON_LOG_WARNING(
+            "Measurements started too early because of undetected loading frame. Measurements will restart...");
+
+        started_measurement_ = false;
+
+        // May restart measurements immediately because now is the actual start of frame 1
+        BeginFrame(1);
+    }
+}
+
+void FpsInfo::ProcessFirstFrameEndMarker()
+{
+    // When this function is called, it means we are about to reach end of frame 1
+    // But it's possible that until now received multiple calls to {Begin/End}Frame with different frame numbers
+    // -> If measurement frame range starts later than 1, then we can just "clean" all measurements
+    // -> If it starts at 1, then we can deduce this "aggregate frame" start time from the already recorded durations
+    // and the current frame start time
+
+    if (started_measurement_)
+    {
+        if (measurement_start_frame_ == 1)
+        {
+            // Compute the true current frame start time
+            int64_t aggregate_duration = 0;
+            for (int64_t duration : frame_durations_)
+            {
+                aggregate_duration += duration;
+            }
+            frame_start_time_ -= aggregate_duration;
+
+            // The recorded durations where only for parts of the first frame, they can be erased, and will be replaced
+            // at the next call of EndFrame
+            frame_durations_.clear();
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Measurements started too early because of undetected frame markers. Measurements will restart...");
+
+            // A new "measurement_start_frame_" should happen later, we can just reset the measurements
+            started_measurement_ = false;
+        }
+    }
 }
 
 void FpsInfo::LogMeasurements()
@@ -219,11 +279,14 @@ void FpsInfo::LogMeasurements()
     }
 }
 
-uint64_t FpsInfo::ShouldPreloadFrames(uint64_t current_frame) const
+uint64_t FpsInfo::ShouldPreloadFrames(uint64_t current_frame)
 {
     uint64_t result = 0;
     if (preload_measurement_range_ && current_frame == measurement_start_frame_)
     {
+        // To avoid troubles with "frame stuttering"
+        preload_measurement_range_ = false;
+
         result = measurement_end_frame_ - measurement_start_frame_;
     }
     return result;

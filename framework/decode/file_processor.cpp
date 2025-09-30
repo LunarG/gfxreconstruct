@@ -507,8 +507,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else if (base_type == format::BlockType::kStateMarkerBlock)
                 {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
+                    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
                     success = block_buffer.Read(marker_type);
 
@@ -2520,6 +2519,10 @@ bool FileProcessor::ProcessFrameMarker(BlockBuffer& block_buffer, format::Marker
         {
             capture_uses_frame_markers_ = true;
             current_frame_number_       = kFirstFrame;
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->ProcessFirstFrameEndMarker();
+            }
         }
 
         // Make sure to increment the frame number on the way out.
