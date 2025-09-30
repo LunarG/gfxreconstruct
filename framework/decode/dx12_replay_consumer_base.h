@@ -39,7 +39,6 @@
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
-#include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
 #include "application/application.h"
 
@@ -74,8 +73,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 #endif
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
-
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
     void PostReplay();
 
@@ -1301,7 +1298,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     bool                                                  set_breadcrumb_context_enablement_;
     bool                                                  set_page_fault_enablement_;
     bool                                                  loading_trim_state_;
-    graphics::FpsInfo*                                    fps_info_;
     std::unique_ptr<Dx12ResourceValueMapper>              resource_value_mapper_;
     std::unique_ptr<Dx12AccelerationStructureBuilder>     accel_struct_builder_;
     graphics::Dx12ShaderIdMap                             shader_id_map_;

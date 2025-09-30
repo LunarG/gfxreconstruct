@@ -107,15 +107,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     }
 #endif
 
-    void SetFpsInfo(graphics::FpsInfo* fps_info)
-    {
-        fps_info_ = fps_info;
-    }
-
-    virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
-
-    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
-
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void
@@ -487,7 +478,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     std::unordered_map<XrInstance, encode::OpenXrInstanceTable> instance_tables_;
     std::shared_ptr<application::Application>                   application_;
     std::function<void(const char*)>                            fatal_error_handler_;
-    graphics::FpsInfo*                                          fps_info_;
 
 #if defined(__ANDROID__)
     struct android_app* android_app_;

@@ -25,10 +25,11 @@
 #define GFXRECON_GRAPHICS_FPS_INFO_H
 
 #include "util/defines.h"
-#include "decode/file_processor.h"
 
 #include <limits>
+#include <string>
 #include <string_view>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)

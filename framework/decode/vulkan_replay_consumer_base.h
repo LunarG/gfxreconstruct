@@ -44,7 +44,6 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_replay_dump_resources.h"
-#include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/threadpool.h"
@@ -98,8 +97,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler);
-
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
     virtual void WaitDevicesIdle() override;
 
@@ -1860,7 +1857,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<ScreenshotHandler>                                             screenshot_handler_;
     std::unique_ptr<VulkanSwapchain>                                               swapchain_;
     std::string                                                                    screenshot_file_prefix_;
-    graphics::FpsInfo*                                                             fps_info_;
 
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker> _device_address_trackers;
     std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>      _device_address_replacers;

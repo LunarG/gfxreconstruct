@@ -124,6 +124,7 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
     }
 
     fps_info_ = fps_info;
+    file_processor_->SetFpsInfo(fps_info);
 }
 
 void Application::Run()

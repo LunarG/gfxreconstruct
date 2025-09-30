@@ -194,7 +194,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                                                    const VulkanReplayOptions&                options) :
     options_(options),
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    application_(application), loading_trim_state_(false), replaying_trimmed_capture_(false), fps_info_(nullptr),
+    application_(application), loading_trim_state_(false), replaying_trimmed_capture_(false),
     have_imported_semaphores_(false), omitted_pipeline_cache_data_(false)
 {
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
@@ -349,10 +349,6 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
     GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
-    if (fps_info_ != nullptr)
-    {
-        fps_info_->ProcessStateEndMarker(frame_number);
-    }
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)

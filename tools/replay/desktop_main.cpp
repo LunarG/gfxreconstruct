@@ -176,20 +176,17 @@ int main(int argc, const char** argv)
             bool        preload_measurement_frame_range    = false;
             std::string measurement_file_name;
 
-            if (vulkan_replay_options.enable_vulkan)
-            {
-                has_mfr = GetMeasurementFrameRange(arg_parser, measurement_start_frame, measurement_end_frame);
-                GetMeasurementFilename(arg_parser, measurement_file_name);
-                quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
-                flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
-                flush_inside_measurement_range     = vulkan_replay_options.flush_inside_measurement_range;
-                preload_measurement_frame_range    = vulkan_replay_options.preload_measurement_range;
+            has_mfr = GetMeasurementFrameRange(arg_parser, measurement_start_frame, measurement_end_frame);
+            GetMeasurementFilename(arg_parser, measurement_file_name);
+            quit_after_measurement_frame_range = vulkan_replay_options.quit_after_measurement_frame_range;
+            flush_measurement_frame_range      = vulkan_replay_options.flush_measurement_frame_range;
+            flush_inside_measurement_range     = vulkan_replay_options.flush_inside_measurement_range;
+            preload_measurement_frame_range    = vulkan_replay_options.preload_measurement_range;
 
-                if (vulkan_replay_options.quit_after_frame)
-                {
-                    quit_after_frame = true;
-                    GetQuitAfterFrame(arg_parser, quit_frame);
-                }
+            if (vulkan_replay_options.quit_after_frame)
+            {
+                quit_after_frame = true;
+                GetQuitAfterFrame(arg_parser, quit_frame);
             }
 
             gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_start_frame),
@@ -251,7 +248,6 @@ int main(int argc, const char** argv)
             {
                 vulkan_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                vulkan_replay_consumer.SetFpsInfo(&fps_info);
 
                 vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
                 file_processor->AddDecoder(&vulkan_decoder);
@@ -274,7 +270,6 @@ int main(int argc, const char** argv)
 
                 dx12_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                dx12_replay_consumer.SetFpsInfo(&fps_info);
 
                 // check for user option if first pass tracking is enabled
                 if (dx_replay_options.enable_d3d12_two_pass_replay)
@@ -309,7 +304,6 @@ int main(int argc, const char** argv)
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
             gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
             openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
-            openxr_replay_consumer.SetFpsInfo(&fps_info);
             openxr_decoder.AddConsumer(&openxr_replay_consumer);
             file_processor->AddDecoder(&openxr_decoder);
 #endif
