@@ -259,7 +259,8 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
     {
         auto modified_info = *create_info;
         modified_info.size = util::aligned_value(create_info->size, min_buffer_alignment_);
-        result             = functions_.create_buffer(device_, &modified_info, nullptr, buffer);
+
+        result = functions_.create_buffer(device_, &modified_info, allocator_->GetAllocationCallbacks(), buffer);
 
         if (result >= 0)
         {
@@ -326,7 +327,7 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
 
     if ((create_info != nullptr) && (image != nullptr) && (allocator_data != nullptr))
     {
-        result = functions_.create_image(device_, create_info, allocation_callbacks, image);
+        result = functions_.create_image(device_, create_info, allocator_->GetAllocationCallbacks(), image);
 
         if (result >= 0)
         {
@@ -396,7 +397,7 @@ VkResult VulkanRebindAllocator::CreateVideoSession(const VkVideoSessionCreateInf
 
     if ((create_info != nullptr) && (session != nullptr) && (allocator_data != nullptr))
     {
-        result = functions_.create_video_session(device_, create_info, allocation_callbacks, session);
+        result = functions_.create_video_session(device_, create_info, allocator_->GetAllocationCallbacks(), session);
 
         if (result >= 0)
         {
@@ -626,7 +627,7 @@ void VulkanRebindAllocator::FreeMemory(VkDeviceMemory               memory,
 
         if (memory_alloc_info->ahb)
         {
-            functions_.free_memory(device_, memory_alloc_info->ahb_memory, nullptr);
+            functions_.free_memory(device_, memory_alloc_info->ahb_memory, allocator_->GetAllocationCallbacks());
         }
 
         for (const auto& entry : memory_alloc_info->original_objects)
