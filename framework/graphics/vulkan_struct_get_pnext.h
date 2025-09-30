@@ -143,6 +143,36 @@ static T* vulkan_struct_remove_pnext(Parent_T* parent)
     return nullptr;
 }
 
+/**
+ * @brief   vulkan_struct_add_pnext can be used to add elements into a pNext-chain.
+ *
+ * Searches through the parent's pNext-chain to avoid duplicates. Inserts 'pnext_struct' at front of pNext-chain.
+ *
+ * @tparam  T           the structure-type added to the pNext-chain
+ * @tparam  Parent_T    implicit type of provided structure
+ * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
+ */
+template <typename T, typename Parent_T>
+static void vulkan_struct_add_pnext(Parent_T* parent, T* pnext_struct)
+{
+    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
+
+    // remove potential duplicate
+    vulkan_struct_remove_pnext<T>(parent);
+
+    if (parent != nullptr && pnext_struct != nullptr)
+    {
+        // cast input-pointers to VkBaseOutStructure*
+        auto* parent_out       = reinterpret_cast<VkBaseOutStructure*>(parent);
+        auto* pnext_struct_out = reinterpret_cast<VkBaseOutStructure*>(pnext_struct);
+
+        // insert pnext_struct at front of pNext-chain
+        auto* current_pnext     = parent_out->pNext;
+        parent_out->pNext       = pnext_struct_out;
+        pnext_struct_out->pNext = current_pnext;
+    }
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
