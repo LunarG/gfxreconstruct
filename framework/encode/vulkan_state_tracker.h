@@ -55,18 +55,19 @@ class VulkanStateTracker
 
     ~VulkanStateTracker();
 
-    uint64_t WriteState(util::FileOutputStream*           file_stream,
-                        util::ThreadData*                 thread_data,
-                        std::function<format::HandleId()> get_unique_id_fn,
-                        util::Compressor*                 compressor,
-                        uint64_t                          frame_number,
-                        util::FileOutputStream*           asset_file_stream,
-                        const std::string*                asset_file_name)
+    uint64_t WriteState(util::FileOutputStream*          file_stream,
+                        util::ThreadData*                thread_data,
+                        vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                        util::Compressor*                compressor,
+                        uint64_t                         frame_number,
+                        util::FileOutputStream*          asset_file_stream,
+                        const std::string*               asset_file_name)
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
@@ -75,11 +76,11 @@ class VulkanStateTracker
         return state_writer.WriteState(state_table_, frame_number);
     }
 
-    uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
-                         const std::string*                asset_file_name,
-                         util::ThreadData*                 thread_data,
-                         std::function<format::HandleId()> get_unique_id_fn,
-                         util::Compressor*                 compressor)
+    uint64_t WriteAssets(util::FileOutputStream*          asset_file_stream,
+                         const std::string*               asset_file_name,
+                         util::ThreadData*                thread_data,
+                         vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                         util::Compressor*                compressor)
     {
         assert(asset_file_stream != nullptr);
         assert(asset_file_name != nullptr);
@@ -88,6 +89,7 @@ class VulkanStateTracker
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        &asset_file_offsets_);
