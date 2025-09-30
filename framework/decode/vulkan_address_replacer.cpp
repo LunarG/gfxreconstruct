@@ -1068,9 +1068,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // scratch-buffer: check for alignment
             scratch_buffer_usable =
                 scratch_buffer_usable &&
-                build_geometry_info.scratchData.deviceAddress %
-                        replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment ==
-                    0;
+                (build_geometry_info.scratchData.deviceAddress %
+                 replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment) == 0;
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
