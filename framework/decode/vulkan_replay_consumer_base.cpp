@@ -58,6 +58,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -9993,8 +9994,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     }
     else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
     {
-        // for swapchain-images set image-view to actual format, avoid issues with distorted HDR-colors
-        modified_create_info.format = img_info->format;
+        // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors
+        modified_create_info.format =
+            vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
     }
 
     VkResult result = func(device, &modified_create_info, allocator, out_view);
