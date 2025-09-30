@@ -11030,6 +11030,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     VkWriteDescriptorSet* in_pDescriptorWrites = p_descriptor_writes->GetPointer();
     VkCopyDescriptorSet*  in_pDescriptorCopies = p_pescriptor_copies->GetPointer();
 
+    if (UseAddressReplacement(device_info))
     {
         // check/correct specific resource handles (i.e. VkAccelerationStructure)
         auto& address_replacer = GetDeviceAddressReplacer(device_info);

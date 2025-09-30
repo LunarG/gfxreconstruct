@@ -44,76 +44,13 @@ class PreloadFileProcessor : public FileProcessor
     bool PreloadBlocksOneFrame();
 
   private:
-    bool ReadBytes(void* buffer, size_t buffer_size) override;
-    bool SkipBytes(size_t skip_size) override;
+    bool GetBlockBuffer(BlockBuffer& block_buffer) override;
 
-    class BlockBuffer
-    {
-      public:
-        bool IsValid() const { return data_.get() != nullptr; }
-        bool IsEof() const { return read_pos_ >= size_; }
-
-        template <typename T>
-        bool Read(T& value)
-        {
-            bool success = Read<T>(value, read_pos_);
-            if (success)
-            {
-                read_pos_ += sizeof(T);
-            }
-            return success;
-        }
-
-        template <typename T>
-        bool Read(T& value, size_t at) const
-        {
-            // Ensure that this isn't being misused.
-            static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
-            if (IsAvailableAt(sizeof(value), at))
-            {
-                memcpy(&value, data_.get() + at, sizeof(value));
-                return true;
-            }
-            return false;
-        }
-
-        bool ReadBytes(void* buffer, size_t buffer_size);
-
-        bool ReadBytes(void* buffer, size_t buffer_size, size_t at) const;
-
-        size_t Size() const { return size_; }
-
-        size_t ReadPos() const { return read_pos_; }
-
-        BlockBuffer(const format::BlockHeader& header) : header_(header)
-        {
-            size_ = header.size + sizeof(header);
-            data_ = std::make_unique<char[]>(size_);
-            memcpy(data_.get(), &header, sizeof(header));
-        }
-
-        char* GetPayload() { return data_.get() + sizeof(format::BlockHeader); }
-
-        bool IsFrameDelimiter(const FileProcessor& file_processor) const;
-
-        bool SeekForward(size_t size);
-
-        bool IsAvailable(size_t size) const { return IsAvailableAt(size, read_pos_); }
-        bool IsAvailableAt(size_t size, size_t at) const { return Size() >= (at + size); }
-
-      private:
-        format::BlockHeader header_;
-        size_t              size_{ 0 };
-        size_t              read_pos_{ 0 };
-
-        std::unique_ptr<char[]> data_;
-    };
-
-    void AdvanceBlockAtEof(const BlockBuffer& block_buffer);
-    bool AddBlockBuffer(const format::BlockHeader& header);
-
-    std::deque<BlockBuffer> pending_block_buffers_;
-    std::deque<BlockBuffer> block_buffers_;
+    // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
+    //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
+    //       the compact choice
+    std::deque<util::DataSpan> pending_block_data_;
+    std::deque<util::DataSpan> preload_block_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

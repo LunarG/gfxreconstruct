@@ -27,6 +27,7 @@
 #include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/handle_unwrap_memory.h"
+#include "encode/vulkan_acceleration_structure_build_state.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_util.h"
@@ -209,7 +210,7 @@ struct BufferViewWrapper;
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
     // State tracking info for buffers with device addresses.
-    format::HandleId   device_id{ format::kNullHandleId };
+    VkDevice           device{ VK_NULL_HANDLE };
     VkDeviceAddress    address{ 0 };
     VkDeviceAddress    opaque_address{ 0 };
     VkBufferUsageFlags usage{ 0 };
@@ -228,6 +229,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
     VkDeviceSize     created_size{ 0 };
+
+    std::unordered_map<VkDeviceAddress, AccelerationStructureBuildState> acceleration_structures;
 };
 
 struct ImageViewWrapper;
@@ -619,53 +622,13 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
     std::vector<AccelerationStructureKHRWrapper*> blas;
 
     VkAccelerationStructureTypeKHR type;
+
+    // associated buffer
+    BufferWrapper* buffer = nullptr;
+    VkDeviceSize   offset = 0;
+    VkDeviceSize   size   = 0;
+
     // Only used when tracking
-
-    struct ASInputBuffer
-    {
-        // Required data to correctly create a buffer
-        VkBuffer           handle{ VK_NULL_HANDLE };
-        format::HandleId   handle_id{ format::kNullHandleId };
-        DeviceWrapper*     bind_device{ nullptr };
-        uint32_t           queue_family_index{ 0 };
-        VkDeviceSize       created_size{ 0 };
-        VkBufferUsageFlags usage{ 0 };
-
-        bool destroyed{ false };
-
-        VkDeviceAddress capture_address{ 0 };
-        VkDeviceAddress actual_address{ 0 };
-
-        std::vector<uint8_t> bytes;
-
-        VkMemoryRequirements memory_requirements{};
-        format::HandleId     bind_memory{};
-        VkDeviceMemory       bind_memory_handle{ VK_NULL_HANDLE };
-    };
-
-    struct AccelerationStructureKHRBuildCommandData
-    {
-        VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
-        std::unique_ptr<uint8_t[]>                            geometry_info_memory;
-        std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
-        std::unordered_map<format::HandleId, ASInputBuffer>   input_buffers;
-    };
-    std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };
-
-    struct AccelerationStructureCopyCommandData
-    {
-        format::HandleId                   device;
-        VkCopyAccelerationStructureInfoKHR info;
-    };
-    std::optional<AccelerationStructureCopyCommandData> latest_copy_command_{ std::nullopt };
-
-    struct AccelerationStructureWritePropertiesCommandData
-    {
-        format::HandleId device;
-        VkQueryType      query_type;
-    };
-    std::optional<AccelerationStructureWritePropertiesCommandData> latest_write_properties_command_{ std::nullopt };
-
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 

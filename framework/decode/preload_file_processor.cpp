@@ -35,12 +35,12 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     {
         DoProcessNextFrame([this]() { return this->PreloadBlocksOneFrame(); });
     }
-    block_buffers_ = std::move(pending_block_buffers_);
+    preload_block_data_ = std::move(pending_block_data_);
 }
 
 bool PreloadFileProcessor::PreloadBlocksOneFrame()
 {
-    format::BlockHeader block_header;
+    BlockBuffer         block_buffer;
     bool                success = true;
 
     while (success)
@@ -50,14 +50,22 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
 
         if (success)
         {
-            success = ReadBlockHeader(&block_header);
+            success = ReadBlockBuffer(block_buffer);
             if (success)
             {
-                success = AddBlockBuffer(block_header);
+                // Valid checks for the presence and size of the data span matching the header
+                success = block_buffer.IsValid();
 
                 if (success)
                 {
-                    if (pending_block_buffers_.back().IsFrameDelimiter(*this))
+                    // Note: in order to support kExecuteBlocksFromFile in preload, we need to add special case logic
+                    //       to look for the meta data block here, and allow it to push itself on the stack, and then
+                    //       add command counting here as well.
+                    const bool end_of_frame = block_buffer.IsFrameDelimiter(*this);
+                    // Record the block data for replay, Moves DataSpan out of BlockBuffer, so don't use after this.
+                    // NOTE: It is intentional to only store only the data span to make preload lightweight a possible
+                    pending_block_data_.emplace_back(std::move(block_buffer.ReleaseData()));
+                    if (end_of_frame)
                     {
                         // GFXRECON_LOG_INFO("Frame delimiter encountered during preload, ending frame preload.");
                         break;
@@ -65,8 +73,9 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
                 }
                 else
                 {
-                    std::string msg = "Failed to preload block data of size " + std::to_string(block_header.size) +
-                                      " for block type " + format::ToString(block_header.type);
+                    std::string msg = "Failed to preload block data of size " +
+                                      std::to_string(block_buffer.Header().size) + " for block type " +
+                                      format::ToString(block_buffer.Header().type);
                     HandleBlockReadError(kErrorReadingBlockData, msg.c_str());
                 }
             }
@@ -81,125 +90,25 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
     return success;
 }
 
-bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
+// Grab the block data off the front of the
+bool PreloadFileProcessor::GetBlockBuffer(BlockBuffer& block_buffer)
 {
-    // If we have a block buffer, read from it first
-    if (!block_buffers_.empty())
-    {
-        BlockBuffer& block_buffer = block_buffers_.front();
-        bool         success      = block_buffer.ReadBytes(buffer, buffer_size);
-        AdvanceBlockAtEof(block_buffer);
-        if (success)
-        {
-            bytes_read_ += buffer_size;
-        }
-        return success;
-    }
+    // Quick escape
+    if (preload_block_data_.empty())
+        return Base::GetBlockBuffer(block_buffer);
 
-    // Otherwise read from the file as normal
-    return Base::ReadBytes(buffer, buffer_size);
-}
+    block_buffer = BlockBuffer(std::move(preload_block_data_.front()));
+    preload_block_data_.pop_front();
 
-bool PreloadFileProcessor::SkipBytes(size_t skip_size)
-{
-    // If we have a block buffer, read from it first
-    if (!block_buffers_.empty())
-    {
-        BlockBuffer& block_buffer = block_buffers_.front();
-        bool         success      = block_buffer.SeekForward(skip_size);
-        AdvanceBlockAtEof(block_buffer);
-        return success;
-    }
+    // Caller expects read position just past header
+    // Again the pattern is to validate the header presense, not span consistency
+    bool success = block_buffer.SeekTo(sizeof(format::BlockHeader));
 
-    // Otherwise read from the file as normal
-    return Base::SkipBytes(skip_size);
-}
+    // However, preload should never add data the doesn't result in a valid block_buffer.
+    // Should have failed in preload.
+    GFXRECON_ASSERT(block_buffer.IsValid());
 
-void PreloadFileProcessor::AdvanceBlockAtEof(const BlockBuffer& block_buffer)
-{
-    if (block_buffer.IsEof())
-    {
-        block_buffers_.pop_front();
-    }
-}
-
-bool PreloadFileProcessor::AddBlockBuffer(const format::BlockHeader& header)
-{
-    pending_block_buffers_.emplace_back(header);
-    bool success = Base::ReadBytes(pending_block_buffers_.back().GetPayload(), header.size);
-    if (!success)
-    {
-        pending_block_buffers_.pop_back();
-    }
     return success;
-}
-
-bool PreloadFileProcessor::BlockBuffer::ReadBytes(void* buffer, size_t buffer_size)
-{
-    bool success = ReadBytes(buffer, buffer_size, read_pos_);
-    if (success)
-    {
-        read_pos_ += buffer_size;
-    }
-    return success;
-}
-
-bool PreloadFileProcessor::BlockBuffer::ReadBytes(void* buffer, size_t buffer_size, size_t at) const
-{
-    if (IsAvailableAt(buffer_size, at))
-    {
-        memcpy(buffer, data_.get() + at, buffer_size);
-        return true;
-    }
-    return false;
-}
-
-bool PreloadFileProcessor::BlockBuffer::IsFrameDelimiter(const FileProcessor& file_processor) const
-{
-    if (!IsValid())
-    {
-        return false;
-    }
-
-    format::BlockType base_type = format::RemoveCompressedBlockBit(header_.type);
-    switch (base_type)
-    {
-        case format::BlockType::kFrameMarkerBlock:
-            format::MarkerType marker_type;
-            if (Read<format::MarkerType>(marker_type, sizeof(format::BlockHeader)))
-            {
-                return file_processor.IsFrameDelimiter(base_type, marker_type);
-            }
-            break;
-        case format::BlockType::kFunctionCallBlock:
-        case format::BlockType::kMethodCallBlock:
-            format::ApiCallId call_id;
-            if (Read<format::ApiCallId>(call_id, sizeof(format::BlockHeader)))
-            {
-                return file_processor.IsFrameDelimiter(call_id);
-            }
-            break;
-
-        case format::BlockType::kUnknownBlock:
-        case format::BlockType::kStateMarkerBlock:
-        case format::BlockType::kMetaDataBlock:
-        case format::BlockType::kCompressedMetaDataBlock:
-        case format::BlockType::kCompressedFunctionCallBlock:
-        case format::BlockType::kCompressedMethodCallBlock:
-        case format::BlockType::kAnnotation:
-            break;
-    }
-    return false;
-}
-
-bool PreloadFileProcessor::BlockBuffer::SeekForward(size_t size)
-{
-    if (IsAvailable(size))
-    {
-        read_pos_ += size;
-        return true;
-    }
-    return false;
 }
 
 GFXRECON_END_NAMESPACE(decode)

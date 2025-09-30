@@ -1043,6 +1043,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
+            GFXRECON_ASSERT(acceleration_structure_info != nullptr);
+
             if (acceleration_structure_info != nullptr)
             {
                 auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
@@ -1051,11 +1053,23 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             }
 
             // determine required size of scratch-buffer
-            uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
-                                             ? build_size_info.buildScratchSize
-                                             : build_size_info.updateScratchSize;
-            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size &&
-                                         (scratch_buffer_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+            uint32_t scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
+                                        ? build_size_info.buildScratchSize
+                                        : build_size_info.updateScratchSize;
+
+            // scratch-buffer: check for nullptr and size
+            bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;
+
+            // scratch-buffer: check usage-flags
+            auto scratch_usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+            scratch_buffer_usable =
+                scratch_buffer_usable && (scratch_buffer_info->usage & scratch_usage_flags) == scratch_usage_flags;
+
+            // scratch-buffer: check for alignment
+            scratch_buffer_usable =
+                scratch_buffer_usable &&
+                (build_geometry_info.scratchData.deviceAddress %
+                 replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment) == 0;
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
@@ -1320,7 +1334,8 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
                 if (acceleration_structure_info != nullptr)
                 {
                     auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
-                    if (acceleration_structure_it != shadow_as_map_.end())
+                    if (acceleration_structure_it != shadow_as_map_.end() &&
+                        acceleration_structure_it->second.storage.num_bytes > 0)
                     {
                         // we found an existing replacement-structure -> swap
                         auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
@@ -1797,7 +1812,7 @@ void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo* buffe
 {
     if (buffer_info != nullptr)
     {
-        for (auto [capture_address, replay_address] : buffer_info->acceleration_structures)
+        for (const auto& [capture_address, as_infos] : buffer_info->acceleration_structures)
         {
             auto remove_shadow_as_it = shadow_as_map_.find(capture_address);
             if (remove_shadow_as_it != shadow_as_map_.end())
