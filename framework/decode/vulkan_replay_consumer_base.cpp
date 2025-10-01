@@ -7453,18 +7453,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             // handle VK_KHR_swapchain_mutable_format
             if (modified_create_info.flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
             {
-                bool mutable_srgb = false;
                 if (auto* format_list_pnext =
                         graphics::vulkan_struct_get_pnext<VkImageFormatListCreateInfo>(&modified_create_info))
                 {
-                    for (uint32_t i = 0; i < format_list_pnext->viewFormatCount; ++i)
-                    {
-                        if (vkuFormatIsSRGB(format_list_pnext->pViewFormats[0]))
-                        {
-                            mutable_srgb = true;
-                            break;
-                        }
-                    }
+                    const auto* view_formats     = format_list_pnext->pViewFormats;
+                    const auto* view_formats_end = view_formats + format_list_pnext->viewFormatCount;
+                    bool        mutable_srgb     = std::any_of(view_formats, view_formats_end, vkuFormatIsSRGB);
 
                     // overwrite existing VkImageFormatListCreateInfo
                     format_list_create_info                  = *format_list_pnext;
