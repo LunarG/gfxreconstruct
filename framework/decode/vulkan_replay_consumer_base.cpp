@@ -58,6 +58,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -7369,6 +7370,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
     VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
 
+    // might be passed via pNext-chain
+    std::optional<VkImageFormatListCreateInfo> format_list_create_info;
+    constexpr VkFormat fallback_color_formats[2] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_B8G8R8A8_SRGB };
+
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
     if (replay_create_info->surface != VK_NULL_HANDLE)
     {
@@ -7445,8 +7450,27 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         if (!surface_format_supported)
         {
+            // handle VK_KHR_swapchain_mutable_format
+            if (modified_create_info.flags & VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR)
+            {
+                if (auto* format_list_pnext =
+                        graphics::vulkan_struct_get_pnext<VkImageFormatListCreateInfo>(&modified_create_info))
+                {
+                    const auto* view_formats     = format_list_pnext->pViewFormats;
+                    const auto* view_formats_end = view_formats + format_list_pnext->viewFormatCount;
+                    bool        mutable_srgb     = std::any_of(view_formats, view_formats_end, vkuFormatIsSRGB);
+
+                    // overwrite existing VkImageFormatListCreateInfo
+                    format_list_create_info                  = *format_list_pnext;
+                    format_list_create_info->viewFormatCount = mutable_srgb ? 2 : 1;
+                    format_list_create_info->pViewFormats    = fallback_color_formats;
+                    graphics::vulkan_struct_add_pnext<VkImageFormatListCreateInfo>(&modified_create_info,
+                                                                                   &format_list_create_info.value());
+                }
+            }
+
             // fallback to a safe surface-format
-            modified_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM;
+            modified_create_info.imageFormat = fallback_color_formats[0];
             GFXRECON_LOG_WARNING_ONCE(
                 "Replay adjusted unsupported surface imageFormat (%d) to VK_FORMAT_B8G8R8A8_UNORM",
                 replay_create_info->imageFormat);
@@ -9993,8 +10017,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     }
     else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
     {
-        // for swapchain-images set image-view to actual format, avoid issues with distorted HDR-colors
-        modified_create_info.format = img_info->format;
+        // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors
+        modified_create_info.format =
+            vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
     }
 
     VkResult result = func(device, &modified_create_info, allocator, out_view);
