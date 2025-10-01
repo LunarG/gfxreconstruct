@@ -424,8 +424,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // Create a new allocation for a binding memory case.
     struct VmaMemoryInfo
     {
-        MemoryAllocInfo*     memory_info{ nullptr };
-        VkMemoryRequirements mem_req{};
+        MemoryAllocInfo*        memory_info{ nullptr };
+        VkMemoryRequirements    capture_mem_req{};
+        VkMemoryRequirements    replay_mem_req{};
 
         // If requires_dedicated_allocation or prefers_dedicated_allocation is true, the object should have an its own
         // memory, not shared.
@@ -443,13 +444,24 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         void* mapped_pointer{ nullptr };
 
         [[nodiscard]] bool is_compatible(VkDeviceSize                   offset,
-                                         const VkMemoryRequirements&    req,
+                                         const VkMemoryRequirements&    caputre_req,
+                                         const VkMemoryRequirements&    replay_req,
                                          const VmaAllocationCreateInfo& create_info) const
         {
+            // If capture_req.size is 0, it means the memory requirement is not recorded in the capture file.
+            // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain images. 
+            // We can't be sure it's compatible.
+            if (caputre_req.size == 0)
+            {
+                return false;
+            }
+
             // memory offset and size is in the range. mem_req and create_info are the same.
             if ((offset >= offset_from_original_device_memory) &&
-                ((offset + req.size) <= (offset_from_original_device_memory + mem_req.size)) &&
-                (req.alignment == mem_req.alignment) && (req.memoryTypeBits == mem_req.memoryTypeBits) &&
+                ((offset + caputre_req.size) <= (offset_from_original_device_memory + capture_mem_req.size)) &&
+                ((offset + replay_req.size) <= (offset_from_original_device_memory + replay_mem_req.size)) &&
+                (replay_req.alignment == replay_mem_req.alignment) &&
+                (replay_req.memoryTypeBits == replay_mem_req.memoryTypeBits) &&
                 (create_info.flags == alc_create_info.flags) && (create_info.usage == alc_create_info.usage) &&
                 (create_info.requiredFlags == alc_create_info.requiredFlags) &&
                 (create_info.preferredFlags == alc_create_info.preferredFlags) &&
@@ -460,7 +472,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                 // GetRebindOffsetFromOriginalDeviceMemory
                 auto offset_from_device_memory = offset - offset_from_original_device_memory + allocation_info.offset;
                 // memoryOffset is must be an integer multiple of the VkMemoryRequirements::alignment
-                if (offset_from_device_memory % req.alignment == 0)
+                if (offset_from_device_memory % replay_req.alignment == 0)
                 {
                     return true;
                 }
@@ -471,8 +483,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     struct ResourceAllocInfo
     {
-        MemoryInfoType              memory_info_type;
-        std::vector<VmaMemoryInfo*> bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
+        MemoryInfoType                    memory_info_type;
+        std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
+        std::vector<VkMemoryRequirements> capture_mem_reqs{};
+
         VkObjectType                object_type{ VK_OBJECT_TYPE_UNKNOWN };
         VkFlags                     usage{ 0 };
         VkImageTiling               tiling{};
@@ -619,7 +633,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     VkResult VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
                                VkDeviceSize                original_offset,
-                               const VkMemoryRequirements& mem_reqs,
+                               const VkMemoryRequirements& capture_mem_req,
+                               const VkMemoryRequirements& replay_mem_req,
                                bool                        requires_dedicated_allocation,
                                bool                        prefers_dedicated_allocation,
                                VkBuffer                    dedicated_buffer,
@@ -629,7 +644,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                   VkDeviceSize                   original_offset,
-                                  const VkMemoryRequirements&    mem_req,
+                                  const VkMemoryRequirements&    caputre_mem_req,
+                                  const VkMemoryRequirements&    replay_mem_req,
                                   bool                           requires_dedicated_allocation,
                                   bool                           prefers_dedicated_allocation,
                                   const VmaAllocationCreateInfo& alc_create_info,
