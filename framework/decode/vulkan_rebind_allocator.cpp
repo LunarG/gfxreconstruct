@@ -508,7 +508,7 @@ VulkanRebindAllocator::GetVideoSessionMemoryRequirementsKHR(VkVideoSessionKHR vi
         auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
 
         resource_alloc_info->capture_mem_reqs.resize(*memory_requirements_count);
-        
+
         for (uint32_t i = 0; i < *memory_requirements_count; ++i)
         {
             resource_alloc_info->capture_mem_reqs[i] = memory_requirements[i].memoryRequirements;

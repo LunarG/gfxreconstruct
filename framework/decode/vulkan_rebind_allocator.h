@@ -424,9 +424,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // Create a new allocation for a binding memory case.
     struct VmaMemoryInfo
     {
-        MemoryAllocInfo*        memory_info{ nullptr };
-        VkMemoryRequirements    capture_mem_req{};
-        VkMemoryRequirements    replay_mem_req{};
+        MemoryAllocInfo*     memory_info{ nullptr };
+        VkMemoryRequirements capture_mem_req{};
+        VkMemoryRequirements replay_mem_req{};
 
         // If requires_dedicated_allocation or prefers_dedicated_allocation is true, the object should have an its own
         // memory, not shared.
@@ -449,8 +449,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                          const VmaAllocationCreateInfo& create_info) const
         {
             // If capture_req.size is 0, it means the memory requirement is not recorded in the capture file.
-            // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain images. 
-            // We can't be sure it's compatible.
+            // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain
+            // images. We can't be sure it's compatible.
             if (caputre_req.size == 0)
             {
                 return false;
@@ -487,12 +487,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
         std::vector<VkMemoryRequirements> capture_mem_reqs{};
 
-        VkObjectType                object_type{ VK_OBJECT_TYPE_UNKNOWN };
-        VkFlags                     usage{ 0 };
-        VkImageTiling               tiling{};
-        uint32_t                    height{ 0 };
-        bool                        uses_extensions{ false };
-        VkFormat                    format{ VK_FORMAT_UNDEFINED };
+        VkObjectType  object_type{ VK_OBJECT_TYPE_UNKNOWN };
+        VkFlags       usage{ 0 };
+        VkImageTiling tiling{};
+        uint32_t      height{ 0 };
+        bool          uses_extensions{ false };
+        VkFormat      format{ VK_FORMAT_UNDEFINED };
 
         std::string          debug_utils_name;
         std::vector<uint8_t> debug_utils_tag;
