@@ -256,7 +256,7 @@ void android_main(struct android_app* app)
                 fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
                 if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                    (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                    (file_processor->GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
                 {
                     if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                     {
@@ -271,7 +271,7 @@ void android_main(struct android_app* app)
                         fps_info.LogMeasurements();
                     }
                 }
-                else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                else if (file_processor->GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 }
