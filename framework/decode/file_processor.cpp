@@ -542,6 +542,8 @@ bool FileProcessor::ProcessBlocks()
                         // If there is no annotation handler to process the annotation, we can skip the annotation
                         // block.
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
+                        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
+                        success = true;
                     }
                 }
                 else
@@ -552,6 +554,8 @@ bool FileProcessor::ProcessBlocks()
                                          current_frame_number_,
                                          block_index_);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
+                    // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
+                    success = true;
                 }
             }
             else
@@ -2463,7 +2467,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             // Unrecognized metadata type.
             GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
         }
+        // Skip unsupported meta-data block.
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
+        success = true;
     }
 
     return success;
