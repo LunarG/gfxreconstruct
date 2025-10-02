@@ -370,7 +370,7 @@ bool ProcessCapture(gfxrecon::decode::VulkanCppConsumer&      cpp_consumer,
     } while (success && file_processor.GetCurrentFrameNumber() <= frame_limit);
     printf("\nDone processing file\n");
 
-    return (file_processor.GetErrorState() == file_processor.kErrorNone);
+    return (file_processor.GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone);
 }
 
 int main(int argc, const char** argv)

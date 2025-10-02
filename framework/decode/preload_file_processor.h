@@ -44,7 +44,7 @@ class PreloadFileProcessor : public FileProcessor
     bool PreloadBlocksOneFrame();
 
   private:
-    bool GetBlockBuffer(BlockBuffer& block_buffer) override;
+    bool GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer) override;
 
     // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
     //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
