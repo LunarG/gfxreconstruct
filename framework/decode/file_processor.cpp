@@ -2464,6 +2464,9 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
         }
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+
+        //Skip unsupported meta-data block.
+        success = true;
     }
 
     return success;
