@@ -493,7 +493,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     encode::AccelerationStructureInputBuffer& buffer =
                         dst_command.input_buffers[target_buffer_wrapper->handle_id];
 
-                    buffer.capture_address    = address;
+                    buffer.capture_address    = target_buffer_wrapper->address;
                     buffer.handle             = target_buffer_wrapper->handle;
                     buffer.handle_id          = target_buffer_wrapper->handle_id;
                     buffer.bind_device        = target_buffer_wrapper->bind_device;
