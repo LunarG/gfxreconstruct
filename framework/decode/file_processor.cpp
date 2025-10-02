@@ -2465,7 +2465,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         }
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
 
-        //Skip unsupported meta-data block.
+        // Skip unsupported meta-data block.
         success = true;
     }
 
