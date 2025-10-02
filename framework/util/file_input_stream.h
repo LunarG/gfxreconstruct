@@ -110,7 +110,6 @@ class Span
 // A type anonymous union that can represent a data span from one of two sources:
 // 1) A heap allocated buffer owned by this object
 // 2) An entry from a heap buffer pool
-// 3) A borrowed data pointer, not owned by this object
 //
 // NOTE: Access is designed to be read-only
 // NOTE: Only one of the available sources will be active at any time.

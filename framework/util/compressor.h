@@ -49,7 +49,7 @@ class Compressor
     virtual size_t Decompress(size_t         compressed_size,
                               const uint8_t* compressed_data,
                               size_t         expected_uncompressed_size,
-                              std::uint8_t*  uncompressed_data) const = 0;
+                              uint8_t*       uncompressed_data) const = 0;
 };
 
 GFXRECON_END_NAMESPACE(util)

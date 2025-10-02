@@ -43,6 +43,7 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
     BlockBuffer         block_buffer;
     bool                success = true;
 
+    BlockParser block_parser(*this, pool_, compressor_);
     while (success)
     {
         PrintBlockInfo();
@@ -50,7 +51,7 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
 
         if (success)
         {
-            success = ReadBlockBuffer(block_buffer);
+            success = ReadBlockBuffer(block_parser, block_buffer);
             if (success)
             {
                 // Valid checks for the presence and size of the data span matching the header
@@ -91,11 +92,11 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
 }
 
 // Grab the block data off the front of the
-bool PreloadFileProcessor::GetBlockBuffer(BlockBuffer& block_buffer)
+bool PreloadFileProcessor::GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer)
 {
     // Quick escape
     if (preload_block_data_.empty())
-        return Base::GetBlockBuffer(block_buffer);
+        return Base::GetBlockBuffer(block_parser, block_buffer);
 
     block_buffer = BlockBuffer(std::move(preload_block_data_.front()));
     preload_block_data_.pop_front();
