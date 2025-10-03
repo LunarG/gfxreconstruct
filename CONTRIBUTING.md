@@ -147,7 +147,7 @@ Now you can freely create your branch
 ### Branch Naming
 
 Naming your branches a clear name will also help to identify what changes
-are present in a branch just by looking at the availabe branches on your
+are present in a branch just by looking at the available branches on your
 local machine or a remote repo.
 Because of this, we suggest naming in the following fashion:
 
@@ -224,7 +224,7 @@ for instructions on installing this version for your particular platform)
 C++ code formatting can be applied to pending changes with the `clang-format`
 or `git clang-format` commands.
 
-Here's an example of the workflow using `clang-format` to clean up formating
+Here's an example of the workflow using `clang-format` to clean up formatting
 issues in code changes:
 
 ```bash
@@ -326,7 +326,7 @@ of the following repositories:
 
 * VkCube | [Vulkan-Tools Repository](https://github.com/KhronosGroup/Vulkan-Tools)
 * One or more samples | [Sascha Willems Vulkan Repository](https://github.com/SaschaWillems/Vulkan)
-* One or more samples | [Khronos Vulkan Samples Repostiory](https://github.com/KhronosGroup/Vulkan-Samples)
+* One or more samples | [Khronos Vulkan Samples Repository](https://github.com/KhronosGroup/Vulkan-Samples)
 
 If you modified one of the other tools, such as `gfxrecon-info`
 or `gfxrecon-convert`, make sure to generate the output and compare before
@@ -473,7 +473,7 @@ on various platforms.
   14 should be used:
   - Install version 14 of clang-format.exe.
     - clang-format.exe 14 is included when installing LLVM 14
-    - The LLVM 14 release download is avialable on the [LLVM 14.0.6 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-14.0.6)
+    - The LLVM 14 release download is available on the [LLVM 14.0.6 release page on GitHub](https://github.com/llvm/llvm-project/releases/tag/llvmorg-14.0.6)
   - Point Visual Studio to use the custom clang-format.exe:
     - Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
       At the bottom is a checkbox for **Use custom path to clang-format.exe**.
