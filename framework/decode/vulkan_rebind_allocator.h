@@ -421,31 +421,78 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         kVideoSession // array: video_session
     };
 
-    // Create a new allocation for a binding memory case. The binding offset is allocation_info's offset, instead of
-    // original offset.
-    struct BoundMemoryInfo
+    // Create a new allocation for a binding memory case.
+    struct VmaMemoryInfo
     {
-        MemoryAllocInfo* memory_info{ nullptr }; // If memory_info is nullptr, the memory could be free.
-        VmaAllocation    allocation{ VK_NULL_HANDLE };
-        bool             is_host_visible{ false };
-        void*            mapped_pointer{ nullptr };
-        VkDeviceSize     original_offset{ 0 };
-        VkDeviceSize     rebind_offset{ 0 };
-        VkDeviceSize     original_size{ 0 };
-        VkDeviceSize     rebind_size{ 0 };
+        MemoryAllocInfo*     memory_info{ nullptr };
+        VkMemoryRequirements capture_mem_req{};
+        VkMemoryRequirements replay_mem_req{};
+
+        // If requires_dedicated_allocation or prefers_dedicated_allocation is true, the object should have an its own
+        // memory, not shared.
+        bool requires_dedicated_allocation = false;
+        bool prefers_dedicated_allocation  = false;
+
+        VmaAllocationCreateInfo alc_create_info{};
+        VkDeviceSize            offset_from_original_device_memory{ 0 };
+        uint64_t                reference_count{ 0 };
+
+        VmaAllocation     allocation{ VK_NULL_HANDLE };
+        VmaAllocationInfo allocation_info{};
+
+        bool  is_host_visible{ false };
+        void* mapped_pointer{ nullptr };
+
+        [[nodiscard]] bool is_compatible(VkDeviceSize                   offset,
+                                         const VkMemoryRequirements&    caputre_req,
+                                         const VkMemoryRequirements&    replay_req,
+                                         const VmaAllocationCreateInfo& create_info) const
+        {
+            // If capture_req.size is 0, it means the memory requirement is not recorded in the capture file.
+            // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain
+            // images. We can't be sure it's compatible.
+            if (caputre_req.size == 0)
+            {
+                return false;
+            }
+
+            // memory offset and size is in the range. mem_req and create_info are the same.
+            if ((offset >= offset_from_original_device_memory) &&
+                ((offset + caputre_req.size) <= (offset_from_original_device_memory + capture_mem_req.size)) &&
+                ((offset + replay_req.size) <= (offset_from_original_device_memory + replay_mem_req.size)) &&
+                (replay_req.alignment == replay_mem_req.alignment) &&
+                (replay_req.memoryTypeBits == replay_mem_req.memoryTypeBits) &&
+                (create_info.flags == alc_create_info.flags) && (create_info.usage == alc_create_info.usage) &&
+                (create_info.requiredFlags == alc_create_info.requiredFlags) &&
+                (create_info.preferredFlags == alc_create_info.preferredFlags) &&
+                (create_info.memoryTypeBits == alc_create_info.memoryTypeBits) &&
+                (create_info.pool == alc_create_info.pool) && (create_info.priority == alc_create_info.priority) &&
+                !requires_dedicated_allocation && !prefers_dedicated_allocation)
+            {
+                // GetRebindOffsetFromOriginalDeviceMemory
+                auto offset_from_device_memory = offset - offset_from_original_device_memory + allocation_info.offset;
+                // memoryOffset is must be an integer multiple of the VkMemoryRequirements::alignment
+                if (offset_from_device_memory % replay_req.alignment == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     };
 
     struct ResourceAllocInfo
     {
-        MemoryInfoType               memory_info_type;
-        std::vector<BoundMemoryInfo> bound_memory_infos;
-        std::vector<VkDeviceSize>    original_sizes; // video_session is array, the others are single.
-        VkObjectType                 object_type{ VK_OBJECT_TYPE_UNKNOWN };
-        VkFlags                      usage{ 0 };
-        VkImageTiling                tiling{};
-        uint32_t                     height{ 0 };
-        bool                         uses_extensions{ false };
-        VkFormat                     format{ VK_FORMAT_UNDEFINED };
+        MemoryInfoType                    memory_info_type;
+        std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
+        std::vector<VkMemoryRequirements> capture_mem_reqs{};
+
+        VkObjectType  object_type{ VK_OBJECT_TYPE_UNKNOWN };
+        VkFlags       usage{ 0 };
+        VkImageTiling tiling{};
+        uint32_t      height{ 0 };
+        bool          uses_extensions{ false };
+        VkFormat      format{ VK_FORMAT_UNDEFINED };
 
         std::string          debug_utils_name;
         std::vector<uint8_t> debug_utils_tag;
@@ -468,28 +515,31 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::unique_ptr<uint8_t[]>                       original_content;
         std::unordered_map<uint64_t, ResourceAllocInfo*> original_objects; // Key is object handle.
 
+        std::vector<std::unique_ptr<VmaMemoryInfo>> vma_mem_infos;
+
         std::string          debug_utils_name;
         std::vector<uint8_t> debug_utils_tag;
         uint64_t             debug_utils_tag_name;
+        bool                 is_free{ false };
     };
 
   private:
     void WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
-                            BoundMemoryInfo*   bound_memory_info,
+                            VmaMemoryInfo*     bound_memory_info,
                             VkDeviceSize       src_offset,
                             VkDeviceSize       dst_offset,
                             VkDeviceSize       data_size,
                             const uint8_t*     data);
 
     void WriteBoundResourceStaging(ResourceAllocInfo* resource_alloc_info,
-                                   BoundMemoryInfo*   bound_memory_info,
+                                   VmaMemoryInfo*     bound_memory_info,
                                    size_t             src_offset,
                                    size_t             dst_offset,
                                    size_t             data_size,
                                    const uint8_t*     data);
 
     void WriteBoundResourceDirect(ResourceAllocInfo* resource_alloc_info,
-                                  BoundMemoryInfo*   bound_memory_info,
+                                  VmaMemoryInfo*     bound_memory_info,
                                   size_t             src_offset,
                                   size_t             dst_offset,
                                   size_t             data_size,
@@ -499,24 +549,22 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     // resource overlapped with the original range, the src_offset is the offset from the start of the original
     // resource, the dst_offset is the offset from the start of the new resource allocation, and the data_size is the
     // region of the resource that overlaps with the original memory region.
-    bool TranslateMemoryRange(const ResourceAllocInfo* resource_alloc_info,
-                              const BoundMemoryInfo*   bound_memory_info,
-                              VkDeviceSize             oiriginal_start,
-                              VkDeviceSize             original_end,
-                              VkDeviceSize*            src_offset,
-                              VkDeviceSize*            dst_offset,
-                              VkDeviceSize*            data_size);
+    bool TranslateMemoryRange(const VmaMemoryInfo* bound_memory_info,
+                              VkDeviceSize         oiriginal_start,
+                              VkDeviceSize         original_end,
+                              VkDeviceSize*        src_offset,
+                              VkDeviceSize*        dst_offset,
+                              VkDeviceSize*        data_size);
 
     void UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
-                             BoundMemoryInfo*   bound_memory_info,
+                             VmaMemoryInfo*     bound_memory_info,
                              VkDeviceSize       write_start,
                              VkDeviceSize       write_end,
                              const uint8_t*     data);
 
-    VkResult UpdateMappedMemoryRange(ResourceAllocInfo* resource_alloc_info,
-                                     BoundMemoryInfo*   bound_memory_info,
-                                     VkDeviceSize       oiriginal_start,
-                                     VkDeviceSize       original_end,
+    VkResult UpdateMappedMemoryRange(VmaMemoryInfo* bound_memory_info,
+                                     VkDeviceSize   oiriginal_start,
+                                     VkDeviceSize   original_end,
                                      VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
     VkResult UpdateMappedMemoryRanges(uint32_t                   memory_range_count,
@@ -564,39 +612,54 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                         uint64_t                 resource_handle);
 
     VkResult AllocateMemoryForBuffer(VkBuffer                                buffer,
+                                     VkDeviceSize                            memory_offset,
                                      const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-                                     const ResourceAllocInfo&                resource_alloc_info,
-                                     const MemoryAllocInfo&                  memory_alloc_info,
-                                     VmaAllocation&                          allocation,
-                                     VmaAllocationInfo&                      allocation_info);
+                                     ResourceAllocInfo&                      resource_alloc_info,
+                                     MemoryAllocInfo&                        memory_alloc_info,
+                                     VmaMemoryInfo**                         vma_mem_info);
 
     VkResult AllocateMemoryForImage(VkImage                                 image,
+                                    VkDeviceSize                            memory_offset,
                                     const VkPhysicalDeviceMemoryProperties& device_memory_properties,
-                                    const ResourceAllocInfo&                resource_alloc_info,
-                                    const MemoryAllocInfo&                  memory_alloc_info,
-                                    VmaAllocation&                          allocation,
-                                    VmaAllocationInfo&                      allocation_info);
+                                    ResourceAllocInfo&                      resource_alloc_info,
+                                    MemoryAllocInfo&                        memory_alloc_info,
+                                    VmaMemoryInfo**                         vma_mem_info);
 
-    VkResult
-    VmaAllocateMemory(const VkMemoryRequirements& mem_req, const VmaMemoryUsage usage, VmaAllocation& allocation);
+    // If it's bind by vma function, like vmaBindBufferMemory2, vmaBindBufferImage2, get the offset from it.
+    VkDeviceSize GetRebindOffsetFromVMA(VkDeviceSize original_offset, const VmaMemoryInfo& vma_mem_info);
 
-    // The allocation for the same memory and offset could be re-used.
-    bool FindBoundMemory(const ResourceAllocInfo* resource_alloc_info,
-                         format::HandleId         memory_capture_id,
-                         VkDeviceSize             original_offset,
-                         VmaAllocation&           allocation,
-                         VmaAllocationInfo&       allocation_info);
+    // If it bind by vk function, like vkBindVideoSessionMemory, vkQueueBindSparse, get the offset from it.
+    VkDeviceSize GetRebindOffsetFromOriginalDeviceMemory(VkDeviceSize         original_offset,
+                                                         const VmaMemoryInfo& vma_mem_info);
 
-    void UpdateAllocInfo(ResourceAllocInfo&       resource_alloc_info,
-                         uint64_t                 object_handle,
-                         MemoryInfoType           memory_info_type,
-                         VkDeviceSize             memory_offset,
-                         const VmaAllocation&     allocation,
-                         const VmaAllocationInfo& allocation_info,
-                         MemoryAllocInfo&         memory_alloc_info,
-                         VkMemoryPropertyFlags&   bind_memory_property);
+    VkResult VmaAllocateMemory(MemoryAllocInfo&            memory_alloc_info,
+                               VkDeviceSize                original_offset,
+                               const VkMemoryRequirements& capture_mem_req,
+                               const VkMemoryRequirements& replay_mem_req,
+                               bool                        requires_dedicated_allocation,
+                               bool                        prefers_dedicated_allocation,
+                               VkBuffer                    dedicated_buffer,
+                               VkImage                     dedicated_image,
+                               VmaMemoryUsage              usage,
+                               VmaMemoryInfo**             vma_mem_info);
 
-    void GetVmaAllocations(MemoryData allocator_data, std::vector<VmaAllocation>& allocations);
+    static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
+                                  VkDeviceSize                   original_offset,
+                                  const VkMemoryRequirements&    caputre_mem_req,
+                                  const VkMemoryRequirements&    replay_mem_req,
+                                  bool                           requires_dedicated_allocation,
+                                  bool                           prefers_dedicated_allocation,
+                                  const VmaAllocationCreateInfo& alc_create_info,
+                                  VmaMemoryInfo**                vma_mem_info);
+
+    void RemoveVmaMemoryInfo(ResourceAllocInfo& resource_alloc_info, uint64_t object_handle);
+
+    void UpdateAllocInfo(ResourceAllocInfo&     resource_alloc_info,
+                         uint64_t               object_handle,
+                         MemoryInfoType         memory_info_type,
+                         MemoryAllocInfo&       memory_alloc_info,
+                         VmaMemoryInfo&         vma_mem_info,
+                         VkMemoryPropertyFlags& bind_memory_property);
 
     enum QueueBindSparseType
     {
@@ -613,8 +676,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                           uint32_t                  object_bind_index,
                                           uint32_t                  memory_bind_index,
                                           std::vector<VkSemaphore>& semaphores,
-                                          const VmaAllocation&      allocation,
-                                          const VmaAllocationInfo&  allocation_info);
+                                          ResourceData              allocator_data,
+                                          MemoryData                allocator_mem_data,
+                                          VkMemoryPropertyFlags     mem_properties);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;
