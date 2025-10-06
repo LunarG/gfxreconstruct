@@ -23,6 +23,7 @@
 #define GFXRECON_UTIL_HEAP_BUFFER_H
 
 #include "util/logging.h"
+#include "util/type_traits_extras.h"
 
 #include <deque>
 #include <memory>
@@ -39,9 +40,11 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class HeapBuffer
 {
   public:
-    using DataType   = char;
-    using value_type = DataType;
+    using DataType   = std::byte;
     using Store      = std::unique_ptr<DataType[]>;
+
+    using value_type = DataType;
+    using pointer    = DataType*;
 
     HeapBuffer() = default;
     HeapBuffer(size_t capacity) { ReserveDiscarding(capacity); }
@@ -60,12 +63,17 @@ class HeapBuffer
     void Reset();
     void reset() { Reset(); }
 
-    DataType* Get() { return store_.get(); }
+    [[nodiscard]] DataType* Get() { return store_.get(); }
+    [[nodiscard]] pointer   data() noexcept { return store_.get(); }
+
     template <typename T>
-    T* GetAs()
+    [[nodiscard]] T* GetAs() noexcept
     {
+        static_assert(!std::is_reference_v<T>, "T must not be a reference type");
+        static_assert(IsByteEquivalent_v<T>, "Buffer reinterpretation only valid for byte-like types.");
         return reinterpret_cast<T*>(store_.get());
     }
+
     size_t Capacity() const { return store_ ? capacity_ : 0U; }
     bool   IsEmpty() const { return store_ == nullptr; }
 

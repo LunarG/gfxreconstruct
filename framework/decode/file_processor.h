@@ -57,6 +57,7 @@ class FileProcessor;
 class BlockBuffer
 {
   public:
+    using BlockSpan = util::DataSpan::OutputSpan;
     // Validity means that it has a payload and the payload size is consistent with the block header
     bool IsValid() const
     {
@@ -91,8 +92,8 @@ class BlockBuffer
     bool ReadBytes(void* buffer, size_t buffer_size);
     bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
 
-    util::DataSpan ReadSpan(size_t buffer_size);
-    util::DataSpan ReadSpanAt(size_t buffer_size, size_t at);
+    BlockSpan ReadSpan(size_t buffer_size);
+    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
 
     size_t                     Size() const { return block_span_.size(); }
     const format::BlockHeader& Header() const { return header_; }
@@ -296,11 +297,11 @@ class FileProcessor
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
 
-    util::DataSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
+    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
 
-    util::DataSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                 size_t       compressed_buffer_size,
-                                                 size_t       expected_uncompressed_size);
+    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
+                                                         size_t       compressed_buffer_size,
+                                                         size_t       expected_uncompressed_size);
 
     bool IsFileValid() const
     {
