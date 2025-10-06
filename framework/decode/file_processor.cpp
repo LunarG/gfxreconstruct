@@ -675,7 +675,7 @@ BlockBuffer::BlockSpan FileProcessor::ReadCompressedParameterBuffer(BlockBuffer&
         size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
                                                            reinterpret_cast<const uint8_t*>(compressed_span.data()),
                                                            expected_uncompressed_size,
-                                                           &uncompressed_buffer_);
+                                                           uncompressed_buffer_.data());
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
             return BlockBuffer::BlockSpan(reinterpret_cast<const std::byte*>(uncompressed_buffer_.data()),
