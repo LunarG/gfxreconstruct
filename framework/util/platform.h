@@ -35,7 +35,6 @@
 #include <thread>
 #include <vector>
 
-
 // NOTE: this works around potential issues on msvc / VS 2019 with wrongly defined __cplusplus constant
 #if defined(_MSVC_LANG)
 #define CPP_STD _MSVC_LANG
