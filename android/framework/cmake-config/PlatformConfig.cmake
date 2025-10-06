@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
 
 # because the NDK sets CMAKE_FIND_ROOT_PATH_MODE_*  to ONLY, it ignores
