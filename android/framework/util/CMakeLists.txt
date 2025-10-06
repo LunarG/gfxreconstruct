@@ -65,6 +65,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/type_traits_extras.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h
