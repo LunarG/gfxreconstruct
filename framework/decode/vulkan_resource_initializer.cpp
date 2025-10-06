@@ -27,6 +27,7 @@
 #include "decode/decoder_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/platform.h"
+#include "util/alignment_utils.h"
 
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
@@ -68,6 +69,7 @@ static uint32_t FindBufferOffsetAlignmentForCopyBufferToImage(VkFormat format)
 
 VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                                                      VkDeviceSize                            max_copy_size,
+                                                     const VkPhysicalDeviceProperties&       physical_device_properties,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
@@ -79,9 +81,12 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write),
     resource_allocator_(resource_allocator), device_table_(device_table), device_info_(device_info)
 {
-    assert((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
-           (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
-           (resource_allocator != nullptr) && (device_table != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
+                    (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
+                    (resource_allocator != nullptr) && (device_table != nullptr));
+
+    // flushes of staging-buffer need to be aligned to nonCoherentAtomSize
+    staging_buffer_alignment_ = physical_device_properties.limits.nonCoherentAtomSize;
 
     size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
     size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
@@ -1002,6 +1007,9 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 {
     VkResult result = VK_SUCCESS;
 
+    // align staging-buffer size to VkPhysicalDeviceLimits::nonCoherentAtomSize
+    size = util::aligned_value(size, staging_buffer_alignment_);
+
     if ((staging_buffer_ == VK_NULL_HANDLE) || (size > max_copy_size_))
     {
         if (staging_buffer_ != VK_NULL_HANDLE)
@@ -1556,7 +1564,8 @@ void VulkanResourceInitializer::FlushStagingBuffer()
         memory_range.pNext  = nullptr;
         memory_range.memory = staging_memory_;
         memory_range.offset = 0;
-        memory_range.size   = staging_buffer_offset_;
+        memory_range.size =
+            std::min(max_copy_size_, util::aligned_value(staging_buffer_offset_, staging_buffer_alignment_));
         resource_allocator_->FlushMappedMemoryRangesDirect(1, &memory_range, &staging_memory_data_);
 
         staging_buffer_offset_ = 0;

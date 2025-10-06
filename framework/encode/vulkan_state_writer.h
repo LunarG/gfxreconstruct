@@ -393,6 +393,9 @@ class VulkanStateWriter
 
     void WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table);
 
+    void WriteAccelerationStructureResourceInit(const gfxrecon::format::HandleId&                 device,
+                                                encode::AccelerationStructureKHRBuildCommandData& command);
+
     void WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
                                               encode::AccelerationStructureKHRBuildCommandData& command);
 

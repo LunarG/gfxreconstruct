@@ -42,6 +42,7 @@ class VulkanResourceInitializer
   public:
     VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                               VkDeviceSize                            max_copy_size,
+                              const VkPhysicalDeviceProperties&       physical_device_properties,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
                               bool                                    have_shader_stencil_write,
                               VulkanResourceAllocator*                resource_allocator,
@@ -188,6 +189,7 @@ class VulkanResourceInitializer
     VkBuffer                              staging_buffer_;
     VulkanResourceAllocator::ResourceData staging_buffer_data_;
     size_t                                staging_buffer_offset_;
+    size_t                                staging_buffer_alignment_;
     uint8_t*                              staging_buffer_mapped_ptr_;
     VkSampler                             draw_sampler_;
     VkDescriptorPool                      draw_pool_;
