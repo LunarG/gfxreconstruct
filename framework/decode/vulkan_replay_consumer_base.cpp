@@ -7315,14 +7315,59 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
-    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
-
-    if (allocator_data != 0)
+    // a VkPipeline is currently being compiled asynchronously -> defer setting the debug-name
+    if (info->objectType == VK_OBJECT_TYPE_PIPELINE && IsUsedByAsyncTask(meta_info->objectHandle))
     {
-        // depending on which allocator is used, the call might get deferred until resources are actually bound
-        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+        format::HandleId     pipeline_id = meta_info->objectHandle;
+        size_t               info_size   = graphics::vulkan_struct_deep_copy(info, 1, nullptr);
+        std::vector<uint8_t> info_copy(info_size);
+        graphics::vulkan_struct_deep_copy(info, 1, info_copy.data());
+        auto& async_handle_asset         = async_tracked_handles_[pipeline_id];
+        async_handle_asset.post_build_fn = [this,
+                                            device = device_info->handle,
+                                            pipeline_id,
+                                            func,
+                                            info_copy = std::move(info_copy),
+                                            original_result]() mutable {
+            auto* info = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
+
+            // correct referenced handle in info. this would sync, but task is already done
+            VkPipeline pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(
+                pipeline_id, GetObjectInfoTable(), &CommonObjectInfoTable::GetVkPipelineInfo);
+
+            // the pipeline 'could' be deleted already
+            if (pipeline != VK_NULL_HANDLE)
+            {
+                info->objectHandle = (uint64_t)pipeline;
+
+                VkResult result = func(device, info);
+
+                if (result != original_result)
+                {
+                    GFXRECON_LOG_WARNING("VkDebugUtilsObjectNameInfoEXT was deferred for VkPipeline: %d - result: '%d' "
+                                         "does not match original: '%d'",
+                                         pipeline_id,
+                                         result,
+                                         original_result);
+                }
+            }
+        };
+        return original_result;
     }
-    return func(device_info->handle, info);
+    else
+    {
+        // correct referenced handle in info
+        MapStructHandles(meta_info, GetObjectInfoTable());
+
+        uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+        if (allocator_data != 0)
+        {
+            // depending on which allocator is used, the call might get deferred until resources are actually bound
+            return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+        }
+        return func(device_info->handle, info);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
@@ -11673,6 +11718,9 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     if (pPipelines != nullptr && createInfoCount > 0)
     {
         std::copy_n(pPipelines->GetPointer(), createInfoCount, pipeline_ids.begin());
+
+        // insert self-dependencies on pipeline_ids, in order to track/detect them as async-tasks
+        handle_deps.insert(pipeline_ids.begin(), pipeline_ids.end());
 
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
