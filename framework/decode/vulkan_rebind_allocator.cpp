@@ -1140,7 +1140,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
             const auto& bind_info         = bind_infos[bind_i];
             auto        replay_req        = replay_reqs[bind_info.memoryBindIndex].memoryRequirements;
 
-            auto usage = GetVideoSeesionMemoryUsage(
+            auto usage = GetVideoSessionMemoryUsage(
                 capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags, replay_req);
 
             VkMemoryRequirements capture_req = {};
@@ -1180,7 +1180,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                     case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
                     {
                         VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
-                        VMA_ASSERT(pBlock && "Binding Video Seesion to allocation that doesn't belong to any block.");
+                        VMA_ASSERT(pBlock && "Binding Video Session to allocation that doesn't belong to any block.");
 
                         // This lock is important so that we don't call vkBind... and/or vkMap... simultaneously
                         // on the same VkDeviceMemory from multiple threads.
@@ -2150,7 +2150,7 @@ VmaMemoryUsage VulkanRebindAllocator::GetImageMemoryUsage(VkImageUsageFlags     
     return AdjustMemoryUsage(memory_usage, replay_requirements);
 }
 
-VmaMemoryUsage VulkanRebindAllocator::GetVideoSeesionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
+VmaMemoryUsage VulkanRebindAllocator::GetVideoSessionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
                                                                  const VkMemoryRequirements& replay_requirements)
 {
     // Start with CPU_TO_GPU usage.
@@ -2991,7 +2991,7 @@ VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue            
 
 bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                               VkDeviceSize                   original_offset,
-                                              const VkMemoryRequirements&    caputre_mem_req,
+                                              const VkMemoryRequirements&    capture_mem_req,
                                               const VkMemoryRequirements&    replay_mem_req,
                                               bool                           requires_dedicated_allocation,
                                               bool                           prefers_dedicated_allocation,
@@ -3005,7 +3005,7 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
 
     for (auto& mem_info : memory_alloc_info.vma_mem_infos)
     {
-        if (mem_info->is_compatible(original_offset, caputre_mem_req, replay_mem_req, alc_create_info))
+        if (mem_info->is_compatible(original_offset, capture_mem_req, replay_mem_req, alc_create_info))
         {
             *vma_mem_info = mem_info.get();
             return true;
