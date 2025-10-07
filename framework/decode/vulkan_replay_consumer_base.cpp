@@ -7334,22 +7334,18 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
             // correct referenced handle in info. this would sync, but task is already done
             VkPipeline pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(
                 pipeline_id, GetObjectInfoTable(), &CommonObjectInfoTable::GetVkPipelineInfo);
+            GFXRECON_ASSERT(pipeline != VK_NULL_HANDLE);
+            info->objectHandle = (uint64_t)pipeline;
 
-            // the pipeline 'could' be deleted already
-            if (pipeline != VK_NULL_HANDLE)
+            VkResult result = func(device, info);
+
+            if (result != original_result)
             {
-                info->objectHandle = (uint64_t)pipeline;
-
-                VkResult result = func(device, info);
-
-                if (result != original_result)
-                {
-                    GFXRECON_LOG_WARNING("VkDebugUtilsObjectNameInfoEXT was deferred for VkPipeline: %d - result: '%d' "
-                                         "does not match original: '%d'",
-                                         pipeline_id,
-                                         result,
-                                         original_result);
-                }
+                GFXRECON_LOG_WARNING("VkDebugUtilsObjectNameInfoEXT was deferred for VkPipeline: %d - result: '%d' "
+                                     "does not match original: '%d'",
+                                     pipeline_id,
+                                     result,
+                                     original_result);
             }
         };
         return original_result;
@@ -11945,8 +11941,10 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, shaders.data());
         }
 
+        PushRecaptureHandleIds(shaders.data(), shaders.size());
         VkResult replay_result = func(device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
+        ClearRecaptureHandleIds();
 
         if (replay_result == VK_SUCCESS)
         {
@@ -12017,10 +12015,15 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
             {
                 handle_asset.sync_fn();
             }
+            if (handle_asset.post_build_fn)
+            {
+                handle_asset.post_build_fn();
+            }
             if (destroy_fn)
             {
                 destroy_fn();
             }
+            async_tracked_handles_.erase(it);
         }
     }
 }
