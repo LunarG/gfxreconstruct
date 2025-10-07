@@ -732,9 +732,9 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
 }
 
 void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     if (!accel_struct_builder_)
     {

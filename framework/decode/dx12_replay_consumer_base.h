@@ -64,7 +64,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record)
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
@@ -110,9 +110,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                const uint8_t*                              data) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) override;
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data) override;

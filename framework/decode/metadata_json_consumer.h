@@ -80,7 +80,7 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info) override
+    virtual void Process_ExeFileInfo(const gfxrecon::util::filepath::FileInfo& info) override
     {
         const util::JsonOptions& json_options = GetOptions();
         auto&                    jdata        = WriteMetaCommandStart("ExeFileInfo");
@@ -283,8 +283,8 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string) override
+    virtual void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                       const char* env_string) override
     {
         const JsonOptions& json_options = GetJsonOptions();
         auto&              json_data    = WriteMetaCommandStart("SetEnvironmentVariablesCommand");

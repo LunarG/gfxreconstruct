@@ -83,9 +83,9 @@ class ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
 
-    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) = 0;
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, const format::DriverInfoBlock& info) = 0;
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) = 0;
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info) = 0;
 
     virtual void DispatchFillMemoryCommand(
         format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
@@ -184,9 +184,9 @@ class ApiDecoder
                                                 const uint8_t*                              data) = 0;
 
     virtual void DispatchInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) = 0;
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) = 0;
 
     virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header){};
 
@@ -207,8 +207,8 @@ class ApiDecoder
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
                                                         const std::vector<format::HandleId>& blases){};
 
-    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                        const char*                             env_string){};
+    virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                        const char*                                   env_string){};
 
     virtual void DispatchVulkanAccelerationStructuresBuildMetaCommand(const uint8_t* parameter_buffer,
                                                                       size_t         buffer_size){};
@@ -219,10 +219,11 @@ class ApiDecoder
     virtual void DispatchVulkanAccelerationStructuresWritePropertiesMetaCommand(const uint8_t* parameter_buffer,
                                                                                 size_t         buffer_size){};
 
-    virtual void DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+    virtual void DispatchViewRelativeLocation(format::ThreadId                    thread_id,
+                                              const format::ViewRelativeLocation& location){};
 
-    virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
-                                               const uint8_t*                 initialization_parameters_data){};
+    virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
+                                               const uint8_t*                       initialization_parameters_data){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

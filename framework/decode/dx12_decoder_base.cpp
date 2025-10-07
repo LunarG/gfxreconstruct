@@ -296,9 +296,9 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
 }
 
 void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     for (auto consumer : consumers_)
     {
@@ -322,8 +322,8 @@ void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCo
     }
 }
 
-void Dx12DecoderBase::DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
-                                                    const uint8_t*                 initialization_parameters_data)
+void Dx12DecoderBase::DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
+                                                    const uint8_t*                       initialization_parameters_data)
 {
     for (auto consumer : consumers_)
     {
@@ -331,8 +331,8 @@ void Dx12DecoderBase::DispatchInitializeMetaCommand(format::InitializeMetaComman
     }
 }
 
-void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                             const char*                             env_string)
+void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                             const char*                                   env_string)
 {
     for (auto consumer : consumers_)
     {
