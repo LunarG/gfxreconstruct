@@ -46,7 +46,7 @@ class InfoConsumer
     const char*       GetProductVersion() const { return exe_info.ProductVersion; }
     const std::vector<std::string>& GetEnvironmentVariables() const { return env_vars; }
 
-    void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
+    void Process_ExeFileInfo(const gfxrecon::util::filepath::FileInfo& info)
     {
         exe_info        = info;
         found_exe_info_ = true;
@@ -75,7 +75,8 @@ class InfoConsumer
         }
     }
 
-    void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
+    void Process_SetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                const char*                                   env_string)
     {
         env_vars = util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
     }

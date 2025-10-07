@@ -90,7 +90,7 @@ class Dx12DecoderBase : public ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
-    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info)
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, const format::DriverInfoBlock& info)
     {
         for (auto consumer : consumers_)
         {
@@ -98,7 +98,7 @@ class Dx12DecoderBase : public ApiDecoder
         }
     }
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info)
     {
         for (auto consumer : consumers_)
         {
@@ -203,24 +203,24 @@ class Dx12DecoderBase : public ApiDecoder
                                                 const uint8_t*                              data) override;
 
     virtual void DispatchInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) override;
 
     virtual void DispatchGetDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header) override;
 
     virtual void
     DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& dx12_runtime_info_header) override;
 
-    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                        const char*                             env_string) override;
+    virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                        const char* env_string) override;
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) override;
 
-    virtual void DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
-                                               const uint8_t*                 initialization_parameters_data) override;
+    virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
+                                               const uint8_t* initialization_parameters_data) override;
 
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
