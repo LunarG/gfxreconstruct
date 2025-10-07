@@ -11783,6 +11783,9 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     {
         std::copy_n(pPipelines->GetPointer(), createInfoCount, pipeline_ids.begin());
 
+        // insert self-dependencies on pipeline_ids, in order to track/detect them as async-tasks
+        handle_deps.insert(pipeline_ids.begin(), pipeline_ids.end());
+
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
@@ -11894,10 +11897,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, shaders.data());
         }
 
-        PushRecaptureHandleIds(shaders.data(), shaders.size());
         VkResult replay_result = func(device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
-        ClearRecaptureHandleIds();
 
         if (replay_result == VK_SUCCESS)
         {
@@ -11941,9 +11942,9 @@ void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format
         {
             const auto& [tracked_handle, handle_asset] = *it;
 
-            if (handle_asset.destroy_fn)
+            if (handle_asset.post_build_fn)
             {
-                handle_asset.destroy_fn();
+                handle_asset.post_build_fn();
             }
             async_tracked_handles_.erase(it);
         }
@@ -11960,7 +11961,7 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
 
         if constexpr (async_defer_deletion_)
         {
-            handle_asset.destroy_fn = std::move(destroy_fn);
+            handle_asset.post_build_fn = std::move(destroy_fn);
         }
         else
         {
