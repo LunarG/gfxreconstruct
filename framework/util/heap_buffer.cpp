@@ -153,6 +153,11 @@ void HeapBufferPool::Release(Entry&& entry) noexcept
             // This is only from ~Entry so we don't have to worry about cleaning up entry
         }
     }
+    else
+    {
+        // Mark the entry as released, even if we don't take its contents back into the pool
+        entry.DisavowPool();
+    }
 }
 
 GFXRECON_END_NAMESPACE(util)
