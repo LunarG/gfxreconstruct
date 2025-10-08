@@ -464,16 +464,65 @@ void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processo
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("OpenXR info:");
 
-    GFXRECON_WRITE_CONSOLE("\tHeader Version:      %u.%u.%u",
+    GFXRECON_WRITE_CONSOLE("\tHeader Version:             %u.%u.%u",
                            XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
                            XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
                            XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 
-    // Application info.
-    uint32_t api_version = openxr_stats_consumer.GetApiVersion();
-    GFXRECON_WRITE_CONSOLE("\tApplication name:    %s", openxr_stats_consumer.GetAppName().c_str());
-    GFXRECON_WRITE_CONSOLE("\tApplication version: %u", openxr_stats_consumer.GetAppVersion());
-    GFXRECON_WRITE_CONSOLE("\tTarget API version:  %u (%s)", api_version, GetXrVersionString(api_version).c_str());
+    std::string indent        = "";
+    auto        instance_info = openxr_stats_consumer.GetInstanceInfo();
+    GFXRECON_WRITE_CONSOLE("\tNumber of OpenXR Instances: %d", instance_info.size());
+    if (verbose_output)
+    {
+        indent = "\t";
+    }
+
+    uint32_t inst_index = 0;
+    for (auto& it : instance_info)
+    {
+        if (verbose_output)
+        {
+            GFXRECON_WRITE_CONSOLE("%s  [%d]", indent.c_str(), inst_index);
+            indent += "\t";
+            GFXRECON_WRITE_CONSOLE("%sApplication info:", indent.c_str());
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("\nOpenXR application info:");
+        }
+        indent += "\t";
+        GFXRECON_WRITE_CONSOLE("%sApplication name:    %s", indent.c_str(), it.second.app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("%sApplication version: %u", indent.c_str(), it.second.app_version);
+        GFXRECON_WRITE_CONSOLE("%sEngine name:         %s", indent.c_str(), it.second.engine_name.c_str());
+        GFXRECON_WRITE_CONSOLE("%sEngine version:      %u", indent.c_str(), it.second.engine_version);
+        GFXRECON_WRITE_CONSOLE("%sTarget API version:  %u (%s)",
+                               indent.c_str(),
+                               it.second.api_version,
+                               GetXrVersionString(it.second.api_version).c_str());
+
+        if (verbose_output && it.second.enabled_extensions.size() > 0)
+        {
+            GFXRECON_WRITE_CONSOLE("\n%sEnabled Instance Extensions:", indent.c_str());
+            for (uint32_t ext = 0; ext < it.second.enabled_extensions.size(); ++ext)
+            {
+                GFXRECON_WRITE_CONSOLE("%s\t%s", indent.c_str(), it.second.enabled_extensions[ext].c_str());
+            }
+        }
+
+        // Remove a tab
+        indent = indent.substr(1);
+        if (verbose_output)
+        {
+            // Remove a tab
+            indent = indent.substr(1);
+        }
+        else
+        {
+            // If not verbose, output only the first instance info.
+            break;
+        }
+        inst_index++;
+    }
 }
 #endif // ENABLE_OPENXR_SUPPORT
 
@@ -610,7 +659,12 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
         }
         if (blank_instance_count > 0)
         {
-            GFXRECON_WRITE_CONSOLE("\n\t  Instances with no Devices: %d\n", blank_instance_count);
+            std::string extra_return = "";
+            if (verbose_output)
+            {
+                extra_return = "\n";
+            }
+            GFXRECON_WRITE_CONSOLE("\n\t  Instances with no Devices: %d%s", blank_instance_count, extra_return.c_str());
         }
 
         uint32_t inst_index = 0;
@@ -625,7 +679,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
             {
                 GFXRECON_WRITE_CONSOLE("%s  [%d]", indent.c_str(), inst_index);
                 indent += "\t";
-                GFXRECON_WRITE_CONSOLE("%sVulkan application info:", indent.c_str());
+                GFXRECON_WRITE_CONSOLE("%sApplication info:", indent.c_str());
             }
             else
             {
@@ -772,13 +826,13 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
                 // Remove a tab
                 indent = indent.substr(1);
             }
-
-            // For non-verbose output, we only output the description for the
-            // first instance.  So break out.
-            if (!verbose_output)
+            else
             {
+                // For non-verbose output, we only output the description for the
+                // first instance.  So break out.
                 break;
             }
+
             inst_index++;
         }
 
