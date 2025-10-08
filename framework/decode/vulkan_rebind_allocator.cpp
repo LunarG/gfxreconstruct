@@ -66,6 +66,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -226,12 +227,6 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
-    for (auto& semaphore : queue_bind_sparse_semaphores)
-    {
-        functions_.destroy_semaphore(device_, semaphore, nullptr);
-    }
-    queue_bind_sparse_semaphores.clear();
-
     functions_.free_command_buffers(device_, cmd_pool_, 1, &cmd_buffer_);
     functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
 
@@ -2657,338 +2652,6 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
     return result;
 }
 
-VkResult VulkanRebindAllocator::ProcessSingleQueueBindSparse(VkQueue                   queue,
-                                                             VkFence                   fence,
-                                                             QueueBindSparseType       type,
-                                                             const VkBindSparseInfo&   original_bind_info,
-                                                             bool                      is_last_bind_info,
-                                                             uint32_t                  object_bind_index,
-                                                             uint32_t                  memory_bind_index,
-                                                             std::vector<VkSemaphore>& semaphores,
-                                                             ResourceData              allocator_data,
-                                                             MemoryData                allocator_mem_data,
-                                                             VkMemoryPropertyFlags     mem_properties)
-{
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
-
-    if (is_last_bind_info && (original_bind_info.bufferBindCount == 0 && original_bind_info.imageOpaqueBindCount == 0 &&
-                              original_bind_info.imageBindCount == 0))
-    {
-        GFXRECON_LOG_FATAL("bufferBindCount, imageOpaqueBindCount and imageBindCount are 0 on "
-                           "QueueBindSparse. Failed to set pSignalSemaphores");
-        return result;
-    }
-    auto           res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-    auto           mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_mem_data);
-    VmaMemoryInfo* vma_mem_info   = nullptr;
-    bool           is_last        = false;
-    uint64_t       object_handle  = 0;
-
-    VkMemoryRequirements capture_req = {};
-    if (res_alloc_info->capture_mem_reqs.size() > 0)
-    {
-        capture_req = res_alloc_info->capture_mem_reqs[0];
-    }
-
-    VkBindSparseInfo                  modified_bind_info = original_bind_info;
-    VkSparseBufferMemoryBindInfo      modified_buf_bind_info{};
-    VkSparseImageOpaqueMemoryBindInfo modified_img_op_bind_info{};
-    VkSparseImageMemoryBindInfo       modified_img_bind_info{};
-    VkSparseMemoryBind                modified_mem_bind{};
-    VkSparseImageMemoryBind           modified_img_mem_bind{};
-
-    switch (type)
-    {
-        case QueueBindSparseType::kBindBuffer:
-        {
-            const auto& bind         = original_bind_info.pBufferBinds[object_bind_index];
-            const auto& mem_bind     = bind.pBinds[memory_bind_index];
-            object_handle            = VK_HANDLE_TO_UINT64(bind.buffer);
-            modified_mem_bind        = mem_bind;
-            modified_mem_bind.memory = VK_NULL_HANDLE;
-
-            // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
-            if (mem_alloc_info)
-            {
-                VkMemoryRequirements replay_req                    = {};
-                bool                 requires_dedicated_allocation = false;
-                bool                 prefers_dedicated_allocation  = false;
-                allocator_->GetBufferMemoryRequirements(
-                    bind.buffer, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
-
-                replay_req.alignment = std::max<VkDeviceSize>(replay_req.alignment, min_buffer_alignment_);
-                replay_req.size      = mem_bind.size;
-
-                if (capture_req.size != 0)
-                {
-                    capture_req.size = mem_bind.size;
-                }
-
-                auto usage = GetBufferMemoryUsage(
-                    res_alloc_info->usage,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    replay_req);
-
-                result = VmaAllocateMemory(*mem_alloc_info,
-                                           mem_bind.memoryOffset,
-                                           capture_req,
-                                           replay_req,
-                                           requires_dedicated_allocation,
-                                           prefers_dedicated_allocation,
-                                           bind.buffer,
-                                           VK_NULL_HANDLE,
-                                           usage,
-                                           &vma_mem_info);
-                if (result < 0)
-                {
-                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
-                                         util::ToString<VkResult>(result).c_str());
-                    return result;
-                }
-
-                GFXRECON_ASSERT(vma_mem_info);
-                modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
-                modified_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(mem_bind.memoryOffset, *vma_mem_info);
-            }
-
-            modified_buf_bind_info           = bind;
-            modified_buf_bind_info.bindCount = 1;
-            modified_buf_bind_info.pBinds    = &modified_mem_bind;
-
-            modified_bind_info.bufferBindCount      = 1;
-            modified_bind_info.pBufferBinds         = &modified_buf_bind_info;
-            modified_bind_info.imageOpaqueBindCount = 0;
-            modified_bind_info.pImageOpaqueBinds    = nullptr;
-            modified_bind_info.imageBindCount       = 0;
-            modified_bind_info.pImageBinds          = nullptr;
-
-            if (is_last_bind_info &&
-                (original_bind_info.imageOpaqueBindCount == 0 && original_bind_info.imageBindCount == 0) &&
-                (object_bind_index == (original_bind_info.bufferBindCount - 1)) &&
-                (memory_bind_index == (bind.bindCount - 1)))
-            {
-                is_last = true;
-            }
-            break;
-        }
-        case QueueBindSparseType::kBindImageOpaqueMemory:
-        {
-            const auto& bind         = original_bind_info.pImageOpaqueBinds[object_bind_index];
-            const auto& mem_bind     = bind.pBinds[memory_bind_index];
-            object_handle            = VK_HANDLE_TO_UINT64(bind.image);
-            modified_mem_bind        = mem_bind;
-            modified_mem_bind.memory = VK_NULL_HANDLE;
-
-            if (mem_alloc_info)
-            {
-                VkMemoryRequirements replay_req                    = {};
-                bool                 requires_dedicated_allocation = false;
-                bool                 prefers_dedicated_allocation  = false;
-                allocator_->GetImageMemoryRequirements(
-                    bind.image, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
-
-                replay_req.size = mem_bind.size;
-
-                if (capture_req.size != 0)
-                {
-                    capture_req.size = mem_bind.size;
-                }
-
-                auto usage = GetImageMemoryUsage(
-                    res_alloc_info->usage,
-                    res_alloc_info->tiling,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    replay_req);
-
-                result = VmaAllocateMemory(*mem_alloc_info,
-                                           mem_bind.memoryOffset,
-                                           capture_req,
-                                           replay_req,
-                                           requires_dedicated_allocation,
-                                           prefers_dedicated_allocation,
-                                           VK_NULL_HANDLE,
-                                           bind.image,
-                                           usage,
-                                           &vma_mem_info);
-                if (result < 0)
-                {
-                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
-                                         util::ToString<VkResult>(result).c_str());
-                    return result;
-                }
-
-                GFXRECON_ASSERT(vma_mem_info);
-                modified_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
-                modified_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(modified_mem_bind.memoryOffset, *vma_mem_info);
-            }
-
-            modified_img_op_bind_info           = bind;
-            modified_img_op_bind_info.bindCount = 1;
-            modified_img_op_bind_info.pBinds    = &modified_mem_bind;
-
-            modified_bind_info.bufferBindCount      = 0;
-            modified_bind_info.pBufferBinds         = nullptr;
-            modified_bind_info.imageOpaqueBindCount = 1;
-            modified_bind_info.pImageOpaqueBinds    = &modified_img_op_bind_info;
-            modified_bind_info.imageBindCount       = 0;
-            modified_bind_info.pImageBinds          = nullptr;
-
-            if (is_last_bind_info && (original_bind_info.imageBindCount == 0) &&
-                (object_bind_index == (original_bind_info.imageOpaqueBindCount - 1)) &&
-                (memory_bind_index == (bind.bindCount - 1)))
-            {
-                is_last = true;
-            }
-            break;
-        }
-        case QueueBindSparseType::kBindImageMemory:
-        {
-            const auto& bind             = original_bind_info.pImageBinds[object_bind_index];
-            const auto& mem_bind         = bind.pBinds[memory_bind_index];
-            object_handle                = VK_HANDLE_TO_UINT64(bind.image);
-            modified_img_mem_bind        = mem_bind;
-            modified_img_mem_bind.memory = VK_NULL_HANDLE;
-
-            if (mem_alloc_info)
-            {
-                VkMemoryRequirements replay_req                    = {};
-                bool                 requires_dedicated_allocation = false;
-                bool                 prefers_dedicated_allocation  = false;
-                allocator_->GetImageMemoryRequirements(
-                    bind.image, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
-
-                // TODO: Set the exact size in requirements.size for allocating sparse image memory.
-                replay_req.size = std::min(replay_req.size, mem_alloc_info->allocation_size - mem_bind.memoryOffset);
-
-                if (capture_req.size != 0)
-                {
-                    capture_req.size = replay_req.size;
-                }
-
-                auto usage = GetImageMemoryUsage(
-                    res_alloc_info->usage,
-                    res_alloc_info->tiling,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
-                    replay_req);
-
-                result = VmaAllocateMemory(*mem_alloc_info,
-                                           mem_bind.memoryOffset,
-                                           capture_req,
-                                           replay_req,
-                                           requires_dedicated_allocation,
-                                           prefers_dedicated_allocation,
-                                           VK_NULL_HANDLE,
-                                           bind.image,
-                                           usage,
-                                           &vma_mem_info);
-                if (result < 0)
-                {
-                    GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
-                                         util::ToString<VkResult>(result).c_str());
-                }
-
-                GFXRECON_ASSERT(vma_mem_info);
-                modified_img_mem_bind.memory = vma_mem_info->allocation_info.deviceMemory;
-                modified_img_mem_bind.memoryOffset =
-                    GetRebindOffsetFromOriginalDeviceMemory(modified_img_mem_bind.memoryOffset, *vma_mem_info);
-            }
-
-            modified_img_bind_info           = bind;
-            modified_img_bind_info.bindCount = 1;
-            modified_img_bind_info.pBinds    = &modified_img_mem_bind;
-
-            modified_bind_info.bufferBindCount      = 0;
-            modified_bind_info.pBufferBinds         = nullptr;
-            modified_bind_info.imageOpaqueBindCount = 0;
-            modified_bind_info.pImageOpaqueBinds    = nullptr;
-            modified_bind_info.imageBindCount       = 1;
-            modified_bind_info.pImageBinds          = &modified_img_bind_info;
-
-            if (is_last_bind_info && (object_bind_index == (original_bind_info.imageBindCount - 1)) &&
-                (memory_bind_index == (bind.bindCount - 1)))
-            {
-                is_last = true;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    VkSemaphore signal_semaphore = VK_NULL_HANDLE;
-    VkFence     modified_fence   = VK_NULL_HANDLE;
-
-    if (is_last)
-    {
-        if (semaphores.empty())
-        {
-            modified_bind_info.waitSemaphoreCount = original_bind_info.waitSemaphoreCount;
-            modified_bind_info.pWaitSemaphores    = original_bind_info.pWaitSemaphores;
-        }
-        else
-        {
-            modified_bind_info.waitSemaphoreCount = semaphores.size();
-            modified_bind_info.pWaitSemaphores    = semaphores.data();
-        }
-
-        modified_bind_info.signalSemaphoreCount = original_bind_info.signalSemaphoreCount;
-        modified_bind_info.pSignalSemaphores    = original_bind_info.pSignalSemaphores;
-        modified_fence                          = fence;
-    }
-    else
-    {
-        modified_bind_info.waitSemaphoreCount = original_bind_info.waitSemaphoreCount;
-        modified_bind_info.pWaitSemaphores    = original_bind_info.pWaitSemaphores;
-
-        VkSemaphoreCreateInfo semaphore_ci{};
-        semaphore_ci.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        result = functions_.create_semaphore(device_, &semaphore_ci, nullptr, &signal_semaphore);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        semaphores.emplace_back(signal_semaphore);
-
-        modified_bind_info.signalSemaphoreCount = 1;
-        modified_bind_info.pSignalSemaphores    = &signal_semaphore;
-    }
-
-    if (vma_mem_info == nullptr || vma_mem_info->allocation == VK_NULL_HANDLE)
-    {
-        result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
-    }
-    else
-    {
-        switch (vma_mem_info->allocation->GetType())
-        {
-            case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
-            {
-                result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
-                break;
-            }
-            case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
-            {
-                VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
-                VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
-
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
-                result = functions_.queue_bind_sparse(queue, 1, &modified_bind_info, modified_fence);
-                break;
-            }
-            default:
-                VMA_ASSERT(0);
-        }
-    }
-
-    if (result == VK_SUCCESS && mem_alloc_info != nullptr)
-    {
-        UpdateAllocInfo(
-            *res_alloc_info, object_handle, MemoryInfoType::kSparse, *mem_alloc_info, *vma_mem_info, mem_properties);
-    }
-    return result;
-}
-
 bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                               VkDeviceSize                   original_offset,
                                               const VkMemoryRequirements&    capture_mem_req,
@@ -3071,41 +2734,378 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                 const MemoryData*       allocator_img_mem_datas,
                                                 VkMemoryPropertyFlags*  bind_img_mem_properties)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VK_SUCCESS;
 
-    if ((bind_infos != nullptr) && (bind_infos != nullptr))
+    if (bind_info_count == 0)
     {
-        uint32_t alc_buf_i    = 0;
-        uint32_t alc_img_op_i = 0;
-        uint32_t alc_img_i    = 0;
+        return result;
+    }
 
-        uint32_t alc_buf_mem_i    = 0;
-        uint32_t alc_img_op_mem_i = 0;
-        uint32_t alc_img_mem_i    = 0;
+    std::vector<VkBindSparseInfo> modified_bind_infos(bind_infos, bind_infos + bind_info_count);
 
-        std::vector<VkSemaphore> semaphores;
+    std::vector<std::vector<VkSparseBufferMemoryBindInfo>>      modified_buffer_bind_infos(bind_info_count);
+    std::vector<std::vector<VkSparseImageOpaqueMemoryBindInfo>> modified_image_opaque_bind_infos(bind_info_count);
+    std::vector<std::vector<VkSparseImageMemoryBindInfo>>       modified_image_bind_infos(bind_info_count);
 
-        for (uint32_t i = 0; i < bind_info_count; ++i)
+    std::vector<std::vector<VkSparseMemoryBind>>      memory_binds;
+    std::vector<std::vector<VkSparseImageMemoryBind>> image_memory_binds;
+
+    std::unordered_set<VmaDeviceMemoryBlock*> vma_mem_blocks;
+    std::vector<VmaMemoryInfo*>               vma_memory_infos;
+
+    uint32_t alc_buf_i    = 0;
+    uint32_t alc_img_op_i = 0;
+    uint32_t alc_img_i    = 0;
+
+    uint32_t alc_buf_mem_i    = 0;
+    uint32_t alc_img_op_mem_i = 0;
+    uint32_t alc_img_mem_i    = 0;
+
+    for (uint32_t i = 0; i < bind_info_count; ++i)
+    {
+        const VkBindSparseInfo& original_bind_info = bind_infos[i];
+        VkBindSparseInfo&       modified_bind_info = modified_bind_infos[i];
+
+        modified_buffer_bind_infos[i]       = { original_bind_info.pBufferBinds,
+                                                original_bind_info.pBufferBinds + original_bind_info.bufferBindCount };
+        modified_image_opaque_bind_infos[i] = { original_bind_info.pImageOpaqueBinds,
+                                                original_bind_info.pImageOpaqueBinds +
+                                                    original_bind_info.imageOpaqueBindCount };
+        modified_image_bind_infos[i]        = { original_bind_info.pImageBinds,
+                                                original_bind_info.pImageBinds + original_bind_info.imageBindCount };
+
+        for (uint32_t buf_i = 0; buf_i < original_bind_info.bufferBindCount; ++buf_i)
         {
-            bool is_last_bind_info = (i == (bind_info_count - 1));
+            const VkSparseBufferMemoryBindInfo& original_buffer_bind_info = original_bind_info.pBufferBinds[buf_i];
+            VkSparseBufferMemoryBindInfo&       modified_buffer_bind_info = modified_buffer_bind_infos[i][buf_i];
 
-            const auto& bind_info = bind_infos[i];
+            memory_binds.emplace_back(original_buffer_bind_info.pBinds,
+                                      original_buffer_bind_info.pBinds + original_buffer_bind_info.bindCount);
 
+            for (uint32_t buf_mem_i = 0; buf_mem_i < original_buffer_bind_info.bindCount; ++buf_mem_i)
+            {
+                const VkSparseMemoryBind& original_memory_bind = original_buffer_bind_info.pBinds[buf_mem_i];
+                VkSparseMemoryBind&       modified_memory_bind = memory_binds.back()[buf_mem_i];
+
+                auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buf_datas[alc_buf_i]);
+                auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
+                VmaMemoryInfo*& vma_mem_info = vma_memory_infos.emplace_back(nullptr);
+
+                VkMemoryRequirements capture_req = {};
+                if (res_alloc_info->capture_mem_reqs.size() > 0)
+                {
+                    capture_req = res_alloc_info->capture_mem_reqs[0];
+                }
+
+                modified_memory_bind.memory = VK_NULL_HANDLE;
+
+                // memory could be nullptr, but bind_infos's memory isn't real, so using mem_alloc_info to check it.
+                if (mem_alloc_info)
+                {
+                    VkMemoryRequirements replay_req                    = {};
+                    bool                 requires_dedicated_allocation = false;
+                    bool                 prefers_dedicated_allocation  = false;
+                    allocator_->GetBufferMemoryRequirements(original_buffer_bind_info.buffer,
+                                                            replay_req,
+                                                            requires_dedicated_allocation,
+                                                            prefers_dedicated_allocation);
+
+                    replay_req.size = original_memory_bind.size;
+
+                    if (capture_req.size != 0)
+                    {
+                        capture_req.size = original_memory_bind.size;
+                    }
+
+                    auto usage = GetBufferMemoryUsage(
+                        res_alloc_info->usage,
+                        capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                        replay_req);
+
+                    result = VmaAllocateMemory(*mem_alloc_info,
+                                               original_memory_bind.memoryOffset,
+                                               capture_req,
+                                               replay_req,
+                                               requires_dedicated_allocation,
+                                               prefers_dedicated_allocation,
+                                               original_buffer_bind_info.buffer,
+                                               VK_NULL_HANDLE,
+                                               usage,
+                                               &vma_mem_info);
+                    if (result < 0)
+                    {
+                        GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse buffer.",
+                                             util::ToString<VkResult>(result).c_str());
+                        continue;
+                    }
+
+                    GFXRECON_ASSERT(vma_mem_info);
+                    modified_memory_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                    modified_memory_bind.memoryOffset =
+                        GetRebindOffsetFromOriginalDeviceMemory(original_memory_bind.memoryOffset, *vma_mem_info);
+                }
+
+                if (allocator_->m_UseMutex && vma_mem_info != nullptr && vma_mem_info->allocation != nullptr &&
+                    vma_mem_info->allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_BLOCK)
+                {
+                    VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
+                    VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
+
+                    if (vma_mem_blocks.find(pBlock) == vma_mem_blocks.end())
+                    {
+                        vma_mem_blocks.insert(pBlock);
+                    }
+                }
+
+                ++alc_buf_mem_i;
+            }
+
+            modified_buffer_bind_info.pBinds = memory_binds.back().data();
+
+            ++alc_buf_i;
+        }
+
+        for (uint32_t img_op_i = 0; img_op_i < original_bind_info.imageOpaqueBindCount; ++img_op_i)
+        {
+            const VkSparseImageOpaqueMemoryBindInfo& original_image_opaque_bind_info =
+                original_bind_info.pImageOpaqueBinds[img_op_i];
+            VkSparseImageOpaqueMemoryBindInfo& modified_image_opaque_bind_info =
+                modified_image_opaque_bind_infos[i][img_op_i];
+
+            memory_binds.emplace_back(original_image_opaque_bind_info.pBinds,
+                                      original_image_opaque_bind_info.pBinds +
+                                          original_image_opaque_bind_info.bindCount);
+
+            for (uint32_t img_op_mem_i = 0; img_op_mem_i < original_image_opaque_bind_info.bindCount; ++img_op_mem_i)
+            {
+                const VkSparseMemoryBind& original_memory_bind = original_image_opaque_bind_info.pBinds[img_op_mem_i];
+                VkSparseMemoryBind&       modified_memory_bind = memory_binds.back()[img_op_mem_i];
+
+                auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_op_datas[alc_img_op_i]);
+                auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
+                VmaMemoryInfo*& vma_mem_info = vma_memory_infos.emplace_back(nullptr);
+
+                VkMemoryRequirements capture_req = {};
+                if (res_alloc_info->capture_mem_reqs.size() > 0)
+                {
+                    capture_req = res_alloc_info->capture_mem_reqs[0];
+                }
+
+                modified_memory_bind.memory = VK_NULL_HANDLE;
+
+                if (mem_alloc_info)
+                {
+                    VkMemoryRequirements replay_req                    = {};
+                    bool                 requires_dedicated_allocation = false;
+                    bool                 prefers_dedicated_allocation  = false;
+                    allocator_->GetImageMemoryRequirements(original_image_opaque_bind_info.image,
+                                                           replay_req,
+                                                           requires_dedicated_allocation,
+                                                           prefers_dedicated_allocation);
+
+                    replay_req.size = original_memory_bind.size;
+
+                    if (capture_req.size != 0)
+                    {
+                        capture_req.size = original_memory_bind.size;
+                    }
+
+                    auto usage = GetImageMemoryUsage(
+                        res_alloc_info->usage,
+                        res_alloc_info->tiling,
+                        capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                        replay_req);
+
+                    result = VmaAllocateMemory(*mem_alloc_info,
+                                               original_memory_bind.memoryOffset,
+                                               capture_req,
+                                               replay_req,
+                                               requires_dedicated_allocation,
+                                               prefers_dedicated_allocation,
+                                               VK_NULL_HANDLE,
+                                               original_image_opaque_bind_info.image,
+                                               usage,
+                                               &vma_mem_info);
+                    if (result < 0)
+                    {
+                        GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse imageOpaque.",
+                                             util::ToString<VkResult>(result).c_str());
+                        continue;
+                    }
+
+                    GFXRECON_ASSERT(vma_mem_info);
+                    modified_memory_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                    modified_memory_bind.memoryOffset =
+                        GetRebindOffsetFromOriginalDeviceMemory(modified_memory_bind.memoryOffset, *vma_mem_info);
+                }
+
+                if (allocator_->m_UseMutex && vma_mem_info != nullptr && vma_mem_info->allocation != nullptr &&
+                    vma_mem_info->allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_BLOCK)
+                {
+                    VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
+                    VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
+
+                    if (vma_mem_blocks.find(pBlock) == vma_mem_blocks.end())
+                    {
+                        vma_mem_blocks.insert(pBlock);
+                    }
+                }
+
+                ++alc_img_op_mem_i;
+            }
+
+            modified_image_opaque_bind_info.pBinds = memory_binds.back().data();
+
+            ++alc_img_op_i;
+        }
+
+        for (uint32_t img_i = 0; img_i < original_bind_info.imageBindCount; ++img_i)
+        {
+            const VkSparseImageMemoryBindInfo& original_image_bind_info = original_bind_info.pImageBinds[img_i];
+            VkSparseImageMemoryBindInfo&       modified_image_bind_info = modified_image_bind_infos[i][img_i];
+
+            image_memory_binds.emplace_back(original_image_bind_info.pBinds,
+                                            original_image_bind_info.pBinds + original_image_bind_info.bindCount);
+
+            for (uint32_t img_mem_i = 0; img_mem_i < original_image_bind_info.bindCount; ++img_mem_i)
+            {
+                const VkSparseImageMemoryBind& original_memory_bind = original_image_bind_info.pBinds[img_mem_i];
+                VkSparseImageMemoryBind&       modified_memory_bind = image_memory_binds.back()[img_mem_i];
+
+                auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_datas[alc_img_i]);
+                auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
+                VmaMemoryInfo*& vma_mem_info = vma_memory_infos.emplace_back(nullptr);
+
+                VkMemoryRequirements capture_req = {};
+                if (res_alloc_info->capture_mem_reqs.size() > 0)
+                {
+                    capture_req = res_alloc_info->capture_mem_reqs[0];
+                }
+
+                modified_memory_bind.memory = VK_NULL_HANDLE;
+
+                if (mem_alloc_info)
+                {
+                    VkMemoryRequirements replay_req                    = {};
+                    bool                 requires_dedicated_allocation = false;
+                    bool                 prefers_dedicated_allocation  = false;
+                    allocator_->GetImageMemoryRequirements(original_image_bind_info.image,
+                                                           replay_req,
+                                                           requires_dedicated_allocation,
+                                                           prefers_dedicated_allocation);
+
+                    // TODO: Set the exact size in requirements.size for allocating sparse image memory.
+                    replay_req.size =
+                        std::min(replay_req.size, mem_alloc_info->allocation_size - original_memory_bind.memoryOffset);
+
+                    if (capture_req.size != 0)
+                    {
+                        capture_req.size = replay_req.size;
+                    }
+
+                    auto usage = GetImageMemoryUsage(
+                        res_alloc_info->usage,
+                        res_alloc_info->tiling,
+                        capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags,
+                        replay_req);
+
+                    result = VmaAllocateMemory(*mem_alloc_info,
+                                               original_memory_bind.memoryOffset,
+                                               capture_req,
+                                               replay_req,
+                                               requires_dedicated_allocation,
+                                               prefers_dedicated_allocation,
+                                               VK_NULL_HANDLE,
+                                               original_image_bind_info.image,
+                                               usage,
+                                               &vma_mem_info);
+                    if (result < 0)
+                    {
+                        GFXRECON_LOG_WARNING("AllocateMemory failed: %s in Rebind QueueBindSparse image",
+                                             util::ToString<VkResult>(result).c_str());
+                        continue;
+                    }
+
+                    GFXRECON_ASSERT(vma_mem_info);
+                    modified_memory_bind.memory = vma_mem_info->allocation_info.deviceMemory;
+                    modified_memory_bind.memoryOffset =
+                        GetRebindOffsetFromOriginalDeviceMemory(modified_memory_bind.memoryOffset, *vma_mem_info);
+                }
+
+                if (allocator_->m_UseMutex && vma_mem_info != nullptr && vma_mem_info->allocation != nullptr &&
+                    vma_mem_info->allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_BLOCK)
+                {
+                    VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
+                    VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
+
+                    if (vma_mem_blocks.find(pBlock) == vma_mem_blocks.end())
+                    {
+                        vma_mem_blocks.insert(pBlock);
+                    }
+                }
+
+                ++alc_img_mem_i;
+            }
+
+            modified_image_bind_info.pBinds = image_memory_binds.back().data();
+
+            ++alc_img_i;
+        }
+
+        modified_bind_info.bufferBindCount      = modified_buffer_bind_infos[i].size();
+        modified_bind_info.pBufferBinds         = modified_buffer_bind_infos[i].data();
+        modified_bind_info.imageOpaqueBindCount = modified_image_opaque_bind_infos[i].size();
+        modified_bind_info.pImageOpaqueBinds    = modified_image_opaque_bind_infos[i].data();
+        modified_bind_info.imageBindCount       = modified_image_bind_infos[i].size();
+        modified_bind_info.pImageBinds          = modified_image_bind_infos[i].data();
+    }
+
+    for (VmaDeviceMemoryBlock* block : vma_mem_blocks)
+    {
+        block->m_MapAndBindMutex.Lock();
+    }
+
+    result = functions_.queue_bind_sparse(queue, modified_bind_infos.size(), modified_bind_infos.data(), fence);
+
+    for (VmaDeviceMemoryBlock* block : vma_mem_blocks)
+    {
+        block->m_MapAndBindMutex.Unlock();
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        alc_buf_i    = 0;
+        alc_img_op_i = 0;
+        alc_img_i    = 0;
+
+        alc_buf_mem_i    = 0;
+        alc_img_op_mem_i = 0;
+        alc_img_mem_i    = 0;
+
+        uint32_t vma_mem_info_i = 0;
+
+        for (const VkBindSparseInfo& bind_info : modified_bind_infos)
+        {
             for (uint32_t buf_i = 0; buf_i < bind_info.bufferBindCount; ++buf_i)
             {
-                for (uint32_t m_i = 0; m_i < bind_info.pBufferBinds[buf_i].bindCount; ++m_i)
+                const VkSparseBufferMemoryBindInfo& buffer_bind_info = bind_info.pBufferBinds[buf_i];
+
+                for (uint32_t buf_mem_i = 0; buf_mem_i < buffer_bind_info.bindCount; ++buf_mem_i)
                 {
-                    result = ProcessSingleQueueBindSparse(queue,
-                                                          fence,
-                                                          QueueBindSparseType::kBindBuffer,
-                                                          bind_info,
-                                                          is_last_bind_info,
-                                                          buf_i,
-                                                          m_i,
-                                                          semaphores,
-                                                          allocator_buf_datas[alc_buf_i],
-                                                          allocator_buf_mem_datas[alc_buf_mem_i],
-                                                          bind_buf_mem_properties[alc_buf_mem_i]);
+                    auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_buf_datas[alc_buf_i]);
+                    auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
+
+                    if (mem_alloc_info != nullptr)
+                    {
+                        UpdateAllocInfo(*res_alloc_info,
+                                        VK_HANDLE_TO_UINT64(buffer_bind_info.buffer),
+                                        MemoryInfoType::kSparse,
+                                        *mem_alloc_info,
+                                        *vma_memory_infos[vma_mem_info_i],
+                                        bind_buf_mem_properties[alc_buf_mem_i]);
+                    }
+
+                    ++vma_mem_info_i;
                     ++alc_buf_mem_i;
                 }
                 ++alc_buf_i;
@@ -3113,19 +3113,25 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
             for (uint32_t img_op_i = 0; img_op_i < bind_info.imageOpaqueBindCount; ++img_op_i)
             {
-                for (uint32_t m_i = 0; m_i < bind_info.pImageOpaqueBinds[img_op_i].bindCount; ++m_i)
+                const VkSparseImageOpaqueMemoryBindInfo& image_opaque_bind_info = bind_info.pImageOpaqueBinds[img_op_i];
+
+                for (uint32_t img_op_mem_i = 0; img_op_mem_i < image_opaque_bind_info.bindCount; ++img_op_mem_i)
                 {
-                    result = ProcessSingleQueueBindSparse(queue,
-                                                          fence,
-                                                          QueueBindSparseType::kBindImageOpaqueMemory,
-                                                          bind_info,
-                                                          is_last_bind_info,
-                                                          img_op_i,
-                                                          m_i,
-                                                          semaphores,
-                                                          allocator_img_op_datas[alc_img_op_i],
-                                                          allocator_img_op_mem_datas[alc_img_op_mem_i],
-                                                          bind_img_op_mem_properties[alc_img_op_mem_i]);
+                    auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_op_datas[alc_img_op_i]);
+                    auto mem_alloc_info =
+                        reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
+
+                    if (mem_alloc_info != nullptr)
+                    {
+                        UpdateAllocInfo(*res_alloc_info,
+                                        VK_HANDLE_TO_UINT64(image_opaque_bind_info.image),
+                                        MemoryInfoType::kSparse,
+                                        *mem_alloc_info,
+                                        *vma_memory_infos[vma_mem_info_i],
+                                        bind_img_op_mem_properties[alc_img_op_mem_i]);
+                    }
+
+                    ++vma_mem_info_i;
                     ++alc_img_op_mem_i;
                 }
                 ++alc_img_op_i;
@@ -3133,25 +3139,29 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
 
             for (uint32_t img_i = 0; img_i < bind_info.imageBindCount; ++img_i)
             {
-                for (uint32_t m_i = 0; m_i < bind_info.pImageBinds[img_i].bindCount; ++m_i)
+                const VkSparseImageMemoryBindInfo& image_bind_info = bind_info.pImageBinds[img_i];
+
+                for (uint32_t img_mem_i = 0; img_mem_i < image_bind_info.bindCount; ++img_mem_i)
                 {
-                    result = ProcessSingleQueueBindSparse(queue,
-                                                          fence,
-                                                          QueueBindSparseType::kBindImageMemory,
-                                                          bind_info,
-                                                          is_last_bind_info,
-                                                          img_i,
-                                                          m_i,
-                                                          semaphores,
-                                                          allocator_img_datas[alc_img_i],
-                                                          allocator_img_mem_datas[alc_img_mem_i],
-                                                          bind_img_mem_properties[alc_img_mem_i]);
+                    auto res_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_img_datas[alc_img_i]);
+                    auto mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
+
+                    if (mem_alloc_info != nullptr)
+                    {
+                        UpdateAllocInfo(*res_alloc_info,
+                                        VK_HANDLE_TO_UINT64(image_bind_info.image),
+                                        MemoryInfoType::kSparse,
+                                        *mem_alloc_info,
+                                        *vma_memory_infos[vma_mem_info_i],
+                                        bind_img_mem_properties[alc_img_mem_i]);
+                    }
+
+                    ++vma_mem_info_i;
                     ++alc_img_mem_i;
                 }
                 ++alc_img_i;
             }
         }
-        queue_bind_sparse_semaphores.insert(queue_bind_sparse_semaphores.end(), semaphores.begin(), semaphores.end());
     }
 
     return result;
