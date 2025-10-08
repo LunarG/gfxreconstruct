@@ -70,17 +70,18 @@
 
 #include <nlohmann/json.hpp>
 
-const char kHelpShortOption[]   = "-h";
-const char kHelpLongOption[]    = "--help";
-const char kVersionOption[]     = "--version";
-const char kNoDebugPopup[]      = "--no-debug-popup";
-const char kExeInfoOnlyOption[] = "--exe-info-only";
-const char kEnvVarsOnlyOption[] = "--env-vars-only";
+const char kHelpShortOption[]      = "-h";
+const char kHelpLongOption[]       = "--help";
+const char kVersionOption[]        = "--version";
+const char kNoDebugPopup[]         = "--no-debug-popup";
+const char kExeInfoOnlyOption[]    = "--exe-info-only";
+const char kEnvVarsOnlyOption[]    = "--env-vars-only";
 const char kFileFormatOnlyOption[] = "--file-format-only";
-const char kEnumGpuIndices[]    = "--enum-gpu-indices";
+const char kEnumGpuIndices[]       = "--enum-gpu-indices";
+const char kVerboseOption[]        = "--verbose";
 
-const char kOptions[] =
-    "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--enum-gpu-indices";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
+                        "enum-gpu-indices,--verbose";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -196,9 +197,9 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
         GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
         GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
         GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+                               VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
         return true;
     }
@@ -206,11 +207,20 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
     return false;
 }
 
-static std::string GetVersionString(uint32_t api_version)
+static std::string GetVkVersionString(uint32_t api_version)
 {
-    uint32_t major = api_version >> 22;
-    uint32_t minor = (api_version >> 12) & 0x3ff;
-    uint32_t patch = api_version & 0xfff;
+    uint32_t major = VK_API_VERSION_MAJOR(api_version);
+    uint32_t minor = VK_API_VERSION_MINOR(api_version);
+    uint32_t patch = VK_API_VERSION_PATCH(api_version);
+
+    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+}
+
+static std::string GetXrVersionString(uint32_t api_version)
+{
+    uint32_t major = XR_VERSION_MAJOR(api_version);
+    uint32_t minor = XR_VERSION_MINOR(api_version);
+    uint32_t patch = XR_VERSION_PATCH(api_version);
 
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
@@ -444,28 +454,86 @@ void GatherAndPrintFileFormatInfo(const std::string& input_filename)
 void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
                       const ApiAgnosticStats&                      api_agnostic_stats,
-                      const AnnotationRecorder&                    annotation_recoder)
+                      const AnnotationRecorder&                    annotation_recoder,
+                      bool                                         verbose_output)
 {
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("OpenXR info:");
 
-    GFXRECON_WRITE_CONSOLE("\tHeader Version: %u.%u.%u",
+    GFXRECON_WRITE_CONSOLE("\tHeader Version:      %u.%u.%u",
                            XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
                            XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
                            XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 
     // Application info.
     uint32_t api_version = openxr_stats_consumer.GetApiVersion();
-    GFXRECON_WRITE_CONSOLE("\tApplication name: %s", openxr_stats_consumer.GetAppName().c_str());
+    GFXRECON_WRITE_CONSOLE("\tApplication name:    %s", openxr_stats_consumer.GetAppName().c_str());
     GFXRECON_WRITE_CONSOLE("\tApplication version: %u", openxr_stats_consumer.GetAppVersion());
-    GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+    GFXRECON_WRITE_CONSOLE("\tTarget API version:  %u (%s)", api_version, GetXrVersionString(api_version).c_str());
 }
 #endif // ENABLE_OPENXR_SUPPORT
+
+void PrintVulkanDeviceMemoryStats(bool               use_summary_header,
+                                  const std::string& indent,
+                                  uint64_t           alloc_count,
+                                  uint64_t           min_alloc,
+                                  uint64_t           max_alloc,
+                                  uint32_t           gfx_pipelines,
+                                  uint32_t           comp_pipelines,
+                                  uint32_t           rt_pipelines)
+{
+    std::string prefix = "";
+    if (use_summary_header)
+    {
+        prefix = "Global ";
+    }
+    GFXRECON_WRITE_CONSOLE("\n%s%sVulkan device memory allocation info:", indent.c_str(), prefix.c_str());
+    GFXRECON_WRITE_CONSOLE("%s\tTotal allocations:   %" PRIu64, indent.c_str(), alloc_count);
+
+    if (alloc_count > 0)
+    {
+        GFXRECON_WRITE_CONSOLE("%s\tMin allocation size: %" PRIu64, indent.c_str(), min_alloc);
+        GFXRECON_WRITE_CONSOLE("%s\tMax allocation size: %" PRIu64, indent.c_str(), max_alloc);
+    }
+
+    GFXRECON_WRITE_CONSOLE("\n%s%sVulkan pipeline info:", indent.c_str(), prefix.c_str());
+    GFXRECON_WRITE_CONSOLE("%s\tTotal graphics pipelines:   %" PRIu64, indent.c_str(), gfx_pipelines);
+    GFXRECON_WRITE_CONSOLE("%s\tTotal compute pipelines:    %" PRIu64, indent.c_str(), comp_pipelines);
+    GFXRECON_WRITE_CONSOLE("%s\tTotal raytracing pipelines: %" PRIu64, indent.c_str(), rt_pipelines)
+}
+
+void PrintVulkanDeviceType(VkPhysicalDeviceType device_type, std::string& device_string)
+{
+    switch (device_type)
+    {
+        case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+            device_string = "VK_PHYSICAL_DEVICE_TYPE_OTHER";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            device_string = "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            device_string = "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            device_string = "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+            device_string = "VK_PHYSICAL_DEVICE_TYPE_CPU";
+            break;
+        default:
+            device_string = " Unknown (";
+            device_string += std::to_string(device_type);
+            device_string += ")";
+            break;
+    }
+}
 
 void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
                       const ApiAgnosticStats&                      api_agnostic_stats,
-                      const AnnotationRecorder&                    annotation_recoder)
+                      const AnnotationRecorder&                    annotation_recoder,
+                      bool                                         verbose_output)
 {
     if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
     {
@@ -514,74 +582,217 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
 
         PrintFileFormatInfo(file_processor);
 
-        // Application info.
-        uint32_t api_version = vulkan_stats_consumer.GetApiVersion();
-        GFXRECON_WRITE_CONSOLE("\nVulkan application info:");
-        GFXRECON_WRITE_CONSOLE("\tApplication name: %s", vulkan_stats_consumer.GetAppName().c_str());
-        GFXRECON_WRITE_CONSOLE("\tApplication version: %u", vulkan_stats_consumer.GetAppVersion());
-        GFXRECON_WRITE_CONSOLE("\tEngine name: %s", vulkan_stats_consumer.GetEngineName().c_str());
-        GFXRECON_WRITE_CONSOLE("\tEngine version: %u", vulkan_stats_consumer.GetEngineVersion());
-        GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+        uint32_t    inst_count           = vulkan_stats_consumer.GetInstanceCount();
+        auto        instance_info        = vulkan_stats_consumer.GetInstanceInfo();
+        auto        pd_info              = vulkan_stats_consumer.GetPhysicalDeviceInfo();
+        auto        dev_info             = vulkan_stats_consumer.GetDeviceInfo();
+        std::string indent               = "";
+        uint32_t    blank_instance_count = 0;
 
-        if (!vulkan_stats_consumer.GetResolutions().empty())
+        GFXRECON_WRITE_CONSOLE("\nVulkan Info:");
+        GFXRECON_WRITE_CONSOLE("\tNumber of Vulkan Instances: %d", inst_count);
+        if (verbose_output)
         {
-            std::string resolutions = "\tUsed resolutions: ";
-            for (const auto& resolution : vulkan_stats_consumer.GetResolutions())
-            {
-                resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
-            }
-            GFXRECON_WRITE_CONSOLE(resolutions.c_str());
+            indent = "\t";
         }
 
-        // Properties for physical devices used to create logical devices.
-        std::vector<const VkPhysicalDeviceProperties*> used_device_properties;
-        auto                                           used_devices = vulkan_stats_consumer.GetInstantiatedDevices();
-        for (auto entry : used_devices)
+        for (auto& it : instance_info)
         {
-            auto properties = vulkan_stats_consumer.GetDeviceProperties(entry);
-            if (properties != nullptr)
+            if (it.second.used_physical_devices.size() == 0)
             {
-                used_device_properties.push_back(properties);
+                blank_instance_count++;
+                continue;
             }
         }
-
-        // Don't print anything if no queries were made for VkPhysicalDeviceProperties.
-        if (!used_device_properties.empty())
+        if (blank_instance_count > 0)
         {
-            for (auto entry : used_device_properties)
+            GFXRECON_WRITE_CONSOLE("\n\t  Instances with no Devices: %d\n", blank_instance_count);
+        }
+
+        uint32_t inst_index = 0;
+        for (auto& it : instance_info)
+        {
+            if (it.second.used_physical_devices.size() == 0)
             {
-                GFXRECON_WRITE_CONSOLE("\nVulkan physical device info:");
-                GFXRECON_WRITE_CONSOLE("\tDevice name: %s", entry->deviceName);
-                GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", entry->deviceID);
-                GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", entry->vendorID);
-                GFXRECON_WRITE_CONSOLE("\tDriver version: %u (0x%x)", entry->driverVersion, entry->driverVersion);
-                GFXRECON_WRITE_CONSOLE(
-                    "\tAPI version: %u (%s)", entry->apiVersion, GetVersionString(entry->apiVersion).c_str());
+                blank_instance_count++;
+                continue;
             }
+            if (verbose_output)
+            {
+                GFXRECON_WRITE_CONSOLE("%s  [%d]", indent.c_str(), inst_index);
+                indent += "\t";
+                GFXRECON_WRITE_CONSOLE("%sVulkan application info:", indent.c_str());
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("\nVulkan application info:");
+            }
+            indent += "\t";
+            GFXRECON_WRITE_CONSOLE("%sApplication name:    %s", indent.c_str(), it.second.app_name.c_str());
+            GFXRECON_WRITE_CONSOLE("%sApplication version: %u", indent.c_str(), it.second.app_version);
+            GFXRECON_WRITE_CONSOLE("%sEngine name:         %s", indent.c_str(), it.second.engine_name.c_str());
+            GFXRECON_WRITE_CONSOLE("%sEngine version:      %u", indent.c_str(), it.second.engine_version);
+            GFXRECON_WRITE_CONSOLE("%sTarget API version:  %u (%s)",
+                                   indent.c_str(),
+                                   it.second.api_version,
+                                   GetVkVersionString(it.second.api_version).c_str());
+
+            if (verbose_output && it.second.enabled_extensions.size() > 0)
+            {
+                GFXRECON_WRITE_CONSOLE("\n%sEnabled Instance Extensions:", indent.c_str());
+                for (uint32_t ext = 0; ext < it.second.enabled_extensions.size(); ++ext)
+                {
+                    GFXRECON_WRITE_CONSOLE("%s\t%s", indent.c_str(), it.second.enabled_extensions[ext].c_str());
+                }
+            }
+
+            if (!it.second.resolutions.empty())
+            {
+                std::string resolutions = "\n" + indent + "Used resolutions:    ";
+                for (const auto& resolution : it.second.resolutions)
+                {
+                    resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
+                }
+                GFXRECON_WRITE_CONSOLE(resolutions.c_str());
+            }
+
+            // Remove one tab for this output
+            indent = indent.substr(1);
+
+            if (verbose_output)
+            {
+                GFXRECON_WRITE_CONSOLE("\n%sNumber of Used Vulkan Physical Devices: %d (Used Device Groups? %d)",
+                                       indent.c_str(),
+                                       it.second.used_physical_devices.size(),
+                                       it.second.uses_physical_device_groups);
+            }
+
+            uint32_t pd_index = 0;
+            for (auto pd : it.second.used_physical_devices)
+            {
+                if (verbose_output)
+                {
+                    GFXRECON_WRITE_CONSOLE("%s  [%d]", indent.c_str(), pd_index);
+                    indent += "\t";
+                }
+
+                auto properties =
+                    vulkan_stats_consumer.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
+                if (properties != nullptr)
+                {
+                    if (verbose_output)
+                    {
+                        GFXRECON_WRITE_CONSOLE("%sVulkan physical device info:", indent.c_str());
+                    }
+                    else
+                    {
+                        GFXRECON_WRITE_CONSOLE("\nVulkan physical device info:");
+                    }
+                }
+                indent += "\t";
+
+                GFXRECON_WRITE_CONSOLE("%sDevice name:         %s", indent.c_str(), properties->deviceName);
+                GFXRECON_WRITE_CONSOLE("%sDevice ID:           0x%x", indent.c_str(), properties->deviceID);
+                GFXRECON_WRITE_CONSOLE("%sVendor ID:           0x%x", indent.c_str(), properties->vendorID);
+                GFXRECON_WRITE_CONSOLE("%sDriver version:      %u (0x%x)",
+                                       indent.c_str(),
+                                       properties->driverVersion,
+                                       properties->driverVersion);
+                GFXRECON_WRITE_CONSOLE("%sAPI version:         %u (%s)",
+                                       indent.c_str(),
+                                       properties->apiVersion,
+                                       GetVkVersionString(properties->apiVersion).c_str());
+                std::string device_type_string;
+                PrintVulkanDeviceType(properties->deviceType, device_type_string);
+                GFXRECON_WRITE_CONSOLE("%sDevice type:         %s", indent.c_str(), device_type_string.c_str());
+                std::string uuid_string = gfxrecon::util::uuid_to_string(VK_UUID_SIZE, properties->pipelineCacheUUID);
+                GFXRECON_WRITE_CONSOLE("%sPipeline cache UUID: 0x%s", indent.c_str(), uuid_string.c_str());
+
+                if (verbose_output)
+                {
+                    GFXRECON_WRITE_CONSOLE(
+                        "\n%sNumber of Vulkan Devices: %d", indent.c_str(), pd_info[pd].devices.size());
+                }
+
+                uint32_t dev_index = 0;
+                for (auto dev : pd_info[pd].devices)
+                {
+                    if (verbose_output)
+                    {
+                        GFXRECON_WRITE_CONSOLE("%s  [%d]", indent.c_str(), dev_index);
+                        indent += "\t";
+
+                        if (dev_info[dev].enabled_extensions.size() > 0)
+                        {
+                            GFXRECON_WRITE_CONSOLE("%sEnabled Device Extensions:", indent.c_str());
+                            for (uint32_t ext = 0; ext < dev_info[dev].enabled_extensions.size(); ++ext)
+                            {
+                                GFXRECON_WRITE_CONSOLE(
+                                    "%s\t%s", indent.c_str(), dev_info[dev].enabled_extensions[ext].c_str());
+                            }
+                        }
+
+                        // For Verbose, we right out each devices alloc info.
+                        PrintVulkanDeviceMemoryStats(false,
+                                                     indent,
+                                                     dev_info[dev].allocation_count,
+                                                     dev_info[dev].min_allocation_size,
+                                                     dev_info[dev].max_allocation_size,
+                                                     dev_info[dev].graphics_pipelines,
+                                                     dev_info[dev].compute_pipelines,
+                                                     dev_info[dev].raytracing_pipelines);
+                    }
+
+                    if (verbose_output)
+                    {
+                        // Remove a tab
+                        indent = indent.substr(1);
+                    }
+
+                    dev_index++;
+                }
+
+                // Remove a tab
+                indent = indent.substr(1);
+                if (verbose_output)
+                {
+                    // Remove a tab
+                    indent = indent.substr(1);
+                }
+
+                pd_index++;
+            }
+
+            if (verbose_output)
+            {
+                // Remove a tab
+                indent = indent.substr(1);
+            }
+
+            // For non-verbose output, we only output the description for the
+            // first instance.  So break out.
+            if (!verbose_output)
+            {
+                break;
+            }
+            inst_index++;
         }
 
-        auto alocation_count = vulkan_stats_consumer.GetAllocationCount();
-        GFXRECON_WRITE_CONSOLE("\nVulkan device memory allocation info:");
-        GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, alocation_count);
-
-        if (alocation_count > 0)
-        {
-            GFXRECON_WRITE_CONSOLE("\tMin allocation size: %" PRIu64, vulkan_stats_consumer.GetMinAllocationSize());
-            GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, vulkan_stats_consumer.GetMaxAllocationSize());
-        }
-
-        GFXRECON_WRITE_CONSOLE("\nVulkan pipeline info:");
-        GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64,
-                               vulkan_stats_consumer.GetGraphicsPipelineCount());
-        GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, vulkan_stats_consumer.GetComputePipelineCount());
-        GFXRECON_WRITE_CONSOLE("\tTotal raytracing pipelines: %" PRIu64,
-                               vulkan_stats_consumer.GetRayTracingPipelineCount());
+        // For Verbose, we right out each devices alloc info.
+        PrintVulkanDeviceMemoryStats(verbose_output,
+                                     "",
+                                     vulkan_stats_consumer.GetTotalAllocationCount(),
+                                     vulkan_stats_consumer.GetTotalMinAllocationSize(),
+                                     vulkan_stats_consumer.GetTotalMaxAllocationSize(),
+                                     vulkan_stats_consumer.GetTotalGraphicsPipelineCount(),
+                                     vulkan_stats_consumer.GetTotalComputePipelineCount(),
+                                     vulkan_stats_consumer.GetTotalRayTracingPipelineCount());
 
         // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
         // executed when recorded once to a command buffer that is submitted/replayed more than once.
         // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
-        // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
-        // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());
+        // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetTotalDrawCount());
+        // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetTotalDispatchCount());
 
         // Print Physical device info
         const gfxrecon::decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
@@ -591,14 +802,18 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
         for (const auto& props : physical_device_properties)
         {
             GFXRECON_WRITE_CONSOLE("  Device: %" PRIu64, props.first);
-            GFXRECON_WRITE_CONSOLE("\tAPI version: 0x%x", props.second.apiVersion);
-            GFXRECON_WRITE_CONSOLE("\tDriver version: 0x%x", props.second.driverVersion);
-            GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", props.second.vendorID);
-            GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", props.second.deviceID);
-            GFXRECON_WRITE_CONSOLE("\tDevice type: %u", props.second.deviceType);
+            GFXRECON_WRITE_CONSOLE("\tAPI version:         0x%x (%s)",
+                                   props.second.apiVersion,
+                                   GetVkVersionString(props.second.apiVersion).c_str());
+            GFXRECON_WRITE_CONSOLE("\tDriver version:      0x%x", props.second.driverVersion);
+            GFXRECON_WRITE_CONSOLE("\tVendor ID:           0x%x", props.second.vendorID);
+            GFXRECON_WRITE_CONSOLE("\tDevice ID:           0x%x", props.second.deviceID);
+            GFXRECON_WRITE_CONSOLE("\tDevice name:         %s", props.second.deviceName);
+            std::string device_type_string;
+            PrintVulkanDeviceType(props.second.deviceType, device_type_string);
+            GFXRECON_WRITE_CONSOLE("\tDevice type:         %s", device_type_string.c_str());
             std::string uuid_string = gfxrecon::util::uuid_to_string(VK_UUID_SIZE, props.second.pipelineCacheUUID);
             GFXRECON_WRITE_CONSOLE("\tPipeline cache UUID: 0x%s", uuid_string.c_str());
-            GFXRECON_WRITE_CONSOLE("\tDevice name: %s", props.second.deviceName);
         }
 
         if (file_processor.GetCurrentFrameNumber() == 0)
@@ -755,7 +970,8 @@ void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
                      gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                      const ApiAgnosticStats&              api_agnostic_stats,
                      gfxrecon::decode::InfoConsumer&      info_consumer,
-                     const AnnotationRecorder&            annotation_recoder)
+                     const AnnotationRecorder&            annotation_recoder,
+                     bool                                 verbose_output)
 {
     if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
     {
@@ -896,7 +1112,7 @@ void GatherAndPrintEnvVars(const std::string& input_filename)
     }
 }
 
-void GatherAndPrintAllInfo(const std::string& input_filename)
+void GatherAndPrintAllInfo(const std::string& input_filename, bool verbose_output)
 {
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
@@ -968,7 +1184,8 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 
             if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
             {
-                PrintVulkanStats(file_processor, vulkan_stats_consumer, api_agnostic_stats, annotation_recorder);
+                PrintVulkanStats(
+                    file_processor, vulkan_stats_consumer, api_agnostic_stats, annotation_recorder, verbose_output);
 
                 // Add annotations relevant to Vulkan
                 target_annotations.push_back({ "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
@@ -981,13 +1198,19 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 #if defined(D3D12_SUPPORT)
             if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
             {
-                PrintD3D12Stats(file_processor, dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+                PrintD3D12Stats(file_processor,
+                                dx12_consumer,
+                                api_agnostic_stats,
+                                info_consumer,
+                                annotation_recorder,
+                                verbose_output);
             }
 #endif
 #if ENABLE_OPENXR_SUPPORT
             if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
             {
-                PrintOpenXrStats(file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder);
+                PrintOpenXrStats(
+                    file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder, verbose_output);
             }
 #endif
 
@@ -1053,7 +1276,8 @@ int main(int argc, const char** argv)
     }
     else
     {
-        GatherAndPrintAllInfo(input_filename);
+        bool verbose_output = arg_parser.IsOptionSet(kVerboseOption);
+        GatherAndPrintAllInfo(input_filename, verbose_output);
     }
 
     gfxrecon::util::Log::Release();
