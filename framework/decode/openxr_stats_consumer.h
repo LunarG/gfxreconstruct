@@ -55,7 +55,10 @@ struct OpenXrInstanceTracker
 class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
 {
   public:
-    const std::unordered_map<XrInstance, OpenXrInstanceTracker>& GetInstanceInfo() const { return instance_info_; }
+    const std::unordered_map<gfxrecon::format::HandleId, OpenXrInstanceTracker>& GetInstanceInfo() const
+    {
+        return instance_info_;
+    }
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override {}
 
@@ -78,17 +81,17 @@ class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
             instance_tracker.engine_version = app_info.engineVersion;
             instance_tracker.api_version    = app_info.apiVersion;
 
-            for (uint32_t iii = 0; iii < create_info->enabledExtensionCount; ++iii)
+            for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
             {
-                instance_tracker.enabled_extensions.push_back(create_info->enabledExtensionNames[iii]);
+                instance_tracker.enabled_extensions.push_back(create_info->enabledExtensionNames[ext]);
             }
-            XrInstance inst = const_cast<XrInstance>(*reinterpret_cast<const XrInstance*>(pInstance->GetPointer()));
-            instance_info_[inst] = std::move(instance_tracker);
+            gfxrecon::format::HandleId inst = *const_cast<gfxrecon::format::HandleId*>(pInstance->GetPointer());
+            instance_info_[inst]            = std::move(instance_tracker);
         }
     }
 
   private:
-    std::unordered_map<XrInstance, OpenXrInstanceTracker> instance_info_;
+    std::unordered_map<gfxrecon::format::HandleId, OpenXrInstanceTracker> instance_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
