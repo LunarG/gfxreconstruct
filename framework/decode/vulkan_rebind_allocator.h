@@ -444,21 +444,21 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         void* mapped_pointer{ nullptr };
 
         [[nodiscard]] bool is_compatible(VkDeviceSize                   offset,
-                                         const VkMemoryRequirements&    caputre_req,
+                                         const VkMemoryRequirements&    capture_req,
                                          const VkMemoryRequirements&    replay_req,
                                          const VmaAllocationCreateInfo& create_info) const
         {
             // If capture_req.size is 0, it means the memory requirement is not recorded in the capture file.
             // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain
             // images. We can't be sure it's compatible.
-            if (caputre_req.size == 0)
+            if (capture_req.size == 0)
             {
                 return false;
             }
 
             // memory offset and size is in the range. mem_req and create_info are the same.
             if ((offset >= offset_from_original_device_memory) &&
-                ((offset + caputre_req.size) <= (offset_from_original_device_memory + capture_mem_req.size)) &&
+                ((offset + capture_req.size) <= (offset_from_original_device_memory + capture_mem_req.size)) &&
                 ((offset + replay_req.size) <= (offset_from_original_device_memory + replay_mem_req.size)) &&
                 (replay_req.alignment == replay_mem_req.alignment) &&
                 (replay_req.memoryTypeBits == replay_mem_req.memoryTypeBits) &&
@@ -484,7 +484,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     struct ResourceAllocInfo
     {
         MemoryInfoType                    memory_info_type;
-        std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSeesion and sparse could be multiple bindings.
+        std::vector<VmaMemoryInfo*>       bound_memory_infos; // VideoSession and sparse could be multiple bindings.
         std::vector<VkMemoryRequirements> capture_mem_reqs{};
 
         VkObjectType  object_type{ VK_OBJECT_TYPE_UNKNOWN };
@@ -581,7 +581,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                        VkMemoryPropertyFlags       capture_properties,
                                        const VkMemoryRequirements& replay_requirements);
 
-    VmaMemoryUsage GetVideoSeesionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
+    VmaMemoryUsage GetVideoSessionMemoryUsage(VkMemoryPropertyFlags       capture_properties,
                                               const VkMemoryRequirements& replay_requirements);
 
     VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
@@ -645,7 +645,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     static bool FindVmaMemoryInfo(MemoryAllocInfo&               memory_alloc_info,
                                   VkDeviceSize                   original_offset,
-                                  const VkMemoryRequirements&    caputre_mem_req,
+                                  const VkMemoryRequirements&    capture_mem_req,
                                   const VkMemoryRequirements&    replay_mem_req,
                                   bool                           requires_dedicated_allocation,
                                   bool                           prefers_dedicated_allocation,

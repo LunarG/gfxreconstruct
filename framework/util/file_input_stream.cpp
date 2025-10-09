@@ -115,7 +115,7 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
             {
                 // Either the original offset was negative or beyond the peeked region, so it's fair to just adjust it
                 // Unless someone has peek'd all of size_t, this is safe on 64bit.
-                GFXRECON_ASSERT(peek_bytes_ <= std::numeric_limits<int64_t>::max());
+                GFXRECON_ASSERT(static_cast<uint64_t>(peek_bytes_) <= std::numeric_limits<int64_t>::max());
                 offset = offset - static_cast<int64_t>(peek_bytes_);
             }
         }
