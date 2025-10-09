@@ -177,9 +177,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                 instance_tracker.engine_version = app_info->engineVersion;
                 instance_tracker.api_version    = app_info->apiVersion;
 
-                for (uint32_t iii = 0; iii < create_info->enabledExtensionCount; ++iii)
+                for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
                 {
-                    instance_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[iii]);
+                    instance_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
                 }
                 VkInstance inst = const_cast<VkInstance>(*reinterpret_cast<const VkInstance*>(pInstance->GetPointer()));
                 instance_info_[inst] = std::move(instance_tracker);
@@ -195,12 +195,12 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     {
         if (returnValue >= 0 && *pPhysicalDeviceCount->GetPointer() > 0 && pPhysicalDevices->GetPointer())
         {
-            uint32_t   ret_count   = *pPhysicalDeviceCount->GetPointer();
+            uint32_t   pd_count    = *pPhysicalDeviceCount->GetPointer();
             VkInstance actual_inst = reinterpret_cast<VkInstance>(instance);
             GFXRECON_ASSERT(instance_info_.find(actual_inst) != instance_info_.end());
-            for (uint32_t iii = 0; iii < ret_count; ++iii)
+            for (uint32_t pd = 0; pd < pd_count; ++pd)
             {
-                VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(pPhysicalDevices->GetPointer()[iii]);
+                VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(pPhysicalDevices->GetPointer()[pd]);
                 if (std::find(instance_info_[actual_inst].physical_devices.begin(),
                               instance_info_[actual_inst].physical_devices.end(),
                               phys_dev) == instance_info_[actual_inst].physical_devices.end())
@@ -222,15 +222,15 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         if (returnValue >= 0 && *pPhysicalDeviceGroupCount->GetPointer() > 0 &&
             pPhysicalDeviceGroupProperties->GetPointer())
         {
-            uint32_t   ret_count   = *pPhysicalDeviceGroupCount->GetPointer();
+            uint32_t   pdg_count   = *pPhysicalDeviceGroupCount->GetPointer();
             VkInstance actual_inst = reinterpret_cast<VkInstance>(instance);
             GFXRECON_ASSERT(instance_info_.find(actual_inst) != instance_info_.end());
-            for (uint32_t iii = 0; iii < ret_count; ++iii)
+            for (uint32_t pdg = 0; pdg < pdg_count; ++pdg)
             {
-                auto phys_dev_group_prop = pPhysicalDeviceGroupProperties->GetPointer()[iii];
-                for (uint32_t jjj = 0; jjj < phys_dev_group_prop.physicalDeviceCount; ++jjj)
+                auto phys_dev_group_prop = pPhysicalDeviceGroupProperties->GetPointer()[pdg];
+                for (uint32_t pd = 0; pd < phys_dev_group_prop.physicalDeviceCount; ++pd)
                 {
-                    VkPhysicalDevice phys_dev = phys_dev_group_prop.physicalDevices[jjj];
+                    VkPhysicalDevice phys_dev = phys_dev_group_prop.physicalDevices[pd];
                     if (std::find(instance_info_[actual_inst].physical_devices.begin(),
                                   instance_info_[actual_inst].physical_devices.end(),
                                   phys_dev) == instance_info_[actual_inst].physical_devices.end())
@@ -323,9 +323,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
             }
 
             VulkanDeviceTracker dev_tracker{};
-            for (uint32_t iii = 0; iii < create_info->enabledExtensionCount; ++iii)
+            for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
             {
-                dev_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[iii]);
+                dev_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
             }
             device_info_[device] = std::move(dev_tracker);
         }
