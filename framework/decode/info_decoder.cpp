@@ -32,7 +32,7 @@ bool InfoDecoder::IsComplete(uint64_t block_index)
     return decode::IsComplete<InfoConsumer*>(consumers_, block_index);
 }
 
-void InfoDecoder::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+void InfoDecoder::DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
 
@@ -42,7 +42,7 @@ void InfoDecoder::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFil
     }
 }
 
-void InfoDecoder::DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info)
+void InfoDecoder::DispatchDriverInfo(format::ThreadId thread_id, const format::DriverInfoBlock& info)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
 
@@ -52,8 +52,8 @@ void InfoDecoder::DispatchDriverInfo(format::ThreadId thread_id, format::DriverI
     }
 }
 
-void InfoDecoder::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                         const char*                             env_string)
+void InfoDecoder::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                         const char*                                   env_string)
 {
     for (auto consumer : consumers_)
     {

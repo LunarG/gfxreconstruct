@@ -54,8 +54,8 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void SetCurrentFrameNumber(uint64_t frame_number) { frame_number_ = frame_number; }
 
-    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string)
+    virtual void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                                   env_string)
     {}
 
   protected:

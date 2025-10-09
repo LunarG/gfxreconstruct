@@ -732,9 +732,9 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
 }
 
 void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     if (!accel_struct_builder_)
     {
@@ -967,6 +967,19 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             // These are pointers to user data for callback functions. Return nullptr for the replay callbacks that
             // don't expect user data.
             break;
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle:
+        {
+            auto entry = shared_handles_.find(object_id);
+            if (entry != shared_handles_.end())
+            {
+                object = entry->second;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("%s: Unable to retrieve NTHandle.", call_name);
+            }
+            break;
+        }
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -976,19 +989,23 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
 }
 
 void Dx12ReplayConsumerBase::PostProcessExternalObject(
-    HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
+    HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(replay_result);
-    GFXRECON_UNREFERENCED_PARAMETER(object_id);
-    GFXRECON_UNREFERENCED_PARAMETER(object);
-
     switch (call_id)
     {
         case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
         case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
         case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
             break;
-
+        case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
+        case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName:
+            if (SUCCEEDED(replay_result) && (object_id != nullptr) && (object != nullptr))
+            {
+                shared_handles_.insert(std::make_pair(*object_id, *object));
+            }
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -4373,6 +4390,46 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
             // TODO: modified signature
             resource_value_mapper_->PostProcessCreateRootSignature(
                 blob_with_root_signature_decoder, blob_length_in_bytes, root_signature_decoder);
+        }
+    }
+
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                                         HRESULT                      original_result,
+                                                         uint64_t                     NTHandle,
+                                                         Decoded_GUID                 riid,
+                                                         HandlePointerDecoder<void*>* ppvObj)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto  device        = static_cast<ID3D12Device*>(device_object_info->object);
+    auto  in_NTHandle   = static_cast<HANDLE>(PreProcessExternalObject(
+        NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
+    auto& riid_value    = *riid.decoded_value;
+    auto  out_p_ppvObj  = ppvObj->GetPointer();
+    auto  out_hp_ppvObj = ppvObj->GetHandlePointer();
+    auto  replay_result = device->OpenSharedHandle(in_NTHandle, riid_value, out_hp_ppvObj);
+
+    if (SUCCEEDED(replay_result) && !ppvObj->IsNull())
+    {
+        if (IsEqualIID(riid_value, __uuidof(ID3D12Resource)) || IsEqualIID(riid_value, __uuidof(ID3D12Resource1)) ||
+            IsEqualIID(riid_value, __uuidof(ID3D12Resource2)))
+        {
+            // For standard resource creation, the resource state would be initilized based on the InitialState
+            // parameter. For this case, we don't know what the initial state was so initilize to the common state.
+            InitialResourceExtraInfo(ppvObj, D3D12_RESOURCE_STATE_COMMON, false);
+        }
+        else if (IsEqualIID(riid_value, __uuidof(ID3D12Fence)) || IsEqualIID(riid_value, __uuidof(ID3D12Fence1)))
+        {
+            auto fence_info = std::make_unique<D3D12FenceInfo>();
+
+            // For ID3D12Device::CreateFence, this would be initialized with the InitialValue parameter. For this case,
+            // we don't know what the initial value was so initialize to zero.
+            fence_info->last_signaled_value = 0;
+
+            SetExtraInfo(ppvObj, std::move(fence_info));
         }
     }
 

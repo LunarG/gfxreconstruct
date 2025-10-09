@@ -1502,8 +1502,8 @@ void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
     CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
 }
 
-void OpenXrReplayConsumerBase::ProcessViewRelativeLocation(format::ThreadId              thread_id,
-                                                           format::ViewRelativeLocation& location)
+void OpenXrReplayConsumerBase::ProcessViewRelativeLocation(format::ThreadId                    thread_id,
+                                                           const format::ViewRelativeLocation& location)
 {
     // Create a proxy space for a given space_id at a view relative location
     XrSession replay_session =

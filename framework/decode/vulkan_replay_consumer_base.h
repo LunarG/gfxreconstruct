@@ -92,7 +92,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         get_instance_proc_addr_ = get_instance_proc_addr;
     }
 
-    void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
+    void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
