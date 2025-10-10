@@ -223,6 +223,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>
