@@ -34,6 +34,9 @@ target_sources(gfxrecon_application
                     ${CMAKE_CURRENT_LIST_DIR}/application.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.h
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.cpp
+                    $<$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>:${PROJECT_SOURCE_DIR}/external/gator/include/streamline_annotate_logging.h>
+                    $<$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>:${PROJECT_SOURCE_DIR}/external/gator/include/streamline_annotate.h>
+                    $<$<AND:$<BOOL:${UNIX}>,$<NOT:$<BOOL:${APPLE}>>>:${PROJECT_SOURCE_DIR}/external/gator/src/streamline_annotate.cpp>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.cpp>
@@ -66,7 +69,8 @@ target_sources(gfxrecon_application
 
 target_include_directories(gfxrecon_application
                            PUBLIC
-                               $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+                               $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+                               $<$<BOOL:${UNIX}>:${PROJECT_SOURCE_DIR}/external/gator/include>)
 
 target_link_libraries(gfxrecon_application
                       gfxrecon_decode

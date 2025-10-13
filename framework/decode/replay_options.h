@@ -87,6 +87,7 @@ struct ReplayOptions
     DumpResourcesTarget          dump_resources_target{};
     bool                         using_dump_resources_target{ false };
     bool                         do_device_deduplication{ false };
+    bool                         streamline_annotate{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -10,6 +10,9 @@ target_sources(gfxrecon_application
                    ${GFXRECON_SOURCE_DIR}/framework/application/application.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.h
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.cpp
+                   ${GFXRECON_SOURCE_DIR}/external/gator/include/streamline_annotate_logging.h
+                   ${GFXRECON_SOURCE_DIR}/external/gator/include/streamline_annotate.h
+                   ${GFXRECON_SOURCE_DIR}/external/gator/src/streamline_annotate.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_jni.cpp
               )
 
@@ -20,7 +23,8 @@ endif()
 
 target_include_directories(gfxrecon_application
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/framework)
+                               ${GFXRECON_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/external/gator/include)
 
 target_link_libraries(gfxrecon_application
                       gfxrecon_decode

@@ -905,6 +905,8 @@ Optional arguments:
               When enabled alpha channel of dumped images will be dumped in a separate file.
   --pbi-all
               Print all block information.
+  --streamline-annotate
+              Add gator annotation tags to mark replay frames.
   --pbis <index1,index2>
               Print block information between block index1 and block index2.
   --pipeline-creation-jobs | --pcj <num_jobs>

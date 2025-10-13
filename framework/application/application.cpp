@@ -51,6 +51,14 @@
 #include "application/headless_context.h"
 #endif
 
+#ifdef __linux__
+#include "streamline_annotate.h"
+#else
+#define ANNOTATE_SETUP
+#define ANNOTATE(x)
+#define ANNOTATE_END()
+#endif
+
 #include <algorithm>
 #include <cassert>
 
@@ -128,6 +136,11 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
 
 void Application::Run()
 {
+    if (streamline_annotate_)
+    {
+        ANNOTATE_SETUP;
+    }
+
     running_ = true;
 
     while (running_)
@@ -164,6 +177,12 @@ void Application::Run()
                 fps_info_->BeginFrame(frame_number);
             }
 
+            if (streamline_annotate_)
+            {
+                std::string annotation_string = "GFXReconstruct Frame " + std::to_string(frame_number);
+                ANNOTATE(annotation_string.c_str());
+            }
+
             // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
 
@@ -175,6 +194,11 @@ void Application::Run()
                 {
                     file_processor_->WaitDecodersIdle();
                 }
+            }
+
+            if (streamline_annotate_)
+            {
+                ANNOTATE_END();
             }
         }
     }

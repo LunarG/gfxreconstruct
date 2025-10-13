@@ -38,7 +38,7 @@ const char kOptions[] =
     "--dump-resources-dump-all-image-subresources,--dump-resources-dump-raw-images,--dump-resources-dump-"
     "separate-alpha,--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,"
     "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID,--dump-resources-dump-unused-vertex-bindings,--"
-    "deduplicate-device,--log-timestamps,--capture";
+    "deduplicate-device,--log-timestamps,--capture,--streamline-annotate";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -190,6 +190,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
+    GFXRECON_WRITE_CONSOLE("  --streamline-annotate");
+    GFXRECON_WRITE_CONSOLE("          \t\tAdd gator annotation tags to mark replay frames.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-before-draw");
     GFXRECON_WRITE_CONSOLE("          \t\tIn addition to dumping GPU resources after the draw calls");
     GFXRECON_WRITE_CONSOLE("          \t\tspecified by the --dump-resources argument, also dump resources");
