@@ -605,10 +605,16 @@ bool FileProcessor::ReadBlockBuffer(BlockBuffer& block_buffer)
             }
         }
         // Note this leave the BlockBuffer read position at the first byte following the header.
-        block_buffer.Reset(ReadSpan(static_cast<size_t>(total_block_size)));
-        if (block_buffer.IsValid())
+        util::DataSpan block_span = ReadSpan(static_cast<size_t>(total_block_size));
+        success                   = block_span.IsValid();
+        if (success)
         {
+            block_buffer.Reset(std::move(block_span));
             bytes_read_ += total_block_size;
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read block body data");
         }
     }
 
