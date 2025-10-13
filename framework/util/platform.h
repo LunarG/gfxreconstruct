@@ -35,6 +35,17 @@
 #include <thread>
 #include <vector>
 
+// NOTE: this works around potential issues on msvc / VS 2019 with wrongly defined __cplusplus constant
+#if defined(_MSVC_LANG)
+#define CPP_STD _MSVC_LANG
+#else
+#define CPP_STD __cplusplus
+#endif
+
+#if CPP_STD < 202002L
+#warning "Unsupported compiler: this project requires support for C++20."
+#endif
+
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN

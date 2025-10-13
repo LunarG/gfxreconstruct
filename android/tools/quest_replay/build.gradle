@@ -15,7 +15,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                cppFlags "-fexceptions", "-std=c++14", "-Wno-nullability-completeness"
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static", "-DGFXRECON_ENABLE_OPENXR=ON"
             }
         }
