@@ -63,8 +63,7 @@ if (${RUN_TESTS})
             endif()
             add_custom_target(${TARGET}RunTests ALL
                     COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/scripts/test.py
-                        -c $<$<CONFIG:Debug>:debug> $<$<CONFIG:Release>:release>
-                        -a ${ARCHITECTURE}
+                        --build-dir ${CMAKE_CURRENT_BINARY_DIR}
                         --test-exe $<TARGET_FILE:${TARGET}>
                         $<$<NOT:$<STREQUAL:"","${ARGN}">>:"--test-args ${ARGN}">
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
