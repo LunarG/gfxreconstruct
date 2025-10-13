@@ -1615,7 +1615,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     //// Begin recapture members
   private:
-    static constexpr uint64_t kRecaptureHandleIdOffset = uint64_t(0xff) << 56;
+    // UINT64_MAX =                                      18446744073709551615ULL
+    static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
 
   public:
     // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
