@@ -74,12 +74,12 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanDeviceTable*      device_table) :
-    device_(device_info->handle),
-    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
-    staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), draw_sampler_(VK_NULL_HANDLE),
-    draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE),
-    max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write),
-    resource_allocator_(resource_allocator), device_table_(device_table), device_info_(device_info)
+    device_(device_info->handle), staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0),
+    staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0), staging_buffer_mapped_ptr_(nullptr),
+    staging_buffer_offset_(0), staging_buffer_size_(0), draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE),
+    draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
+    have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
+    device_table_(device_table), device_info_(device_info)
 {
     GFXRECON_ASSERT((device_info != nullptr) && (device_info->handle != VK_NULL_HANDLE) &&
                     (memory_properties.memoryTypeCount > 0) && (memory_properties.memoryHeapCount > 0) &&
@@ -88,14 +88,30 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     // flushes of staging-buffer need to be aligned to nonCoherentAtomSize
     staging_buffer_alignment_ = physical_device_properties.limits.nonCoherentAtomSize;
 
-    size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
-    size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
+    memory_properties_ = memory_properties;
 
-    memory_properties_.memoryTypeCount = memory_properties.memoryTypeCount;
-    memory_properties_.memoryHeapCount = memory_properties.memoryHeapCount;
+    // determine/confirm a sane size for the staging-buffer
+    staging_buffer_size_ = std::max<VkDeviceSize>(max_copy_size, 128U << 20U);
 
-    util::platform::MemoryCopy(&memory_properties_.memoryTypes, type_size, &memory_properties.memoryTypes, type_size);
-    util::platform::MemoryCopy(&memory_properties_.memoryHeaps, heap_size, &memory_properties.memoryHeaps, heap_size);
+    VkFlags mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
+    {
+        if ((memory_properties.memoryTypes[i].propertyFlags & mem_flags) == mem_flags)
+        {
+            // assure the device can provide sufficient memory
+            GFXRECON_ASSERT(memory_properties.memoryHeaps[memory_properties.memoryTypes[i].heapIndex].size >
+                            staging_buffer_size_);
+        }
+    }
+
+    //    size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
+//    size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
+//
+//    memory_properties_.memoryTypeCount = memory_properties.memoryTypeCount;
+//    memory_properties_.memoryHeapCount = memory_properties.memoryHeapCount;
+//
+//    util::platform::MemoryCopy(&memory_properties_.memoryTypes, type_size, &memory_properties.memoryTypes, type_size);
+//    util::platform::MemoryCopy(&memory_properties_.memoryHeaps, heap_size, &memory_properties.memoryHeaps, heap_size);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
@@ -157,7 +173,7 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
     if (result == VK_SUCCESS)
     {
         // No space left in staging buffer
-        if (staging_buffer_offset_ + data_size > max_copy_size_)
+        if (staging_buffer_offset_ + data_size > staging_buffer_size_)
         {
             FlushStagingBuffer();
             result = FlushCommandBuffer(queue_family_index);
@@ -186,15 +202,12 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
                     offsetted_regions_copy_[i].srcOffset += staging_buffer_offset_;
                 }
 
-                if (result == VK_SUCCESS)
-                {
-                    device_table_->CmdCopyBuffer(
-                        command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
+                device_table_->CmdCopyBuffer(
+                    command_buffer, staging_buffer_, buffer, region_count, offsetted_regions_copy_.data());
 
-                    // Advance staging buffer offset
-                    GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= max_copy_size_);
-                    staging_buffer_offset_ = staging_buffer_offset_ + data_size;
-                }
+                // Advance staging buffer offset
+                GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= staging_buffer_size_);
+                staging_buffer_offset_ = staging_buffer_offset_ + data_size;
             }
         }
     }
@@ -269,7 +282,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
 
                 // If data does not fit in the remaining portion of the staging buffer flush pending commands and reset
                 // staging buffer offset
-                if (staging_buffer_offset_ + data_size > max_copy_size_)
+                if (staging_buffer_offset_ + data_size > staging_buffer_size_)
                 {
                     FlushStagingBuffer();
                     result = FlushCommandBuffer(queue_family_index);
@@ -319,7 +332,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                                        offsetted_level_copies_.data());
 
             // Advance staging buffer offset
-            GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= max_copy_size_);
+            GFXRECON_ASSERT(staging_buffer_offset_ + data_size <= staging_buffer_size_);
             staging_buffer_offset_ = staging_buffer_offset_ + data_size;
         }
     }
@@ -1010,7 +1023,7 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
     // align staging-buffer size to VkPhysicalDeviceLimits::nonCoherentAtomSize
     size = util::aligned_value(size, staging_buffer_alignment_);
 
-    if ((staging_buffer_ == VK_NULL_HANDLE) || (size > max_copy_size_))
+    if ((staging_buffer_ == VK_NULL_HANDLE) || (size > staging_buffer_size_))
     {
         if (staging_buffer_ != VK_NULL_HANDLE)
         {
@@ -1021,7 +1034,7 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
         VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         create_info.pNext                 = nullptr;
         create_info.flags                 = 0;
-        create_info.size                  = std::max(size, max_copy_size_);
+        create_info.size                  = std::max<VkDeviceSize>(size, staging_buffer_size_);
         create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
         create_info.queueFamilyIndexCount = 0;
@@ -1058,11 +1071,11 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 
             if (result == VK_SUCCESS)
             {
-                max_copy_size_ = size;
+                staging_buffer_size_ = size;
 
                 // Map staging buffer
                 result = resource_allocator_->MapResourceMemoryDirect(
-                    max_copy_size_, 0, reinterpret_cast<void**>(&staging_buffer_mapped_ptr_), staging_buffer_data_);
+                    staging_buffer_size_, 0, reinterpret_cast<void**>(&staging_buffer_mapped_ptr_), staging_buffer_data_);
             }
             else
             {
@@ -1564,8 +1577,8 @@ void VulkanResourceInitializer::FlushStagingBuffer()
         memory_range.pNext  = nullptr;
         memory_range.memory = staging_memory_;
         memory_range.offset = 0;
-        memory_range.size =
-            std::min(max_copy_size_, util::aligned_value(staging_buffer_offset_, staging_buffer_alignment_));
+        memory_range.size   = std::min<VkDeviceSize>(
+            staging_buffer_size_, util::aligned_value(staging_buffer_offset_, staging_buffer_alignment_));
         resource_allocator_->FlushMappedMemoryRangesDirect(1, &memory_range, &staging_memory_data_);
 
         staging_buffer_offset_ = 0;

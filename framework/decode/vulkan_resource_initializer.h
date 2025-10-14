@@ -189,14 +189,14 @@ class VulkanResourceInitializer
     VkBuffer                              staging_buffer_;
     VulkanResourceAllocator::ResourceData staging_buffer_data_;
     size_t                                staging_buffer_offset_;
+    size_t                                staging_buffer_size_;
     size_t                                staging_buffer_alignment_;
     uint8_t*                              staging_buffer_mapped_ptr_;
     VkSampler                             draw_sampler_;
     VkDescriptorPool                      draw_pool_;
     VkDescriptorSetLayout                 draw_set_layout_;
     VkDescriptorSet                       draw_set_;
-    VkDeviceSize                          max_copy_size_;
-    VkPhysicalDeviceMemoryProperties      memory_properties_;
+    VkPhysicalDeviceMemoryProperties      memory_properties_{};
     bool                                  have_shader_stencil_write_;
     VulkanResourceAllocator*              resource_allocator_;
     const graphics::VulkanDeviceTable*    device_table_;
