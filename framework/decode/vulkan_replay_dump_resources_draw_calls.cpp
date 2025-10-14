@@ -911,7 +911,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump immutable resources
-        if (options_.dump_resources_dump_immutable_resources && is_before_command)
+        if (options_.dump_all_descriptors && is_before_command)
         {
             res = DumpDescriptors(qs_index, bcb_index, dc_index, rp);
             if (res != VK_SUCCESS)

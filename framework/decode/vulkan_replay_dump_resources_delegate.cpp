@@ -1070,7 +1070,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         }
     }
 
-    if (options_.dump_resources_dump_immutable_resources)
+    if (options_.dump_all_descriptors)
     {
         GenerateDescriptorsJsonInfo(draw_call_entry, dumped_resources);
     }
