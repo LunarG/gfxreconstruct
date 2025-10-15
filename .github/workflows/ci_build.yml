@@ -211,7 +211,7 @@ jobs:
       run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0 --test-apps
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
       env:
         SCCACHE_GHA_ENABLED: on
         SCCACHE_CACHE_MULTIARCH: on

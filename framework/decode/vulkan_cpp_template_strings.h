@@ -313,9 +313,9 @@ XCBApp appdata(%d, %d);
 )";
 
 static const char* sXcbCMakeFile = R"(
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.16.3)
 project(vulkan_app)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 20)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)
@@ -579,9 +579,9 @@ WaylandApp appdata(%d, %d);
 )";
 
 static const char* sWaylandCMakeFile = R"(
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.16.3)
 project(vulkan_app)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 20)
 
 find_program(WAYLAND_SCANNER NAMES wayland-scanner REQUIRED)
 set(XDG_SHELL_PROTOCOL_C ${CMAKE_CURRENT_BINARY_DIR}/xdg-shell-protocol.c)
@@ -1008,9 +1008,9 @@ Win32App appdata(%d, %d);
 )";
 
 static const char* sWin32CMakeFile = R"(
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.16.3)
 project(vulkan_app)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 20)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MAIN_FILE ${PROJECT_SOURCE_DIR}/*.cpp)

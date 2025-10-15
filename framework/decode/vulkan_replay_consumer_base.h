@@ -82,15 +82,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetCurrentFrameNumber(uint64_t frame_number) override;
 
-    // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
-    // For example, this is used during recapture to return the capture layer's Vulkan functions.
-    void SetGetInstanceProcAddrOverride(PFN_vkGetInstanceProcAddr get_instance_proc_addr)
-    {
-        GFXRECON_ASSERT((get_instance_proc_addr_ == nullptr) &&
-                        "SetGetInstanceProcAddrOverride should be called before InitializeLoader().")
-        get_instance_proc_addr_ = get_instance_proc_addr;
-    }
-
     void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
@@ -1619,6 +1610,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     std::unique_ptr<VulkanReplayDumpResources> resource_dumper_;
 
+    //// Begin recapture members
+  private:
+    // UINT64_MAX =                                      18446744073709551615ULL
+    static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
+
+  public:
+    // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
+    // For example, this is used during recapture to return the capture layer's Vulkan functions.
+    void SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                           PFN_vkCreateInstance      create_instance,
+                           PFN_vkCreateDevice        create_device);
+
+    virtual void PushRecaptureHandleId(const format::HandleId* id) override;
+    virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
+    virtual void ClearRecaptureHandleIds() override;
+
+    //// End recapture members
+
   private:
     void RaiseFatalError(const char* message) const;
 
@@ -1871,7 +1880,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::function<void()> sync_fn;
 
         //! function used to defer deletion of a tracked async-dependency
-        std::function<void()> destroy_fn;
+        std::function<void()> post_build_fn;
     };
     //! stores handles used/referenced by currently running async tasks
     std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;

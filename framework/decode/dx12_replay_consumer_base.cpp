@@ -2507,7 +2507,7 @@ void Dx12ReplayConsumerBase::OverrideResourceUnmap(DxObjectInfo*                
             GFXRECON_ASSERT(memory_info.count > 0);
 
             --(memory_info.count);
-            auto& map_entry = mapped_memory_.find(memory_info.memory_id);
+            auto map_entry = mapped_memory_.find(memory_info.memory_id);
             if (map_entry != mapped_memory_.end())
             {
                 GFXRECON_ASSERT(map_entry->second.ref_count > 0);
@@ -3289,12 +3289,12 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             for (const auto& entry : resource_info->mapped_memory_info)
             {
-                auto& mapped_info = entry.second;
-                auto& entry       = mapped_memory_.find(mapped_info.memory_id);
-                if (entry != mapped_memory_.end())
+                auto& mapped_info      = entry.second;
+                auto  mapped_memory_it = mapped_memory_.find(mapped_info.memory_id);
+                if (mapped_memory_it != mapped_memory_.end())
                 {
-                    entry->second.ref_count -= mapped_info.count;
-                    if (entry->second.ref_count == 0)
+                    mapped_memory_it->second.ref_count -= mapped_info.count;
+                    if (mapped_memory_it->second.ref_count == 0)
                     {
                         mapped_memory_.erase(mapped_info.memory_id);
                     }
@@ -4991,7 +4991,7 @@ void Dx12ReplayConsumerBase::MapMetaCommandParameters(ID3D12Device5*            
         while (data_offset < parameters_data_sizeinbytes)
         {
             parameters_data += data_offset;
-            for each (auto desc in parameter_descs)
+            for (auto desc : parameter_descs)
             {
                 switch (desc.Type)
                 {

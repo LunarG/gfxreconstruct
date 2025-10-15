@@ -32,6 +32,7 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
+#include "encode/vulkan_capture_manager.h"
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format.h"
@@ -1252,6 +1253,59 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     }
 }
 
+void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                                                 PFN_vkCreateInstance      create_instance,
+                                                 PFN_vkCreateDevice        create_device)
+{
+    GFXRECON_ASSERT(options_.capture);
+
+    GFXRECON_ASSERT((get_instance_proc_addr_ == nullptr) &&
+                    "SetupForRecapture should be called before InitializeLoader().")
+    get_instance_proc_addr_ = get_instance_proc_addr;
+
+    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
+
+    // Logger is already initialized by replay, so inform capture manager not to initialize it again.
+    gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
+
+    gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
+    gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+}
+
+void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
+{
+    if (options_.capture && id != nullptr && *id < kRecaptureHandleIdOffset)
+    {
+        encode::CommonCaptureManager::PushUniqueId(*id);
+    }
+}
+
+void VulkanReplayConsumerBase::PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count)
+{
+    if (options_.capture && id_array != nullptr)
+    {
+        if (id_array != nullptr)
+        {
+            for (uint64_t i = 0; i < id_count; ++i)
+            {
+                auto id = id_array[id_count - i - 1];
+                if (id < kRecaptureHandleIdOffset)
+                {
+                    encode::CommonCaptureManager::PushUniqueId(id);
+                }
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::ClearRecaptureHandleIds()
+{
+    if (options_.capture)
+    {
+        encode::CommonCaptureManager::ClearUniqueIds();
+    }
+}
+
 void VulkanReplayConsumerBase::SetFatalErrorHandler(std::function<void(const char*)> handler)
 {
     fatal_error_handler_ = handler;
@@ -1274,7 +1328,7 @@ void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
 
-    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetGetInstanceProcAddrOverride()
+    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecapture()
     if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -7257,14 +7311,55 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
-    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
-
-    if (allocator_data != 0)
+    // a VkPipeline is currently being compiled asynchronously -> defer setting the debug-name
+    if (info->objectType == VK_OBJECT_TYPE_PIPELINE && IsUsedByAsyncTask(meta_info->objectHandle))
     {
-        // depending on which allocator is used, the call might get deferred until resources are actually bound
-        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+        format::HandleId     pipeline_id = meta_info->objectHandle;
+        size_t               info_size   = graphics::vulkan_struct_deep_copy(info, 1, nullptr);
+        std::vector<uint8_t> info_copy(info_size);
+        graphics::vulkan_struct_deep_copy(info, 1, info_copy.data());
+        auto& async_handle_asset         = async_tracked_handles_[pipeline_id];
+        async_handle_asset.post_build_fn = [this,
+                                            device = device_info->handle,
+                                            pipeline_id,
+                                            func,
+                                            info_copy = std::move(info_copy),
+                                            original_result]() mutable {
+            auto* info = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
+
+            // correct referenced handle in info. this would sync, but task is already done
+            VkPipeline pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(
+                pipeline_id, GetObjectInfoTable(), &CommonObjectInfoTable::GetVkPipelineInfo);
+            GFXRECON_ASSERT(pipeline != VK_NULL_HANDLE);
+            info->objectHandle = (uint64_t)pipeline;
+
+            VkResult result = func(device, info);
+
+            if (result != original_result)
+            {
+                GFXRECON_LOG_WARNING("VkDebugUtilsObjectNameInfoEXT was deferred for VkPipeline: %d - result: '%d' "
+                                     "does not match original: '%d'",
+                                     pipeline_id,
+                                     result,
+                                     original_result);
+            }
+        };
+        return original_result;
     }
-    return func(device_info->handle, info);
+    else
+    {
+        // correct referenced handle in info
+        MapStructHandles(meta_info, GetObjectInfoTable());
+
+        uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+        if (allocator_data != 0)
+        {
+            // depending on which allocator is used, the call might get deferred until resources are actually bound
+            return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
+        }
+        return func(device_info->handle, info);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
@@ -11616,6 +11711,9 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     {
         std::copy_n(pPipelines->GetPointer(), createInfoCount, pipeline_ids.begin());
 
+        // insert self-dependencies on pipeline_ids, in order to track/detect them as async-tasks
+        handle_deps.insert(pipeline_ids.begin(), pipeline_ids.end());
+
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
@@ -11644,9 +11742,11 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, pipeline_ids.data());
         }
 
+        PushRecaptureHandleIds(pipeline_ids.data(), pipeline_ids.size());
         VkResult replay_result = func(
             device_info->handle, pipeline_cache, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+        ClearRecaptureHandleIds();
 
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this,
@@ -11714,12 +11814,18 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+    std::vector<format::HandleId> pipeline_ids(createInfoCount);
 
     // extract handle-dependencies and track those
     auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
     std::function<void()> sync_fn;
     if (pPipelines != nullptr && createInfoCount > 0)
     {
+        std::copy_n(pPipelines->GetPointer(), createInfoCount, pipeline_ids.begin());
+
+        // insert self-dependencies on pipeline_ids, in order to track/detect them as async-tasks
+        handle_deps.insert(pipeline_ids.begin(), pipeline_ids.end());
+
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<VulkanPipelineInfo>(parent_id, &VulkanObjectInfoTable::GetVkPipelineInfo);
         };
@@ -11737,12 +11843,15 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
                  in_pAllocator,
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
-                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
+                 handle_deps      = std::move(handle_deps),
+                 pipeline_ids     = std::move(pipeline_ids)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto     create_infos  = reinterpret_cast<const VkComputePipelineCreateInfo*>(create_info_data.data());
+        PushRecaptureHandleIds(pipeline_ids.data(), pipeline_ids.size());
         VkResult replay_result = func(
             device_info->handle, pipeline_cache, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
+        ClearRecaptureHandleIds();
 
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this,
@@ -11828,8 +11937,10 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
             replaced_file_code = ReplaceShaders(createInfoCount, create_infos, shaders.data());
         }
 
+        PushRecaptureHandleIds(shaders.data(), shaders.size());
         VkResult replay_result = func(device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
+        ClearRecaptureHandleIds();
 
         if (replay_result == VK_SUCCESS)
         {
@@ -11873,9 +11984,9 @@ void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format
         {
             const auto& [tracked_handle, handle_asset] = *it;
 
-            if (handle_asset.destroy_fn)
+            if (handle_asset.post_build_fn)
             {
-                handle_asset.destroy_fn();
+                handle_asset.post_build_fn();
             }
             async_tracked_handles_.erase(it);
         }
@@ -11892,7 +12003,7 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
 
         if constexpr (async_defer_deletion_)
         {
-            handle_asset.destroy_fn = std::move(destroy_fn);
+            handle_asset.post_build_fn = std::move(destroy_fn);
         }
         else
         {
@@ -11900,10 +12011,15 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
             {
                 handle_asset.sync_fn();
             }
+            if (handle_asset.post_build_fn)
+            {
+                handle_asset.post_build_fn();
+            }
             if (destroy_fn)
             {
                 destroy_fn();
             }
+            async_tracked_handles_.erase(it);
         }
     }
 }

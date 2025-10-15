@@ -494,7 +494,11 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
         local_header.extend(header)
         local_body.extend(body)
         arg_name = struct_prefix + arg.name
-        struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << {arg_name} << ")"'
+        struct_arg = None
+        if arg.platform_full_type == 'LPCWSTR':
+            struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << util::strings::convert_wstring_to_utf8({arg_name}) << ")"'
+        else:
+            struct_arg = f'"reinterpret_cast<{arg.platform_full_type}>(" << {arg_name} << ")"'
         local_body.append(makeOutStructSet(struct_arg, locals(), isFirstArg, isLastArg, indent))
 
         return local_header, local_body
