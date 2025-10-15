@@ -2810,7 +2810,8 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                             requires_dedicated_allocation,
                                                             prefers_dedicated_allocation);
 
-                    replay_req.size = original_memory_bind.size;
+                    replay_req.alignment = std::max<VkDeviceSize>(replay_req.alignment, min_buffer_alignment_);
+                    replay_req.size      = original_memory_bind.size;
 
                     if (capture_req.size != 0)
                     {
