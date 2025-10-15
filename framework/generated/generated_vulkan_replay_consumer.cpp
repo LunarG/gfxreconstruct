@@ -7479,7 +7479,6 @@ void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectNameEXT(
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
 
-    MapStructHandles(pNameInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);
     VkPhysicalDevice  physical_device = device_info->parent;
 

@@ -1884,7 +1884,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::function<void()> sync_fn;
 
         //! function used to defer deletion of a tracked async-dependency
-        std::function<void()> destroy_fn;
+        std::function<void()> post_build_fn;
     };
     //! stores handles used/referenced by currently running async tasks
     std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
