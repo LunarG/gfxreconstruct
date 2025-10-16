@@ -41,6 +41,7 @@ class VulkanResourceInitializer
 {
   public:
     VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
+                              VkDeviceSize                            total_copy_size,
                               VkDeviceSize                            max_copy_size,
                               const VkPhysicalDeviceProperties&       physical_device_properties,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,

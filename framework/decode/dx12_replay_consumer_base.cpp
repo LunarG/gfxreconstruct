@@ -566,14 +566,14 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
 }
 
 void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                             uint64_t         max_resource_size,
+                                                             uint64_t         total_copy_size,
                                                              uint64_t         max_copy_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(max_copy_size);
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
+    GFXRECON_UNREFERENCED_PARAMETER(total_copy_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_copy_size);
 
     auto device         = MapObject<ID3D12Device>(device_id);
-    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
+    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_copy_size);
 }
 
 void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)

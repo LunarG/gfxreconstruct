@@ -68,6 +68,7 @@ static uint32_t FindBufferOffsetAlignmentForCopyBufferToImage(VkFormat format)
 }
 
 VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
+                                                     VkDeviceSize                            total_copy_size,
                                                      VkDeviceSize                            max_copy_size,
                                                      const VkPhysicalDeviceProperties&       physical_device_properties,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
@@ -90,8 +91,11 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
 
     memory_properties_ = memory_properties;
 
+    // limit staging-buffer to 128Mb
+    constexpr VkDeviceSize staging_buffer_max_size = 128U << 20U;
+
     // determine/confirm a sane size for the staging-buffer
-    staging_buffer_size_ = std::max<VkDeviceSize>(max_copy_size, 128U << 20U);
+    staging_buffer_size_ = std::clamp<VkDeviceSize>(total_copy_size, max_copy_size, staging_buffer_max_size);
 
     VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
