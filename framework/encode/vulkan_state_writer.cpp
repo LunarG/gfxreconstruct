@@ -39,6 +39,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <ranges>
 #include <unordered_map>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -3263,10 +3264,9 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     WriteImageMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size, write_memory_state);
 
     // Write resource memory content.
-    for (const auto& resource_entry : resources)
+    for (const auto& [device_wrapper, queue_family_table] : resources)
     {
-        const vulkan_wrappers::DeviceWrapper* device_wrapper = resource_entry.first;
-        VkResult                              result         = VK_SUCCESS;
+        VkResult result = VK_SUCCESS;
 
         graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
                                                     device_wrapper->physical_device->handle,
@@ -3285,37 +3285,38 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
         {
             if (output_stream_ != nullptr)
             {
-                format::BeginResourceInitCommand begin_cmd;
+                format::BeginResourceInitCommand begin_cmd{};
                 begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
                 begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
                 begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                     format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
-                begin_cmd.thread_id         = thread_data_->thread_id_;
-                begin_cmd.device_id         = device_wrapper->handle_id;
+                begin_cmd.thread_id       = thread_data_->thread_id_;
+                begin_cmd.device_id       = device_wrapper->handle_id;
                 begin_cmd.total_copy_size = max_resource_size;
-                begin_cmd.max_copy_size     = max_staging_copy_size;
+                begin_cmd.max_copy_size   = max_staging_copy_size;
 
                 output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
                 ++blocks_written_;
             }
 
-            for (const auto& queue_family_entry : resource_entry.second)
+            // iterate map-values
+            for (const auto& snapshot_info : queue_family_table | std::views::values)
             {
                 if (asset_file_stream_ != nullptr)
                 {
-                    ProcessBufferMemoryWithAssetFile(device_wrapper, queue_family_entry.second.buffers, resource_util);
-                    ProcessImageMemoryWithAssetFile(device_wrapper, queue_family_entry.second.images, resource_util);
+                    ProcessBufferMemoryWithAssetFile(device_wrapper, snapshot_info.buffers, resource_util);
+                    ProcessImageMemoryWithAssetFile(device_wrapper, snapshot_info.images, resource_util);
                 }
                 else
                 {
-                    ProcessBufferMemory(device_wrapper, queue_family_entry.second.buffers, resource_util);
-                    ProcessImageMemory(device_wrapper, queue_family_entry.second.images, resource_util);
+                    ProcessBufferMemory(device_wrapper, snapshot_info.buffers, resource_util);
+                    ProcessImageMemory(device_wrapper, snapshot_info.images, resource_util);
                 }
             }
 
             if (output_stream_ != nullptr)
             {
-                format::EndResourceInitCommand end_cmd;
+                format::EndResourceInitCommand end_cmd{};
                 end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
                 end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
                 end_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
