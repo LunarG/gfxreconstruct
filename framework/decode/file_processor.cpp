@@ -1796,7 +1796,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         success = block_buffer.Read(header.thread_id);
         success = success && block_buffer.Read(header.device_id);
-        success = success && block_buffer.Read(header.max_resource_size);
+        success = success && block_buffer.Read(header.total_copy_size);
         success = success && block_buffer.Read(header.max_copy_size);
 
         if (success)
@@ -1806,7 +1806,7 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
                 if (decoder->SupportsMetaDataId(meta_data_id))
                 {
                     decoder->DispatchBeginResourceInitCommand(
-                        header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
+                        header.thread_id, header.device_id, header.total_copy_size, header.max_copy_size);
                 }
             }
         }

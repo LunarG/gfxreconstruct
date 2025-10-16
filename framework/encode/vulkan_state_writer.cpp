@@ -1491,7 +1491,7 @@ void VulkanStateWriter::BeginAccelerationStructuresSection(format::HandleId devi
         format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
     begin_cmd.thread_id         = thread_data_->thread_id_;
     begin_cmd.device_id         = device_id;
-    begin_cmd.max_resource_size = max_resource_size;
+    begin_cmd.total_copy_size = max_resource_size;
     // Our buffers should not need staging copy as the memory should be host visible and coherent
     begin_cmd.max_copy_size = 0;
 
@@ -3292,7 +3292,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                     format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
                 begin_cmd.thread_id         = thread_data_->thread_id_;
                 begin_cmd.device_id         = device_wrapper->handle_id;
-                begin_cmd.max_resource_size = max_resource_size;
+                begin_cmd.total_copy_size = max_resource_size;
                 begin_cmd.max_copy_size     = max_staging_copy_size;
 
                 output_stream_->Write(&begin_cmd, sizeof(begin_cmd));

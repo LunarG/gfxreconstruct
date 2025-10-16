@@ -152,11 +152,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          uint32_t                                            last_presented_image,
                                          const std::vector<format::SwapchainImageStateInfo>& image_info) override;
 
-    virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                 uint64_t         max_resource_size,
-                                                 uint64_t         max_copy_size) override;
+    void ProcessBeginResourceInitCommand(format::HandleId device_id,
+                                         uint64_t         total_copy_size,
+                                         uint64_t         max_copy_size) override;
 
-    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
+    void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
     virtual void ProcessInitBufferCommand(format::HandleId device_id,
                                           format::HandleId buffer_id,

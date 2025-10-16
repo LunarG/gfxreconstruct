@@ -160,7 +160,7 @@ class ApiDecoder
 
     virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
                                                   format::HandleId device_id,
-                                                  uint64_t         max_resource_size,
+                                                  uint64_t         total_copy_size,
                                                   uint64_t         max_copy_size) = 0;
 
     virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) = 0;

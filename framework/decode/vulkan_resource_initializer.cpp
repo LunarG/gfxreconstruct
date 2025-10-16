@@ -96,7 +96,7 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
     if (!mem_index ||
-        memory_properties.memoryHeaps[memory_properties.memoryTypes[*mem_index].heapIndex].size > staging_buffer_size_)
+        memory_properties.memoryHeaps[memory_properties.memoryTypes[*mem_index].heapIndex].size < staging_buffer_size_)
     {
         GFXRECON_LOG_WARNING("%s: no suitable staging-buffer could be created", __func__);
     }

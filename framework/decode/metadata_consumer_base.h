@@ -87,9 +87,11 @@ class MetadataConsumerBase
                                                       uint32_t         last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {}
+
     virtual void
-    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t max_resource_size, uint64_t max_copy_size)
+    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t total_copy_size, uint64_t max_copy_size)
     {}
+
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) {}
     virtual void ProcessInitBufferCommand(format::HandleId device_id,
                                           format::HandleId buffer_id,
