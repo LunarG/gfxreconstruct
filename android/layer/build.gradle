@@ -24,7 +24,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                cppFlags "-fexceptions", "-std=c++17", "-Wno-nullability-completeness"
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
                 if (project.hasProperty("DisableOpenXR")) {
                     logger.info('GFXReconstruct layer built with NO OpenXr Support! [DisableOpenXR found]')

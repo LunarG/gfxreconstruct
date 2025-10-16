@@ -24,6 +24,7 @@
 #include "vulkan/vulkan.h"
 
 #include <util/defines.h>
+#include <util/strings.h>
 #include <iostream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
