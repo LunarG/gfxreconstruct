@@ -89,13 +89,18 @@ struct VulkanPhysicalDeviceTracker
     std::vector<VkDevice> devices;
 };
 
+struct VulkanInstanceAppInfo
+{
+    std::string app_name;
+    uint32_t    app_version{ 0 };
+    std::string engine_name;
+    uint32_t    engine_version{ 0 };
+    uint32_t    api_version{ 0 };
+};
+
 struct VulkanInstanceTracker
 {
-    std::string                      app_name;
-    uint32_t                         app_version{ 0 };
-    std::string                      engine_name;
-    uint32_t                         engine_version{ 0 };
-    uint32_t                         api_version{ 0 };
+    VulkanInstanceAppInfo            app_info;
     std::vector<std::string>         enabled_extensions;
     std::vector<VkPhysicalDevice>    physical_devices;
     bool                             uses_physical_device_groups{ false };
@@ -107,7 +112,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
 {
   public:
     // New stuff
-    uint32_t GetInstanceCount() const { return static_cast<uint32_t>(instance_info_.size()); }
+    uint32_t   GetInstanceCount() const { return static_cast<uint32_t>(instance_info_.size()); }
+    VkInstance GetLastCreatedInstance() const { return last_created_instance_; }
     const std::unordered_map<VkInstance, VulkanInstanceTracker>& GetInstanceInfo() const { return instance_info_; }
     const std::unordered_map<VkPhysicalDevice, VulkanPhysicalDeviceTracker>& GetPhysicalDeviceInfo() const
     {
@@ -165,24 +171,25 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                 VulkanInstanceTracker instance_tracker{};
                 if (app_info->pApplicationName != nullptr)
                 {
-                    instance_tracker.app_name = app_info->pApplicationName;
+                    instance_tracker.app_info.app_name = app_info->pApplicationName;
                 }
 
                 if (app_info->pEngineName != nullptr)
                 {
-                    instance_tracker.engine_name = app_info->pEngineName;
+                    instance_tracker.app_info.engine_name = app_info->pEngineName;
                 }
 
-                instance_tracker.app_version    = app_info->applicationVersion;
-                instance_tracker.engine_version = app_info->engineVersion;
-                instance_tracker.api_version    = app_info->apiVersion;
+                instance_tracker.app_info.app_version    = app_info->applicationVersion;
+                instance_tracker.app_info.engine_version = app_info->engineVersion;
+                instance_tracker.app_info.api_version    = app_info->apiVersion;
 
                 for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
                 {
                     instance_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
                 }
                 VkInstance inst = const_cast<VkInstance>(*reinterpret_cast<const VkInstance*>(pInstance->GetPointer()));
-                instance_info_[inst] = std::move(instance_tracker);
+                instance_info_[inst]   = std::move(instance_tracker);
+                last_created_instance_ = inst;
             }
         }
     }
@@ -695,6 +702,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     std::vector<std::string> operation_annotation_datas_;
     uint64_t                 annotation_count_{ 0 };
 
+    VkInstance                                                        last_created_instance_;
     std::unordered_map<VkInstance, VulkanInstanceTracker>             instance_info_;
     std::unordered_map<VkPhysicalDevice, VulkanPhysicalDeviceTracker> physical_device_info_;
     std::unordered_map<VkDevice, VulkanDeviceTracker>                 device_info_;
