@@ -136,7 +136,7 @@ class VulkanResourceInitializer
     VkImageAspectFlags
     GetImageTransitionAspect(VkFormat format, VkImageAspectFlagBits aspect, VkImageLayout* old_layout);
 
-    uint32_t GetMemoryTypeIndex(uint32_t type_bits, VkMemoryPropertyFlags property_flags);
+    std::optional<uint32_t> GetMemoryTypeIndex(uint32_t type_bits, VkMemoryPropertyFlags property_flags) const;
 
     VkResult BufferToImageCopy(uint32_t                 queue_family_index,
                                VkBuffer                 source,

@@ -59,7 +59,7 @@ static uint32_t FindBufferOffsetAlignmentForCopyBufferToImage(VkFormat format)
     }
     else
     {
-        // In all othe cases spec mandates an alignment of the format's block size.
+        // In all other cases spec mandates an alignment of the format's block size.
         const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
         alignment                         = format_info.block_size;
     }
@@ -93,25 +93,13 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     // determine/confirm a sane size for the staging-buffer
     staging_buffer_size_ = std::max<VkDeviceSize>(max_copy_size, 128U << 20U);
 
-    VkFlags mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
+    VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
+    if (!mem_index ||
+        memory_properties.memoryHeaps[memory_properties.memoryTypes[*mem_index].heapIndex].size > staging_buffer_size_)
     {
-        if ((memory_properties.memoryTypes[i].propertyFlags & mem_flags) == mem_flags)
-        {
-            // assure the device can provide sufficient memory
-            GFXRECON_ASSERT(memory_properties.memoryHeaps[memory_properties.memoryTypes[i].heapIndex].size >
-                            staging_buffer_size_);
-        }
+        GFXRECON_LOG_WARNING("%s: no suitable staging-buffer could be created", __func__);
     }
-
-    //    size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
-//    size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
-//
-//    memory_properties_.memoryTypeCount = memory_properties.memoryTypeCount;
-//    memory_properties_.memoryHeapCount = memory_properties.memoryHeapCount;
-//
-//    util::platform::MemoryCopy(&memory_properties_.memoryTypes, type_size, &memory_properties.memoryTypes, type_size);
-//    util::platform::MemoryCopy(&memory_properties_.memoryHeaps, heap_size, &memory_properties.memoryHeaps, heap_size);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
@@ -920,14 +908,13 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
 
         device_table_->GetImageMemoryRequirements(device_, staging_image, &memory_reqs);
 
-        uint32_t memory_type_index =
-            GetMemoryTypeIndex(memory_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        auto memory_type_index = GetMemoryTypeIndex(memory_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+        GFXRECON_ASSERT(memory_type_index);
 
         VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
         alloc_info.pNext                = nullptr;
-        alloc_info.memoryTypeIndex      = memory_type_index;
+        alloc_info.memoryTypeIndex      = *memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
         result = resource_allocator_->AllocateMemoryDirect(&alloc_info, nullptr, &staging_memory, &staging_memory_data);
@@ -1048,15 +1035,15 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
             VkMemoryRequirements memory_requirements;
             device_table_->GetBufferMemoryRequirements(device_, staging_buffer_, &memory_requirements);
 
-            uint32_t memory_type_index =
+            auto memory_type_index =
                 GetMemoryTypeIndex(memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-            assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+            GFXRECON_ASSERT(memory_type_index);
 
             VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
             alloc_info.pNext                = nullptr;
             alloc_info.allocationSize       = memory_requirements.size;
-            alloc_info.memoryTypeIndex      = memory_type_index;
+            alloc_info.memoryTypeIndex      = *memory_type_index;
 
             // Allocate the memory for the buffer.
             result = resource_allocator_->AllocateMemoryDirect(
@@ -1242,9 +1229,10 @@ VkImageAspectFlags VulkanResourceInitializer::GetImageTransitionAspect(VkFormat 
     return transition_aspect;
 }
 
-uint32_t VulkanResourceInitializer::GetMemoryTypeIndex(uint32_t type_bits, VkMemoryPropertyFlags property_flags)
+std::optional<uint32_t> VulkanResourceInitializer::GetMemoryTypeIndex(uint32_t              type_bits,
+                                                                      VkMemoryPropertyFlags property_flags) const
 {
-    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
+    std::optional<uint32_t> memory_type_index;
 
     for (uint32_t i = 0; i < memory_properties_.memoryTypeCount; ++i)
     {
@@ -1255,7 +1243,6 @@ uint32_t VulkanResourceInitializer::GetMemoryTypeIndex(uint32_t type_bits, VkMem
             break;
         }
     }
-
     return memory_type_index;
 }
 
