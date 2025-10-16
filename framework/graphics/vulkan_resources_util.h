@@ -415,6 +415,18 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
                              uint32_t&         z,
                              uint32_t&         layer);
 
+/**
+ * @brief Get the size requirements for a staging buffer to copy image data from a buffer
+ * @see GetBufferSizeFromCopyImage(RegionCopy&, uint32_t, VkFormat) in `vulkan_resources_util.cpp`
+ */
+VkDeviceSize GetBufferSizeFromCopyImage(const VkMemoryToImageCopy& region, uint32_t array_layers, VkFormat format);
+
+/**
+ * @brief Get the size requirements for a staging buffer to copy image data to a buffer
+ * @see GetBufferSizeFromCopyImage(RegionCopy&, uint32_t, VkFormat) in `vulkan_resources_util.cpp`
+ */
+VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint32_t array_layers, VkFormat format);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
