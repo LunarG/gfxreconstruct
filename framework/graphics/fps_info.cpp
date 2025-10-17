@@ -110,13 +110,14 @@ void FpsInfo::EndFrame(uint64_t frame)
 
         // We need to check this because of the "frame stuttering" induced by the first frame end marker...
         uint64_t index = frame - measurement_start_frame_;
-        if (index < frame_durations_.size())
-        {
-            frame_durations_[index] += frame_duration;
-        }
-        else if (index == frame_durations_.size())
+        if (index == frame_durations_.size())
         {
             frame_durations_.push_back(frame_duration);
+        }
+        else if (index + 1 == frame_durations_.size())
+        {
+            GFXRECON_LOG_WARNING("Possible incomplete last frame detected. Measurements will consider the incomplete "
+                                 "frame as the last frame. This message should appear only once !");
         }
         else
         {
@@ -148,6 +149,14 @@ void FpsInfo::EndFile(uint64_t frame)
 
     if (!ended_measurement_)
     {
+        if (frame - measurement_start_frame_ + 1 == frame_durations_.size())
+        {
+            int64_t frame_end_time = util::datetime::GetTimestamp();
+            int64_t frame_duration = util::datetime::DiffTimestamps(frame_start_time_, frame_end_time);
+            frame_durations_.push_back(frame_duration);
+            ++frame;
+        }
+
         measurement_end_boot_time_    = util::datetime::GetBootTime();
         measurement_end_process_time_ = util::datetime::GetProcessTime();
         measurement_end_time_         = replay_end_time_;
