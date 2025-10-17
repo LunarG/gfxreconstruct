@@ -215,6 +215,16 @@ struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_Execut
 };
 
 template <>
+struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_UpdateTileMappings>
+{
+    template <typename... Args>
+    static void Dispatch(Dx12ReplayConsumerBase* replay, Args... args)
+    {
+        replay->PostCall_ID3D12CommandQueue_UpdateTileMappings(args...);
+    }
+};
+
+template <>
 struct CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CopyDescriptors>
 {
     template <typename... Args>

@@ -253,6 +253,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                          UINT                                      NumCommandLists,
                                                          HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists);
 
+    void PostCall_ID3D12CommandQueue_UpdateTileMappings(
+        const ApiCallInfo&                                             call_info,
+        DxObjectInfo*                                                  object_info,
+        format::HandleId                                               pResource,
+        UINT                                                           NumResourceRegions,
+        StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pResourceRegionStartCoordinates,
+        StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>*          pResourceRegionSizes,
+        format::HandleId                                               pHeap,
+        UINT                                                           NumRanges,
+        PointerDecoder<D3D12_TILE_RANGE_FLAGS>*                        pRangeFlags,
+        PointerDecoder<UINT>*                                          pHeapRangeStartOffsets,
+        PointerDecoder<UINT>*                                          pRangeTileCounts,
+        D3D12_TILE_MAPPING_FLAGS                                       Flags);
+
     void PostCall_ID3D12Device_CopyDescriptors(
         const ApiCallInfo&                                         call_info,
         DxObjectInfo*                                              device_object_info,
@@ -1316,6 +1330,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
+    std::unordered_set<ID3D12CommandQueue*>               trim_state_tile_update_queues_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

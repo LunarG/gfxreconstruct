@@ -574,6 +574,14 @@ void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId de
 
     auto device         = MapObject<ID3D12Device>(device_id);
     resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
+
+    // Wait for any pending reserved resource tile mapping updates to complete.
+    for (auto command_queue : trim_state_tile_update_queues_)
+    {
+        graphics::dx12::WaitForQueue(reinterpret_cast<ID3D12CommandQueue*>(command_queue));
+    }
+
+    trim_state_tile_update_queues_.clear();
 }
 
 void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
@@ -5430,6 +5438,38 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
             }
         }
         command_list_extra_info->pending_resource_states.clear();
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_UpdateTileMappings(
+    const ApiCallInfo&                                             call_info,
+    DxObjectInfo*                                                  object_info,
+    format::HandleId                                               pResource,
+    UINT                                                           NumResourceRegions,
+    StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pResourceRegionStartCoordinates,
+    StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>*          pResourceRegionSizes,
+    format::HandleId                                               pHeap,
+    UINT                                                           NumRanges,
+    PointerDecoder<D3D12_TILE_RANGE_FLAGS>*                        pRangeFlags,
+    PointerDecoder<UINT>*                                          pHeapRangeStartOffsets,
+    PointerDecoder<UINT>*                                          pRangeTileCounts,
+    D3D12_TILE_MAPPING_FLAGS                                       Flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
+    GFXRECON_UNREFERENCED_PARAMETER(pResource);
+    GFXRECON_UNREFERENCED_PARAMETER(NumResourceRegions);
+    GFXRECON_UNREFERENCED_PARAMETER(pResourceRegionStartCoordinates);
+    GFXRECON_UNREFERENCED_PARAMETER(pResourceRegionSizes);
+    GFXRECON_UNREFERENCED_PARAMETER(pHeap);
+    GFXRECON_UNREFERENCED_PARAMETER(NumRanges);
+    GFXRECON_UNREFERENCED_PARAMETER(pRangeFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(pHeapRangeStartOffsets);
+    GFXRECON_UNREFERENCED_PARAMETER(pRangeTileCounts);
+    GFXRECON_UNREFERENCED_PARAMETER(Flags);
+
+    if ((object_info != nullptr) && (object_info->object != nullptr))
+    {
+        trim_state_tile_update_queues_.insert(reinterpret_cast<ID3D12CommandQueue*>(object_info->object));
     }
 }
 
