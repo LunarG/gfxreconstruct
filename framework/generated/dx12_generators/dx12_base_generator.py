@@ -564,13 +564,6 @@ class Dx12BaseGenerator():
         self.featureName = None
         self.featureExtraProtect = None
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
-        return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature.

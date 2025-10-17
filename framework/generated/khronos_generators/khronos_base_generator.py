@@ -780,14 +780,6 @@ class KhronosBaseGenerator(OutputGenerator):
         """Intended to be overridden."""
         return None
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
-    def need_feature_generation(self):
-        """Intended to be overridden.  Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
-        return False
-
     def generate_feature(self):
         """Performs C++ code generation for the feature.
         The subclass should override this method."""
@@ -808,7 +800,7 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def endFeature(self):
         """Method override. Generate code for the feature."""
-        if self.emit and self.need_feature_generation():
+        if self.emit:
             if (self.featureExtraProtect is not None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
 
@@ -2153,7 +2145,7 @@ class KhronosBaseGenerator(OutputGenerator):
         """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
         type_name = value.base_type
 
-        if ( 
+        if (
             self.is_struct(type_name) and type_name in self.all_struct_aliases
         ):
             type_name = self.all_struct_aliases[type_name]

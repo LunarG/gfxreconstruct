@@ -50,7 +50,7 @@ class VulkanEnumToStringHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             protect_feature,
             extra_headers=extra_headers
         )
-            
+
         self.begin_end_file_data.specific_headers.extend((
             'format/platform_types.h',
             'util/to_string.h',
@@ -82,8 +82,4 @@ class VulkanEnumToStringHeaderGenerator(VulkanBaseGenerator, KhronosEnumToString
     # yapf: enable
 
     #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_struct_members:
-            return True
-        return False
+

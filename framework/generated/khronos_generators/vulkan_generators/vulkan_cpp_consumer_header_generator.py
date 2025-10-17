@@ -164,12 +164,6 @@ class VulkanCppConsumerHeaderGenerator(VulkanBaseGenerator):
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_cmd_params or self.struct_names:
-            return True
-        return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""

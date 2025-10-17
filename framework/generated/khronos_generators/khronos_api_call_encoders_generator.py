@@ -34,12 +34,6 @@ class KhronosApiCallEncodersGenerator():
         else:
             self.CHECK_WRITE = []
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
     def make_encoder_cmd_decl(self, proto, values, is_header):
         """Generate function declaration for a command."""
         param_decls = []
@@ -71,11 +65,11 @@ class KhronosApiCallEncodersGenerator():
         body += indent + 'if (encoder'
 
         if self.CHECK_WRITE:
-            if name in self.CHECK_WRITE: 
+            if name in self.CHECK_WRITE:
                 body += ' && manager->CheckWrite' + name[2:] + '(result'
                 for value in values:
                     body += ', ' + value.name
-                body += ')'            
+                body += ')'
 
         body += ')\n'
         body += indent + '{\n'

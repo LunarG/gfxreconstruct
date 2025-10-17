@@ -135,11 +135,7 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
+
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""

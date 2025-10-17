@@ -147,10 +147,6 @@ class VulkanCppConsumerExtensionGenerator(VulkanBaseGenerator):
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        if self.struct_names:
-            return True
-        return False
 
     def generate_feature(self):
         structs = self.get_filtered_struct_names()

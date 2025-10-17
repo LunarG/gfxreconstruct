@@ -116,10 +116,6 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
                 for member in self.feature_struct_members[typename]:
                     self.physical_device_features.append(member.name)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        return False
-
     def make_feature_helper(self):
         """Generate help function for features on replaying at device creation time."""
         result = 'void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,\n'

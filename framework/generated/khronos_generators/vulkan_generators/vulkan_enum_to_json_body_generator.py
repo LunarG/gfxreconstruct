@@ -82,9 +82,3 @@ class VulkanEnumToJsonBodyGenerator(VulkanBaseGenerator, KhronosEnumToJsonBodyGe
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_struct_members:
-            return True
-        return False
