@@ -109,7 +109,7 @@ class KhronosReplayConsumerBodyGenerator():
         if is_skip_offscreen:
             body += self.check_skip_offscreen(values, name)
 
-        args, preexpr, postexpr = self.make_body_expression(
+        args, preexpr, postexpr, push_handleid_expr = self.make_body_expression(
             api_data, return_type, name, values, is_override
         )
         arglist = ', '.join(args)
@@ -166,10 +166,13 @@ class KhronosReplayConsumerBodyGenerator():
                 body += '    }\n'
                 postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
 
+            body += push_handleid_expr[0]
             body += '    {} replay_result = {};\n'.format(api_data.return_type_enum, call_expr)
             body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
         else:
+            body += push_handleid_expr[0]
             body += '    {};\n'.format(call_expr)
+        body += push_handleid_expr[1]
 
         # Dump resources code generation
         if is_dump_resources:
@@ -541,6 +544,7 @@ class KhronosReplayConsumerBodyGenerator():
         ]  # Variable declarations for handle mappings, temporary output allocations, and input pointers.
         postexpr = [
         ]  # Expressions to add new handles to the handle map and delete temporary allocations.
+        push_handleid_expr = ["", ""]
 
         for value in values:
             need_initialize_output_pnext_struct = ''
@@ -700,6 +704,8 @@ class KhronosReplayConsumerBodyGenerator():
                                     length_name, name=value.name
                                 )
                         elif self.is_handle_like(value.base_type):
+                            push_handleid_expr[0] = "    PushRecaptureHandleIds({}->GetPointer(), {}->GetLength());\n".format(value.name, value.name)
+                            push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                             # Add mappings for the newly created handles.
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
@@ -913,6 +919,8 @@ class KhronosReplayConsumerBodyGenerator():
                                         )
                                     )
                         elif self.is_handle_like(value.base_type):
+                            push_handleid_expr[0] = "    PushRecaptureHandleId({}->GetPointer());\n".format(value.name)
+                            push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                             # Add mapping for the newly created handle
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'
@@ -1093,4 +1101,4 @@ class KhronosReplayConsumerBodyGenerator():
                     'InitializeOutputStruct{}({});'.
                     format(api_data.extended_struct_func_prefix, need_initialize_output_pnext_struct)
                 )
-        return args, preexpr, postexpr
+        return args, preexpr, postexpr, push_handleid_expr

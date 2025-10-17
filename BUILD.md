@@ -141,7 +141,6 @@ Run the script with the `-h` option for additional usage information.
   - Supported Versions
     - [2022](https://www.visualstudio.com/vs/downloads/)
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
-    - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
 - [CMake](http://www.cmake.org/download/) (Version 3.24 or newer)
   - The build instructions assume that CMake has been added to the system PATH
@@ -166,19 +165,19 @@ GFXReconstruct repository, create a build folder, and generate the Visual
 Studio project files.
 
 The following example demonstrates the generation of project files for the
-Visual Studio 2017 x64 build configuration:
+Visual Studio 2019 x64 build configuration:
 
 ```bat
 cd gfxreconstruct
 mkdir build
-cmake . -Bbuild -G "Visual Studio 15 Win64"
+cmake . -Bbuild -G "Visual Studio 16 Win64"
 ```
 
 The following commands can be used to generate project files for different
-variations of the Visual Studio 2017 WIN32 and x64 build configurations:
+variations of the Visual Studio 2019 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15 Win64"`
-- 32-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15"`
+- 64-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16 Win64"`
+- 32-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -229,7 +228,7 @@ Solution menu item.
 
 Building on Linux requires the installation of the following packages:
 
-- A C++ compiler with C++-17 support
+- A C++ compiler with C++-20 support
 - Git
 - CMake
 - X11 + XCB and/or Wayland development libraries

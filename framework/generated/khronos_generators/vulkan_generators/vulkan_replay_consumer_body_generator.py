@@ -281,8 +281,9 @@ class VulkanReplayConsumerBodyGenerator(
     def is_special_case_value(self, value, is_override):
         """Method override."""
         if (value.base_type == 'VkSurfaceKHR' or
-            (value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR') or
-            (value.base_type == "VkSwapchainKHR" and not is_override)):
+                (value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR') or
+                (value.base_type == "VkSwapchainKHR" and not is_override)
+                or value.base_type == 'VkDebugUtilsObjectNameInfoEXT'):
             return True
         return False
 

@@ -69,7 +69,18 @@ class CommonCaptureManager
   public:
     typedef std::shared_mutex ApiCallMutexT;
 
-    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+  private:
+    static format::HandleId GetDefaultUniqueId() { return ++default_unique_id_counter_ + default_unique_id_offset_; }
+
+  public:
+    static void SetDefaultUniqueIdOffset(format::HandleId offset) { default_unique_id_offset_ = offset; }
+
+    static format::HandleId GetUniqueId();
+    static void             PushUniqueId(const format::HandleId id);
+    static void             ClearUniqueIds();
+
+    // Set to true to force capture manager to generate new, default IDs instead of using the unique ID stack.
+    static void SetForceDefaultUniqueId(bool force) { force_default_unique_id_ = force; }
 
     static void SetInitializeLog(bool initialize_log) { initialize_log_ = initialize_log; }
 
@@ -526,9 +537,12 @@ class CommonCaptureManager
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
-    static std::atomic<format::HandleId>                  unique_id_counter_;
     static ApiCallMutexT                                  api_call_mutex_;
     static bool                                           initialize_log_;
+    static std::atomic<format::HandleId>                  default_unique_id_counter_;
+    static uint64_t                                       default_unique_id_offset_;
+    static thread_local bool                              force_default_unique_id_;
+    static thread_local std::vector<format::HandleId>     unique_id_stack_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
