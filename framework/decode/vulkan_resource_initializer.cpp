@@ -75,10 +75,11 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
                                                      bool                                    have_shader_stencil_write,
                                                      VulkanResourceAllocator*                resource_allocator,
                                                      const graphics::VulkanDeviceTable*      device_table) :
-    device_(device_info->handle), staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0),
-    staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0), staging_buffer_mapped_ptr_(nullptr),
-    staging_buffer_offset_(0), staging_buffer_size_(0), draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE),
-    draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
+    device_(device_info->handle),
+    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
+    staging_buffer_mapped_ptr_(nullptr), staging_buffer_offset_(0), staging_buffer_size_(0),
+    draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
+    draw_set_(VK_NULL_HANDLE), memory_properties_(memory_properties),
     have_shader_stencil_write_(have_shader_stencil_write), resource_allocator_(resource_allocator),
     device_table_(device_table), device_info_(device_info)
 {
@@ -1065,8 +1066,11 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
                 staging_buffer_size_ = size;
 
                 // Map staging buffer
-                result = resource_allocator_->MapResourceMemoryDirect(
-                    staging_buffer_size_, 0, reinterpret_cast<void**>(&staging_buffer_mapped_ptr_), staging_buffer_data_);
+                result =
+                    resource_allocator_->MapResourceMemoryDirect(staging_buffer_size_,
+                                                                 0,
+                                                                 reinterpret_cast<void**>(&staging_buffer_mapped_ptr_),
+                                                                 staging_buffer_data_);
             }
             else
             {

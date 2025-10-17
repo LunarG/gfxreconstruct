@@ -1490,8 +1490,8 @@ void VulkanStateWriter::BeginAccelerationStructuresSection(format::HandleId devi
     begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
     begin_cmd.meta_header.meta_data_id =
         format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
-    begin_cmd.thread_id         = thread_data_->thread_id_;
-    begin_cmd.device_id         = device_id;
+    begin_cmd.thread_id       = thread_data_->thread_id_;
+    begin_cmd.device_id       = device_id;
     begin_cmd.total_copy_size = max_resource_size;
     // Our buffers should not need staging copy as the memory should be host visible and coherent
     begin_cmd.max_copy_size = 0;
@@ -2756,7 +2756,8 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                                                VkDeviceSize*           max_staging_copy_size,
                                                bool                    write_memory_state)
 {
-    GFXRECON_ASSERT((resources != nullptr) && (total_staging_copy_size != nullptr) && (max_staging_copy_size != nullptr));
+    GFXRECON_ASSERT((resources != nullptr) && (total_staging_copy_size != nullptr) &&
+                    (max_staging_copy_size != nullptr));
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
