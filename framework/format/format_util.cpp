@@ -21,15 +21,28 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include <regex>
+#include <string>
+
 #include "format/format_util.h"
 
 #include "util/logging.h"
 #include "util/lz4_compressor.h"
 #include "util/zlib_compressor.h"
 #include "util/zstd_compressor.h"
+#include "util/strings.h"
+
+#include <nlohmann/json.hpp>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
+
+// Utilities for format validation.
+static bool VersionSupported(const FileHeader& header)
+{
+    auto file_version = GFXRECON_MAKE_FILE_VERSION(header.major_version, header.minor_version);
+    return file_version <= GFXRECON_CURRENT_FILE_VERSION;
+}
 
 bool ValidateFileHeader(const FileHeader& header)
 {
@@ -40,9 +53,16 @@ bool ValidateFileHeader(const FileHeader& header)
         GFXRECON_LOG_ERROR("Invalid file: File header does not contain the expected unrecognized four character code.");
         valid = false;
     }
+    else if (!VersionSupported(header))
+    {
 
-    // TODO: Verify version is supported.
-
+        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%",
+                           header.major_version,
+                           header.minor_version,
+                           GFXRECON_CURRENT_FILE_MAJOR,
+                           GFXRECON_CURRENT_FILE_MINOR);
+        valid = false;
+    }
     return valid;
 }
 
@@ -130,5 +150,56 @@ const char* ToString(BlockType type)
     }
     return "INVALID BLOCK TYPE";
 }
+
+static GfxrVersion ParseVersionFromString(const std::string version_string)
+{
+    const char* version_regex_string =
+        R"(^\"(\d+)\.(\d+)\.(\d+)(?:-([\w-]+))?\s*\((?:[\w.-]+:)?([a-fA-F0-9]+)\*?[^)]*\)(?:\s*(.*))?\"$)";
+    const std::regex version_regex(version_regex_string);
+    std::smatch      match_groups;
+    GfxrVersion      version;
+    if (std::regex_search(version_string, match_groups, version_regex))
+    {
+        const std::string& major = match_groups[1].str();
+        const std::string& minor = match_groups[2].str();
+        const std::string& patch = match_groups[3].str();
+        const std::string& tag   = match_groups[4].str();
+        const std::string& sha   = match_groups[5].str();
+        bool               valid = true;
+        valid &= util::strings::StringToU32(major, version.major);
+        valid &= util::strings::StringToU32(minor, version.minor);
+        valid &= util::strings::StringToU32(patch, version.patch);
+        version.tag   = tag;
+        version.sha   = sha;
+        version.valid = valid;
+    }
+    return version;
+}
+
+GfxrVersion ParseVersionFromOperations(const char* operations)
+{
+    nlohmann::json json_obj = nlohmann::json::parse(operations);
+
+    if (!json_obj.is_discarded())
+    {
+        auto search_result_iterator = json_obj.find(kOperationAnnotationGfxreconstructVersion);
+        if (search_result_iterator != json_obj.end())
+        {
+            const nlohmann::json& value = *search_result_iterator;
+            if (value.is_string())
+            {
+                return ParseVersionFromString(value.dump());
+            }
+        }
+    }
+    return GfxrVersion();
+}
+
+bool GfxrVersion::SupportsFrameMarkers() const
+{
+    // Supported from 1.0.1 and later builds
+    return valid && ((major > 1)) || ((major == 1) && ((minor > 0) || (patch > 0)));
+}
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
