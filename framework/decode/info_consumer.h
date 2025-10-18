@@ -35,6 +35,9 @@ class InfoConsumer
   public:
     InfoConsumer() {}
     InfoConsumer(bool short_version) { short_version_ = short_version; }
+    struct NoMaxBlockTag
+    {};
+    InfoConsumer(const NoMaxBlockTag&) { no_max_block_ = true; }
     const std::string GetAppExeName() const { return exe_info.AppName; }
     const uint32_t*   GetAppVersion() const { return exe_info.AppVersion; }
     const char*       GetCompanyName() const { return exe_info.CompanyName; }
@@ -65,7 +68,11 @@ class InfoConsumer
 
     bool IsComplete(uint64_t current_block_index)
     {
-        if (short_version_ == true)
+        if (no_max_block_)
+        {
+            return false;
+        }
+        else if (short_version_ == true)
         {
             return (current_block_index >= MaxBlockIdx) || (found_exe_info_ && found_driver_info_);
         }
@@ -85,6 +92,7 @@ class InfoConsumer
     static int const                   MaxBlockIdx                                               = 50;
     char                               driver_info[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};
     bool                               short_version_{ false };
+    bool                               no_max_block_{ false };
     bool                               found_driver_info_{ false };
     gfxrecon::util::filepath::FileInfo exe_info = {};
     bool                               found_exe_info_{ false };

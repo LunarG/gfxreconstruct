@@ -1,6 +1,7 @@
 add_subdirectory(replay)
 add_subdirectory(compress)
 add_subdirectory(info)
+add_subdirectory(file_version_patch)
 
 if(GFXRECON_TOCPP_SUPPORT)
 add_subdirectory(tocpp)
