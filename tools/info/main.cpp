@@ -76,9 +76,11 @@ const char kVersionOption[]     = "--version";
 const char kNoDebugPopup[]      = "--no-debug-popup";
 const char kExeInfoOnlyOption[] = "--exe-info-only";
 const char kEnvVarsOnlyOption[] = "--env-vars-only";
+const char kFileFormatOnlyOption[] = "--file-format-only";
 const char kEnumGpuIndices[]    = "--enum-gpu-indices";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--enum-gpu-indices";
+const char kOptions[] =
+    "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--enum-gpu-indices";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -156,6 +158,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
     GFXRECON_WRITE_CONSOLE("  --exe-info-only\tQuickly exit after extracting captured application's executable name");
+    GFXRECON_WRITE_CONSOLE("  --file-format-only\tQuickly exit after extracting file format information");
     GFXRECON_WRITE_CONSOLE(
         "  --env-vars-only\tQuickly exit after extracting captured application's environment variables");
 #if defined(WIN32) && defined(_DEBUG)
@@ -314,6 +317,14 @@ void PrintAnnotations(uint32_t                          annotation_count,
     }
 }
 
+void PrintFileFormatInfo(const gfxrecon::decode::FileProcessor& file_processor)
+{
+    const gfxrecon::format::FileHeader& file_header = file_processor.GetFileHeader();
+    GFXRECON_WRITE_CONSOLE("\tFile format version: %u.%u", file_header.major_version, file_header.minor_version);
+    const char* frame_marker_type = file_processor.UsesFrameMarkers() ? "explicit" : "implicit";
+    GFXRECON_WRITE_CONSOLE("\tFrame delimiters: %s", frame_marker_type);
+}
+
 void PrintDriverInfo(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
 {
     GFXRECON_WRITE_CONSOLE("");
@@ -372,6 +383,33 @@ void GatherAndPrintExeInfo(const std::string& input_filename)
     }
 }
 
+void GatherFileFormatInfo(gfxrecon::decode::FileProcessor& file_processor,
+                          gfxrecon::decode::InfoConsumer&  info_consumer)
+{
+    gfxrecon::decode::InfoDecoder info_decoder;
+    info_decoder.AddConsumer(&info_consumer);
+    file_processor.AddDecoder(&info_decoder);
+    bool success = file_processor.ProcessNextFrame();
+    if (success && !file_processor.UsesFrameMarkers())
+    {
+        file_processor.ProcessNextFrame();
+    }
+}
+
+// A short pass to get file format info. Only processes the first two frames of a capture file.
+void GatherAndPrintFileFormatInfo(const std::string& input_filename)
+{
+    const gfxrecon::decode::InfoConsumer::NoMaxBlockTag no_max_tag;
+    gfxrecon::decode::InfoConsumer                      info_consumer(no_max_tag);
+    gfxrecon::decode::FileProcessor                     file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        GatherFileFormatInfo(file_processor, info_consumer);
+        GFXRECON_WRITE_CONSOLE("File format info:");
+        PrintFileFormatInfo(file_processor);
+    }
+}
+
 #if ENABLE_OPENXR_SUPPORT
 void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
@@ -403,6 +441,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
     {
         GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
+
         gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
 
         auto file_options = file_processor.GetFileOptions();
@@ -442,6 +481,8 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
                                    trim_start_frame,
                                    trim_start_frame + frame_count - 1);
         }
+
+        PrintFileFormatInfo(file_processor);
 
         // Application info.
         uint32_t api_version = vulkan_stats_consumer.GetApiVersion();
@@ -680,7 +721,8 @@ void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     }
 }
 
-void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
+void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
+                     gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                      const ApiAgnosticStats&              api_agnostic_stats,
                      gfxrecon::decode::InfoConsumer&      info_consumer,
                      const AnnotationRecorder&            annotation_recoder)
@@ -723,6 +765,8 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
         {
             GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
         }
+
+        PrintFileFormatInfo(file_processor);
 
         PrintDriverInfo(info_consumer);
 
@@ -907,7 +951,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 #if defined(D3D12_SUPPORT)
             if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
             {
-                PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+                PrintD3D12Stats(file_processor, dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
             }
 #endif
 #if ENABLE_OPENXR_SUPPORT
@@ -972,6 +1016,10 @@ int main(int argc, const char** argv)
     else if (arg_parser.IsOptionSet(kEnvVarsOnlyOption))
     {
         GatherAndPrintEnvVars(input_filename);
+    }
+    else if (arg_parser.IsOptionSet(kFileFormatOnlyOption))
+    {
+        GatherAndPrintFileFormatInfo(input_filename);
     }
     else
     {

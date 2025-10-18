@@ -31,6 +31,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
 
+// Utilities for format validation.
+static bool VersionSupported(const FileHeader& header)
+{
+    auto file_version = GFXRECON_MAKE_FILE_VERSION(header.major_version, header.minor_version);
+    return file_version <= GFXRECON_CURRENT_FILE_VERSION;
+}
+
 bool ValidateFileHeader(const FileHeader& header)
 {
     bool valid = true;
@@ -40,9 +47,16 @@ bool ValidateFileHeader(const FileHeader& header)
         GFXRECON_LOG_ERROR("Invalid file: File header does not contain the expected unrecognized four character code.");
         valid = false;
     }
+    else if (!VersionSupported(header))
+    {
 
-    // TODO: Verify version is supported.
-
+        GFXRECON_LOG_ERROR("Invalid file: File format version %u.%u later than currently supported version %u.%",
+                           header.major_version,
+                           header.minor_version,
+                           GFXRECON_CURRENT_FILE_MAJOR,
+                           GFXRECON_CURRENT_FILE_MINOR);
+        valid = false;
+    }
     return valid;
 }
 

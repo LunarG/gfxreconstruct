@@ -321,19 +321,25 @@ bool FileProcessor::ContinueDecoding()
 bool FileProcessor::ProcessFileHeader()
 {
     bool               success = false;
-    format::FileHeader file_header{};
+    file_header_               = format::FileHeader();
 
     assert(file_stack_.front().active_file);
 
-    if (ReadBytes(&file_header, sizeof(file_header)))
+    if (ReadBytes(&file_header_, sizeof(file_header_)))
     {
-        success = format::ValidateFileHeader(file_header);
+        success = format::ValidateFileHeader(file_header_);
 
         if (success)
         {
-            file_options_.resize(file_header.num_options);
+            auto file_version = GFXRECON_MAKE_FILE_VERSION(file_header_.major_version, file_header_.minor_version);
+            if (file_version >= GFXRECON_EXPLICIT_FRAME_MARKER_FILE_VERSION)
+            {
+                capture_uses_frame_markers_ = true;
+            }
 
-            size_t option_data_size = file_header.num_options * sizeof(format::FileOptionPair);
+            file_options_.resize(file_header_.num_options);
+
+            size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
 
             success = ReadBytes(file_options_.data(), option_data_size);
 

@@ -1387,8 +1387,8 @@ void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
 
     format::FileHeader file_header;
     file_header.fourcc        = GFXRECON_FOURCC;
-    file_header.major_version = 0;
-    file_header.minor_version = 0;
+    file_header.major_version = GFXRECON_CURRENT_FILE_MAJOR;
+    file_header.minor_version = GFXRECON_CURRENT_FILE_MINOR;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
     CombineAndWriteToFile({ { &file_header, sizeof(file_header) },

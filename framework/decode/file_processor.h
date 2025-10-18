@@ -200,6 +200,7 @@ class FileProcessor
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     void SetPrintBlockInfoFlag(bool enable_print_block_info, int64_t block_index_from, int64_t block_index_to)
     {
@@ -344,6 +345,7 @@ class FileProcessor
     bool                                loading_trimmed_capture_state_;
 
     std::string absolute_path_;
+    format::FileHeader file_header_;
 
   protected:
     struct ActiveFileContext
