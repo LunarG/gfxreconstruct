@@ -92,11 +92,11 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
 
     memory_properties_ = memory_properties;
 
-    // limit staging-buffer to 128Mb
-    constexpr VkDeviceSize staging_buffer_max_size = 128U << 20U;
-
-    // determine/confirm a sane size for the staging-buffer
-    staging_buffer_size_ = std::clamp<VkDeviceSize>(total_copy_size, max_copy_size, staging_buffer_max_size);
+    // determine sane size for the staging-buffer, set boundary to max(max_copy, 128Mb)
+    // set a minimum size, used for captures that do not report 'total_copy_size'  (total_copy_size == max_copy_size)
+    VkDeviceSize staging_buffer_min = std::max<VkDeviceSize>(max_copy_size, 32U << 20U);
+    VkDeviceSize staging_buffer_max = std::max<VkDeviceSize>(staging_buffer_min, 128U << 20U);
+    staging_buffer_size_            = std::clamp(total_copy_size, staging_buffer_min, staging_buffer_max);
 
     VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
