@@ -49,7 +49,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// WIP WIP WIP Enable memory mapped file support on Windows platforms.
+// TODO: Test and enable on POSIX platforms.
+#ifdef WIN32
+// Currently, memory mapped file support is only tested Windows platforms.
+// A POSIX implementation has been sketched, but not even compile tested.
+using FileInputStream = util::MappedFileInputStream;
+#else
 using FileInputStream    = util::FStreamFileInputStream;
+#endif
+
 using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
 
 class FileProcessor;
