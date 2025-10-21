@@ -476,7 +476,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     dumped_image.dumped_format  = dst_format;
 
     const VkImageSubresourceRange modified_subresource_range =
-        ConvertRemainingToSpecificNumber(subresource_range, image_info);
+        FilterImageSubresourceRange(subresource_range, image_info);
 
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
