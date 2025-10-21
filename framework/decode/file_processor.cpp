@@ -61,24 +61,24 @@ bool BlockBuffer::ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const
     return false;
 }
 
-util::DataSpan BlockBuffer::ReadSpan(size_t buffer_size)
+BlockBuffer::BlockSpan BlockBuffer::ReadSpan(size_t buffer_size)
 {
-    util::DataSpan read_span = ReadSpanAt(buffer_size, read_pos_);
-    if (read_span.IsValid())
+    BlockSpan read_span = ReadSpanAt(buffer_size, read_pos_);
+    if (!read_span.empty())
     {
         read_pos_ += read_span.size();
     }
     return read_span;
 }
 
-util::DataSpan BlockBuffer::ReadSpanAt(size_t buffer_size, size_t at)
+BlockBuffer::BlockSpan BlockBuffer::ReadSpanAt(size_t buffer_size, size_t at)
 {
     if (IsAvailableAt(buffer_size, at))
     {
         // Create a borrowed data span from our private buffer
-        return util::DataSpan(block_span_.data() + at, buffer_size);
+        return BlockSpan(block_span_.data() + at, buffer_size);
     }
-    return util::DataSpan();
+    return BlockSpan();
 }
 
 // Create a block buffer from a block data span
@@ -651,19 +651,19 @@ bool FileProcessor::PeekBlockHeader(format::BlockHeader* block_header)
     return success;
 }
 
-util::DataSpan FileProcessor::ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size)
+BlockBuffer::BlockSpan FileProcessor::ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size)
 {
     return block_buffer.ReadSpan(buffer_size);
 }
 
-util::DataSpan FileProcessor::ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                            size_t       compressed_buffer_size,
-                                                            size_t       expected_uncompressed_size)
+BlockBuffer::BlockSpan FileProcessor::ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
+                                                                    size_t       compressed_buffer_size,
+                                                                    size_t       expected_uncompressed_size)
 {
     // This should only be null if initialization failed.
     GFXRECON_ASSERT(compressor_ != nullptr);
 
-    util::DataSpan compressed_span = block_buffer.ReadSpan(compressed_buffer_size);
+    BlockBuffer::BlockSpan compressed_span = block_buffer.ReadSpan(compressed_buffer_size);
     if (!compressed_span.empty())
     {
         // Resize the buffer
@@ -673,15 +673,16 @@ util::DataSpan FileProcessor::ReadCompressedParameterBuffer(BlockBuffer& block_b
         }
 
         size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
-                                                           compressed_span.GetDataAs<uint8_t>(),
+                                                           reinterpret_cast<const uint8_t*>(compressed_span.data()),
                                                            expected_uncompressed_size,
-                                                           &uncompressed_buffer_);
+                                                           uncompressed_buffer_.data());
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
-            return util::DataSpan(reinterpret_cast<const char*>(uncompressed_buffer_.data()), uncompressed_size);
+            return BlockBuffer::BlockSpan(reinterpret_cast<const std::byte*>(uncompressed_buffer_.data()),
+                                          uncompressed_size);
         }
     }
-    return util::DataSpan();
+    return BlockBuffer::BlockSpan();
 }
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
@@ -829,6 +830,7 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
 {
     const format::BlockHeader& block_header = block_buffer.Header();
 
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info{ block_index_ };
@@ -838,7 +840,7 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
     {
         parameter_buffer_size -= sizeof(call_info.thread_id);
 
-        util::DataSpan parameter_data;
+        BlockBuffer::BlockSpan parameter_data;
         if (format::IsBlockCompressed(block_header.type))
         {
             parameter_buffer_size -= sizeof(uncompressed_size);
@@ -847,14 +849,14 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
             if (success)
             {
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
-                parameter_data = ReadCompressedParameterBuffer(
-                    block_buffer, parameter_buffer_size, static_cast<size_t>(uncompressed_size));
-                success = parameter_data.IsValid();
+                const size_t data_size = static_cast<size_t>(uncompressed_size);
+                parameter_data         = ReadCompressedParameterBuffer(block_buffer, parameter_buffer_size, data_size);
+                success                = parameter_data.size() == data_size;
 
                 if (success)
                 {
-                    assert(parameter_data.Size() == uncompressed_size);
-                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                    assert(parameter_data.size() == data_size);
+                    parameter_buffer_size = data_size;
                 }
                 else
                 {
@@ -871,7 +873,7 @@ bool FileProcessor::ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCa
         else
         {
             parameter_data = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-            success        = parameter_data.IsValid();
+            success        = parameter_data.size() == parameter_buffer_size;
 
             if (!success)
             {
@@ -926,7 +928,7 @@ bool FileProcessor::ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCall
     {
         parameter_buffer_size -= (sizeof(object_id) + sizeof(call_info.thread_id));
 
-        util::DataSpan parameter_data;
+        BlockBuffer::BlockSpan parameter_data;
         if (format::IsBlockCompressed(block_header.type))
         {
             parameter_buffer_size -= sizeof(uncompressed_size);
@@ -935,14 +937,13 @@ bool FileProcessor::ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCall
             if (success)
             {
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
-
-                parameter_data = ReadCompressedParameterBuffer(
-                    block_buffer, parameter_buffer_size, static_cast<size_t>(uncompressed_size));
-                success = parameter_data.IsValid();
+                const size_t data_size = static_cast<size_t>(uncompressed_size);
+                parameter_data         = ReadCompressedParameterBuffer(block_buffer, parameter_buffer_size, data_size);
+                success                = parameter_data.size() == data_size;
 
                 if (success)
                 {
-                    assert(parameter_data.Size() == uncompressed_size);
+                    assert(parameter_data.size() == uncompressed_size);
                     parameter_buffer_size = static_cast<size_t>(uncompressed_size);
                 }
                 else
@@ -960,7 +961,7 @@ bool FileProcessor::ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCall
         else
         {
             parameter_data = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-            success        = parameter_data.IsValid();
+            success        = parameter_data.size() == parameter_buffer_size;
 
             if (!success)
             {
@@ -1020,8 +1021,9 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         if (success)
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
+            const size_t memory_size = static_cast<size_t>(header.memory_size);
 
-            util::DataSpan parameter_data;
+            BlockBuffer::BlockSpan parameter_data;
             if (format::IsBlockCompressed(block_header.type))
             {
                 size_t uncompressed_size = 0;
@@ -1029,14 +1031,13 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
                                          sizeof(header.thread_id) - sizeof(header.memory_id) -
                                          sizeof(header.memory_offset) - sizeof(header.memory_size);
 
-                parameter_data = ReadCompressedParameterBuffer(
-                    block_buffer, compressed_size, static_cast<size_t>(header.memory_size));
+                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, memory_size);
             }
             else
             {
-                parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.memory_size));
+                parameter_data = ReadParameterBuffer(block_buffer, memory_size);
             }
-            success = parameter_data.IsValid();
+            success = parameter_data.size() == memory_size;
 
             if (success)
             {
@@ -1079,23 +1080,25 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         if (success)
         {
-            uint64_t data_size = header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+            // Uncompressed parameter_data size is computed and not encoded.
+            uint64_t parameter_data_size =
+                header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, parameter_data_size);
+            const size_t data_size = static_cast<size_t>(parameter_data_size);
 
-            util::DataSpan parameter_data;
+            BlockBuffer::BlockSpan parameter_data;
             if (format::IsBlockCompressed(block_header.type))
             {
-                size_t uncompressed_size = 0;
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_data_id) -
                                          sizeof(header.thread_id) - sizeof(header.resource_value_count);
-                size_t uncompressed_data = static_cast<size_t>(data_size);
-                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, uncompressed_data);
+                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
             }
             else
             {
-                parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(data_size));
+                parameter_data = ReadParameterBuffer(block_buffer, data_size);
             }
-            success = parameter_data.IsValid();
+            success = parameter_data.size() == data_size;
 
             if (success)
             {
@@ -1241,13 +1244,13 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             uint64_t message_size = block_header.size - sizeof(meta_data_id) - sizeof(header.thread_id);
 
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, message_size);
-
-            util::DataSpan parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(message_size));
-            success                       = parameter_data.IsValid();
+            const size_t           data_size      = static_cast<size_t>(message_size);
+            BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, data_size);
+            success                               = parameter_data.size() == data_size;
 
             if (success)
             {
-                auto        message_start = parameter_data.GetData();
+                const char* message_start = parameter_data.GetDataAs<char>();
                 std::string message(message_start, std::next(message_start, static_cast<size_t>(message_size)));
 
                 for (auto decoder : decoders_)
@@ -1699,11 +1702,13 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         success = success && block_buffer.Read(header.data_size);
 
         // Read variable size shader group handle data into parameter_data.
-        util::DataSpan parameter_data;
+        BlockBuffer::BlockSpan parameter_data;
         if (success)
         {
-            parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.data_size));
-            success        = parameter_data.IsValid();
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+            size_t data_size = static_cast<size_t>(header.data_size);
+            parameter_data   = ReadParameterBuffer(block_buffer, static_cast<size_t>(data_size));
+            success          = parameter_data.size() == data_size;
         }
 
         if (success)
@@ -1847,22 +1852,22 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         if (success)
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+            const size_t data_size = static_cast<size_t>(header.data_size);
 
-            util::DataSpan parameter_data;
+            BlockBuffer::BlockSpan parameter_data;
             if (format::IsBlockCompressed(block_header.type))
             {
-                size_t uncompressed_size = 0;
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 size_t compressed_size =
                     static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
 
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, static_cast<size_t>(header.data_size));
+                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
             }
             else
             {
-                parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.data_size));
+                parameter_data = ReadParameterBuffer(block_buffer, data_size);
             }
-            success = parameter_data.IsValid();
+            success = parameter_data.size() == data_size;
 
             if (success)
             {
@@ -1916,27 +1921,26 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
                 success && block_buffer.ReadBytes(level_sizes.data(), header.level_count * sizeof(level_sizes[0]));
         }
 
-        util::DataSpan parameter_data;
+        BlockBuffer::BlockSpan parameter_data;
         if (success && (header.data_size > 0))
         {
             assert(header.data_size == std::accumulate(level_sizes.begin(), level_sizes.end(), 0ull));
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+            const size_t data_size = static_cast<size_t>(header.data_size);
 
             if (format::IsBlockCompressed(block_header.type))
             {
-                size_t uncompressed_size = 0;
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 size_t compressed_size   = static_cast<size_t>(block_header.size) -
                                          (sizeof(header) - sizeof(header.meta_header.block_header)) -
                                          (level_sizes.size() * sizeof(level_sizes[0]));
-
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, static_cast<size_t>(header.data_size));
+                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
             }
             else
             {
-                parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.data_size));
+                parameter_data = ReadParameterBuffer(block_buffer, data_size);
             }
-            success = parameter_data.IsValid();
+            success = parameter_data.size() == data_size;
         }
 
         if (success)
@@ -1985,22 +1989,22 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
         if (success)
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+            const size_t data_size = static_cast<size_t>(header.data_size);
 
-            util::DataSpan parameter_data;
+            BlockBuffer::BlockSpan parameter_data;
             if (format::IsBlockCompressed(block_header.type))
             {
-                size_t uncompressed_size = 0;
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 size_t compressed_size =
                     static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
 
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, static_cast<size_t>(header.data_size));
+                parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
             }
             else
             {
-                parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.data_size));
+                parameter_data = ReadParameterBuffer(block_buffer, data_size);
             }
-            success = parameter_data.IsValid();
+            success = parameter_data.size() == data_size;
 
             if (success)
             {
@@ -2067,29 +2071,29 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             }
         }
 
-        util::DataSpan parameter_data;
+        BlockBuffer::BlockSpan parameter_data;
         if (success)
         {
             if (header.inputs_data_size > 0)
             {
                 GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.inputs_data_size);
+                const size_t data_size = static_cast<size_t>(header.inputs_data_size);
 
                 if (format::IsBlockCompressed(block_header.type))
                 {
-                    size_t uncompressed_size = 0;
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     size_t compressed_size =
                         static_cast<size_t>(block_header.size) -
                         (sizeof(header) - sizeof(header.meta_header.block_header)) -
                         (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * header.inputs_num_geometry_descs);
 
-                    parameter_data = ReadCompressedParameterBuffer(
-                        block_buffer, compressed_size, static_cast<size_t>(header.inputs_data_size));
+                    parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
                 }
                 else
                 {
-                    parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.inputs_data_size));
+                    parameter_data = ReadParameterBuffer(block_buffer, data_size);
                 }
-                success = parameter_data.IsValid();
+                success = parameter_data.size() == data_size;
             }
 
             if (success)
@@ -2234,15 +2238,18 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
             return success;
         }
 
-        util::DataSpan parameter_data = ReadParameterBuffer(block_buffer, static_cast<size_t>(header.string_length));
-        success                       = parameter_data.IsValid();
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
+        const size_t           data_size      = static_cast<size_t>(header.string_length);
+        BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, data_size);
+        success                               = parameter_data.size() == data_size;
+
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
             return success;
         }
 
-        const char* env_string = parameter_data.GetData();
+        const char* env_string = parameter_data.GetDataAs<char>();
         for (auto decoder : decoders_)
         {
             decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
@@ -2251,9 +2258,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kVulkanBuildAccelerationStructuresCommand)
     {
         format::VulkanMetaBuildAccelerationStructuresHeader header{};
-        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        util::DataSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-        success                              = parameter_data.IsValid();
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
         {
@@ -2279,9 +2287,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kVulkanCopyAccelerationStructuresCommand)
     {
         format::VulkanCopyAccelerationStructuresCommandHeader header{};
-        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        util::DataSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-        success                              = parameter_data.IsValid();
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
         {
@@ -2302,9 +2311,10 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
     else if (meta_data_type == format::MetaDataType::kVulkanWriteAccelerationStructuresPropertiesCommand)
     {
         format::VulkanCopyAccelerationStructuresCommandHeader header{};
-        size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        util::DataSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-        success                              = parameter_data.IsValid();
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
+        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
         {
@@ -2408,26 +2418,25 @@ bool FileProcessor::ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataI
 
         if (success)
         {
-            util::DataSpan parameter_data;
+            BlockBuffer::BlockSpan parameter_data;
 
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.initialization_parameters_data_size);
             if (header.initialization_parameters_data_size > 0)
             {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.initialization_parameters_data_size);
+                const size_t data_size = static_cast<size_t>(header.initialization_parameters_data_size);
                 if (format::IsBlockCompressed(block_header.type))
                 {
-                    size_t uncompressed_size = 0;
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                     size_t compressed_size   = static_cast<size_t>(block_header.size) -
                                              (sizeof(header) - sizeof(header.meta_header.block_header));
 
-                    parameter_data = ReadCompressedParameterBuffer(
-                        block_buffer, compressed_size, static_cast<size_t>(header.initialization_parameters_data_size));
+                    parameter_data = ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size);
                 }
                 else
                 {
-                    parameter_data = ReadParameterBuffer(
-                        block_buffer, static_cast<size_t>(header.initialization_parameters_data_size));
+                    parameter_data = ReadParameterBuffer(block_buffer, data_size);
                 }
-                success = parameter_data.IsValid();
+                success = parameter_data.size() == data_size;
             }
             if (success)
             {
@@ -2600,20 +2609,20 @@ bool FileProcessor::ProcessAnnotation(BlockBuffer& block_buffer, format::Annotat
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
             const size_t total_length = static_cast<size_t>(size_sum);
 
-            util::DataSpan parameter_data = ReadParameterBuffer(block_buffer, total_length);
-            success                       = parameter_data.IsValid();
+            BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, total_length);
+            success                               = parameter_data.size() == total_length;
 
             if (success)
             {
                 if (label_length > 0)
                 {
-                    auto label_start = parameter_data.GetData();
+                    const char* label_start = parameter_data.GetDataAs<char>();
                     label.assign(label_start, std::next(label_start, label_length));
                 }
 
                 if (data_length > 0)
                 {
-                    auto data_start = std::next(parameter_data.GetData(), label_length);
+                    const char* data_start = std::next(parameter_data.GetDataAs<char>(), label_length);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
                     data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }

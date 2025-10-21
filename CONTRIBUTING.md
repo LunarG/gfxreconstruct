@@ -211,7 +211,9 @@ to differentiate the work from other people working in the repo.
 
 Changes to the GFXReconstruct project's C++ code should conform to the coding
 style defined by the
-[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
+[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html). Note the exception in the style guide for "STL-like" types and methods (e.g., `value_type`, 
+`begin`, `end`, `size`) to support concepts, range-based `for`, and `<algorithms>`
+usage.  These classes should conform to STL naming rules for their public interfaces, and should not duplicate types or methods in the Google style.
 
 C++ Code formatting is managed with a custom ClangFormat configuration file.
 This is the `.clang-format` file found at the base of the repo tree.
