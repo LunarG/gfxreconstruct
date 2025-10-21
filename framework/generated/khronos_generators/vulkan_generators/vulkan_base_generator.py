@@ -89,7 +89,7 @@ _remove_extensions = [
 
 # Exclude *video* extensions from code generation.  This excludes all
 # generation of struct and enums under these video extensions
-# TODO: This should probably behave like _remove_extensions 
+# TODO: This should probably behave like _remove_extensions
 _remove_video_extensions = [
     "vulkan_video_codec_h265std",
     "vulkan_video_codec_h265std_decode",
@@ -302,6 +302,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     def endFeature(self):
         """Method override. Generate code for the feature."""
         KhronosBaseGenerator.endFeature(self)
+
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        return True
 
     def gen_video_type(self):
         if not self.VIDEO_TREE:
