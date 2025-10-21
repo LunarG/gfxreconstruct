@@ -25,8 +25,19 @@
 #include "application/metal_context.h"
 #include "application/application.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Welaborated-enum-base"
+#pragma clang diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
+#pragma clang diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#pragma clang diagnostic ignored "-Wavailability"
+#endif
 #include <Carbon/Carbon.h>
 #include <QuartzCore/QuartzCore.h>
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 #if !__has_feature(objc_arc)
 #error "Compile this with -fobjc-arc"

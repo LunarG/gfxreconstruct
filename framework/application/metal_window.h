@@ -26,7 +26,18 @@
 
 #include "decode/window.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Welaborated-enum-base"
+#pragma clang diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
+#pragma clang diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#pragma clang diagnostic ignored "-Wavailability"
+#endif
 #include <AppKit/AppKit.h>
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 @class GFXReconWindowDelegate;
 
