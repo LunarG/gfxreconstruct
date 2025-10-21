@@ -22,6 +22,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/callbacks.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/callbacks.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/clock_cache.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/compiler_diagnostics.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp
