@@ -950,7 +950,11 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
     void* object = nullptr;
     switch (call_id)
     {
+        case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
+        case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
+        case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
         case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
+        case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
             object = GetEventObject(object_id, false);
             break;
         case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:
