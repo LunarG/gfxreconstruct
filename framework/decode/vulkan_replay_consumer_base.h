@@ -1802,8 +1802,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool CheckPipelineCacheUUID(const VulkanDeviceInfo* device_info, const VkPipelineCacheCreateInfo* create_info);
 
-    void LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
-    void SavePipelineCache(format::HandleId id, const VulkanDeviceInfo* device_info, VkPipelineCache pipelineCache);
+    void            LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
+    void            SavePipelineCache(format::HandleId        id,
+                                      VkPipelineCache         vk_cache,
+                                      const VulkanDeviceInfo* device_info,
+                                      std::vector<uint8_t>&   cache_data,
+                                      FILE*                   file);
+    void            FetchPipelineCacheData(const VulkanDeviceInfo* device_info,
+                                           VkPipelineCache         pipelineCache,
+                                           std::vector<uint8_t>&   cache_data);
     VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
     void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
                                           format::HandleId        id,
@@ -1932,8 +1939,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //       the initial cache data has no corresponding replay time cache data.
     bool omitted_pipeline_cache_data_;
 
-    std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
-    std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
+    struct TrackerPipelineCacheData
+    {
+        const VulkanDeviceInfo* device_info{ nullptr };
+        VkPipelineCache         vk_cache{ VK_NULL_HANDLE };
+        std::vector<uint8_t>    cache_data;
+    };
+
+    std::unordered_map<format::HandleId, TrackerPipelineCacheData> tracked_pipeline_caches_;
+    std::unordered_map<VkPipeline, format::HandleId>               pipeline_cache_correspondances_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
