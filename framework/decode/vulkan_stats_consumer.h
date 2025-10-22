@@ -106,6 +106,7 @@ struct VulkanInstanceTracker
     bool                             uses_physical_device_groups{ false };
     std::vector<VkPhysicalDevice>    used_physical_devices;
     std::unordered_set<vk::Extent2D> resolutions;
+    VkInstance                       instance_id;
 };
 
 class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
@@ -188,8 +189,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                     instance_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
                 }
                 VkInstance inst = const_cast<VkInstance>(*reinterpret_cast<const VkInstance*>(pInstance->GetPointer()));
-                instance_info_[inst]   = std::move(instance_tracker);
-                last_created_instance_ = inst;
+                instance_tracker.instance_id = inst;
+                instance_info_[inst]         = std::move(instance_tracker);
+                last_created_instance_       = inst;
             }
         }
     }

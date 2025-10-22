@@ -385,7 +385,7 @@ void PrintFileFormatInfo(const FileFormatInfo& file_format_info, nlohmann::json*
                                         : "implicit";
     if (json_output != nullptr)
     {
-        (*json_output)["capture-file"]["version"] =
+        (*json_output)["capture-file"]["file-version"] =
             std::to_string(file_format_info.major_version) + "." + std::to_string(file_format_info.minor_version);
         (*json_output)["capture-file"]["frame-delimiters"] = frame_marker_type;
     }
@@ -531,8 +531,7 @@ void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processo
         (*json_output)["openxr"]["header-version"] = std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
                                                      std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
                                                      std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
-        (*json_output)["openxr"]["instance-count"] = instance_info.size();
-        (*json_output)["openxr"]["instances"]      = nlohmann::json::array();
+        (*json_output)["openxr"]["instances"] = nlohmann::json::array();
 
         uint32_t       inst_index = 0;
         nlohmann::json instance_array;
@@ -546,7 +545,6 @@ void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processo
             instance_json["application-info"]["engine"]["version"]      = it.second.engine_version;
             instance_json["application-info"]["api-version"]            = GetXrVersionString(it.second.api_version);
 
-            instance_json["extension-count"] = it.second.enabled_extensions.size();
             if (it.second.enabled_extensions.size() > 0)
             {
                 instance_json["extensions"] = nlohmann::json::array();
@@ -652,7 +650,7 @@ bool PrintApiAgnosticStats(const ApiAgnosticStats& api_agnostic_stats,
                            nlohmann::json*         json_output)
 {
     bool success = false;
-    if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
+    if (api_agnostic_stats.error_state == gfxrecon::decode::BlockReadError::kErrorNone)
     {
         // Compression type.
         std::string compression_type_name =
@@ -713,7 +711,7 @@ bool PrintApiAgnosticStats(const ApiAgnosticStats& api_agnostic_stats,
         }
         success = true;
     }
-    else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
+    else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockReadError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
         gfxrecon::util::Log::Release();
@@ -746,8 +744,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
         (*json_output)["vulkan"]["header-version"] = std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
                                                      std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
                                                      std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
-        (*json_output)["vulkan"]["instance-count"] = instance_info.size();
-        (*json_output)["vulkan"]["instances"]      = nlohmann::json::array();
+        (*json_output)["vulkan"]["instances"] = nlohmann::json::array();
 
         uint32_t       inst_index = 0;
         nlohmann::json instance_array;
@@ -761,7 +758,6 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
             instance_json["application-info"]["engine"]["version"]      = it.second.app_info.engine_version;
             instance_json["application-info"]["api-version"] = GetVkVersionString(it.second.app_info.api_version);
 
-            instance_json["extension-count"] = it.second.enabled_extensions.size();
             if (it.second.enabled_extensions.size() > 0)
             {
                 instance_json["extensions"] = nlohmann::json::array();
@@ -778,9 +774,8 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
                                                                            std::to_string(resolution.height));
             }
 
-            instance_json["physical-device-count"] = it.second.used_physical_devices.size();
-            instance_json["physical-devices"]      = nlohmann::json::array();
-            uint32_t pd_index                      = 0;
+            instance_json["physical-devices"] = nlohmann::json::array();
+            uint32_t pd_index                 = 0;
             for (auto pd : it.second.used_physical_devices)
             {
                 nlohmann::json pd_json;
@@ -801,14 +796,12 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
                         gfxrecon::util::uuid_to_string(VK_UUID_SIZE, properties->pipelineCacheUUID);
                     pd_json["uuid"] = uuid_string;
 
-                    pd_json["vulkan-device-count"] = pd_info[pd].devices.size();
-                    pd_json["vulkan-devices"]      = nlohmann::json::array();
+                    pd_json["vulkan-devices"] = nlohmann::json::array();
 
                     for (auto dev : pd_info[pd].devices)
                     {
                         nlohmann::json dev_json;
 
-                        dev_json["extension-count"] = dev_info[dev].enabled_extensions.size();
                         if (dev_info[dev].enabled_extensions.size() > 0)
                         {
                             dev_json["extensions"] = nlohmann::json::array();
@@ -839,17 +832,42 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
     }
     else
     {
-        auto& last_instance = instance_info[vulkan_stats_consumer.GetLastCreatedInstance()];
+        // Find the best instance (use the last one if nothing else looks good)
+        VkInstance best_instance = vulkan_stats_consumer.GetLastCreatedInstance();
+        uint32_t   max_allocs    = 0;
+        uint32_t   max_pipelines = 0;
+        for (auto& it : instance_info)
+        {
+            uint32_t used_allocs    = 0;
+            uint32_t used_pipelines = 0;
+            for (auto pd : it.second.used_physical_devices)
+            {
+                for (auto dev : pd_info[pd].devices)
+                {
+                    used_allocs += dev_info[dev].allocation_count;
+                    used_pipelines += dev_info[dev].graphics_pipelines + dev_info[dev].compute_pipelines +
+                                      dev_info[dev].raytracing_pipelines;
+                }
+            }
+            if (used_allocs > max_allocs && used_pipelines > max_pipelines)
+            {
+                best_instance = it.second.instance_id;
+                max_allocs    = used_allocs;
+                max_pipelines = used_pipelines;
+            }
+        }
+        auto& best_instance_info = instance_info[best_instance];
+
         GFXRECON_WRITE_CONSOLE("\nVulkan application info:");
-        GFXRECON_WRITE_CONSOLE("\tApplication name:    %s", last_instance.app_info.app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("\tApplication version: %u", last_instance.app_info.app_version);
-        GFXRECON_WRITE_CONSOLE("\tEngine name:         %s", last_instance.app_info.engine_name.c_str());
-        GFXRECON_WRITE_CONSOLE("\tEngine version:      %u", last_instance.app_info.engine_version);
+        GFXRECON_WRITE_CONSOLE("\tApplication name:    %s", best_instance_info.app_info.app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("\tApplication version: %u", best_instance_info.app_info.app_version);
+        GFXRECON_WRITE_CONSOLE("\tEngine name:         %s", best_instance_info.app_info.engine_name.c_str());
+        GFXRECON_WRITE_CONSOLE("\tEngine version:      %u", best_instance_info.app_info.engine_version);
         GFXRECON_WRITE_CONSOLE("\tTarget API version:  %u (%s)",
-                               last_instance.app_info.api_version,
-                               GetVkVersionString(last_instance.app_info.api_version).c_str());
+                               best_instance_info.app_info.api_version,
+                               GetVkVersionString(best_instance_info.app_info.api_version).c_str());
         std::string resolutions = "\tUsed resolutions:    ";
-        for (const auto& resolution : last_instance.resolutions)
+        for (const auto& resolution : best_instance_info.resolutions)
         {
             resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
         }
@@ -857,7 +875,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
 
         GFXRECON_WRITE_CONSOLE("\nVulkan physical device info:");
         uint32_t pd_index = 0;
-        for (auto pd : last_instance.used_physical_devices)
+        for (auto pd : best_instance_info.used_physical_devices)
         {
             auto properties =
                 vulkan_stats_consumer.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
@@ -986,20 +1004,20 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nl
 
             if (json_output != nullptr)
             {
-                nlohmann::json adapter;
-                adapter["description"]["details"]          = gfxrecon::util::WCharArrayToString(adapter.Description);
-                adapter["description"]["workload-percent"] = adapter_workload_pct;
-                adapter["vendor-id"]                       = adapter.VendorId;
-                adapter["device-id"]                       = adapter.DeviceId;
-                adapter["subsys-id"]                       = adapter.SubSysId;
-                adapter["revision"]                        = adapter.Revision;
-                adapter["memory"]["dedicated"]["video"]    = adapter.DedicatedVideoMemory;
-                adapter["memory"]["dedicated"]["system"]   = adapter.DedicatedSystemMemory;
-                adapter["memory"]["shared"]                = adapter.SharedSystemMemory;
-                adapter["memory"]["luid"]["low"]           = adapter.LuidLowPart;
-                adapter["memory"]["luid"]["high"]          = adapter.LuidHighPart;
-                adapter["adapter-type"]                    = adapter_type;
-                (*json_output)["adapters"].push_back(adapter);
+                nlohmann::json json_adapter;
+                json_adapter["description"]["details"] = gfxrecon::util::WCharArrayToString(adapter.Description);
+                json_adapter["description"]["workload-percent"] = adapter_workload_pct;
+                json_adapter["vendor-id"]                       = adapter.VendorId;
+                json_adapter["device-id"]                       = adapter.DeviceId;
+                json_adapter["subsys-id"]                       = adapter.SubSysId;
+                json_adapter["revision"]                        = adapter.Revision;
+                json_adapter["memory"]["dedicated"]["video"]    = adapter.DedicatedVideoMemory;
+                json_adapter["memory"]["dedicated"]["system"]   = adapter.DedicatedSystemMemory;
+                json_adapter["memory"]["shared"]                = adapter.SharedSystemMemory;
+                json_adapter["memory"]["luid"]["low"]           = adapter.LuidLowPart;
+                json_adapter["memory"]["luid"]["high"]          = adapter.LuidHighPart;
+                json_adapter["adapter-type"]                    = adapter_type;
+                (*json_output)["adapters"].push_back(json_adapter);
             }
             else
             {
@@ -1182,7 +1200,7 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
             {
                 for (auto adapter : adapters)
                 {
-                    PrintEnvironmentVariableInfo if (index == adapter.second.adapter_idx)
+                    if (index == adapter.second.adapter_idx)
                     {
                         std::string replay_adapter_str =
                             gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
