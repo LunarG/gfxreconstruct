@@ -2940,18 +2940,15 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             // method requires the buffer to be bound to a single range of a single memory, which is not applicable for
             // sparse buffers. Therefore, we set the two values to use staging copy for dumping sparse buffers.
             snapshot_info.memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            snapshot_info.need_staging_copy = true; // Staging copy is needed for sparse buffer.
 
-            if ((*total_staging_copy_size) < wrapper->size)
-            {
-                (*total_staging_copy_size) = wrapper->size;
-            }
+            // Staging copy is needed for sparse buffer.
+            snapshot_info.need_staging_copy = true;
+            (*total_staging_copy_size) += wrapper->size;
 
-            if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->size))
+            if ((*max_staging_copy_size) < wrapper->size)
             {
                 (*max_staging_copy_size) = wrapper->size;
             }
-
             snapshot_entry.buffers.emplace_back(snapshot_info);
         }
     });
