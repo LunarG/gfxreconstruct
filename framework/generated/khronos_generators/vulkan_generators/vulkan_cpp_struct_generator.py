@@ -190,11 +190,6 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
         self.is_header = genOpts.is_header
         self.newline()
 
-    def need_feature_generation(self):
-        if self.struct_names:
-            return True
-        return False
-
     def is_union(self, value):
         if value not in self.registry.typedict:
             return False
@@ -441,7 +436,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
             structBuild += makeGenVar(strArrayName, None, handleObjectType, locals(), indent, useThis=False)
             space = (' ' * indent)
-            
+
             # If pointer and not just static array
             if not self.isStaticArray(lengths[0]):
                 structBuild += f'{space}if ({struct_prefix}{arg.name} != NULL) {{\n'
@@ -751,7 +746,7 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
                             structBuild += makeGen('std::string variable_name = "NULL";', locals(), indent)
                             space = (' ' * indent)
-                            
+
                             if still_is_pointer:
                                 structBuild += f'{space}{arg_name}{var_suffix} != NULL) {{'
                                 indent = indent + 4

@@ -78,4 +78,3 @@ class VulkanStateTableHeaderGenerator(VulkanBaseGenerator, KhronosStateTableHead
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-    # yapf: enable

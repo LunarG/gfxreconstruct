@@ -351,15 +351,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& valu
         for (size_t i = 0; i < value.regionCount; ++i)
         {
             const auto& region = value.pRegions[i];
-
-            // Calculate how many bytes we need to capture from pHostPointer
-            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
-            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
-            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
-                                   ((region.imageExtent.depth - 1) * image_height);
-            VkDeviceSize texel_size;
-            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
-            size_t host_size = texel_count * texel_size;
+            VkDeviceSize host_size =
+                graphics::GetBufferSizeFromCopyImage(region, image_info->array_layers, image_info->format);
 
             encoder->EncodeEnumValue(region.sType);
             EncodePNextStruct(encoder, region.pNext);
@@ -391,15 +384,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
         for (size_t i = 0; i < value.regionCount; ++i)
         {
             const auto& region = value.pRegions[i];
-
-            // Calculate how many bytes we need to capture from pHostPointer
-            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
-            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
-            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
-                                   ((region.imageExtent.depth - 1) * image_height);
-            VkDeviceSize texel_size;
-            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
-            size_t host_size = texel_count * texel_size;
+            VkDeviceSize host_size =
+                graphics::GetBufferSizeFromCopyImage(region, image_info->array_layers, image_info->format);
 
             encoder->EncodeEnumValue(region.sType);
             EncodePNextStruct(encoder, region.pNext);
