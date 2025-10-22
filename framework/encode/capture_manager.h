@@ -477,8 +477,10 @@ class CommonCaptureManager
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
-    void
-    WriteBeginResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id, uint64_t max_resource_size);
+    void WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
+                                   format::HandleId    device_id,
+                                   uint64_t            total_copy_size,
+                                   uint64_t            max_resource_size);
 
     void WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id);
 

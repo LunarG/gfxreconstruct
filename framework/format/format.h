@@ -487,8 +487,12 @@ struct BeginResourceInitCommand
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     format::HandleId device_id;
-    uint64_t         max_resource_size; // Size of largest resource in upload data set.
-    uint64_t         max_copy_size;     // Size of largest resource requiring a staging copy at capture.
+
+    // sum of all resource-size in bytes.
+    uint64_t total_copy_size;
+
+    // size of single largest resource requiring a staging copy, in bytes.
+    uint64_t max_copy_size;
 };
 
 struct EndResourceInitCommand
