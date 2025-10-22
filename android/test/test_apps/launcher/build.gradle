@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 33
     namespace 'com.lunarg.gfxreconstruct.test.test_apps.test_launcher'
-    ndkVersion '22.1.7171670'
+    ndkVersion '26.3.11579264'
     defaultConfig {
         applicationId "com.lunarg.gfxreconstruct.test.test_apps.test_launcher"
         minSdkVersion 26
