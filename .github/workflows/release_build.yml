@@ -155,10 +155,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Android Release/Debug",
+          - {
+            name: "Android Debug",
             os: ubuntu-latest,
-            artifact: "gfxreconstruct-android"
+            type: "debug",
+            artifact: "gfxreconstruct-android-debug",
+          }
+          - {
+            name: "Android Release",
+            os: ubuntu-latest,
+            type: "release",
+            artifact: "gfxreconstruct-android-release",
           }
     steps:
     - name: Clone repository
@@ -173,7 +180,13 @@ jobs:
     - name: Gradle build
       run: |
         cd android
-        sh gradlew assembleRelease assembleDebug
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          sh gradlew assembleRelease -Parm64-v8a
+          sh gradlew assembleRelease -Parmeabi-v7a
+        else
+          sh gradlew assembleDebug -Parm64-v8a
+        fi
     - name: Prepare artifacts
       run: |
         mkdir gfxreconstruct-dev
@@ -183,9 +196,13 @@ jobs:
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
-        cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        else
+            cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        fi
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
