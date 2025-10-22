@@ -724,6 +724,10 @@ bool PrintApiAgnosticStats(const ApiAgnosticStats& api_agnostic_stats,
     }
     else
     {
+        if (json_output != nullptr)
+        {
+            (*json_output)["capture-file"]["frames"]["total-count"] = 0;
+        }
         GFXRECON_WRITE_CONSOLE("File did not contain any frames");
     }
 
@@ -908,43 +912,57 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
 
     if (file_processor.GetCurrentFrameNumber() == 0)
     {
+        if (json_output != nullptr)
+        {
+            (*json_output)["capture-file"]["frames"]["total-count"] = 0;
+        }
         GFXRECON_WRITE_CONSOLE("\nFile did not contain any frames");
     }
 }
 
 #if defined(D3D12_SUPPORT)
-void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json* json_output)
 {
-    GFXRECON_WRITE_CONSOLE("D3D12 runtime info:");
-
     gfxrecon::format::Dx12RuntimeInfo runtime_info = dx12_consumer.GetDx12RuntimeInfo();
 
-    std::string runtime_src = runtime_info.src;
-    std::string runtime_ver = "";
+    std::string runtime_src = "N/A";
+    std::string runtime_ver = "N/A";
 
     if (runtime_src.empty() == false)
     {
+        runtime_src = runtime_info.src;
         runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
                       std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
-        GFXRECON_WRITE_CONSOLE("\tVersion: %s", runtime_ver.c_str());
-        GFXRECON_WRITE_CONSOLE("\tSource: %s", runtime_src.c_str());
+    }
+
+    if (json_output != nullptr)
+    {
+        (*json_output)["runtime"]["version"] = runtime_ver;
+        (*json_output)["runtime"]["source"]  = runtime_src;
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("\tVersion: N/A");
-        GFXRECON_WRITE_CONSOLE("\tSource: N/A");
+        GFXRECON_WRITE_CONSOLE("D3D12 runtime info:");
+        GFXRECON_WRITE_CONSOLE("\tVersion: %s", runtime_ver.c_str());
+        GFXRECON_WRITE_CONSOLE("\tSource: %s", runtime_src.c_str());
+        GFXRECON_WRITE_CONSOLE("");
     }
-
-    GFXRECON_WRITE_CONSOLE("");
 }
 
-void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json* json_output)
 {
-    GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
+    if (json_output == nullptr)
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
+    }
     const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
 
     if (adapters.empty() == false)
     {
+        if (json_output != nullptr)
+        {
+            (*json_output)["adapters"] = nlohmann::json::array();
+        }
         std::unordered_map<int64_t, std::string> adapter_workload;
         dx12_consumer.CalcAdapterWorkload(adapter_workload, adapters);
 
@@ -969,78 +987,131 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
             std::string adapter_type =
                 AdapterTypeToString(gfxrecon::graphics::dx12::ExtractAdapterType(adapter.extra_info));
 
-            GFXRECON_WRITE_CONSOLE("\tDescription: %s %s",
-                                   gfxrecon::util::WCharArrayToString(adapter.Description).c_str(),
-                                   adapter_workload_pct.c_str());
-            GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", adapter.VendorId);
-            GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", adapter.DeviceId);
-            GFXRECON_WRITE_CONSOLE("\tSubsys ID: 0x%x", adapter.SubSysId);
-            GFXRECON_WRITE_CONSOLE("\tRevision: %u", adapter.Revision);
-            GFXRECON_WRITE_CONSOLE("\tDedicated Video Memory: %" PRIu64, adapter.DedicatedVideoMemory);
-            GFXRECON_WRITE_CONSOLE("\tDedicated System Memory: %" PRIu64, adapter.DedicatedSystemMemory);
-            GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
-            GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
-            GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
-            GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", adapter_type.c_str());
-            GFXRECON_WRITE_CONSOLE("");
+            if (json_output != nullptr)
+            {
+                nlohmann::json adapter;
+                adapter["description"]["details"]          = gfxrecon::util::WCharArrayToString(adapter.Description);
+                adapter["description"]["workload-percent"] = adapter_workload_pct;
+                adapter["vendor-id"]                       = adapter.VendorId;
+                adapter["device-id"]                       = adapter.DeviceId;
+                adapter["subsys-id"]                       = adapter.SubSysId;
+                adapter["revision"]                        = adapter.Revision;
+                adapter["memory"]["dedicated"]["video"]    = adapter.DedicatedVideoMemory;
+                adapter["memory"]["dedicated"]["system"]   = adapter.DedicatedSystemMemory;
+                adapter["memory"]["shared"]                = adapter.SharedSystemMemory;
+                adapter["memory"]["luid"]["low"]           = adapter.LuidLowPart;
+                adapter["memory"]["luid"]["high"]          = adapter.LuidHighPart;
+                adapter["adapter-type"]                    = adapter_type;
+                (*json_output)["adapters"].push_back(adapter);
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("\tDescription: %s %s",
+                                       gfxrecon::util::WCharArrayToString(adapter.Description).c_str(),
+                                       adapter_workload_pct.c_str());
+                GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", adapter.VendorId);
+                GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", adapter.DeviceId);
+                GFXRECON_WRITE_CONSOLE("\tSubsys ID: 0x%x", adapter.SubSysId);
+                GFXRECON_WRITE_CONSOLE("\tRevision: %u", adapter.Revision);
+                GFXRECON_WRITE_CONSOLE("\tDedicated Video Memory: %" PRIu64, adapter.DedicatedVideoMemory);
+                GFXRECON_WRITE_CONSOLE("\tDedicated System Memory: %" PRIu64, adapter.DedicatedSystemMemory);
+                GFXRECON_WRITE_CONSOLE("\tShared System Memory: %" PRIu64, adapter.SharedSystemMemory);
+                GFXRECON_WRITE_CONSOLE("\tLUID LowPart: 0x%x", adapter.LuidLowPart);
+                GFXRECON_WRITE_CONSOLE("\tLUID HighPart: 0x%x", adapter.LuidHighPart);
+                GFXRECON_WRITE_CONSOLE("\tAdapter type: %s", adapter_type.c_str());
+                GFXRECON_WRITE_CONSOLE("");
+            }
         }
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("\tAdapter info not available.");
-        GFXRECON_WRITE_CONSOLE("");
-    }
-}
-
-void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
-{
-    GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
-
-    if (dx12_consumer.FoundSwapchainInfo())
-    {
-        GFXRECON_WRITE_CONSOLE("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
-    }
-
-    GFXRECON_WRITE_CONSOLE("");
-}
-
-void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
-{
-    if (dx12_consumer.ContainsEiWorkload())
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: yes");
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 EI workload: no");
-    }
-
-    GFXRECON_WRITE_CONSOLE("");
-
-    if (dx12_consumer.ContainsDxrWorkload())
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
-    }
-    else
-    {
-        GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
-    }
-
-    if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
-    {
-        GFXRECON_WRITE_CONSOLE("");
-
-        if (dx12_consumer.ContainsOptFillMem())
+        if (json_output != nullptr)
         {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: yes");
+            (*json_output)["adapters"] = "not available";
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: no");
+            GFXRECON_WRITE_CONSOLE("\tAdapter info not available.");
+            GFXRECON_WRITE_CONSOLE("");
+        }
+    }
+}
+
+void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json* json_output)
+{
+    if (json_output != nullptr)
+    {
+        if (dx12_consumer.FoundSwapchainInfo())
+        {
+            (*json_output)["swapchain"]["dimensions"] = dx12_consumer.GetSwapchainDimensions();
+        }
+        else
+        {
+            (*json_output)["swapchain"]["dimensions"] = "unavailable";
+        }
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
+
+        if (dx12_consumer.FoundSwapchainInfo())
+        {
+            GFXRECON_WRITE_CONSOLE("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("\tDimensions not available.");
+        }
+
+        GFXRECON_WRITE_CONSOLE("");
+    }
+}
+
+void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json* json_output)
+{
+    if (json_output != nullptr)
+    {
+        (*json_output)["ei-workload"]  = dx12_consumer.ContainsEiWorkload() ? "yes" : "no";
+        (*json_output)["dxr-workload"] = dx12_consumer.ContainsDxrWorkload() ? "yes" : "no";
+        if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
+        {
+            (*json_output)["dxr/ei-optimized"] = dx12_consumer.ContainsOptFillMem() ? "yes" : "no";
+        }
+    }
+    else
+    {
+        if (dx12_consumer.ContainsEiWorkload())
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 EI workload: yes");
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 EI workload: no");
+        }
+
+        GFXRECON_WRITE_CONSOLE("");
+
+        if (dx12_consumer.ContainsDxrWorkload())
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: yes");
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
+        }
+
+        if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
+        {
+            GFXRECON_WRITE_CONSOLE("");
+
+            if (dx12_consumer.ContainsOptFillMem())
+            {
+                GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: yes");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: no");
+            }
         }
     }
 }
@@ -1054,20 +1125,31 @@ void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
 {
     if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
     {
+        nlohmann::json* d3d_json = nullptr;
+        if (json_output != nullptr)
+        {
+            (*json_output)["d3d12"] = nlohmann::json();
+            d3d_json                = &((*json_output)["d3d12"]);
+        }
+
         if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
         {
             GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
+            if (d3d_json != nullptr)
+            {
+                (*d3d_json)["total-present-count"] = dx12_consumer.GetDXGITestPresentCount();
+            }
         }
 
-        PrintDriverInfo(info_consumer, json_output);
+        PrintDriverInfo(info_consumer, d3d_json);
 
-        PrintDx12RuntimeInfo(dx12_consumer);
+        PrintDx12RuntimeInfo(dx12_consumer, d3d_json);
 
-        PrintDx12AdapterInfo(dx12_consumer);
+        PrintDx12AdapterInfo(dx12_consumer, d3d_json);
 
-        PrintDx12SwapchainInfo(dx12_consumer);
+        PrintDx12SwapchainInfo(dx12_consumer, d3d_json);
 
-        PrintDxrEiInfo(dx12_consumer);
+        PrintDxrEiInfo(dx12_consumer, d3d_json);
     }
     else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
     {
@@ -1077,6 +1159,10 @@ void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
     }
     else
     {
+        if (json_output != nullptr)
+        {
+            (*json_output)["capture-file"]["frames"]["total-count"] = 0;
+        }
         GFXRECON_WRITE_CONSOLE("File did not contain any frames");
     }
 }
