@@ -891,6 +891,7 @@ inline void InitializePoolObjectState(VkDevice                               par
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
                 descriptor_info.sampler_ids = std::make_unique<format::HandleId[]>(binding_info.count);
                 descriptor_info.images      = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
                 break;

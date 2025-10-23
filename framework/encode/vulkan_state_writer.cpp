@@ -3879,6 +3879,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+        case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
             write->pImageInfo = &binding->images[write->dstArrayElement];
             break;
         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
