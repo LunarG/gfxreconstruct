@@ -1040,28 +1040,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             // Create a temporary object on first encounter.
             if (dep_inserted.second)
             {
-                if (wrapper->dirty)
-                {
-                    const int64_t offset                       = asset_file_stream_->GetOffset();
-                    (*asset_file_offsets_)[wrapper->handle_id] = offset;
-                    WriteFunctionCall(
-                        wrapper->set_layout_dependency.create_call_id, dep_create_parameters, asset_file_stream_);
-                    if (output_stream_ != nullptr)
-                    {
-                        WriteExecuteFromFile(asset_file_name_, 1, offset);
-                    }
-                }
-                else
-                {
-                    if (output_stream_ != nullptr)
-                    {
-                        assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
-                        const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
-                        WriteExecuteFromFile(asset_file_name_, 1, offset);
-                    }
-                }
-
-                ++blocks_written_;
+                WriteFunctionCall(wrapper->set_layout_dependency.create_call_id, dep_create_parameters);
             }
         }
     });
