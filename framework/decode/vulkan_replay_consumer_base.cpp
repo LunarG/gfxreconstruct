@@ -9591,20 +9591,42 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
 
+    auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
+
+    // in practice: always 32 bytes
+    uint32_t capture_handle_size = physical_device_info->capture_raytracing_properties->shaderGroupHandleSize;
+    uint32_t replay_handle_size =
+        physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
+
+    uint32_t replay_data_size = dataSize;
+    if (capture_handle_size != replay_handle_size && !pData->IsNull())
+    {
+        replay_data_size = replay_handle_size * groupCount;
+        pData->AllocateOutputData(replay_data_size);
+    }
+
     VkDevice       device        = device_info->handle;
     VkPipeline     pipeline      = pipeline_info->handle;
     uint8_t*       output_data   = pData->GetOutputPointer();
     const uint8_t* captured_data = pData->GetPointer();
-    VkResult       result        = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+    VkResult       result        = func(device, pipeline, firstGroup, groupCount, replay_data_size, output_data);
 
     if (result == VK_SUCCESS)
     {
-        auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
-
-        // in practice: always 32 bytes
-        uint32_t capture_handle_size = physical_device_info->capture_raytracing_properties->shaderGroupHandleSize;
-        uint32_t replay_handle_size =
-            physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
+        if (!UseAddressReplacement(device_info))
+        {
+            // check if capture and replay are identical.
+            if (capture_handle_size != replay_handle_size)
+            {
+                GFXRECON_LOG_WARNING("shaderGroupHandleSize of the capture and the replay are different. The replay "
+                                     "might fail. Try -m rebind.");
+            }
+            else if (memcmp(captured_data, output_data, replay_data_size) != 0)
+            {
+                GFXRECON_LOG_WARNING("ShaderGroupHandles' pData of the capture and the replay are different. The "
+                                     "replay might fail. Try -m rebind.");
+            }
+        }
 
         // make a map of capture-time group handles to handles we just got back in replay
         for (int group = 0; group < groupCount; group++)
