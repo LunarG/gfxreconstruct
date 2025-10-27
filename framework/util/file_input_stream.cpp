@@ -115,7 +115,7 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
             {
                 // Either the original offset was negative or beyond the peeked region, so it's fair to just adjust it
                 // Unless someone has peek'd all of size_t, this is safe on 64bit.
-                GFXRECON_ASSERT(peek_bytes_ <= std::numeric_limits<int64_t>::max());
+                GFXRECON_ASSERT(static_cast<uint64_t>(peek_bytes_) <= std::numeric_limits<int64_t>::max());
                 offset = offset - static_cast<int64_t>(peek_bytes_);
             }
         }
@@ -198,7 +198,7 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
         }
 
         // Copy missing bytes to peek_buffer_
-        char*        dest         = peek_buffer_.Get() + peek_offset_ + peek_bytes_;
+        std::byte*   dest         = peek_buffer_.Get() + peek_offset_ + peek_bytes_;
         const size_t bytes_needed = bytes - peek_bytes_; // we know bytes > peek_bytes as we are in the else clause
         success                   = util::platform::FileRead(dest, bytes_needed, fd_);
         if (success)
@@ -219,7 +219,7 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
 DataSpan FStreamFileInputStream::ReadSpan(const size_t bytes)
 {
     auto  pool_entry = buffer_pool_->Acquire(bytes);
-    char* buffer     = pool_entry.Get();
+    std::byte* buffer     = pool_entry.Get();
     bool  success    = ReadBytes(buffer, bytes);
     if (success)
     {

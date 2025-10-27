@@ -191,13 +191,13 @@ class VulkanStateWriter
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
-                                VkDeviceSize*           max_resource_size,
+                                VkDeviceSize*           total_staging_copy_size,
                                 VkDeviceSize*           max_staging_copy_size,
                                 bool                    write_memory_state);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
-                               VkDeviceSize*           max_resource_size,
+                               VkDeviceSize*           total_staging_copy_size,
                                VkDeviceSize*           max_staging_copy_size,
                                bool                    write_memory_state);
 
@@ -392,6 +392,9 @@ class VulkanStateWriter
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
     void WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table);
+
+    void WriteAccelerationStructureResourceInit(const gfxrecon::format::HandleId&                 device,
+                                                encode::AccelerationStructureKHRBuildCommandData& command);
 
     void WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
                                               encode::AccelerationStructureKHRBuildCommandData& command);

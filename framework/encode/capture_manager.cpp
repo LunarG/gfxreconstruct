@@ -60,8 +60,37 @@ std::mutex                                     CommonCaptureManager::instance_lo
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
+std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
+uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
+thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
+thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 
-std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
+format::HandleId CommonCaptureManager::GetUniqueId()
+{
+    uint64_t result = 0;
+    if (force_default_unique_id_ || unique_id_stack_.empty())
+    {
+        result = GetDefaultUniqueId();
+    }
+    else
+    {
+        result = unique_id_stack_.back();
+        unique_id_stack_.pop_back();
+    }
+    return result;
+}
+
+void CommonCaptureManager::PushUniqueId(const format::HandleId id)
+{
+    GFXRECON_ASSERT(id != format::kNullHandleId);
+
+    unique_id_stack_.push_back(id);
+}
+
+void CommonCaptureManager::ClearUniqueIds()
+{
+    unique_id_stack_.clear();
+}
 
 CommonCaptureManager::CommonCaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
@@ -1525,6 +1554,7 @@ void CommonCaptureManager::WriteFillMemoryCmd(
 
 void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
                                                      format::HandleId    device_id,
+                                                     uint64_t            total_copy_size,
                                                      uint64_t            max_resource_size)
 {
     if ((capture_mode_ & kModeWrite) != kModeWrite)
@@ -1534,7 +1564,7 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
 
-    format::BeginResourceInitCommand init_cmd;
+    format::BeginResourceInitCommand init_cmd = {};
 
     auto thread_data = GetThreadData();
     GFXRECON_ASSERT(thread_data != nullptr);
@@ -1543,10 +1573,10 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
     init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
     init_cmd.meta_header.meta_data_id =
         format::MakeMetaDataId(api_family, format::MetaDataType::kBeginResourceInitCommand);
-    init_cmd.thread_id         = thread_data->thread_id_;
-    init_cmd.device_id         = device_id;
-    init_cmd.max_resource_size = max_resource_size;
-    init_cmd.max_copy_size     = max_resource_size;
+    init_cmd.thread_id       = thread_data->thread_id_;
+    init_cmd.device_id       = device_id;
+    init_cmd.total_copy_size = total_copy_size;
+    init_cmd.max_copy_size   = max_resource_size;
 
     WriteToFile(&init_cmd, sizeof(init_cmd));
 }

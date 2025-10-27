@@ -39,23 +39,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
-                     const VulkanObjectInfoTable&         object_info_table,
-                     const VulkanImageInfo*               image_info)
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
+                             VkPhysicalDevice                     phys_dev,
+                             const VulkanImageInfo*               image_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
+    GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
     GFXRECON_ASSERT(image_info != nullptr);
 
-    const VulkanDeviceInfo* device = object_info_table.GetVkDeviceInfo(image_info->parent_id);
-    if (device == nullptr)
-    {
-        return false;
-    }
-
     VkFormatProperties format_properties{};
-    instance_table->GetPhysicalDeviceFormatProperties(device->parent, image_info->format, &format_properties);
+    instance_table->GetPhysicalDeviceFormatProperties(phys_dev, image_info->format, &format_properties);
 
-    // A format might no be supported on the replay implementation. Check before attempting to dump
+    // A format might not be supported on the replay implementation. Check before attempting to dump
     if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
          format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
         (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
@@ -63,7 +58,7 @@ bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
     {
         GFXRECON_LOG_WARNING("Format %s is not supported by the implementation",
                              util::ToString<VkFormat>(image_info->format).c_str());
-        return false;
+        return ImageDumpResult::kFormatNotSupported;
     }
 
     // Check for multisampled images that cannot be resolved
@@ -79,11 +74,11 @@ bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
             GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
                                  "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
                                  util::ToString<VkFormat>(image_info->format).c_str());
-            return false;
+            return ImageDumpResult::kCanNotResolve;
         }
     }
 
-    return true;
+    return ImageDumpResult::kCanDump;
 }
 
 const char* ImageFileExtension(DumpedImageFormat image_format)
@@ -108,7 +103,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
 
     if (vkuFormatIsSRGB(format))
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8_SRGB;
+        dst_format = VK_FORMAT_B8G8R8A8_SRGB;
     }
     else if (vkuFormatIsDepthOrStencil(format))
     {
@@ -118,7 +113,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
     }
     else
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_UNORM : VK_FORMAT_B8G8R8_UNORM;
+        dst_format = VK_FORMAT_B8G8R8A8_UNORM;
     }
 
     return dst_format;
@@ -476,7 +471,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     dumped_image.dumped_format  = dst_format;
 
     const VkImageSubresourceRange modified_subresource_range =
-        ConvertRemainingToSpecificNumber(subresource_range, image_info);
+        FilterImageSubresourceRange(subresource_range, image_info);
 
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);

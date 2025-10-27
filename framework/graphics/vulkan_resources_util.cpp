@@ -2379,9 +2379,12 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkFormat       dst_format,
                                           VkImageTiling* dst_image_tiling) const
 {
-    // Integer formats must match
-    if ((vkuFormatIsSINT(src_format) != vkuFormatIsSINT(dst_format)) ||
-        (vkuFormatIsUINT(src_format) != vkuFormatIsUINT(dst_format)))
+    // According to spec: "Integer formats can only be converted to other integer formats with the same signedness."
+    const bool is_src_sint = vkuFormatIsSINT(src_format) || vkuFormatIsSSCALED(src_format);
+    const bool is_src_uint = vkuFormatIsUINT(src_format) || vkuFormatIsUSCALED(src_format);
+    const bool is_dst_sint = vkuFormatIsSINT(dst_format) || vkuFormatIsSSCALED(dst_format);
+    const bool is_dst_uint = vkuFormatIsUINT(dst_format) || vkuFormatIsUSCALED(dst_format);
+    if ((is_src_sint != is_dst_sint) || (is_src_uint != is_dst_uint))
     {
         return false;
     }
@@ -2642,6 +2645,114 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
                                      &img_barrier);
 
     return VK_SUCCESS;
+}
+
+/**
+ * @brief Computes the required byte size of host memory referenced by a structure
+ *        for a copy-buffer-to-image or a copy-image-to-buffer operation.
+ *
+ * @note Origin: Adapted from Vulkan-ValidationLayers/layers/state_tracker/image_stat.cpp.
+ *       Mirrors the logic used in the Validation Layers to determine how many bytes are
+ *       consumed based on the copy region, image format, and block/texel sizing rules.
+ *
+ * @param region        The region structure describing the copy (e.g. `VkMemoryToImageCopy`).
+ * @param array_layers  The total number of array layers in the destination image (used when
+ *                      layerCount is VK_REMAINING_ARRAY_LAYERS).
+ * @param format        The VkFormat of the destination image.
+ *
+ * @return VkDeviceSize The number of bytes that must be available from region.pHostPointer
+ *                      to satisfy the copy described by 'region'.
+ *
+ * @details
+ * - Handles depth/stencil special cases per the Vulkan specification.
+ * - Accounts for block-compressed formats by converting to texel-block units and rounding up for partial blocks.
+ * - Returns 0 for invalid/empty copies; callers should already have guards for those cases.
+ */
+template <typename RegionCopy>
+static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_t array_layers, VkFormat format)
+{
+    VkDeviceSize buffer_size   = 0;
+    VkExtent3D   copy_extent   = region.imageExtent;
+    VkDeviceSize buffer_width  = (0 == region.memoryRowLength ? copy_extent.width : region.memoryRowLength);
+    VkDeviceSize buffer_height = (0 == region.memoryImageHeight ? copy_extent.height : region.memoryImageHeight);
+    uint32_t     layer_count   = region.imageSubresource.layerCount != VK_REMAINING_ARRAY_LAYERS
+                                     ? region.imageSubresource.layerCount
+                                     : array_layers - region.imageSubresource.baseArrayLayer;
+    // VUID-VkImageCreateInfo-imageType-00961 prevents having both depth and layerCount ever both be greater than 1
+    // together. Take max to logic simple. This is the number of 'slices' to copy.
+    const uint32_t z_copies = std::max(copy_extent.depth, layer_count);
+
+    // Invalid if copy size is 0 and other validation checks will catch it. Returns zero as the caller should have
+    // fallback already to ignore.
+    if (copy_extent.width == 0 || copy_extent.height == 0 || copy_extent.depth == 0 || z_copies == 0)
+    {
+        return 0;
+    }
+
+    VkDeviceSize unit_size = 0;
+    if (region.imageSubresource.aspectMask & (VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT))
+    {
+        // Spec in VkBufferImageCopy section list special cases for each format
+        if (region.imageSubresource.aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            unit_size = 1;
+        }
+        else
+        {
+            // VK_IMAGE_ASPECT_DEPTH_BIT
+            switch (format)
+            {
+                case VK_FORMAT_D16_UNORM:
+                case VK_FORMAT_D16_UNORM_S8_UINT:
+                    unit_size = 2;
+                    break;
+                case VK_FORMAT_D32_SFLOAT:
+                case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                // packed with the D24 value in the LSBs of the word, and undefined values in the eight MSBs
+                case VK_FORMAT_X8_D24_UNORM_PACK32:
+                case VK_FORMAT_D24_UNORM_S8_UINT:
+                    unit_size = 4;
+                    break;
+                default:
+                    // Any misuse of formats vs aspect mask should be caught before here
+                    return 0;
+            }
+        }
+    }
+    else
+    {
+        // size (bytes) of texel or block
+        unit_size = vkuFormatElementSizeWithAspect(
+            format, static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
+    }
+
+    if (vkuFormatIsBlockedImage(format))
+    {
+        // Switch to texel block units, rounding up for any partially-used blocks
+        const VkExtent3D block_extent = vkuFormatTexelBlockExtent(format);
+        buffer_width                  = (buffer_width + block_extent.width - 1) / block_extent.width;
+        buffer_height                 = (buffer_height + block_extent.height - 1) / block_extent.height;
+
+        copy_extent.width  = (copy_extent.width + block_extent.width - 1) / block_extent.width;
+        copy_extent.height = (copy_extent.height + block_extent.height - 1) / block_extent.height;
+        copy_extent.depth  = (copy_extent.depth + block_extent.depth - 1) / block_extent.depth;
+    }
+
+    // Calculate buffer offset of final copied byte, + 1.
+    buffer_size = (z_copies - 1) * buffer_height * buffer_width;                  // offset to slice
+    buffer_size += ((copy_extent.height - 1) * buffer_width) + copy_extent.width; // add row,col
+    buffer_size *= unit_size;                                                     // convert to bytes
+    return buffer_size;
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkMemoryToImageCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkMemoryToImageCopy>(region, array_layers, format);
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkImageToMemoryCopy>(region, array_layers, format);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

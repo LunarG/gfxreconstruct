@@ -110,7 +110,7 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
                   active_driver_path.substr(active_driver_path.find_last_of("/\\") + 1).length());
 
         GetFileInfo(file_info, active_driver_path);
-        if (file_info.FileVersion != "")
+        if (std::strlen(file_info.FileVersion) != 0)
         {
             driver_info += "AMD UMD version (" + static_cast<std::string>(file_info.AppName) +
                            "): " + static_cast<std::string>(file_info.FileVersion) + "\n\t";

@@ -2327,6 +2327,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     {
                         func(*(primary_first + finalized_primaries), 1, &secondarys_command_buffers[scb]);
                         primary_context->FinalizeCommandBuffer();
+                        primary_context->MergeRenderPasses(*secondary_context);
                         ++finalized_primaries;
                     }
 

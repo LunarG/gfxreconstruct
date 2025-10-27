@@ -820,7 +820,7 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrapper);
 
-    void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+    void DestroyState(vulkan_wrappers::BufferWrapper* buffer_wrapper);
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 

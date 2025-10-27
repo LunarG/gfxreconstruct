@@ -83,7 +83,7 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
     }
 }
 
-void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info)
 {
     for (auto consumer : consumers_)
     {
@@ -552,8 +552,8 @@ void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId 
     }
 }
 
-void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                               const char*                             env_string)
+void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                               const char*                                   env_string)
 {
     for (auto consumer : consumers_)
     {

@@ -566,14 +566,14 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
 }
 
 void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                             uint64_t         max_resource_size,
+                                                             uint64_t         total_copy_size,
                                                              uint64_t         max_copy_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(max_copy_size);
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
+    GFXRECON_UNREFERENCED_PARAMETER(total_copy_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_copy_size);
 
     auto device         = MapObject<ID3D12Device>(device_id);
-    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
+    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_copy_size);
 }
 
 void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
@@ -732,9 +732,9 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
 }
 
 void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     if (!accel_struct_builder_)
     {
@@ -967,6 +967,19 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             // These are pointers to user data for callback functions. Return nullptr for the replay callbacks that
             // don't expect user data.
             break;
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle:
+        {
+            auto entry = shared_handles_.find(object_id);
+            if (entry != shared_handles_.end())
+            {
+                object = entry->second;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("%s: Unable to retrieve NTHandle.", call_name);
+            }
+            break;
+        }
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -976,19 +989,23 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
 }
 
 void Dx12ReplayConsumerBase::PostProcessExternalObject(
-    HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
+    HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(replay_result);
-    GFXRECON_UNREFERENCED_PARAMETER(object_id);
-    GFXRECON_UNREFERENCED_PARAMETER(object);
-
     switch (call_id)
     {
         case format::ApiCallId::ApiCall_IDXGISurface1_GetDC:
         case format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation:
         case format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd:
             break;
-
+        case format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle:
+        case format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle:
+        case format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName:
+            if (SUCCEEDED(replay_result) && (object_id != nullptr) && (object != nullptr))
+            {
+                shared_handles_.insert(std::make_pair(*object_id, *object));
+            }
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -2494,7 +2511,7 @@ void Dx12ReplayConsumerBase::OverrideResourceUnmap(DxObjectInfo*                
             GFXRECON_ASSERT(memory_info.count > 0);
 
             --(memory_info.count);
-            auto& map_entry = mapped_memory_.find(memory_info.memory_id);
+            auto map_entry = mapped_memory_.find(memory_info.memory_id);
             if (map_entry != mapped_memory_.end())
             {
                 GFXRECON_ASSERT(map_entry->second.ref_count > 0);
@@ -3276,12 +3293,12 @@ void Dx12ReplayConsumerBase::DestroyObjectExtraInfo(DxObjectInfo* info, bool rel
 
             for (const auto& entry : resource_info->mapped_memory_info)
             {
-                auto& mapped_info = entry.second;
-                auto& entry       = mapped_memory_.find(mapped_info.memory_id);
-                if (entry != mapped_memory_.end())
+                auto& mapped_info      = entry.second;
+                auto  mapped_memory_it = mapped_memory_.find(mapped_info.memory_id);
+                if (mapped_memory_it != mapped_memory_.end())
                 {
-                    entry->second.ref_count -= mapped_info.count;
-                    if (entry->second.ref_count == 0)
+                    mapped_memory_it->second.ref_count -= mapped_info.count;
+                    if (mapped_memory_it->second.ref_count == 0)
                     {
                         mapped_memory_.erase(mapped_info.memory_id);
                     }
@@ -4379,6 +4396,46 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                                         HRESULT                      original_result,
+                                                         uint64_t                     NTHandle,
+                                                         Decoded_GUID                 riid,
+                                                         HandlePointerDecoder<void*>* ppvObj)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    auto  device        = static_cast<ID3D12Device*>(device_object_info->object);
+    auto  in_NTHandle   = static_cast<HANDLE>(PreProcessExternalObject(
+        NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
+    auto& riid_value    = *riid.decoded_value;
+    auto  out_p_ppvObj  = ppvObj->GetPointer();
+    auto  out_hp_ppvObj = ppvObj->GetHandlePointer();
+    auto  replay_result = device->OpenSharedHandle(in_NTHandle, riid_value, out_hp_ppvObj);
+
+    if (SUCCEEDED(replay_result) && !ppvObj->IsNull())
+    {
+        if (IsEqualIID(riid_value, __uuidof(ID3D12Resource)) || IsEqualIID(riid_value, __uuidof(ID3D12Resource1)) ||
+            IsEqualIID(riid_value, __uuidof(ID3D12Resource2)))
+        {
+            // For standard resource creation, the resource state would be initilized based on the InitialState
+            // parameter. For this case, we don't know what the initial state was so initilize to the common state.
+            InitialResourceExtraInfo(ppvObj, D3D12_RESOURCE_STATE_COMMON, false);
+        }
+        else if (IsEqualIID(riid_value, __uuidof(ID3D12Fence)) || IsEqualIID(riid_value, __uuidof(ID3D12Fence1)))
+        {
+            auto fence_info = std::make_unique<D3D12FenceInfo>();
+
+            // For ID3D12Device::CreateFence, this would be initialized with the InitialValue parameter. For this case,
+            // we don't know what the initial value was so initialize to zero.
+            fence_info->last_signaled_value = 0;
+
+            SetExtraInfo(ppvObj, std::move(fence_info));
+        }
+    }
+
+    return replay_result;
+}
+
 HRESULT
 Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_info,
                                                   HRESULT       original_result,
@@ -4938,7 +4995,7 @@ void Dx12ReplayConsumerBase::MapMetaCommandParameters(ID3D12Device5*            
         while (data_offset < parameters_data_sizeinbytes)
         {
             parameters_data += data_offset;
-            for each (auto desc in parameter_descs)
+            for (auto desc : parameter_descs)
             {
                 switch (desc.Type)
                 {

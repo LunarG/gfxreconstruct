@@ -99,10 +99,3 @@ class VulkanConsumerHeaderGenerator(VulkanBaseGenerator, KhronosConsumerHeaderGe
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_cmd_params:
-            return True
-        return False

@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,33 +20,34 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_LZ4_COMPRESSOR_H
-#define GFXRECON_UTIL_LZ4_COMPRESSOR_H
+#include <catch2/catch.hpp>
+#include "util/platform.h"
 
-#include "util/compressor.h"
+using namespace gfxrecon::util::platform;
 
-GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
-
-class Lz4Compressor : public Compressor
+TEST_CASE("valid_pointer - stack", "[]")
 {
-  public:
-    Lz4Compressor() = default;
+    int   ans = 42;
+    void* p   = &ans;
+    REQUIRE(PointerIsValid(p));
+}
 
-    ~Lz4Compressor() override = default;
+TEST_CASE("valid_pointer - null", "[]")
+{
+    void* p = nullptr;
+    REQUIRE_FALSE(PointerIsValid(p));
+}
 
-    size_t Compress(size_t                uncompressed_size,
-                    const uint8_t*        uncompressed_data,
-                    std::vector<uint8_t>* compressed_data,
-                    size_t                compressed_data_offset) const override;
+TEST_CASE("valid_pointer - invalid", "[]")
+{
+    // This is an address that is very likely to be invalid in any process.
+    void* p = reinterpret_cast<void*>(0x123);
+    REQUIRE_FALSE(PointerIsValid(p));
+}
 
-    size_t Decompress(size_t         compressed_size,
-                      const uint8_t* compressed_data,
-                      const size_t   expected_uncompressed_size,
-                      uint8_t*       uncompressed_data) const override;
-};
-
-GFXRECON_END_NAMESPACE(util)
-GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_UTIL_LZ4_COMPRESSOR_H
+TEST_CASE("valid_pointer - heap", "[]")
+{
+    int* p = new int(42);
+    REQUIRE(PointerIsValid(p));
+    delete p;
+}

@@ -39,6 +39,7 @@
 #include <chrono>
 #include <cstdint>
 #include <limits>
+#include <ranges>
 #include <unordered_map>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -1039,28 +1040,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             // Create a temporary object on first encounter.
             if (dep_inserted.second)
             {
-                if (wrapper->dirty)
-                {
-                    const int64_t offset                       = asset_file_stream_->GetOffset();
-                    (*asset_file_offsets_)[wrapper->handle_id] = offset;
-                    WriteFunctionCall(
-                        wrapper->set_layout_dependency.create_call_id, dep_create_parameters, asset_file_stream_);
-                    if (output_stream_ != nullptr)
-                    {
-                        WriteExecuteFromFile(asset_file_name_, 1, offset);
-                    }
-                }
-                else
-                {
-                    if (output_stream_ != nullptr)
-                    {
-                        assert(asset_file_offsets_->find(wrapper->handle_id) != asset_file_offsets_->end());
-                        const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
-                        WriteExecuteFromFile(asset_file_name_, 1, offset);
-                    }
-                }
-
-                ++blocks_written_;
+                WriteFunctionCall(wrapper->set_layout_dependency.create_call_id, dep_create_parameters);
             }
         }
     });
@@ -1489,9 +1469,9 @@ void VulkanStateWriter::BeginAccelerationStructuresSection(format::HandleId devi
     begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
     begin_cmd.meta_header.meta_data_id =
         format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
-    begin_cmd.thread_id         = thread_data_->thread_id_;
-    begin_cmd.device_id         = device_id;
-    begin_cmd.max_resource_size = max_resource_size;
+    begin_cmd.thread_id       = thread_data_->thread_id_;
+    begin_cmd.device_id       = device_id;
+    begin_cmd.total_copy_size = max_resource_size;
     // Our buffers should not need staging copy as the memory should be host visible and coherent
     begin_cmd.max_copy_size = 0;
 
@@ -1861,10 +1841,28 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         }
     });
 
+    // resource init
     for (auto& [device, command] : commands)
     {
         auto device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device, true);
         BeginAccelerationStructuresSection(device_id, max_resource_size);
+
+        for (auto& blas_build : command.blas_build)
+        {
+            WriteAccelerationStructureResourceInit(device_id, *blas_build);
+        }
+
+        for (auto& tlas_build : command.tlas_build)
+        {
+            WriteAccelerationStructureResourceInit(device_id, *tlas_build);
+        }
+        EndAccelerationStructureSection(device_id);
+    }
+
+    // build + cleanup
+    for (auto& [device, command] : commands)
+    {
+        auto device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device, true);
 
         for (auto& blas_build : command.blas_build)
         {
@@ -1882,13 +1880,11 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
         {
             WriteAccelerationStructureBuildState(device_id, *tlas_build);
         }
-
-        EndAccelerationStructureSection(device_id);
     }
 }
 
-void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
-                                                             encode::AccelerationStructureKHRBuildCommandData& command)
+void VulkanStateWriter::WriteAccelerationStructureResourceInit(
+    const gfxrecon::format::HandleId& device, encode::AccelerationStructureKHRBuildCommandData& command)
 {
     for (auto& [handle_id, buffer] : command.input_buffers)
     {
@@ -1901,7 +1897,11 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
     }
 
     UpdateAddresses(command);
+}
 
+void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
+                                                             encode::AccelerationStructureKHRBuildCommandData& command)
+{
     // check for deleted handles, create replacements
     bool as_destroyed = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(
                             command.geometry_info.dstAccelerationStructure, false) == format::kNullHandleId;
@@ -1914,6 +1914,7 @@ void VulkanStateWriter::WriteAccelerationStructureBuildState(const gfxrecon::for
     }
 
     EncodeAccelerationStructureBuildMetaCommand(device, command);
+
     for (auto& [handle_id, buffer] : command.input_buffers)
     {
         if (buffer.destroyed)
@@ -2730,11 +2731,12 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
 void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_table,
                                                DeviceResourceTables*   resources,
-                                               VkDeviceSize*           max_resource_size,
+                                               VkDeviceSize*           total_staging_copy_size,
                                                VkDeviceSize*           max_staging_copy_size,
                                                bool                    write_memory_state)
 {
-    GFXRECON_ASSERT((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
+    GFXRECON_ASSERT((resources != nullptr) && (total_staging_copy_size != nullptr) &&
+                    (max_staging_copy_size != nullptr));
 
     state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr);
@@ -2805,16 +2807,16 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
                 snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
 
-                if ((*max_resource_size) < wrapper->created_size)
+                if (snapshot_info.need_staging_copy)
                 {
-                    (*max_resource_size) = wrapper->created_size;
-                }
+                    if (*max_staging_copy_size < wrapper->created_size)
+                    {
+                        *max_staging_copy_size = wrapper->created_size;
+                    }
 
-                if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->created_size))
-                {
-                    (*max_staging_copy_size) = wrapper->created_size;
+                    // sum staging-copy sizes
+                    *total_staging_copy_size += wrapper->created_size;
                 }
-
                 snapshot_entry.buffers.emplace_back(snapshot_info);
             }
         }
@@ -2917,18 +2919,15 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             // method requires the buffer to be bound to a single range of a single memory, which is not applicable for
             // sparse buffers. Therefore, we set the two values to use staging copy for dumping sparse buffers.
             snapshot_info.memory_properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            snapshot_info.need_staging_copy = true; // Staging copy is needed for sparse buffer.
 
-            if ((*max_resource_size) < wrapper->size)
-            {
-                (*max_resource_size) = wrapper->size;
-            }
+            // Staging copy is needed for sparse buffer.
+            snapshot_info.need_staging_copy = true;
+            (*total_staging_copy_size) += wrapper->size;
 
-            if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->size))
+            if ((*max_staging_copy_size) < wrapper->size)
             {
                 (*max_staging_copy_size) = wrapper->size;
             }
-
             snapshot_entry.buffers.emplace_back(snapshot_info);
         }
     });
@@ -2936,14 +2935,15 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
 void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_table,
                                               DeviceResourceTables*   resources,
-                                              VkDeviceSize*           max_resource_size,
+                                              VkDeviceSize*           total_staging_copy_size,
                                               VkDeviceSize*           max_staging_copy_size,
                                               bool                    write_memory_state)
 {
-    assert((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
+    GFXRECON_ASSERT((resources != nullptr) && (total_staging_copy_size != nullptr) &&
+                    (max_staging_copy_size != nullptr));
 
     state_table.VisitWrappers([&](vulkan_wrappers::ImageWrapper* wrapper) {
-        assert(wrapper != nullptr);
+        GFXRECON_ASSERT(wrapper != nullptr);
 
         // Perform memory binding.
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
@@ -3010,39 +3010,38 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     GFXRECON_ASSERT((wrapper->sparse_bind_queue != VK_NULL_HANDLE) &&
                                     (sparse_bind_queue_wrapper != nullptr));
 
-                    if ((wrapper->sparse_opaque_memory_bind_map.size() != 0) ||
-                        (wrapper->sparse_subresource_memory_bind_map.size() != 0))
+                    if ((!wrapper->sparse_opaque_memory_bind_map.empty()) ||
+                        (!wrapper->sparse_subresource_memory_bind_map.empty()))
                     {
                         std::vector<VkSparseMemoryBind>   sparse_memory_binds;
                         VkSparseImageOpaqueMemoryBindInfo image_opaque_memory_bind_info = {};
 
-                        for (auto& item : wrapper->sparse_opaque_memory_bind_map)
+                        for (const auto& sparse_mem_bind : wrapper->sparse_opaque_memory_bind_map | std::views::values)
                         {
-                            sparse_memory_binds.push_back(item.second);
+                            sparse_memory_binds.push_back(sparse_mem_bind);
                         }
 
                         image_opaque_memory_bind_info.image     = wrapper->handle;
                         image_opaque_memory_bind_info.bindCount = sparse_memory_binds.size();
                         image_opaque_memory_bind_info.pBinds =
-                            (sparse_memory_binds.size() == 0) ? nullptr : sparse_memory_binds.data();
+                            (sparse_memory_binds.empty()) ? nullptr : sparse_memory_binds.data();
 
                         std::vector<VkSparseImageMemoryBind> sparse_image_memory_binds;
                         VkSparseImageMemoryBindInfo          image_memory_bind_info = {};
 
-                        for (auto& subresource_bind_map : wrapper->sparse_subresource_memory_bind_map)
+                        for (auto& offset_3d_to_memory_range_map :
+                             wrapper->sparse_subresource_memory_bind_map | std::views::values)
                         {
-                            auto& offset_3d_to_memory_range_map = subresource_bind_map.second;
-
-                            for (auto& item : offset_3d_to_memory_range_map)
+                            for (auto& sparse_img_mem_bind : offset_3d_to_memory_range_map | std::views::values)
                             {
-                                sparse_image_memory_binds.push_back(item.second);
+                                sparse_image_memory_binds.push_back(sparse_img_mem_bind);
                             }
                         }
 
                         image_memory_bind_info.image     = wrapper->handle;
                         image_memory_bind_info.bindCount = sparse_image_memory_binds.size();
                         image_memory_bind_info.pBinds =
-                            (sparse_image_memory_binds.size() == 0) ? nullptr : sparse_image_memory_binds.data();
+                            (sparse_image_memory_binds.empty()) ? nullptr : sparse_image_memory_binds.data();
 
                         VkBindSparseInfo bind_sparse_info{};
 
@@ -3135,9 +3134,9 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     {
                         // The original external format is not restored at replay time, but RGBA8 is used, meaning the
                         // image size at replay might be different than current size.
-                        const VkDeviceSize rgba8_size  = 4;
-                        const VkDeviceSize replay_size = wrapper->extent.width * wrapper->extent.height * rgba8_size;
-                        *max_staging_copy_size         = std::max(*max_staging_copy_size, replay_size);
+                        constexpr VkDeviceSize rgba8_size = 4;
+                        const VkDeviceSize replay_size    = wrapper->extent.width * wrapper->extent.height * rgba8_size;
+                        *max_staging_copy_size            = std::max(*max_staging_copy_size, replay_size);
 
                         snapshot_info.resource_size = wrapper->size;
                         snapshot_info.level_sizes.push_back(wrapper->size);
@@ -3157,16 +3156,16 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                                        true);
                     }
 
-                    if ((*max_resource_size) < snapshot_info.resource_size)
+                    if (snapshot_info.need_staging_copy)
                     {
-                        (*max_resource_size) = snapshot_info.resource_size;
-                    }
+                        if (*max_staging_copy_size < snapshot_info.resource_size)
+                        {
+                            *max_staging_copy_size = snapshot_info.resource_size;
+                        }
 
-                    if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
-                    {
-                        (*max_staging_copy_size) = snapshot_info.resource_size;
+                        // sum staging-copy sizes
+                        *total_staging_copy_size += snapshot_info.resource_size;
                     }
-
                     snapshot_entry.images.emplace_back(snapshot_info);
 
                     // Write image subresource layout queries for linear/host-visible images.
@@ -3233,19 +3232,20 @@ void VulkanStateWriter::WriteImageSubresourceLayouts(const vulkan_wrappers::Imag
 void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_table, bool write_memory_state)
 {
     DeviceResourceTables resources;
-    VkDeviceSize         max_resource_size     = 0;
-    VkDeviceSize         max_staging_copy_size = 0;
+    VkDeviceSize         total_staging_copy_size = 0;
+    VkDeviceSize         max_staging_copy_size   = 0;
 
     auto started = std::chrono::high_resolution_clock::now();
 
-    WriteBufferMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size, write_memory_state);
-    WriteImageMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size, write_memory_state);
+    WriteBufferMemoryState(
+        state_table, &resources, &total_staging_copy_size, &max_staging_copy_size, write_memory_state);
+    WriteImageMemoryState(
+        state_table, &resources, &total_staging_copy_size, &max_staging_copy_size, write_memory_state);
 
     // Write resource memory content.
-    for (const auto& resource_entry : resources)
+    for (const auto& [device_wrapper, queue_family_table] : resources)
     {
-        const vulkan_wrappers::DeviceWrapper* device_wrapper = resource_entry.first;
-        VkResult                              result         = VK_SUCCESS;
+        VkResult result = VK_SUCCESS;
 
         graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
                                                     device_wrapper->physical_device->handle,
@@ -3264,37 +3264,38 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
         {
             if (output_stream_ != nullptr)
             {
-                format::BeginResourceInitCommand begin_cmd;
+                format::BeginResourceInitCommand begin_cmd{};
                 begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
                 begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
                 begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                     format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kBeginResourceInitCommand);
-                begin_cmd.thread_id         = thread_data_->thread_id_;
-                begin_cmd.device_id         = device_wrapper->handle_id;
-                begin_cmd.max_resource_size = max_resource_size;
-                begin_cmd.max_copy_size     = max_staging_copy_size;
+                begin_cmd.thread_id       = thread_data_->thread_id_;
+                begin_cmd.device_id       = device_wrapper->handle_id;
+                begin_cmd.total_copy_size = total_staging_copy_size;
+                begin_cmd.max_copy_size   = max_staging_copy_size;
 
                 output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
                 ++blocks_written_;
             }
 
-            for (const auto& queue_family_entry : resource_entry.second)
+            // iterate map-values
+            for (const auto& snapshot_info : queue_family_table | std::views::values)
             {
                 if (asset_file_stream_ != nullptr)
                 {
-                    ProcessBufferMemoryWithAssetFile(device_wrapper, queue_family_entry.second.buffers, resource_util);
-                    ProcessImageMemoryWithAssetFile(device_wrapper, queue_family_entry.second.images, resource_util);
+                    ProcessBufferMemoryWithAssetFile(device_wrapper, snapshot_info.buffers, resource_util);
+                    ProcessImageMemoryWithAssetFile(device_wrapper, snapshot_info.images, resource_util);
                 }
                 else
                 {
-                    ProcessBufferMemory(device_wrapper, queue_family_entry.second.buffers, resource_util);
-                    ProcessImageMemory(device_wrapper, queue_family_entry.second.images, resource_util);
+                    ProcessBufferMemory(device_wrapper, snapshot_info.buffers, resource_util);
+                    ProcessImageMemory(device_wrapper, snapshot_info.images, resource_util);
                 }
             }
 
             if (output_stream_ != nullptr)
             {
-                format::EndResourceInitCommand end_cmd;
+                format::EndResourceInitCommand end_cmd{};
                 end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
                 end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
                 end_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(

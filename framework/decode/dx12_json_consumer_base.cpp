@@ -89,9 +89,9 @@ void Dx12JsonConsumerBase::ProcessInitSubresourceCommand(const format::InitSubre
 /// captures as part of establishing the GPU memory state at the start of the trimmed
 /// range.
 void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("InitDx12AccelerationStructureCommand");

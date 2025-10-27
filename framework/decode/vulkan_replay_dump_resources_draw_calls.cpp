@@ -61,7 +61,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const CommandIndices*          
     delegate_(delegate), options_(options), compressor_(compressor), current_render_pass_type_(kNone),
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
-    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr)
+    object_info_table_(object_info_table),
+    replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false }
 {
     if (draw_indices != nullptr)
     {
@@ -683,63 +684,58 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
 {
-    assert((current_render_pass_type_ == kRenderPass || current_render_pass_type_ == kDynamicRendering) ||
-           command_buffer_level_ == DumpResourcesCommandBufferLevel::kSecondary);
     assert(current_cb_index_ < command_buffers_.size());
     assert(device_table_ != nullptr);
 
     VkCommandBuffer current_command_buffer = command_buffers_[current_cb_index_];
 
-    if (command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary)
+    GFXRECON_ASSERT(!RP_indices_.empty());
+
+    if (current_render_pass_type_ == kRenderPass)
     {
-        GFXRECON_ASSERT(!RP_indices_.empty());
+        device_table_->CmdEndRenderPass(current_command_buffer);
+    }
+    else if (current_render_pass_type_ == kDynamicRendering)
+    {
+        device_table_->CmdEndRenderingKHR(current_command_buffer);
 
-        if (current_render_pass_type_ == kRenderPass)
+        // Transition render targets into TRANSFER_SRC_OPTIMAL
+        assert(current_renderpass_ == render_targets_.size() - 1);
+        assert(render_targets_[current_renderpass_].size() == 1);
+        for (auto& rt : render_targets_[current_renderpass_])
         {
-            device_table_->CmdEndRenderPass(current_command_buffer);
-        }
-        else
-        {
-            device_table_->CmdEndRenderingKHR(current_command_buffer);
-
-            // Transition render targets into TRANSFER_SRC_OPTIMAL
-            assert(current_renderpass_ == render_targets_.size() - 1);
-            assert(render_targets_[current_renderpass_].size() == 1);
-            for (auto& rt : render_targets_[current_renderpass_])
+            for (auto& cat : rt.color_att_imgs)
             {
-                for (auto& cat : rt.color_att_imgs)
+                if (cat->intermediate_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
                 {
-                    if (cat->intermediate_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                    {
-                        VkImageMemoryBarrier barrier;
-                        barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                        barrier.pNext               = nullptr;
-                        barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                        barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-                        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                        barrier.oldLayout           = cat->intermediate_layout;
-                        barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                        barrier.image               = cat->handle;
-                        barrier.subresourceRange    = { graphics::GetFormatAspects(cat->format),
-                                                        0,
-                                                        VK_REMAINING_MIP_LEVELS,
-                                                        0,
-                                                        VK_REMAINING_ARRAY_LAYERS };
+                    VkImageMemoryBarrier barrier;
+                    barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    barrier.pNext               = nullptr;
+                    barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.oldLayout           = cat->intermediate_layout;
+                    barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    barrier.image               = cat->handle;
+                    barrier.subresourceRange    = { graphics::GetFormatAspects(cat->format),
+                                                    0,
+                                                    VK_REMAINING_MIP_LEVELS,
+                                                    0,
+                                                    VK_REMAINING_ARRAY_LAYERS };
 
-                        device_table_->CmdPipelineBarrier(current_command_buffer,
-                                                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                          0,
-                                                          0,
-                                                          nullptr,
-                                                          0,
-                                                          nullptr,
-                                                          1,
-                                                          &barrier);
+                    device_table_->CmdPipelineBarrier(current_command_buffer,
+                                                      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                      0,
+                                                      0,
+                                                      nullptr,
+                                                      0,
+                                                      nullptr,
+                                                      1,
+                                                      &barrier);
 
-                        cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    }
+                    cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
             }
         }
@@ -958,8 +954,8 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         return VK_SUCCESS;
     }
 
-    const auto entry = dynamic_rendering_attachment_layouts_.find(rp);
-    assert(entry != dynamic_rendering_attachment_layouts_.end());
+    const auto entry = rendering_attachment_layouts_.find(rp);
+    assert(entry != rendering_attachment_layouts_.end());
 
     if (!entry->second.is_dynamic)
     {
@@ -1125,14 +1121,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
             continue;
         }
 
-        const VulkanImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
-
-        if (!IsImageDumpable(instance_table_, object_info_table_, image_info))
-        {
-            continue;
-        }
-
-        auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kRtv,
+        const VulkanImageInfo* image_info     = render_targets_[rp][sp].color_att_imgs[i];
+        const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
+        auto&                  dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kRtv,
                                                                               bcb_index,
                                                                               dc_index,
                                                                               qs_index,
@@ -1140,8 +1131,13 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
                                                                               sp,
                                                                               static_cast<uint32_t>(i),
                                                                               before_command,
-                                                                              image_info)
-                                                    : *(dumped_rts.begin() + i);
+                                                                              image_info,
+                                                                              can_dump_image)
+                                                                     : *(dumped_rts.begin() + i);
+        if (can_dump_image != ImageDumpResult::kCanDump)
+        {
+            continue;
+        }
 
         VulkanDelegateDumpResourceContext res_info = res_info_base;
         res_info.dumped_resource                   = &dumped_rt;
@@ -1196,21 +1192,23 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     {
         const VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
 
-        if (IsImageDumpable(instance_table_, object_info_table_, image_info))
-        {
-            // The "before" depth target will be at the back() of the vector
-            GFXRECON_ASSERT(image_info != nullptr);
-            auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kDsv,
-                                                                                  bcb_index,
-                                                                                  dc_index,
-                                                                                  qs_index,
-                                                                                  rp,
-                                                                                  sp,
-                                                                                  DEPTH_ATTACHMENT,
-                                                                                  before_command,
-                                                                                  image_info)
-                                                        : dumped_rts.back();
+        const ImageDumpResult can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
+        // The "before" depth target will be at the back() of the vector
+        GFXRECON_ASSERT(image_info != nullptr);
+        auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kDsv,
+                                                                              bcb_index,
+                                                                              dc_index,
+                                                                              qs_index,
+                                                                              rp,
+                                                                              sp,
+                                                                              DEPTH_ATTACHMENT,
+                                                                              before_command,
+                                                                              image_info,
+                                                                              can_dump_image)
+                                                    : dumped_rts.back();
 
+        if (can_dump_image == ImageDumpResult::kCanDump)
+        {
             VulkanDelegateDumpResourceContext res_info = res_info_base;
             res_info.dumped_resource                   = &dumped_rt;
             res_info.dumped_data                       = VulkanDelegateImageDumpedData();
@@ -1324,10 +1322,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 continue;
                             }
 
-                            if (!IsImageDumpable(instance_table_, object_info_table_, image_info))
-                            {
-                                continue;
-                            }
+                            const ImageDumpResult can_dump_image =
+                                CanDumpImage(instance_table_, device_info->parent, image_info);
 
                             auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                                 DumpResourceType::kImageDescriptor,
@@ -1342,7 +1338,13 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 desc_binding_index,
                                 array_index,
                                 image_info,
+                                can_dump_image,
                                 DumpResourcesCommandType::kGraphics);
+
+                            if (can_dump_image != ImageDumpResult::kCanDump)
+                            {
+                                continue;
+                            }
 
                             auto&      new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
                             const auto dumped_desc_entry =
@@ -2925,7 +2927,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const VulkanRenderPassInfo*  r
         device_table_->CmdBeginRenderPass(*it, &modified_renderpass_begin_info, contents);
     }
 
-    auto new_entry = dynamic_rendering_attachment_layouts_.emplace(
+    auto new_entry = rendering_attachment_layouts_.emplace(
         std::piecewise_construct, std::forward_as_tuple(current_renderpass_), std::forward_as_tuple());
     assert(new_entry.second);
     new_entry.first->second.is_dynamic = false;
@@ -3412,15 +3414,11 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
                         const std::vector<uint64_t>& render_pass = RP_indices_[rp];
                         GFXRECON_ASSERT(!render_pass.empty());
 
-                        if (execute_commands_index > render_pass[render_pass.size() - 1])
-                        {
-                            continue;
-                        }
-
                         for (uint64_t sp = 0; sp < render_pass.size() - 1; ++sp)
                         {
-                            if (execute_commands_index > render_pass[sp] &&
-                                execute_commands_index < render_pass[sp + 1])
+                            if ((execute_commands_index > render_pass[sp] &&
+                                 execute_commands_index < render_pass[sp + 1]) ||
+                                (dc_index > render_pass[sp] && dc_index < render_pass[sp + 1]))
                             {
                                 return { rp, sp };
                             }
@@ -3497,6 +3495,11 @@ void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>
     assert(color_attachments.size() == color_attachment_layouts.size());
     assert(current_render_pass_type_ == kNone);
 
+    if (command_buffer_level_ == DumpResourcesCommandBufferLevel::kSecondary)
+    {
+        secondary_with_dynamic_rendering_ = true;
+    }
+
     current_render_pass_type_ = kDynamicRendering;
 
     for (size_t i = 0; i < color_attachments.size(); ++i)
@@ -3512,7 +3515,7 @@ void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>
     SetRenderTargets(color_attachments, depth_attachment, true);
     SetRenderArea(render_area);
 
-    auto [new_entry_it, success] = dynamic_rendering_attachment_layouts_.emplace(
+    auto [new_entry_it, success] = rendering_attachment_layouts_.emplace(
         std::piecewise_construct, std::forward_as_tuple(current_renderpass_), std::forward_as_tuple());
     GFXRECON_ASSERT(success);
 
@@ -3563,6 +3566,83 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
     command_buffers_.resize(n_command_buffers);
 
     return n_command_buffers;
+}
+
+void DrawCallsDumpingContext::MergeRenderPasses(const DrawCallsDumpingContext& secondary_context)
+{
+    // Here we only need to take care of secondary command buffers that have dynamic rendering.
+    // Traditional render passes do not need special handling since their commands are recorded directly into the
+    // primary command buffer.
+    if (!secondary_context.secondary_with_dynamic_rendering_)
+    {
+        return;
+    }
+
+    RenderPassIndices&       rp_primary   = RP_indices_;
+    const RenderPassIndices& rp_secondary = secondary_context.RP_indices_;
+    rp_primary.reserve(rp_primary.size() + rp_secondary.size());
+    for (auto prim_it = rp_primary.begin(); prim_it < rp_primary.end(); ++prim_it)
+    {
+        uint32_t sec_rts_copied = 0;
+        for (auto sec_it = rp_secondary.begin(); sec_it < rp_secondary.end(); ++sec_it)
+        {
+            if (prim_it->empty())
+            {
+                if (!sec_it->empty())
+                {
+                    *prim_it = *sec_it;
+
+                    // This is a dynamic rendering. Push back an empty render pass clone.
+                    render_pass_clones_.emplace_back();
+
+                    // Copy render targets to primary
+                    SetRenderTargets(secondary_context.render_targets_[sec_rts_copied][0].color_att_imgs,
+                                     secondary_context.render_targets_[sec_rts_copied][0].depth_att_img,
+                                     true);
+
+                    // Copy render targets' layout into primary
+                    GFXRECON_ASSERT(!secondary_context.render_targets_.empty());
+                    rendering_attachment_layouts_.insert(secondary_context.rendering_attachment_layouts_.begin(),
+                                                         secondary_context.rendering_attachment_layouts_.end());
+                    ++sec_rts_copied;
+                }
+            }
+            else
+            {
+                if (!sec_it->empty())
+                {
+                    if ((*sec_it)[0] < (*prim_it)[0])
+                    {
+                        prim_it = rp_primary.insert(prim_it, *sec_it);
+
+                        // This is a dynamic rendering. Push back an empty render pass clone.
+                        render_pass_clones_.emplace_back();
+                        render_pass_clones_[current_renderpass_].emplace_back();
+
+                        // Copy render targets to primary
+                        SetRenderTargets(secondary_context.render_targets_[sec_rts_copied][0].color_att_imgs,
+                                         secondary_context.render_targets_[sec_rts_copied][0].depth_att_img,
+                                         true);
+
+                        // Copy render targets' layout into primary
+                        GFXRECON_ASSERT(!secondary_context.render_targets_.empty());
+                        rendering_attachment_layouts_.insert(secondary_context.rendering_attachment_layouts_.begin(),
+                                                             secondary_context.rendering_attachment_layouts_.end());
+
+                        ++prim_it;
+                        ++sec_rts_copied;
+                    }
+                }
+            }
+        }
+
+        if (sec_rts_copied == rp_secondary.size())
+        {
+            break;
+        }
+    }
+
+    current_renderpass_ += secondary_context.rendering_attachment_layouts_.size();
 }
 
 void DrawCallsDumpingContext::UpdateSecondaries()

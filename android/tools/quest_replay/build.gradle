@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 33
     namespace 'com.lunarg.gfxreconstruct.replay'
-    ndkVersion '22.1.7171670'
+    ndkVersion '26.3.11579264'
     defaultConfig {
         applicationId "com.lunarg.gfxreconstruct.replay"
         minSdkVersion 26
@@ -15,7 +15,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                cppFlags "-fexceptions", "-std=c++14", "-Wno-nullability-completeness"
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static", "-DGFXRECON_ENABLE_OPENXR=ON"
             }
         }
