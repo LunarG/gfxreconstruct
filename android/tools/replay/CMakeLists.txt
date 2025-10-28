@@ -45,4 +45,5 @@ target_link_libraries(
         gfxrecon_encode
         gfxrecon_graphics
         gfxrecon_format
-        platform_specific)
+        platform_specific
+        project_version)

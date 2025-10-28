@@ -349,7 +349,7 @@ int main(int argc, const char** argv)
             json_options.dump_binaries = dump_binaries;
             json_options.expand_flags  = expand_flags;
 
-            gfxrecon::decode::JsonWriter json_writer{ json_options, GFXRECON_PROJECT_VERSION_STRING, input_filename };
+            gfxrecon::decode::JsonWriter json_writer{ json_options, GetProjectVersionString(), input_filename };
             file_processor.SetAnnotationProcessor(&json_writer);
 
             bool              success = true;
