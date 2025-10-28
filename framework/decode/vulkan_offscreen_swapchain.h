@@ -94,6 +94,41 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                      const VulkanQueueInfo*                      queue_info,
                                      const VkPresentInfoKHR*                     present_info) override;
 
+    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                      const VulkanDeviceInfo*              device_info,
+                                      const VulkanSemaphoreInfo*           semaphore_info,
+                                      const VulkanImageInfo*               image_info,
+                                      VulkanInstanceInfo*                  instance_info,
+                                      const graphics::VulkanInstanceTable* instance_table,
+                                      const graphics::VulkanDeviceTable*   device_table,
+                                      application::Application*            application) override;
+
+    virtual VkResult QueueSubmit(PFN_vkQueueSubmit                    func,
+                                 const VulkanQueueInfo*               queue_info,
+                                 uint32_t                             submit_count,
+                                 const VkSubmitInfo*                  submit_infos,
+                                 const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                 const VulkanFenceInfo*               fence_info,
+                                 VulkanInstanceInfo*                  instance_info,
+                                 const graphics::VulkanInstanceTable* instance_table,
+                                 const VulkanDeviceInfo*              device_info,
+                                 const graphics::VulkanDeviceTable*   device_table,
+                                 application::Application*            application,
+                                 const CommonObjectInfoTable&         object_info_table) override;
+
+    virtual VkResult QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                  const VulkanQueueInfo*               queue_info,
+                                  uint32_t                             submit_count,
+                                  const VkSubmitInfo2*                 submit_infos,
+                                  const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                  const VulkanFenceInfo*               fence_info,
+                                  VulkanInstanceInfo*                  instance_info,
+                                  const graphics::VulkanInstanceTable* instance_table,
+                                  const VulkanDeviceInfo*              device_info,
+                                  const graphics::VulkanDeviceTable*   device_table,
+                                  application::Application*            application,
+                                  const CommonObjectInfoTable&         object_info_table) override;
+
   private:
     const uint32_t default_queue_family_index_{ 0 };
     VkQueue        default_queue_{ VK_NULL_HANDLE }; // default_queue_family_index_,0
@@ -105,7 +140,17 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    const VkSemaphore*     signal_semaphores,
                                    VkFence                fence);
 
-    VkFrameBoundaryEXT frame_boundary_;
+    VkFrameBoundaryEXT frame_boundary_{ VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT,
+                                        nullptr,
+                                        VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT,
+                                        0,
+                                        0,
+                                        nullptr,
+                                        0,
+                                        nullptr,
+                                        0,
+                                        0,
+                                        nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

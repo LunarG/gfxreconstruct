@@ -109,6 +109,41 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
+    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                      const VulkanDeviceInfo*              device_info,
+                                      const VulkanSemaphoreInfo*           semaphore_info,
+                                      const VulkanImageInfo*               image_info,
+                                      VulkanInstanceInfo*                  instance_info,
+                                      const graphics::VulkanInstanceTable* instance_table,
+                                      const graphics::VulkanDeviceTable*   device_table,
+                                      application::Application*            application) override;
+
+    virtual VkResult QueueSubmit(PFN_vkQueueSubmit                    func,
+                                 const VulkanQueueInfo*               queue_info,
+                                 uint32_t                             submit_count,
+                                 const VkSubmitInfo*                  submit_infos,
+                                 const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                 const VulkanFenceInfo*               fence_info,
+                                 VulkanInstanceInfo*                  instance_info,
+                                 const graphics::VulkanInstanceTable* instance_table,
+                                 const VulkanDeviceInfo*              device_info,
+                                 const graphics::VulkanDeviceTable*   device_table,
+                                 application::Application*            application,
+                                 const CommonObjectInfoTable&         object_info_table) override;
+
+    virtual VkResult QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                  const VulkanQueueInfo*               queue_info,
+                                  uint32_t                             submit_count,
+                                  const VkSubmitInfo2*                 submit_infos,
+                                  const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                  const VulkanFenceInfo*               fence_info,
+                                  VulkanInstanceInfo*                  instance_info,
+                                  const graphics::VulkanInstanceTable* instance_table,
+                                  const VulkanDeviceInfo*              device_info,
+                                  const graphics::VulkanDeviceTable*   device_table,
+                                  application::Application*            application,
+                                  const CommonObjectInfoTable&         object_info_table) override;
+
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
@@ -170,6 +205,48 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
+
+    void CreateSubmitSemaphores(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* device_table);
+
+    format::HandleId FindExtFrameBoundaryImage(const void* decoded_struct);
+
+    format::HandleId FindCommandBufferFrameBoundaryImage(const CommonObjectInfoTable& object_info_table,
+                                                         format::HandleId             command_buffer_id);
+
+    VkResult ProcessOffscreenFrameBoundary(VulkanInstanceInfo*                  instance_info,
+                                           const graphics::VulkanInstanceTable* instance_table,
+                                           const VulkanDeviceInfo*              device_info,
+                                           const graphics::VulkanDeviceTable*   device_table,
+                                           application::Application*            application,
+                                           const VulkanImageInfo*               image_info,
+                                           VkSemaphore                          semaphore);
+
+    // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
+    struct OFBSwapchainImageData
+    {
+        VkImage         image{ VK_NULL_HANDLE };
+        VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
+        VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
+    };
+
+    // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
+    // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
+    struct OFBData
+    {
+        VulkanSurfaceKHRInfo               surface_info{};
+        HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
+        VkQueue                            queue{ VK_NULL_HANDLE };
+        VkCommandPool                      command_pool{ VK_NULL_HANDLE };
+        VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
+
+        std::vector<VkSemaphore> acquire_semaphores{};
+        uint32_t                 acquire_index{ 0 };
+
+        std::vector<OFBSwapchainImageData> image_datas{};
+    };
+
+    OFBData                  ofb_data_;
+    std::vector<VkSemaphore> ofb_submit_semaphores_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

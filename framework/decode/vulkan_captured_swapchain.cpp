@@ -266,6 +266,85 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
+void VulkanCapturedSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                                   const VulkanDeviceInfo*              device_info,
+                                                   const VulkanSemaphoreInfo*           semaphore_info,
+                                                   const VulkanImageInfo*               image_info,
+                                                   VulkanInstanceInfo*                  instance_info,
+                                                   const graphics::VulkanInstanceTable* instance_table,
+                                                   const graphics::VulkanDeviceTable*   device_table,
+                                                   application::Application*            application)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkDevice    device    = device_info->handle;
+    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
+    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
+
+    func(device, semaphore, image);
+}
+
+VkResult VulkanCapturedSwapchain::QueueSubmit(PFN_vkQueueSubmit                    func,
+                                              const VulkanQueueInfo*               queue_info,
+                                              uint32_t                             submit_count,
+                                              const VkSubmitInfo*                  submit_infos,
+                                              const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                              const VulkanFenceInfo*               fence_info,
+                                              VulkanInstanceInfo*                  instance_info,
+                                              const graphics::VulkanInstanceTable* instance_table,
+                                              const VulkanDeviceInfo*              device_info,
+                                              const graphics::VulkanDeviceTable*   device_table,
+                                              application::Application*            application,
+                                              const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(meta_submit_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+    GFXRECON_UNREFERENCED_PARAMETER(object_info_table);
+
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0));
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+
+    return func(queue_info->handle, submit_count, submit_infos, fence);
+}
+
+VkResult VulkanCapturedSwapchain::QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                               const VulkanQueueInfo*               queue_info,
+                                               uint32_t                             submit_count,
+                                               const VkSubmitInfo2*                 submit_infos,
+                                               const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                               const VulkanFenceInfo*               fence_info,
+                                               VulkanInstanceInfo*                  instance_info,
+                                               const graphics::VulkanInstanceTable* instance_table,
+                                               const VulkanDeviceInfo*              device_info,
+                                               const graphics::VulkanDeviceTable*   device_table,
+                                               application::Application*            application,
+                                               const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(meta_submit_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+    GFXRECON_UNREFERENCED_PARAMETER(object_info_table);
+
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0));
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+
+    return func(queue_info->handle, submit_count, submit_infos, fence);
+}
+
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     const VulkanDeviceInfo*                             device_info,
     VulkanSwapchainKHRInfo*                             swapchain_info,
@@ -455,8 +534,8 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
                         VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
                         if ((result == VK_SUCCESS) && (image_layout != VK_IMAGE_LAYOUT_UNDEFINED))
                         {
-                            image_barrier.newLayout = image_layout;
-                            image_barrier.image     = image;
+                            image_barrier.newLayout                   = image_layout;
+                            image_barrier.image                       = image;
                             image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_entry->format);
 
                             result = device_table_->BeginCommandBuffer(transition_command, &begin_info);

@@ -898,14 +898,8 @@ options:
                         VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to
                         replay tool).
   --offscreen-swapchain-frame-boundary
-                        Should only be used with offscreen swapchain.
-                        Activates the extension VK_EXT_frame_boundary (always
-                        supported if trimming, checks for driver support
-                        otherwise) and inserts command buffer submission with
-                        VkFrameBoundaryEXT where vkQueuePresentKHR was called
-                        in the original capture. This allows preserving frames
-                        when capturing a replay that uses. offscreen
-                        swapchain. (forwarded to replay tool)
+                        Deprecated. Alias to `--use-ext-frame-boundary`.
+                        (forwarded to replay tool)
   --mfr START-END, --measurement-frame-range START-END
                         Custom framerange to measure FPS for. This range will
                         include the start frame but not the end frame. The
@@ -930,6 +924,11 @@ options:
                         for all current GPU work to finish at the start and
                         end of the measurement range. (forwarded to replay
                         tool)
+  --use-ext-frame-boundary
+                        Convert all frame boundaries (offscreen and onscreen)
+                        to `VKFrameBoundaryEXT` submissions.
+                        This option automatically triggers `--swapchain offscreen`.
+                        (forwarded to replay tool)
   --flush-inside-measurement-range
                         If this is specified the replayer will flush and wait
                         for all current GPU work to finish at end of each

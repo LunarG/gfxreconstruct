@@ -23,6 +23,9 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "decode/decoder_util.h"
+#include "decode/mark_injected_commands.h"
+#include "generated/generated_vulkan_struct_decoders.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -97,25 +100,6 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     }
 
     default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
-
-    // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
-    // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at
-    // swapchain creation: Allocation and recording of an empty command buffer, initialization of a `VkFrameBoundaryEXT`
-    // structure... (Don't forget to free everything at swapchain destruction)
-    if (swapchain_options_.offscreen_swapchain_frame_boundary)
-    {
-        frame_boundary_.sType       = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
-        frame_boundary_.pNext       = nullptr;
-        frame_boundary_.flags       = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
-        frame_boundary_.frameID     = 0;
-        frame_boundary_.imageCount  = 0;
-        frame_boundary_.pImages     = nullptr;
-        frame_boundary_.bufferCount = 0;
-        frame_boundary_.pBuffers    = nullptr;
-        frame_boundary_.tagName     = 0;
-        frame_boundary_.tagSize     = 0;
-        frame_boundary_.pTag        = nullptr;
-    }
 
     return original_result;
 }
@@ -240,7 +224,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                                                    const VulkanQueueInfo*                      queue_info,
                                                    const VkPresentInfoKHR*                     present_info)
 {
-    if (swapchain_options_.offscreen_swapchain_frame_boundary)
+    if (swapchain_options_.use_ext_frame_boundary)
     {
         std::vector<VkImage> images(present_info->swapchainCount);
         for (uint32_t i = 0; i < images.size(); ++i)
@@ -284,6 +268,256 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     }
 
     return original_result;
+}
+
+void VulkanOffscreenSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                                    const VulkanDeviceInfo*              device_info,
+                                                    const VulkanSemaphoreInfo*           semaphore_info,
+                                                    const VulkanImageInfo*               image_info,
+                                                    VulkanInstanceInfo*                  instance_info,
+                                                    const graphics::VulkanInstanceTable* instance_table,
+                                                    const graphics::VulkanDeviceTable*   device_table,
+                                                    application::Application*            application)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
+    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
+
+    if (swapchain_options_.use_ext_frame_boundary)
+    {
+        frame_boundary_.imageCount = (image == VK_NULL_HANDLE ? 0 : 1);
+        frame_boundary_.pImages    = (image == VK_NULL_HANDLE ? nullptr : &image);
+        ++frame_boundary_.frameID;
+
+        VkPipelineStageFlags wait_stage_flags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
+        VkSubmitInfo submitInfo;
+        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext                = &frame_boundary_;
+        submitInfo.waitSemaphoreCount   = (semaphore == VK_NULL_HANDLE ? 0 : 1);
+        submitInfo.pWaitSemaphores      = (semaphore == VK_NULL_HANDLE ? nullptr : &semaphore);
+        submitInfo.pWaitDstStageMask    = (semaphore == VK_NULL_HANDLE ? nullptr : &wait_stage_flags);
+        submitInfo.commandBufferCount   = 0;
+        submitInfo.pCommandBuffers      = nullptr;
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores    = nullptr;
+
+        VkQueue queue;
+
+        decode::BeginInjectedCommands();
+        device_table->GetDeviceQueue(device_info->handle, 0, 0, &queue);
+        device_table->QueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        decode::EndInjectedCommands();
+    }
+    else
+    {
+        func(device_info->handle, semaphore, image);
+    }
+}
+
+VkResult VulkanOffscreenSwapchain::QueueSubmit(PFN_vkQueueSubmit                    func,
+                                               const VulkanQueueInfo*               queue_info,
+                                               uint32_t                             submit_count,
+                                               const VkSubmitInfo*                  submit_infos,
+                                               const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                               const VulkanFenceInfo*               fence_info,
+                                               VulkanInstanceInfo*                  instance_info,
+                                               const graphics::VulkanInstanceTable* instance_table,
+                                               const VulkanDeviceInfo*              device_info,
+                                               const graphics::VulkanDeviceTable*   device_table,
+                                               application::Application*            application,
+                                               const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0));
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+
+    // If offscreen frame boundaries need to be converted to VkFrameBoundaryEXT
+    if (swapchain_options_.use_ext_frame_boundary)
+    {
+        std::vector<VkSubmitInfo>         modified_submit_infos(submit_infos, submit_infos + submit_count);
+        std::vector<VkFrameBoundaryEXT>   inserted_frame_boundaries;
+        std::vector<std::vector<VkImage>> inserted_frame_boundaries_images;
+
+        for (uint32_t i = 0; i < submit_count; ++i)
+        {
+            // If the submit already contains a VkFrameBoundaryEXT, we can assume we don't need to convert it
+            if (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) == nullptr)
+            {
+                VkFrameBoundaryEXT*   frame_boundary = nullptr;
+                std::vector<VkImage>* images         = nullptr;
+
+                const format::HandleId* command_buffer_ids = meta_submit_infos[i].pCommandBuffers.GetPointer();
+                for (uint32_t j = 0; j < submit_infos[i].commandBufferCount; ++j)
+                {
+                    const VulkanCommandBufferInfo* command_buffer_info =
+                        object_info_table.GetVkCommandBufferInfo(command_buffer_ids[j]);
+
+                    if (command_buffer_info->is_frame_boundary)
+                    {
+                        if (frame_boundary == nullptr)
+                        {
+                            // Copy the internal frame_boundary_ to initialize the structure
+                            inserted_frame_boundaries.push_back(frame_boundary_);
+                            inserted_frame_boundaries_images.emplace_back();
+
+                            frame_boundary = &inserted_frame_boundaries.back();
+                            images         = &inserted_frame_boundaries_images.back();
+                        }
+
+                        for (format::HandleId framebuffer_id : command_buffer_info->frame_buffer_ids)
+                        {
+                            const VulkanFramebufferInfo* framebuffer_info =
+                                object_info_table.GetVkFramebufferInfo(framebuffer_id);
+                            for (format::HandleId image_view_id : framebuffer_info->attachment_image_view_ids)
+                            {
+                                const VulkanImageViewInfo* image_view_info =
+                                    object_info_table.GetVkImageViewInfo(image_view_id);
+                                const VulkanImageInfo* image_info =
+                                    object_info_table.GetVkImageInfo(image_view_info->image_id);
+
+                                images->push_back(image_info->handle);
+                            }
+                        }
+                    }
+                }
+
+                if (frame_boundary != nullptr)
+                {
+                    // All frame boundaries share the same ID in this queue submit
+                    frame_boundary->frameID = frame_boundary_.frameID + 1;
+
+                    frame_boundary->pNext      = modified_submit_infos[i].pNext;
+                    frame_boundary->imageCount = images->size();
+                    frame_boundary->pImages    = images->data();
+
+                    modified_submit_infos[i].pNext = frame_boundary;
+                }
+            }
+        }
+
+        // If the queue submission contains a frame boundary, increment the frame counter
+        if (!inserted_frame_boundaries.empty())
+        {
+            ++frame_boundary_.frameID;
+        }
+
+        return func(queue_info->handle, modified_submit_infos.size(), modified_submit_infos.data(), fence);
+    }
+    else
+    {
+        return func(queue_info->handle, submit_count, submit_infos, fence);
+    }
+}
+
+VkResult VulkanOffscreenSwapchain::QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                                const VulkanQueueInfo*               queue_info,
+                                                uint32_t                             submit_count,
+                                                const VkSubmitInfo2*                 submit_infos,
+                                                const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                                const VulkanFenceInfo*               fence_info,
+                                                VulkanInstanceInfo*                  instance_info,
+                                                const graphics::VulkanInstanceTable* instance_table,
+                                                const VulkanDeviceInfo*              device_info,
+                                                const graphics::VulkanDeviceTable*   device_table,
+                                                application::Application*            application,
+                                                const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0));
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+
+    // If offscreen frame boundaries need to be converted to VkFrameBoundaryEXT
+    if (swapchain_options_.use_ext_frame_boundary)
+    {
+        std::vector<VkSubmitInfo2>        modified_submit_infos(submit_infos, submit_infos + submit_count);
+        std::vector<VkFrameBoundaryEXT>   inserted_frame_boundaries;
+        std::vector<std::vector<VkImage>> inserted_frame_boundaries_images;
+
+        for (uint32_t i = 0; i < submit_count; ++i)
+        {
+            // If the submit already contains a VkFrameBoundaryEXT, we can assume we don't need to convert it
+            if (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) == nullptr &&
+                meta_submit_infos[i].pCommandBufferInfos != nullptr)
+            {
+                VkFrameBoundaryEXT*   frame_boundary = nullptr;
+                std::vector<VkImage>* images         = nullptr;
+
+                const Decoded_VkCommandBufferSubmitInfo* cmd_buf_sub_info =
+                    meta_submit_infos[i].pCommandBufferInfos->GetMetaStructPointer();
+                for (uint32_t j = 0; j < submit_infos[i].commandBufferInfoCount; ++j)
+                {
+                    const VulkanCommandBufferInfo* command_buffer_info =
+                        object_info_table.GetVkCommandBufferInfo(cmd_buf_sub_info[j].commandBuffer);
+
+                    if (command_buffer_info->is_frame_boundary)
+                    {
+                        if (frame_boundary == nullptr)
+                        {
+                            // Copy the internal frame_boundary_ to initialize the structure
+                            inserted_frame_boundaries.push_back(frame_boundary_);
+                            inserted_frame_boundaries_images.emplace_back();
+
+                            frame_boundary = &inserted_frame_boundaries.back();
+                            images         = &inserted_frame_boundaries_images.back();
+                        }
+
+                        for (format::HandleId framebuffer_id : command_buffer_info->frame_buffer_ids)
+                        {
+                            const VulkanFramebufferInfo* framebuffer_info =
+                                object_info_table.GetVkFramebufferInfo(framebuffer_id);
+                            for (format::HandleId image_view_id : framebuffer_info->attachment_image_view_ids)
+                            {
+                                const VulkanImageViewInfo* image_view_info =
+                                    object_info_table.GetVkImageViewInfo(image_view_id);
+                                const VulkanImageInfo* image_info =
+                                    object_info_table.GetVkImageInfo(image_view_info->image_id);
+
+                                images->push_back(image_info->handle);
+                            }
+                        }
+                    }
+                }
+
+                if (frame_boundary != nullptr)
+                {
+                    // All frame boundaries share the same ID in this queue submit
+                    frame_boundary->frameID = frame_boundary_.frameID + 1;
+
+                    frame_boundary->pNext      = modified_submit_infos[i].pNext;
+                    frame_boundary->imageCount = images->size();
+                    frame_boundary->pImages    = images->data();
+
+                    modified_submit_infos[i].pNext = frame_boundary;
+                }
+            }
+        }
+
+        // If the queue submission contains a frame boundary, increment the frame counter
+        if (!inserted_frame_boundaries.empty())
+        {
+            ++frame_boundary_.frameID;
+        }
+
+        return func(queue_info->handle, modified_submit_infos.size(), modified_submit_infos.data(), fence);
+    }
+    else
+    {
+        return func(queue_info->handle, submit_count, submit_infos, fence);
+    }
 }
 
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal

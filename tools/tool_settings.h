@@ -130,6 +130,7 @@ const char kEnableUseCapturedSwapchainIndices[] =
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
 const char kVirtualSwapchainSkipBlitLongOption[]  = "--virtual-swapchain-skip-blit";
 const char kColorspaceFallback[]                  = "--use-colorspace-fallback";
+const char kUseExtFrameBoundaryOption[]           = "--use-ext-frame-boundary";
 const char kOffscreenSwapchainFrameBoundary[]     = "--offscreen-swapchain-frame-boundary";
 const char kFormatArgument[]                      = "--format";
 const char kIncludeBinariesOption[]               = "--include-binaries";
@@ -1062,14 +1063,23 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         GFXRECON_LOG_WARNING("Ignoring unrecognized \"--present-mode\" option: %s", present_mode_option.c_str());
     }
 
-    if (arg_parser.IsOptionSet(kColorspaceFallback))
+    if (arg_parser.IsOptionSet(kUseExtFrameBoundaryOption))
     {
-        replay_options.use_colorspace_fallback = true;
+        replay_options.use_ext_frame_boundary = true;
+        replay_options.swapchain_option       = gfxrecon::util::SwapchainOption::kOffscreen;
     }
 
     if (arg_parser.IsOptionSet(kOffscreenSwapchainFrameBoundary))
     {
-        replay_options.offscreen_swapchain_frame_boundary = true;
+        GFXRECON_LOG_WARNING("Detected usage of deprecated \"--offscreen-swapchain-frame-boundary\". Use "
+                             "\"--use-ext-frame-boundary\" instead.");
+        replay_options.use_ext_frame_boundary = true;
+        replay_options.swapchain_option       = gfxrecon::util::SwapchainOption::kOffscreen;
+    }
+
+    if (arg_parser.IsOptionSet(kColorspaceFallback))
+    {
+        replay_options.use_colorspace_fallback = true;
     }
 
     if (arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitLongOption) ||

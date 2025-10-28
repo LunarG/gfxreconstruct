@@ -40,6 +40,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+struct Decoded_VkBaseInStructure
+{
+    using struct_type = VkBaseInStructure;
+    const VkBaseInStructure* decoded_value{ nullptr };
+    const PNextNode*         pNext{ nullptr };
+};
+
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
 {

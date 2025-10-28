@@ -109,6 +109,41 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
+    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                      const VulkanDeviceInfo*              device_info,
+                                      const VulkanSemaphoreInfo*           semaphore_info,
+                                      const VulkanImageInfo*               image_info,
+                                      VulkanInstanceInfo*                  instance_info,
+                                      const graphics::VulkanInstanceTable* instance_table,
+                                      const graphics::VulkanDeviceTable*   device_table,
+                                      application::Application*            application) override;
+
+    virtual VkResult QueueSubmit(PFN_vkQueueSubmit                    func,
+                                 const VulkanQueueInfo*               queue_info,
+                                 uint32_t                             submit_count,
+                                 const VkSubmitInfo*                  submit_infos,
+                                 const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                 const VulkanFenceInfo*               fence_info,
+                                 VulkanInstanceInfo*                  instance_info,
+                                 const graphics::VulkanInstanceTable* instance_table,
+                                 const VulkanDeviceInfo*              device_info,
+                                 const graphics::VulkanDeviceTable*   device_table,
+                                 application::Application*            application,
+                                 const CommonObjectInfoTable&         object_info_table) override;
+
+    virtual VkResult QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                  const VulkanQueueInfo*               queue_info,
+                                  uint32_t                             submit_count,
+                                  const VkSubmitInfo2*                 submit_infos,
+                                  const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                  const VulkanFenceInfo*               fence_info,
+                                  VulkanInstanceInfo*                  instance_info,
+                                  const graphics::VulkanInstanceTable* instance_table,
+                                  const VulkanDeviceInfo*              device_info,
+                                  const graphics::VulkanDeviceTable*   device_table,
+                                  application::Application*            application,
+                                  const CommonObjectInfoTable&         object_info_table) override;
+
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
