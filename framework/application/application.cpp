@@ -124,6 +124,7 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
     }
 
     fps_info_ = fps_info;
+    file_processor_->SetFpsInfo(fps_info);
 }
 
 void Application::Run()
@@ -142,12 +143,6 @@ void Application::Run()
 
             if (fps_info_ != nullptr)
             {
-                if (fps_info_->ShouldQuit(frame_number))
-                {
-                    running_ = false;
-                    break;
-                }
-
                 if (fps_info_->ShouldWaitIdleBeforeFrame(frame_number))
                 {
                     file_processor_->WaitDecodersIdle();
@@ -169,11 +164,20 @@ void Application::Run()
 
             if (fps_info_ != nullptr)
             {
+                // We need to "poll" the frame number to know what was the actual frame number
+                // The frame number may have been incremented or reset to 1 if a frame end marker has been encountered
+                frame_number = file_processor_->GetCurrentFrameNumber();
+
                 fps_info_->EndFrame(frame_number);
 
                 if (fps_info_->ShouldWaitIdleAfterFrame(frame_number))
                 {
                     file_processor_->WaitDecodersIdle();
+                }
+
+                if (fps_info_->ShouldQuit(frame_number))
+                {
+                    running_ = false;
                 }
             }
         }

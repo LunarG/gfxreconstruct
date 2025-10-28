@@ -33,6 +33,7 @@
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/file_input_stream.h"
+#include "graphics/fps_info.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -212,6 +213,8 @@ class FileProcessor
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
+    void SetFpsInfo(graphics::FpsInfo* fps_info);
+
   protected:
     bool DoProcessNextFrame(const std::function<bool()>& block_processor);
     bool ProcessBlocksOneFrame();
@@ -343,6 +346,7 @@ class FileProcessor
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
+    graphics::FpsInfo*                  fps_info_{ nullptr };
 
     std::string absolute_path_;
 

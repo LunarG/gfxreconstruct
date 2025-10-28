@@ -176,7 +176,8 @@ const uint32_t kFirstFrame = 0;
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
     annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), api_call_index_(0), block_limit_(0),
-    capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1), loading_trimmed_capture_state_(false)
+    capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1), loading_trimmed_capture_state_(false),
+    fps_info_(nullptr)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -506,8 +507,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else if (base_type == format::BlockType::kStateMarkerBlock)
                 {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
+                    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
                     success = block_buffer.Read(marker_type);
 
@@ -2534,6 +2534,10 @@ bool FileProcessor::ProcessFrameMarker(BlockBuffer& block_buffer, format::Marker
         {
             capture_uses_frame_markers_ = true;
             current_frame_number_       = kFirstFrame;
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->ProcessFirstFrameEndMarker();
+            }
         }
 
         // Make sure to increment the frame number on the way out.
@@ -2563,6 +2567,10 @@ bool FileProcessor::ProcessStateMarker(BlockBuffer& block_buffer, format::Marker
             GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
             first_frame_                   = frame_number;
             loading_trimmed_capture_state_ = false;
+            if (fps_info_ != nullptr)
+            {
+                fps_info_->ProcessStateEndMarker(frame_number);
+            }
         }
 
         for (auto decoder : decoders_)
@@ -2665,6 +2673,11 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
                 (call_id == format::ApiCallId::ApiCall_IDXGISwapChain1_Present1) ||
                 (call_id == format::ApiCallId::ApiCall_xrEndFrame));
     }
+}
+
+void FileProcessor::SetFpsInfo(graphics::FpsInfo* fps_info)
+{
+    fps_info_ = fps_info;
 }
 
 void FileProcessor::PrintBlockInfo() const
