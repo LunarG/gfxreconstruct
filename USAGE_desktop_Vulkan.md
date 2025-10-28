@@ -125,6 +125,16 @@ The following command would be executed from the command line to set the
 export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 ```
 
+#### Capture specific app
+
+##### Capture specific app for Windows
+
+set GFXRECON_CAPTURE_PROCESS_NAME=your_app_name
+
+##### Capture specific app for Linux
+
+export GFXRECON_CAPTURE_PROCESS_NAME=your_app_name
+
 #### Understanding GFXReconstruct Layer Memory Capture
 
 The Vulkan API allows Vulkan memory objects to be mapped by an application
@@ -274,8 +284,9 @@ option values.
 
 | Option                                         | Environment Variable                                    | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------------------------- | ------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capture File Name                              | GFXRECON_CAPTURE_FILE                                   | STRING  | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Capture File Name                              | GFXRECON_CAPTURE_FILE                                   | STRING  | Path to use when creating the capture file. Supports variable patterns for dynamic file paths, such as `${AppName}` (the application or executable name). Default is: `gfxrecon_capture.gfxr` |
 | Capture Specific Frames                        | GFXRECON_CAPTURE_FRAMES                                 | STRING  | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).                                                                                                                                                                                                                                                                                                                                                                   |
+| Capture specific app                           | GFXRECON_CAPTURE_PROCESS_NAME                           | STRING  | Specify one app name to be captured. Default is: ""                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Quit after capturing frame ranges              | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES                      | BOOL    | Setting it to `true` will force the application to terminate once all frame ranges specified by `GFXRECON_CAPTURE_FRAMES` have been captured. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Hotkey Capture Trigger                         | GFXRECON_CAPTURE_TRIGGER                                | STRING  | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Hotkey Capture Trigger Frames                  | GFXRECON_CAPTURE_TRIGGER_FRAMES                         | STRING  | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)                                                                                                                                                                                                                                                      |
@@ -284,6 +295,7 @@ option values.
 | Capture File Compression Type                  | GFXRECON_CAPTURE_COMPRESSION_TYPE                       | STRING  | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Capture File Timestamp                         | GFXRECON_CAPTURE_FILE_TIMESTAMP                         | BOOL    | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | Capture File Flush After Write                 | GFXRECON_CAPTURE_FILE_FLUSH                             | BOOL    | Flush output stream after each packet is written to the capture file.  Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Capture Environment | GFXRECON_CAPTURE_ENVIRONMENT | STRING | Comma delimited list of environment variables to store in the capture file. These can optionally be restored during replay to their capture-time values with the `gfxrecon-replay-renamed.py` utility.
 | Log Level                                      | GFXRECON_LOG_LEVEL                                      | STRING  | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Log Output to Console                          | GFXRECON_LOG_OUTPUT_TO_CONSOLE                          | BOOL    | Log messages will be written to stdout. Default is: `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Log File                                       | GFXRECON_LOG_FILE                                       | STRING  | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -306,6 +318,8 @@ option values.
 | Force Command Serialization                    | GFXRECON_FORCE_COMMAND_SERIALIZATION                    | BOOL    | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Queue Zero Only                                | GFXRECON_QUEUE_ZERO_ONLY                                | BOOL    | Forces to using only QueueFamilyIndex: 0 and queueCount: 1 on capturing to avoid replay error for unavailble VkQueue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Allow Pipeline Compile Required                | GFXRECON_ALLOW_PIPELINE_COMPILE_REQUIRED                | BOOL    | The default behaviour forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.                                                                                                                                                                                                                                                                                                                                                                                     |
+| Stop Recording Calls in Threads With Invalid Data | GFXRECON_SKIP_THREADS_WITH_INVALID_DATA | BOOL | When a thread is encountered which contains data that is unexpected, skip the data and mark the thread as skippable.  This is important especially in OpenXR where other API commands (such as Vulkan) may be generated inside of the OpenXR commands, but may still be referenced in some fashion outside of the OpenXR commands.  This results in issues during replay.  So, this option prevents those commands, and the threads containing those commands from being recorded to the capture file.  Default is `false` and it is only valid when OpenXR capture is enabled.                                               |
+
 #### Memory Tracking Known Issues
 
 ### Capture Limitations
@@ -373,6 +387,52 @@ A sample layer settings file, documenting each available setting, can be found
 in the GFXReconstruct GitHub repository at `layer/vk_layer_settings.txt`. Most
 binary distributions of the GFXReconstruct software will also include a sample
 settings file.
+
+#### Layer Settings via VK_EXT_layer_settings
+
+An alternative way to configure the GFXReconstruct Vulkan capture layer is via the Vulkan
+`VK_EXT_layer_settings` extension, which allows settings to be passed directly through the
+Vulkan API at instance creation time. This is especially useful in environments where
+environment variables and settings files are not available or convenient (such as some
+launchers or embedded systems).
+
+GFXReconstruct supports reading capture options from `VkLayerSettingEXT` structures
+provided in the `pNext` chain of `VkInstanceCreateInfo` when creating a Vulkan instance.
+This allows you to specify settings programmatically, without relying on environment
+variables or external files.
+
+To use this feature, add a `VkLayerSettingsCreateInfoEXT` structure to the `pNext` chain
+of your `VkInstanceCreateInfo`, and include settings for the
+`VK_LAYER_LUNARG_gfxreconstruct` layer. For example, to set the capture file name:
+
+```c
+const char* capture_file_value[] = { "my_capture.gfxr" };
+
+VkLayerSettingEXT capture_file_setting = {
+    .pLayerName = "VK_LAYER_LUNARG_gfxreconstruct",
+    .pSettingName = "capture_file",
+    .type = VK_LAYER_SETTING_TYPE_STRING_EXT,
+    .valueCount = 1,
+    .pValues = capture_file_value,
+};
+
+VkLayerSettingsCreateInfoEXT layer_settings_info = {
+    .sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
+    .pNext = NULL,
+    .settingCount = 1,
+    .pSettings = &capture_file_setting
+};
+
+VkInstanceCreateInfo instance_info = {
+    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    .pNext = &layer_settings_info,
+    // ... other fields ...
+};
+```
+
+Supported settings include:
+
+- `capture_file` (string): Path to use when creating the capture file (same as `GFXRECON_CAPTURE_FILE`).
 
 #### Selecting Settings for the page_guard Memory Tracking Mode
 
@@ -475,6 +535,7 @@ usage: gfxrecon-capture-vulkan.py [-h]
                                   [--compression-type {LZ4,ZLIB,ZSTD,NONE}]
                                   [--file-flush]
                                   [--log-level {debug,info,warn,error,fatal}]
+                                  [--log-timestamps]
                                   [--log-file <file>]
                                   [--memory-tracking-mode {page_guard,assisted,unassisted}]
                                   <program> [<programArgs>]
@@ -505,6 +566,7 @@ optional arguments:
                         capture file
   --log-level {debug,info,warn,error,fatal}
                         Specify highest level message to log, default is info
+  --log-timestamps      Output a timestamp in front of each log message.
   --log-file <logFile>  Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled)
   --memory-tracking-mode {page_guard,assisted,unassisted}
@@ -551,16 +613,20 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
+                        [--screenshot-interval <N>]
+                        [--capture]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
+                        [--present-mode <mode>]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
+                        [--debug-messenger-level <level>]
                         [--no-debug-popup] [--use-colorspace-fallback]
                         [--wait-before-present]
                         [--dump-resources <submit-index,command-index,draw-call-index>]
@@ -578,6 +644,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--dump-resources-dump-all-image-subresources] <file>
                         [--pbi-all] [--pbis <index1,index2>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
+                        [--deduplicate-device]
 
 
 Required arguments:
@@ -588,9 +655,14 @@ Optional arguments:
   --version             Print version information and exit.
   --log-level <level>   Specify highest level message to log. Options are:
                         debug, info, warning, error, and fatal. Default is info.
+  --log-timestamps      Output a timestamp in front of each log message.
   --log-file <file>     Write log messages to a file at the specified path.
                         Default is: Empty string (file logging disabled).
   --log-debugview       Log messages with OutputDebugStringA. Windows only.
+  --debug-messenger-level <level>
+                        Specify highest debug messenger severity level. Options
+                        are: debug, info, warning, and error. Default is
+                        warning.
   --cpu-mask <binary-mask>
                         Set of CPU cores used by the replayer.
                         `binary-mask` is a succession of '0' and '1' read from left
@@ -625,6 +697,12 @@ Optional arguments:
                         ascending order and cannot overlap.  Note that frame
                         numbering is 1-based (i.e. the first frame is frame 1).
                         Example: 200,301-305 will generate six screenshots.
+  --screenshot-interval <N>
+                        Specifies the number of frames between two screenshots
+                        within a screenshot range.
+                        Example: If screenshot range is 10-15 and interval is 2,
+                        screenshot will be generated for frames 10, 12 and 14.
+                        Default is 1.
   --screenshot-format <format>
                         Image file format to use for screenshot generation.
                         Available formats are:
@@ -647,6 +725,12 @@ Optional arguments:
                         unspecified screenshots will use the swapchain images
                         dimensions. If --screenshot-scale is also specified then
                         this option is ignored.
+  --capture             Capture the replaying GFXR file. Capture uses the same log
+                        options as replay. All other capture option behavior and
+                        usage is the same as when capturing with the GFXR layer. The
+                        capture functionality is included in the `gfxrecon-replay`
+                        executable--no GFXR capture layer is added to the Vulkan layer
+                        chain.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
@@ -659,7 +743,8 @@ Optional arguments:
                         vkGetPipelineCacheData (same as
                         --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are: auto,win32,xlib,xcb,wayland
+                        Available platforms are:
+                        auto,display,headless,metal,wayland,win32,xcb,xlib
   --surface-index <N>   Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).
@@ -699,6 +784,13 @@ Optional arguments:
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
                                         and windows. To see rendering, add the --screenshots option.
+  --present-mode <mode> Set swapchain's VkPresentModeKHR.
+                        Available modes are:
+                            capture: Present mode used at capture time.
+                            immediate: VK_PRESENT_MODE_IMMEDIATE_KHR
+                            mailbox: VK_PRESENT_MODE_MAILBOX_KHR
+                            fifo: VK_PRESENT_MODE_FIFO_KHR
+                            fifo_relaxed: VK_PRESENT_MODE_FIFO_RELAXED_KHR
   --vssb
                         Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
@@ -833,6 +925,9 @@ Optional arguments:
                         `--load-pipeline-cache`.
   --quit-after-frame
               Specify a frame after which replay will terminate.
+
+  --deduplicate-device
+              If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
 ```
 
 ### Key Controls

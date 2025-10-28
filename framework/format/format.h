@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2022 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -54,6 +54,7 @@ typedef uint64_t AddressEncodeType;
 typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.
 typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 typedef uint32_t FormatEncodeType;
+typedef uint32_t D3D_FEATURE_LEVELEncodeType;
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
@@ -158,6 +159,10 @@ enum class MetaDataType : uint16_t
     kViewRelativeLocation                               = 33,
     kExecuteBlocksFromFile                              = 34,
     kCreateHardwareBufferCommand                        = 35,
+    kInitializeMetaCommand                              = 36,
+
+    //! reserve values with highest-bit for special purposes
+    kBeginExperimentalReservedRange = 1U << 15U
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -482,8 +487,12 @@ struct BeginResourceInitCommand
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     format::HandleId device_id;
-    uint64_t         max_resource_size; // Size of largest resource in upload data set.
-    uint64_t         max_copy_size;     // Size of largest resource requiring a staging copy at capture.
+
+    // sum of all resource-size in bytes.
+    uint64_t total_copy_size;
+
+    // size of single largest resource requiring a staging copy, in bytes.
+    uint64_t max_copy_size;
 };
 
 struct EndResourceInitCommand
@@ -711,6 +720,48 @@ struct ExecuteBlocksFromFile
 
     // Number of characters in file name
     uint32_t filename_length;
+};
+
+struct ViewRelativeLocation
+{
+    format::HandleId session_id;
+    format::HandleId space_id;
+
+    // Locate status
+    uint64_t flags;
+
+    // Orientation
+    float qx;
+    float qy;
+    float qz;
+    float qw;
+
+    // Position
+    float x;
+    float y;
+    float z;
+};
+
+struct ViewRelativeLocationCmd
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    ViewRelativeLocation location;
+};
+
+struct InitializeMetaCommand
+{
+    MetaDataHeader   meta_header{};
+    ThreadId         thread_id;
+    format::HandleId capture_id;
+    uint32_t         block_index{ 0 };
+    uint32_t         total_number_of_initializemetacommand{ 0 };
+    uint64_t         initialization_parameters_data_size{ 0 };
+
+    // In the capture file, initialize metacommand data is written in the following order:
+    // InitializeMetaCommandHeder
+    // parameters data
 };
 
 // Restore size_t to normal behavior.

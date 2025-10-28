@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2020 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -41,111 +41,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// Available settings (upper and lower-case)
 // clang-format off
-#define CAPTURE_COMPRESSION_TYPE_LOWER                       "capture_compression_type"
-#define CAPTURE_COMPRESSION_TYPE_UPPER                       "CAPTURE_COMPRESSION_TYPE"
-#define CAPTURE_FILE_NAME_LOWER                              "capture_file"
-#define CAPTURE_FILE_NAME_UPPER                              "CAPTURE_FILE"
-#define CAPTURE_FILE_USE_TIMESTAMP_LOWER                     "capture_file_timestamp"
-#define CAPTURE_FILE_USE_TIMESTAMP_UPPER                     "CAPTURE_FILE_TIMESTAMP"
-#define CAPTURE_FILE_FLUSH_LOWER                             "capture_file_flush"
-#define CAPTURE_FILE_FLUSH_UPPER                             "CAPTURE_FILE_FLUSH"
-#define LOG_ALLOW_INDENTS_LOWER                              "log_allow_indents"
-#define LOG_ALLOW_INDENTS_UPPER                              "LOG_ALLOW_INDENTS"
-#define LOG_BREAK_ON_ERROR_LOWER                             "log_break_on_error"
-#define LOG_BREAK_ON_ERROR_UPPER                             "LOG_BREAK_ON_ERROR"
-#define LOG_ERRORS_TO_STDERR_LOWER                           "log_errors_to_stderr"
-#define LOG_ERRORS_TO_STDERR_UPPER                           "LOG_ERRORS_TO_STDERR"
-#define LOG_DETAILED_LOWER                                   "log_detailed"
-#define LOG_DETAILED_UPPER                                   "LOG_DETAILED"
-#define LOG_FILE_NAME_LOWER                                  "log_file"
-#define LOG_FILE_NAME_UPPER                                  "LOG_FILE"
-#define LOG_FILE_CREATE_NEW_LOWER                            "log_file_create_new"
-#define LOG_FILE_CREATE_NEW_UPPER                            "LOG_FILE_CREATE_NEW"
-#define LOG_FILE_FLUSH_AFTER_WRITE_LOWER                     "log_file_flush_after_write"
-#define LOG_FILE_FLUSH_AFTER_WRITE_UPPER                     "LOG_FILE_FLUSH_AFTER_WRITE"
-#define LOG_FILE_KEEP_OPEN_LOWER                             "log_file_keep_open"
-#define LOG_FILE_KEEP_OPEN_UPPER                             "LOG_FILE_KEEP_OPEN"
-#define LOG_LEVEL_LOWER                                      "log_level"
-#define LOG_LEVEL_UPPER                                      "LOG_LEVEL"
-#define LOG_OUTPUT_TO_CONSOLE_LOWER                          "log_output_to_console"
-#define LOG_OUTPUT_TO_CONSOLE_UPPER                          "LOG_OUTPUT_TO_CONSOLE"
-#define LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER                  "log_output_to_os_debug_string"
-#define LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER                  "LOG_OUTPUT_TO_OS_DEBUG_STRING"
-#define MEMORY_TRACKING_MODE_LOWER                           "memory_tracking_mode"
-#define MEMORY_TRACKING_MODE_UPPER                           "MEMORY_TRACKING_MODE"
-#define SCREENSHOT_DIR_LOWER                                 "screenshot_dir"
-#define SCREENSHOT_DIR_UPPER                                 "SCREENSHOT_DIR"
-#define SCREENSHOT_FORMAT_LOWER                              "screenshot_format"
-#define SCREENSHOT_FORMAT_UPPER                              "SCREENSHOT_FORMAT"
-#define SCREENSHOT_FRAMES_LOWER                              "screenshot_frames"
-#define SCREENSHOT_FRAMES_UPPER                              "SCREENSHOT_FRAMES"
-#define CAPTURE_FRAMES_LOWER                                 "capture_frames"
-#define CAPTURE_FRAMES_UPPER                                 "CAPTURE_FRAMES"
-#define CAPTURE_DRAW_CALLS_LOWER                             "capture_draw_calls"
-#define CAPTURE_DRAW_CALLS_UPPER                             "CAPTURE_DRAW_CALLS"
-#define QUIT_AFTER_CAPTURE_FRAMES_LOWER                      "quit_after_capture_frames"
-#define QUIT_AFTER_CAPTURE_FRAMES_UPPER                      "QUIT_AFTER_CAPTURE_FRAMES"
-#define CAPTURE_TRIGGER_LOWER                                "capture_trigger"
-#define CAPTURE_TRIGGER_UPPER                                "CAPTURE_TRIGGER"
-#define CAPTURE_TRIGGER_FRAMES_LOWER                         "capture_trigger_frames"
-#define CAPTURE_TRIGGER_FRAMES_UPPER                         "CAPTURE_TRIGGER_FRAMES"
-#define CAPTURE_ANDROID_TRIGGER_LOWER                        "capture_android_trigger"
-#define CAPTURE_ANDROID_TRIGGER_UPPER                        "CAPTURE_ANDROID_TRIGGER"
-#define CAPTURE_ANDROID_DUMP_ASSETS_LOWER                    "capture_android_dump_assets"
-#define CAPTURE_ANDROID_DUMP_ASSETS_UPPER                    "CAPTURE_ANDROID_DUMP_ASSETS"
-#define CAPTURE_IUNKNOWN_WRAPPING_LOWER                      "capture_iunknown_wrapping"
-#define CAPTURE_IUNKNOWN_WRAPPING_UPPER                      "CAPTURE_IUNKNOWN_WRAPPING"
-#define CAPTURE_QUEUE_SUBMITS_LOWER                          "capture_queue_submits"
-#define CAPTURE_QUEUE_SUBMITS_UPPER                          "CAPTURE_QUEUE_SUBMITS"
-#define CAPTURE_USE_ASSET_FILE_LOWER                         "capture_use_asset_file"
-#define CAPTURE_USE_ASSET_FILE_UPPER                         "CAPTURE_USE_ASSET_FILE"
-#define PAGE_GUARD_COPY_ON_MAP_LOWER                         "page_guard_copy_on_map"
-#define PAGE_GUARD_COPY_ON_MAP_UPPER                         "PAGE_GUARD_COPY_ON_MAP"
-#define PAGE_GUARD_SEPARATE_READ_LOWER                       "page_guard_separate_read"
-#define PAGE_GUARD_SEPARATE_READ_UPPER                       "PAGE_GUARD_SEPARATE_READ"
-#define PAGE_GUARD_PERSISTENT_MEMORY_LOWER                   "page_guard_persistent_memory"
-#define PAGE_GUARD_PERSISTENT_MEMORY_UPPER                   "PAGE_GUARD_PERSISTENT_MEMORY"
-#define PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER                  "page_guard_align_buffer_sizes"
-#define PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER                  "PAGE_GUARD_ALIGN_BUFFER_SIZES"
-#define PAGE_GUARD_TRACK_AHB_MEMORY_LOWER                    "page_guard_track_ahb_memory"
-#define PAGE_GUARD_TRACK_AHB_MEMORY_UPPER                    "PAGE_GUARD_TRACK_AHB_MEMORY"
-#define PAGE_GUARD_EXTERNAL_MEMORY_LOWER                     "page_guard_external_memory"
-#define PAGE_GUARD_EXTERNAL_MEMORY_UPPER                     "PAGE_GUARD_EXTERNAL_MEMORY"
-#define PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER                     "page_guard_unblock_sigsegv"
-#define PAGE_GUARD_UNBLOCK_SIGSEGV_UPPER                     "PAGE_GUARD_UNBLOCK_SIGSEGV"
-#define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER              "page_guard_signal_handler_watcher"
-#define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_UPPER              "PAGE_GUARD_SIGNAL_HANDLER_WATCHER"
-#define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER "page_guard_signal_handler_watcher_max_restores"
-#define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_UPPER "PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES"
-#define DEBUG_LAYER_LOWER                                    "debug_layer"
-#define DEBUG_LAYER_UPPER                                    "DEBUG_LAYER"
-#define DEBUG_DEVICE_LOST_LOWER                              "debug_device_lost"
-#define DEBUG_DEVICE_LOST_UPPER                              "DEBUG_DEVICE_LOST"
-#define DISABLE_DXR_LOWER                                    "disable_dxr"
-#define DISABLE_DXR_UPPER                                    "DISABLE_DXR"
-#define ACCEL_STRUCT_PADDING_LOWER                           "accel_struct_padding"
-#define ACCEL_STRUCT_PADDING_UPPER                           "ACCEL_STRUCT_PADDING"
-#define FORCE_COMMAND_SERIALIZATION_LOWER                    "force_command_serialization"
-#define FORCE_COMMAND_SERIALIZATION_UPPER                    "FORCE_COMMAND_SERIALIZATION"
-#define QUEUE_ZERO_ONLY_LOWER                                "queue_zero_only"
-#define QUEUE_ZERO_ONLY_UPPER                                "QUEUE_ZERO_ONLY"
-#define ALLOW_PIPELINE_COMPILE_REQUIRED_LOWER                "allow_pipeline_compile_required"
-#define ALLOW_PIPELINE_COMPILE_REQUIRED_UPPER                "ALLOW_PIPELINE_COMPILE_REQUIRED"
-#define RV_ANNOTATION_EXPERIMENTAL_LOWER                     "rv_annotation_experimental"
-#define RV_ANNOTATION_EXPERIMENTAL_UPPER                     "RV_ANNOTATION_EXPERIMENTAL"
-#define RV_ANNOTATION_RAND_LOWER                             "rv_annotation_rand"
-#define RV_ANNOTATION_RAND_UPPER                             "RV_ANNOTATION_RAND"
-#define RV_ANNOTATION_GPUVA_LOWER                            "rv_annotation_gpuva"
-#define RV_ANNOTATION_GPUVA_UPPER                            "RV_ANNOTATION_GPUVA"
-#define RV_ANNOTATION_DESCRIPTOR_LOWER                       "rv_annotation_descriptor"
-#define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
-#define FORCE_FIFO_PRESENT_MODE_LOWER                        "force_fifo_present_mode"
-#define FORCE_FIFO_PRESENT_MODE_UPPER                        "FORCE_FIFO_PRESENT_MODE"
-#define IGNORE_FRAME_BOUNDARY_ANDROID_LOWER                  "ignore_frame_boundary_android"
-#define IGNORE_FRAME_BOUNDARY_ANDROID_UPPER                  "IGNORE_FRAME_BOUNDARY_ANDROID"
-
 #if defined(__ANDROID__)
 // Android Properties
 #define GFXRECON_ENV_VAR_PREFIX "debug.gfxrecon."
@@ -178,12 +74,14 @@ const char kLogFileCreateNewEnvVar[]                         = GFXRECON_OPTION_S
 const char kLogFileFlushAfterWriteEnvVar[]                   = GFXRECON_OPTION_STR(LOG_FILE_FLUSH_AFTER_WRITE);
 const char kLogFileKeepFileOpenEnvVar[]                      = GFXRECON_OPTION_STR(LOG_FILE_KEEP_OPEN);
 const char kLogLevelEnvVar[]                                 = GFXRECON_OPTION_STR(LOG_LEVEL);
+const char kLogTimestampsEnvVar[]                            = GFXRECON_OPTION_STR(LOG_TIMESTAMPS);
 const char kLogOutputToConsoleEnvVar[]                       = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_CONSOLE);
 const char kLogOutputToOsDebugStringEnvVar[]                 = GFXRECON_OPTION_STR(LOG_OUTPUT_TO_OS_DEBUG_STRING);
 const char kMemoryTrackingModeEnvVar[]                       = GFXRECON_OPTION_STR(MEMORY_TRACKING_MODE);
 const char kScreenshotDirEnvVar[]                            = GFXRECON_OPTION_STR(SCREENSHOT_DIR);
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FORMAT);
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_OPTION_STR(SCREENSHOT_FRAMES);
+const char kScreenshotIntervalEnvVar[]                       = GFXRECON_OPTION_STR(SCREENSHOT_INTERVAL);
 const char kCaptureFramesEnvVar[]                            = GFXRECON_OPTION_STR(CAPTURE_FRAMES);
 const char kCaptureDrawCallsEnvVar[]                         = GFXRECON_OPTION_STR(CAPTURE_DRAW_CALLS);
 const char kQuitAfterFramesEnvVar[]                          = GFXRECON_OPTION_STR(QUIT_AFTER_CAPTURE_FRAMES);
@@ -203,6 +101,7 @@ const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_OPTION_S
 const char kDebugLayerEnvVar[]                               = GFXRECON_OPTION_STR(DEBUG_LAYER);
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_OPTION_STR(DEBUG_DEVICE_LOST);
 const char kDisableDxrEnvVar[]                               = GFXRECON_OPTION_STR(DISABLE_DXR);
+const char kDisableMetaCommandEnvVar[]                       = GFXRECON_OPTION_STR(DISABLE_METACOMMAND);
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_OPTION_STR(ACCEL_STRUCT_PADDING);
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_OPTION_STR(FORCE_COMMAND_SERIALIZATION);
 const char kQueueZeroOnlyEnvVar[]                            = GFXRECON_OPTION_STR(QUEUE_ZERO_ONLY);
@@ -213,6 +112,9 @@ const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_OPTION_S
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_OPTION_STR(RV_ANNOTATION_DESCRIPTOR);
 const char kForceFifoPresentModeEnvVar[]                     = GFXRECON_OPTION_STR(FORCE_FIFO_PRESENT_MODE);
 const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_OPTION_STR(IGNORE_FRAME_BOUNDARY_ANDROID);
+const char kSkipThreadsWithInvalidDataEnvVar[]               = GFXRECON_OPTION_STR(SKIP_THREADS_WITH_INVALID_DATA);
+const char kCaptureEnvironmentEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_ENVIRONMENT);
+const char kCaptureProcessNameEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_PROCESS_NAME);
 
 #if defined(__ANDROID__)
 // Android-specific capture options
@@ -236,12 +138,14 @@ const std::string kOptionKeyLogFileCreateNew                         = std::stri
 const std::string kOptionKeyLogFileFlushAfterWrite                   = std::string(kSettingsFilter) + std::string(LOG_FILE_FLUSH_AFTER_WRITE_LOWER);
 const std::string kOptionKeyLogFileKeepOpen                          = std::string(kSettingsFilter) + std::string(LOG_FILE_KEEP_OPEN_LOWER);
 const std::string kOptionKeyLogLevel                                 = std::string(kSettingsFilter) + std::string(LOG_LEVEL_LOWER);
+const std::string kOptionKeyLogTimestamps                            = std::string(kSettingsFilter) + std::string(LOG_TIMESTAMPS_LOWER);
 const std::string kOptionKeyLogOutputToConsole                       = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_CONSOLE_LOWER);
 const std::string kOptionKeyLogOutputToOsDebugString                 = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
 const std::string kOptionKeyMemoryTrackingMode                       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
 const std::string kOptionKeyScreenshotDir                            = std::string(kSettingsFilter) + std::string(SCREENSHOT_DIR_LOWER);
 const std::string kOptionKeyScreenshotFormat                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FORMAT_LOWER);
 const std::string kOptionKeyScreenshotFrames                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
+const std::string kOptionKeyScreenshotInterval                       = std::string(kSettingsFilter) + std::string(SCREENSHOT_INTERVAL_LOWER);
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureDrawCalls                         = std::string(kSettingsFilter) + std::string(CAPTURE_DRAW_CALLS_LOWER);
 const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
@@ -262,6 +166,7 @@ const std::string kOptionKeyPageGuardSignalHandlerWatcherMaxRestores = std::stri
 const std::string kDebugLayer                                        = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                                   = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
+const std::string kOptionDisableMetaCommand                          = std::string(kSettingsFilter) + std::string(DISABLE_METACOMMAND_LOWER);
 const std::string kOptionAccelStructPadding                          = std::string(kSettingsFilter) + std::string(ACCEL_STRUCT_PADDING_LOWER);
 const std::string kOptionForceCommandSerialization                   = std::string(kSettingsFilter) + std::string(FORCE_COMMAND_SERIALIZATION_LOWER);
 const std::string kOptionQueueZeroOnly                               = std::string(kSettingsFilter) + std::string(QUEUE_ZERO_ONLY_LOWER);
@@ -270,8 +175,11 @@ const std::string kOptionKeyAnnotationExperimental                   = std::stri
 const std::string kOptionKeyAnnotationRand                           = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_RAND_LOWER);
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
-const std::string kOptionForceFifoPresentModeEnvVar                  = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
+const std::string kOptionForceFifoPresentMode                        = std::string(kSettingsFilter) + std::string(FORCE_FIFO_PRESENT_MODE_LOWER);
 const std::string kOptionIgnoreFrameBoundaryAndroid                  = std::string(kSettingsFilter) + std::string(IGNORE_FRAME_BOUNDARY_ANDROID_LOWER);
+const std::string kOptionSkipThreadsWithInvalidData                  = std::string(kSettingsFilter) + std::string(SKIP_THREADS_WITH_INVALID_DATA_LOWER);
+const std::string kOptionCaptureEnvironment                          = std::string(kSettingsFilter) + std::string(CAPTURE_ENVIRONMENT_LOWER);
+const std::string kOptionCaptureProcessName                          = std::string(kSettingsFilter) + std::string(CAPTURE_PROCESS_NAME_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -288,15 +196,15 @@ CaptureSettings::CaptureSettings(const TraceSettings& trace_settings)
 
 CaptureSettings::~CaptureSettings() {}
 
-void CaptureSettings::LoadSettings(CaptureSettings* settings)
+void CaptureSettings::LoadSettings(CaptureSettings* settings, bool load_log_settings)
 {
     if (settings != nullptr)
     {
         OptionsMap capture_settings;
 
         LoadOptionsFile(&capture_settings);
-        LoadOptionsEnvVar(&capture_settings);
-        ProcessOptions(&capture_settings, settings);
+        LoadOptionsEnvVar(&capture_settings, load_log_settings);
+        ProcessOptions(&capture_settings, settings, load_log_settings);
 
         LoadRunTimeEnvVarSettings(settings);
 
@@ -349,7 +257,7 @@ void CaptureSettings::LoadLogSettings(CaptureSettings* settings)
         OptionsMap capture_settings;
 
         LoadOptionsFile(&capture_settings);
-        LoadOptionsEnvVar(&capture_settings);
+        LoadOptionsEnvVar(&capture_settings, true);
         ProcessLogOptions(&capture_settings, settings);
     }
 }
@@ -368,7 +276,7 @@ void CaptureSettings::LoadSingleOptionEnvVar(OptionsMap*        options,
     }
 }
 
-void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
+void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_settings)
 {
     assert(options != nullptr);
 
@@ -379,17 +287,21 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureFileFlushEnvVar, kOptionKeyCaptureFileForceFlush);
 
     // Logging environment variables
-    LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
-    LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
-    LoadSingleOptionEnvVar(options, kLogDetailedEnvVar, kOptionKeyLogDetailed);
-    LoadSingleOptionEnvVar(options, kLogErrorsToStderrEnvVar, kOptionKeyLogErrorsToStderr);
-    LoadSingleOptionEnvVar(options, kLogFileNameEnvVar, kOptionKeyLogFile);
-    LoadSingleOptionEnvVar(options, kLogFileCreateNewEnvVar, kOptionKeyLogFileCreateNew);
-    LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
-    LoadSingleOptionEnvVar(options, kLogFileKeepFileOpenEnvVar, kOptionKeyLogFileKeepOpen);
-    LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
-    LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
-    LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
+    if (load_log_settings)
+    {
+        LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
+        LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
+        LoadSingleOptionEnvVar(options, kLogDetailedEnvVar, kOptionKeyLogDetailed);
+        LoadSingleOptionEnvVar(options, kLogErrorsToStderrEnvVar, kOptionKeyLogErrorsToStderr);
+        LoadSingleOptionEnvVar(options, kLogFileNameEnvVar, kOptionKeyLogFile);
+        LoadSingleOptionEnvVar(options, kLogFileCreateNewEnvVar, kOptionKeyLogFileCreateNew);
+        LoadSingleOptionEnvVar(options, kLogFileFlushAfterWriteEnvVar, kOptionKeyLogFileFlushAfterWrite);
+        LoadSingleOptionEnvVar(options, kLogFileKeepFileOpenEnvVar, kOptionKeyLogFileKeepOpen);
+        LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
+        LoadSingleOptionEnvVar(options, kLogTimestampsEnvVar, kOptionKeyLogTimestamps);
+        LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
+        LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
+    }
 
     // Memory environment variables
     LoadSingleOptionEnvVar(options, kMemoryTrackingModeEnvVar, kOptionKeyMemoryTrackingMode);
@@ -423,9 +335,11 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kScreenshotDirEnvVar, kOptionKeyScreenshotDir);
     LoadSingleOptionEnvVar(options, kScreenshotFormatEnvVar, kOptionKeyScreenshotFormat);
     LoadSingleOptionEnvVar(options, kScreenshotFramesEnvVar, kOptionKeyScreenshotFrames);
+    LoadSingleOptionEnvVar(options, kScreenshotIntervalEnvVar, kOptionKeyScreenshotInterval);
 
     // DirectX environment variables
     LoadSingleOptionEnvVar(options, kDisableDxrEnvVar, kOptionDisableDxr);
+    LoadSingleOptionEnvVar(options, kDisableMetaCommandEnvVar, kOptionDisableMetaCommand);
     LoadSingleOptionEnvVar(options, kAccelStructPaddingEnvVar, kOptionAccelStructPadding);
 
     // IUnknown wrapping environment variable
@@ -440,9 +354,14 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kAnnotationRandEnvVar, kOptionKeyAnnotationRand);
     LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
     LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
-    LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentModeEnvVar);
+    LoadSingleOptionEnvVar(options, kForceFifoPresentModeEnvVar, kOptionForceFifoPresentMode);
 
     LoadSingleOptionEnvVar(options, kIgnoreFrameBoundaryAndroidEnvVar, kOptionIgnoreFrameBoundaryAndroid);
+
+    LoadSingleOptionEnvVar(options, kSkipThreadsWithInvalidDataEnvVar, kOptionSkipThreadsWithInvalidData);
+
+    LoadSingleOptionEnvVar(options, kCaptureEnvironmentEnvVar, kOptionCaptureEnvironment);
+    LoadSingleOptionEnvVar(options, kCaptureProcessNameEnvVar, kOptionCaptureProcessName);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -468,7 +387,7 @@ void CaptureSettings::LoadOptionsFile(OptionsMap* options)
     }
 }
 
-void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings)
+void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* settings, bool process_log_settings)
 {
     assert(settings != nullptr);
 
@@ -612,7 +531,10 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.debug_device_lost =
         ParseBoolString(FindOption(options, kDebugDeviceLost), settings->trace_settings_.debug_device_lost);
 
-    ProcessLogOptions(options, settings);
+    if (process_log_settings)
+    {
+        ProcessLogOptions(options, settings);
+    }
 
     // Screenshot options
     settings->trace_settings_.screenshot_dir =
@@ -620,12 +542,22 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     ParseUintRangeList(FindOption(options, kOptionKeyScreenshotFrames),
                        &settings->trace_settings_.screenshot_ranges,
                        "screenshot frames");
+    settings->trace_settings_.screenshot_interval = ParseIntegerString(
+        FindOption(options, kOptionKeyScreenshotInterval), settings->trace_settings_.screenshot_interval);
+    if (settings->trace_settings_.screenshot_interval == 0)
+    {
+        GFXRECON_LOG_WARNING(
+            "A screenshot interval of 0 has been specified, which is invalid. An interval of 1 will be used.");
+        settings->trace_settings_.screenshot_interval = 1;
+    }
     settings->trace_settings_.screenshot_format = ParseScreenshotFormatString(
         FindOption(options, kOptionKeyScreenshotFormat), settings->trace_settings_.screenshot_format);
 
     // DirectX options
     settings->trace_settings_.disable_dxr =
         ParseBoolString(FindOption(options, kOptionDisableDxr), settings->trace_settings_.disable_dxr);
+    settings->trace_settings_.disable_meta_command =
+        ParseBoolString(FindOption(options, kOptionDisableMetaCommand), settings->trace_settings_.disable_meta_command);
     settings->trace_settings_.accel_struct_padding = gfxrecon::util::ParseUintString(
         FindOption(options, kOptionAccelStructPadding), settings->trace_settings_.accel_struct_padding);
 
@@ -655,11 +587,22 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         ParseUnsignedInteger16String(FindOption(options, kOptionKeyAnnotationDescriptor),
                                      settings->trace_settings_.rv_anotation_info.descriptor_mask);
     settings->trace_settings_.force_fifo_present_mode = ParseBoolString(
-        FindOption(options, kOptionForceFifoPresentModeEnvVar), settings->trace_settings_.force_fifo_present_mode);
+        FindOption(options, kOptionForceFifoPresentMode), settings->trace_settings_.force_fifo_present_mode);
 
     settings->trace_settings_.ignore_frame_boundary_android =
         ParseBoolString(FindOption(options, kOptionIgnoreFrameBoundaryAndroid),
                         settings->trace_settings_.ignore_frame_boundary_android);
+
+    // Skip threads with invalid data
+    settings->trace_settings_.skip_threads_with_invalid_data =
+        ParseBoolString(FindOption(options, kOptionSkipThreadsWithInvalidData),
+                        settings->trace_settings_.skip_threads_with_invalid_data);
+
+    // Capture environment variables
+    settings->trace_settings_.capture_environment =
+        util::strings::SplitString(FindOption(options, kOptionCaptureEnvironment), ',');
+    settings->trace_settings_.capture_process_name =
+        FindOption(options, kOptionCaptureProcessName, settings->trace_settings_.capture_process_name);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
@@ -686,6 +629,8 @@ void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* se
         FindOption(options, kOptionKeyLogOutputToOsDebugString), settings->log_settings_.output_to_os_debug_string);
     settings->log_settings_.min_severity =
         ParseLogLevelString(FindOption(options, kOptionKeyLogLevel), settings->log_settings_.min_severity);
+    settings->log_settings_.output_timestamps =
+        ParseBoolString(FindOption(options, kOptionKeyLogTimestamps), settings->log_settings_.output_timestamps);
 }
 
 std::string CaptureSettings::FindOption(OptionsMap* options, const std::string& key, const std::string& default_value)

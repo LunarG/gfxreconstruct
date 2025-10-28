@@ -30,7 +30,49 @@ initialization and a render loop. The *TestAppBase* provides to following overri
 
 Only the ***frame*** function is required. All others are optional.
 
-Use of the *TestAppBase* is optional.
+## **Test Launcher**
+
+The test-launcher is an executable which can be used to launch test apps.
+
+```console
+gfxrecon-test-launcher - A launcher for GFXReconstruct test apps.
+
+Usage:
+  gfxrecon-test-launcher [-h | --help] <test_name>
+
+Required arguments:
+  <test_name>   Name of the test app to launch.
+                Options are: 
+                  acquired-image
+                  host-image-copy
+                  multisample-depth
+                  pipeline-binaries
+                  shader-objects
+                  sparse-resources
+                  triangle
+                  external-memory-fd-export
+                  external-memory-fd-import
+                  wait-for-present
+                  [...]
+```
+
+Use of the *TestAppBase* is required to add a test app to the test-launcher.
+
+In order to add a test app to the test-launcher, make sure to modify `test_launcher.cpp` using the following approach making sure to replace `<test-name>` with the name of your test app:
+1. Add `#include <<test-name>-app.h>`
+2. Add `"<test-name>"` to `kAppNames`
+3. Add the following code to `CreateTestApp()`:
+   ```cpp
+   else if (app_name == "<test-name>")
+   {
+       app = std::make_unique<gfxrecon::test_app::<test_name>::App>();
+   }
+   ```
+
+Finally, make sure to add your test app library to the `GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES` list in the following CMakeLists files:
+
+- `android/test/test_apps/launcher/CMakeLists.txt`
+- `test/test_apps/launcher/CMakeLists.txt`
 
 ## **Building Test Apps**
 
@@ -49,3 +91,9 @@ To run the test apps and validate output against known good '.gfxr' files, build
 |Windows| build/windows/x64/output/test      |run-tests.ps1|
 |Linux| build/linux/x64/output/test        |run-tests.sh|
 |MacOs| build/darwin/universal/output/test |run-tests_macos.sh|
+
+## **Run A Single Test App**
+
+The default of Test Script `run-tests.sh` runs whole test apps. It could also run a single test app by specifying the test name, e.g. `run-tests.sh triangle`.
+
+It could also run the test app straightforwardly without the test script. However, many environment variables set in the test script are necessary for running a single test app. Plus, some paths of the environment variables might have to be modified to match your environment.

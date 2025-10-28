@@ -1,9 +1,20 @@
 [submodule "external/Vulkan-Headers"]
 	path = external/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
+	shallow = true
 [submodule "external/SPIRV-Headers"]
 	path = external/SPIRV-Headers
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+	shallow = true
 [submodule "external/SPIRV-Reflect"]
 	path = external/SPIRV-Reflect
 	url = https://github.com/KhronosGroup/SPIRV-Reflect.git
+	shallow = true
+[submodule "external/OpenXR-SDK"]
+	path = external/OpenXR-SDK
+	url = https://github.com/KhronosGroup/OpenXR-SDK.git
+	shallow = true
+[submodule "external/OpenXR-Docs"]
+	path = external/OpenXR-Docs
+	url = https://github.com/KhronosGroup/OpenXR-Docs.git
+	shallow = true

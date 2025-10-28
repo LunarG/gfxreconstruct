@@ -23,4 +23,10 @@ $env:GFXRECON_TESTAPP_HEADLESS="true"
 $env:GFXRECON_TESTAPP_MOCK_ICD="$pwd\test_apps\VkICD_mock_icd.dll"
 #$env:GFXRECON_LOG_LEVEL=""
 #$env:VK_LOADER_DEBUG=""
-./gfxrecon-testapp-runner.exe
+
+$single_test_app_path = $args[0]
+if ([string]::IsNullOrEmpty($single_test_app_path)) {
+    ./gfxrecon-testapp-runner.exe 
+} else {
+    & $single_test_app_path
+}

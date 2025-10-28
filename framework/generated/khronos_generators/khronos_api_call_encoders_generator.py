@@ -28,12 +28,11 @@ class KhronosApiCallEncodersGenerator():
     """KhronosApiCallEncodersGenerator
     Common functions for Api Call Encoding generation
     """
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
+    def __init__(self, check_write=None):
+        if check_write:
+            self.CHECK_WRITE = check_write
+        else:
+            self.CHECK_WRITE = []
 
     def make_encoder_cmd_decl(self, proto, values, is_header):
         """Generate function declaration for a command."""
@@ -63,7 +62,16 @@ class KhronosApiCallEncodersGenerator():
     ):
         body = '\n'
         body += indent + self.make_begin_api_call(name, values)
-        body += indent + 'if (encoder)\n'
+        body += indent + 'if (encoder'
+
+        if self.CHECK_WRITE:
+            if name in self.CHECK_WRITE:
+                body += ' && manager->CheckWrite' + name[2:] + '(result'
+                for value in values:
+                    body += ', ' + value.name
+                body += ')'
+
+        body += ')\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
 

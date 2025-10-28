@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,6 +59,8 @@ class ApiCaptureManager
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
     bool                IsCaptureModeWrite() const { return common_manager_->IsCaptureModeWrite(); }
+    bool                IsCaptureModeDisabled() const { return common_manager_->IsCaptureModeDisabled(); }
+    bool IsCaptureSkippingCurrentThread() const { return common_manager_->IsCaptureSkippingCurrentThread(); }
 
     bool IsPageGuardMemoryModeDisabled() const
     {
@@ -80,6 +82,7 @@ class ApiCaptureManager
     typedef uint32_t CaptureMode;
 
     // Forwarded Common Methods
+    auto                AcquireCallLock() { return common_manager_->AcquireCallLock(); }
     HandleUnwrapMemory* GetHandleUnwrapMemory() { return common_manager_->GetHandleUnwrapMemory(); }
     ParameterEncoder*   BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
@@ -103,9 +106,21 @@ class ApiCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type) { common_manager_->WriteFrameMarker(marker_type); }
 
-    void EndFrame(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
+    void EndFrame(CommonCaptureManager::ApiSharedLockT& current_lock)
     {
         common_manager_->EndFrame(api_family_, current_lock);
+    }
+    void EndFrame(CommonCaptureManager::ApiCallLock& current_lock)
+    {
+        if (current_lock.IsShared())
+        {
+            EndFrame(current_lock.GetSharedRef());
+        }
+        else
+        {
+            CommonCaptureManager::ApiSharedLockT empty_lock;
+            EndFrame(empty_lock);
+        }
     }
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
@@ -164,6 +179,7 @@ class ApiCaptureManager
     auto GetForceCommandSerialization() const { return common_manager_->GetForceCommandSerialization(); }
     auto GetQueueZeroOnly() const { return common_manager_->GetQueueZeroOnly(); }
     auto GetAllowPipelineCompileRequired() const { return common_manager_->GetAllowPipelineCompileRequired(); }
+    auto GetSkipThreadsWithInvalidData() const { return common_manager_->GetSkipThreadsWithInvalidData(); }
 
     bool     IsAnnotated() const { return common_manager_->IsAnnotated(); }
     uint16_t GetGPUVAMask() const { return common_manager_->GetGPUVAMask(); }
@@ -191,6 +207,7 @@ class ApiCaptureManager
     bool GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
     bool GetDisableDxrSetting() const { return common_manager_->GetDisableDxrSetting(); }
+    bool GetDisableMetaCommandSetting() const { return common_manager_->GetDisableMetaCommandSetting(); }
     auto GetAccelStructPaddingSetting() const { return common_manager_->GetAccelStructPaddingSetting(); }
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
@@ -202,9 +219,9 @@ class ApiCaptureManager
         common_manager_->WriteFillMemoryCmd(api_family_, memory_id, offset, size, data);
     }
 
-    void WriteBeginResourceInitCmd(format::HandleId device_id, uint64_t max_resource_size)
+    void WriteBeginResourceInitCmd(format::HandleId device_id, uint64_t total_copy_size, uint64_t max_resource_size)
     {
-        common_manager_->WriteBeginResourceInitCmd(api_family_, device_id, max_resource_size);
+        common_manager_->WriteBeginResourceInitCmd(api_family_, device_id, total_copy_size, max_resource_size);
     }
 
     void WriteEndResourceInitCmd(format::HandleId device_id)

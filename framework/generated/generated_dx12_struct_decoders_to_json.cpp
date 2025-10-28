@@ -25,6 +25,8 @@
 **
 */
 
+#if defined(D3D12_SUPPORT)
+
 #include "generated_dx12_struct_decoders_to_json.h"
 #include "generated_dx12_enum_to_json.h"
 #include "decode/custom_dx12_struct_decoders.h"
@@ -979,6 +981,17 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_HARDWARE_COPY& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY& meta_struct = *data;
+        Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE& meta_struct = *data;
         Bool32ToJson(jdata["Supported"], decoded_value.Supported, options);
     }
 }
@@ -3308,6 +3321,45 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& meta_struct = *data;
+        FieldToJson(jdata["ByteOffset"], decoded_value.ByteOffset, options);
+        FieldToJson(jdata["SubdivisionLevel"], decoded_value.SubdivisionLevel, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& meta_struct = *data;
+        FieldToJson(jdata["OpacityMicromapIndexBuffer"], meta_struct.OpacityMicromapIndexBuffer, options);
+        FieldToJson(jdata["OpacityMicromapIndexFormat"], decoded_value.OpacityMicromapIndexFormat, options);
+        FieldToJson(jdata["OpacityMicromapBaseLocation"], decoded_value.OpacityMicromapBaseLocation, options);
+        FieldToJsonAsHex(jdata["OpacityMicromapArray"], decoded_value.OpacityMicromapArray, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& meta_struct = *data;
+        FieldToJson(jdata["pTriangles"], meta_struct.pTriangles, options);
+        FieldToJson(jdata["pOmmLinkage"], meta_struct.pOmmLinkage, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* data, const JsonOptions& options)
 {
     using namespace util;
@@ -3362,7 +3414,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_A
         const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& meta_struct = *data;
         FieldToJson(jdata["SerializedSizeInBytes"], decoded_value.SerializedSizeInBytes, options);
-        FieldToJson(jdata["NumBottomLevelAccelerationStructurePointers"], decoded_value.NumBottomLevelAccelerationStructurePointers, options);
+        ; ///< @todo ALERT: Union member 0 of D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC needs special handling.
     }
 }
 
@@ -3389,6 +3441,33 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_R
         FieldToJson(jdata["SerializedSizeInBytesIncludingHeader"], decoded_value.SerializedSizeInBytesIncludingHeader, options);
         FieldToJson(jdata["DeserializedSizeInBytes"], decoded_value.DeserializedSizeInBytes, options);
         FieldToJson(jdata["NumBottomLevelAccelerationStructurePointersAfterHeader"], decoded_value.NumBottomLevelAccelerationStructurePointersAfterHeader, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& meta_struct = *data;
+        FieldToJson(jdata["DriverMatchingIdentifier"], meta_struct.DriverMatchingIdentifier, options);
+        FieldToJson(jdata["SerializedSizeInBytesIncludingHeader"], decoded_value.SerializedSizeInBytesIncludingHeader, options);
+        FieldToJson(jdata["DeserializedSizeInBytes"], decoded_value.DeserializedSizeInBytes, options);
+        ; ///< @todo ALERT: Union member 0 of D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 needs special handling.
+        FieldToJson(jdata["HeaderPostambleType"], decoded_value.HeaderPostambleType, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_SERIALIZED_BLOCK& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK& meta_struct = *data;
+        FieldToJson(jdata["Type"], decoded_value.Type, options);
+        FieldToJson(jdata["NumBlockPointersAfterHeader"], decoded_value.NumBlockPointersAfterHeader, options);
     }
 }
 
@@ -3446,6 +3525,33 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
                 break;
             }
         }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY& meta_struct = *data;
+        FieldToJson(jdata["Count"], decoded_value.Count, options);
+        FieldToJson(jdata["SubdivisionLevel"], decoded_value.SubdivisionLevel, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& meta_struct = *data;
+        FieldToJson(jdata["NumOmmHistogramEntries"], decoded_value.NumOmmHistogramEntries, options);
+        FieldToJson(jdata["pOmmHistogram"], meta_struct.pOmmHistogram, options);
+        FieldToJsonAsHex(jdata["InputBuffer"], decoded_value.InputBuffer, options);
+        FieldToJson(jdata["PerOmmDescs"], meta_struct.PerOmmDescs, options);
     }
 }
 
@@ -3517,6 +3623,40 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_A
         FieldToJson(jdata["ResultDataMaxSizeInBytes"], decoded_value.ResultDataMaxSizeInBytes, options);
         FieldToJson(jdata["ScratchDataSizeInBytes"], decoded_value.ScratchDataSizeInBytes, options);
         FieldToJson(jdata["UpdateScratchDataSizeInBytes"], decoded_value.UpdateScratchDataSizeInBytes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC& meta_struct = *data;
+        FieldToJsonAsHex(jdata["DestBuffer"], decoded_value.DestBuffer, options);
+        FieldToJson(jdata["InfoType"], decoded_value.InfoType, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC& meta_struct = *data;
+        FieldToJson(jdata["CurrentSizeInBytes"], decoded_value.CurrentSizeInBytes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& meta_struct = *data;
+        FieldToJson(jdata["DecodedSizeInBytes"], decoded_value.DecodedSizeInBytes, options);
     }
 }
 
@@ -5144,3 +5284,5 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_CPU_DESCRIPT
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)

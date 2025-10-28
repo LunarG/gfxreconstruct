@@ -24,6 +24,7 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "graphics/vulkan_resources_util.h"
 #include "decode/decoder_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 
@@ -68,7 +69,7 @@ inline void WriteImageFile(const std::string&     filename,
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
                                    const VulkanDeviceInfo*                 device_info,
-                                   const encode::VulkanDeviceTable*        device_table,
+                                   const graphics::VulkanDeviceTable*      device_table,
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
                                    VkImage                                 image,
@@ -194,6 +195,8 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
             if (result == VK_SUCCESS)
             {
+                auto image_aspect_mask = graphics::GetFormatAspects(format);
+
                 // Transition source image from image_layout to the TRANSFER_DST layout.
                 VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
                 image_barrier.pNext                           = nullptr;
@@ -204,7 +207,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                 image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 image_barrier.image                           = image;
-                image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barrier.subresourceRange.aspectMask     = image_aspect_mask;
                 image_barrier.subresourceRange.baseArrayLayer = 0;
                 image_barrier.subresourceRange.layerCount     = 1;
                 image_barrier.subresourceRange.baseMipLevel   = 0;
@@ -222,7 +225,9 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                                  &image_barrier);
 
                 // The 'copy_image' is the image to be used with the image to buffer copy.
-                VkImage copy_image = image;
+                VkImage copy_image             = image;
+                auto    copy_image_aspect_mask = graphics::GetFormatAspects(copy_format);
+
                 if (copy_resource.convert_image != VK_NULL_HANDLE)
                 {
                     // Need to perform a blit to covert the Vulkan image format to the image file format.
@@ -238,7 +243,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                     convert_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                     convert_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                     convert_image_barrier.image                           = copy_image;
-                    convert_image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    convert_image_barrier.subresourceRange.aspectMask     = copy_image_aspect_mask;
                     convert_image_barrier.subresourceRange.baseArrayLayer = 0;
                     convert_image_barrier.subresourceRange.layerCount     = 1;
                     convert_image_barrier.subresourceRange.baseMipLevel   = 0;
@@ -256,7 +261,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                                                      &convert_image_barrier);
 
                     VkImageBlit blit_region;
-                    blit_region.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit_region.srcSubresource.aspectMask     = image_aspect_mask;
                     blit_region.srcSubresource.mipLevel       = 0;
                     blit_region.srcSubresource.baseArrayLayer = 0;
                     blit_region.srcSubresource.layerCount     = 1;
@@ -266,7 +271,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                     blit_region.srcOffsets[1].x               = width;
                     blit_region.srcOffsets[1].y               = height;
                     blit_region.srcOffsets[1].z               = 1;
-                    blit_region.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit_region.dstSubresource.aspectMask     = copy_image_aspect_mask;
                     blit_region.dstSubresource.mipLevel       = 0;
                     blit_region.dstSubresource.baseArrayLayer = 0;
                     blit_region.dstSubresource.layerCount     = 1;
@@ -309,7 +314,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                 copy_region.bufferOffset                    = 0;
                 copy_region.bufferRowLength                 = 0;
                 copy_region.bufferImageHeight               = 0;
-                copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                copy_region.imageSubresource.aspectMask     = copy_image_aspect_mask;
                 copy_region.imageSubresource.mipLevel       = 0;
                 copy_region.imageSubresource.baseArrayLayer = 0;
                 copy_region.imageSubresource.layerCount     = 1;
@@ -432,7 +437,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const encode::VulkanDeviceTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
 {
     auto entry = copy_resources_.find(device);
     if (entry != copy_resources_.end())
@@ -498,11 +503,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     return IsSrgbFormat(image_format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                         device,
-                                                  const encode::VulkanDeviceTable* device_table,
-                                                  VkFormat                         format,
-                                                  uint32_t                         width,
-                                                  uint32_t                         height) const
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                           device,
+                                                  const graphics::VulkanDeviceTable* device_table,
+                                                  VkFormat                           format,
+                                                  uint32_t                           width,
+                                                  uint32_t                           height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -538,7 +543,7 @@ VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                      
 }
 
 VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
-                                               const encode::VulkanDeviceTable*        device_table,
+                                               const graphics::VulkanDeviceTable*      device_table,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                VkDeviceSize                            buffer_size,
                                                VkFormat                                image_format,

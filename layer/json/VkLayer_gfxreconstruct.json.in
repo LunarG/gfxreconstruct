@@ -158,6 +158,14 @@
                     "default": ""
                 },
                 {
+                    "key": "capture_process_name",
+                    "env": "GFXRECON_CAPTURE_PROCESS_NAME",
+                    "label": "Capture Specific process",
+                    "description": "Specify one process name to capture.",
+                    "type": "STRING",
+                    "default": ""
+                },
+                {
                     "key": "capture_file",
                     "env": "GFXRECON_CAPTURE_FILE",
                     "label": "Capture File Name",
@@ -213,6 +221,15 @@
                         }
                     ],
                     "default": "LZ4"
+                },
+                {
+                    "key": "capture_environment",
+                    "env": "GFXRECON_CAPTURE_ENVIRONMENT",
+                    "label": "Capture Environment",
+                    "description": "List of environment variables to capture.",
+                    "platforms": [ "WINDOWS", "LINUX", "MACOS" ],
+                    "type": "LIST",
+                    "default": []
                 },
                 {
                     "key": "memory_tracking_mode",

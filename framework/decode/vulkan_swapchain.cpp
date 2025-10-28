@@ -46,18 +46,18 @@ void VulkanSwapchain::Clean()
     }
 }
 
-VkResult VulkanSwapchain::CreateSurface(VkResult                            original_result,
-                                        VulkanInstanceInfo*                 instance_info,
-                                        const std::string&                  wsi_extension,
-                                        VkFlags                             flags,
-                                        HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                        const encode::VulkanInstanceTable*  instance_table,
-                                        application::Application*           application,
-                                        const int32_t                       xpos,
-                                        const int32_t                       ypos,
-                                        const uint32_t                      width,
-                                        const uint32_t                      height,
-                                        bool                                force_windowed)
+VkResult VulkanSwapchain::CreateSurface(VkResult                             original_result,
+                                        VulkanInstanceInfo*                  instance_info,
+                                        const std::string&                   wsi_extension,
+                                        VkFlags                              flags,
+                                        HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                        const graphics::VulkanInstanceTable* instance_table,
+                                        application::Application*            application,
+                                        const int32_t                        xpos,
+                                        const int32_t                        ypos,
+                                        const uint32_t                       width,
+                                        const uint32_t                       height,
+                                        bool                                 force_windowed)
 {
     assert(instance_info != nullptr);
 
@@ -79,20 +79,32 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
     {
         // Create a window for our surface.
         assert(application_);
-        auto wsi_context = application_ ? application_->GetWsiContext(wsi_extension, true) : nullptr;
-        assert(wsi_context);
-        auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
-        assert(window_factory);
+        auto* wsi_context = application_->GetWsiContext(wsi_extension, true);
+
+        if (wsi_context == nullptr)
+        {
+            GFXRECON_LOG_FATAL("Failed to create wsi context. Replay cannot continue.");
+            return VK_ERROR_UNKNOWN;
+        }
+
+        auto* window_factory = wsi_context->GetWindowFactory();
+
+        if (window_factory == nullptr)
+        {
+            GFXRECON_LOG_FATAL("%s window factory creation failed. Replay cannot continue.", wsi_context->GetWsiName());
+            return VK_ERROR_UNKNOWN;
+        }
 
         // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
         // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
         // behavior will change, and replay will instead render in windowed mode.
-        auto window = window_factory ? window_factory->Create(xpos, ypos, width, height, force_windowed) : nullptr;
+        auto* window = window_factory->Create(xpos, ypos, width, height, force_windowed);
 
         if (window == nullptr)
         {
             // Failure to create a window is a fatal error.
-            GFXRECON_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
+            GFXRECON_LOG_FATAL("Failed to create %s window for use with surface creation. Replay cannot continue.",
+                               wsi_context->GetWsiName());
             return VK_ERROR_UNKNOWN;
         }
 

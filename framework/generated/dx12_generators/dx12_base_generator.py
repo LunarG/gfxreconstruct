@@ -3,6 +3,7 @@
 # Copyright (c) 2013-2024 The Khronos Group Inc.
 # Copyright (c) 2021-2024 LunarG, Inc.
 # Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -338,6 +339,9 @@ class Dx12BaseGenerator():
         'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC':'',
     }
 
+    # Not all generations check blacklists.json. This is for all generations.
+    BLACKLIST_FOR_ALL = ["DXGIDisableVBlankVirtualization"]
+
     def __init__(
         self,
         source_dict,
@@ -559,14 +563,6 @@ class Dx12BaseGenerator():
         Derived classes responsible for emitting feature"""
         self.featureName = None
         self.featureExtraProtect = None
-
-    #
-    # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
-        return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature.
@@ -1273,7 +1269,7 @@ class Dx12BaseGenerator():
 
     def is_cmd_black_listed(self, name):
         """Determines if a function with the specified typename is blacklisted."""
-        if name in self.APICALL_BLACKLIST:
+        if name in self.APICALL_BLACKLIST or name in self.BLACKLIST_FOR_ALL:
             return True
         if 'Decoder' in self.__class__.__name__ and name in self.APICALL_DECODER_BLACKLIST:
             return True
@@ -1499,6 +1495,11 @@ class Dx12BaseGenerator():
                 if type == k:
                     return e[1]
         return type
+
+    def is_callback(self, type):
+        if self.convert_function(type) == 'Function':
+            return True
+        return False
 
     def make_unique_list(self, in_list):
         """Return a copy of in_list with duplicates removed, preserving order."""

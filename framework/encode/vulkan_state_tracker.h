@@ -55,18 +55,19 @@ class VulkanStateTracker
 
     ~VulkanStateTracker();
 
-    uint64_t WriteState(util::FileOutputStream*           file_stream,
-                        util::ThreadData*                 thread_data,
-                        std::function<format::HandleId()> get_unique_id_fn,
-                        util::Compressor*                 compressor,
-                        uint64_t                          frame_number,
-                        util::FileOutputStream*           asset_file_stream,
-                        const std::string*                asset_file_name)
+    uint64_t WriteState(util::FileOutputStream*          file_stream,
+                        util::ThreadData*                thread_data,
+                        vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                        util::Compressor*                compressor,
+                        uint64_t                         frame_number,
+                        util::FileOutputStream*          asset_file_stream,
+                        const std::string*               asset_file_name)
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
@@ -75,11 +76,11 @@ class VulkanStateTracker
         return state_writer.WriteState(state_table_, frame_number);
     }
 
-    uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
-                         const std::string*                asset_file_name,
-                         util::ThreadData*                 thread_data,
-                         std::function<format::HandleId()> get_unique_id_fn,
-                         util::Compressor*                 compressor)
+    uint64_t WriteAssets(util::FileOutputStream*          asset_file_stream,
+                         const std::string*               asset_file_name,
+                         util::ThreadData*                thread_data,
+                         vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                         util::Compressor*                compressor)
     {
         assert(asset_file_stream != nullptr);
         assert(asset_file_name != nullptr);
@@ -88,6 +89,7 @@ class VulkanStateTracker
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        &asset_file_offsets_);
@@ -493,7 +495,7 @@ class VulkanStateTracker
 
     void TrackSetLocalDimmingAMD(VkDevice device, VkSwapchainKHR swapChain, VkBool32 localDimmingEnable);
 
-    void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
+    void TrackCommandBuffersSubmision(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
     void TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
                                     VkPipelineBindPoint    pipelineBindPoint,
@@ -753,6 +755,8 @@ class VulkanStateTracker
                                         const VkDebugUtilsObjectTagInfoEXT* pTagInfo,
                                         const util::MemoryOutputStream*     object_tag_parameter_buffer);
 
+    void TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,
@@ -816,7 +820,7 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrapper);
 
-    void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+    void DestroyState(vulkan_wrappers::BufferWrapper* buffer_wrapper);
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 

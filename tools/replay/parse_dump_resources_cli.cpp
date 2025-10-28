@@ -22,6 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
+#include "decode/vulkan_replay_options.h"
 #include "replay_settings.h"
 #include "util/json_util.h"
 #include "util/logging.h"
@@ -30,7 +32,9 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <set>
 #include <algorithm>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(parse_dump_resources)
@@ -153,68 +157,140 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         }
     }
 
-    // The number of BeginCommandBuffer and QueueSubmit entries must be more than
-    // zero, and there must be the same number of them.
-    if ((vulkan_replay_options.BeginCommandBuffer_Indices.size() == 0 &&
-         vulkan_replay_options.QueueSubmit_Indices.size() == 0) ||
-        ((vulkan_replay_options.BeginCommandBuffer_Indices.size() ||
-          vulkan_replay_options.QueueSubmit_Indices.size()) &&
-         (vulkan_replay_options.BeginCommandBuffer_Indices.size() != vulkan_replay_options.QueueSubmit_Indices.size())))
-    {
-        GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-        GFXRECON_LOG_ERROR("Number of BeginCommandBuffer and QueueSubmit indices must be equal and greater than "
-                           "zero (%zu and %zu respectively)",
-                           vulkan_replay_options.BeginCommandBuffer_Indices.size(),
-                           vulkan_replay_options.QueueSubmit_Indices.size())
-        return true;
-    }
-
-    // Make sure each Draw has corresponding RenderPass
-    if (vulkan_replay_options.Draw_Indices.size() != vulkan_replay_options.RenderPass_Indices.size())
-    {
-        GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-        GFXRECON_LOG_ERROR("Draw indices must always be accompanied by RenderPass indices");
-        return true;
-    }
-    for (int i = 0; i < vulkan_replay_options.Draw_Indices.size(); i++)
-    {
-        if (!vulkan_replay_options.Draw_Indices[i].empty() && vulkan_replay_options.RenderPass_Indices[i].empty())
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("Each Draw item must have a corresponding RenderPass item");
-            return true;
-        }
-    }
-
-    // Each dump command must specify one and only one of draw, tracerays, or dispatch
-    size_t loopcount =
-        std::max(vulkan_replay_options.Draw_Indices.size(), vulkan_replay_options.Dispatch_Indices.size());
-    loopcount = std::max(loopcount, vulkan_replay_options.TraceRays_Indices.size());
-    for (int i = 0; i < loopcount; i++)
-    {
-        uint64_t count = 0;
-        if (vulkan_replay_options.Draw_Indices.size() >= i + 1 && vulkan_replay_options.Draw_Indices[i].size())
-        {
-            count++;
-        }
-        if (vulkan_replay_options.Dispatch_Indices.size() >= i + 1 && vulkan_replay_options.Dispatch_Indices[i].size())
-        {
-            count++;
-        }
-        if (vulkan_replay_options.TraceRays_Indices.size() >= i + 1 &&
-            vulkan_replay_options.TraceRays_Indices[i].size())
-        {
-            count++;
-        }
-        if (count != 1)
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_WRITE_CONSOLE("One and only one of Draw, Dispatch or TraceRays indices must be specified");
-            return true;
-        }
-    }
-
     return false;
+}
+
+static VkImageAspectFlags StrToImageAspectFlagBits(const std::string& str)
+{
+    static const std::map<std::string, VkImageAspectFlagBits> aspect_flags = {
+        { "VK_IMAGE_ASPECT_COLOR_BIT", VK_IMAGE_ASPECT_COLOR_BIT },
+        { "VK_IMAGE_ASPECT_DEPTH_BIT", VK_IMAGE_ASPECT_DEPTH_BIT },
+        { "VK_IMAGE_ASPECT_STENCIL_BIT", VK_IMAGE_ASPECT_STENCIL_BIT },
+        { "VK_IMAGE_ASPECT_METADATA_BIT", VK_IMAGE_ASPECT_METADATA_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_0_BIT", VK_IMAGE_ASPECT_PLANE_0_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_1_BIT", VK_IMAGE_ASPECT_PLANE_1_BIT },
+        { "VK_IMAGE_ASPECT_PLANE_2_BIT", VK_IMAGE_ASPECT_PLANE_2_BIT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT },
+        { "VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT", VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT },
+        { "VK_IMAGE_ASPECT_PLANE_0_BIT_KHR", VK_IMAGE_ASPECT_PLANE_0_BIT_KHR },
+        { "VK_IMAGE_ASPECT_PLANE_1_BIT_KHR", VK_IMAGE_ASPECT_PLANE_1_BIT_KHR },
+        { "VK_IMAGE_ASPECT_PLANE_2_BIT_KHR", VK_IMAGE_ASPECT_PLANE_2_BIT_KHR }
+    };
+
+    VkImageAspectFlags flags = VK_IMAGE_ASPECT_NONE;
+
+    for (const auto& aspect : aspect_flags)
+    {
+        if (str.find(aspect.first) != std::string::npos)
+        {
+            flags |= aspect.second;
+        }
+    }
+
+    return flags;
+}
+
+template <typename json_iterator>
+static void ExtractIndexAndDescriptors(const json_iterator                  it,
+                                       decode::Index                        bcb_index,
+                                       std::vector<decode::CommandIndices>& cmd_indices,
+                                       decode::CommandImageSubresource&     command_subresources)
+{
+    if (it->is_number())
+    {
+        cmd_indices[bcb_index].push_back(*it);
+    }
+    else
+    {
+        const decode::Index cmd_index = it->at("Index");
+        cmd_indices[bcb_index].push_back(cmd_index);
+
+        if (it->contains("Descriptors"))
+        {
+            const auto& subresources = it->at("Descriptors");
+            for (const auto& sr : subresources)
+            {
+                const uint32_t set     = sr["Set"];
+                const uint32_t binding = sr["Binding"];
+                const uint32_t ai      = sr["ArrayIndex"];
+
+                VkImageSubresourceRange subresource_range;
+                if (sr.contains("SubresourceRange"))
+                {
+                    const auto&              range      = sr["SubresourceRange"];
+                    const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
+                    const uint32_t           base_level = range["BaseMipLevel"];
+                    const uint32_t           base_layer = range["BaseArrayLayer"];
+
+                    uint32_t level_count;
+                    if (range["LevelCount"].is_number())
+                    {
+                        level_count = range["LevelCount"];
+                    }
+                    else
+                    {
+                        const std::string level_count_str = range["LevelCount"];
+                        if (!level_count_str.compare("VK_REMAINING_MIP_LEVELS"))
+                        {
+                            level_count = VK_REMAINING_MIP_LEVELS;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "The string \"%s\", that is being passed as \"LevelCount\" for command index: %" PRIu64
+                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
+                                ", is not recognized and will be ignored (will use 1 instead).",
+                                level_count_str.c_str(),
+                                cmd_index,
+                                set,
+                                binding,
+                                ai);
+                            level_count = 1;
+                        }
+                    }
+
+                    uint32_t layer_count;
+                    if (range["LayerCount"].is_number())
+                    {
+                        layer_count = range["LayerCount"];
+                    }
+                    else
+                    {
+                        const std::string layer_count_str = range["LayerCount"];
+                        if (!layer_count_str.compare("VK_REMAINING_ARRAY_LAYERS"))
+                        {
+                            layer_count = VK_REMAINING_ARRAY_LAYERS;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "The string \"%s\", that is being passed as \"LayerCount\" for command index: %" PRIu64
+                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
+                                ", is not recognized and will be ignored (will use 1 instead).",
+                                layer_count_str.c_str(),
+                                cmd_index,
+                                set,
+                                binding,
+                                ai);
+                            layer_count = 1;
+                        }
+                    }
+
+                    subresource_range = { aspect, base_level, level_count, base_layer, layer_count };
+                }
+                else
+                {
+                    subresource_range = {
+                        VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                    };
+                }
+                command_subresources[cmd_index].emplace(decode::DescriptorLocation{ set, binding, ai },
+                                                        subresource_range);
+            }
+        }
+    }
 }
 
 // Function to parse the --dump-resoures argument, specifically vulkan_replay_options.dump_resources.
@@ -257,7 +333,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
     if (ends_with(to_lower(vulkan_replay_options.dump_resources_block_indices), ".json"))
     {
         // dump-resource arg value is a json file. Read and parse the json file.
-        try
         {
             std::ifstream dr_json_file(vulkan_replay_options.dump_resources_block_indices, std::ifstream::binary);
             if (!dr_json_file.is_open())
@@ -281,9 +356,12 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
             {
                 vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DRAW][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_DRAW][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_DRAW][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs[decode::DUMP_ARG_DRAW][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.Draw_Indices, vulkan_replay_options.DrawSubresources);
                 }
             }
 
@@ -304,20 +382,42 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRACE_RAYS].size(); idx0++)
             {
                 vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(
-                        jargs[decode::DUMP_ARG_TRACE_RAYS][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.TraceRays_Indices, vulkan_replay_options.TraceRaysSubresources);
                 }
             }
 
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DISPATCH].size(); idx0++)
             {
                 vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
-                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_DISPATCH][idx0].size(); idx1++)
+                for (auto it = jargs[decode::DUMP_ARG_DISPATCH][idx0].begin();
+                     it != jargs[decode::DUMP_ARG_DISPATCH][idx0].end();
+                     ++it)
                 {
-                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(
-                        jargs[decode::DUMP_ARG_DISPATCH][idx0][idx1]);
+                    ExtractIndexAndDescriptors(
+                        it, idx0, vulkan_replay_options.Dispatch_Indices, vulkan_replay_options.DispatchSubresources);
+                }
+            }
+
+            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS].size(); ++idx0)
+            {
+                vulkan_replay_options.ExecuteCommands_Indices.push_back(decode::ExecuteCommands());
+                for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0].size(); idx1++)
+                {
+                    if (!jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].empty())
+                    {
+                        const uint64_t execute_commands_index = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][0];
+                        for (int idx2 = 1; idx2 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].size(); idx2++)
+                        {
+                            const uint64_t secondardy_bcb = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][idx2];
+                            vulkan_replay_options.ExecuteCommands_Indices[idx0][execute_commands_index].push_back(
+                                secondardy_bcb);
+                        }
+                    }
                 }
             }
 
@@ -327,12 +427,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.QueueSubmit_Indices.push_back(
                     static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]));
             }
-        }
-        catch (...)
-        {
-            parse_error_message =
-                "Error reading file " + vulkan_replay_options.dump_resources_block_indices + ". Bad json format?";
-            parse_error         = true;
         }
     }
     else

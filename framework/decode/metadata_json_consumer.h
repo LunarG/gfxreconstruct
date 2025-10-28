@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2023 Valve Corporation
 ** Copyright (c) 2022-2023 LunarG, Inc.
+** Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -79,7 +80,7 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info) override
+    virtual void Process_ExeFileInfo(const gfxrecon::util::filepath::FileInfo& info) override
     {
         const util::JsonOptions& json_options = GetOptions();
         auto&                    jdata        = WriteMetaCommandStart("ExeFileInfo");
@@ -217,6 +218,18 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
+    virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
+                                              const uint8_t*                       parameters_data) override
+    {
+        const util::JsonOptions& json_options = GetJsonOptions();
+        auto&                    jdata        = WriteMetaCommandStart("InitializeMetaCommand");
+        HandleToJson(jdata["MetaCommand_id"], command_header.capture_id, json_options);
+        FieldToJson(jdata["InitializationParametersDataSizeInBytes"],
+                    command_header.initialization_parameters_data_size,
+                    json_options);
+        WriteBlockEnd();
+    }
+
     virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
                                                  uint64_t         max_resource_size,
                                                  uint64_t         max_copy_size) override
@@ -224,6 +237,8 @@ class MetadataJsonConsumer : public Base
         const JsonOptions& json_options = GetJsonOptions();
         auto&              jdata        = WriteMetaCommandStart("BeginResourceInitCommand");
         HandleToJson(jdata["device_id"], device_id, json_options);
+
+        // TODO: should be "total_copy_size"
         FieldToJson(jdata["max_resource_size"], max_resource_size, json_options);
         FieldToJson(jdata["max_copy_size"], max_copy_size, json_options);
         WriteBlockEnd();
@@ -270,8 +285,8 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string) override
+    virtual void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                       const char* env_string) override
     {
         const JsonOptions& json_options = GetJsonOptions();
         auto&              json_data    = WriteMetaCommandStart("SetEnvironmentVariablesCommand");

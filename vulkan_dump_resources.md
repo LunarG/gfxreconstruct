@@ -6,9 +6,11 @@
     1. [General](#general)
     2. [Block index and object ID](#block-index-and-object-id)
     3. [Rules for providing command indices](#rules-for-providing-command-indices)
-    4. [A simple example](#a-simple-example)
-    5. [Index vector dimensionality](#index-vector-dimensionality)
-    6. [A more complex example](#a-more-complex-example)
+    4. [Secondary command buffers](#secondary-command-buffers)
+    5. [Simple examples](#simple-examples)
+    6. [Index vector dimensionality](#index-vector-dimensionality)
+    7. [A more complex example](#a-more-complex-example)
+    8. [Culling dumped descriptors](#culling-dumped-descriptors)
 2. [Command line options and input](#command-line-options-and-input)
     1. [gfxrecon-replay command line params](#gfxrecon-replay-command-line-params)
 3. [Output](#output)
@@ -102,7 +104,11 @@ Render pass indices are required only for draw calls. All render pass indices wh
 3. **QueueSubmit**
 The index of the `vkQueueSubmit` (or `vkQueueSubmit2`) in which the command buffer that includes the desired commands are submitted needs to be provided.
 
-### A simple example
+4. **ExecuteCommands**
+Dumping resources from commands that are recorded in secondary command buffers requires different handling. The secondary's `BeginCommandBuffer` index must be
+specified like with the primary command buffers. The index of the `vkCmdExecuteCommands` from which the specific commands should be dumped needs to be specified in the `ExecuteCommands` json array along with `BeginCommandBuffer` of the secondary that is desired to be dumped.
+
+### Simple examples
 
 Assuming the following imaginary excerpt from a capture file that contains the following commands:
 
@@ -132,6 +138,29 @@ It is possible to dump the depth and color attachments of all `vkCmdDraw` comman
     "Draw": [ [ 307, 308, 309, 310, 311, 312 ] ],
     "RenderPass": [ [ [ 302, 313 ] ] ],
     "QueueSubmit": [ 315 ]
+}
+```
+
+An example involving secondary command buffers
+
+{"index":754,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":230 ... }}},
+{"index":761,"function":{"name":"vkCmdDrawIndexed","args":{"commandBuffer":230, ...}}}
+
+{"index":736,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":226, ...}}},
+{"index":3948,"function":{"name":"vkCmdBeginRenderPass","args":{"commandBuffer":226, ...}}},
+{"index":3949,"function":{"name":"vkCmdExecuteCommands","args":{"commandBuffer":226,"commandBufferCount":357,"pCommandBuffers":[227,230,232,233,...]}}}
+{"index":3950,"function":{"name":"vkCmdEndRenderPass","args":{"commandBuffer":226}}}
+{"index":3952,"function":{"name":"vkQueueSubmit","args":{"queue":6,"submitCount":1,"pSubmits":[{"commandBufferCount":1,"pCommandBuffers":[226]}...]...}}}
+
+In order to dump the draw call from the secondary command buffer `230` the following json input file should be provided:
+
+```
+{
+    "BeginCommandBuffer": [ 754, 736 ],
+    "Draw": [ [ 761 ], [ ] ],
+    "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
+    "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ],
+    "QueueSubmit": [ 3952 ]
 }
 ```
 
@@ -222,6 +251,70 @@ In this example two command buffers are submitted for dumping, one with object I
     * `[ 26, 30 ]`: `vkCmdBeginRenderPass`: `26` and `vkCmdEndRenderPass`: `30`
 * Command buffer `59` is submitted for execution with `vkQueueSubmit` with index `50` and command buffer `60` is submitted in `vkQueueSubmit` with index `51`
 
+### Culling dumped descriptors
+There is an option to ask for specific descriptors and image subresources to be dumped instead of dumping all bound descriptors. This can be done by providing for each command index the 1) descriptor set index, 2) binding index and, 3) array index of the descriptors to be dumped for the specific command.
+This is an example:
+```Json
+{
+    "BeginCommandBuffer": [
+        2525
+    ],
+    "QueueSubmit": [
+        2548
+    ],
+    "Draw": [
+        [
+            {
+                "Index": 2533,
+                "Descriptors": [
+                    {
+                        "Set": 0,
+                        "Binding": 1,
+                        "ArrayIndex": 0
+                    },
+                    {
+                        "Set": 0,
+                        "Binding": 0,
+                        "ArrayIndex": 0
+                    }
+                ]
+            },
+            2537
+        ]
+    ],
+    "RenderPass": [
+        [
+            [
+                2526,
+                2538
+            ]
+        ]
+    ]
+}
+```
+
+Image descriptors can be fine grained further by specifying the desired subresources with a `VkImageSubresourceRange` like this:
+
+```Json
+"Index": 2533,
+"Descriptors": [
+    {
+        "Set": 0,
+        "Binding": 1,
+        "ArrayIndex": 0,
+        "SubresourceRange": {
+            "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT",
+            "BaseMipLevel": 2,
+            "LevelCount": 1,
+            "BaseArrayLayer": 2,
+            "LayerCount": 1
+        }
+    }
+]
+```
+
+`VK_REMAINING_MIP_LEVELS` and `VK_REMAINING_ARRAY_LAYERS` can be used in `LevelCount` and `LayerCount` respectively.
+
 ## Command line options and input
 
 ### gfxrecon-replay command line params
@@ -282,6 +375,9 @@ Dump resources feature can be control in several ways. To do so, a number of par
               When enabled all image resources will be dumped verbatim as raw bin files.
   --dump-resources-dump-separate-alpha
               When enabled alpha channel of dumped images will be dumped in a separate file.
+  --dump-resources-binary-file-compression-type
+              Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib,
+              zlib, zstd]. Default is none (no compression).
 ```
 
 ## Output

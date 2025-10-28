@@ -73,6 +73,7 @@ struct ReplayOptions
     bool                         remove_unsupported_features{ false };
     util::ScreenshotFormat       screenshot_format{ util::ScreenshotFormat::kBmp };
     std::vector<ScreenshotRange> screenshot_ranges;
+    uint32_t                     screenshot_interval{ 1 };
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
     uint32_t                     screenshot_width, screenshot_height;
@@ -85,6 +86,7 @@ struct ReplayOptions
     bool                         dump_resources_modifiable_state_only;
     DumpResourcesTarget          dump_resources_target{};
     bool                         using_dump_resources_target{ false };
+    bool                         do_device_deduplication{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

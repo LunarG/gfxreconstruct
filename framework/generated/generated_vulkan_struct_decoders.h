@@ -275,339 +275,78 @@ struct Decoded_StdVideoEncodeH264SliceHeader
     StructPointerDecoder<Decoded_StdVideoEncodeH264WeightTable>* pWeightTable{ nullptr };
 };
 
-struct Decoded_StdVideoH265ProfileTierLevelFlags
+struct Decoded_StdVideoVP9ColorConfigFlags
 {
-    using struct_type = StdVideoH265ProfileTierLevelFlags;
+    using struct_type = StdVideoVP9ColorConfigFlags;
 
-    StdVideoH265ProfileTierLevelFlags* decoded_value{ nullptr };
+    StdVideoVP9ColorConfigFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoH265ProfileTierLevel
+struct Decoded_StdVideoVP9ColorConfig
 {
-    using struct_type = StdVideoH265ProfileTierLevel;
+    using struct_type = StdVideoVP9ColorConfig;
 
-    StdVideoH265ProfileTierLevel* decoded_value{ nullptr };
+    StdVideoVP9ColorConfig* decoded_value{ nullptr };
 
-    Decoded_StdVideoH265ProfileTierLevelFlags* flags{ nullptr };
+    Decoded_StdVideoVP9ColorConfigFlags* flags{ nullptr };
 };
 
-struct Decoded_StdVideoH265DecPicBufMgr
+struct Decoded_StdVideoVP9LoopFilterFlags
 {
-    using struct_type = StdVideoH265DecPicBufMgr;
+    using struct_type = StdVideoVP9LoopFilterFlags;
 
-    StdVideoH265DecPicBufMgr* decoded_value{ nullptr };
-
-    PointerDecoder<uint32_t> max_latency_increase_plus1;
-    PointerDecoder<uint8_t> max_dec_pic_buffering_minus1;
-    PointerDecoder<uint8_t> max_num_reorder_pics;
+    StdVideoVP9LoopFilterFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoH265SubLayerHrdParameters
+struct Decoded_StdVideoVP9LoopFilter
 {
-    using struct_type = StdVideoH265SubLayerHrdParameters;
+    using struct_type = StdVideoVP9LoopFilter;
 
-    StdVideoH265SubLayerHrdParameters* decoded_value{ nullptr };
+    StdVideoVP9LoopFilter* decoded_value{ nullptr };
 
-    PointerDecoder<uint32_t> bit_rate_value_minus1;
-    PointerDecoder<uint32_t> cpb_size_value_minus1;
-    PointerDecoder<uint32_t> cpb_size_du_value_minus1;
-    PointerDecoder<uint32_t> bit_rate_du_value_minus1;
+    Decoded_StdVideoVP9LoopFilterFlags* flags{ nullptr };
+    PointerDecoder<int8_t> loop_filter_ref_deltas;
+    PointerDecoder<int8_t> loop_filter_mode_deltas;
 };
 
-struct Decoded_StdVideoH265HrdFlags
+struct Decoded_StdVideoVP9SegmentationFlags
 {
-    using struct_type = StdVideoH265HrdFlags;
+    using struct_type = StdVideoVP9SegmentationFlags;
 
-    StdVideoH265HrdFlags* decoded_value{ nullptr };
+    StdVideoVP9SegmentationFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoH265HrdParameters
+struct Decoded_StdVideoVP9Segmentation
 {
-    using struct_type = StdVideoH265HrdParameters;
+    using struct_type = StdVideoVP9Segmentation;
 
-    StdVideoH265HrdParameters* decoded_value{ nullptr };
+    StdVideoVP9Segmentation* decoded_value{ nullptr };
 
-    Decoded_StdVideoH265HrdFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> cpb_cnt_minus1;
-    PointerDecoder<uint16_t> elemental_duration_in_tc_minus1;
-    PointerDecoder<uint16_t> reserved;
-    StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>* pSubLayerHrdParametersNal{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265SubLayerHrdParameters>* pSubLayerHrdParametersVcl{ nullptr };
+    Decoded_StdVideoVP9SegmentationFlags* flags{ nullptr };
+    PointerDecoder<uint8_t> segmentation_tree_probs;
+    PointerDecoder<uint8_t> segmentation_pred_prob;
+    PointerDecoder<uint8_t> FeatureEnabled;
+    PointerDecoder<int16_t> FeatureData;
 };
 
-struct Decoded_StdVideoH265VpsFlags
+struct Decoded_StdVideoDecodeVP9PictureInfoFlags
 {
-    using struct_type = StdVideoH265VpsFlags;
+    using struct_type = StdVideoDecodeVP9PictureInfoFlags;
 
-    StdVideoH265VpsFlags* decoded_value{ nullptr };
+    StdVideoDecodeVP9PictureInfoFlags* decoded_value{ nullptr };
 };
 
-struct Decoded_StdVideoH265VideoParameterSet
+struct Decoded_StdVideoDecodeVP9PictureInfo
 {
-    using struct_type = StdVideoH265VideoParameterSet;
-
-    StdVideoH265VideoParameterSet* decoded_value{ nullptr };
-
-    Decoded_StdVideoH265VpsFlags* flags{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>* pDecPicBufMgr{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265HrdParameters>* pHrdParameters{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>* pProfileTierLevel{ nullptr };
-};
-
-struct Decoded_StdVideoH265ScalingLists
-{
-    using struct_type = StdVideoH265ScalingLists;
-
-    StdVideoH265ScalingLists* decoded_value{ nullptr };
-
-    PointerDecoder<uint8_t> ScalingList4x4;
-    PointerDecoder<uint8_t> ScalingList8x8;
-    PointerDecoder<uint8_t> ScalingList16x16;
-    PointerDecoder<uint8_t> ScalingList32x32;
-    PointerDecoder<uint8_t> ScalingListDCCoef16x16;
-    PointerDecoder<uint8_t> ScalingListDCCoef32x32;
-};
-
-struct Decoded_StdVideoH265ShortTermRefPicSetFlags
-{
-    using struct_type = StdVideoH265ShortTermRefPicSetFlags;
-
-    StdVideoH265ShortTermRefPicSetFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoH265ShortTermRefPicSet
-{
-    using struct_type = StdVideoH265ShortTermRefPicSet;
-
-    StdVideoH265ShortTermRefPicSet* decoded_value{ nullptr };
-
-    Decoded_StdVideoH265ShortTermRefPicSetFlags* flags{ nullptr };
-    PointerDecoder<uint16_t> delta_poc_s0_minus1;
-    PointerDecoder<uint16_t> delta_poc_s1_minus1;
-};
-
-struct Decoded_StdVideoH265LongTermRefPicsSps
-{
-    using struct_type = StdVideoH265LongTermRefPicsSps;
-
-    StdVideoH265LongTermRefPicsSps* decoded_value{ nullptr };
-
-    PointerDecoder<uint32_t> lt_ref_pic_poc_lsb_sps;
-};
-
-struct Decoded_StdVideoH265SpsVuiFlags
-{
-    using struct_type = StdVideoH265SpsVuiFlags;
-
-    StdVideoH265SpsVuiFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoH265SequenceParameterSetVui
-{
-    using struct_type = StdVideoH265SequenceParameterSetVui;
-
-    StdVideoH265SequenceParameterSetVui* decoded_value{ nullptr };
-
-    Decoded_StdVideoH265SpsVuiFlags* flags{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265HrdParameters>* pHrdParameters{ nullptr };
-};
-
-struct Decoded_StdVideoH265PredictorPaletteEntries
-{
-    using struct_type = StdVideoH265PredictorPaletteEntries;
-
-    StdVideoH265PredictorPaletteEntries* decoded_value{ nullptr };
-
-    PointerDecoder<uint16_t> PredictorPaletteEntries;
-};
-
-struct Decoded_StdVideoH265SpsFlags
-{
-    using struct_type = StdVideoH265SpsFlags;
-
-    StdVideoH265SpsFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoH265SequenceParameterSet
-{
-    using struct_type = StdVideoH265SequenceParameterSet;
-
-    StdVideoH265SequenceParameterSet* decoded_value{ nullptr };
-
-    Decoded_StdVideoH265SpsFlags* flags{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265ProfileTierLevel>* pProfileTierLevel{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265DecPicBufMgr>* pDecPicBufMgr{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265ScalingLists>* pScalingLists{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>* pShortTermRefPicSet{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265LongTermRefPicsSps>* pLongTermRefPicsSps{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSetVui>* pSequenceParameterSetVui{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>* pPredictorPaletteEntries{ nullptr };
-};
-
-struct Decoded_StdVideoH265PpsFlags
-{
-    using struct_type = StdVideoH265PpsFlags;
-
-    StdVideoH265PpsFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoH265PictureParameterSet
-{
-    using struct_type = StdVideoH265PictureParameterSet;
-
-    StdVideoH265PictureParameterSet* decoded_value{ nullptr };
-
-    Decoded_StdVideoH265PpsFlags* flags{ nullptr };
-    PointerDecoder<int8_t> cb_qp_offset_list;
-    PointerDecoder<int8_t> cr_qp_offset_list;
-    PointerDecoder<uint16_t> column_width_minus1;
-    PointerDecoder<uint16_t> row_height_minus1;
-    StructPointerDecoder<Decoded_StdVideoH265ScalingLists>* pScalingLists{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265PredictorPaletteEntries>* pPredictorPaletteEntries{ nullptr };
-};
-
-struct Decoded_StdVideoDecodeH265PictureInfoFlags
-{
-    using struct_type = StdVideoDecodeH265PictureInfoFlags;
-
-    StdVideoDecodeH265PictureInfoFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoDecodeH265PictureInfo
-{
-    using struct_type = StdVideoDecodeH265PictureInfo;
-
-    StdVideoDecodeH265PictureInfo* decoded_value{ nullptr };
-
-    Decoded_StdVideoDecodeH265PictureInfoFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> RefPicSetStCurrBefore;
-    PointerDecoder<uint8_t> RefPicSetStCurrAfter;
-    PointerDecoder<uint8_t> RefPicSetLtCurr;
-};
-
-struct Decoded_StdVideoDecodeH265ReferenceInfoFlags
-{
-    using struct_type = StdVideoDecodeH265ReferenceInfoFlags;
-
-    StdVideoDecodeH265ReferenceInfoFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoDecodeH265ReferenceInfo
-{
-    using struct_type = StdVideoDecodeH265ReferenceInfo;
-
-    StdVideoDecodeH265ReferenceInfo* decoded_value{ nullptr };
-
-    Decoded_StdVideoDecodeH265ReferenceInfoFlags* flags{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265WeightTableFlags
-{
-    using struct_type = StdVideoEncodeH265WeightTableFlags;
-
-    StdVideoEncodeH265WeightTableFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265WeightTable
-{
-    using struct_type = StdVideoEncodeH265WeightTable;
-
-    StdVideoEncodeH265WeightTable* decoded_value{ nullptr };
-
-    Decoded_StdVideoEncodeH265WeightTableFlags* flags{ nullptr };
-    PointerDecoder<int8_t> delta_luma_weight_l0;
-    PointerDecoder<int8_t> luma_offset_l0;
-    PointerDecoder<int8_t> delta_chroma_weight_l0;
-    PointerDecoder<int8_t> delta_chroma_offset_l0;
-    PointerDecoder<int8_t> delta_luma_weight_l1;
-    PointerDecoder<int8_t> luma_offset_l1;
-    PointerDecoder<int8_t> delta_chroma_weight_l1;
-    PointerDecoder<int8_t> delta_chroma_offset_l1;
-};
-
-struct Decoded_StdVideoEncodeH265LongTermRefPics
-{
-    using struct_type = StdVideoEncodeH265LongTermRefPics;
-
-    StdVideoEncodeH265LongTermRefPics* decoded_value{ nullptr };
-
-    PointerDecoder<uint8_t> lt_idx_sps;
-    PointerDecoder<uint8_t> poc_lsb_lt;
-    PointerDecoder<uint8_t> delta_poc_msb_present_flag;
-    PointerDecoder<uint8_t> delta_poc_msb_cycle_lt;
-};
-
-struct Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags
-{
-    using struct_type = StdVideoEncodeH265SliceSegmentHeaderFlags;
-
-    StdVideoEncodeH265SliceSegmentHeaderFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265SliceSegmentHeader
-{
-    using struct_type = StdVideoEncodeH265SliceSegmentHeader;
-
-    StdVideoEncodeH265SliceSegmentHeader* decoded_value{ nullptr };
-
-    Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* flags{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265WeightTable>* pWeightTable{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265ReferenceListsInfoFlags
-{
-    using struct_type = StdVideoEncodeH265ReferenceListsInfoFlags;
-
-    StdVideoEncodeH265ReferenceListsInfoFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265ReferenceListsInfo
-{
-    using struct_type = StdVideoEncodeH265ReferenceListsInfo;
-
-    StdVideoEncodeH265ReferenceListsInfo* decoded_value{ nullptr };
-
-    Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> RefPicList0;
-    PointerDecoder<uint8_t> RefPicList1;
-    PointerDecoder<uint8_t> list_entry_l0;
-    PointerDecoder<uint8_t> list_entry_l1;
-};
-
-struct Decoded_StdVideoEncodeH265PictureInfoFlags
-{
-    using struct_type = StdVideoEncodeH265PictureInfoFlags;
-
-    StdVideoEncodeH265PictureInfoFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265PictureInfo
-{
-    using struct_type = StdVideoEncodeH265PictureInfo;
-
-    StdVideoEncodeH265PictureInfo* decoded_value{ nullptr };
-
-    Decoded_StdVideoEncodeH265PictureInfoFlags* flags{ nullptr };
-    PointerDecoder<uint8_t> reserved1;
-    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceListsInfo>* pRefLists{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265ShortTermRefPicSet>* pShortTermRefPicSet{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265LongTermRefPics>* pLongTermRefPics{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265ReferenceInfoFlags
-{
-    using struct_type = StdVideoEncodeH265ReferenceInfoFlags;
-
-    StdVideoEncodeH265ReferenceInfoFlags* decoded_value{ nullptr };
-};
-
-struct Decoded_StdVideoEncodeH265ReferenceInfo
-{
-    using struct_type = StdVideoEncodeH265ReferenceInfo;
-
-    StdVideoEncodeH265ReferenceInfo* decoded_value{ nullptr };
-
-    Decoded_StdVideoEncodeH265ReferenceInfoFlags* flags{ nullptr };
+    using struct_type = StdVideoDecodeVP9PictureInfo;
+
+    StdVideoDecodeVP9PictureInfo* decoded_value{ nullptr };
+
+    Decoded_StdVideoDecodeVP9PictureInfoFlags* flags{ nullptr };
+    PointerDecoder<uint16_t> reserved1;
+    StructPointerDecoder<Decoded_StdVideoVP9ColorConfig>* pColorConfig{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoVP9LoopFilter>* pLoopFilter{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoVP9Segmentation>* pSegmentation{ nullptr };
 };
 
 struct Decoded_StdVideoAV1ColorConfigFlags
@@ -4621,159 +4360,6 @@ struct Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkVideoEncodeH265CapabilitiesKHR
-{
-    using struct_type = VkVideoEncodeH265CapabilitiesKHR;
-
-    VkVideoEncodeH265CapabilitiesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkExtent2D* maxTiles{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265SessionCreateInfoKHR
-{
-    using struct_type = VkVideoEncodeH265SessionCreateInfoKHR;
-
-    VkVideoEncodeH265SessionCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265QpKHR
-{
-    using struct_type = VkVideoEncodeH265QpKHR;
-
-    VkVideoEncodeH265QpKHR* decoded_value{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR
-{
-    using struct_type = VkVideoEncodeH265QualityLevelPropertiesKHR;
-
-    VkVideoEncodeH265QualityLevelPropertiesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkVideoEncodeH265QpKHR* preferredConstantQp{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR
-{
-    using struct_type = VkVideoEncodeH265SessionParametersAddInfoKHR;
-
-    VkVideoEncodeH265SessionParametersAddInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265VideoParameterSet>* pStdVPSs{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSet>* pStdSPSs{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265PictureParameterSet>* pStdPPSs{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR
-{
-    using struct_type = VkVideoEncodeH265SessionParametersCreateInfoKHR;
-
-    VkVideoEncodeH265SessionParametersCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR>* pParametersAddInfo{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR
-{
-    using struct_type = VkVideoEncodeH265SessionParametersGetInfoKHR;
-
-    VkVideoEncodeH265SessionParametersGetInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR
-{
-    using struct_type = VkVideoEncodeH265SessionParametersFeedbackInfoKHR;
-
-    VkVideoEncodeH265SessionParametersFeedbackInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR
-{
-    using struct_type = VkVideoEncodeH265NaluSliceSegmentInfoKHR;
-
-    VkVideoEncodeH265NaluSliceSegmentInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265SliceSegmentHeader>* pStdSliceSegmentHeader{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265PictureInfoKHR
-{
-    using struct_type = VkVideoEncodeH265PictureInfoKHR;
-
-    VkVideoEncodeH265PictureInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR>* pNaluSliceSegmentEntries{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265PictureInfo>* pStdPictureInfo{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265DpbSlotInfoKHR
-{
-    using struct_type = VkVideoEncodeH265DpbSlotInfoKHR;
-
-    VkVideoEncodeH265DpbSlotInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoEncodeH265ReferenceInfo>* pStdReferenceInfo{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265ProfileInfoKHR
-{
-    using struct_type = VkVideoEncodeH265ProfileInfoKHR;
-
-    VkVideoEncodeH265ProfileInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265RateControlInfoKHR
-{
-    using struct_type = VkVideoEncodeH265RateControlInfoKHR;
-
-    VkVideoEncodeH265RateControlInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265FrameSizeKHR
-{
-    using struct_type = VkVideoEncodeH265FrameSizeKHR;
-
-    VkVideoEncodeH265FrameSizeKHR* decoded_value{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265RateControlLayerInfoKHR
-{
-    using struct_type = VkVideoEncodeH265RateControlLayerInfoKHR;
-
-    VkVideoEncodeH265RateControlLayerInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkVideoEncodeH265QpKHR* minQp{ nullptr };
-    Decoded_VkVideoEncodeH265QpKHR* maxQp{ nullptr };
-    Decoded_VkVideoEncodeH265FrameSizeKHR* maxFrameSize{ nullptr };
-};
-
-struct Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR
-{
-    using struct_type = VkVideoEncodeH265GopRemainingFrameInfoKHR;
-
-    VkVideoEncodeH265GopRemainingFrameInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkVideoDecodeH264ProfileInfoKHR
 {
     using struct_type = VkVideoDecodeH264ProfileInfoKHR;
@@ -5221,6 +4807,15 @@ struct Decoded_VkDisplayPlaneCapabilities2KHR
     Decoded_VkDisplayPlaneCapabilitiesKHR* capabilities{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderBfloat16FeaturesKHR;
+
+    VkPhysicalDeviceShaderBfloat16FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR
 {
     using struct_type = VkPhysicalDevicePortabilitySubsetFeaturesKHR;
@@ -5246,67 +4841,6 @@ struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR
     VkPhysicalDeviceShaderClockFeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoDecodeH265ProfileInfoKHR
-{
-    using struct_type = VkVideoDecodeH265ProfileInfoKHR;
-
-    VkVideoDecodeH265ProfileInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoDecodeH265CapabilitiesKHR
-{
-    using struct_type = VkVideoDecodeH265CapabilitiesKHR;
-
-    VkVideoDecodeH265CapabilitiesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR
-{
-    using struct_type = VkVideoDecodeH265SessionParametersAddInfoKHR;
-
-    VkVideoDecodeH265SessionParametersAddInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265VideoParameterSet>* pStdVPSs{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSet>* pStdSPSs{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265PictureParameterSet>* pStdPPSs{ nullptr };
-};
-
-struct Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR
-{
-    using struct_type = VkVideoDecodeH265SessionParametersCreateInfoKHR;
-
-    VkVideoDecodeH265SessionParametersCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR>* pParametersAddInfo{ nullptr };
-};
-
-struct Decoded_VkVideoDecodeH265PictureInfoKHR
-{
-    using struct_type = VkVideoDecodeH265PictureInfoKHR;
-
-    VkVideoDecodeH265PictureInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoDecodeH265PictureInfo>* pStdPictureInfo{ nullptr };
-    PointerDecoder<uint32_t> pSliceSegmentOffsets;
-};
-
-struct Decoded_VkVideoDecodeH265DpbSlotInfoKHR
-{
-    using struct_type = VkVideoDecodeH265DpbSlotInfoKHR;
-
-    VkVideoDecodeH265DpbSlotInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoDecodeH265ReferenceInfo>* pStdReferenceInfo{ nullptr };
 };
 
 struct Decoded_VkFragmentShadingRateAttachmentInfoKHR
@@ -5652,11 +5186,75 @@ struct Decoded_VkTraceRaysIndirectCommand2KHR
     VkTraceRaysIndirectCommand2KHR* decoded_value{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderUntypedPointersFeaturesKHR;
+
+    VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
 {
     using struct_type = VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR;
 
     VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSurfaceCapabilitiesPresentId2KHR
+{
+    using struct_type = VkSurfaceCapabilitiesPresentId2KHR;
+
+    VkSurfaceCapabilitiesPresentId2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentId2KHR
+{
+    using struct_type = VkPresentId2KHR;
+
+    VkPresentId2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint64_t> pPresentIds;
+};
+
+struct Decoded_VkPhysicalDevicePresentId2FeaturesKHR
+{
+    using struct_type = VkPhysicalDevicePresentId2FeaturesKHR;
+
+    VkPhysicalDevicePresentId2FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSurfaceCapabilitiesPresentWait2KHR
+{
+    using struct_type = VkSurfaceCapabilitiesPresentWait2KHR;
+
+    VkSurfaceCapabilitiesPresentWait2KHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePresentWait2FeaturesKHR
+{
+    using struct_type = VkPhysicalDevicePresentWait2FeaturesKHR;
+
+    VkPhysicalDevicePresentWait2FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentWait2InfoKHR
+{
+    using struct_type = VkPresentWait2InfoKHR;
+
+    VkPresentWait2InfoKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -5785,6 +5383,95 @@ struct Decoded_VkPipelineBinaryHandlesInfoKHR
 
     PNextNode* pNext{ nullptr };
     HandlePointerDecoder<VkPipelineBinaryKHR> pPipelineBinaries;
+};
+
+struct Decoded_VkSurfacePresentModeKHR
+{
+    using struct_type = VkSurfacePresentModeKHR;
+
+    VkSurfacePresentModeKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSurfacePresentScalingCapabilitiesKHR
+{
+    using struct_type = VkSurfacePresentScalingCapabilitiesKHR;
+
+    VkSurfacePresentScalingCapabilitiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* minScaledImageExtent{ nullptr };
+    Decoded_VkExtent2D* maxScaledImageExtent{ nullptr };
+};
+
+struct Decoded_VkSurfacePresentModeCompatibilityKHR
+{
+    using struct_type = VkSurfacePresentModeCompatibilityKHR;
+
+    VkSurfacePresentModeCompatibilityKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR;
+
+    VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainPresentFenceInfoKHR
+{
+    using struct_type = VkSwapchainPresentFenceInfoKHR;
+
+    VkSwapchainPresentFenceInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    HandlePointerDecoder<VkFence> pFences;
+};
+
+struct Decoded_VkSwapchainPresentModesCreateInfoKHR
+{
+    using struct_type = VkSwapchainPresentModesCreateInfoKHR;
+
+    VkSwapchainPresentModesCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkSwapchainPresentModeInfoKHR
+{
+    using struct_type = VkSwapchainPresentModeInfoKHR;
+
+    VkSwapchainPresentModeInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkSwapchainPresentScalingCreateInfoKHR
+{
+    using struct_type = VkSwapchainPresentScalingCreateInfoKHR;
+
+    VkSwapchainPresentScalingCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkReleaseSwapchainImagesInfoKHR
+{
+    using struct_type = VkReleaseSwapchainImagesInfoKHR;
+
+    VkReleaseSwapchainImagesInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+    PointerDecoder<uint32_t> pImageIndices;
 };
 
 struct Decoded_VkCooperativeMatrixPropertiesKHR
@@ -6010,6 +5697,44 @@ struct Decoded_VkVideoEncodeAV1RateControlLayerInfoKHR
     Decoded_VkVideoEncodeAV1FrameSizeKHR* maxFrameSize{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceVideoDecodeVP9FeaturesKHR;
+
+    VkPhysicalDeviceVideoDecodeVP9FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoDecodeVP9ProfileInfoKHR
+{
+    using struct_type = VkVideoDecodeVP9ProfileInfoKHR;
+
+    VkVideoDecodeVP9ProfileInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoDecodeVP9CapabilitiesKHR
+{
+    using struct_type = VkVideoDecodeVP9CapabilitiesKHR;
+
+    VkVideoDecodeVP9CapabilitiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoDecodeVP9PictureInfoKHR
+{
+    using struct_type = VkVideoDecodeVP9PictureInfoKHR;
+
+    VkVideoDecodeVP9PictureInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_StdVideoDecodeVP9PictureInfo>* pStdPictureInfo{ nullptr };
+    PointerDecoder<int32_t> referenceNameSlotIndices;
+};
+
 struct Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR
 {
     using struct_type = VkPhysicalDeviceVideoMaintenance1FeaturesKHR;
@@ -6027,6 +5752,24 @@ struct Decoded_VkVideoInlineQueryInfoKHR
 
     PNextNode* pNext{ nullptr };
     format::HandleId queryPool{ format::kNullHandleId };
+};
+
+struct Decoded_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR;
+
+    VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkAttachmentFeedbackLoopInfoEXT
+{
+    using struct_type = VkAttachmentFeedbackLoopInfoEXT;
+
+    VkAttachmentFeedbackLoopInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkCalibratedTimestampInfoKHR
@@ -6058,6 +5801,116 @@ struct Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT
 
     PNextNode* pNext{ nullptr };
     format::HandleId layout{ format::kNullHandleId };
+};
+
+struct Decoded_VkStridedDeviceAddressRangeKHR
+{
+    using struct_type = VkStridedDeviceAddressRangeKHR;
+
+    VkStridedDeviceAddressRangeKHR* decoded_value{ nullptr };
+};
+
+struct Decoded_VkCopyMemoryIndirectCommandKHR
+{
+    using struct_type = VkCopyMemoryIndirectCommandKHR;
+
+    VkCopyMemoryIndirectCommandKHR* decoded_value{ nullptr };
+};
+
+struct Decoded_VkCopyMemoryIndirectInfoKHR
+{
+    using struct_type = VkCopyMemoryIndirectInfoKHR;
+
+    VkCopyMemoryIndirectInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkStridedDeviceAddressRangeKHR* copyAddressRange{ nullptr };
+};
+
+struct Decoded_VkCopyMemoryToImageIndirectCommandKHR
+{
+    using struct_type = VkCopyMemoryToImageIndirectCommandKHR;
+
+    VkCopyMemoryToImageIndirectCommandKHR* decoded_value{ nullptr };
+
+    Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
+    Decoded_VkOffset3D* imageOffset{ nullptr };
+    Decoded_VkExtent3D* imageExtent{ nullptr };
+};
+
+struct Decoded_VkCopyMemoryToImageIndirectInfoKHR
+{
+    using struct_type = VkCopyMemoryToImageIndirectInfoKHR;
+
+    VkCopyMemoryToImageIndirectInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkStridedDeviceAddressRangeKHR* copyAddressRange{ nullptr };
+    format::HandleId dstImage{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkImageSubresourceLayers>* pImageSubresources{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR;
+
+    VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR;
+
+    VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeIntraRefreshCapabilitiesKHR
+{
+    using struct_type = VkVideoEncodeIntraRefreshCapabilitiesKHR;
+
+    VkVideoEncodeIntraRefreshCapabilitiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeSessionIntraRefreshCreateInfoKHR
+{
+    using struct_type = VkVideoEncodeSessionIntraRefreshCreateInfoKHR;
+
+    VkVideoEncodeSessionIntraRefreshCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeIntraRefreshInfoKHR
+{
+    using struct_type = VkVideoEncodeIntraRefreshInfoKHR;
+
+    VkVideoEncodeIntraRefreshInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoReferenceIntraRefreshInfoKHR
+{
+    using struct_type = VkVideoReferenceIntraRefreshInfoKHR;
+
+    VkVideoReferenceIntraRefreshInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR;
+
+    VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkVideoEncodeQuantizationMapCapabilitiesKHR
@@ -6212,15 +6065,6 @@ struct Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR
     Decoded_VkPhysicalDeviceProperties2* properties{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceMaintenance8FeaturesKHR
-{
-    using struct_type = VkPhysicalDeviceMaintenance8FeaturesKHR;
-
-    VkPhysicalDeviceMaintenance8FeaturesKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkMemoryBarrierAccessFlags3KHR
 {
     using struct_type = VkMemoryBarrierAccessFlags3KHR;
@@ -6230,46 +6074,40 @@ struct Decoded_VkMemoryBarrierAccessFlags3KHR
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceVideoMaintenance2FeaturesKHR
+struct Decoded_VkPhysicalDeviceMaintenance8FeaturesKHR
 {
-    using struct_type = VkPhysicalDeviceVideoMaintenance2FeaturesKHR;
+    using struct_type = VkPhysicalDeviceMaintenance8FeaturesKHR;
 
-    VkPhysicalDeviceVideoMaintenance2FeaturesKHR* decoded_value{ nullptr };
+    VkPhysicalDeviceMaintenance8FeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkVideoDecodeH264InlineSessionParametersInfoKHR
+struct Decoded_VkPhysicalDeviceMaintenance9FeaturesKHR
 {
-    using struct_type = VkVideoDecodeH264InlineSessionParametersInfoKHR;
+    using struct_type = VkPhysicalDeviceMaintenance9FeaturesKHR;
 
-    VkVideoDecodeH264InlineSessionParametersInfoKHR* decoded_value{ nullptr };
+    VkPhysicalDeviceMaintenance9FeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH264SequenceParameterSet>* pStdSPS{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH264PictureParameterSet>* pStdPPS{ nullptr };
 };
 
-struct Decoded_VkVideoDecodeH265InlineSessionParametersInfoKHR
+struct Decoded_VkPhysicalDeviceMaintenance9PropertiesKHR
 {
-    using struct_type = VkVideoDecodeH265InlineSessionParametersInfoKHR;
+    using struct_type = VkPhysicalDeviceMaintenance9PropertiesKHR;
 
-    VkVideoDecodeH265InlineSessionParametersInfoKHR* decoded_value{ nullptr };
+    VkPhysicalDeviceMaintenance9PropertiesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265VideoParameterSet>* pStdVPS{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265SequenceParameterSet>* pStdSPS{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoH265PictureParameterSet>* pStdPPS{ nullptr };
 };
 
-struct Decoded_VkVideoDecodeAV1InlineSessionParametersInfoKHR
+struct Decoded_VkQueueFamilyOwnershipTransferPropertiesKHR
 {
-    using struct_type = VkVideoDecodeAV1InlineSessionParametersInfoKHR;
+    using struct_type = VkQueueFamilyOwnershipTransferPropertiesKHR;
 
-    VkVideoDecodeAV1InlineSessionParametersInfoKHR* decoded_value{ nullptr };
+    VkQueueFamilyOwnershipTransferPropertiesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_StdVideoAV1SequenceHeader>* pStdSequenceHeader{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR
@@ -6277,6 +6115,33 @@ struct Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR
     using struct_type = VkPhysicalDeviceDepthClampZeroOneFeaturesKHR;
 
     VkPhysicalDeviceDepthClampZeroOneFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRobustness2FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceRobustness2FeaturesKHR;
+
+    VkPhysicalDeviceRobustness2FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRobustness2PropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceRobustness2PropertiesKHR;
+
+    VkPhysicalDeviceRobustness2PropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR
+{
+    using struct_type = VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR;
+
+    VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -8037,95 +7902,6 @@ struct Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkSurfacePresentModeEXT
-{
-    using struct_type = VkSurfacePresentModeEXT;
-
-    VkSurfacePresentModeEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkSurfacePresentScalingCapabilitiesEXT
-{
-    using struct_type = VkSurfacePresentScalingCapabilitiesEXT;
-
-    VkSurfacePresentScalingCapabilitiesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkExtent2D* minScaledImageExtent{ nullptr };
-    Decoded_VkExtent2D* maxScaledImageExtent{ nullptr };
-};
-
-struct Decoded_VkSurfacePresentModeCompatibilityEXT
-{
-    using struct_type = VkSurfacePresentModeCompatibilityEXT;
-
-    VkSurfacePresentModeCompatibilityEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    PointerDecoder<VkPresentModeKHR> pPresentModes;
-};
-
-struct Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
-
-    VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkSwapchainPresentFenceInfoEXT
-{
-    using struct_type = VkSwapchainPresentFenceInfoEXT;
-
-    VkSwapchainPresentFenceInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    HandlePointerDecoder<VkFence> pFences;
-};
-
-struct Decoded_VkSwapchainPresentModesCreateInfoEXT
-{
-    using struct_type = VkSwapchainPresentModesCreateInfoEXT;
-
-    VkSwapchainPresentModesCreateInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    PointerDecoder<VkPresentModeKHR> pPresentModes;
-};
-
-struct Decoded_VkSwapchainPresentModeInfoEXT
-{
-    using struct_type = VkSwapchainPresentModeInfoEXT;
-
-    VkSwapchainPresentModeInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    PointerDecoder<VkPresentModeKHR> pPresentModes;
-};
-
-struct Decoded_VkSwapchainPresentScalingCreateInfoEXT
-{
-    using struct_type = VkSwapchainPresentScalingCreateInfoEXT;
-
-    VkSwapchainPresentScalingCreateInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkReleaseSwapchainImagesInfoEXT
-{
-    using struct_type = VkReleaseSwapchainImagesInfoEXT;
-
-    VkReleaseSwapchainImagesInfoEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId swapchain{ format::kNullHandleId };
-    PointerDecoder<uint32_t> pImageIndices;
-};
-
 struct Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV
 {
     using struct_type = VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV;
@@ -8356,24 +8132,6 @@ struct Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT
     uint64_t pUserData{ 0 };
 };
 
-struct Decoded_VkPhysicalDeviceRobustness2FeaturesEXT
-{
-    using struct_type = VkPhysicalDeviceRobustness2FeaturesEXT;
-
-    VkPhysicalDeviceRobustness2FeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceRobustness2PropertiesEXT
-{
-    using struct_type = VkPhysicalDeviceRobustness2PropertiesEXT;
-
-    VkPhysicalDeviceRobustness2PropertiesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkSamplerCustomBorderColorCreateInfoEXT
 {
     using struct_type = VkSamplerCustomBorderColorCreateInfoEXT;
@@ -8443,6 +8201,63 @@ struct Decoded_VkDeviceDiagnosticsConfigCreateInfoNV
     using struct_type = VkDeviceDiagnosticsConfigCreateInfoNV;
 
     VkDeviceDiagnosticsConfigCreateInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileShadingFeaturesQCOM;
+
+    VkPhysicalDeviceTileShadingFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileShadingPropertiesQCOM;
+
+    VkPhysicalDeviceTileShadingPropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* tileGranularity{ nullptr };
+    Decoded_VkExtent2D* maxTileShadingRate{ nullptr };
+};
+
+struct Decoded_VkRenderPassTileShadingCreateInfoQCOM
+{
+    using struct_type = VkRenderPassTileShadingCreateInfoQCOM;
+
+    VkRenderPassTileShadingCreateInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent2D* tileApronSize{ nullptr };
+};
+
+struct Decoded_VkPerTileBeginInfoQCOM
+{
+    using struct_type = VkPerTileBeginInfoQCOM;
+
+    VkPerTileBeginInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPerTileEndInfoQCOM
+{
+    using struct_type = VkPerTileEndInfoQCOM;
+
+    VkPerTileEndInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDispatchTileInfoQCOM
+{
+    using struct_type = VkDispatchTileInfoQCOM;
+
+    VkDispatchTileInfoQCOM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -8852,15 +8667,6 @@ struct Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT
-{
-    using struct_type = VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT;
-
-    VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkImportMemoryZirconHandleInfoFUCHSIA
 {
     using struct_type = VkImportMemoryZirconHandleInfoFUCHSIA;
@@ -9029,6 +8835,42 @@ struct Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT
     using struct_type = VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT;
 
     VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE;
+
+    VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE
+{
+    using struct_type = VkVideoEncodeRgbConversionCapabilitiesVALVE;
+
+    VkVideoEncodeRgbConversionCapabilitiesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE
+{
+    using struct_type = VkVideoEncodeProfileRgbConversionInfoVALVE;
+
+    VkVideoEncodeProfileRgbConversionInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE
+{
+    using struct_type = VkVideoEncodeSessionRgbConversionCreateInfoVALVE;
+
+    VkVideoEncodeSessionRgbConversionCreateInfoVALVE* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -9463,30 +9305,30 @@ struct Decoded_VkRenderPassStripeSubmitInfoARM
     StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* pStripeSemaphoreInfos{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM
+struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT
 {
-    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
+    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT;
 
-    VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* decoded_value{ nullptr };
+    VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM
+struct Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT
 {
-    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
+    using struct_type = VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT;
 
-    VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* decoded_value{ nullptr };
+    VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
     Decoded_VkExtent2D* fragmentDensityOffsetGranularity{ nullptr };
 };
 
-struct Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM
+struct Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT
 {
-    using struct_type = VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
+    using struct_type = VkRenderPassFragmentDensityMapOffsetEndInfoEXT;
 
-    VkSubpassFragmentDensityMapOffsetEndInfoQCOM* decoded_value{ nullptr };
+    VkRenderPassFragmentDensityMapOffsetEndInfoEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkOffset2D>* pFragmentDensityOffsets{ nullptr };
@@ -10371,6 +10213,52 @@ struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileMemoryHeapFeaturesQCOM;
+
+    VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM
+{
+    using struct_type = VkPhysicalDeviceTileMemoryHeapPropertiesQCOM;
+
+    VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTileMemoryRequirementsQCOM
+{
+    using struct_type = VkTileMemoryRequirementsQCOM;
+
+    VkTileMemoryRequirementsQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkTileMemoryBindInfoQCOM
+{
+    using struct_type = VkTileMemoryBindInfoQCOM;
+
+    VkTileMemoryBindInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkTileMemorySizeInfoQCOM
+{
+    using struct_type = VkTileMemorySizeInfoQCOM;
+
+    VkTileMemorySizeInfoQCOM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkDisplaySurfaceStereoCreateInfoNV
 {
     using struct_type = VkDisplaySurfaceStereoCreateInfoNV;
@@ -10421,6 +10309,15 @@ struct Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT
     using struct_type = VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT;
 
     VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderFloat8FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderFloat8FeaturesEXT;
+
+    VkPhysicalDeviceShaderFloat8FeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -10854,6 +10751,42 @@ struct Decoded_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceFormatPackFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceFormatPackFeaturesARM;
+
+    VkPhysicalDeviceFormatPackFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE;
+
+    VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE
+{
+    using struct_type = VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE;
+
+    VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE
+{
+    using struct_type = VkPipelineFragmentDensityMapLayeredCreateInfoVALVE;
+
+    VkPipelineFragmentDensityMapLayeredCreateInfoVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkSetPresentConfigNV
 {
     using struct_type = VkSetPresentConfigNV;
@@ -10868,6 +10801,33 @@ struct Decoded_VkPhysicalDevicePresentMeteringFeaturesNV
     using struct_type = VkPhysicalDevicePresentMeteringFeaturesNV;
 
     VkPhysicalDevicePresentMeteringFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderingEndInfoEXT
+{
+    using struct_type = VkRenderingEndInfoEXT;
+
+    VkRenderingEndInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT;
+
+    VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC
+{
+    using struct_type = VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
+
+    VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -11571,9 +11531,31 @@ typedef Decoded_VkSubresourceLayout2 Decoded_VkSubresourceLayout2EXT;
 
 typedef Decoded_VkImageSubresource2 Decoded_VkImageSubresource2EXT;
 
+typedef Decoded_VkSurfacePresentModeKHR Decoded_VkSurfacePresentModeEXT;
+
+typedef Decoded_VkSurfacePresentScalingCapabilitiesKHR Decoded_VkSurfacePresentScalingCapabilitiesEXT;
+
+typedef Decoded_VkSurfacePresentModeCompatibilityKHR Decoded_VkSurfacePresentModeCompatibilityEXT;
+
+typedef Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
+
+typedef Decoded_VkSwapchainPresentFenceInfoKHR Decoded_VkSwapchainPresentFenceInfoEXT;
+
+typedef Decoded_VkSwapchainPresentModesCreateInfoKHR Decoded_VkSwapchainPresentModesCreateInfoEXT;
+
+typedef Decoded_VkSwapchainPresentModeInfoKHR Decoded_VkSwapchainPresentModeInfoEXT;
+
+typedef Decoded_VkSwapchainPresentScalingCreateInfoKHR Decoded_VkSwapchainPresentScalingCreateInfoEXT;
+
+typedef Decoded_VkReleaseSwapchainImagesInfoKHR Decoded_VkReleaseSwapchainImagesInfoEXT;
+
 typedef Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT;
 
 typedef Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties Decoded_VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT;
+
+typedef Decoded_VkPhysicalDeviceRobustness2FeaturesKHR Decoded_VkPhysicalDeviceRobustness2FeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceRobustness2PropertiesKHR Decoded_VkPhysicalDeviceRobustness2PropertiesEXT;
 
 typedef Decoded_VkPhysicalDevicePrivateDataFeatures Decoded_VkPhysicalDevicePrivateDataFeaturesEXT;
 
@@ -11593,11 +11575,19 @@ typedef Decoded_VkMutableDescriptorTypeListEXT Decoded_VkMutableDescriptorTypeLi
 
 typedef Decoded_VkMutableDescriptorTypeCreateInfoEXT Decoded_VkMutableDescriptorTypeCreateInfoVALVE;
 
+typedef Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT;
+
 typedef Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT;
 
 typedef Decoded_VkQueueFamilyGlobalPriorityProperties Decoded_VkQueueFamilyGlobalPriorityPropertiesEXT;
 
 typedef Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT;
+
+typedef Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM;
+
+typedef Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM;
+
+typedef Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM;
 
 typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 

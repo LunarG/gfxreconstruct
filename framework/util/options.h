@@ -55,6 +55,15 @@ enum class SwapchainOption : uint32_t
     kOffscreen = 2,
 };
 
+enum class PresentModeOption : uint32_t
+{
+    kCapture     = 0,
+    kImmediate   = 1,
+    kMailbox     = 2,
+    kFifo        = 3,
+    kFifoRelaxed = 4,
+};
+
 //----------------------------------------------------------------------------
 /// Read a boolean value out of a string
 /// \param  value_string Input string

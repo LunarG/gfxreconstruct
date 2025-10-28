@@ -50,6 +50,7 @@ class Log
         // General settings
         Severity    min_severity{ kInfoSeverity };     // Any severity >= to this value will print
         bool        output_detailed_log_info{ false }; // Output detailed log messages
+        bool        output_timestamps{ false };        // Output a timestamp in front of each log message
         bool        flush_after_write{ false };        // Flush the file/console after every log write
         bool        use_indent{ false };               // Write out messages using indenting
         uint32_t    indent{ 0 };                       // Number of indents to shift this message
@@ -76,6 +77,7 @@ class Log
                      bool        flush_after_write         = false,
                      bool        break_on_error            = false,
                      bool        output_detailed_log_info  = false,
+                     bool        output_timestamps         = false,
                      bool        write_to_console          = true,
                      bool        errors_to_stderr          = true,
                      bool        output_to_os_debug_string = false,
@@ -180,6 +182,8 @@ class Log
 
         return parse_success;
     }
+
+    static Severity GetSeverity() { return settings_.min_severity; }
 
   private:
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);

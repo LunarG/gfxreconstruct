@@ -37,17 +37,18 @@ const char kOptions[] =
     "--dump-resources-json-output-per-command,--dump-resources-dump-immutable-resources,"
     "--dump-resources-dump-all-image-subresources,--dump-resources-dump-raw-images,--dump-resources-dump-"
     "separate-alpha,--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,"
-    "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID";
+    "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID,--dump-resources-dump-unused-vertex-bindings,--"
+    "deduplicate-device,--log-timestamps,--capture";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
-    "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
+    "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-"
-    "image-format,--dump-resources-dir,"
+    "image-format,--dump-resources-dir,--dump-resources-binary-file-compression-type,"
     "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-"
-    "pipeline-cache,--quit-after-frame";
+    "pipeline-cache,--quit-after-frame,--present-mode";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -67,14 +68,15 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-scale <scale>] [--screenshot-interval <N>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--capture]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-cached-psos] [--surface-index <N>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--remove-unsupported] [--validate]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>] [--present-mode <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--vssb | --virtual-swapchain-skip-blit]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
@@ -96,6 +98,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-json-output-per-command]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-immutable-resources]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-all-image-subresources]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--debug-messenger-level <level>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-modifiable-state-only]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
@@ -116,11 +119,15 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify highest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("          \t\tdebug, info, warning, error, and fatal. Default is info.");
+    GFXRECON_WRITE_CONSOLE("  --log-timestamps\tOutput a timestamp in front of each log message.");
     GFXRECON_WRITE_CONSOLE("  --log-file <file>\tWrite log messages to a file at the specified path.")
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: Empty string (file logging disabled).");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
+    GFXRECON_WRITE_CONSOLE(
+        "  --debug-messenger-level <level>\tSpecify highest debug messenger severity level. Options are:")
+    GFXRECON_WRITE_CONSOLE("          \t\tdebug, info, warning, and error. Default is warning.");
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
@@ -137,6 +144,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tascending order and cannot overlap.  Note that frame");
     GFXRECON_WRITE_CONSOLE("          \t\tnumbering is 1-based (i.e. the first frame is frame 1).");
     GFXRECON_WRITE_CONSOLE("          \t\tExample: 200,301-305 will generate six screenshots.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-interval <N>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecifies the number of frames between two screenshots");
+    GFXRECON_WRITE_CONSOLE("          \t\twithin a screenshot range.");
+    GFXRECON_WRITE_CONSOLE("          \t\tExample: If screenshot range is 10-15 and interval is 2,");
+    GFXRECON_WRITE_CONSOLE("          \t\tscreenshot will be generated for frames 10, 12 and 14.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is 1.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-format <format>");
     GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use for screenshot generation.");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are:");
@@ -202,6 +215,12 @@ static void PrintUsage(const char* exe_name)
 #endif
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Vulkan only:")
+    GFXRECON_WRITE_CONSOLE("  --capture\t\tCapture the replaying GFXR file. Capture uses the same log");
+    GFXRECON_WRITE_CONSOLE("       \t\t\toptions as replay. All other capture option behavior and");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tusage is the same as when capturing with the GFXR layer. The");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tcapture functionality is included in the `gfxrecon-replay`");
+    GFXRECON_WRITE_CONSOLE("       \t\t\texecutable--no GFXR capture layer is added to the Vulkan layer");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tchain.");
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
@@ -249,6 +268,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand windows. To see rendering, add the --screenshots option.");
+    GFXRECON_WRITE_CONSOLE("  --present-mode <mode>\tSet swapchain's VkPresentModeKHR.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable modes are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: Present mode used at capture time.", kPresentModeCapture);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_IMMEDIATE_KHR", kPresentModeImmediate);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_MAILBOX_KHR", kPresentModeMailbox);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_KHR", kPresentModeFifo);
+    GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_RELAXED_KHR", kPresentModeFifoRelaxed);
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
@@ -343,6 +369,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-unused-vertex-bindings");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump a vertex binding even if no vertex attributes references it.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-binary-file-compression-type");
+    GFXRECON_WRITE_CONSOLE("          \t\tCompress files that are dumped as binary. Available compression types");
+    GFXRECON_WRITE_CONSOLE("          \t\tare: [none, lz4 (block format), zlib, zstd]. Default is none");
+    GFXRECON_WRITE_CONSOLE("          \t\t(no compression).");
     GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
     GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");
@@ -363,6 +395,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --screenshot-ignore-FrameBoundaryANDROID");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, frames switced with vkFrameBoundANDROID will be ignored from");
     GFXRECON_WRITE_CONSOLE("          \t\tthe screenshot handler.");
+    GFXRECON_WRITE_CONSOLE("  --deduplicate-device");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice for "
+                           "RenderDoc and DXVK case.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")

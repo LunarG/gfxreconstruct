@@ -457,6 +457,9 @@ def makeObjectType(handle_value):
     elif handle_value.endswith('FUCHSIA'):
         extension = '_FUCHSIA'
         value = handle_value[2:-7]
+    elif handle_value.endswith('ARM'):
+        extension = '_ARM'
+        value = handle_value[2:-3]
     else:
         value = handle_value[2:]
 
@@ -597,12 +600,6 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_cmd_params or self.struct_names:
-            return True
-        return False
 
     #
     # Performs C++ code generation for the feature.

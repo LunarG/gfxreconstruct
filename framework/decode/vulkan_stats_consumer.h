@@ -31,8 +31,24 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+
+// vulkan_hash.hpp includes <ciso646>, which is deprecated on C++17 and
+// is a warning on gcc 15, treated as error in our build.  So silence that
+// deprecation for now.  TODO remove the dependency on deprecated header.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
+#endif
+
+// avoid compilation issues with c++20 / 32bit
+#define VULKAN_HPP_NO_SPACESHIP_OPERATOR
 #include "vulkan/vulkan_hash.hpp"
 #include "vulkan/vulkan_structs.hpp"
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
 #include "util/platform.h"
 
 #include "vulkan/vulkan.h"

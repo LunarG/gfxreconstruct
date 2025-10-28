@@ -69,25 +69,26 @@ void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t hei
         if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
             (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
         {
-            const std::array<AndroidContext::ScreenOrientation, 2> kOrientations{
-                AndroidContext::ScreenOrientation::kLandscape, AndroidContext::ScreenOrientation::kPortrait
-            };
-
-            uint32_t orientation_index = 0;
+            auto orientation = AndroidContext::ScreenOrientation::kLandscape;
 
             if (height > width)
             {
-                orientation_index = 1;
+                orientation = AndroidContext::ScreenOrientation::kPortrait;
             }
 
-            // Toggle orientation between landscape and portrait for 90 and 270 degree pre-transform values.
+            // Pre-transform is a different story. Supposing identity transform of capture and
+            // replay device match and it is portrait, then the following holds true.
             if ((pre_transform == format::ResizeWindowPreTransform::kPreTransform90) ||
                 (pre_transform == format::ResizeWindowPreTransform::kPreTransform270))
             {
-                orientation_index ^= 1;
+                orientation = AndroidContext::ScreenOrientation::kLandscape;
+            }
+            else if (pre_transform == format::ResizeWindowPreTransform::kPreTransform180)
+            {
+                orientation = AndroidContext::ScreenOrientation::kPortrait;
             }
 
-            android_context_->SetOrientation(kOrientations[orientation_index]);
+            android_context_->SetOrientation(orientation);
         }
 
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
@@ -123,10 +124,10 @@ VkExtent2D AndroidWindow::GetSize() const
     return { width_, height_ };
 }
 
-VkResult AndroidWindow::CreateSurface(const encode::VulkanInstanceTable* table,
-                                      VkInstance                         instance,
-                                      VkFlags                            flags,
-                                      VkSurfaceKHR*                      pSurface)
+VkResult AndroidWindow::CreateSurface(const graphics::VulkanInstanceTable* table,
+                                      VkInstance                           instance,
+                                      VkFlags                              flags,
+                                      VkSurfaceKHR*                        pSurface)
 {
     if (table != nullptr)
     {
@@ -140,7 +141,9 @@ VkResult AndroidWindow::CreateSurface(const encode::VulkanInstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void AndroidWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void AndroidWindow::DestroySurface(const graphics::VulkanInstanceTable* table,
+                                   VkInstance                           instance,
+                                   VkSurfaceKHR                         surface)
 {
     if (table != nullptr)
     {
@@ -186,17 +189,30 @@ decode::Window* AndroidWindowFactory::Create(
 void AndroidWindowFactory::Destroy(decode::Window* window)
 {
 #ifdef GFXR_MULTI_WINDOW_REPLAY
-    int32_t windowidx = created_window_.at(window);
-    android_context_->destroyNativeWindow(windowidx);
+    if (window)
+    {
+        ANativeWindow* native_window = nullptr;
+        if (window->GetNativeHandle(decode::Window::kAndroidNativeWindow, reinterpret_cast<void**>(&native_window)))
+        {
+            ANativeWindow_release(native_window);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Couldn't retrieve Android native window from window %p for destruction", window)
+        }
+
+        int32_t window_index = created_window_.at(window);
+        android_context_->destroyNativeWindow(window_index);
+    }
 #else // !GFXR_MULTI_WINDOW_REPLAY
     // Standard replay app only has a single window whose lifetime is managed by AndroidContext.
     GFXRECON_UNREFERENCED_PARAMETER(window);
 #endif
 }
 
-VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
-                                                                    VkPhysicalDevice                   physical_device,
-                                                                    uint32_t queue_family_index)
+VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const graphics::VulkanInstanceTable* table,
+                                                                    VkPhysicalDevice physical_device,
+                                                                    uint32_t         queue_family_index)
 {
     GFXRECON_UNREFERENCED_PARAMETER(table);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);

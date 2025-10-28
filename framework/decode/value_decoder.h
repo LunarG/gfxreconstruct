@@ -25,12 +25,22 @@
 #ifndef GFXRECON_DECODE_VALUE_DECODER_H
 #define GFXRECON_DECODE_VALUE_DECODER_H
 
+#include "format/platform_types.h"
 #include "format/format.h"
 #include "util/defines.h"
 
+#ifdef WIN32
+#include <d3dcommon.h>
+#endif
+
+#if ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <chrono>
+#include <cstdint>
 #include <type_traits>
 #include <memory.h>
 
@@ -52,11 +62,13 @@ class ValueDecoder
     static size_t DecodeUInt32BitFieldValue(const uint8_t* buffer, size_t buffer_size, const uint32_t& value)       { return 0; }
 
 #if defined(WIN32)
-    // Oveload for WIN32 LONG type.  Pointers from the LONG typedef of unsigned long are not compatible with int32_t pointers.
+    // Overload for WIN32 LONG type.  Pointers from the LONG typedef of unsigned long are not compatible with int32_t pointers.
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
-    // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
+    // Overload for WIN32 DWORD type.  Pointers from the DWORD and ULONG typedef of unsigned long are not compatible with uint32_t pointers.
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
 #endif
+    // This is union of various parts of a uint64 under windows
+    static size_t DecodeLARGE_INTEGERValue(const uint8_t* buffer, size_t buffer_size, LARGE_INTEGER* value) { return DecodeValue(buffer, buffer_size, &value->QuadPart); }
 
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
@@ -65,16 +77,27 @@ class ValueDecoder
 
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, size_t* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #if (defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)) && !defined(GFXRECON_ARCH64)
-    // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
+    // Overload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                 { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #elif defined(WIN32)
 #if !defined(GFXRECON_ARCH64)
-    // Oveload for 32-bit WIN32 SIZE_T type.  Pointers from the unsigned long typedef of are not compatible with size_t pointers.
+    // Overload for 32-bit WIN32 SIZE_T type.  Pointers from the unsigned long typedef of are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, SIZE_T* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #endif
-    // Oveload for WIN32 LONG_PTR type.  Pointers from the LONG_PTR typedef of __int64 / long are not compatible with size_t pointers.
+    // Overload for WIN32 LONG_PTR type.  Pointers from the LONG_PTR typedef of __int64 / long are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, LONG_PTR* value)                      { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #endif
+
+#if ENABLE_OPENXR_SUPPORT
+    static size_t DecodeXrTimeValue(const uint8_t* buffer, size_t buffer_size, XrTime* value) { return DecodeValue(buffer, buffer_size, value); }
+    static size_t DecodeLUIDValue(const uint8_t* buffer, size_t buffer_size, LUID* value) { return DecodeValue(buffer, buffer_size, reinterpret_cast<int64_t*>(value)); }
+    static size_t DecodeD3D_FEATURE_LEVELValue(const uint8_t* buffer, size_t buffer_size, D3D_FEATURE_LEVEL* value) { return DecodeValueFrom<format::D3D_FEATURE_LEVELEncodeType>(buffer, buffer_size, value); }
+    static size_t DecodeMLCoordinateFrameUIDValue(const uint8_t* buffer, size_t buffer_size, MLCoordinateFrameUID* value)
+    {
+        return DecodeUInt64Array(buffer, buffer_size, value->data, 2);
+    }
+
+#endif // ENABLE_OPENXR_SUPPORT
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     static size_t DecodeAddress(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeValueFrom<format::AddressEncodeType>(buffer, buffer_size, value); }

@@ -21,15 +21,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_resources_util.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
+#include "util/to_string.h"
+#include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/logging.h"
 #include "vulkan/vulkan_core.h"
 
-#include <cinttypes>
 #include <cstdint>
-#include <math.h>
+#include <cmath>
+#include <chrono>
+
+#include "vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -41,7 +45,7 @@ static constexpr bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 
 void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil)
 {
-    assert(aspects != nullptr);
+    GFXRECON_ASSERT(aspects != nullptr);
 
     bool combined = false;
 
@@ -104,20 +108,98 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspec
     }
 }
 
-VkImageAspectFlags GetFormatAspectMask(VkFormat format)
+void AspectFlagsToFlagBits(VkImageAspectFlags aspect_mask, std::vector<VkImageAspectFlagBits>& aspects)
 {
+    if ((aspect_mask & VK_IMAGE_ASPECT_COLOR_BIT) == VK_IMAGE_ASPECT_COLOR_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) == VK_IMAGE_ASPECT_DEPTH_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_DEPTH_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) == VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_STENCIL_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_METADATA_BIT) == VK_IMAGE_ASPECT_METADATA_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_METADATA_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT) == VK_IMAGE_ASPECT_PLANE_0_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_0_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT) == VK_IMAGE_ASPECT_PLANE_1_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_1_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT) == VK_IMAGE_ASPECT_PLANE_2_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_2_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_0_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_0_BIT_KHR);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_1_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_1_BIT_KHR);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_2_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_2_BIT_KHR);
+    }
+}
+
+VkImageAspectFlags GetFormatAspects(VkFormat format)
+{
+    VkImageAspectFlags aspects = VK_IMAGE_ASPECT_NONE;
+
     switch (format)
     {
         case VK_FORMAT_D16_UNORM_S8_UINT:
         case VK_FORMAT_D24_UNORM_S8_UINT:
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+            aspects = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+            break;
         case VK_FORMAT_D16_UNORM:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
         case VK_FORMAT_D32_SFLOAT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT;
+            aspects = VK_IMAGE_ASPECT_DEPTH_BIT;
+            break;
         case VK_FORMAT_S8_UINT:
-            return VK_IMAGE_ASPECT_STENCIL_BIT;
+            aspects = VK_IMAGE_ASPECT_STENCIL_BIT;
+            break;
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
         case VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM:
         case VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM:
@@ -130,7 +212,8 @@ VkImageAspectFlags GetFormatAspectMask(VkFormat format)
         case VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM:
         case VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM:
         case VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM:
-            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+            aspects = VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+            break;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
@@ -143,10 +226,14 @@ VkImageAspectFlags GetFormatAspectMask(VkFormat format)
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
-            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
+            aspects = VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
+            break;
         default:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
+            aspects = VK_IMAGE_ASPECT_COLOR_BIT;
+            break;
     }
+
+    return aspects;
 }
 
 VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
@@ -161,7 +248,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
                 return VK_FORMAT_S8_UINT;
             }
         case VK_FORMAT_D24_UNORM_S8_UINT:
@@ -172,7 +259,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
                 return VK_FORMAT_S8_UINT;
             }
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
@@ -182,7 +269,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
                 return VK_FORMAT_S8_UINT;
             }
         // Per-aspect/plane compatible formats as defined by the "Plane Format Compatibility Table" from the
@@ -201,7 +288,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
                 return VK_FORMAT_R8G8_UNORM;
             }
         case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16:
@@ -218,7 +305,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
                 return VK_FORMAT_R10X6G10X6_UNORM_2PACK16;
             }
         case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16:
@@ -235,7 +322,7 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
                 return VK_FORMAT_R12X4G12X4_UNORM_2PACK16;
             }
         case VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM:
@@ -252,12 +339,12 @@ VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
             }
             else
             {
-                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
                 return VK_FORMAT_R16G16_UNORM;
             }
         default:
-            assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
-                   (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
+            GFXRECON_ASSERT((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                            (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
             return format;
     }
 }
@@ -270,7 +357,7 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
 {
     bool found = false;
 
-    assert(memory_properties.memoryTypeCount > 0);
+    GFXRECON_ASSERT(memory_properties.memoryTypeCount > 0);
 
     for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
     {
@@ -418,11 +505,10 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                                    VkDeviceSize*              current_row_remaining_size_ptr)
 {
     bool         is_texel_block_size = false;
-    VkDeviceSize texel_size          = 0;
+    VkDeviceSize texel_size;
     uint16_t     block_width = 0, block_height = 0;
-    bool         result = GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
 
-    if (!result)
+    if (GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height))
     {
         // The image format is not supported
         return false;
@@ -460,9 +546,9 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             if (z >= extent.depth)
             {
                 // offset_to_subresource_data_start is beyond the range of subresource data. Because current
-                // Vulakn specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
+                // Vulkan specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
                 // exist;
-                result = false;
+                return false;
             }
             else
             {
@@ -582,7 +668,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
         *current_row_remaining_size_ptr = current_row_remaining_size;
     }
 
-    return result;
+    return true;
 }
 
 // Get the offset which is relative to the start of subresource data for a location (pointed by texel
@@ -773,8 +859,43 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
     return result;
 }
 
-uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage                image,
-                                                           VkFormat               format,
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
+                                         VkPhysicalDevice                        physical_device,
+                                         const graphics::VulkanDeviceTable&      device_table,
+                                         const graphics::VulkanInstanceTable&    instance_table,
+                                         const VkPhysicalDeviceMemoryProperties& memory_properties) :
+    device_(device),
+    device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
+    memory_properties_(memory_properties)
+{
+    GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(memory_properties.memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
+    GFXRECON_ASSERT(memory_properties.memoryTypeCount <= VK_MAX_MEMORY_TYPES);
+
+    set_debug_utils_object_name_fn_ = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
+        device_table_.GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
+}
+
+VulkanResourcesUtil::~VulkanResourcesUtil()
+{
+    DestroyStagingBuffer();
+
+    for (const auto& [queue_family_index, command_asset] : command_asset_map_)
+    {
+        if (command_asset.command_buffer != VK_NULL_HANDLE)
+        {
+            GFXRECON_ASSERT(command_asset.command_pool != VK_NULL_HANDLE);
+            device_table_.FreeCommandBuffers(device_, command_asset.command_pool, 1, &command_asset.command_buffer);
+        }
+
+        if (command_asset.command_pool != VK_NULL_HANDLE)
+        {
+            device_table_.DestroyCommandPool(device_, command_asset.command_pool, nullptr);
+        }
+    }
+}
+
+uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat               format,
                                                            VkImageType            type,
                                                            const VkExtent3D&      extent,
                                                            uint32_t               mip_levels,
@@ -785,7 +906,16 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
                                                            std::vector<uint64_t>* subresource_sizes,
                                                            bool                   all_layers_per_level)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
+    // Check whether the format is supported
+    VkFormatProperties format_properties;
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL && format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
+        (tiling == VK_IMAGE_TILING_LINEAR && format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
+    {
+        GFXRECON_LOG_ERROR("Format %s is not supported by the implementation",
+                           util::ToString<VkFormat>(format).c_str());
+        return 0;
+    }
 
     if (subresource_sizes != nullptr)
     {
@@ -871,7 +1001,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
 
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 {
-    assert(size);
+    GFXRECON_ASSERT(size > 0);
 
     if (staging_buffer_.buffer != VK_NULL_HANDLE)
     {
@@ -885,7 +1015,7 @@ VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
         }
     }
 
-    assert(staging_buffer_.buffer == VK_NULL_HANDLE && staging_buffer_.size == 0);
+    GFXRECON_ASSERT(staging_buffer_.buffer == VK_NULL_HANDLE && staging_buffer_.size == 0);
 
     VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -951,6 +1081,16 @@ VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
         {
             staging_buffer_.size       = size;
             staging_buffer_.mapped_ptr = nullptr;
+
+            if (set_debug_utils_object_name_fn_ != nullptr)
+            {
+                VkDebugUtilsObjectNameInfoEXT object_name_info = {};
+                object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+                object_name_info.objectType                    = VK_OBJECT_TYPE_BUFFER;
+                object_name_info.objectHandle                  = VK_HANDLE_TO_UINT64(staging_buffer_.buffer);
+                object_name_info.pObjectName                   = "VulkanResourcesUtil internal staging-buffer";
+                set_debug_utils_object_name_fn_(device_, &object_name_info);
+            }
         }
     }
     else
@@ -963,9 +1103,9 @@ VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 
 VkResult VulkanResourcesUtil::MapStagingBuffer()
 {
-    assert(staging_buffer_.buffer != VK_NULL_HANDLE);
-    assert(staging_buffer_.memory != VK_NULL_HANDLE);
-    assert(staging_buffer_.size);
+    GFXRECON_ASSERT(staging_buffer_.buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(staging_buffer_.memory != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(staging_buffer_.size);
 
     VkResult result = VK_SUCCESS;
 
@@ -987,9 +1127,9 @@ void VulkanResourcesUtil::UnmapStagingBuffer()
 {
     if (staging_buffer_.mapped_ptr != nullptr)
     {
-        assert(staging_buffer_.buffer != VK_NULL_HANDLE);
-        assert(staging_buffer_.memory != VK_NULL_HANDLE);
-        assert(staging_buffer_.size);
+        GFXRECON_ASSERT(staging_buffer_.buffer != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(staging_buffer_.memory != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(staging_buffer_.size);
 
         device_table_.UnmapMemory(device_, staging_buffer_.memory);
         staging_buffer_.mapped_ptr = nullptr;
@@ -998,13 +1138,13 @@ void VulkanResourcesUtil::UnmapStagingBuffer()
 
 void VulkanResourcesUtil::InvalidateStagingBuffer()
 {
-    assert(staging_buffer_.buffer != VK_NULL_HANDLE);
-    assert(staging_buffer_.memory != VK_NULL_HANDLE);
-    assert(staging_buffer_.size);
+    GFXRECON_ASSERT(staging_buffer_.buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(staging_buffer_.memory != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(staging_buffer_.size);
 
     if (!IsMemoryCoherent(staging_buffer_.memory_property_flags))
     {
-        assert(staging_buffer_.mapped_ptr != nullptr);
+        GFXRECON_ASSERT(staging_buffer_.mapped_ptr != nullptr);
 
         const VkMappedMemoryRange range{
             VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, staging_buffer_.memory, 0, staging_buffer_.size
@@ -1034,163 +1174,97 @@ void VulkanResourcesUtil::DestroyStagingBuffer()
     staging_buffer_.size                  = 0;
 }
 
-void VulkanResourcesUtil::InvalidateMappedMemoryRange(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size)
+VkCommandBuffer VulkanResourcesUtil::CreateCommandBufferAndBegin(uint32_t queue_family_index)
 {
-    VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
-    invalidate_range.pNext               = nullptr;
-    invalidate_range.memory              = memory;
-    invalidate_range.offset              = offset;
-    invalidate_range.size                = size;
+    auto& command_asset = command_asset_map_[queue_family_index];
 
-    device_table_.InvalidateMappedMemoryRanges(device_, 1, &invalidate_range);
-}
-
-VkResult VulkanResourcesUtil::CreateCommandPool(uint32_t queue_family_index)
-{
-    VkResult result = VK_SUCCESS;
-
-    if (queue_family_index != queue_family_index_ && command_pool_ != VK_NULL_HANDLE)
-    {
-        DestroyCommandPool();
-    }
-
-    if (command_pool_ == VK_NULL_HANDLE)
+    if (command_asset.command_pool == VK_NULL_HANDLE)
     {
         VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
         create_info.pNext                   = nullptr;
         create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         create_info.queueFamilyIndex        = queue_family_index;
 
-        result = device_table_.CreateCommandPool(device_, &create_info, nullptr, &command_pool_);
+        VkResult result = device_table_.CreateCommandPool(device_, &create_info, nullptr, &command_asset.command_pool);
 
-        if (result == VK_SUCCESS)
-        {
-            queue_family_index_ = queue_family_index;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Failed to create a command pool for resource memory snapshot");
-        }
-    }
-
-    return result;
-}
-
-void VulkanResourcesUtil::DestroyCommandPool()
-{
-    if (command_pool_ != VK_NULL_HANDLE)
-    {
-        device_table_.DestroyCommandPool(device_, command_pool_, nullptr);
-        command_pool_ = VK_NULL_HANDLE;
-    }
-}
-
-VkResult VulkanResourcesUtil::CreateCommandBuffer(uint32_t queue_family_index)
-{
-    if (queue_family_index != queue_family_index_ && command_buffer_ != VK_NULL_HANDLE)
-    {
-        DestroyCommandBuffer();
-    }
-
-    VkResult result = VK_SUCCESS;
-
-    if (command_buffer_ == VK_NULL_HANDLE)
-    {
-        result = CreateCommandPool(queue_family_index);
         if (result != VK_SUCCESS)
         {
-            return result;
+            GFXRECON_LOG_ERROR("Failed to create a command pool for resource memory snapshot");
+            return VK_NULL_HANDLE;
         }
+    }
 
-        assert(command_pool_ != VK_NULL_HANDLE);
+    if (command_asset.command_buffer == VK_NULL_HANDLE)
+    {
+        GFXRECON_ASSERT(command_asset.command_pool != VK_NULL_HANDLE);
 
         VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
         alloc_info.pNext                       = nullptr;
-        alloc_info.commandPool                 = command_pool_;
+        alloc_info.commandPool                 = command_asset.command_pool;
         alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         alloc_info.commandBufferCount          = 1;
 
-        result = device_table_.AllocateCommandBuffers(device_, &alloc_info, &command_buffer_);
+        VkResult result = device_table_.AllocateCommandBuffers(device_, &alloc_info, &command_asset.command_buffer);
 
-        if (result == VK_SUCCESS)
-        {
-            // Because this command buffer was not allocated through the loader, it must be assigned a dispatch
-            // table.
-            *reinterpret_cast<void**>(command_buffer_) = *reinterpret_cast<void**>(device_);
-        }
-        else
+        if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed to create a command buffer for resource memory snapshot");
+            return VK_NULL_HANDLE;
+        }
+
+        // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+        graphics::copy_dispatch_table_from_device(device_, command_asset.command_buffer);
+
+        if (set_debug_utils_object_name_fn_ != nullptr)
+        {
+            VkDebugUtilsObjectNameInfoEXT object_name_info = {};
+            object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+            object_name_info.objectType                    = VK_OBJECT_TYPE_COMMAND_BUFFER;
+
+            // NOTE: VK_HANDLE_TO_UINT64 fails here for 32bit (while it does work for VkBuffer), open for suggestions
+            object_name_info.objectHandle = (uint64_t)command_asset.command_buffer;
+            object_name_info.pObjectName  = "VulkanResourcesUtil internal command-buffer";
+            set_debug_utils_object_name_fn_(device_, &object_name_info);
         }
     }
 
-    if (result == VK_SUCCESS)
-    {
-        result = BeginCommandBuffer();
-    }
-
-    return result;
+    // begin + return handle
+    BeginCommandBuffer(command_asset.command_buffer);
+    return command_asset.command_buffer;
 }
 
-void VulkanResourcesUtil::ResetCommandBuffer()
+void VulkanResourcesUtil::ResetCommandBuffer(VkCommandBuffer command_buffer)
 {
-    assert(command_buffer_ != VK_NULL_HANDLE);
-
-    device_table_.ResetCommandBuffer(command_buffer_, VkCommandBufferResetFlags(0));
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    device_table_.ResetCommandBuffer(command_buffer, VkCommandBufferResetFlags(0));
 }
 
-VkResult VulkanResourcesUtil::BeginCommandBuffer()
+VkResult VulkanResourcesUtil::BeginCommandBuffer(VkCommandBuffer command_buffer)
 {
-    assert(command_buffer_ != VK_NULL_HANDLE);
-
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
     VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
     begin_info.pNext                    = nullptr;
     begin_info.flags                    = 0;
     begin_info.pInheritanceInfo         = nullptr;
 
-    VkResult result = device_table_.BeginCommandBuffer(command_buffer_, &begin_info);
+    VkResult result = device_table_.BeginCommandBuffer(command_buffer, &begin_info);
 
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to begin a command buffer for resource memory snapshot");
     }
-
     return result;
 }
 
-VkResult VulkanResourcesUtil::EndCommandBuffer()
-{
-    assert(command_buffer_ != VK_NULL_HANDLE);
-
-    VkResult result = device_table_.EndCommandBuffer(command_buffer_);
-
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("Failed to end a command buffer for resource memory snapshot");
-    }
-
-    return result;
-}
-
-void VulkanResourcesUtil::DestroyCommandBuffer()
-{
-    if (command_buffer_ != VK_NULL_HANDLE)
-    {
-        assert(command_pool_ != VK_NULL_HANDLE);
-
-        device_table_.FreeCommandBuffers(device_, command_pool_, 1, &command_buffer_);
-        command_buffer_ = VK_NULL_HANDLE;
-    }
-}
-
-void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            image,
+void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
+                                                           VkImage            image,
                                                            VkImageLayout      current_layout,
                                                            VkImageLayout      destination_layout,
                                                            VkImageAspectFlags aspect,
                                                            uint32_t           queue_family_index)
 {
-    assert(image != VK_NULL_HANDLE);
-    assert(command_buffer_ != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1208,7 +1282,7 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            im
     memory_barrier.subresourceRange.baseArrayLayer = 0;
     memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
-    device_table_.CmdPipelineBarrier(command_buffer_,
+    device_table_.CmdPipelineBarrier(command_buffer,
                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      0,
@@ -1220,14 +1294,15 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkImage            im
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            image,
+void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
+                                                             VkImage            image,
                                                              VkImageLayout      old_layout,
                                                              VkImageLayout      new_layout,
                                                              VkImageAspectFlags aspect,
                                                              uint32_t           queue_family_index)
 {
-    assert(image != VK_NULL_HANDLE);
-    assert(command_buffer_ != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1246,7 +1321,7 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            
     memory_barrier.oldLayout     = old_layout;
     memory_barrier.newLayout     = new_layout;
 
-    device_table_.CmdPipelineBarrier(command_buffer_,
+    device_table_.CmdPipelineBarrier(command_buffer,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                      0,
@@ -1258,8 +1333,10 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkImage            
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
+void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_buffer,
+                                          VkImage                      image,
                                           VkBuffer                     buffer,
+                                          uint32_t                     buffer_offset,
                                           const VkExtent3D&            extent,
                                           uint32_t                     mip_levels,
                                           uint32_t                     array_layers,
@@ -1268,18 +1345,18 @@ void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
                                           bool                         all_layers_per_level,
                                           CopyBufferImageDirection     copy_direction)
 {
-    assert(command_buffer_ != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
     const uint32_t n_subresources = all_layers_per_level ? mip_levels : mip_levels * array_layers;
 
-    assert(sizes.size() == n_subresources);
+    GFXRECON_ASSERT(sizes.size() == n_subresources);
 
     std::vector<VkBufferImageCopy> copy_regions;
 
     VkBufferImageCopy copy_region;
     copy_region.bufferRowLength             = 0; // Request tightly packed data.
     copy_region.bufferImageHeight           = 0; // Request tightly packed data.
-    copy_region.bufferOffset                = 0;
+    copy_region.bufferOffset                = buffer_offset;
     copy_region.imageOffset.x               = 0;
     copy_region.imageOffset.y               = 0;
     copy_region.imageOffset.z               = 0;
@@ -1308,11 +1385,11 @@ void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
             }
         }
     }
-    assert(sr == n_subresources);
+    GFXRECON_ASSERT(sr == n_subresources);
 
     if (copy_direction == kImageToBuffer)
     {
-        device_table_.CmdCopyImageToBuffer(command_buffer_,
+        device_table_.CmdCopyImageToBuffer(command_buffer,
                                            image,
                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                            buffer,
@@ -1321,9 +1398,9 @@ void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
     }
     else
     {
-        assert(copy_direction == kBufferToImage);
+        GFXRECON_ASSERT(copy_direction == kBufferToImage);
 
-        device_table_.CmdCopyBufferToImage(command_buffer_,
+        device_table_.CmdCopyBufferToImage(command_buffer,
                                            buffer,
                                            image,
                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1332,20 +1409,22 @@ void VulkanResourcesUtil::CopyImageBuffer(VkImage                      image,
     }
 }
 
-void VulkanResourcesUtil::CopyBuffer(VkBuffer source_buffer,
-                                     VkBuffer destination_buffer,
-                                     uint64_t size,
-                                     uint64_t src_offset)
+void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
+                                     VkBuffer        source_buffer,
+                                     VkBuffer        destination_buffer,
+                                     uint64_t        size,
+                                     uint64_t        src_offset,
+                                     uint64_t        dst_offset)
 {
-    assert(source_buffer != VK_NULL_HANDLE);
-    assert(command_buffer_ != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(source_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
     VkBufferCopy copy_region;
     copy_region.srcOffset = src_offset;
-    copy_region.dstOffset = 0;
+    copy_region.dstOffset = dst_offset;
     copy_region.size      = size;
 
-    device_table_.CmdCopyBuffer(command_buffer_, source_buffer, destination_buffer, 1, &copy_region);
+    device_table_.CmdCopyBuffer(command_buffer, source_buffer, destination_buffer, 1, &copy_region);
 }
 
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
@@ -1366,12 +1445,12 @@ VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queu
     return queue;
 }
 
-VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkQueue queue)
+VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer, VkQueue queue)
 {
-    assert(command_buffer_ != VK_NULL_HANDLE);
-    assert(queue != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(queue != VK_NULL_HANDLE);
 
-    device_table_.EndCommandBuffer(command_buffer_);
+    device_table_.EndCommandBuffer(command_buffer);
 
     VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
     submit_info.pNext                = nullptr;
@@ -1379,7 +1458,7 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkQueue queue)
     submit_info.pWaitSemaphores      = nullptr;
     submit_info.pWaitDstStageMask    = nullptr;
     submit_info.commandBufferCount   = 1;
-    submit_info.pCommandBuffers      = &command_buffer_;
+    submit_info.pCommandBuffers      = &command_buffer;
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
@@ -1400,34 +1479,42 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkQueue queue)
     }
 
     result = device_table_.WaitForFences(device_, 1, &fence, VK_TRUE, ~0UL);
+
+    // TODO: re-use fence
+    device_table_.DestroyFence(device_, fence, nullptr);
+
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("WaitForFences returned %d while taking a resource memory snapshot", result);
         return result;
     }
 
-    ResetCommandBuffer();
+    ResetCommandBuffer(command_buffer);
 
     return result;
 }
 
-VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
+VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
+                                           VkImage           image,
                                            VkFormat          format,
                                            VkImageType       type,
+                                           VkImageTiling     tiling,
                                            const VkExtent3D& extent,
                                            uint32_t          array_layers,
                                            VkImageLayout     current_layout,
-                                           VkQueue           queue,
-                                           uint32_t          queue_family_index,
                                            VkImage*          resolved_image,
                                            VkDeviceMemory*   resolved_image_memory)
 {
-    assert((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
+    GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
     VkFormatProperties format_properties{};
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
-    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL &&
+         (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+             VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+        (((tiling == VK_IMAGE_TILING_LINEAR &&
+           (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))))
     {
         GFXRECON_LOG_WARNING_ONCE(
             "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
@@ -1451,502 +1538,539 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
     create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
     VkResult result = device_table_.CreateImage(device_, &create_info, nullptr, resolved_image);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to create temporary image for multisample resolve.");
+        return result;
+    }
+
+    uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
+    VkMemoryRequirements memory_requirements;
+
+    device_table_.GetImageMemoryRequirements(device_, *resolved_image, &memory_requirements);
+
+    bool found = FindMemoryTypeIndex(memory_properties_,
+                                     memory_requirements.memoryTypeBits,
+                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                     &memory_type_index,
+                                     nullptr);
+
+    if (!found)
+    {
+        GFXRECON_LOG_ERROR(
+            "Failed to find a device local memory type for multisample resolve temporary image creation");
+        result = VK_ERROR_INITIALIZATION_FAILED;
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        *resolved_image = VK_NULL_HANDLE;
+        return result;
+    }
+
+    VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = memory_requirements.size;
+    alloc_info.memoryTypeIndex      = memory_type_index;
+
+    result = device_table_.AllocateMemory(device_, &alloc_info, nullptr, resolved_image_memory);
     if (result == VK_SUCCESS)
     {
-        uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
-        VkMemoryRequirements memory_requirements;
+        device_table_.BindImageMemory(device_, *resolved_image, *resolved_image_memory, 0);
 
-        device_table_.GetImageMemoryRequirements(device_, *resolved_image, &memory_requirements);
-
-        bool found = FindMemoryTypeIndex(memory_properties_,
-                                         memory_requirements.memoryTypeBits,
-                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                                         &memory_type_index,
-                                         nullptr);
-
-        if (found)
+        if (command_buffer != VK_NULL_HANDLE)
         {
-            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-            alloc_info.pNext                = nullptr;
-            alloc_info.allocationSize       = memory_requirements.size;
-            alloc_info.memoryTypeIndex      = memory_type_index;
+            VkImageAspectFlags aspect_mask = GetFormatAspects(format);
 
-            result = device_table_.AllocateMemory(device_, &alloc_info, nullptr, resolved_image_memory);
-            if (result == VK_SUCCESS)
+            uint32_t             num_barriers = 1;
+            VkImageMemoryBarrier memory_barriers[2];
+
+            // Destination image
+            memory_barriers[0].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            memory_barriers[0].pNext                           = nullptr;
+            memory_barriers[0].srcAccessMask                   = 0;
+            memory_barriers[0].dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
+            memory_barriers[0].oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+            memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barriers[0].image                           = *resolved_image;
+            memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
+            memory_barriers[0].subresourceRange.baseMipLevel   = 0;
+            memory_barriers[0].subresourceRange.levelCount     = 1;
+            memory_barriers[0].subresourceRange.baseArrayLayer = 0;
+            memory_barriers[0].subresourceRange.layerCount     = array_layers;
+
+            // Multi-sample source image
+            if (current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
             {
-                device_table_.BindImageMemory(device_, *resolved_image, *resolved_image_memory, 0);
+                num_barriers = 2;
 
-                result = CreateCommandPool(queue_family_index);
-                if (result != VK_SUCCESS)
+                memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                memory_barriers[1].pNext                           = nullptr;
+                memory_barriers[1].srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
+                memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                memory_barriers[1].oldLayout                       = current_layout;
+                memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                memory_barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                memory_barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                memory_barriers[1].image                           = image;
+                memory_barriers[1].subresourceRange.aspectMask     = aspect_mask;
+                memory_barriers[1].subresourceRange.baseMipLevel   = 0;
+                memory_barriers[1].subresourceRange.levelCount     = 1;
+                memory_barriers[1].subresourceRange.baseArrayLayer = 0;
+                memory_barriers[1].subresourceRange.layerCount     = array_layers;
+            }
+
+            device_table_.CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             num_barriers,
+                                             memory_barriers);
+
+            VkImageResolve region;
+            region.srcSubresource.aspectMask     = aspect_mask;
+            region.srcSubresource.mipLevel       = 0;
+            region.srcSubresource.baseArrayLayer = 0;
+            region.srcSubresource.layerCount     = array_layers;
+            region.srcOffset.x                   = 0;
+            region.srcOffset.y                   = 0;
+            region.srcOffset.z                   = 0;
+            region.dstSubresource.aspectMask     = aspect_mask;
+            region.dstSubresource.mipLevel       = 0;
+            region.dstSubresource.baseArrayLayer = 0;
+            region.dstSubresource.layerCount     = array_layers;
+            region.dstOffset.x                   = 0;
+            region.dstOffset.y                   = 0;
+            region.dstOffset.z                   = 0;
+            region.extent.width                  = extent.width;
+            region.extent.height                 = extent.height;
+            region.extent.depth                  = extent.depth;
+
+            device_table_.CmdResolveImage(command_buffer,
+                                          image,
+                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                          *resolved_image,
+                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                          1,
+                                          &region);
+
+            // Prepare the resolved image for the next staging copy.
+            memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            memory_barriers[0].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+            if (num_barriers == 2)
+            {
+                memory_barriers[1].srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                memory_barriers[1].dstAccessMask = 0;
+                memory_barriers[1].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                memory_barriers[1].newLayout     = current_layout;
+            }
+
+            device_table_.CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr,
+                                             num_barriers,
+                                             memory_barriers);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to allocate temporary image memory for multisample resolve");
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        *resolved_image = VK_NULL_HANDLE;
+    }
+    return result;
+}
+
+VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource>&   image_resources,
+                                                 const ReadImageResourcesCallbackFn& call_back,
+                                                 size_t                              staging_buffer_size)
+{
+    if (image_resources.empty())
+    {
+        return VK_SUCCESS;
+    }
+    // aggregate to store temporary data during batch-processing
+    struct image_resource_tmp_data_t
+    {
+        uint64_t                  resource_size       = 0;
+        VkDeviceSize              staging_offset      = 0;
+        VkImage                   resolve_image       = VK_NULL_HANDLE;
+        VkDeviceMemory            resolve_memory      = VK_NULL_HANDLE;
+        VkImage                   scaled_image        = VK_NULL_HANDLE;
+        VkDeviceMemory            scaled_image_memory = VK_NULL_HANDLE;
+        bool                      use_blit            = false;
+        bool                      scaling_supported   = false;
+        VkExtent3D                scaled_extent       = {};
+        VkImageAspectFlags        transition_aspect   = VK_IMAGE_ASPECT_NONE;
+        std::vector<VkDeviceSize> level_sizes;
+
+        VkDevice                           device       = VK_NULL_HANDLE;
+        const graphics::VulkanDeviceTable* device_table = nullptr;
+
+        image_resource_tmp_data_t& operator=(image_resource_tmp_data_t other)
+        {
+            std::swap(resource_size, other.resource_size);
+            std::swap(staging_offset, other.staging_offset);
+            std::swap(resolve_image, other.resolve_image);
+            std::swap(resolve_memory, other.resolve_memory);
+            std::swap(scaled_image, other.scaled_image);
+            std::swap(scaled_image_memory, other.scaled_image_memory);
+            std::swap(use_blit, other.use_blit);
+            std::swap(scaling_supported, other.scaling_supported);
+            std::swap(scaled_extent, other.scaled_extent);
+            std::swap(transition_aspect, other.transition_aspect);
+            std::swap(level_sizes, other.level_sizes);
+            std::swap(device, other.device);
+            std::swap(device_table, other.device_table);
+            return *this;
+        }
+
+        ~image_resource_tmp_data_t()
+        {
+            if (device_table != nullptr && device != VK_NULL_HANDLE)
+            {
+                if (resolve_image != VK_NULL_HANDLE)
                 {
-                    return result;
+                    device_table->DestroyImage(device, resolve_image, nullptr);
+                    device_table->FreeMemory(device, resolve_memory, nullptr);
                 }
 
-                result = CreateCommandBuffer(queue_family_index);
-                if (result != VK_SUCCESS)
+                if (scaled_image != VK_NULL_HANDLE)
                 {
-                    return result;
+                    device_table->DestroyImage(device, scaled_image, nullptr);
+                    device_table->FreeMemory(device, scaled_image_memory, nullptr);
                 }
+            }
+        }
+    };
+    std::vector<image_resource_tmp_data_t> tmp_data(image_resources.size());
+    uint32_t                               current_batch_size = 0;
 
-                if (result == VK_SUCCESS)
-                {
-                    VkImageAspectFlags aspect_mask = GetFormatAspectMask(format);
+    // start with entire range
+    std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(image_resources.size()) } };
 
-                    uint32_t             num_barriers = 1;
-                    VkImageMemoryBarrier memory_barriers[2];
+    // iterate inputs, determine sizes, split into batches
+    for (uint32_t i = 0; i < image_resources.size(); ++i)
+    {
+        const auto& img = image_resources[i];
 
-                    // Destination image
-                    memory_barriers[0].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                    memory_barriers[0].pNext                           = nullptr;
-                    memory_barriers[0].srcAccessMask                   = 0;
-                    memory_barriers[0].dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    memory_barriers[0].oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-                    memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[0].image                           = *resolved_image;
-                    memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
-                    memory_barriers[0].subresourceRange.baseMipLevel   = 0;
-                    memory_barriers[0].subresourceRange.levelCount     = 1;
-                    memory_barriers[0].subresourceRange.baseArrayLayer = 0;
-                    memory_barriers[0].subresourceRange.layerCount     = array_layers;
+        // allow temporary data to cleanup after itself
+        tmp_data[i].device       = device_;
+        tmp_data[i].device_table = &device_table_;
 
-                    // Multi-sample source image
-                    if (current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                    {
-                        num_barriers = 2;
+        VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
 
-                        memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                        memory_barriers[1].pNext                           = nullptr;
-                        memory_barriers[1].srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
-                        memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                        memory_barriers[1].oldLayout                       = current_layout;
-                        memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                        memory_barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                        memory_barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                        memory_barriers[1].image                           = image;
-                        memory_barriers[1].subresourceRange.aspectMask     = aspect_mask;
-                        memory_barriers[1].subresourceRange.baseMipLevel   = 0;
-                        memory_barriers[1].subresourceRange.levelCount     = 1;
-                        memory_barriers[1].subresourceRange.baseArrayLayer = 0;
-                        memory_barriers[1].subresourceRange.layerCount     = array_layers;
-                    }
+        GFXRECON_ASSERT(img.level_count <=
+                        1 + floor(log2(std::max(std::max(img.extent.width, img.extent.height), img.extent.depth))));
+        GFXRECON_ASSERT((img.aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (img.aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                        (img.aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
 
-                    device_table_.CmdPipelineBarrier(command_buffer_,
-                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     num_barriers,
-                                                     memory_barriers);
+        bool blit_supported = IsBlitSupported(img.format, img.tiling, dst_format);
+        tmp_data[i].scaling_supported =
+            IsScalingSupported(img.format, img.tiling, dst_format, img.type, img.extent, img.scale);
 
-                    VkImageResolve region;
-                    region.srcSubresource.aspectMask     = aspect_mask;
-                    region.srcSubresource.mipLevel       = 0;
-                    region.srcSubresource.baseArrayLayer = 0;
-                    region.srcSubresource.layerCount     = array_layers;
-                    region.srcOffset.x                   = 0;
-                    region.srcOffset.y                   = 0;
-                    region.srcOffset.z                   = 0;
-                    region.dstSubresource.aspectMask     = aspect_mask;
-                    region.dstSubresource.mipLevel       = 0;
-                    region.dstSubresource.baseArrayLayer = 0;
-                    region.dstSubresource.layerCount     = array_layers;
-                    region.dstOffset.x                   = 0;
-                    region.dstOffset.y                   = 0;
-                    region.dstOffset.z                   = 0;
-                    region.extent.width                  = extent.width;
-                    region.extent.height                 = extent.height;
-                    region.extent.depth                  = extent.depth;
+        tmp_data[i].use_blit =
+            (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
 
-                    device_table_.CmdResolveImage(command_buffer_,
-                                                  image,
-                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                  *resolved_image,
-                                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                  1,
-                                                  &region);
+        tmp_data[i].scaled_extent = {
+            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.width) * img.scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.height) * img.scale, 1.0f)),
+            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.depth) * img.scale, 1.0f))
+        };
 
-                    // Prepare the resolved image for the next staging copy.
-                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    memory_barriers[0].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        uint64_t resource_size = img.resource_size;
 
-                    if (num_barriers == 2)
-                    {
-                        memory_barriers[1].srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                        memory_barriers[1].dstAccessMask = 0;
-                        memory_barriers[1].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                        memory_barriers[1].newLayout     = current_layout;
-                    }
+        if (img.external_format)
+        {
+            resource_size = img.size;
+            tmp_data[i].level_sizes.push_back(resource_size);
+        }
+        else if (resource_size == 0 || img.level_sizes == nullptr)
+        {
+            resource_size = GetImageResourceSizesOptimal(tmp_data[i].use_blit ? dst_format : img.format,
+                                                         img.type,
+                                                         tmp_data[i].use_blit ? tmp_data[i].scaled_extent : img.extent,
+                                                         img.level_count,
+                                                         img.layer_count,
+                                                         img.tiling,
+                                                         img.aspect,
+                                                         nullptr,
+                                                         &tmp_data[i].level_sizes,
+                                                         img.all_layers_per_level);
+        }
 
-                    device_table_.CmdPipelineBarrier(command_buffer_,
-                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                     0,
-                                                     0,
-                                                     nullptr,
-                                                     0,
-                                                     nullptr,
-                                                     num_barriers,
-                                                     memory_barriers);
+        if (resource_size > staging_buffer_size)
+        {
+            // we need a bigger boat
+            staging_buffer_size = resource_size;
+        }
 
-                    result = SubmitCommandBuffer(queue);
+        if (current_batch_size + resource_size > staging_buffer_size)
+        {
+            // end current batch, start next
+            auto& current_batch  = batch_ranges.back();
+            current_batch.second = i;
 
-                    if (result != VK_SUCCESS)
-                    {
-                        GFXRECON_LOG_ERROR("Failed to resolve multisample image");
-                        device_table_.DestroyImage(device_, *resolved_image, nullptr);
-                        device_table_.FreeMemory(device_, *resolved_image_memory, nullptr);
+            auto& next_batch   = batch_ranges.emplace_back(i, static_cast<uint32_t>(image_resources.size()));
+            current_batch_size = 0;
+        }
 
-                        *resolved_image        = VK_NULL_HANDLE;
-                        *resolved_image_memory = VK_NULL_HANDLE;
-                    }
-                }
+        tmp_data[i].resource_size  = resource_size;
+        tmp_data[i].staging_offset = current_batch_size;
+        current_batch_size += resource_size;
+    } // image_resources, 1st batch-splitting pass
+
+    VkResult result = CreateStagingBuffer(staging_buffer_size);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR(
+            "%s: could not create a staging-buffer of size: %d kB", __func__, staging_buffer_size >> 10U);
+        return result;
+    }
+
+    VkResult last_error = VK_SUCCESS;
+
+    // accumulate timing data
+    uint32_t gpu_micros = 0, cpu_micros = 0;
+
+    for (const auto& [start_idx, end_idx] : batch_ranges)
+    {
+        auto                                          start_time = std::chrono::high_resolution_clock::now();
+        std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
+
+        // iterate over current batch
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& img = image_resources[i];
+
+            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+            auto            cmd_buf_it     = command_buffer_map.find(img.queue_family_index);
+            if (cmd_buf_it == command_buffer_map.end())
+            {
+                command_buffer                             = CreateCommandBufferAndBegin(img.queue_family_index);
+                command_buffer_map[img.queue_family_index] = command_buffer;
             }
             else
             {
-                GFXRECON_LOG_ERROR("Failed to allocate temporary image memory for multisample resolve");
-                device_table_.DestroyImage(device_, *resolved_image, nullptr);
-                *resolved_image = VK_NULL_HANDLE;
+                command_buffer = cmd_buf_it->second;
             }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR(
-                "Failed to find a device local memory type for multisample resolve temporary image creation");
-            result = VK_ERROR_INITIALIZATION_FAILED;
-            device_table_.DestroyImage(device_, *resolved_image, nullptr);
-            *resolved_image = VK_NULL_HANDLE;
-        }
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to create temporary image for multisample resolve.");
-    }
 
-    return result;
-}
+            VkImage copy_image = img.image;
 
-VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage                image,
-                                                           VkFormat               format,
-                                                           VkImageType            type,
-                                                           const VkExtent3D&      extent,
-                                                           uint32_t               mip_levels,
-                                                           uint32_t               array_layers,
-                                                           VkImageTiling          tiling,
-                                                           VkSampleCountFlags     samples,
-                                                           VkImageLayout          layout,
-                                                           uint32_t               queue_family_index,
-                                                           bool                   external_format,
-                                                           VkDeviceSize           size,
-                                                           VkImageAspectFlagBits  aspect,
-                                                           std::vector<uint8_t>&  data,
-                                                           std::vector<uint64_t>& subresource_offsets,
-                                                           std::vector<uint64_t>& subresource_sizes,
-                                                           bool&                  scaling_supported,
-                                                           bool                   all_layers_per_level,
-                                                           float                  scale,
-                                                           VkFormat               dst_format)
-{
-    VkResult           result           = VK_SUCCESS;
-    VkImage            resolve_image    = VK_NULL_HANDLE;
-    VkDeviceMemory     resolve_memory   = VK_NULL_HANDLE;
-    VkImage            scaled_image     = VK_NULL_HANDLE;
-    VkDeviceMemory     scaled_image_mem = VK_NULL_HANDLE;
-    VkQueue            queue;
-    uint64_t           resource_size;
-    VkImageAspectFlags transition_aspect;
-    VkImage            copy_image;
-
-    // No format conversion
-    if (dst_format == VK_FORMAT_UNDEFINED)
-    {
-        dst_format = format;
-    }
-
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-    assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
-           (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
-
-    const bool is_blit_supported = IsBlitSupported(format, tiling, dst_format);
-    if (scale > 1.0f)
-    {
-        scaling_supported = IsScalingSupported(format, tiling, dst_format, type, extent, scale);
-    }
-    else
-    {
-        scaling_supported = (scale == 1.0f ? true : is_blit_supported);
-    }
-
-    const bool use_blit = (format != dst_format && is_blit_supported) || (scale != 1.0f && scaling_supported);
-
-    const VkExtent3D scaled_extent = { static_cast<uint32_t>(std::max(static_cast<float>(extent.width) * scale, 1.0f)),
-                                       static_cast<uint32_t>(std::max(static_cast<float>(extent.height) * scale, 1.0f)),
-                                       static_cast<uint32_t>(
-                                           std::max(static_cast<float>(extent.depth) * scale, 1.0f)) };
-
-    subresource_offsets.clear();
-    subresource_sizes.clear();
-
-    if (external_format)
-    {
-        resource_size = size;
-        subresource_sizes.push_back(resource_size);
-    }
-    else
-    {
-        resource_size = GetImageResourceSizesOptimal(image,
-                                                     use_blit ? dst_format : format,
-                                                     type,
-                                                     use_blit ? scaled_extent : extent,
-                                                     mip_levels,
-                                                     array_layers,
-                                                     tiling,
-                                                     aspect,
-                                                     &subresource_offsets,
-                                                     &subresource_sizes,
-                                                     all_layers_per_level);
-    }
-
-    queue = GetQueue(queue_family_index, 0);
-    if (queue == VK_NULL_HANDLE)
-    {
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        result = ResolveImage(image,
-                              format,
-                              type,
-                              extent,
-                              array_layers,
-                              layout,
-                              queue,
-                              queue_family_index,
-                              &resolve_image,
-                              &resolve_memory);
-        if (result != VK_SUCCESS)
-        {
-            return result;
-        }
-    }
-
-    result = CreateStagingBuffer(resource_size);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    result = CreateCommandPool(queue_family_index);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    result = CreateCommandBuffer(queue_family_index);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    transition_aspect = aspect;
-    if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
-    {
-        // Depth and stencil aspects need to be transitioned together, so get full aspect
-        // mask for image.
-        transition_aspect = GetFormatAspectMask(format);
-    }
-
-    copy_image = image;
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        copy_image = resolve_image;
-    }
-    else if (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-    {
-        TransitionImageToTransferOptimal(
-            image, layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, transition_aspect, queue_family_index);
-    }
-
-    // Blit image to change dimensions or convert format
-    if (use_blit)
-    {
-        result = BlitImage(copy_image,
-                           format,
-                           dst_format,
-                           type,
-                           tiling,
-                           extent,
-                           scaled_extent,
-                           mip_levels,
-                           array_layers,
-                           aspect,
-                           queue_family_index,
-                           scale,
-                           scaled_image,
-                           scaled_image_mem);
-
-        if (result != VK_SUCCESS)
-        {
-            return result;
-        }
-    }
-    else
-    {
-        scaled_image = copy_image;
-    }
-
-    assert(scaled_image != VK_NULL_HANDLE);
-
-    if (external_format)
-    {
-        // Todo
-    }
-    else
-    {
-        // Copy image to staging buffer
-        CopyImageBuffer(scaled_image,
-                        staging_buffer_.buffer,
-                        use_blit ? scaled_extent : extent,
-                        mip_levels,
-                        array_layers,
-                        aspect,
-                        subresource_sizes,
-                        all_layers_per_level,
-                        kImageToBuffer);
-    }
-
-    // Cache flushing barrier. Make results visible to host
-    VkBufferMemoryBarrier buffer_barrier;
-    buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-    buffer_barrier.pNext               = nullptr;
-    buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-    buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
-    buffer_barrier.srcQueueFamilyIndex = queue_family_index_;
-    buffer_barrier.dstQueueFamilyIndex = queue_family_index_;
-    buffer_barrier.buffer              = staging_buffer_.buffer;
-    buffer_barrier.offset              = 0;
-    buffer_barrier.size                = VK_WHOLE_SIZE;
-
-    device_table_.CmdPipelineBarrier(command_buffer_,
-                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_PIPELINE_STAGE_HOST_BIT,
-                                     0,
-                                     0,
-                                     nullptr,
-                                     1,
-                                     &buffer_barrier,
-                                     0,
-                                     nullptr);
-
-    if ((samples == VK_SAMPLE_COUNT_1_BIT) && (layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
-        (layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
-    {
-        TransitionImageFromTransferOptimal(
-            image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, layout, transition_aspect, queue_family_index);
-    }
-
-    result = SubmitCommandBuffer(queue);
-
-    result = MapStagingBuffer();
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
-
-    data.resize(static_cast<size_t>(resource_size));
-
-    InvalidateStagingBuffer();
-
-    // Copy staging buffer to host memory
-    util::platform::MemoryCopy(data.data(), resource_size, staging_buffer_.mapped_ptr, resource_size);
-
-    UnmapStagingBuffer();
-
-    // Release temporary resources
-    if (samples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        device_table_.DestroyImage(device_, resolve_image, nullptr);
-        device_table_.FreeMemory(device_, resolve_memory, nullptr);
-    }
-
-    if (use_blit)
-    {
-        device_table_.DestroyImage(device_, scaled_image, nullptr);
-        device_table_.FreeMemory(device_, scaled_image_mem, nullptr);
-    }
-
-    return result;
-}
-
-void VulkanResourcesUtil::ReadFromImageResourceLinear(VkImage                image,
-                                                      VkFormat               format,
-                                                      VkImageType            type,
-                                                      const VkExtent3D&      extent,
-                                                      uint32_t               mip_levels,
-                                                      uint32_t               array_layers,
-                                                      VkImageAspectFlagBits  aspect,
-                                                      const void*            mapped_image_ptr,
-                                                      std::vector<uint8_t>&  data,
-                                                      std::vector<uint64_t>& subresource_offsets,
-                                                      std::vector<uint64_t>& subresource_sizes)
-{
-    GFXRECON_ASSERT(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-    GFXRECON_ASSERT(mapped_image_ptr);
-
-    subresource_offsets.clear();
-    subresource_sizes.clear();
-
-    const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
-    GFXRECON_ASSERT(texel_size == std::floor(texel_size));
-
-    uint64_t offset = 0;
-    for (uint32_t m = 0; m < mip_levels; ++m)
-    {
-        for (uint32_t l = 0; l < array_layers; ++l)
-        {
-            VkSubresourceLayout layout;
-            VkImageSubresource  subresource;
-            subresource.aspectMask = aspect;
-            subresource.mipLevel   = m;
-            subresource.arrayLayer = l;
-
-            device_table_.GetImageSubresourceLayout(device_, image, &subresource, &layout);
-
-            const uint8_t* image_u8_ptr = static_cast<const uint8_t*>(mapped_image_ptr) + layout.offset;
-            uint8_t*       data_u8      = static_cast<uint8_t*>(data.data());
-
-            const uint32_t mip_width  = std::max(1u, (extent.width >> m));
-            const uint32_t mip_height = std::max(1u, (extent.height >> m));
-            const uint64_t stride     = mip_width * static_cast<uint64_t>(texel_size);
-
-            for (uint32_t y = 0; y < mip_height; ++y)
+            if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
-                util::platform::MemoryCopy(data_u8, stride, image_u8_ptr, stride);
-                data_u8 += stride;
-                image_u8_ptr += layout.rowPitch;
+                result = ResolveImage(command_buffer,
+                                      img.image,
+                                      img.format,
+                                      img.type,
+                                      img.tiling,
+                                      img.extent,
+                                      img.layer_count,
+                                      img.layout,
+                                      &tmp_data[i].resolve_image,
+                                      &tmp_data[i].resolve_memory);
+                if (result != VK_SUCCESS)
+                {
+                    last_error = result;
+
+                    // free temporary resource, continue
+                    tmp_data[i] = {};
+                    continue;
+                }
+
+                GFXRECON_ASSERT(tmp_data[i].resolve_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].resolve_image;
             }
 
-            subresource_offsets.push_back(offset);
-            subresource_sizes.push_back(stride * mip_height);
-            offset += stride * mip_height;
+            tmp_data[i].transition_aspect = img.aspect;
+            if ((img.aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (img.aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
+            {
+                // Depth and stencil aspects need to be transitioned together, so get full aspect
+                // mask for image.
+                tmp_data[i].transition_aspect = GetFormatAspects(img.format);
+            }
+
+            if (img.sample_count == VK_SAMPLE_COUNT_1_BIT && img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+            {
+                TransitionImageToTransferOptimal(command_buffer,
+                                                 img.image,
+                                                 img.layout,
+                                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                 tmp_data[i].transition_aspect,
+                                                 img.queue_family_index);
+            }
+
+            VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
+
+            // Blit image to change dimensions or convert format
+            if (tmp_data[i].use_blit)
+            {
+                result = BlitImage(command_buffer,
+                                   copy_image,
+                                   img.format,
+                                   dst_format,
+                                   img.type,
+                                   img.tiling,
+                                   img.extent,
+                                   tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
+                                   img.level_count,
+                                   img.layer_count,
+                                   img.aspect,
+                                   img.queue_family_index,
+                                   tmp_data[i].scaling_supported ? img.scale : 1.0f,
+                                   tmp_data[i].scaled_image,
+                                   tmp_data[i].scaled_image_memory);
+
+                if (result != VK_SUCCESS)
+                {
+                    last_error = result;
+
+                    // free temporary resource, continue
+                    tmp_data[i] = {};
+                    continue;
+                }
+
+                GFXRECON_ASSERT(tmp_data[i].scaled_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].scaled_image;
+            }
+
+            if (!img.external_format)
+            {
+                // Copy image to staging buffer
+                CopyImageBuffer(command_buffer,
+                                copy_image,
+                                staging_buffer_.buffer,
+                                tmp_data[i].staging_offset,
+                                tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
+                                img.level_count,
+                                img.layer_count,
+                                img.aspect,
+                                img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
+                                img.all_layers_per_level,
+                                kImageToBuffer);
+            }
+
+            // Cache flushing barrier. Make results visible to host
+            VkBufferMemoryBarrier buffer_barrier;
+            buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            buffer_barrier.pNext               = nullptr;
+            buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+            buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
+            buffer_barrier.srcQueueFamilyIndex = img.queue_family_index;
+            buffer_barrier.dstQueueFamilyIndex = img.queue_family_index;
+            buffer_barrier.buffer              = staging_buffer_.buffer;
+            buffer_barrier.offset              = 0;
+            buffer_barrier.size                = VK_WHOLE_SIZE;
+
+            device_table_.CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_HOST_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &buffer_barrier,
+                                             0,
+                                             nullptr);
+
+            if ((img.sample_count == VK_SAMPLE_COUNT_1_BIT) && (img.layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                (img.layout != VK_IMAGE_LAYOUT_PREINITIALIZED) && (img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
+            {
+                TransitionImageFromTransferOptimal(command_buffer,
+                                                   img.image,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                   img.layout,
+                                                   tmp_data[i].transition_aspect,
+                                                   img.queue_family_index);
+            }
+        } // current batch, record commands
+
+        // submit recorded command-buffer(s)
+        for (const auto& [queue_family_index, command_buffer] : command_buffer_map)
+        {
+            VkQueue queue = GetQueue(queue_family_index, 0);
+            if (queue == VK_NULL_HANDLE)
+            {
+                return VK_ERROR_INITIALIZATION_FAILED;
+            }
+            SubmitCommandBuffer(command_buffer, queue);
         }
-    }
+
+        result = MapStagingBuffer();
+        if (result != VK_SUCCESS)
+        {
+            return result;
+        }
+
+        // guarantees that all device writes are now visible to host
+        InvalidateStagingBuffer();
+
+        gpu_micros += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -
+                                                                            start_time)
+                          .count();
+
+        // consume staging-buffer, cleanup temporary resources
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& img = image_resources[i];
+            auto*       out_ptr =
+                tmp_data[i].resource_size > 0
+                          ? reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + tmp_data[i].staging_offset
+                          : nullptr;
+            if (call_back)
+            {
+                call_back(img, out_ptr, tmp_data[i].resource_size);
+            }
+
+            // free potential temporary resources
+            tmp_data[i] = {};
+        } // current batch, consume staging-buffer
+
+        UnmapStagingBuffer();
+
+        auto batch_micros = std::chrono::duration_cast<std::chrono::microseconds>(
+                                std::chrono::high_resolution_clock::now() - start_time)
+                                .count();
+        cpu_micros += batch_micros - gpu_micros;
+    } // batch_ranges
+    GFXRECON_LOG_DEBUG("gpu: %d ms - cpu: %d ms", gpu_micros / 1000, cpu_micros / 1000);
+    return last_error;
+}
+
+VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::ImageResource& image_resource,
+                                                std::vector<uint8_t>&                     out_data)
+{
+    return ReadImageResources(
+        { image_resource },
+        [&out_data](const ImageResource& img, const void* data, size_t num_bytes) {
+            if (data != nullptr)
+            {
+                const auto* ptr = reinterpret_cast<const uint8_t*>(data);
+                out_data.clear();
+                out_data.insert(out_data.end(), ptr, ptr + num_bytes);
+            }
+        },
+        0);
 }
 
 VkResult VulkanResourcesUtil::ReadFromBufferResource(
     VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data)
 {
-    assert(buffer != VK_NULL_HANDLE);
-    assert(size);
+    GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(size);
 
-    const VkQueue queue = GetQueue(queue_family_index, 0);
+    VkQueue queue = GetQueue(queue_family_index, 0);
     if (queue == VK_NULL_HANDLE)
     {
         return VK_ERROR_INITIALIZATION_FAILED;
@@ -1958,21 +2082,16 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
         return result;
     }
 
-    result = CreateCommandPool(queue_family_index);
-    if (result != VK_SUCCESS)
+    VkCommandBuffer command_buffer = CreateCommandBufferAndBegin(queue_family_index);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    if (command_buffer == VK_NULL_HANDLE)
     {
-        return result;
+        return VK_ERROR_UNKNOWN;
     }
 
-    result = CreateCommandBuffer(queue_family_index);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
+    CopyBuffer(command_buffer, buffer, staging_buffer_.buffer, size, offset, 0);
 
-    CopyBuffer(buffer, staging_buffer_.buffer, size, offset);
-
-    result = SubmitCommandBuffer(queue);
+    result = SubmitCommandBuffer(command_buffer, queue);
     if (result != VK_SUCCESS)
     {
         return result;
@@ -1992,106 +2111,267 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     return result;
 }
 
-VkResult VulkanResourcesUtil::WriteToImageResourceStaging(VkImage                      image,
-                                                          VkFormat                     format,
-                                                          VkImageType                  type,
-                                                          const VkExtent3D&            extent,
-                                                          uint32_t                     mip_levels,
-                                                          uint32_t                     array_layers,
-                                                          VkImageAspectFlagBits        aspect,
-                                                          VkImageLayout                layout,
-                                                          uint32_t                     queue_family_index,
-                                                          const void*                  data,
-                                                          const std::vector<uint64_t>& subresource_offsets,
-                                                          const std::vector<uint64_t>& subresource_sizes)
+void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>& buffer_resources,
+                                              const VulkanResourcesUtil::ReadBufferResourcesCallbackFn& callback,
+                                              size_t staging_buffer_size)
 {
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-
-    const VkQueue queue = GetQueue(queue_family_index, 0);
-    if (queue == VK_NULL_HANDLE)
+    if (buffer_resources.empty())
     {
-        return VK_ERROR_INITIALIZATION_FAILED;
+        return;
     }
+    std::vector<VkDeviceSize> staging_offsets(buffer_resources.size());
 
-    VkResult result;
-    uint64_t resource_size = 0;
-    for (const auto size : subresource_sizes)
-    {
-        resource_size += size;
-    }
+    uint32_t current_batch_size = 0;
 
-    result = CreateStagingBuffer(resource_size);
-    if (result != VK_SUCCESS)
-    {
-        return result;
-    }
+    // start with entire range
+    std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(buffer_resources.size()) } };
 
-    result = MapStagingBuffer();
-    if (result != VK_SUCCESS)
+    for (uint32_t i = 0; i < buffer_resources.size(); ++i)
     {
-        return result;
-    }
+        const auto& buffer_resource = buffer_resources[i];
 
-    uint8_t*       stg_u8_ptr  = static_cast<uint8_t*>(staging_buffer_.mapped_ptr);
-    const uint8_t* data_u8_ptr = static_cast<const uint8_t*>(data);
-    uint32_t       sr          = 0;
-    for (uint32_t m = 0; m < mip_levels; ++m)
-    {
-        for (uint32_t l = 0; l < array_layers; ++l)
+        if (buffer_resource.size > staging_buffer_size)
         {
-            util::platform::MemoryCopy(stg_u8_ptr, subresource_sizes[sr], data_u8_ptr, subresource_sizes[sr]);
-            stg_u8_ptr += subresource_sizes[sr];
-            data_u8_ptr += subresource_sizes[sr];
-            ++sr;
+            // we need a bigger boat
+            staging_buffer_size = buffer_resource.size;
+        }
+
+        if (current_batch_size + buffer_resource.size > staging_buffer_size)
+        {
+            // end current batch, start next
+            auto& current_batch  = batch_ranges.back();
+            current_batch.second = i;
+
+            batch_ranges.emplace_back(i, static_cast<uint32_t>(buffer_resources.size()));
+            current_batch_size = 0;
+        }
+
+        staging_offsets[i] = current_batch_size;
+        current_batch_size += buffer_resource.size;
+    } // buffer_resources, split into batches
+
+    VkResult result = CreateStagingBuffer(staging_buffer_size);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR(
+            "%s: could not create a staging-buffer of size: %d kB", __func__, staging_buffer_size >> 10U);
+        return;
+    }
+
+    for (const auto& [start_idx, end_idx] : batch_ranges)
+    {
+        auto                                          start_time = std::chrono::high_resolution_clock::now();
+        std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
+
+        // iterate over current batch
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& buf = buffer_resources[i];
+
+            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+            auto            cmd_buf_it     = command_buffer_map.find(buf.queue_family_index);
+            if (cmd_buf_it == command_buffer_map.end())
+            {
+                command_buffer                             = CreateCommandBufferAndBegin(buf.queue_family_index);
+                command_buffer_map[buf.queue_family_index] = command_buffer;
+            }
+            else
+            {
+                command_buffer = cmd_buf_it->second;
+            }
+
+            CopyBuffer(command_buffer, buf.buffer, staging_buffer_.buffer, buf.size, buf.offset, staging_offsets[i]);
+        }
+
+        // submit recorded command-buffer(s)
+        for (const auto& [queue_family_index, command_buffer] : command_buffer_map)
+        {
+            // Cache flushing barrier. Make results visible to host
+            VkBufferMemoryBarrier buffer_barrier;
+            buffer_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            buffer_barrier.pNext               = nullptr;
+            buffer_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+            buffer_barrier.dstAccessMask       = VK_ACCESS_HOST_READ_BIT;
+            buffer_barrier.srcQueueFamilyIndex = queue_family_index;
+            buffer_barrier.dstQueueFamilyIndex = queue_family_index;
+            buffer_barrier.buffer              = staging_buffer_.buffer;
+            buffer_barrier.offset              = 0;
+            buffer_barrier.size                = VK_WHOLE_SIZE;
+
+            device_table_.CmdPipelineBarrier(command_buffer,
+                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                             VK_PIPELINE_STAGE_HOST_BIT,
+                                             0,
+                                             0,
+                                             nullptr,
+                                             1,
+                                             &buffer_barrier,
+                                             0,
+                                             nullptr);
+
+            VkQueue queue = GetQueue(queue_family_index, 0);
+            if (queue == VK_NULL_HANDLE)
+            {
+                GFXRECON_ASSERT(false);
+                return;
+            }
+            SubmitCommandBuffer(command_buffer, queue);
+        }
+
+        result = MapStagingBuffer();
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("%s: could not map staging-buffer", __func__);
+            return;
+        }
+
+        // guarantees that all device writes are now visible to host
+        InvalidateStagingBuffer();
+
+        // consume staging-buffer
+        for (uint32_t i = start_idx; i < end_idx; ++i)
+        {
+            const auto& buf     = buffer_resources[i];
+            auto*       out_ptr = reinterpret_cast<const uint8_t*>(staging_buffer_.mapped_ptr) + staging_offsets[i];
+            if (callback)
+            {
+                callback(buf, out_ptr);
+            }
+        } // current batch, consume staging-buffer
+
+        GFXRECON_LOG_DEBUG("%s: batch done: %d - %d (%d)", __func__, start_idx, end_idx, buffer_resources.size());
+    }
+}
+
+bool GetIntersectForSparseMemoryBind(uint32_t               new_bind_resource_offset,
+                                     uint32_t               new_bind_resource_size,
+                                     uint32_t               existing_bind_resource_offset,
+                                     uint32_t               existing_bind_resource_size,
+                                     uint32_t&              intersection_resource_offset,
+                                     uint32_t&              intersection_resource_size,
+                                     std::vector<uint32_t>& remaining_resource_offsets,
+                                     std::vector<uint32_t>& remaining_resource_sizes,
+                                     bool&                  new_bind_range_include_existing_bind_tange,
+                                     bool&                  existing_bind_range_include_new_bind_tange)
+{
+    bool     intersection_exist = false;
+    uint32_t intersection_start = std::max(new_bind_resource_offset, existing_bind_resource_offset);
+    uint32_t intersection_end   = std::min(new_bind_resource_offset + new_bind_resource_size,
+                                         existing_bind_resource_offset + existing_bind_resource_size);
+
+    existing_bind_range_include_new_bind_tange = false;
+    new_bind_range_include_existing_bind_tange = false;
+
+    if (intersection_start < intersection_end)
+    {
+        intersection_exist           = true;
+        intersection_resource_offset = intersection_start;
+        intersection_resource_size   = intersection_end - intersection_start;
+
+        if ((intersection_resource_offset == new_bind_resource_offset) &&
+            (intersection_resource_size == new_bind_resource_size))
+        {
+            existing_bind_range_include_new_bind_tange = true;
+        }
+
+        if ((intersection_resource_offset == existing_bind_resource_offset) &&
+            (intersection_resource_size == existing_bind_resource_size))
+        {
+            new_bind_range_include_existing_bind_tange = true;
+        }
+
+        if (intersection_resource_offset > existing_bind_resource_offset)
+        {
+            remaining_resource_offsets.push_back(existing_bind_resource_offset);
+            remaining_resource_sizes.push_back(intersection_resource_offset - existing_bind_resource_offset);
+        }
+
+        if ((intersection_resource_offset + intersection_resource_size) <
+            (existing_bind_resource_offset + existing_bind_resource_size))
+        {
+            remaining_resource_offsets.push_back(intersection_resource_offset + intersection_resource_size);
+            remaining_resource_sizes.push_back((existing_bind_resource_offset + existing_bind_resource_size) -
+                                               (intersection_resource_offset + intersection_resource_size));
         }
     }
-    assert(sr == subresource_sizes.size());
 
-    result = CreateCommandPool(queue_family_index);
-    if (result != VK_SUCCESS)
+    return intersection_exist;
+}
+
+void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& sparse_memory_bind_map,
+                               const VkSparseMemoryBind&                   new_sparse_memory_bind)
+{
+    std::vector<VkSparseMemoryBind> all_remaining_existing_bind_ranges{};
+    std::vector<VkSparseMemoryBind> delete_existing_bind_ranges{};
+
+    VkDeviceSize search_key = new_sparse_memory_bind.resourceOffset + new_sparse_memory_bind.size;
+    auto         iterator   = sparse_memory_bind_map.lower_bound(search_key);
+    bool         is_intersected_with_any_existing_bind = false;
+
+    bool ignored = false;
+
+    if ((sparse_memory_bind_map.size() != 0) && (iterator != sparse_memory_bind_map.begin()))
     {
-        return result;
+        for (auto item = sparse_memory_bind_map.begin(); item != iterator; item++)
+        {
+            uint32_t              intersection_resource_offset, intersection_resource_size;
+            std::vector<uint32_t> remaining_resource_offsets, remaining_resource_sizes;
+            bool new_bind_range_include_existing_bind_tange, existing_bind_range_include_new_bind_tange;
+
+            bool is_intersected = GetIntersectForSparseMemoryBind(new_sparse_memory_bind.resourceOffset,
+                                                                  new_sparse_memory_bind.size,
+                                                                  item->second.resourceOffset,
+                                                                  item->second.size,
+                                                                  intersection_resource_offset,
+                                                                  intersection_resource_size,
+                                                                  remaining_resource_offsets,
+                                                                  remaining_resource_sizes,
+                                                                  new_bind_range_include_existing_bind_tange,
+                                                                  existing_bind_range_include_new_bind_tange);
+
+            if (is_intersected)
+            {
+                is_intersected_with_any_existing_bind = false;
+
+                VkSparseMemoryBind add_sparse_memory_bind = { 0, 0, item->second.memory, 0, item->second.flags };
+                GFXRECON_ASSERT(item->second.flags == new_sparse_memory_bind.flags);
+
+                uint32_t index = 0;
+                for (auto& bind_offset : remaining_resource_offsets)
+                {
+                    add_sparse_memory_bind.resourceOffset = bind_offset;
+                    add_sparse_memory_bind.size           = remaining_resource_sizes[index];
+                    add_sparse_memory_bind.memoryOffset =
+                        item->second.memoryOffset + bind_offset - item->second.resourceOffset;
+                    all_remaining_existing_bind_ranges.push_back(add_sparse_memory_bind);
+
+                    index++;
+                }
+
+                delete_existing_bind_ranges.push_back(item->second);
+            }
+        }
     }
 
-    result = CreateCommandBuffer(queue_family_index);
-    if (result != VK_SUCCESS)
+    if (is_intersected_with_any_existing_bind)
     {
-        return result;
+        for (auto& delete_item : delete_existing_bind_ranges)
+        {
+            sparse_memory_bind_map.erase(delete_item.resourceOffset);
+        }
+
+        size_t index = 0, remaining_range_base = 0;
+
+        for (auto add_item : all_remaining_existing_bind_ranges)
+        {
+            sparse_memory_bind_map[add_item.resourceOffset] = add_item;
+        }
     }
 
-    VkImageAspectFlags transition_aspect = aspect;
-    if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) || (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
+    if (new_sparse_memory_bind.memory != VK_NULL_HANDLE)
     {
-        // Depth and stencil aspects need to be transitioned together, so get full aspect
-        // mask for image.
-        transition_aspect = GetFormatAspectMask(format);
+        sparse_memory_bind_map[new_sparse_memory_bind.resourceOffset] = new_sparse_memory_bind;
     }
-
-    if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-    {
-        TransitionImageToTransferOptimal(
-            image, layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, transition_aspect, queue_family_index);
-    }
-
-    CopyImageBuffer(image,
-                    staging_buffer_.buffer,
-                    extent,
-                    mip_levels,
-                    array_layers,
-                    aspect,
-                    subresource_sizes,
-                    false,
-                    kBufferToImage);
-
-    if (layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
-    {
-        TransitionImageFromTransferOptimal(
-            image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, transition_aspect, queue_family_index);
-    }
-
-    result = SubmitCommandBuffer(queue);
-
-    return result;
 }
 
 bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
@@ -2099,9 +2379,12 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkFormat       dst_format,
                                           VkImageTiling* dst_image_tiling) const
 {
-    // Integer formats must match
-    if ((vkuFormatIsSINT(src_format) != vkuFormatIsSINT(dst_format)) ||
-        (vkuFormatIsUINT(src_format) != vkuFormatIsUINT(dst_format)))
+    // According to spec: "Integer formats can only be converted to other integer formats with the same signedness."
+    const bool is_src_sint = vkuFormatIsSINT(src_format) || vkuFormatIsSSCALED(src_format);
+    const bool is_src_uint = vkuFormatIsUINT(src_format) || vkuFormatIsUSCALED(src_format);
+    const bool is_dst_sint = vkuFormatIsSINT(dst_format) || vkuFormatIsSSCALED(dst_format);
+    const bool is_dst_uint = vkuFormatIsUINT(dst_format) || vkuFormatIsUSCALED(dst_format);
+    if ((is_src_sint != is_dst_sint) || (is_src_uint != is_dst_uint))
     {
         return false;
     }
@@ -2170,17 +2453,20 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        if (dst_img_format_props.maxExtent.width < static_cast<uint32_t>(static_cast<float>(extent.width) * scale) ||
-            dst_img_format_props.maxExtent.height < static_cast<uint32_t>(static_cast<float>(extent.height) * scale))
+        const VkExtent3D scaled_extent = decode::ScaleExtent(extent, scale);
+        if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
+            (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
+            (dst_img_format_props.maxExtent.depth < scaled_extent.depth))
         {
             return false;
         }
     }
 
-    return is_blit_supported;
+    return scale == 1.0f || is_blit_supported;
 }
 
-VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
+VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
+                                        VkImage               image,
                                         VkFormat              format,
                                         VkFormat              dst_format,
                                         VkImageType           type,
@@ -2293,7 +2579,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     img_barrier.image               = scaled_image;
     img_barrier.subresourceRange    = { aspectMask, 0, mip_levels, 0, array_layers };
 
-    device_table_.CmdPipelineBarrier(command_buffer_,
+    device_table_.CmdPipelineBarrier(command_buffer,
                                      VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      0,
@@ -2313,7 +2599,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     blit_region.dstOffsets[0].y = 0;
     blit_region.dstOffsets[0].z = 0;
 
-    assert(mip_levels);
+    GFXRECON_ASSERT(mip_levels);
     // assert(dst_img_mip_levels);
     std::vector<VkImageBlit> blit_regions(mip_levels);
     for (uint32_t i = 0; i < mip_levels; ++i)
@@ -2331,7 +2617,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
         blit_regions[i] = blit_region;
     }
 
-    device_table_.CmdBlitImage(command_buffer_,
+    device_table_.CmdBlitImage(command_buffer,
                                image,
                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                scaled_image,
@@ -2347,7 +2633,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
-    device_table_.CmdPipelineBarrier(command_buffer_,
+    device_table_.CmdPipelineBarrier(command_buffer,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
                                      0,
@@ -2359,6 +2645,114 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                      &img_barrier);
 
     return VK_SUCCESS;
+}
+
+/**
+ * @brief Computes the required byte size of host memory referenced by a structure
+ *        for a copy-buffer-to-image or a copy-image-to-buffer operation.
+ *
+ * @note Origin: Adapted from Vulkan-ValidationLayers/layers/state_tracker/image_stat.cpp.
+ *       Mirrors the logic used in the Validation Layers to determine how many bytes are
+ *       consumed based on the copy region, image format, and block/texel sizing rules.
+ *
+ * @param region        The region structure describing the copy (e.g. `VkMemoryToImageCopy`).
+ * @param array_layers  The total number of array layers in the destination image (used when
+ *                      layerCount is VK_REMAINING_ARRAY_LAYERS).
+ * @param format        The VkFormat of the destination image.
+ *
+ * @return VkDeviceSize The number of bytes that must be available from region.pHostPointer
+ *                      to satisfy the copy described by 'region'.
+ *
+ * @details
+ * - Handles depth/stencil special cases per the Vulkan specification.
+ * - Accounts for block-compressed formats by converting to texel-block units and rounding up for partial blocks.
+ * - Returns 0 for invalid/empty copies; callers should already have guards for those cases.
+ */
+template <typename RegionCopy>
+static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_t array_layers, VkFormat format)
+{
+    VkDeviceSize buffer_size   = 0;
+    VkExtent3D   copy_extent   = region.imageExtent;
+    VkDeviceSize buffer_width  = (0 == region.memoryRowLength ? copy_extent.width : region.memoryRowLength);
+    VkDeviceSize buffer_height = (0 == region.memoryImageHeight ? copy_extent.height : region.memoryImageHeight);
+    uint32_t     layer_count   = region.imageSubresource.layerCount != VK_REMAINING_ARRAY_LAYERS
+                                     ? region.imageSubresource.layerCount
+                                     : array_layers - region.imageSubresource.baseArrayLayer;
+    // VUID-VkImageCreateInfo-imageType-00961 prevents having both depth and layerCount ever both be greater than 1
+    // together. Take max to logic simple. This is the number of 'slices' to copy.
+    const uint32_t z_copies = std::max(copy_extent.depth, layer_count);
+
+    // Invalid if copy size is 0 and other validation checks will catch it. Returns zero as the caller should have
+    // fallback already to ignore.
+    if (copy_extent.width == 0 || copy_extent.height == 0 || copy_extent.depth == 0 || z_copies == 0)
+    {
+        return 0;
+    }
+
+    VkDeviceSize unit_size = 0;
+    if (region.imageSubresource.aspectMask & (VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT))
+    {
+        // Spec in VkBufferImageCopy section list special cases for each format
+        if (region.imageSubresource.aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            unit_size = 1;
+        }
+        else
+        {
+            // VK_IMAGE_ASPECT_DEPTH_BIT
+            switch (format)
+            {
+                case VK_FORMAT_D16_UNORM:
+                case VK_FORMAT_D16_UNORM_S8_UINT:
+                    unit_size = 2;
+                    break;
+                case VK_FORMAT_D32_SFLOAT:
+                case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                // packed with the D24 value in the LSBs of the word, and undefined values in the eight MSBs
+                case VK_FORMAT_X8_D24_UNORM_PACK32:
+                case VK_FORMAT_D24_UNORM_S8_UINT:
+                    unit_size = 4;
+                    break;
+                default:
+                    // Any misuse of formats vs aspect mask should be caught before here
+                    return 0;
+            }
+        }
+    }
+    else
+    {
+        // size (bytes) of texel or block
+        unit_size = vkuFormatElementSizeWithAspect(
+            format, static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
+    }
+
+    if (vkuFormatIsBlockedImage(format))
+    {
+        // Switch to texel block units, rounding up for any partially-used blocks
+        const VkExtent3D block_extent = vkuFormatTexelBlockExtent(format);
+        buffer_width                  = (buffer_width + block_extent.width - 1) / block_extent.width;
+        buffer_height                 = (buffer_height + block_extent.height - 1) / block_extent.height;
+
+        copy_extent.width  = (copy_extent.width + block_extent.width - 1) / block_extent.width;
+        copy_extent.height = (copy_extent.height + block_extent.height - 1) / block_extent.height;
+        copy_extent.depth  = (copy_extent.depth + block_extent.depth - 1) / block_extent.depth;
+    }
+
+    // Calculate buffer offset of final copied byte, + 1.
+    buffer_size = (z_copies - 1) * buffer_height * buffer_width;                  // offset to slice
+    buffer_size += ((copy_extent.height - 1) * buffer_width) + copy_extent.width; // add row,col
+    buffer_size *= unit_size;                                                     // convert to bytes
+    return buffer_size;
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkMemoryToImageCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkMemoryToImageCopy>(region, array_layers, format);
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkImageToMemoryCopy>(region, array_layers, format);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

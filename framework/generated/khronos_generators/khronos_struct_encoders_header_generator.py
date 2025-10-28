@@ -30,6 +30,10 @@ class KhronosStructEncodersHeaderGenerator():
     Generates C++ type and function declarations for encoding Khronos API structures.
     """
 
+    def skip_struct_type(self, struct_type):
+        """Override as needed"""
+        return False
+
     def write_encoder_content(self):
         ext_struct_prefix = self.get_extended_struct_func_prefix()
 
@@ -40,6 +44,9 @@ class KhronosStructEncodersHeaderGenerator():
         )
 
         for struct in self.get_all_filtered_struct_names():
+            if self.skip_struct_type(struct):
+                continue
+
             write(
                 'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
                 .format(struct),

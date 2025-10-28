@@ -443,17 +443,10 @@ class D3D12CaptureManager : public ApiCaptureManager
                                          UINT                    subresource,
                                          const D3D12_RANGE*      written_range);
 
-    void PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
-                                                      HRESULT                 result,
-                                                      D3D12_HEAP_PROPERTIES*  heap_properties,
-                                                      D3D12_HEAP_FLAGS*       heap_flags);
-
     void PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
                                                          D3D12_GPU_VIRTUAL_ADDRESS result);
 
     void Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper);
-
-    void PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc);
 
     void PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
         std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
@@ -692,6 +685,12 @@ class D3D12CaptureManager : public ApiCaptureManager
     HRESULT OverrideID3D12Device1_CreatePipelineLibrary(
         ID3D12Device1_Wrapper* wrapper, const void* library_blob, SIZE_T blob_length, REFIID riid, void** library);
 
+    D3D12_HEAP_DESC OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper);
+
+    HRESULT OverrideID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                     D3D12_HEAP_PROPERTIES*  pHeapProperties,
+                                                     D3D12_HEAP_FLAGS*       pHeapFlags);
+
     HRESULT OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
                                                               LPCWSTR                                  name,
                                                               const D3D12_COMPUTE_PIPELINE_STATE_DESC* desc,
@@ -853,6 +852,11 @@ class D3D12CaptureManager : public ApiCaptureManager
         IDXGISwapChain_Wrapper* wrapper, HRESULT result, DXGI_HDR_METADATA_TYPE Type, UINT Size, void* pMetaData);
 
     void PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT result, LPCWSTR Name);
+
+    void PostProcess_InitializeMetaCommand(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                           ID3D12MetaCommand*                  pMetaCommand,
+                                           const void*                         pInitializationParametersData,
+                                           SIZE_T                              InitializationParametersDataSizeInBytes);
 
   protected:
     D3D12CaptureManager();

@@ -73,7 +73,8 @@ enum DataFormats
     kFormat_BGRA,
     kFormat_D32_FLOAT,
     kFormat_D24_UNORM,
-    kFormat_D16_UNORM
+    kFormat_D16_UNORM,
+    kFormat_S8_UINT
 };
 
 constexpr bool DataFormatHasAlpha(DataFormats format)
@@ -89,6 +90,7 @@ constexpr bool DataFormatHasAlpha(DataFormats format)
         case kFormat_D32_FLOAT:
         case kFormat_D24_UNORM:
         case kFormat_D16_UNORM:
+        case kFormat_S8_UINT:
             return false;
 
         default:
@@ -145,12 +147,8 @@ bool WritePngImage(const std::string& filename,
                    DataFormats        format      = kFormat_BGRA,
                    bool               write_alpha = false);
 
-bool WritePngImageSeparateAlpha(const std::string& filename,
-                                uint32_t           width,
-                                uint32_t           height,
-                                const void*        data,
-                                uint32_t           pitch,
-                                DataFormats        format);
+bool WritePngImageSeparateAlpha(
+    const std::string& filename, uint32_t width, uint32_t height, const void* data, uint32_t pitch, DataFormats format);
 
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)

@@ -331,16 +331,52 @@ std::string GenerateStruct_StdVideoAV1TileInfo(std::ostream &out, const StdVideo
                                                                          &structInfo->flags,
                                                                          metaInfo->flags,
                                                                          consumer);
+    std::string pmi_col_starts_array = "NULL";
+    if (structInfo->pMiColStarts != NULL) {
+        std::string pmi_col_starts_values;
+        for (uint32_t idx0 = 0; idx0 < structInfo->TileCols; ++idx0) {
+            pmi_col_starts_values += std::to_string(structInfo->pMiColStarts[idx0]) + ", ";
+        }
+        pmi_col_starts_array = "pMiColStarts_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint16_t " << pmi_col_starts_array << "[] = {" << pmi_col_starts_values << "};" << std::endl;
+    }
+    std::string pmi_row_starts_array = "NULL";
+    if (structInfo->pMiRowStarts != NULL) {
+        std::string pmi_row_starts_values;
+        for (uint32_t idx0 = 0; idx0 < structInfo->TileRows; ++idx0) {
+            pmi_row_starts_values += std::to_string(structInfo->pMiRowStarts[idx0]) + ", ";
+        }
+        pmi_row_starts_array = "pMiRowStarts_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint16_t " << pmi_row_starts_array << "[] = {" << pmi_row_starts_values << "};" << std::endl;
+    }
+    std::string pwidth_in_sbs_minus1_array = "NULL";
+    if (structInfo->pWidthInSbsMinus1 != NULL) {
+        std::string pwidth_in_sbs_minus1_values;
+        for (uint32_t idx0 = 0; idx0 < structInfo->TileCols; ++idx0) {
+            pwidth_in_sbs_minus1_values += std::to_string(structInfo->pWidthInSbsMinus1[idx0]) + ", ";
+        }
+        pwidth_in_sbs_minus1_array = "pWidthInSbsMinus1_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint16_t " << pwidth_in_sbs_minus1_array << "[] = {" << pwidth_in_sbs_minus1_values << "};" << std::endl;
+    }
+    std::string pheight_in_sbs_minus1_array = "NULL";
+    if (structInfo->pHeightInSbsMinus1 != NULL) {
+        std::string pheight_in_sbs_minus1_values;
+        for (uint32_t idx0 = 0; idx0 < structInfo->TileRows; ++idx0) {
+            pheight_in_sbs_minus1_values += std::to_string(structInfo->pHeightInSbsMinus1[idx0]) + ", ";
+        }
+        pheight_in_sbs_minus1_array = "pHeightInSbsMinus1_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint16_t " << pheight_in_sbs_minus1_array << "[] = {" << pheight_in_sbs_minus1_values << "};" << std::endl;
+    }
     struct_body << "\t" << flags_info_var << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->TileCols) << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->TileRows) << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->context_update_tile_id << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->tile_size_bytes_minus_1) << "," << std::endl;
     struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pMiColStarts << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pMiRowStarts << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pWidthInSbsMinus1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pHeightInSbsMinus1 << ",";
+    struct_body << "\t\t\t" << pmi_col_starts_array << "," << std::endl;
+    struct_body << "\t\t\t" << pmi_row_starts_array << "," << std::endl;
+    struct_body << "\t\t\t" << pwidth_in_sbs_minus1_array << "," << std::endl;
+    struct_body << "\t\t\t" << pheight_in_sbs_minus1_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoAV1TileInfo");
     out << "\t\t" << "StdVideoAV1TileInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -635,67 +671,75 @@ std::string GenerateStruct_StdVideoDecodeH264ReferenceInfoFlags(std::ostream &ou
 }
 
 
-std::string GenerateStruct_StdVideoDecodeH265PictureInfo(std::ostream &out, const StdVideoDecodeH265PictureInfo* structInfo, Decoded_StdVideoDecodeH265PictureInfo* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoDecodeVP9PictureInfo(std::ostream &out, const StdVideoDecodeVP9PictureInfo* structInfo, Decoded_StdVideoDecodeVP9PictureInfo* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoDecodeH265PictureInfoFlags(out,
-                                                                                   &structInfo->flags,
-                                                                                   metaInfo->flags,
-                                                                                   consumer);
+    std::string flags_info_var = GenerateStruct_StdVideoDecodeVP9PictureInfoFlags(out,
+                                                                                  &structInfo->flags,
+                                                                                  metaInfo->flags,
+                                                                                  consumer);
+    std::string pcolor_config_struct = "NULL";
+    if (structInfo->pColorConfig != NULL) {
+        pcolor_config_struct = GenerateStruct_StdVideoVP9ColorConfig(out,
+                                                                     structInfo->pColorConfig,
+                                                                     metaInfo->pColorConfig->GetMetaStructPointer(),
+                                                                     consumer);
+        pcolor_config_struct.insert(0, "&");
+    }
+    std::string ploop_filter_struct = "NULL";
+    if (structInfo->pLoopFilter != NULL) {
+        ploop_filter_struct = GenerateStruct_StdVideoVP9LoopFilter(out,
+                                                                   structInfo->pLoopFilter,
+                                                                   metaInfo->pLoopFilter->GetMetaStructPointer(),
+                                                                   consumer);
+        ploop_filter_struct.insert(0, "&");
+    }
+    std::string psegmentation_struct = "NULL";
+    if (structInfo->pSegmentation != NULL) {
+        psegmentation_struct = GenerateStruct_StdVideoVP9Segmentation(out,
+                                                                      structInfo->pSegmentation,
+                                                                      metaInfo->pSegmentation->GetMetaStructPointer(),
+                                                                      consumer);
+        psegmentation_struct.insert(0, "&");
+    }
     struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_video_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_seq_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_pic_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->NumDeltaPocsOfRefRpsIdx) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->PicOrderCntVal << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->NumBitsForSTRefPicSetInSlice << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->RefPicSetStCurrBefore[0]), STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->RefPicSetStCurrAfter[0]), STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->RefPicSetLtCurr[0]), STD_VIDEO_DECODE_H265_REF_PIC_SET_LIST_SIZE) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeH265PictureInfo");
-    out << "\t\t" << "StdVideoDecodeH265PictureInfo " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9Profile(" << structInfo->profile << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9FrameType(" << structInfo->frame_type << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->frame_context_idx) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->reset_frame_context) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->refresh_frame_flags) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->ref_frame_sign_bias_mask) << "," << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9InterpolationFilter(" << structInfo->interpolation_filter << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->base_q_idx) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_q_y_dc) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_q_uv_dc) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->delta_q_uv_ac) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->tile_cols_log2) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->tile_rows_log2) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->reserved1[0]), 3) << "," << std::endl;
+    struct_body << "\t\t\t" << pcolor_config_struct << "," << std::endl;
+    struct_body << "\t\t\t" << ploop_filter_struct << "," << std::endl;
+    struct_body << "\t\t\t" << psegmentation_struct << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeVP9PictureInfo");
+    out << "\t\t" << "StdVideoDecodeVP9PictureInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoDecodeH265PictureInfoFlags(std::ostream &out, const StdVideoDecodeH265PictureInfoFlags* structInfo, Decoded_StdVideoDecodeH265PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoDecodeVP9PictureInfoFlags(std::ostream &out, const StdVideoDecodeVP9PictureInfoFlags* structInfo, Decoded_StdVideoDecodeVP9PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << structInfo->IrapPicFlag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->IdrPicFlag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->IsReference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->short_term_ref_pic_set_sps_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeH265PictureInfoFlags");
-    out << "\t\t" << "StdVideoDecodeH265PictureInfoFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoDecodeH265ReferenceInfo(std::ostream &out, const StdVideoDecodeH265ReferenceInfo* structInfo, Decoded_StdVideoDecodeH265ReferenceInfo* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoDecodeH265ReferenceInfoFlags(out,
-                                                                                     &structInfo->flags,
-                                                                                     metaInfo->flags,
-                                                                                     consumer);
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->PicOrderCntVal << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeH265ReferenceInfo");
-    out << "\t\t" << "StdVideoDecodeH265ReferenceInfo " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoDecodeH265ReferenceInfoFlags(std::ostream &out, const StdVideoDecodeH265ReferenceInfoFlags* structInfo, Decoded_StdVideoDecodeH265ReferenceInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->used_for_long_term_reference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->unused_for_reference << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeH265ReferenceInfoFlags");
-    out << "\t\t" << "StdVideoDecodeH265ReferenceInfoFlags " << variable_name << " {" << std::endl;
+    struct_body << "\t" << structInfo->error_resilient_mode << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->intra_only << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->allow_high_precision_mv << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->refresh_frame_context << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->frame_parallel_decoding_mode << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->segmentation_enabled << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->show_frame << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->UsePrevFrameMvs << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoDecodeVP9PictureInfoFlags");
+    out << "\t\t" << "StdVideoDecodeVP9PictureInfoFlags " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -1064,29 +1108,53 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
                                                                                           &structInfo->flags,
                                                                                           metaInfo->flags,
                                                                                           consumer);
-    std::string pref_list0_mod_operations_struct = "NULL";
+    std::string pref_list0_mod_operations_array = "NULL";
     if (structInfo->pRefList0ModOperations != NULL) {
-        pref_list0_mod_operations_struct = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                            structInfo->pRefList0ModOperations,
-                                                                                            metaInfo->pRefList0ModOperations->GetMetaStructPointer(),
-                                                                                            consumer);
-        pref_list0_mod_operations_struct.insert(0, "&");
+        pref_list0_mod_operations_array = "pRefList0ModOperations_" + std::to_string(consumer.GetNextId());
+        std::string pref_list0_mod_operations_names;
+        for (uint32_t idx = 0; idx < structInfo->refList0ModOpCount; idx++) {
+            std::string variable_name = "NULL";
+            if (structInfo->pRefList0ModOperations + idx != NULL) {
+                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                                 structInfo->pRefList0ModOperations + idx,
+                                                                                 metaInfo->pRefList0ModOperations->GetMetaStructPointer() + idx,
+                                                                                 consumer);
+            }
+            pref_list0_mod_operations_names += variable_name + ", ";
+        }
+        out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list0_mod_operations_array << "[] = {" << pref_list0_mod_operations_names << "};" << std::endl;
     }
-    std::string pref_list1_mod_operations_struct = "NULL";
+    std::string pref_list1_mod_operations_array = "NULL";
     if (structInfo->pRefList1ModOperations != NULL) {
-        pref_list1_mod_operations_struct = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                            structInfo->pRefList1ModOperations,
-                                                                                            metaInfo->pRefList1ModOperations->GetMetaStructPointer(),
-                                                                                            consumer);
-        pref_list1_mod_operations_struct.insert(0, "&");
+        pref_list1_mod_operations_array = "pRefList1ModOperations_" + std::to_string(consumer.GetNextId());
+        std::string pref_list1_mod_operations_names;
+        for (uint32_t idx = 0; idx < structInfo->refList1ModOpCount; idx++) {
+            std::string variable_name = "NULL";
+            if (structInfo->pRefList1ModOperations + idx != NULL) {
+                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                                 structInfo->pRefList1ModOperations + idx,
+                                                                                 metaInfo->pRefList1ModOperations->GetMetaStructPointer() + idx,
+                                                                                 consumer);
+            }
+            pref_list1_mod_operations_names += variable_name + ", ";
+        }
+        out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list1_mod_operations_array << "[] = {" << pref_list1_mod_operations_names << "};" << std::endl;
     }
-    std::string pref_pic_marking_operations_struct = "NULL";
+    std::string pref_pic_marking_operations_array = "NULL";
     if (structInfo->pRefPicMarkingOperations != NULL) {
-        pref_pic_marking_operations_struct = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
-                                                                                                 structInfo->pRefPicMarkingOperations,
-                                                                                                 metaInfo->pRefPicMarkingOperations->GetMetaStructPointer(),
-                                                                                                 consumer);
-        pref_pic_marking_operations_struct.insert(0, "&");
+        pref_pic_marking_operations_array = "pRefPicMarkingOperations_" + std::to_string(consumer.GetNextId());
+        std::string pref_pic_marking_operations_names;
+        for (uint32_t idx = 0; idx < structInfo->refPicMarkingOpCount; idx++) {
+            std::string variable_name = "NULL";
+            if (structInfo->pRefPicMarkingOperations + idx != NULL) {
+                variable_name = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
+                                                                                    structInfo->pRefPicMarkingOperations + idx,
+                                                                                    metaInfo->pRefPicMarkingOperations->GetMetaStructPointer() + idx,
+                                                                                    consumer);
+            }
+            pref_pic_marking_operations_names += variable_name + ", ";
+        }
+        out << "\t\t" << "StdVideoEncodeH264RefPicMarkingEntry " << pref_pic_marking_operations_array << "[] = {" << pref_pic_marking_operations_names << "};" << std::endl;
     }
     struct_body << "\t" << flags_info_var << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l0_active_minus1) << "," << std::endl;
@@ -1097,9 +1165,9 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
     struct_body << "\t\t\t" << std::to_string(structInfo->refList1ModOpCount) << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->refPicMarkingOpCount) << "," << std::endl;
     struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
-    struct_body << "\t\t\t" << pref_list0_mod_operations_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pref_list1_mod_operations_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pref_pic_marking_operations_struct << ",";
+    struct_body << "\t\t\t" << pref_list0_mod_operations_array << "," << std::endl;
+    struct_body << "\t\t\t" << pref_list1_mod_operations_array << "," << std::endl;
+    struct_body << "\t\t\t" << pref_pic_marking_operations_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH264ReferenceListsInfo");
     out << "\t\t" << "StdVideoEncodeH264ReferenceListsInfo " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -1205,257 +1273,6 @@ std::string GenerateStruct_StdVideoEncodeH264WeightTableFlags(std::ostream &out,
 }
 
 
-std::string GenerateStruct_StdVideoEncodeH265LongTermRefPics(std::ostream &out, const StdVideoEncodeH265LongTermRefPics* structInfo, Decoded_StdVideoEncodeH265LongTermRefPics* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << std::to_string(structInfo->num_long_term_sps) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_long_term_pics) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->lt_idx_sps[0]), STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->poc_lsb_lt[0]), STD_VIDEO_H265_MAX_LONG_TERM_PICS) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->used_by_curr_pic_lt_flag << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->delta_poc_msb_present_flag[0]), STD_VIDEO_H265_MAX_DELTA_POC) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->delta_poc_msb_cycle_lt[0]), STD_VIDEO_H265_MAX_DELTA_POC) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265LongTermRefPics");
-    out << "\t\t" << "StdVideoEncodeH265LongTermRefPics " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265PictureInfo(std::ostream &out, const StdVideoEncodeH265PictureInfo* structInfo, Decoded_StdVideoEncodeH265PictureInfo* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoEncodeH265PictureInfoFlags(out,
-                                                                                   &structInfo->flags,
-                                                                                   metaInfo->flags,
-                                                                                   consumer);
-    std::string pref_lists_struct = "NULL";
-    if (structInfo->pRefLists != NULL) {
-        pref_lists_struct = GenerateStruct_StdVideoEncodeH265ReferenceListsInfo(out,
-                                                                                structInfo->pRefLists,
-                                                                                metaInfo->pRefLists->GetMetaStructPointer(),
-                                                                                consumer);
-        pref_lists_struct.insert(0, "&");
-    }
-    std::string pshort_term_ref_pic_set_struct = "NULL";
-    if (structInfo->pShortTermRefPicSet != NULL) {
-        pshort_term_ref_pic_set_struct = GenerateStruct_StdVideoH265ShortTermRefPicSet(out,
-                                                                                       structInfo->pShortTermRefPicSet,
-                                                                                       metaInfo->pShortTermRefPicSet->GetMetaStructPointer(),
-                                                                                       consumer);
-        pshort_term_ref_pic_set_struct.insert(0, "&");
-    }
-    std::string plong_term_ref_pics_struct = "NULL";
-    if (structInfo->pLongTermRefPics != NULL) {
-        plong_term_ref_pics_struct = GenerateStruct_StdVideoEncodeH265LongTermRefPics(out,
-                                                                                      structInfo->pLongTermRefPics,
-                                                                                      metaInfo->pLongTermRefPics->GetMetaStructPointer(),
-                                                                                      consumer);
-        plong_term_ref_pics_struct.insert(0, "&");
-    }
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265PictureType(" << structInfo->pic_type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_video_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_seq_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_pic_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->short_term_ref_pic_set_idx) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->PicOrderCntVal << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->TemporalId) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->reserved1[0]), 7) << "," << std::endl;
-    struct_body << "\t\t\t" << pref_lists_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pshort_term_ref_pic_set_struct << "," << std::endl;
-    struct_body << "\t\t\t" << plong_term_ref_pics_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265PictureInfo");
-    out << "\t\t" << "StdVideoEncodeH265PictureInfo " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265PictureInfoFlags(std::ostream &out, const StdVideoEncodeH265PictureInfoFlags* structInfo, Decoded_StdVideoEncodeH265PictureInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->is_reference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->IrapPicFlag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->used_for_long_term_reference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->discardable_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cross_layer_bla_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pic_output_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->no_output_of_prior_pics_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->short_term_ref_pic_set_sps_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_temporal_mvp_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265PictureInfoFlags");
-    out << "\t\t" << "StdVideoEncodeH265PictureInfoFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265ReferenceInfo(std::ostream &out, const StdVideoEncodeH265ReferenceInfo* structInfo, Decoded_StdVideoEncodeH265ReferenceInfo* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoEncodeH265ReferenceInfoFlags(out,
-                                                                                     &structInfo->flags,
-                                                                                     metaInfo->flags,
-                                                                                     consumer);
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265PictureType(" << structInfo->pic_type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->PicOrderCntVal << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->TemporalId) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265ReferenceInfo");
-    out << "\t\t" << "StdVideoEncodeH265ReferenceInfo " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265ReferenceInfoFlags(std::ostream &out, const StdVideoEncodeH265ReferenceInfoFlags* structInfo, Decoded_StdVideoEncodeH265ReferenceInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->used_for_long_term_reference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->unused_for_reference << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265ReferenceInfoFlags");
-    out << "\t\t" << "StdVideoEncodeH265ReferenceInfoFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265ReferenceListsInfo(std::ostream &out, const StdVideoEncodeH265ReferenceListsInfo* structInfo, Decoded_StdVideoEncodeH265ReferenceListsInfo* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoEncodeH265ReferenceListsInfoFlags(out,
-                                                                                          &structInfo->flags,
-                                                                                          metaInfo->flags,
-                                                                                          consumer);
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l0_active_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l1_active_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->RefPicList0[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->RefPicList1[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->list_entry_l0[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->list_entry_l1[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265ReferenceListsInfo");
-    out << "\t\t" << "StdVideoEncodeH265ReferenceListsInfo " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265ReferenceListsInfoFlags(std::ostream &out, const StdVideoEncodeH265ReferenceListsInfoFlags* structInfo, Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->ref_pic_list_modification_flag_l0 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->ref_pic_list_modification_flag_l1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265ReferenceListsInfoFlags");
-    out << "\t\t" << "StdVideoEncodeH265ReferenceListsInfoFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265SliceSegmentHeader(std::ostream &out, const StdVideoEncodeH265SliceSegmentHeader* structInfo, Decoded_StdVideoEncodeH265SliceSegmentHeader* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoEncodeH265SliceSegmentHeaderFlags(out,
-                                                                                          &structInfo->flags,
-                                                                                          metaInfo->flags,
-                                                                                          consumer);
-    std::string pweight_table_struct = "NULL";
-    if (structInfo->pWeightTable != NULL) {
-        pweight_table_struct = GenerateStruct_StdVideoEncodeH265WeightTable(out,
-                                                                            structInfo->pWeightTable,
-                                                                            metaInfo->pWeightTable->GetMetaStructPointer(),
-                                                                            consumer);
-        pweight_table_struct.insert(0, "&");
-    }
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265SliceType(" << structInfo->slice_type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_segment_address << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->collocated_ref_idx) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->MaxNumMergeCand) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_cb_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_cr_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_beta_offset_div2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_tc_offset_div2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_act_y_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_act_cb_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_act_cr_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->slice_qp_delta) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved1 << "," << std::endl;
-    struct_body << "\t\t\t" << pweight_table_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265SliceSegmentHeader");
-    out << "\t\t" << "StdVideoEncodeH265SliceSegmentHeader " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265SliceSegmentHeaderFlags(std::ostream &out, const StdVideoEncodeH265SliceSegmentHeaderFlags* structInfo, Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->first_slice_segment_in_pic_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->dependent_slice_segment_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_sao_luma_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_sao_chroma_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->num_ref_idx_active_override_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->mvd_l1_zero_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cabac_init_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cu_chroma_qp_offset_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->deblocking_filter_override_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_deblocking_filter_disabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->collocated_from_l0_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_loop_filter_across_slices_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265SliceSegmentHeaderFlags");
-    out << "\t\t" << "StdVideoEncodeH265SliceSegmentHeaderFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265WeightTable(std::ostream &out, const StdVideoEncodeH265WeightTable* structInfo, Decoded_StdVideoEncodeH265WeightTable* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoEncodeH265WeightTableFlags(out,
-                                                                                   &structInfo->flags,
-                                                                                   metaInfo->flags,
-                                                                                   consumer);
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->luma_log2_weight_denom) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->delta_chroma_log2_weight_denom) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_luma_weight_l0[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->luma_offset_l0[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_chroma_weight_l0[0][0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_chroma_offset_l0[0][0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_luma_weight_l1[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->luma_offset_l1[0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_chroma_weight_l1[0][0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->delta_chroma_offset_l1[0][0]), STD_VIDEO_H265_MAX_NUM_LIST_REF) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265WeightTable");
-    out << "\t\t" << "StdVideoEncodeH265WeightTable " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoEncodeH265WeightTableFlags(std::ostream &out, const StdVideoEncodeH265WeightTableFlags* structInfo, Decoded_StdVideoEncodeH265WeightTableFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->luma_weight_l0_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->chroma_weight_l0_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->luma_weight_l1_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->chroma_weight_l1_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoEncodeH265WeightTableFlags");
-    out << "\t\t" << "StdVideoEncodeH265WeightTableFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_StdVideoH264HrdParameters(std::ostream &out, const StdVideoH264HrdParameters* structInfo, Decoded_StdVideoH264HrdParameters* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     struct_body << "\t" << std::to_string(structInfo->cpb_cnt_minus1) << "," << std::endl;
@@ -1548,6 +1365,11 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
                                                                      &structInfo->flags,
                                                                      metaInfo->flags,
                                                                      consumer);
+    std::string poffset_for_ref_frame_array = "NULL";
+    if (structInfo->pOffsetForRefFrame != NULL) {
+        poffset_for_ref_frame_array = "pOffsetForRefFrame_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "int32_t " << poffset_for_ref_frame_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pOffsetForRefFrame, structInfo->num_ref_frames_in_pic_order_cnt_cycle) << ";" << std::endl;
+    }
     std::string pscaling_lists_struct = "NULL";
     if (structInfo->pScalingLists != NULL) {
         pscaling_lists_struct = GenerateStruct_StdVideoH264ScalingLists(out,
@@ -1586,6 +1408,7 @@ std::string GenerateStruct_StdVideoH264SequenceParameterSet(std::ostream &out, c
     struct_body << "\t\t\t" << structInfo->frame_crop_top_offset << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->frame_crop_bottom_offset << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->reserved2 << "," << std::endl;
+    struct_body << "\t\t\t" << poffset_for_ref_frame_array << "," << std::endl;
     struct_body << "\t\t\t" << pscaling_lists_struct << "," << std::endl;
     struct_body << "\t\t\t" << psequence_parameter_set_vui_struct << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH264SequenceParameterSet");
@@ -1682,597 +1505,100 @@ std::string GenerateStruct_StdVideoH264SpsVuiFlags(std::ostream &out, const StdV
 }
 
 
-std::string GenerateStruct_StdVideoH265DecPicBufMgr(std::ostream &out, const StdVideoH265DecPicBufMgr* structInfo, Decoded_StdVideoH265DecPicBufMgr* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9ColorConfig(std::ostream &out, const StdVideoVP9ColorConfig* structInfo, Decoded_StdVideoVP9ColorConfig* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->max_latency_increase_plus1[0]), STD_VIDEO_H265_SUBLAYERS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->max_dec_pic_buffering_minus1[0]), STD_VIDEO_H265_SUBLAYERS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->max_num_reorder_pics[0]), STD_VIDEO_H265_SUBLAYERS_LIST_SIZE) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265DecPicBufMgr");
-    out << "\t\t" << "StdVideoH265DecPicBufMgr " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265HrdFlags(std::ostream &out, const StdVideoH265HrdFlags* structInfo, Decoded_StdVideoH265HrdFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->nal_hrd_parameters_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vcl_hrd_parameters_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sub_pic_hrd_params_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sub_pic_cpb_params_in_pic_timing_sei_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->fixed_pic_rate_general_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->fixed_pic_rate_within_cvs_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->low_delay_hrd_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265HrdFlags");
-    out << "\t\t" << "StdVideoH265HrdFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265HrdParameters(std::ostream &out, const StdVideoH265HrdParameters* structInfo, Decoded_StdVideoH265HrdParameters* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265HrdFlags(out,
-                                                                     &structInfo->flags,
-                                                                     metaInfo->flags,
-                                                                     consumer);
-    std::string psub_layer_hrd_parameters_nal_struct = "NULL";
-    if (structInfo->pSubLayerHrdParametersNal != NULL) {
-        psub_layer_hrd_parameters_nal_struct = GenerateStruct_StdVideoH265SubLayerHrdParameters(out,
-                                                                                                structInfo->pSubLayerHrdParametersNal,
-                                                                                                metaInfo->pSubLayerHrdParametersNal->GetMetaStructPointer(),
-                                                                                                consumer);
-        psub_layer_hrd_parameters_nal_struct.insert(0, "&");
-    }
-    std::string psub_layer_hrd_parameters_vcl_struct = "NULL";
-    if (structInfo->pSubLayerHrdParametersVcl != NULL) {
-        psub_layer_hrd_parameters_vcl_struct = GenerateStruct_StdVideoH265SubLayerHrdParameters(out,
-                                                                                                structInfo->pSubLayerHrdParametersVcl,
-                                                                                                metaInfo->pSubLayerHrdParametersVcl->GetMetaStructPointer(),
-                                                                                                consumer);
-        psub_layer_hrd_parameters_vcl_struct.insert(0, "&");
-    }
+    std::string flags_info_var = GenerateStruct_StdVideoVP9ColorConfigFlags(out,
+                                                                            &structInfo->flags,
+                                                                            metaInfo->flags,
+                                                                            consumer);
     struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->tick_divisor_minus2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->du_cpb_removal_delay_increment_length_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->dpb_output_delay_du_length_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->bit_rate_scale) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->cpb_size_scale) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->cpb_size_du_scale) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->initial_cpb_removal_delay_length_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->au_cpb_removal_delay_length_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->dpb_output_delay_length_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->cpb_cnt_minus1[0]), STD_VIDEO_H265_SUBLAYERS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->elemental_duration_in_tc_minus1[0]), STD_VIDEO_H265_SUBLAYERS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->reserved[0]), 3) << "," << std::endl;
-    struct_body << "\t\t\t" << psub_layer_hrd_parameters_nal_struct << "," << std::endl;
-    struct_body << "\t\t\t" << psub_layer_hrd_parameters_vcl_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265HrdParameters");
-    out << "\t\t" << "StdVideoH265HrdParameters " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265LongTermRefPicsSps(std::ostream &out, const StdVideoH265LongTermRefPicsSps* structInfo, Decoded_StdVideoH265LongTermRefPicsSps* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->used_by_curr_pic_lt_sps_flag << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->lt_ref_pic_poc_lsb_sps[0]), STD_VIDEO_H265_MAX_LONG_TERM_REF_PICS_SPS) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265LongTermRefPicsSps");
-    out << "\t\t" << "StdVideoH265LongTermRefPicsSps " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265PictureParameterSet(std::ostream &out, const StdVideoH265PictureParameterSet* structInfo, Decoded_StdVideoH265PictureParameterSet* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265PpsFlags(out,
-                                                                     &structInfo->flags,
-                                                                     metaInfo->flags,
-                                                                     consumer);
-    std::string pscaling_lists_struct = "NULL";
-    if (structInfo->pScalingLists != NULL) {
-        pscaling_lists_struct = GenerateStruct_StdVideoH265ScalingLists(out,
-                                                                        structInfo->pScalingLists,
-                                                                        metaInfo->pScalingLists->GetMetaStructPointer(),
-                                                                        consumer);
-        pscaling_lists_struct.insert(0, "&");
-    }
-    std::string ppredictor_palette_entries_struct = "NULL";
-    if (structInfo->pPredictorPaletteEntries != NULL) {
-        ppredictor_palette_entries_struct = GenerateStruct_StdVideoH265PredictorPaletteEntries(out,
-                                                                                               structInfo->pPredictorPaletteEntries,
-                                                                                               metaInfo->pPredictorPaletteEntries->GetMetaStructPointer(),
-                                                                                               consumer);
-        ppredictor_palette_entries_struct.insert(0, "&");
-    }
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_pic_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_seq_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_video_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_extra_slice_header_bits) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l0_default_active_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_ref_idx_l1_default_active_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->init_qp_minus26) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->diff_cu_qp_delta_depth) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_cb_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_cr_qp_offset) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_beta_offset_div2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_tc_offset_div2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_parallel_merge_level_minus2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_max_transform_skip_block_size_minus2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->diff_cu_chroma_qp_offset_depth) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->chroma_qp_offset_list_len_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->cb_qp_offset_list[0]), STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->cr_qp_offset_list[0]), STD_VIDEO_H265_CHROMA_QP_OFFSET_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_sao_offset_scale_luma) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_sao_offset_scale_chroma) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_act_y_qp_offset_plus5) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_act_cb_qp_offset_plus5) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_act_cr_qp_offset_plus3) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pps_num_palette_predictor_initializers) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->luma_bit_depth_entry_minus8) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->chroma_bit_depth_entry_minus8) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_tile_columns_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_tile_rows_minus1) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->BitDepth) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->subsampling_x) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->subsampling_y) << "," << std::endl;
     struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved2) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->column_width_minus1[0]), STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_COLS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->row_height_minus1[0]), STD_VIDEO_H265_CHROMA_QP_OFFSET_TILE_ROWS_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved3 << "," << std::endl;
-    struct_body << "\t\t\t" << pscaling_lists_struct << "," << std::endl;
-    struct_body << "\t\t\t" << ppredictor_palette_entries_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265PictureParameterSet");
-    out << "\t\t" << "StdVideoH265PictureParameterSet " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9ColorSpace(" << structInfo->color_space << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9ColorConfig");
+    out << "\t\t" << "StdVideoVP9ColorConfig " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoH265PpsFlags(std::ostream &out, const StdVideoH265PpsFlags* structInfo, Decoded_StdVideoH265PpsFlags* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9ColorConfigFlags(std::ostream &out, const StdVideoVP9ColorConfigFlags* structInfo, Decoded_StdVideoVP9ColorConfigFlags* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << structInfo->dependent_slice_segments_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->output_flag_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sign_data_hiding_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cabac_init_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->constrained_intra_pred_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->transform_skip_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cu_qp_delta_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_slice_chroma_qp_offsets_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->weighted_pred_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->weighted_bipred_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->transquant_bypass_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->tiles_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->entropy_coding_sync_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->uniform_spacing_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->loop_filter_across_tiles_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_loop_filter_across_slices_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->deblocking_filter_control_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->deblocking_filter_override_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_deblocking_filter_disabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_scaling_list_data_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->lists_modification_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->slice_segment_header_extension_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_extension_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cross_component_prediction_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->chroma_qp_offset_list_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_curr_pic_ref_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->residual_adaptive_colour_transform_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_slice_act_qp_offsets_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_palette_predictor_initializers_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->monochrome_palette_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pps_range_extension_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265PpsFlags");
-    out << "\t\t" << "StdVideoH265PpsFlags " << variable_name << " {" << std::endl;
+    struct_body << "\t" << structInfo->color_range << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9ColorConfigFlags");
+    out << "\t\t" << "StdVideoVP9ColorConfigFlags " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoH265PredictorPaletteEntries(std::ostream &out, const StdVideoH265PredictorPaletteEntries* structInfo, Decoded_StdVideoH265PredictorPaletteEntries* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9LoopFilter(std::ostream &out, const StdVideoVP9LoopFilter* structInfo, Decoded_StdVideoVP9LoopFilter* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->PredictorPaletteEntries[0][0]), STD_VIDEO_H265_PREDICTOR_PALETTE_COMPONENTS_LIST_SIZE) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265PredictorPaletteEntries");
-    out << "\t\t" << "StdVideoH265PredictorPaletteEntries " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265ProfileTierLevel(std::ostream &out, const StdVideoH265ProfileTierLevel* structInfo, Decoded_StdVideoH265ProfileTierLevel* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265ProfileTierLevelFlags(out,
-                                                                                  &structInfo->flags,
-                                                                                  metaInfo->flags,
-                                                                                  consumer);
+    std::string flags_info_var = GenerateStruct_StdVideoVP9LoopFilterFlags(out,
+                                                                           &structInfo->flags,
+                                                                           metaInfo->flags,
+                                                                           consumer);
     struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265ProfileIdc(" << structInfo->general_profile_idc << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265LevelIdc(" << structInfo->general_level_idc << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265ProfileTierLevel");
-    out << "\t\t" << "StdVideoH265ProfileTierLevel " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->loop_filter_level) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->loop_filter_sharpness) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->update_ref_delta) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->loop_filter_ref_deltas[0]), STD_VIDEO_VP9_MAX_REF_FRAMES) << "," << std::endl;
+    struct_body << "\t\t\t" << std::to_string(structInfo->update_mode_delta) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int8_t*>(&structInfo->loop_filter_mode_deltas[0]), STD_VIDEO_VP9_LOOP_FILTER_ADJUSTMENTS) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9LoopFilter");
+    out << "\t\t" << "StdVideoVP9LoopFilter " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoH265ProfileTierLevelFlags(std::ostream &out, const StdVideoH265ProfileTierLevelFlags* structInfo, Decoded_StdVideoH265ProfileTierLevelFlags* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9LoopFilterFlags(std::ostream &out, const StdVideoVP9LoopFilterFlags* structInfo, Decoded_StdVideoVP9LoopFilterFlags* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << structInfo->general_tier_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->general_progressive_source_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->general_interlaced_source_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->general_non_packed_constraint_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->general_frame_only_constraint_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265ProfileTierLevelFlags");
-    out << "\t\t" << "StdVideoH265ProfileTierLevelFlags " << variable_name << " {" << std::endl;
+    struct_body << "\t" << structInfo->loop_filter_delta_enabled << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->loop_filter_delta_update << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9LoopFilterFlags");
+    out << "\t\t" << "StdVideoVP9LoopFilterFlags " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoH265ScalingLists(std::ostream &out, const StdVideoH265ScalingLists* structInfo, Decoded_StdVideoH265ScalingLists* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9Segmentation(std::ostream &out, const StdVideoVP9Segmentation* structInfo, Decoded_StdVideoVP9Segmentation* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingList4x4[0][0]), STD_VIDEO_H265_SCALING_LIST_4X4_NUM_LISTS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingList8x8[0][0]), STD_VIDEO_H265_SCALING_LIST_8X8_NUM_LISTS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingList16x16[0][0]), STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingList32x32[0][0]), STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingListDCCoef16x16[0]), STD_VIDEO_H265_SCALING_LIST_16X16_NUM_LISTS) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->ScalingListDCCoef32x32[0]), STD_VIDEO_H265_SCALING_LIST_32X32_NUM_LISTS) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265ScalingLists");
-    out << "\t\t" << "StdVideoH265ScalingLists " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265SequenceParameterSet(std::ostream &out, const StdVideoH265SequenceParameterSet* structInfo, Decoded_StdVideoH265SequenceParameterSet* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265SpsFlags(out,
-                                                                     &structInfo->flags,
-                                                                     metaInfo->flags,
-                                                                     consumer);
-    std::string pprofile_tier_level_struct = "NULL";
-    if (structInfo->pProfileTierLevel != NULL) {
-        pprofile_tier_level_struct = GenerateStruct_StdVideoH265ProfileTierLevel(out,
-                                                                                 structInfo->pProfileTierLevel,
-                                                                                 metaInfo->pProfileTierLevel->GetMetaStructPointer(),
-                                                                                 consumer);
-        pprofile_tier_level_struct.insert(0, "&");
-    }
-    std::string pdec_pic_buf_mgr_struct = "NULL";
-    if (structInfo->pDecPicBufMgr != NULL) {
-        pdec_pic_buf_mgr_struct = GenerateStruct_StdVideoH265DecPicBufMgr(out,
-                                                                          structInfo->pDecPicBufMgr,
-                                                                          metaInfo->pDecPicBufMgr->GetMetaStructPointer(),
-                                                                          consumer);
-        pdec_pic_buf_mgr_struct.insert(0, "&");
-    }
-    std::string pscaling_lists_struct = "NULL";
-    if (structInfo->pScalingLists != NULL) {
-        pscaling_lists_struct = GenerateStruct_StdVideoH265ScalingLists(out,
-                                                                        structInfo->pScalingLists,
-                                                                        metaInfo->pScalingLists->GetMetaStructPointer(),
-                                                                        consumer);
-        pscaling_lists_struct.insert(0, "&");
-    }
-    std::string pshort_term_ref_pic_set_struct = "NULL";
-    if (structInfo->pShortTermRefPicSet != NULL) {
-        pshort_term_ref_pic_set_struct = GenerateStruct_StdVideoH265ShortTermRefPicSet(out,
-                                                                                       structInfo->pShortTermRefPicSet,
-                                                                                       metaInfo->pShortTermRefPicSet->GetMetaStructPointer(),
-                                                                                       consumer);
-        pshort_term_ref_pic_set_struct.insert(0, "&");
-    }
-    std::string plong_term_ref_pics_sps_struct = "NULL";
-    if (structInfo->pLongTermRefPicsSps != NULL) {
-        plong_term_ref_pics_sps_struct = GenerateStruct_StdVideoH265LongTermRefPicsSps(out,
-                                                                                       structInfo->pLongTermRefPicsSps,
-                                                                                       metaInfo->pLongTermRefPicsSps->GetMetaStructPointer(),
-                                                                                       consumer);
-        plong_term_ref_pics_sps_struct.insert(0, "&");
-    }
-    std::string psequence_parameter_set_vui_struct = "NULL";
-    if (structInfo->pSequenceParameterSetVui != NULL) {
-        psequence_parameter_set_vui_struct = GenerateStruct_StdVideoH265SequenceParameterSetVui(out,
-                                                                                                structInfo->pSequenceParameterSetVui,
-                                                                                                metaInfo->pSequenceParameterSetVui->GetMetaStructPointer(),
-                                                                                                consumer);
-        psequence_parameter_set_vui_struct.insert(0, "&");
-    }
-    std::string ppredictor_palette_entries_struct = "NULL";
-    if (structInfo->pPredictorPaletteEntries != NULL) {
-        ppredictor_palette_entries_struct = GenerateStruct_StdVideoH265PredictorPaletteEntries(out,
-                                                                                               structInfo->pPredictorPaletteEntries,
-                                                                                               metaInfo->pPredictorPaletteEntries->GetMetaStructPointer(),
-                                                                                               consumer);
-        ppredictor_palette_entries_struct.insert(0, "&");
-    }
+    std::string flags_info_var = GenerateStruct_StdVideoVP9SegmentationFlags(out,
+                                                                             &structInfo->flags,
+                                                                             metaInfo->flags,
+                                                                             consumer);
     struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265ChromaFormatIdc(" << structInfo->chroma_format_idc << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pic_width_in_luma_samples << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pic_height_in_luma_samples << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_video_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_max_sub_layers_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_seq_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->bit_depth_luma_minus8) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->bit_depth_chroma_minus8) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_max_pic_order_cnt_lsb_minus4) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_min_luma_coding_block_size_minus3) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_diff_max_min_luma_coding_block_size) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_min_luma_transform_block_size_minus2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_diff_max_min_luma_transform_block_size) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->max_transform_hierarchy_depth_inter) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->max_transform_hierarchy_depth_intra) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_short_term_ref_pic_sets) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_long_term_ref_pics_sps) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pcm_sample_bit_depth_luma_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->pcm_sample_bit_depth_chroma_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_min_pcm_luma_coding_block_size_minus3) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_diff_max_min_pcm_luma_coding_block_size) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->palette_max_size) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->delta_palette_max_predictor_size) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->motion_vector_resolution_control_idc) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->sps_num_palette_predictor_initializers_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->conf_win_left_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->conf_win_right_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->conf_win_top_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->conf_win_bottom_offset << "," << std::endl;
-    struct_body << "\t\t\t" << pprofile_tier_level_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pdec_pic_buf_mgr_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pscaling_lists_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pshort_term_ref_pic_set_struct << "," << std::endl;
-    struct_body << "\t\t\t" << plong_term_ref_pics_sps_struct << "," << std::endl;
-    struct_body << "\t\t\t" << psequence_parameter_set_vui_struct << "," << std::endl;
-    struct_body << "\t\t\t" << ppredictor_palette_entries_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265SequenceParameterSet");
-    out << "\t\t" << "StdVideoH265SequenceParameterSet " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->segmentation_tree_probs[0]), STD_VIDEO_VP9_MAX_SEGMENTATION_TREE_PROBS) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->segmentation_pred_prob[0]), STD_VIDEO_VP9_MAX_SEGMENTATION_PRED_PROB) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(&structInfo->FeatureEnabled[0]), STD_VIDEO_VP9_MAX_SEGMENTS) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int16_t*>(&structInfo->FeatureData[0][0]), STD_VIDEO_VP9_MAX_SEGMENTS) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9Segmentation");
+    out << "\t\t" << "StdVideoVP9Segmentation " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_StdVideoH265SequenceParameterSetVui(std::ostream &out, const StdVideoH265SequenceParameterSetVui* structInfo, Decoded_StdVideoH265SequenceParameterSetVui* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_StdVideoVP9SegmentationFlags(std::ostream &out, const StdVideoVP9SegmentationFlags* structInfo, Decoded_StdVideoVP9SegmentationFlags* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265SpsVuiFlags(out,
-                                                                        &structInfo->flags,
-                                                                        metaInfo->flags,
-                                                                        consumer);
-    std::string phrd_parameters_struct = "NULL";
-    if (structInfo->pHrdParameters != NULL) {
-        phrd_parameters_struct = GenerateStruct_StdVideoH265HrdParameters(out,
-                                                                          structInfo->pHrdParameters,
-                                                                          metaInfo->pHrdParameters->GetMetaStructPointer(),
-                                                                          consumer);
-        phrd_parameters_struct.insert(0, "&");
-    }
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265AspectRatioIdc(" << structInfo->aspect_ratio_idc << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sar_width << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sar_height << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->video_format) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->colour_primaries) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->transfer_characteristics) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->matrix_coeffs) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->chroma_sample_loc_type_top_field) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->chroma_sample_loc_type_bottom_field) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved2) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->def_disp_win_left_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->def_disp_win_right_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->def_disp_win_top_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->def_disp_win_bottom_offset << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_num_units_in_tick << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_time_scale << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_num_ticks_poc_diff_one_minus1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->min_spatial_segmentation_idc << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved3 << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->max_bytes_per_pic_denom) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->max_bits_per_min_cu_denom) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_max_mv_length_horizontal) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->log2_max_mv_length_vertical) << "," << std::endl;
-    struct_body << "\t\t\t" << phrd_parameters_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265SequenceParameterSetVui");
-    out << "\t\t" << "StdVideoH265SequenceParameterSetVui " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265ShortTermRefPicSet(std::ostream &out, const StdVideoH265ShortTermRefPicSet* structInfo, Decoded_StdVideoH265ShortTermRefPicSet* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265ShortTermRefPicSetFlags(out,
-                                                                                    &structInfo->flags,
-                                                                                    metaInfo->flags,
-                                                                                    consumer);
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->delta_idx_minus1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->use_delta_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->abs_delta_rps_minus1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->used_by_curr_pic_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->used_by_curr_pic_s0_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->used_by_curr_pic_s1_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved1 << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved2) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved3) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_negative_pics) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->num_positive_pics) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->delta_poc_s0_minus1[0]), STD_VIDEO_H265_MAX_DPB_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint16_t*>(&structInfo->delta_poc_s1_minus1[0]), STD_VIDEO_H265_MAX_DPB_SIZE) << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265ShortTermRefPicSet");
-    out << "\t\t" << "StdVideoH265ShortTermRefPicSet " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265ShortTermRefPicSetFlags(std::ostream &out, const StdVideoH265ShortTermRefPicSetFlags* structInfo, Decoded_StdVideoH265ShortTermRefPicSetFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->inter_ref_pic_set_prediction_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->delta_rps_sign << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265ShortTermRefPicSetFlags");
-    out << "\t\t" << "StdVideoH265ShortTermRefPicSetFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265SpsFlags(std::ostream &out, const StdVideoH265SpsFlags* structInfo, Decoded_StdVideoH265SpsFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->sps_temporal_id_nesting_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->separate_colour_plane_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->conformance_window_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_sub_layer_ordering_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->scaling_list_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_scaling_list_data_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->amp_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sample_adaptive_offset_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pcm_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pcm_loop_filter_disabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->long_term_ref_pics_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_temporal_mvp_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->strong_intra_smoothing_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_parameters_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_extension_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_range_extension_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->transform_skip_rotation_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->transform_skip_context_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->implicit_rdpcm_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->explicit_rdpcm_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->extended_precision_processing_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->intra_smoothing_disabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->high_precision_offsets_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->persistent_rice_adaptation_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cabac_bypass_alignment_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_scc_extension_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_curr_pic_ref_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->palette_mode_enabled_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sps_palette_predictor_initializers_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->intra_boundary_filtering_disabled_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265SpsFlags");
-    out << "\t\t" << "StdVideoH265SpsFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265SpsVuiFlags(std::ostream &out, const StdVideoH265SpsVuiFlags* structInfo, Decoded_StdVideoH265SpsVuiFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->aspect_ratio_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->overscan_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->overscan_appropriate_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->video_signal_type_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->video_full_range_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->colour_description_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->chroma_loc_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->neutral_chroma_indication_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->field_seq_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->frame_field_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->default_display_window_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_timing_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_poc_proportional_to_timing_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vui_hrd_parameters_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->bitstream_restriction_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->tiles_fixed_structure_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->motion_vectors_over_pic_boundaries_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->restricted_ref_pic_lists_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265SpsVuiFlags");
-    out << "\t\t" << "StdVideoH265SpsVuiFlags " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265SubLayerHrdParameters(std::ostream &out, const StdVideoH265SubLayerHrdParameters* structInfo, Decoded_StdVideoH265SubLayerHrdParameters* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->bit_rate_value_minus1[0]), STD_VIDEO_H265_CPB_CNT_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->cpb_size_value_minus1[0]), STD_VIDEO_H265_CPB_CNT_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->cpb_size_du_value_minus1[0]), STD_VIDEO_H265_CPB_CNT_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint32_t*>(&structInfo->bit_rate_du_value_minus1[0]), STD_VIDEO_H265_CPB_CNT_LIST_SIZE) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->cbr_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265SubLayerHrdParameters");
-    out << "\t\t" << "StdVideoH265SubLayerHrdParameters " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265VideoParameterSet(std::ostream &out, const StdVideoH265VideoParameterSet* structInfo, Decoded_StdVideoH265VideoParameterSet* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string flags_info_var = GenerateStruct_StdVideoH265VpsFlags(out,
-                                                                     &structInfo->flags,
-                                                                     metaInfo->flags,
-                                                                     consumer);
-    std::string pdec_pic_buf_mgr_struct = "NULL";
-    if (structInfo->pDecPicBufMgr != NULL) {
-        pdec_pic_buf_mgr_struct = GenerateStruct_StdVideoH265DecPicBufMgr(out,
-                                                                          structInfo->pDecPicBufMgr,
-                                                                          metaInfo->pDecPicBufMgr->GetMetaStructPointer(),
-                                                                          consumer);
-        pdec_pic_buf_mgr_struct.insert(0, "&");
-    }
-    std::string phrd_parameters_struct = "NULL";
-    if (structInfo->pHrdParameters != NULL) {
-        phrd_parameters_struct = GenerateStruct_StdVideoH265HrdParameters(out,
-                                                                          structInfo->pHrdParameters,
-                                                                          metaInfo->pHrdParameters->GetMetaStructPointer(),
-                                                                          consumer);
-        phrd_parameters_struct.insert(0, "&");
-    }
-    std::string pprofile_tier_level_struct = "NULL";
-    if (structInfo->pProfileTierLevel != NULL) {
-        pprofile_tier_level_struct = GenerateStruct_StdVideoH265ProfileTierLevel(out,
-                                                                                 structInfo->pProfileTierLevel,
-                                                                                 metaInfo->pProfileTierLevel->GetMetaStructPointer(),
-                                                                                 consumer);
-        pprofile_tier_level_struct.insert(0, "&");
-    }
-    struct_body << "\t" << flags_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->vps_video_parameter_set_id) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->vps_max_sub_layers_minus1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved1) << "," << std::endl;
-    struct_body << "\t\t\t" << std::to_string(structInfo->reserved2) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_num_units_in_tick << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_time_scale << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_num_ticks_poc_diff_one_minus1 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->reserved3 << "," << std::endl;
-    struct_body << "\t\t\t" << pdec_pic_buf_mgr_struct << "," << std::endl;
-    struct_body << "\t\t\t" << phrd_parameters_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pprofile_tier_level_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265VideoParameterSet");
-    out << "\t\t" << "StdVideoH265VideoParameterSet " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_StdVideoH265VpsFlags(std::ostream &out, const StdVideoH265VpsFlags* structInfo, Decoded_StdVideoH265VpsFlags* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->vps_temporal_id_nesting_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_sub_layer_ordering_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_timing_info_present_flag << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->vps_poc_proportional_to_timing_flag << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoH265VpsFlags");
-    out << "\t\t" << "StdVideoH265VpsFlags " << variable_name << " {" << std::endl;
+    struct_body << "\t" << structInfo->segmentation_update_map << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->segmentation_temporal_update << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->segmentation_update_data << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->segmentation_abs_or_delta_update << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->reserved << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stdVideoVP9SegmentationFlags");
+    out << "\t\t" << "StdVideoVP9SegmentationFlags " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -10429,397 +9755,6 @@ std::string GenerateStruct_VkVideoEncodeH264SessionParametersGetInfoKHR(std::ost
 }
 
 
-std::string GenerateStruct_VkVideoEncodeH265CapabilitiesKHR(std::ostream &out, const VkVideoEncodeH265CapabilitiesKHR* structInfo, Decoded_VkVideoEncodeH265CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string max_tiles_info_var = GenerateStruct_VkExtent2D(out,
-                                                               &structInfo->maxTiles,
-                                                               metaInfo->maxTiles,
-                                                               consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265CapabilityFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265LevelIdc(" << structInfo->maxLevelIdc << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxSliceSegmentCount << "," << std::endl;
-    struct_body << "\t\t\t" << max_tiles_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265CtbSizeFlagsKHR(" << structInfo->ctbSizes << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265TransformBlockSizeFlagsKHR(" << structInfo->transformBlockSizes << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxPPictureL0ReferenceCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxBPictureL0ReferenceCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxL1ReferenceCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxSubLayerCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->expectDyadicTemporalSubLayerPattern << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->minQp << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxQp << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->prefersGopRemainingFrames << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->requiresGopRemainingFrames << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265StdFlagsKHR(" << structInfo->stdSyntaxFlags << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265CapabilitiesKHR");
-    out << "\t\t" << "VkVideoEncodeH265CapabilitiesKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265DpbSlotInfoKHR(std::ostream &out, const VkVideoEncodeH265DpbSlotInfoKHR* structInfo, Decoded_VkVideoEncodeH265DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_reference_info_struct = "NULL";
-    if (structInfo->pStdReferenceInfo != NULL) {
-        pstd_reference_info_struct = GenerateStruct_StdVideoEncodeH265ReferenceInfo(out,
-                                                                                    structInfo->pStdReferenceInfo,
-                                                                                    metaInfo->pStdReferenceInfo->GetMetaStructPointer(),
-                                                                                    consumer);
-        pstd_reference_info_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_reference_info_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265DpbSlotInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265DpbSlotInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265FrameSizeKHR(std::ostream &out, const VkVideoEncodeH265FrameSizeKHR* structInfo, Decoded_VkVideoEncodeH265FrameSizeKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->frameISize << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->framePSize << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->frameBSize << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265FrameSizeKHR");
-    out << "\t\t" << "VkVideoEncodeH265FrameSizeKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265GopRemainingFrameInfoKHR(std::ostream &out, const VkVideoEncodeH265GopRemainingFrameInfoKHR* structInfo, Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->useGopRemainingFrames << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->gopRemainingI << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->gopRemainingP << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->gopRemainingB << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265GopRemainingFrameInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265GopRemainingFrameInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265NaluSliceSegmentInfoKHR(std::ostream &out, const VkVideoEncodeH265NaluSliceSegmentInfoKHR* structInfo, Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_slice_segment_header_struct = "NULL";
-    if (structInfo->pStdSliceSegmentHeader != NULL) {
-        pstd_slice_segment_header_struct = GenerateStruct_StdVideoEncodeH265SliceSegmentHeader(out,
-                                                                                               structInfo->pStdSliceSegmentHeader,
-                                                                                               metaInfo->pStdSliceSegmentHeader->GetMetaStructPointer(),
-                                                                                               consumer);
-        pstd_slice_segment_header_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->constantQp << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_slice_segment_header_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265NaluSliceSegmentInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265NaluSliceSegmentInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265PictureInfoKHR(std::ostream &out, const VkVideoEncodeH265PictureInfoKHR* structInfo, Decoded_VkVideoEncodeH265PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pnalu_slice_segment_entries_array = "NULL";
-    if (structInfo->pNaluSliceSegmentEntries != NULL) {
-        pnalu_slice_segment_entries_array = "pNaluSliceSegmentEntries_" + std::to_string(consumer.GetNextId());
-        std::string pnalu_slice_segment_entries_names;
-        for (uint32_t idx = 0; idx < structInfo->naluSliceSegmentEntryCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pNaluSliceSegmentEntries + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoEncodeH265NaluSliceSegmentInfoKHR(out,
-                                                                                        structInfo->pNaluSliceSegmentEntries + idx,
-                                                                                        metaInfo->pNaluSliceSegmentEntries->GetMetaStructPointer() + idx,
-                                                                                        consumer);
-            }
-            pnalu_slice_segment_entries_names += variable_name + ", ";
-        }
-        out << "\t\t" << "VkVideoEncodeH265NaluSliceSegmentInfoKHR " << pnalu_slice_segment_entries_array << "[] = {" << pnalu_slice_segment_entries_names << "};" << std::endl;
-    }
-    std::string pstd_picture_info_struct = "NULL";
-    if (structInfo->pStdPictureInfo != NULL) {
-        pstd_picture_info_struct = GenerateStruct_StdVideoEncodeH265PictureInfo(out,
-                                                                                structInfo->pStdPictureInfo,
-                                                                                metaInfo->pStdPictureInfo->GetMetaStructPointer(),
-                                                                                consumer);
-        pstd_picture_info_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->naluSliceSegmentEntryCount << "," << std::endl;
-    struct_body << "\t\t\t" << pnalu_slice_segment_entries_array << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_picture_info_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265PictureInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265PictureInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265ProfileInfoKHR(std::ostream &out, const VkVideoEncodeH265ProfileInfoKHR* structInfo, Decoded_VkVideoEncodeH265ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265ProfileIdc(" << structInfo->stdProfileIdc << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265ProfileInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265ProfileInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265QpKHR(std::ostream &out, const VkVideoEncodeH265QpKHR* structInfo, Decoded_VkVideoEncodeH265QpKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    struct_body << "\t" << structInfo->qpI << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->qpP << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->qpB << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265QpKHR");
-    out << "\t\t" << "VkVideoEncodeH265QpKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265QualityLevelPropertiesKHR(std::ostream &out, const VkVideoEncodeH265QualityLevelPropertiesKHR* structInfo, Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string preferred_constant_qp_info_var = GenerateStruct_VkVideoEncodeH265QpKHR(out,
-                                                                                       &structInfo->preferredConstantQp,
-                                                                                       metaInfo->preferredConstantQp,
-                                                                                       consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265RateControlFlagsKHR(" << structInfo->preferredRateControlFlags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredGopFrameCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredIdrPeriod << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredConsecutiveBFrameCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredSubLayerCount << "," << std::endl;
-    struct_body << "\t\t\t" << preferred_constant_qp_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredMaxL0ReferenceCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->preferredMaxL1ReferenceCount << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265QualityLevelPropertiesKHR");
-    out << "\t\t" << "VkVideoEncodeH265QualityLevelPropertiesKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265RateControlInfoKHR(std::ostream &out, const VkVideoEncodeH265RateControlInfoKHR* structInfo, Decoded_VkVideoEncodeH265RateControlInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkVideoEncodeH265RateControlFlagsKHR(" << structInfo->flags << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->gopFrameCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->idrPeriod << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->consecutiveBFrameCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->subLayerCount << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265RateControlInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265RateControlInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265RateControlLayerInfoKHR(std::ostream &out, const VkVideoEncodeH265RateControlLayerInfoKHR* structInfo, Decoded_VkVideoEncodeH265RateControlLayerInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string min_qp_info_var = GenerateStruct_VkVideoEncodeH265QpKHR(out,
-                                                                        &structInfo->minQp,
-                                                                        metaInfo->minQp,
-                                                                        consumer);
-    std::string max_qp_info_var = GenerateStruct_VkVideoEncodeH265QpKHR(out,
-                                                                        &structInfo->maxQp,
-                                                                        metaInfo->maxQp,
-                                                                        consumer);
-    std::string max_frame_size_info_var = GenerateStruct_VkVideoEncodeH265FrameSizeKHR(out,
-                                                                                       &structInfo->maxFrameSize,
-                                                                                       metaInfo->maxFrameSize,
-                                                                                       consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->useMinQp << "," << std::endl;
-    struct_body << "\t\t\t" << min_qp_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->useMaxQp << "," << std::endl;
-    struct_body << "\t\t\t" << max_qp_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->useMaxFrameSize << "," << std::endl;
-    struct_body << "\t\t\t" << max_frame_size_info_var << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265RateControlLayerInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265RateControlLayerInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265SessionCreateInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->useMaxLevelIdc << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265LevelIdc(" << structInfo->maxLevelIdc << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265SessionCreateInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265SessionCreateInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersAddInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_v_pss_array = "NULL";
-    if (structInfo->pStdVPSs != NULL) {
-        pstd_v_pss_array = "pStdVPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_v_pss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdVPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdVPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265VideoParameterSet(out,
-                                                                             structInfo->pStdVPSs + idx,
-                                                                             metaInfo->pStdVPSs->GetMetaStructPointer() + idx,
-                                                                             consumer);
-            }
-            pstd_v_pss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265VideoParameterSet " << pstd_v_pss_array << "[] = {" << pstd_v_pss_names << "};" << std::endl;
-    }
-    std::string pstd_s_pss_array = "NULL";
-    if (structInfo->pStdSPSs != NULL) {
-        pstd_s_pss_array = "pStdSPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_s_pss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdSPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdSPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265SequenceParameterSet(out,
-                                                                                structInfo->pStdSPSs + idx,
-                                                                                metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
-            pstd_s_pss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265SequenceParameterSet " << pstd_s_pss_array << "[] = {" << pstd_s_pss_names << "};" << std::endl;
-    }
-    std::string pstd_pp_ss_array = "NULL";
-    if (structInfo->pStdPPSs != NULL) {
-        pstd_pp_ss_array = "pStdPPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_pp_ss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdPPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdPPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265PictureParameterSet(out,
-                                                                               structInfo->pStdPPSs + idx,
-                                                                               metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
-            pstd_pp_ss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265PictureParameterSet " << pstd_pp_ss_array << "[] = {" << pstd_pp_ss_names << "};" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdVPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_v_pss_array << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdSPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_s_pss_array << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdPPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_pp_ss_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265SessionParametersAddInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265SessionParametersAddInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pparameters_add_info_struct = "NULL";
-    if (structInfo->pParametersAddInfo != NULL) {
-        pparameters_add_info_struct = GenerateStruct_VkVideoEncodeH265SessionParametersAddInfoKHR(out,
-                                                                                                  structInfo->pParametersAddInfo,
-                                                                                                  metaInfo->pParametersAddInfo->GetMetaStructPointer(),
-                                                                                                  consumer);
-        pparameters_add_info_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdVPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdSPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdPPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pparameters_add_info_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265SessionParametersCreateInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265SessionParametersCreateInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersFeedbackInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersFeedbackInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hasStdVPSOverrides << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hasStdSPSOverrides << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->hasStdPPSOverrides << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265SessionParametersFeedbackInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265SessionParametersFeedbackInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoEncodeH265SessionParametersGetInfoKHR(std::ostream &out, const VkVideoEncodeH265SessionParametersGetInfoKHR* structInfo, Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->writeStdVPS << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->writeStdSPS << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->writeStdPPS << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdVPSId << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdSPSId << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdPPSId << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeH265SessionParametersGetInfoKHR");
-    out << "\t\t" << "VkVideoEncodeH265SessionParametersGetInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkVideoDecodeH264CapabilitiesKHR(std::ostream &out, const VkVideoDecodeH264CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeH264CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -10985,7 +9920,7 @@ std::string GenerateStruct_VkExportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkExportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11001,7 +9936,7 @@ std::string GenerateStruct_VkImportMemoryWin32HandleInfoKHR(std::ostream &out, c
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalMemoryHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importMemoryWin32HandleInfoKHR");
     out << "\t\t" << "VkImportMemoryWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11206,7 +10141,7 @@ std::string GenerateStruct_VkExportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkExportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11224,7 +10159,7 @@ std::string GenerateStruct_VkImportSemaphoreWin32HandleInfoKHR(std::ostream &out
     struct_body << "\t\t\t" << "VkSemaphoreImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalSemaphoreHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importSemaphoreWin32HandleInfoKHR");
     out << "\t\t" << "VkImportSemaphoreWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11381,7 +10316,7 @@ std::string GenerateStruct_VkExportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pAttributes << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->dwAccess << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "exportFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkExportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11414,7 +10349,7 @@ std::string GenerateStruct_VkImportFenceWin32HandleInfoKHR(std::ostream &out, co
     struct_body << "\t\t\t" << "VkFenceImportFlags(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "VkExternalFenceHandleTypeFlagBits(" << structInfo->handleType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << "reinterpret_cast<HANDLE>(" << structInfo->handle << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << structInfo->name << ")" << ",";
+    struct_body << "\t\t\t" << "reinterpret_cast<LPCWSTR>(" << util::strings::convert_wstring_to_utf8(structInfo->name) << ")" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "importFenceWin32HandleInfoKHR");
     out << "\t\t" << "VkImportFenceWin32HandleInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -11705,6 +10640,22 @@ std::string GenerateStruct_VkDisplayProperties2KHR(std::ostream &out, const VkDi
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceShaderBfloat16FeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderBfloat16FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderBfloat16FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderBFloat16Type << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderBFloat16DotProduct << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderBFloat16CooperativeMatrix << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderBfloat16FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderBfloat16FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDevicePortabilitySubsetFeaturesKHR(std::ostream &out, const VkPhysicalDevicePortabilitySubsetFeaturesKHR* structInfo, Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -11756,177 +10707,6 @@ std::string GenerateStruct_VkPhysicalDeviceShaderClockFeaturesKHR(std::ostream &
     struct_body << "\t\t\t" << structInfo->shaderDeviceClock << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderClockFeaturesKHR");
     out << "\t\t" << "VkPhysicalDeviceShaderClockFeaturesKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265CapabilitiesKHR(std::ostream &out, const VkVideoDecodeH265CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeH265CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265LevelIdc(" << structInfo->maxLevelIdc << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265CapabilitiesKHR");
-    out << "\t\t" << "VkVideoDecodeH265CapabilitiesKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265DpbSlotInfoKHR(std::ostream &out, const VkVideoDecodeH265DpbSlotInfoKHR* structInfo, Decoded_VkVideoDecodeH265DpbSlotInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_reference_info_struct = "NULL";
-    if (structInfo->pStdReferenceInfo != NULL) {
-        pstd_reference_info_struct = GenerateStruct_StdVideoDecodeH265ReferenceInfo(out,
-                                                                                    structInfo->pStdReferenceInfo,
-                                                                                    metaInfo->pStdReferenceInfo->GetMetaStructPointer(),
-                                                                                    consumer);
-        pstd_reference_info_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_reference_info_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265DpbSlotInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265DpbSlotInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265PictureInfoKHR(std::ostream &out, const VkVideoDecodeH265PictureInfoKHR* structInfo, Decoded_VkVideoDecodeH265PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_picture_info_struct = "NULL";
-    if (structInfo->pStdPictureInfo != NULL) {
-        pstd_picture_info_struct = GenerateStruct_StdVideoDecodeH265PictureInfo(out,
-                                                                                structInfo->pStdPictureInfo,
-                                                                                metaInfo->pStdPictureInfo->GetMetaStructPointer(),
-                                                                                consumer);
-        pstd_picture_info_struct.insert(0, "&");
-    }
-    std::string pslice_segment_offsets_array = "NULL";
-    if (structInfo->pSliceSegmentOffsets != NULL) {
-        pslice_segment_offsets_array = "pSliceSegmentOffsets_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint32_t " << pslice_segment_offsets_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pSliceSegmentOffsets, structInfo->sliceSegmentCount) << ";" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_picture_info_struct << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->sliceSegmentCount << "," << std::endl;
-    struct_body << "\t\t\t" << pslice_segment_offsets_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265PictureInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265PictureInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265ProfileInfoKHR(std::ostream &out, const VkVideoDecodeH265ProfileInfoKHR* structInfo, Decoded_VkVideoDecodeH265ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "StdVideoH265ProfileIdc(" << structInfo->stdProfileIdc << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265ProfileInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265ProfileInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265SessionParametersAddInfoKHR(std::ostream &out, const VkVideoDecodeH265SessionParametersAddInfoKHR* structInfo, Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_v_pss_array = "NULL";
-    if (structInfo->pStdVPSs != NULL) {
-        pstd_v_pss_array = "pStdVPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_v_pss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdVPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdVPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265VideoParameterSet(out,
-                                                                             structInfo->pStdVPSs + idx,
-                                                                             metaInfo->pStdVPSs->GetMetaStructPointer() + idx,
-                                                                             consumer);
-            }
-            pstd_v_pss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265VideoParameterSet " << pstd_v_pss_array << "[] = {" << pstd_v_pss_names << "};" << std::endl;
-    }
-    std::string pstd_s_pss_array = "NULL";
-    if (structInfo->pStdSPSs != NULL) {
-        pstd_s_pss_array = "pStdSPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_s_pss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdSPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdSPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265SequenceParameterSet(out,
-                                                                                structInfo->pStdSPSs + idx,
-                                                                                metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
-            pstd_s_pss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265SequenceParameterSet " << pstd_s_pss_array << "[] = {" << pstd_s_pss_names << "};" << std::endl;
-    }
-    std::string pstd_pp_ss_array = "NULL";
-    if (structInfo->pStdPPSs != NULL) {
-        pstd_pp_ss_array = "pStdPPSs_" + std::to_string(consumer.GetNextId());
-        std::string pstd_pp_ss_names;
-        for (uint32_t idx = 0; idx < structInfo->stdPPSCount; idx++) {
-            std::string variable_name = "NULL";
-            if (structInfo->pStdPPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH265PictureParameterSet(out,
-                                                                               structInfo->pStdPPSs + idx,
-                                                                               metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
-            pstd_pp_ss_names += variable_name + ", ";
-        }
-        out << "\t\t" << "StdVideoH265PictureParameterSet " << pstd_pp_ss_array << "[] = {" << pstd_pp_ss_names << "};" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdVPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_v_pss_array << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdSPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_s_pss_array << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->stdPPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_pp_ss_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265SessionParametersAddInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265SessionParametersAddInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265SessionParametersCreateInfoKHR(std::ostream &out, const VkVideoDecodeH265SessionParametersCreateInfoKHR* structInfo, Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pparameters_add_info_struct = "NULL";
-    if (structInfo->pParametersAddInfo != NULL) {
-        pparameters_add_info_struct = GenerateStruct_VkVideoDecodeH265SessionParametersAddInfoKHR(out,
-                                                                                                  structInfo->pParametersAddInfo,
-                                                                                                  metaInfo->pParametersAddInfo->GetMetaStructPointer(),
-                                                                                                  consumer);
-        pparameters_add_info_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdVPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdSPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->maxStdPPSCount << "," << std::endl;
-    struct_body << "\t\t\t" << pparameters_add_info_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265SessionParametersCreateInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265SessionParametersCreateInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -12616,6 +11396,20 @@ std::string GenerateStruct_VkTraceRaysIndirectCommand2KHR(std::ostream &out, con
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderUntypedPointers << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderUntypedPointersFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceShaderUntypedPointersFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR(std::ostream &out, const VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -12624,6 +11418,104 @@ std::string GenerateStruct_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR
     struct_body << "\t\t\t" << structInfo->shaderMaximalReconvergence << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderMaximalReconvergenceFeaturesKHR");
     out << "\t\t" << "VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDevicePresentId2FeaturesKHR(std::ostream &out, const VkPhysicalDevicePresentId2FeaturesKHR* structInfo, Decoded_VkPhysicalDevicePresentId2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentId2 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePresentId2FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDevicePresentId2FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPresentId2KHR(std::ostream &out, const VkPresentId2KHR* structInfo, Decoded_VkPresentId2KHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string ppresent_ids_array = "ppresent_ids_array_" + std::to_string(consumer.GetNextId());
+    if (structInfo->swapchainCount > 0) {
+        std::string ppresent_ids_values = toStringJoin(structInfo->pPresentIds,
+                                                       structInfo->pPresentIds + structInfo->swapchainCount,
+                                                       [](uint64_t current) { return std::to_string(current); },
+                                                       ", ");
+        if (structInfo->swapchainCount == 1) {
+            ppresent_ids_array = "&" + ppresent_ids_values;
+        } else if (structInfo->swapchainCount > 1) {
+            out << "\t\t" << "uint64_t " << ppresent_ids_array << "[] = {" << ppresent_ids_values << "};" << std::endl;
+        }
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
+    struct_body << "\t\t\t" << "{ *" << ppresent_ids_array << " }" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "presentId2KHR");
+    out << "\t\t" << "VkPresentId2KHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfaceCapabilitiesPresentId2KHR(std::ostream &out, const VkSurfaceCapabilitiesPresentId2KHR* structInfo, Decoded_VkSurfaceCapabilitiesPresentId2KHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentId2Supported << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfaceCapabilitiesPresentId2KHR");
+    out << "\t\t" << "VkSurfaceCapabilitiesPresentId2KHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDevicePresentWait2FeaturesKHR(std::ostream &out, const VkPhysicalDevicePresentWait2FeaturesKHR* structInfo, Decoded_VkPhysicalDevicePresentWait2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentWait2 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePresentWait2FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDevicePresentWait2FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPresentWait2InfoKHR(std::ostream &out, const VkPresentWait2InfoKHR* structInfo, Decoded_VkPresentWait2InfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentId << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->timeout << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "presentWait2InfoKHR");
+    out << "\t\t" << "VkPresentWait2InfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfaceCapabilitiesPresentWait2KHR(std::ostream &out, const VkSurfaceCapabilitiesPresentWait2KHR* structInfo, Decoded_VkSurfaceCapabilitiesPresentWait2KHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentWait2Supported << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfaceCapabilitiesPresentWait2KHR");
+    out << "\t\t" << "VkSurfaceCapabilitiesPresentWait2KHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -12872,6 +11764,197 @@ std::string GenerateStruct_VkReleaseCapturedPipelineDataInfoKHR(std::ostream &ou
     struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->pipeline) << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "releaseCapturedPipelineDataInfoKHR");
     out << "\t\t" << "VkReleaseCapturedPipelineDataInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfacePresentModeCompatibilityKHR(std::ostream &out, const VkSurfacePresentModeCompatibilityKHR* structInfo, Decoded_VkSurfacePresentModeCompatibilityKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string ppresent_modes_array = "NULL";
+    if (structInfo->pPresentModes != NULL) {
+        std::string ppresent_modes_values;
+        for (uint32_t idx = 0; idx < structInfo->presentModeCount; idx++) {
+            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
+        }
+        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentModeCount << "," << std::endl;
+    struct_body << "\t\t\t" << ppresent_modes_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentModeCompatibilityKHR");
+    out << "\t\t" << "VkSurfacePresentModeCompatibilityKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfacePresentModeKHR(std::ostream &out, const VkSurfacePresentModeKHR* structInfo, Decoded_VkSurfacePresentModeKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentModeKHR(" << structInfo->presentMode << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentModeKHR");
+    out << "\t\t" << "VkSurfacePresentModeKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSurfacePresentScalingCapabilitiesKHR(std::ostream &out, const VkSurfacePresentScalingCapabilitiesKHR* structInfo, Decoded_VkSurfacePresentScalingCapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string min_scaled_image_extent_info_var = GenerateStruct_VkExtent2D(out,
+                                                                             &structInfo->minScaledImageExtent,
+                                                                             metaInfo->minScaledImageExtent,
+                                                                             consumer);
+    std::string max_scaled_image_extent_info_var = GenerateStruct_VkExtent2D(out,
+                                                                             &structInfo->maxScaledImageExtent,
+                                                                             metaInfo->maxScaledImageExtent,
+                                                                             consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentScalingFlagsKHR(" << structInfo->supportedPresentScaling << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentGravityFlagsKHR(" << structInfo->supportedPresentGravityX << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentGravityFlagsKHR(" << structInfo->supportedPresentGravityY << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << min_scaled_image_extent_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << max_scaled_image_extent_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentScalingCapabilitiesKHR");
+    out << "\t\t" << "VkSurfacePresentScalingCapabilitiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR(std::ostream &out, const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->swapchainMaintenance1 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceSwapchainMaintenance1FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkReleaseSwapchainImagesInfoKHR(std::ostream &out, const VkReleaseSwapchainImagesInfoKHR* structInfo, Decoded_VkReleaseSwapchainImagesInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pimage_indices_array = "NULL";
+    if (structInfo->pImageIndices != NULL) {
+        pimage_indices_array = "pImageIndices_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << pimage_indices_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pImageIndices, structInfo->imageIndexCount) << ";" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->swapchain) << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->imageIndexCount << "," << std::endl;
+    struct_body << "\t\t\t" << pimage_indices_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "releaseSwapchainImagesInfoKHR");
+    out << "\t\t" << "VkReleaseSwapchainImagesInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSwapchainPresentFenceInfoKHR(std::ostream &out, const VkSwapchainPresentFenceInfoKHR* structInfo, Decoded_VkSwapchainPresentFenceInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pfences_array = "NULL";
+    if (metaInfo->pFences.GetPointer() != NULL && structInfo->swapchainCount > 0) {
+        pfences_array = "pfences_array_" + std::to_string(consumer.GetNextId(VK_OBJECT_TYPE_FENCE));
+        std::string pfences_values = toStringJoin(metaInfo->pFences.GetPointer(),
+                                                  metaInfo->pFences.GetPointer() + structInfo->swapchainCount,
+                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
+                                                  ", ");
+        if (structInfo->swapchainCount == 1) {
+            pfences_array = "&" + pfences_values;
+        } else if (structInfo->swapchainCount > 1) {
+            out << "\t\t" << "VkFence " << pfences_array << "[] = {" << pfences_values << "};" << std::endl;
+        }
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
+    struct_body << "\t\t\t" << pfences_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentFenceInfoKHR");
+    out << "\t\t" << "VkSwapchainPresentFenceInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSwapchainPresentModeInfoKHR(std::ostream &out, const VkSwapchainPresentModeInfoKHR* structInfo, Decoded_VkSwapchainPresentModeInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string ppresent_modes_values;
+    std::string ppresent_modes_array = "NULL";
+    if (structInfo->pPresentModes != NULL) {
+        for (uint32_t idx = 0; idx < structInfo->swapchainCount; idx++) {
+            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
+        }
+        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
+    struct_body << "\t\t\t" << ppresent_modes_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentModeInfoKHR");
+    out << "\t\t" << "VkSwapchainPresentModeInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSwapchainPresentModesCreateInfoKHR(std::ostream &out, const VkSwapchainPresentModesCreateInfoKHR* structInfo, Decoded_VkSwapchainPresentModesCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string ppresent_modes_values;
+    std::string ppresent_modes_array = "NULL";
+    if (structInfo->pPresentModes != NULL) {
+        for (uint32_t idx = 0; idx < structInfo->presentModeCount; idx++) {
+            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
+        }
+        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentModeCount << "," << std::endl;
+    struct_body << "\t\t\t" << ppresent_modes_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentModesCreateInfoKHR");
+    out << "\t\t" << "VkSwapchainPresentModesCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkSwapchainPresentScalingCreateInfoKHR(std::ostream &out, const VkSwapchainPresentScalingCreateInfoKHR* structInfo, Decoded_VkSwapchainPresentScalingCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentScalingFlagsKHR(" << structInfo->scalingBehavior << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentGravityFlagsKHR(" << structInfo->presentGravityX << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkPresentGravityFlagsKHR(" << structInfo->presentGravityY << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentScalingCreateInfoKHR");
+    out << "\t\t" << "VkSwapchainPresentScalingCreateInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -13387,6 +12470,74 @@ std::string GenerateStruct_VkVideoEncodeAV1SessionParametersCreateInfoKHR(std::o
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoDecodeVP9FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoDecodeVP9FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->videoDecodeVP9 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVideoDecodeVP9FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceVideoDecodeVP9FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeVP9CapabilitiesKHR(std::ostream &out, const VkVideoDecodeVP9CapabilitiesKHR* structInfo, Decoded_VkVideoDecodeVP9CapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9Level(" << structInfo->maxLevel << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeVP9CapabilitiesKHR");
+    out << "\t\t" << "VkVideoDecodeVP9CapabilitiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeVP9PictureInfoKHR(std::ostream &out, const VkVideoDecodeVP9PictureInfoKHR* structInfo, Decoded_VkVideoDecodeVP9PictureInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pstd_picture_info_struct = "NULL";
+    if (structInfo->pStdPictureInfo != NULL) {
+        pstd_picture_info_struct = GenerateStruct_StdVideoDecodeVP9PictureInfo(out,
+                                                                               structInfo->pStdPictureInfo,
+                                                                               metaInfo->pStdPictureInfo->GetMetaStructPointer(),
+                                                                               consumer);
+        pstd_picture_info_struct.insert(0, "&");
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << pstd_picture_info_struct << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const int32_t*>(&structInfo->referenceNameSlotIndices[0]), VK_MAX_VIDEO_VP9_REFERENCES_PER_FRAME_KHR) << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->uncompressedHeaderOffset << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->compressedHeaderOffset << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tilesOffset << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeVP9PictureInfoKHR");
+    out << "\t\t" << "VkVideoDecodeVP9PictureInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoDecodeVP9ProfileInfoKHR(std::ostream &out, const VkVideoDecodeVP9ProfileInfoKHR* structInfo, Decoded_VkVideoDecodeVP9ProfileInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "StdVideoVP9Profile(" << structInfo->stdProfile << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeVP9ProfileInfoKHR");
+    out << "\t\t" << "VkVideoDecodeVP9ProfileInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDeviceVideoMaintenance1FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoMaintenance1FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -13411,6 +12562,35 @@ std::string GenerateStruct_VkVideoInlineQueryInfoKHR(std::ostream &out, const Vk
     struct_body << "\t\t\t" << structInfo->queryCount << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "videoInlineQueryInfoKHR");
     out << "\t\t" << "VkVideoInlineQueryInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkAttachmentFeedbackLoopInfoEXT(std::ostream &out, const VkAttachmentFeedbackLoopInfoEXT* structInfo, Decoded_VkAttachmentFeedbackLoopInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->feedbackLoopEnable << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "attachmentFeedbackLoopInfoEXT");
+    out << "\t\t" << "VkAttachmentFeedbackLoopInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR(std::ostream &out, const VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->unifiedImageLayouts << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->unifiedImageLayoutsVideo << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceUnifiedImageLayoutsFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -13477,6 +12657,224 @@ std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out
     struct_body << "\t\t\t" << "{ *" << poffsets_array << " }" << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "setDescriptorBufferOffsetsInfoEXT");
     out << "\t\t" << "VkSetDescriptorBufferOffsetsInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkCopyMemoryIndirectCommandKHR(std::ostream &out, const VkCopyMemoryIndirectCommandKHR* structInfo, Decoded_VkCopyMemoryIndirectCommandKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    struct_body << "\t" << structInfo->srcAddress << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dstAddress << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->size << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyMemoryIndirectCommandKHR");
+    out << "\t\t" << "VkCopyMemoryIndirectCommandKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkCopyMemoryIndirectInfoKHR(std::ostream &out, const VkCopyMemoryIndirectInfoKHR* structInfo, Decoded_VkCopyMemoryIndirectInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string copy_address_range_info_var = GenerateStruct_VkStridedDeviceAddressRangeKHR(out,
+                                                                                            &structInfo->copyAddressRange,
+                                                                                            metaInfo->copyAddressRange,
+                                                                                            consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkAddressCopyFlagsKHR(" << structInfo->srcCopyFlags << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkAddressCopyFlagsKHR(" << structInfo->dstCopyFlags << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->copyCount << "," << std::endl;
+    struct_body << "\t\t\t" << copy_address_range_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyMemoryIndirectInfoKHR");
+    out << "\t\t" << "VkCopyMemoryIndirectInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkCopyMemoryToImageIndirectCommandKHR(std::ostream &out, const VkCopyMemoryToImageIndirectCommandKHR* structInfo, Decoded_VkCopyMemoryToImageIndirectCommandKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string image_subresource_info_var = GenerateStruct_VkImageSubresourceLayers(out,
+                                                                                     &structInfo->imageSubresource,
+                                                                                     metaInfo->imageSubresource,
+                                                                                     consumer);
+    std::string image_offset_info_var = GenerateStruct_VkOffset3D(out,
+                                                                  &structInfo->imageOffset,
+                                                                  metaInfo->imageOffset,
+                                                                  consumer);
+    std::string image_extent_info_var = GenerateStruct_VkExtent3D(out,
+                                                                  &structInfo->imageExtent,
+                                                                  metaInfo->imageExtent,
+                                                                  consumer);
+    struct_body << "\t" << structInfo->srcAddress << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->bufferRowLength << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->bufferImageHeight << "," << std::endl;
+    struct_body << "\t\t\t" << image_subresource_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_offset_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << image_extent_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyMemoryToImageIndirectCommandKHR");
+    out << "\t\t" << "VkCopyMemoryToImageIndirectCommandKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkCopyMemoryToImageIndirectInfoKHR(std::ostream &out, const VkCopyMemoryToImageIndirectInfoKHR* structInfo, Decoded_VkCopyMemoryToImageIndirectInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string copy_address_range_info_var = GenerateStruct_VkStridedDeviceAddressRangeKHR(out,
+                                                                                            &structInfo->copyAddressRange,
+                                                                                            metaInfo->copyAddressRange,
+                                                                                            consumer);
+    std::string pimage_subresources_array = "NULL";
+    if (structInfo->pImageSubresources != NULL) {
+        pimage_subresources_array = "pImageSubresources_" + std::to_string(consumer.GetNextId());
+        std::string pimage_subresources_names;
+        for (uint32_t idx = 0; idx < structInfo->copyCount; idx++) {
+            std::string variable_name = "NULL";
+            if (structInfo->pImageSubresources + idx != NULL) {
+                variable_name = GenerateStruct_VkImageSubresourceLayers(out,
+                                                                        structInfo->pImageSubresources + idx,
+                                                                        metaInfo->pImageSubresources->GetMetaStructPointer() + idx,
+                                                                        consumer);
+            }
+            pimage_subresources_names += variable_name + ", ";
+        }
+        out << "\t\t" << "VkImageSubresourceLayers " << pimage_subresources_array << "[] = {" << pimage_subresources_names << "};" << std::endl;
+    }
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkAddressCopyFlagsKHR(" << structInfo->srcCopyFlags << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->copyCount << "," << std::endl;
+    struct_body << "\t\t\t" << copy_address_range_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->dstImage) << "," << std::endl;
+    struct_body << "\t\t\t" << "VkImageLayout(" << structInfo->dstImageLayout << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pimage_subresources_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "copyMemoryToImageIndirectInfoKHR");
+    out << "\t\t" << "VkCopyMemoryToImageIndirectInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR(std::ostream &out, const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->indirectMemoryCopy << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->indirectMemoryToImageCopy << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceCopyMemoryIndirectFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR(std::ostream &out, const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR* structInfo, Decoded_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkQueueFlags(" << structInfo->supportedQueues << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceCopyMemoryIndirectPropertiesKHR");
+    out << "\t\t" << "VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkStridedDeviceAddressRangeKHR(std::ostream &out, const VkStridedDeviceAddressRangeKHR* structInfo, Decoded_VkStridedDeviceAddressRangeKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    struct_body << "\t" << structInfo->address << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->size << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->stride << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "stridedDeviceAddressRangeKHR");
+    out << "\t\t" << "VkStridedDeviceAddressRangeKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->videoEncodeIntraRefresh << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVideoEncodeIntraRefreshFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeIntraRefreshCapabilitiesKHR(std::ostream &out, const VkVideoEncodeIntraRefreshCapabilitiesKHR* structInfo, Decoded_VkVideoEncodeIntraRefreshCapabilitiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeIntraRefreshModeFlagsKHR(" << structInfo->intraRefreshModes << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxIntraRefreshCycleDuration << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxIntraRefreshActiveReferencePictures << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->partitionIndependentIntraRefreshRegions << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->nonRectangularIntraRefreshRegions << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeIntraRefreshCapabilitiesKHR");
+    out << "\t\t" << "VkVideoEncodeIntraRefreshCapabilitiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeIntraRefreshInfoKHR(std::ostream &out, const VkVideoEncodeIntraRefreshInfoKHR* structInfo, Decoded_VkVideoEncodeIntraRefreshInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->intraRefreshCycleDuration << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->intraRefreshIndex << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeIntraRefreshInfoKHR");
+    out << "\t\t" << "VkVideoEncodeIntraRefreshInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeSessionIntraRefreshCreateInfoKHR(std::ostream &out, const VkVideoEncodeSessionIntraRefreshCreateInfoKHR* structInfo, Decoded_VkVideoEncodeSessionIntraRefreshCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeIntraRefreshModeFlagBitsKHR(" << structInfo->intraRefreshMode << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeSessionIntraRefreshCreateInfoKHR");
+    out << "\t\t" << "VkVideoEncodeSessionIntraRefreshCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoReferenceIntraRefreshInfoKHR(std::ostream &out, const VkVideoReferenceIntraRefreshInfoKHR* structInfo, Decoded_VkVideoReferenceIntraRefreshInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->dirtyIntraRefreshRegions << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoReferenceIntraRefreshInfoKHR");
+    out << "\t\t" << "VkVideoReferenceIntraRefreshInfoKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -13787,107 +13185,43 @@ std::string GenerateStruct_VkPhysicalDeviceMaintenance8FeaturesKHR(std::ostream 
 }
 
 
-std::string GenerateStruct_VkPhysicalDeviceVideoMaintenance2FeaturesKHR(std::ostream &out, const VkPhysicalDeviceVideoMaintenance2FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceVideoMaintenance2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkPhysicalDeviceMaintenance9FeaturesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance9FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance9FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->videoMaintenance2 << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVideoMaintenance2FeaturesKHR");
-    out << "\t\t" << "VkPhysicalDeviceVideoMaintenance2FeaturesKHR " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << structInfo->maintenance9 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMaintenance9FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceMaintenance9FeaturesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_VkVideoDecodeAV1InlineSessionParametersInfoKHR(std::ostream &out, const VkVideoDecodeAV1InlineSessionParametersInfoKHR* structInfo, Decoded_VkVideoDecodeAV1InlineSessionParametersInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkPhysicalDeviceMaintenance9PropertiesKHR(std::ostream &out, const VkPhysicalDeviceMaintenance9PropertiesKHR* structInfo, Decoded_VkPhysicalDeviceMaintenance9PropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_sequence_header_struct = "NULL";
-    if (structInfo->pStdSequenceHeader != NULL) {
-        pstd_sequence_header_struct = GenerateStruct_StdVideoAV1SequenceHeader(out,
-                                                                               structInfo->pStdSequenceHeader,
-                                                                               metaInfo->pStdSequenceHeader->GetMetaStructPointer(),
-                                                                               consumer);
-        pstd_sequence_header_struct.insert(0, "&");
-    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_sequence_header_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeAV1InlineSessionParametersInfoKHR");
-    out << "\t\t" << "VkVideoDecodeAV1InlineSessionParametersInfoKHR " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << structInfo->image2DViewOf3DSparse << "," << std::endl;
+    struct_body << "\t\t\t" << "VkDefaultVertexAttributeValueKHR(" << structInfo->defaultVertexAttributeValue << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceMaintenance9PropertiesKHR");
+    out << "\t\t" << "VkPhysicalDeviceMaintenance9PropertiesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_VkVideoDecodeH264InlineSessionParametersInfoKHR(std::ostream &out, const VkVideoDecodeH264InlineSessionParametersInfoKHR* structInfo, Decoded_VkVideoDecodeH264InlineSessionParametersInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkQueueFamilyOwnershipTransferPropertiesKHR(std::ostream &out, const VkQueueFamilyOwnershipTransferPropertiesKHR* structInfo, Decoded_VkQueueFamilyOwnershipTransferPropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_s_ps_struct = "NULL";
-    if (structInfo->pStdSPS != NULL) {
-        pstd_s_ps_struct = GenerateStruct_StdVideoH264SequenceParameterSet(out,
-                                                                           structInfo->pStdSPS,
-                                                                           metaInfo->pStdSPS->GetMetaStructPointer(),
-                                                                           consumer);
-        pstd_s_ps_struct.insert(0, "&");
-    }
-    std::string pstd_pp_s_struct = "NULL";
-    if (structInfo->pStdPPS != NULL) {
-        pstd_pp_s_struct = GenerateStruct_StdVideoH264PictureParameterSet(out,
-                                                                          structInfo->pStdPPS,
-                                                                          metaInfo->pStdPPS->GetMetaStructPointer(),
-                                                                          consumer);
-        pstd_pp_s_struct.insert(0, "&");
-    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_s_ps_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_pp_s_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH264InlineSessionParametersInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH264InlineSessionParametersInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkVideoDecodeH265InlineSessionParametersInfoKHR(std::ostream &out, const VkVideoDecodeH265InlineSessionParametersInfoKHR* structInfo, Decoded_VkVideoDecodeH265InlineSessionParametersInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pstd_v_ps_struct = "NULL";
-    if (structInfo->pStdVPS != NULL) {
-        pstd_v_ps_struct = GenerateStruct_StdVideoH265VideoParameterSet(out,
-                                                                        structInfo->pStdVPS,
-                                                                        metaInfo->pStdVPS->GetMetaStructPointer(),
-                                                                        consumer);
-        pstd_v_ps_struct.insert(0, "&");
-    }
-    std::string pstd_s_ps_struct = "NULL";
-    if (structInfo->pStdSPS != NULL) {
-        pstd_s_ps_struct = GenerateStruct_StdVideoH265SequenceParameterSet(out,
-                                                                           structInfo->pStdSPS,
-                                                                           metaInfo->pStdSPS->GetMetaStructPointer(),
-                                                                           consumer);
-        pstd_s_ps_struct.insert(0, "&");
-    }
-    std::string pstd_pp_s_struct = "NULL";
-    if (structInfo->pStdPPS != NULL) {
-        pstd_pp_s_struct = GenerateStruct_StdVideoH265PictureParameterSet(out,
-                                                                          structInfo->pStdPPS,
-                                                                          metaInfo->pStdPPS->GetMetaStructPointer(),
-                                                                          consumer);
-        pstd_pp_s_struct.insert(0, "&");
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_v_ps_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_s_ps_struct << "," << std::endl;
-    struct_body << "\t\t\t" << pstd_pp_s_struct << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "videoDecodeH265InlineSessionParametersInfoKHR");
-    out << "\t\t" << "VkVideoDecodeH265InlineSessionParametersInfoKHR " << variable_name << " {" << std::endl;
+    struct_body << "\t\t\t" << structInfo->optimalImageTransferToQueueFamilies << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "queueFamilyOwnershipTransferPropertiesKHR");
+    out << "\t\t" << "VkQueueFamilyOwnershipTransferPropertiesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -13902,6 +13236,51 @@ std::string GenerateStruct_VkPhysicalDeviceDepthClampZeroOneFeaturesKHR(std::ost
     struct_body << "\t\t\t" << structInfo->depthClampZeroOne << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceDepthClampZeroOneFeaturesKHR");
     out << "\t\t" << "VkPhysicalDeviceDepthClampZeroOneFeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceRobustness2FeaturesKHR(std::ostream &out, const VkPhysicalDeviceRobustness2FeaturesKHR* structInfo, Decoded_VkPhysicalDeviceRobustness2FeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->robustBufferAccess2 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->robustImageAccess2 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->nullDescriptor << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRobustness2FeaturesKHR");
+    out << "\t\t" << "VkPhysicalDeviceRobustness2FeaturesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceRobustness2PropertiesKHR(std::ostream &out, const VkPhysicalDeviceRobustness2PropertiesKHR* structInfo, Decoded_VkPhysicalDeviceRobustness2PropertiesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->robustStorageBufferAccessSizeAlignment << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->robustUniformBufferAccessSizeAlignment << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRobustness2PropertiesKHR");
+    out << "\t\t" << "VkPhysicalDeviceRobustness2PropertiesKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR(std::ostream &out, const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* structInfo, Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->presentModeFifoLatestReady << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePresentModeFifoLatestReadyFeaturesKHR");
+    out << "\t\t" << "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -17333,197 +16712,6 @@ std::string GenerateStruct_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT(std::os
 }
 
 
-std::string GenerateStruct_VkSurfacePresentModeCompatibilityEXT(std::ostream &out, const VkSurfacePresentModeCompatibilityEXT* structInfo, Decoded_VkSurfacePresentModeCompatibilityEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppresent_modes_array = "NULL";
-    if (structInfo->pPresentModes != NULL) {
-        std::string ppresent_modes_values;
-        for (uint32_t idx = 0; idx < structInfo->presentModeCount; idx++) {
-            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
-        }
-        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->presentModeCount << "," << std::endl;
-    struct_body << "\t\t\t" << ppresent_modes_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentModeCompatibilityEXT");
-    out << "\t\t" << "VkSurfacePresentModeCompatibilityEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSurfacePresentModeEXT(std::ostream &out, const VkSurfacePresentModeEXT* structInfo, Decoded_VkSurfacePresentModeEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentModeKHR(" << structInfo->presentMode << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentModeEXT");
-    out << "\t\t" << "VkSurfacePresentModeEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSurfacePresentScalingCapabilitiesEXT(std::ostream &out, const VkSurfacePresentScalingCapabilitiesEXT* structInfo, Decoded_VkSurfacePresentScalingCapabilitiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string min_scaled_image_extent_info_var = GenerateStruct_VkExtent2D(out,
-                                                                             &structInfo->minScaledImageExtent,
-                                                                             metaInfo->minScaledImageExtent,
-                                                                             consumer);
-    std::string max_scaled_image_extent_info_var = GenerateStruct_VkExtent2D(out,
-                                                                             &structInfo->maxScaledImageExtent,
-                                                                             metaInfo->maxScaledImageExtent,
-                                                                             consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentScalingFlagsEXT(" << structInfo->supportedPresentScaling << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentGravityFlagsEXT(" << structInfo->supportedPresentGravityX << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentGravityFlagsEXT(" << structInfo->supportedPresentGravityY << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << min_scaled_image_extent_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << max_scaled_image_extent_info_var << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "surfacePresentScalingCapabilitiesEXT");
-    out << "\t\t" << "VkSurfacePresentScalingCapabilitiesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT(std::ostream &out, const VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->swapchainMaintenance1 << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceSwapchainMaintenance1FeaturesEXT");
-    out << "\t\t" << "VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkReleaseSwapchainImagesInfoEXT(std::ostream &out, const VkReleaseSwapchainImagesInfoEXT* structInfo, Decoded_VkReleaseSwapchainImagesInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pimage_indices_array = "NULL";
-    if (structInfo->pImageIndices != NULL) {
-        pimage_indices_array = "pImageIndices_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint32_t " << pimage_indices_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pImageIndices, structInfo->imageIndexCount) << ";" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->swapchain) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->imageIndexCount << "," << std::endl;
-    struct_body << "\t\t\t" << pimage_indices_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "releaseSwapchainImagesInfoEXT");
-    out << "\t\t" << "VkReleaseSwapchainImagesInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSwapchainPresentFenceInfoEXT(std::ostream &out, const VkSwapchainPresentFenceInfoEXT* structInfo, Decoded_VkSwapchainPresentFenceInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string pfences_array = "NULL";
-    if (metaInfo->pFences.GetPointer() != NULL && structInfo->swapchainCount > 0) {
-        pfences_array = "pfences_array_" + std::to_string(consumer.GetNextId(VK_OBJECT_TYPE_FENCE));
-        std::string pfences_values = toStringJoin(metaInfo->pFences.GetPointer(),
-                                                  metaInfo->pFences.GetPointer() + structInfo->swapchainCount,
-                                                  [&](const format::HandleId current) { return consumer.GetHandle(current); },
-                                                  ", ");
-        if (structInfo->swapchainCount == 1) {
-            pfences_array = "&" + pfences_values;
-        } else if (structInfo->swapchainCount > 1) {
-            out << "\t\t" << "VkFence " << pfences_array << "[] = {" << pfences_values << "};" << std::endl;
-        }
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
-    struct_body << "\t\t\t" << pfences_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentFenceInfoEXT");
-    out << "\t\t" << "VkSwapchainPresentFenceInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSwapchainPresentModeInfoEXT(std::ostream &out, const VkSwapchainPresentModeInfoEXT* structInfo, Decoded_VkSwapchainPresentModeInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppresent_modes_values;
-    std::string ppresent_modes_array = "NULL";
-    if (structInfo->pPresentModes != NULL) {
-        for (uint32_t idx = 0; idx < structInfo->swapchainCount; idx++) {
-            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
-        }
-        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->swapchainCount << "," << std::endl;
-    struct_body << "\t\t\t" << ppresent_modes_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentModeInfoEXT");
-    out << "\t\t" << "VkSwapchainPresentModeInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSwapchainPresentModesCreateInfoEXT(std::ostream &out, const VkSwapchainPresentModesCreateInfoEXT* structInfo, Decoded_VkSwapchainPresentModesCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppresent_modes_values;
-    std::string ppresent_modes_array = "NULL";
-    if (structInfo->pPresentModes != NULL) {
-        for (uint32_t idx = 0; idx < structInfo->presentModeCount; idx++) {
-            ppresent_modes_values += util::ToString<VkPresentModeKHR>(structInfo->pPresentModes[idx]) + ", ";
-        }
-        ppresent_modes_array = "pPresentModes_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "VkPresentModeKHR " << ppresent_modes_array << "[] = {" << ppresent_modes_values << "};" << std::endl;
-    }
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->presentModeCount << "," << std::endl;
-    struct_body << "\t\t\t" << ppresent_modes_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentModesCreateInfoEXT");
-    out << "\t\t" << "VkSwapchainPresentModesCreateInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkSwapchainPresentScalingCreateInfoEXT(std::ostream &out, const VkSwapchainPresentScalingCreateInfoEXT* structInfo, Decoded_VkSwapchainPresentScalingCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentScalingFlagsEXT(" << structInfo->scalingBehavior << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentGravityFlagsEXT(" << structInfo->presentGravityX << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << "VkPresentGravityFlagsEXT(" << structInfo->presentGravityY << ")" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "swapchainPresentScalingCreateInfoEXT");
-    out << "\t\t" << "VkSwapchainPresentScalingCreateInfoEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkBindIndexBufferIndirectCommandNV(std::ostream &out, const VkBindIndexBufferIndirectCommandNV* structInfo, Decoded_VkBindIndexBufferIndirectCommandNV* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     struct_body << "\t" << structInfo->bufferAddress << "UL" << "," << std::endl;
@@ -18037,37 +17225,6 @@ std::string GenerateStruct_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT(std::os
 }
 
 
-std::string GenerateStruct_VkPhysicalDeviceRobustness2FeaturesEXT(std::ostream &out, const VkPhysicalDeviceRobustness2FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceRobustness2FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->robustBufferAccess2 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->robustImageAccess2 << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->nullDescriptor << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRobustness2FeaturesEXT");
-    out << "\t\t" << "VkPhysicalDeviceRobustness2FeaturesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkPhysicalDeviceRobustness2PropertiesEXT(std::ostream &out, const VkPhysicalDeviceRobustness2PropertiesEXT* structInfo, Decoded_VkPhysicalDeviceRobustness2PropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->robustStorageBufferAccessSizeAlignment << "UL" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->robustUniformBufferAccessSizeAlignment << "UL" << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceRobustness2PropertiesEXT");
-    out << "\t\t" << "VkPhysicalDeviceRobustness2PropertiesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkPhysicalDeviceCustomBorderColorFeaturesEXT(std::ostream &out, const VkPhysicalDeviceCustomBorderColorFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -18176,6 +17333,116 @@ std::string GenerateStruct_VkPhysicalDeviceDiagnosticsConfigFeaturesNV(std::ostr
     struct_body << "\t\t\t" << structInfo->diagnosticsConfig << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceDiagnosticsConfigFeaturesNV");
     out << "\t\t" << "VkPhysicalDeviceDiagnosticsConfigFeaturesNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkDispatchTileInfoQCOM(std::ostream &out, const VkDispatchTileInfoQCOM* structInfo, Decoded_VkDispatchTileInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "dispatchTileInfoQCOM");
+    out << "\t\t" << "VkDispatchTileInfoQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPerTileBeginInfoQCOM(std::ostream &out, const VkPerTileBeginInfoQCOM* structInfo, Decoded_VkPerTileBeginInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "perTileBeginInfoQCOM");
+    out << "\t\t" << "VkPerTileBeginInfoQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPerTileEndInfoQCOM(std::ostream &out, const VkPerTileEndInfoQCOM* structInfo, Decoded_VkPerTileEndInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "perTileEndInfoQCOM");
+    out << "\t\t" << "VkPerTileEndInfoQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceTileShadingFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceTileShadingFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShading << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingFragmentStage << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingColorAttachments << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingDepthAttachments << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingStencilAttachments << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingInputAttachments << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingSampledAttachments << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingPerTileDraw << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingPerTileDispatch << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingDispatchTile << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingApron << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingAnisotropicApron << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingAtomicOps << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileShadingImageProcessing << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceTileShadingFeaturesQCOM");
+    out << "\t\t" << "VkPhysicalDeviceTileShadingFeaturesQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceTileShadingPropertiesQCOM(std::ostream &out, const VkPhysicalDeviceTileShadingPropertiesQCOM* structInfo, Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string tile_granularity_info_var = GenerateStruct_VkExtent2D(out,
+                                                                      &structInfo->tileGranularity,
+                                                                      metaInfo->tileGranularity,
+                                                                      consumer);
+    std::string max_tile_shading_rate_info_var = GenerateStruct_VkExtent2D(out,
+                                                                           &structInfo->maxTileShadingRate,
+                                                                           metaInfo->maxTileShadingRate,
+                                                                           consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxApronSize << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->preferNonCoherent << "," << std::endl;
+    struct_body << "\t\t\t" << tile_granularity_info_var << "," << std::endl;
+    struct_body << "\t\t\t" << max_tile_shading_rate_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceTileShadingPropertiesQCOM");
+    out << "\t\t" << "VkPhysicalDeviceTileShadingPropertiesQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkRenderPassTileShadingCreateInfoQCOM(std::ostream &out, const VkRenderPassTileShadingCreateInfoQCOM* structInfo, Decoded_VkRenderPassTileShadingCreateInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string tile_apron_size_info_var = GenerateStruct_VkExtent2D(out,
+                                                                     &structInfo->tileApronSize,
+                                                                     metaInfo->tileApronSize,
+                                                                     consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkTileShadingRenderPassFlagsQCOM(" << structInfo->flags << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << tile_apron_size_info_var << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "renderPassTileShadingCreateInfoQCOM");
+    out << "\t\t" << "VkRenderPassTileShadingCreateInfoQCOM " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -18925,20 +18192,6 @@ std::string GenerateStruct_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesE
 }
 
 
-std::string GenerateStruct_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT(std::ostream &out, const VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* structInfo, Decoded_VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->presentModeFifoLatestReady << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePresentModeFifoLatestReadyFeaturesEXT");
-    out << "\t\t" << "VkPhysicalDevicePresentModeFifoLatestReadyFeaturesEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkImportMemoryZirconHandleInfoFUCHSIA(std::ostream &out, const VkImportMemoryZirconHandleInfoFUCHSIA* structInfo, Decoded_VkImportMemoryZirconHandleInfoFUCHSIA* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -19252,6 +18505,68 @@ std::string GenerateStruct_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT(s
     struct_body << "\t\t\t" << structInfo->primitivesGeneratedQueryWithNonZeroStreams << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePrimitivesGeneratedQueryFeaturesEXT");
     out << "\t\t" << "VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->videoEncodeRgbConversion << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceVideoEncodeRgbConversionFeaturesVALVE");
+    out << "\t\t" << "VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeProfileRgbConversionInfoVALVE(std::ostream &out, const VkVideoEncodeProfileRgbConversionInfoVALVE* structInfo, Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->performEncodeRgbConversion << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeProfileRgbConversionInfoVALVE");
+    out << "\t\t" << "VkVideoEncodeProfileRgbConversionInfoVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeRgbConversionCapabilitiesVALVE(std::ostream &out, const VkVideoEncodeRgbConversionCapabilitiesVALVE* structInfo, Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbModelConversionFlagsVALVE(" << structInfo->rgbModels << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbRangeCompressionFlagsVALVE(" << structInfo->rgbRanges << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagsVALVE(" << structInfo->xChromaOffsets << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagsVALVE(" << structInfo->yChromaOffsets << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeRgbConversionCapabilitiesVALVE");
+    out << "\t\t" << "VkVideoEncodeRgbConversionCapabilitiesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkVideoEncodeSessionRgbConversionCreateInfoVALVE(std::ostream &out, const VkVideoEncodeSessionRgbConversionCreateInfoVALVE* structInfo, Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbModelConversionFlagBitsVALVE(" << structInfo->rgbModel << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbRangeCompressionFlagBitsVALVE(" << structInfo->rgbRange << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagBitsVALVE(" << structInfo->xChromaOffset << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << "VkVideoEncodeRgbChromaOffsetFlagBitsVALVE(" << structInfo->yChromaOffset << ")" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "videoEncodeSessionRgbConversionCreateInfoVALVE");
+    out << "\t\t" << "VkVideoEncodeSessionRgbConversionCreateInfoVALVE " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -20094,21 +19409,21 @@ std::string GenerateStruct_VkRenderPassStripeSubmitInfoARM(std::ostream &out, co
 }
 
 
-std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->fragmentDensityMapOffset << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapOffsetFeaturesQCOM");
-    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM " << variable_name << " {" << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapOffsetFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapOffsetFeaturesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     std::string fragment_density_offset_granularity_info_var = GenerateStruct_VkExtent2D(out,
@@ -20118,15 +19433,15 @@ std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCO
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << fragment_density_offset_granularity_info_var << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapOffsetPropertiesQCOM");
-    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM " << variable_name << " {" << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapOffsetPropertiesEXT");
+    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapOffsetPropertiesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
 }
 
 
-std::string GenerateStruct_VkSubpassFragmentDensityMapOffsetEndInfoQCOM(std::ostream &out, const VkSubpassFragmentDensityMapOffsetEndInfoQCOM* structInfo, Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+std::string GenerateStruct_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(std::ostream &out, const VkRenderPassFragmentDensityMapOffsetEndInfoEXT* structInfo, Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     std::string pfragment_density_offsets_array = "NULL";
@@ -20149,8 +19464,8 @@ std::string GenerateStruct_VkSubpassFragmentDensityMapOffsetEndInfoQCOM(std::ost
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->fragmentDensityOffsetCount << "," << std::endl;
     struct_body << "\t\t\t" << pfragment_density_offsets_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "subpassFragmentDensityMapOffsetEndInfoQCOM");
-    out << "\t\t" << "VkSubpassFragmentDensityMapOffsetEndInfoQCOM " << variable_name << " {" << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "renderPassFragmentDensityMapOffsetEndInfoEXT");
+    out << "\t\t" << "VkRenderPassFragmentDensityMapOffsetEndInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -21821,6 +21136,78 @@ std::string GenerateStruct_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesN
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileMemoryHeap << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceTileMemoryHeapFeaturesQCOM");
+    out << "\t\t" << "VkPhysicalDeviceTileMemoryHeapFeaturesQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM(std::ostream &out, const VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* structInfo, Decoded_VkPhysicalDeviceTileMemoryHeapPropertiesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->queueSubmitBoundary << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->tileBufferTransfers << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceTileMemoryHeapPropertiesQCOM");
+    out << "\t\t" << "VkPhysicalDeviceTileMemoryHeapPropertiesQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkTileMemoryBindInfoQCOM(std::ostream &out, const VkTileMemoryBindInfoQCOM* structInfo, Decoded_VkTileMemoryBindInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->memory) << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "tileMemoryBindInfoQCOM");
+    out << "\t\t" << "VkTileMemoryBindInfoQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkTileMemoryRequirementsQCOM(std::ostream &out, const VkTileMemoryRequirementsQCOM* structInfo, Decoded_VkTileMemoryRequirementsQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->size << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->alignment << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "tileMemoryRequirementsQCOM");
+    out << "\t\t" << "VkTileMemoryRequirementsQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkTileMemorySizeInfoQCOM(std::ostream &out, const VkTileMemorySizeInfoQCOM* structInfo, Decoded_VkTileMemorySizeInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->size << "UL" << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "tileMemorySizeInfoQCOM");
+    out << "\t\t" << "VkTileMemorySizeInfoQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkDisplayModeStereoPropertiesNV(std::ostream &out, const VkDisplayModeStereoPropertiesNV* structInfo, Decoded_VkDisplayModeStereoPropertiesNV* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -21899,6 +21286,21 @@ std::string GenerateStruct_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT
     struct_body << "\t\t\t" << structInfo->shaderReplicatedComposites << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderReplicatedCompositesFeaturesEXT");
     out << "\t\t" << "VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderFloat8FeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderFloat8FeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderFloat8FeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderFloat8 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderFloat8CooperativeMatrix << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderFloat8FeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceShaderFloat8FeaturesEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;
@@ -22752,6 +22154,62 @@ std::string GenerateStruct_VkPhysicalDeviceVertexAttributeRobustnessFeaturesEXT(
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceFormatPackFeaturesARM(std::ostream &out, const VkPhysicalDeviceFormatPackFeaturesARM* structInfo, Decoded_VkPhysicalDeviceFormatPackFeaturesARM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->formatPack << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFormatPackFeaturesARM");
+    out << "\t\t" << "VkPhysicalDeviceFormatPackFeaturesARM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->fragmentDensityMapLayered << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapLayeredFeaturesVALVE");
+    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapLayeredFeaturesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE(std::ostream &out, const VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE* structInfo, Decoded_VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxFragmentDensityMapLayers << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceFragmentDensityMapLayeredPropertiesVALVE");
+    out << "\t\t" << "VkPhysicalDeviceFragmentDensityMapLayeredPropertiesVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE(std::ostream &out, const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE* structInfo, Decoded_VkPipelineFragmentDensityMapLayeredCreateInfoVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxFragmentDensityMapLayers << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "pipelineFragmentDensityMapLayeredCreateInfoVALVE");
+    out << "\t\t" << "VkPipelineFragmentDensityMapLayeredCreateInfoVALVE " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDevicePresentMeteringFeaturesNV(std::ostream &out, const VkPhysicalDevicePresentMeteringFeaturesNV* structInfo, Decoded_VkPhysicalDevicePresentMeteringFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -22775,6 +22233,47 @@ std::string GenerateStruct_VkSetPresentConfigNV(std::ostream &out, const VkSetPr
     struct_body << "\t\t\t" << structInfo->presentConfigFeedback << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "setPresentConfigNV");
     out << "\t\t" << "VkSetPresentConfigNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkRenderingEndInfoEXT(std::ostream &out, const VkRenderingEndInfoEXT* structInfo, Decoded_VkRenderingEndInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "renderingEndInfoEXT");
+    out << "\t\t" << "VkRenderingEndInfoEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT(std::ostream &out, const VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->zeroInitializeDeviceMemory << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceZeroInitializeDeviceMemoryFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC(std::ostream &out, const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* structInfo, Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->pipelineCacheIncrementalMode << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDevicePipelineCacheIncrementalModeFeaturesSEC");
+    out << "\t\t" << "VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

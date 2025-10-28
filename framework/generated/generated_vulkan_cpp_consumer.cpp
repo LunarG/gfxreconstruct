@@ -9038,6 +9038,31 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRenderingAreaGranularityKHR);
 }
+void VulkanCppConsumer::Process_vkWaitForPresent2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkPresentWait2InfoKHR>* pPresentWait2Info)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppresent_wait2_info;
+    std::string ppresent_wait2_info_struct = GenerateStruct_VkPresentWait2InfoKHR(stream_ppresent_wait2_info,
+                                                                                  pPresentWait2Info->GetPointer(),
+                                                                                  pPresentWait2Info->GetMetaStructPointer(),
+                                                                                  *this);
+    fprintf(file, "%s", stream_ppresent_wait2_info.str().c_str());
+    pfn_loader_.AddMethodName("vkWaitForPresent2KHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkWaitForPresent2KHR(%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            ppresent_wait2_info_struct.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkWaitForPresent2KHR);
+}
 void VulkanCppConsumer::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -9194,6 +9219,29 @@ void VulkanCppConsumer::Process_vkReleaseCapturedPipelineDataKHR(
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkReleaseCapturedPipelineDataKHR);
+}
+void VulkanCppConsumer::Process_vkReleaseSwapchainImagesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_prelease_info;
+    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoKHR(stream_prelease_info,
+                                                                                      pReleaseInfo->GetPointer(),
+                                                                                      pReleaseInfo->GetMetaStructPointer(),
+                                                                                      *this);
+    fprintf(file, "%s", stream_prelease_info.str().c_str());
+    pfn_loader_.AddMethodName("vkReleaseSwapchainImagesKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseSwapchainImagesKHR(%s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            prelease_info_struct.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkReleaseSwapchainImagesKHR);
 }
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
@@ -9433,6 +9481,49 @@ void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
             pset_descriptor_buffer_offsets_info_struct.c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsets2EXT);
+}
+void VulkanCppConsumer::Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcopy_memory_indirect_info;
+    std::string pcopy_memory_indirect_info_struct = GenerateStruct_VkCopyMemoryIndirectInfoKHR(stream_pcopy_memory_indirect_info,
+                                                                                               pCopyMemoryIndirectInfo->GetPointer(),
+                                                                                               pCopyMemoryIndirectInfo->GetMetaStructPointer(),
+                                                                                               *this);
+    fprintf(file, "%s", stream_pcopy_memory_indirect_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdCopyMemoryIndirectKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdCopyMemoryIndirectKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pcopy_memory_indirect_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryIndirectKHR);
+}
+
+void VulkanCppConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcopy_memory_to_image_indirect_info;
+    std::string pcopy_memory_to_image_indirect_info_struct = GenerateStruct_VkCopyMemoryToImageIndirectInfoKHR(stream_pcopy_memory_to_image_indirect_info,
+                                                                                                               pCopyMemoryToImageIndirectInfo->GetPointer(),
+                                                                                                               pCopyMemoryToImageIndirectInfo->GetMetaStructPointer(),
+                                                                                                               *this);
+    fprintf(file, "%s", stream_pcopy_memory_to_image_indirect_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdCopyMemoryToImageIndirectKHR");
+    fprintf(file,
+            "\t\tloaded_vkCmdCopyMemoryToImageIndirectKHR(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pcopy_memory_to_image_indirect_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdCopyMemoryToImageIndirectKHR);
 }
 void VulkanCppConsumer::Process_vkFrameBoundaryANDROID(
     const ApiCallInfo&                          call_info,
@@ -12777,12 +12868,12 @@ void VulkanCppConsumer::Process_vkReleaseSwapchainImagesEXT(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoEXT>* pReleaseInfo)
+    StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
     std::stringstream stream_prelease_info;
-    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoEXT(stream_prelease_info,
+    std::string prelease_info_struct = GenerateStruct_VkReleaseSwapchainImagesInfoKHR(stream_prelease_info,
                                                                                       pReleaseInfo->GetPointer(),
                                                                                       pReleaseInfo->GetMetaStructPointer(),
                                                                                       *this);
@@ -13113,6 +13204,71 @@ void VulkanCppConsumer::Process_vkSetPrivateDataEXT(
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
+}
+void VulkanCppConsumer::Process_vkCmdBeginPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPerTileBeginInfoQCOM>* pPerTileBeginInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pper_tile_begin_info;
+    std::string pper_tile_begin_info_struct = GenerateStruct_VkPerTileBeginInfoQCOM(stream_pper_tile_begin_info,
+                                                                                    pPerTileBeginInfo->GetPointer(),
+                                                                                    pPerTileBeginInfo->GetMetaStructPointer(),
+                                                                                    *this);
+    fprintf(file, "%s", stream_pper_tile_begin_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBeginPerTileExecutionQCOM");
+    fprintf(file,
+            "\t\tloaded_vkCmdBeginPerTileExecutionQCOM(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pper_tile_begin_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginPerTileExecutionQCOM);
+}
+
+void VulkanCppConsumer::Process_vkCmdDispatchTileQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchTileInfoQCOM>* pDispatchTileInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pdispatch_tile_info;
+    std::string pdispatch_tile_info_struct = GenerateStruct_VkDispatchTileInfoQCOM(stream_pdispatch_tile_info,
+                                                                                   pDispatchTileInfo->GetPointer(),
+                                                                                   pDispatchTileInfo->GetMetaStructPointer(),
+                                                                                   *this);
+    fprintf(file, "%s", stream_pdispatch_tile_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdDispatchTileQCOM");
+    fprintf(file,
+            "\t\tloaded_vkCmdDispatchTileQCOM(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pdispatch_tile_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchTileQCOM);
+}
+
+void VulkanCppConsumer::Process_vkCmdEndPerTileExecutionQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pper_tile_end_info;
+    std::string pper_tile_end_info_struct = GenerateStruct_VkPerTileEndInfoQCOM(stream_pper_tile_end_info,
+                                                                                pPerTileEndInfo->GetPointer(),
+                                                                                pPerTileEndInfo->GetMetaStructPointer(),
+                                                                                *this);
+    fprintf(file, "%s", stream_pper_tile_end_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdEndPerTileExecutionQCOM");
+    fprintf(file,
+            "\t\tloaded_vkCmdEndPerTileExecutionQCOM(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pper_tile_end_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdEndPerTileExecutionQCOM);
 }
 void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
@@ -15580,6 +15736,27 @@ void VulkanCppConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT);
 }
+void VulkanCppConsumer::Process_vkCmdBindTileMemoryQCOM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ptile_memory_bind_info;
+    std::string ptile_memory_bind_info_struct = GenerateStruct_VkTileMemoryBindInfoQCOM(stream_ptile_memory_bind_info,
+                                                                                        pTileMemoryBindInfo->GetPointer(),
+                                                                                        pTileMemoryBindInfo->GetMetaStructPointer(),
+                                                                                        *this);
+    fprintf(file, "%s", stream_ptile_memory_bind_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdBindTileMemoryQCOM");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindTileMemoryQCOM(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            ptile_memory_bind_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindTileMemoryQCOM);
+}
 void VulkanCppConsumer::Process_vkCmdBuildPartitionedAccelerationStructuresNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15975,6 +16152,27 @@ void VulkanCppConsumer::Process_vkGetMemoryMetalHandlePropertiesEXT(
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetMemoryMetalHandlePropertiesEXT);
+}
+void VulkanCppConsumer::Process_vkCmdEndRendering2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingEndInfoEXT>* pRenderingEndInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_prendering_end_info;
+    std::string prendering_end_info_struct = GenerateStruct_VkRenderingEndInfoEXT(stream_prendering_end_info,
+                                                                                  pRenderingEndInfo->GetPointer(),
+                                                                                  pRenderingEndInfo->GetMetaStructPointer(),
+                                                                                  *this);
+    fprintf(file, "%s", stream_prendering_end_info.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdEndRendering2EXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdEndRendering2EXT(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            prendering_end_info_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdEndRendering2EXT);
 }
 void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,

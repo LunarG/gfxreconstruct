@@ -31,15 +31,27 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
+
+// Includes for recapture
+#include "encode/vulkan_capture_manager.h"
+#include "recapture_vulkan_entry.h"
+
+#if ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_tracked_object_info_table.h"
+#include "generated/generated_openxr_decoder.h"
+#include "generated/generated_openxr_replay_consumer.h"
+#endif
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "util/android/activity.h"
+#include "util/android/intent.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "parse_dump_resources_cli.h"
 #include "replay_pre_processing.h"
+#include "util/android/intent.h"
 
-#include <android_native_app_glue.h>
 #include <android/log.h>
 #include <android/window.h>
 
@@ -56,10 +68,8 @@ const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
-std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
-void        DestroyActivity(struct android_app* app);
 
 static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
@@ -67,23 +77,38 @@ extern "C"
 {
     uint64_t MainGetCurrentBlockIndex()
     {
-        return file_processor->GetCurrentBlockIndex();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetCurrentBlockIndex();
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     bool MainGetLoadingTrimmedState()
     {
-        return file_processor->GetLoadingTrimmedState();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetLoadingTrimmedState();
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
 void android_main(struct android_app* app)
 {
+    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
     gfxrecon::util::Log::Init();
 
     // Keep screen on while window is active.
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 
-    std::string                    args = GetIntentExtra(app, kArgsExtentKey);
+    std::string                    args = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
 
     app->onAppCmd     = ProcessAppCmd;
@@ -129,9 +154,8 @@ void android_main(struct android_app* app)
             }
             else
             {
-                auto application =
-                    std::make_shared<gfxrecon::application::Application>(kApplicationName, file_processor.get());
-                application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
+                auto application = std::make_shared<gfxrecon::application::Application>(
+                    kApplicationName, file_processor.get(), VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
@@ -139,6 +163,18 @@ void android_main(struct android_app* app)
 
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::InitSingleton();
+
+                    // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
+                    // calls into the capture layer instead of directly into the loader and Vulkan runtime.
+                    // Also sets the capture manager's instance and device creation callbacks.
+                    vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                                                             gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                                                             gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                }
 
                 ApiReplayOptions  api_replay_options;
                 ApiReplayConsumer api_replay_consumer;
@@ -150,14 +186,12 @@ void android_main(struct android_app* app)
                     RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
                 }
 
-                uint32_t                               start_frame, end_frame;
-                bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
-                std::string measurement_file_name;
+                uint32_t measurement_start_frame;
+                uint32_t measurement_end_frame;
+                bool     has_mfr = GetMeasurementFrameRange(arg_parser, measurement_start_frame, measurement_end_frame);
 
-                if (has_mfr)
-                {
-                    GetMeasurementFilename(arg_parser, measurement_file_name);
-                }
+                std::string measurement_file_name;
+                GetMeasurementFilename(arg_parser, measurement_file_name);
 
                 bool     quit_after_frame = false;
                 uint32_t quit_frame;
@@ -168,8 +202,8 @@ void android_main(struct android_app* app)
                     GetQuitAfterFrame(arg_parser, quit_frame);
                 }
 
-                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
-                                                     static_cast<uint64_t>(end_frame),
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_start_frame),
+                                                     static_cast<uint64_t>(measurement_end_frame),
                                                      has_mfr,
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range,
@@ -188,10 +222,21 @@ void android_main(struct android_app* app)
                 file_processor->AddDecoder(&vulkan_decoder);
 
                 file_processor->SetPrintBlockInfoFlag(replay_options.enable_print_block_info,
-                    replay_options.block_index_from,
-                    replay_options.block_index_to);
+                                                      replay_options.block_index_from,
+                                                      replay_options.block_index_to);
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+#if ENABLE_OPENXR_SUPPORT
+                gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
+                gfxrecon::decode::OpenXrDecoder        openxr_decoder;
+                gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
+                openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+                openxr_replay_consumer.SetAndroidApp(app);
+                openxr_replay_consumer.SetFpsInfo(&fps_info);
+                openxr_decoder.AddConsumer(&openxr_replay_consumer);
+                file_processor->AddDecoder(&openxr_decoder);
+#endif
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerProperty);
@@ -213,17 +258,17 @@ void android_main(struct android_app* app)
                 if ((file_processor->GetCurrentFrameNumber() > 0) &&
                     (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    if (file_processor->GetCurrentFrameNumber() < start_frame)
+                    if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                     {
                         GFXRECON_LOG_WARNING(
                             "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                             "Measurements were never started, cannot calculate measurement range FPS.",
-                            start_frame,
+                            measurement_start_frame,
                             file_processor->GetCurrentFrameNumber());
                     }
                     else
                     {
-                        fps_info.LogToConsole();
+                        fps_info.LogMeasurements();
                     }
                 }
                 else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
@@ -233,6 +278,11 @@ void android_main(struct android_app* app)
                 else
                 {
                     GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                }
+
+                if (replay_options.capture)
+                {
+                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::DestroySingleton();
                 }
             }
         }
@@ -255,59 +305,8 @@ void android_main(struct android_app* app)
 
     gfxrecon::util::Log::Release();
 
-    DestroyActivity(app);
+    gfxrecon::util::DestroyActivity(app);
     raise(SIGTERM);
-}
-
-// Retrieve the program argument string from the intent extras
-std::string GetIntentExtra(struct android_app* app, const char* key)
-{
-    std::string value;
-    JavaVM*     jni_vm       = nullptr;
-    jobject     jni_activity = nullptr;
-    JNIEnv*     env          = nullptr;
-
-    if ((app != nullptr) && (app->activity != nullptr))
-    {
-        jni_vm       = app->activity->vm;
-        jni_activity = app->activity->clazz;
-    }
-
-    if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK))
-    {
-        jclass    activity_class = env->GetObjectClass(jni_activity);
-        jmethodID get_intent     = env->GetMethodID(activity_class, "getIntent", "()Landroid/content/Intent;");
-        jobject   intent         = env->CallObjectMethod(jni_activity, get_intent);
-
-        if (intent)
-        {
-            jclass    intent_class = env->GetObjectClass(intent);
-            jmethodID get_string_extra =
-                env->GetMethodID(intent_class, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
-
-            jvalue extra_key;
-            extra_key.l = env->NewStringUTF(key);
-
-            jstring extra = static_cast<jstring>(env->CallObjectMethodA(intent, get_string_extra, &extra_key));
-
-            if (extra)
-            {
-                const char* utf_chars = env->GetStringUTFChars(extra, nullptr);
-
-                value = utf_chars;
-
-                env->ReleaseStringUTFChars(extra, utf_chars);
-                env->DeleteLocalRef(extra);
-            }
-
-            env->DeleteLocalRef(extra_key.l);
-            env->DeleteLocalRef(intent);
-        }
-
-        jni_vm->DetachCurrentThread();
-    }
-
-    return value;
 }
 
 void ProcessAppCmd(struct android_app* app, int32_t cmd)
@@ -445,26 +444,4 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     }
 
     return 0;
-}
-
-void DestroyActivity(struct android_app* app)
-{
-    ANativeActivity_finish(app->activity);
-
-    // Wait for APP_CMD_DESTROY
-    while (app->destroyRequested == 0)
-    {
-        struct android_poll_source* source = nullptr;
-        int                         events = 0;
-        int                         result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
-
-        if ((result >= 0) && (source))
-        {
-            source->process(app, source);
-        }
-        else
-        {
-            break;
-        }
-    }
 }

@@ -28,13 +28,19 @@
 #include "format/format.h"
 #include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
+#include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "util/logging.h"
+#include "util/file_input_stream.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -42,6 +48,83 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+using FileInputStream    = util::FStreamFileInputStream;
+using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
+
+class FileProcessor;
+
+class BlockBuffer
+{
+  public:
+    using BlockSpan = util::DataSpan::OutputSpan;
+    // Validity means that it has a payload and the payload size is consistent with the block header
+    bool IsValid() const
+    {
+        return (block_span_.data() != nullptr) && (block_span_.Size() == (header_.size + sizeof(format::BlockHeader)));
+    }
+    bool IsEof() const { return read_pos_ >= block_span_.size(); }
+
+    template <typename T>
+    bool Read(T& value)
+    {
+        bool success = ReadAt<T>(value, read_pos_);
+        if (success)
+        {
+            read_pos_ += sizeof(T);
+        }
+        return success;
+    }
+
+    template <typename T>
+    bool ReadAt(T& value, size_t at) const
+    {
+        // Ensure that this isn't being misused.
+        static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
+        if (IsAvailableAt(sizeof(value), at))
+        {
+            memcpy(&value, block_span_.data() + at, sizeof(value));
+            return true;
+        }
+        return false;
+    }
+
+    bool ReadBytes(void* buffer, size_t buffer_size);
+    bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
+
+    BlockSpan ReadSpan(size_t buffer_size);
+    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
+
+    size_t                     Size() const { return block_span_.size(); }
+    const format::BlockHeader& Header() const { return header_; }
+
+    size_t ReadPos() const { return read_pos_; }
+
+    BlockBuffer() = default;
+    BlockBuffer(util::DataSpan&& block_span);
+
+    bool IsFrameDelimiter(const FileProcessor& file_processor) const;
+
+    void Reset(util::DataSpan&& block_span);
+    void Reset()
+    {
+        read_pos_ = 0;
+        block_span_.Reset();
+    };
+
+    util::DataSpan&& ReleaseData() { return std::move(block_span_); }
+    bool             SeekForward(size_t size);
+    bool             SeekTo(size_t size);
+
+    bool IsAvailable(size_t size) const { return IsAvailableAt(size, read_pos_); }
+    bool IsAvailableAt(size_t size, size_t at) const { return Size() >= (at + size); }
+
+  private:
+    void                InitBlockHeaderFromSpan();
+    size_t              read_pos_{ 0 };
+    util::DataSpan      block_span_;
+    format::BlockHeader header_;
+};
 
 class FileProcessor
 {
@@ -114,15 +197,7 @@ class FileProcessor
             return true;
         }
 
-        const auto file_entry = active_files_.find(file_stack_.front().filename);
-        if (file_entry != active_files_.end())
-        {
-            return (feof(file_entry->second.fd) != 0);
-        }
-        else
-        {
-            return false;
-        }
+        return file_stack_.front().active_file->IsEof();
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -134,35 +209,46 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
+    bool IsFrameDelimiter(format::ApiCallId call_id) const;
+
   protected:
+    bool DoProcessNextFrame(const std::function<bool()>& block_processor);
+    bool ProcessBlocksOneFrame();
+
     bool ContinueDecoding();
 
-    bool ReadBlockHeader(format::BlockHeader* block_header);
+    util::DataSpan ReadSpan(size_t buffer_size);
+    bool           ReadBytes(void* buffer, size_t buffer_size);
 
-    virtual bool ReadBytes(void* buffer, size_t buffer_size);
+    bool PeekBytes(void* buffer, size_t buffer_size);
+    bool PeekBlockHeader(format::BlockHeader* block_header);
+
+    // Reads block header, from input stream.
+    bool ReadBlockBuffer(BlockBuffer& buffer);
+
+    // Gets the block buffer from input stream or preloaded data if available
+    virtual bool GetBlockBuffer(BlockBuffer& block_buffer);
 
     bool SkipBytes(size_t skip_size);
 
-    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
+    bool ProcessFunctionCall(BlockBuffer& block_buffer, format::ApiCallId call_id, bool& should_break);
 
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
+    bool ProcessMethodCall(BlockBuffer& block_buffer, format::ApiCallId call_id, bool& should_break);
 
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
-    bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
-
-    bool IsFrameDelimiter(format::ApiCallId call_id) const;
+    bool ProcessMetaData(BlockBuffer& block_buffer, format::MetaDataId meta_data_id);
 
     void HandleBlockReadError(Error error_code, const char* error_message);
 
-    bool
-    ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
+    bool ProcessFrameMarker(BlockBuffer& block_buffer, format::MarkerType marker_type, bool& should_break);
 
-    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+    bool ProcessStateMarker(BlockBuffer& block_buffer, format::MarkerType marker_type);
 
-    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
+    bool ProcessAnnotation(BlockBuffer& block_buffer, format::AnnotationType annotation_type);
 
     void PrintBlockInfo() const;
+
+    bool HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
     uint64_t                 current_frame_number_;
@@ -175,42 +261,53 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
-    FILE* GetFileDescriptor()
+    Error CheckFileStatus() const
     {
-        assert(!file_stack_.empty());
-
-        if (!file_stack_.empty())
+        if (file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
-            assert(file_entry != active_files_.end());
-
-            return file_entry->second.fd;
+            return kErrorInvalidFileDescriptor;
         }
-        else
+        const auto& active_file = file_stack_.back().active_file;
+        // If not EOF, determine reason for invalid state.
+        if (!active_file->IsOpen())
         {
-            return nullptr;
+            return kErrorInvalidFileDescriptor;
         }
+        else if (active_file->IsError())
+        {
+            return kErrorReadingFile;
+        }
+
+        return kErrorNone;
+    }
+
+    bool AtEof() const
+    {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+        return file_stack_.back().active_file->IsEof();
     }
 
   private:
     bool ProcessFileHeader();
+    bool ProcessBlocks();
 
-    virtual bool ProcessBlocks();
+    // NOTE: These two can't be const as derived class updates state.
+    virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
 
-    bool ReadParameterBuffer(size_t buffer_size);
+    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
 
-    bool ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
-                                       size_t  expected_uncompressed_size,
-                                       size_t* uncompressed_buffer_size);
+    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
+                                                         size_t       compressed_buffer_size,
+                                                         size_t       expected_uncompressed_size);
 
     bool IsFileValid() const
     {
         if (!file_stack_.empty())
         {
-            auto file_entry = active_files_.find(file_stack_.back().filename);
-            assert(file_entry != active_files_.end());
-
-            return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
+            return file_stack_.back().active_file->IsReady();
         }
         else
         {
@@ -218,9 +315,7 @@ class FileProcessor
         }
     }
 
-    bool OpenFile(const std::string& filename);
-
-    bool SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -238,8 +333,7 @@ class FileProcessor
   private:
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
-    std::vector<uint8_t>                parameter_buffer_;
-    std::vector<uint8_t>                compressed_parameter_buffer_;
+    std::vector<uint8_t>                uncompressed_buffer_;
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
     uint64_t                            block_limit_;
@@ -250,38 +344,38 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    struct ActiveFiles
-    {
-        ActiveFiles() {}
+    std::string absolute_path_;
 
-        ActiveFiles(FILE* fd_) : fd(fd_) {}
-
-        FILE* fd{ nullptr };
-    };
-
-    std::unordered_map<std::string, ActiveFiles> active_files_;
-
+  protected:
     struct ActiveFileContext
     {
-        ActiveFileContext(std::string filename_) : filename(std::move(filename_)){};
-        ActiveFileContext(std::string filename_, bool execute_till_eof_) :
-            filename(std::move(filename_)), execute_till_eof(execute_till_eof_){};
+        ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
+            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
 
-        std::string filename;
+        FileInputStreamPtr active_file;
         uint32_t    remaining_commands{ 0 };
         bool        execute_till_eof{ false };
     };
-    std::deque<ActiveFileContext> file_stack_;
 
-    std::string absolute_path_;
+    std::deque<ActiveFileContext> file_stack_;
 
   private:
     ActiveFileContext& GetCurrentFile()
     {
-        assert(file_stack_.size());
-
+        GFXRECON_ASSERT(file_stack_.size());
         return file_stack_.back();
     }
+
+    struct InputStreamGetKey
+    {
+        const std::string& operator()(const FileInputStreamPtr& input_stream)
+        {
+            GFXRECON_ASSERT(input_stream);
+            return input_stream->GetFilename();
+        }
+    };
+    using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
+    ActiveStreamCache stream_cache_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

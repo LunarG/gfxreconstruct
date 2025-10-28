@@ -50,7 +50,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             protectFeature,
             extra_headers=extra_headers
         )
-        
+
         self.begin_end_file_data.specific_headers.extend((
             'format/platform_types.h',
             'util/json_util.h',
@@ -64,9 +64,6 @@ class VulkanEnumToJsonHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
 # Generates C++ functions for stringifying Vulkan API enums.
 class VulkanEnumToJsonHeaderGenerator(VulkanBaseGenerator, KhronosEnumToJsonHeaderGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
-
-    SKIP_ENUM = [
-    ]
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -86,10 +83,3 @@ class VulkanEnumToJsonHeaderGenerator(VulkanBaseGenerator, KhronosEnumToJsonHead
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_struct_members:
-            return True
-        return False

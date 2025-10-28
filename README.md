@@ -27,6 +27,19 @@ The GFXReconstruct components currently provided with this repository are:
 * The `gfxrecon-optimize` tool to produce new capture files with
   improved replay performance.
 
+## Experimental OpenXR Support
+
+OpenXR support in GFXReconstruct is experimental and is recommended only for
+developer use for evaluation!
+Only a subset of features and a very small number of apps are supported.
+See [USAGE_desktop_OpenXR](USAGE_desktop_OpenXR.md) and the
+"Supported Capabilities" table below for more detail.
+
+Because OpenXR support is considered a Proof-of-Concept, it is not enabled
+in the SDK built version of GFXReconstruct.
+If OpenXR support is desired, please pull the source down from the
+GitHub repo and build manually.
+
 ## Contributing
 
 If you intend to contribute, the preferred work flow is for you to develop
@@ -34,6 +47,59 @@ your contribution in a fork of this repo in your GitHub account and then
 submit a pull request.
 Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this repository for
 more details
+
+## Supported Capabilities
+
+| Capability     |   Windows  |  Linux  |  Mac  |   Android   |  Meta Quest |
+| -------------- | :--------: | :-----: | :-------: | :-----: | :---------: |
+| **Vulkan Support** ||||||
+| Capture | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :construction:  |
+| Replay  | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :construction:  |
+| gfxrecon-compress | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-convert | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-info | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-optimize | :white_check_mark: | :white_check_mark: | :white_check_mark: | :large_orange_diamond: | :x: |
+| gfxrecon-tocpp | :x: | :construction: | :x: | :construction:  | :x: |
+| **D3D12 Support** ||||||
+| Capture  | :white_check_mark: | :x: | :x: | :x: | :x: |
+| Replay   | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-compress | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-convert | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-info | :white_check_mark: | :x: | :x: | :x: | :x: |
+| gfxrecon-optimize | :white_check_mark: | :x: | :x: | :x: | :x: |
+| **OpenXR (Vulkan Graphics API only)** ||||||
+| Capture | :construction: | :construction: | :x: | :construction: | :construction:  |
+| Replay  | :construction: | :construction: | :x: | :construction: | :construction:  |
+| gfxrecon-compress | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond: |
+| gfxrecon-convert | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond:  |
+| gfxrecon-info | :construction: | :construction: | :x: | :large_orange_diamond: | :large_orange_diamond:  |
+| gfxrecon-optimize | :x: | :x: | :x: | :x: | :x: |
+| gfxrecon-tocpp | :x: | :x: | :x: | :x:  | :x: |
+
+**Legend**
+* :white_check_mark: : Supported
+* :x: : Not Suported
+* :large_orange_diamond: : Not supported on Android/Meta Quest, but Desktop tools support modifying the resulting captures
+* :construction: : Early Preview / Alpha / Beta
+
+### Cross-Platform Capture/Replay Support
+
+The table above only represents replay on the same platform and driver
+version on which the file was captured.
+
+It is possible in some circumstances to replay on one operating system a
+trace that was captured on another operating system.
+However this is not currently supported unless specified.
+
+For example, a Windows capture may replay on Linux, and vice versa,
+if:
+  * Certain settings are forced in the replay application
+     * Overriding the windowing system used
+     * Disabling unknown extensions
+     * Rebinding memory
+  * Compability libraries are enabled to expose operating system behavior
+     * Such as Wine.
+
 
 ## Building
 

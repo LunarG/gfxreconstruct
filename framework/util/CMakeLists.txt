@@ -35,10 +35,13 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/clock_cache.h
                     ${CMAKE_CURRENT_LIST_DIR}/compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_input_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info.h
@@ -46,6 +49,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
+                    ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.h
@@ -103,8 +108,12 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.h
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
@@ -201,6 +210,11 @@ if (TARGET ZSTD::ZSTD)
     target_link_libraries(gfxrecon_util ZSTD::ZSTD)
 endif()
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_util PUBLIC ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 common_build_directives(gfxrecon_util)
 
 if (${RUN_TESTS})
@@ -209,6 +223,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>

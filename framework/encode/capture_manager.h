@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2022 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -42,11 +42,21 @@
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <optional>
+#include <set>
 #include <shared_mutex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "util/file_path.h"
+
+#if defined(__linux__) || defined(__APPLE__)
+#include <dirent.h>
+#elif defined(WIN32)
+#include <windows.h>
+#include <TlHelp32.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -59,11 +69,45 @@ class CommonCaptureManager
   public:
     typedef std::shared_mutex ApiCallMutexT;
 
-    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+  private:
+    static format::HandleId GetDefaultUniqueId() { return ++default_unique_id_counter_ + default_unique_id_offset_; }
 
-    static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
+  public:
+    static void SetDefaultUniqueIdOffset(format::HandleId offset) { default_unique_id_offset_ = offset; }
 
-    static auto AcquireExclusiveApiCallLock() { return std::move(std::unique_lock<ApiCallMutexT>(api_call_mutex_)); }
+    static format::HandleId GetUniqueId();
+    static void             PushUniqueId(const format::HandleId id);
+    static void             ClearUniqueIds();
+
+    // Set to true to force capture manager to generate new, default IDs instead of using the unique ID stack.
+    static void SetForceDefaultUniqueId(bool force) { force_default_unique_id_ = force; }
+
+    static void SetInitializeLog(bool initialize_log) { initialize_log_ = initialize_log; }
+
+    using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
+    using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
+    static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
+    static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
+    class ApiCallLock
+    {
+      public:
+        enum class Type
+        {
+            kExclusive,
+            kShared
+        };
+
+        ApiCallLock(Type type, ApiCallMutexT& mutex);
+        bool            IsShared() const { return shared.has_value(); }
+        ApiSharedLockT& GetSharedRef() { return shared.value(); }
+
+      private:
+        std::optional<ApiExclusiveLockT> exclusive;
+        std::optional<ApiSharedLockT>    shared;
+    };
+
+    // This method returns the composite with the apropos Lock initialized
+    ApiCallLock AcquireCallLock() const;
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -87,7 +131,51 @@ class CommonCaptureManager
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
-            return InitApiCallCapture(call_id);
+#if ENABLE_OPENXR_SUPPORT
+            if (IsCaptureSkippingCurrentThread())
+            {
+                uint32_t            call_id_uint = static_cast<uint32_t>(call_id);
+                format::ApiFamilyId family  = static_cast<format::ApiFamilyId>(format::GetApiCallFamily(call_id_uint));
+                std::string         message = "Skipping ";
+
+                switch (family)
+                {
+                    default:
+                        break;
+                    case format::ApiFamily_Vulkan:
+                        message += "Vulkan ";
+                        break;
+                    case format::ApiFamily_Dxgi:
+                        message += "Dxgi ";
+                        break;
+                    case format::ApiFamily_D3D12:
+                        message += "D3D12 ";
+                        break;
+                    case format::ApiFamily_AGS:
+                        message += "AGS ";
+                        break;
+                    case format::ApiFamily_D3D11:
+                        message += "D3D11 ";
+                        break;
+                    case format::ApiFamily_D3D11On12:
+                        message += "D3D11On12 ";
+                        break;
+                    case format::ApiFamily_OpenXR:
+                        message += "OpenXR ";
+                        break;
+                }
+                std::stringstream stream;
+                stream << std::hex << call_id_uint;
+                message += "ApiCall ID 0x";
+                message += stream.str();
+                message += " because it occurred in a thread with invalid data";
+                WriteDisplayMessageCmd(family, message.c_str());
+            }
+            else
+#endif // ENABLE_OPENXR_SUPPORT
+            {
+                return InitApiCallCapture(call_id);
+            }
         }
 
         return nullptr;
@@ -128,7 +216,10 @@ class CommonCaptureManager
 
     bool ShouldTriggerScreenshot();
 
-    util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
+    util::ScreenshotFormat GetScreenshotFormat()
+    {
+        return screenshot_format_;
+    }
 
     void CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
                                           uint32_t                         current_boundary_count,
@@ -162,17 +253,49 @@ class CommonCaptureManager
     /// @param data The value or payload text of the annotation.
     void WriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
 
-    bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
-    auto GetForceCommandSerialization() const { return force_command_serialization_; }
-    auto GetQueueZeroOnly() const { return queue_zero_only_; }
-    auto GetAllowPipelineCompileRequired() const { return allow_pipeline_compile_required_; }
+    bool GetIUnknownWrappingSetting() const
+    {
+        return iunknown_wrapping_;
+    }
+    auto GetForceCommandSerialization() const
+    {
+        return force_command_serialization_;
+    }
+    auto GetQueueZeroOnly() const
+    {
+        return queue_zero_only_;
+    }
+    auto GetAllowPipelineCompileRequired() const
+    {
+        return allow_pipeline_compile_required_;
+    }
 
-    bool     IsAnnotated() const { return rv_annotation_info_.rv_annotation; }
-    uint16_t GetGPUVAMask() const { return rv_annotation_info_.gpuva_mask; }
-    uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
-    uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
+    bool IsAnnotated() const
+    {
+        return rv_annotation_info_.rv_annotation;
+    }
+    uint16_t GetGPUVAMask() const
+    {
+        return rv_annotation_info_.gpuva_mask;
+    }
+    uint16_t GetDescriptorMask() const
+    {
+        return rv_annotation_info_.descriptor_mask;
+    }
+    uint64_t GetShaderIDMask() const
+    {
+        return rv_annotation_info_.shaderid_mask;
+    }
 
-    uint64_t GetBlockIndex() { return block_index_ == 0 ? 0 : block_index_ - 1; }
+    auto GetSkipThreadsWithInvalidData() const
+    {
+        return skip_threads_with_invalid_data_;
+    }
+
+    uint64_t GetBlockIndex()
+    {
+        return block_index_ == 0 ? 0 : block_index_ - 1;
+    }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
     template <typename Derived>
@@ -180,7 +303,7 @@ class CommonCaptureManager
     {
         return CreateInstance(Derived::InitSingleton(), Derived::DestroySingleton);
     }
-
+    static bool ProcessMatchesCaptureName(const std::string& desired_name);
     CommonCaptureManager();
 
     enum CaptureModeFlags : uint32_t
@@ -204,6 +327,8 @@ class CommonCaptureManager
     util::ThreadData* GetThreadData();
     bool              IsCaptureModeTrack() const;
     bool              IsCaptureModeWrite() const;
+    bool              IsCaptureModeDisabled() const;
+    bool              IsCaptureSkippingCurrentThread() const;
 
     void DestroyInstance(ApiCaptureManager* singleton);
 
@@ -217,33 +342,115 @@ class CommonCaptureManager
                     const CaptureSettings::TraceSettings& trace_settings);
 
   public:
-    bool                                GetForceFileFlush() const { return force_file_flush_; }
-    CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const { return memory_tracking_mode_; }
-    bool                                GetPageGuardAlignBufferSizes() const { return page_guard_align_buffer_sizes_; }
-    bool                                GetPageGuardTrackAhbMemory() const { return page_guard_track_ahb_memory_; }
-    PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
-    const std::string&                  GetTrimKey() const { return trim_key_; }
-    bool                                IsTrimEnabled() const { return trim_enabled_; }
-    uint32_t                            GetCurrentFrame() const { return current_frame_; }
-    CaptureMode                         GetCaptureMode() const { return capture_mode_; }
-    void                                SetCaptureMode(CaptureMode new_mode) { capture_mode_ = new_mode; }
-    bool                                GetDebugLayerSetting() const { return debug_layer_; }
-    bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
-    bool                                GetDisableDxrSetting() const { return disable_dxr_; }
-    auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
-    bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
-    auto                                GetTrimBoundary() const { return trim_boundary_; }
-    auto                                GetTrimDrawCalls() const { return trim_draw_calls_; }
-    auto                                GetQueueSubmitCount() const { return queue_submit_count_; }
-    bool                                GetUseAssetFile() const { return use_asset_file_; }
-    bool                                GetIgnoreFrameBoundaryAndroid() const { return ignore_frame_boundary_android_; }
+    bool GetForceFileFlush() const
+    {
+        return force_file_flush_;
+    }
+    CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const
+    {
+        return memory_tracking_mode_;
+    }
+    bool GetPageGuardAlignBufferSizes() const
+    {
+        return page_guard_align_buffer_sizes_;
+    }
+    bool GetPageGuardTrackAhbMemory() const
+    {
+        return page_guard_track_ahb_memory_;
+    }
+    PageGuardMemoryMode GetPageGuardMemoryMode() const
+    {
+        return page_guard_memory_mode_;
+    }
+    const std::string& GetTrimKey() const
+    {
+        return trim_key_;
+    }
+    bool IsTrimEnabled() const
+    {
+        return trim_enabled_;
+    }
+    uint32_t GetCurrentFrame() const
+    {
+        return current_frame_;
+    }
+    CaptureMode GetCaptureMode() const
+    {
+        return capture_mode_;
+    }
+    void SetCaptureMode(CaptureMode new_mode)
+    {
+        capture_mode_ = new_mode;
+    }
+    bool GetDebugLayerSetting() const
+    {
+        return debug_layer_;
+    }
+    bool GetDebugDeviceLostSetting() const
+    {
+        return debug_device_lost_;
+    }
+    bool GetDisableDxrSetting() const
+    {
+        return disable_dxr_;
+    }
+    bool GetDisableMetaCommandSetting() const
+    {
+        return disable_meta_command_;
+    }
+    auto GetAccelStructPaddingSetting() const
+    {
+        return accel_struct_padding_;
+    }
+    bool GetForceFifoPresentModeSetting() const
+    {
+        return force_fifo_present_mode_;
+    }
+    auto GetTrimBoundary() const
+    {
+        return trim_boundary_;
+    }
+    auto GetTrimDrawCalls() const
+    {
+        return trim_draw_calls_;
+    }
+    auto GetQueueSubmitCount() const
+    {
+        return queue_submit_count_;
+    }
+    bool GetUseAssetFile() const
+    {
+        return use_asset_file_;
+    }
+    bool GetIgnoreFrameBoundaryAndroid() const
+    {
+        return ignore_frame_boundary_android_;
+    }
 
-    util::Compressor*      GetCompressor() { return compressor_.get(); }
-    std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
-    util::Keyboard&        GetKeyboard() { return keyboard_; }
-    const std::string&     GetScreenshotPrefix() const { return screenshot_prefix_; }
-    util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
-    CommandWriter*         GetCommandWriter() { return command_writer_.get(); }
+    util::Compressor* GetCompressor()
+    {
+        return compressor_.get();
+    }
+    std::mutex& GetMappedMemoryLock()
+    {
+        return mapped_memory_lock_;
+    }
+    util::Keyboard& GetKeyboard()
+    {
+        return keyboard_;
+    }
+    const std::string& GetScreenshotPrefix() const
+    {
+        return screenshot_prefix_;
+    }
+    util::ScreenshotFormat GetScreenShotFormat() const
+    {
+        return screenshot_format_;
+    }
+    CommandWriter* GetCommandWriter()
+    {
+        return command_writer_.get();
+    }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateTrimDrawCallsFilename(const std::string&                    base_filename,
@@ -270,8 +477,10 @@ class CommonCaptureManager
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
-    void
-    WriteBeginResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id, uint64_t max_resource_size);
+    void WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
+                                   format::HandleId    device_id,
+                                   uint64_t            total_copy_size,
+                                   uint64_t            max_resource_size);
 
     void WriteEndResourceInitCmd(format::ApiFamilyId api_family, format::HandleId device_id);
 
@@ -296,9 +505,15 @@ class CommonCaptureManager
         ++block_index_;
     }
 
-    void IncrementBlockIndex(uint64_t blocks) { block_index_ += blocks; }
+    void IncrementBlockIndex(uint64_t blocks)
+    {
+        block_index_ += blocks;
+    }
 
-    void SetWriteAssets() { write_assets_ = true; }
+    void SetWriteAssets()
+    {
+        write_assets_ = true;
+    }
 
     bool WriteFrameStateFile();
 
@@ -324,8 +539,12 @@ class CommonCaptureManager
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
-    static std::atomic<format::HandleId>                  unique_id_counter_;
     static ApiCallMutexT                                  api_call_mutex_;
+    static bool                                           initialize_log_;
+    static std::atomic<format::HandleId>                  default_unique_id_counter_;
+    static uint64_t                                       default_unique_id_offset_;
+    static thread_local bool                              force_default_unique_id_;
+    static thread_local std::vector<format::HandleId>     unique_id_stack_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
@@ -375,6 +594,7 @@ class CommonCaptureManager
     bool                                    screenshots_enabled_;
     std::vector<uint32_t>                   screenshot_indices_;
     bool                                    disable_dxr_;
+    bool                                    disable_meta_command_;
     uint32_t                                accel_struct_padding_;
     bool                                    iunknown_wrapping_;
     bool                                    force_command_serialization_;
@@ -387,6 +607,7 @@ class CommonCaptureManager
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
+    bool                                    skip_threads_with_invalid_data_;
 
     struct
     {

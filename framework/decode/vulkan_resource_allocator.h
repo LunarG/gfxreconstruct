@@ -49,50 +49,65 @@ class VulkanResourceAllocator
   public:
     struct Functions
     {
-        PFN_vkGetPhysicalDeviceProperties            get_physical_device_properties{ nullptr };
-        PFN_vkGetPhysicalDeviceMemoryProperties      get_physical_device_memory_properties{ nullptr };
-        PFN_vkGetPhysicalDeviceMemoryProperties2     get_physical_device_memory_properties2{ nullptr };
-        PFN_vkAllocateMemory                         allocate_memory{ nullptr };
-        PFN_vkFreeMemory                             free_memory{ nullptr };
-        PFN_vkGetDeviceMemoryCommitment              get_device_memory_commitment{ nullptr };
-        PFN_vkMapMemory                              map_memory{ nullptr };
-        PFN_vkUnmapMemory                            unmap_memory{ nullptr };
-        PFN_vkFlushMappedMemoryRanges                flush_memory_ranges{ nullptr };
-        PFN_vkInvalidateMappedMemoryRanges           invalidate_memory_ranges{ nullptr };
-        PFN_vkCreateBuffer                           create_buffer{ nullptr };
-        PFN_vkDestroyBuffer                          destroy_buffer{ nullptr };
-        PFN_vkGetBufferMemoryRequirements            get_buffer_memory_requirements{ nullptr };
-        PFN_vkGetBufferMemoryRequirements2           get_buffer_memory_requirements2{ nullptr };
-        PFN_vkBindBufferMemory                       bind_buffer_memory{ nullptr };
-        PFN_vkBindBufferMemory2                      bind_buffer_memory2{ nullptr };
-        PFN_vkCmdCopyBuffer                          cmd_copy_buffer{ nullptr };
-        PFN_vkCreateImage                            create_image{ nullptr };
-        PFN_vkDestroyImage                           destroy_image{ nullptr };
-        PFN_vkCreateVideoSessionKHR                  create_video_session{ nullptr };
-        PFN_vkDestroyVideoSessionKHR                 destroy_video_session{ nullptr };
-        PFN_vkGetImageMemoryRequirements             get_image_memory_requirements{ nullptr };
-        PFN_vkGetImageMemoryRequirements2            get_image_memory_requirements2{ nullptr };
-        PFN_vkGetVideoSessionMemoryRequirementsKHR   get_video_session_memory_requirements{ nullptr };
-        PFN_vkGetImageSubresourceLayout              get_image_subresource_layout{ nullptr };
-        PFN_vkBindImageMemory                        bind_image_memory{ nullptr };
-        PFN_vkBindImageMemory2                       bind_image_memory2{ nullptr };
-        PFN_vkBindVideoSessionMemoryKHR              bind_video_session_memory{ nullptr };
-        PFN_vkGetInstanceProcAddr                    get_instance_proc_addr{ nullptr };
-        PFN_vkGetDeviceProcAddr                      get_device_proc_addr{ nullptr };
-        PFN_vkGetDeviceQueue                         get_device_queue{ nullptr };
-        PFN_vkCreateCommandPool                      create_command_pool{ nullptr };
-        PFN_vkAllocateCommandBuffers                 allocate_command_buffers{ nullptr };
-        PFN_vkBeginCommandBuffer                     begin_command_buffer{ nullptr };
-        PFN_vkEndCommandBuffer                       end_command_buffer{ nullptr };
-        PFN_vkQueueSubmit                            queue_submit{ nullptr };
-        PFN_vkQueueWaitIdle                          queue_wait_idle{ nullptr };
-        PFN_vkResetCommandBuffer                     reset_command_buffer{ nullptr };
-        PFN_vkCmdCopyBufferToImage                   cmd_copy_buffer_to_image{ nullptr };
-        PFN_vkFreeCommandBuffers                     free_command_buffers{ nullptr };
-        PFN_vkDestroyCommandPool                     destroy_command_pool{ nullptr };
-        PFN_vkGetPhysicalDeviceQueueFamilyProperties get_physical_device_queue_family_properties{ nullptr };
-        PFN_vkSetDebugUtilsObjectNameEXT             set_debug_utils_object_name{ nullptr };
-        PFN_vkSetDebugUtilsObjectTagEXT              set_debug_utils_object_tag{ nullptr };
+        PFN_vkGetPhysicalDeviceProperties                  get_physical_device_properties{ nullptr };
+        PFN_vkGetPhysicalDeviceMemoryProperties            get_physical_device_memory_properties{ nullptr };
+        PFN_vkGetPhysicalDeviceMemoryProperties2           get_physical_device_memory_properties2{ nullptr };
+        PFN_vkAllocateMemory                               allocate_memory{ nullptr };
+        PFN_vkFreeMemory                                   free_memory{ nullptr };
+        PFN_vkGetDeviceMemoryCommitment                    get_device_memory_commitment{ nullptr };
+        PFN_vkMapMemory                                    map_memory{ nullptr };
+        PFN_vkMapMemory2                                   map_memory2{ nullptr };
+        PFN_vkUnmapMemory                                  unmap_memory{ nullptr };
+        PFN_vkUnmapMemory2                                 unmap_memory2{ nullptr };
+        PFN_vkFlushMappedMemoryRanges                      flush_memory_ranges{ nullptr };
+        PFN_vkInvalidateMappedMemoryRanges                 invalidate_memory_ranges{ nullptr };
+        PFN_vkCreateBuffer                                 create_buffer{ nullptr };
+        PFN_vkDestroyBuffer                                destroy_buffer{ nullptr };
+        PFN_vkGetBufferMemoryRequirements                  get_buffer_memory_requirements{ nullptr };
+        PFN_vkGetBufferMemoryRequirements2                 get_buffer_memory_requirements2{ nullptr };
+        PFN_vkBindBufferMemory                             bind_buffer_memory{ nullptr };
+        PFN_vkBindBufferMemory2                            bind_buffer_memory2{ nullptr };
+        PFN_vkCmdCopyBuffer                                cmd_copy_buffer{ nullptr };
+        PFN_vkCreateImage                                  create_image{ nullptr };
+        PFN_vkDestroyImage                                 destroy_image{ nullptr };
+        PFN_vkCreateVideoSessionKHR                        create_video_session{ nullptr };
+        PFN_vkDestroyVideoSessionKHR                       destroy_video_session{ nullptr };
+        PFN_vkGetImageMemoryRequirements                   get_image_memory_requirements{ nullptr };
+        PFN_vkGetImageMemoryRequirements2                  get_image_memory_requirements2{ nullptr };
+        PFN_vkGetVideoSessionMemoryRequirementsKHR         get_video_session_memory_requirements{ nullptr };
+        PFN_vkGetImageSubresourceLayout                    get_image_subresource_layout{ nullptr };
+        PFN_vkBindImageMemory                              bind_image_memory{ nullptr };
+        PFN_vkBindImageMemory2                             bind_image_memory2{ nullptr };
+        PFN_vkBindVideoSessionMemoryKHR                    bind_video_session_memory{ nullptr };
+        PFN_vkGetInstanceProcAddr                          get_instance_proc_addr{ nullptr };
+        PFN_vkGetDeviceProcAddr                            get_device_proc_addr{ nullptr };
+        PFN_vkGetDeviceQueue                               get_device_queue{ nullptr };
+        PFN_vkCreateCommandPool                            create_command_pool{ nullptr };
+        PFN_vkAllocateCommandBuffers                       allocate_command_buffers{ nullptr };
+        PFN_vkBeginCommandBuffer                           begin_command_buffer{ nullptr };
+        PFN_vkEndCommandBuffer                             end_command_buffer{ nullptr };
+        PFN_vkQueueSubmit                                  queue_submit{ nullptr };
+        PFN_vkQueueWaitIdle                                queue_wait_idle{ nullptr };
+        PFN_vkResetCommandBuffer                           reset_command_buffer{ nullptr };
+        PFN_vkCmdCopyBufferToImage                         cmd_copy_buffer_to_image{ nullptr };
+        PFN_vkFreeCommandBuffers                           free_command_buffers{ nullptr };
+        PFN_vkDestroyCommandPool                           destroy_command_pool{ nullptr };
+        PFN_vkGetPhysicalDeviceQueueFamilyProperties       get_physical_device_queue_family_properties{ nullptr };
+        PFN_vkSetDebugUtilsObjectNameEXT                   set_debug_utils_object_name{ nullptr };
+        PFN_vkSetDebugUtilsObjectTagEXT                    set_debug_utils_object_tag{ nullptr };
+        PFN_vkSetDeviceMemoryPriorityEXT                   set_device_memory_priority{ nullptr };
+        PFN_vkGetMemoryRemoteAddressNV                     get_memory_remote_address_nv{ nullptr };
+        PFN_vkCreateAccelerationStructureNV                create_acceleration_structure_nv{ nullptr };
+        PFN_vkDestroyAccelerationStructureNV               destroy_acceleration_structure_nv{ nullptr };
+        PFN_vkBindAccelerationStructureMemoryNV            bind_acceleration_structure_memory_nv{ nullptr };
+        PFN_vkGetAccelerationStructureMemoryRequirementsNV get_acceleration_structure_memory_requirements_nv{ nullptr };
+        PFN_vkGetMemoryFdKHR                               get_memory_fd{ nullptr };
+        PFN_vkQueueBindSparse                              queue_bind_sparse{ nullptr };
+        PFN_vkGetDeviceMemoryOpaqueCaptureAddress          get_device_memory_opaque_capture_address{ nullptr };
+        PFN_vkCreateSemaphore                              create_semaphore{ nullptr };
+        PFN_vkDestroySemaphore                             destroy_semaphore{ nullptr };
+        PFN_vkWaitForFences                                wait_for_fences{ nullptr };
+        PFN_vkGetAndroidHardwareBufferPropertiesANDROID    get_android_hardware_buffer_properties{ nullptr };
     };
 
   public:
@@ -132,11 +147,11 @@ class VulkanResourceAllocator
                                         const VkAllocationCallbacks*       allocation_callbacks,
                                         format::HandleId                   capture_id,
                                         VkVideoSessionKHR*                 session,
-                                        std::vector<ResourceData>*         allocator_datas) = 0;
+                                        ResourceData*                      allocator_data) = 0;
 
     virtual void DestroyVideoSession(VkVideoSessionKHR            session,
                                      const VkAllocationCallbacks* allocation_callbacks,
-                                     std::vector<ResourceData>    allocator_datas) = 0;
+                                     ResourceData                 allocator_data) = 0;
 
     virtual void GetBufferMemoryRequirements(VkBuffer              buffer,
                                              VkMemoryRequirements* memory_requirements,
@@ -163,7 +178,7 @@ class VulkanResourceAllocator
     virtual VkResult GetVideoSessionMemoryRequirementsKHR(VkVideoSessionKHR video_session,
                                                           uint32_t*         memory_requirements_count,
                                                           VkVideoSessionMemoryRequirementsKHR* memory_requirements,
-                                                          std::vector<ResourceData>            allocator_datas) = 0;
+                                                          ResourceData                         allocator_data) = 0;
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
@@ -204,10 +219,12 @@ class VulkanResourceAllocator
                                       const MemoryData*            allocator_memory_datas,
                                       VkMemoryPropertyFlags*       bind_memory_properties) = 0;
 
+    // allocator_memory_datas and bind_memory_properties match to bind_infos, but not memoryBindIndex in
+    // VkBindVideoSessionMemoryInfoKHR.
     virtual VkResult BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
                                             uint32_t                               bind_info_count,
                                             const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                            const ResourceData*                    allocator_session_datas,
+                                            const ResourceData                     allocator_session_data,
                                             const MemoryData*                      allocator_memory_datas,
                                             VkMemoryPropertyFlags*                 bind_memory_properties) = 0;
 
@@ -218,7 +235,11 @@ class VulkanResourceAllocator
                                void**           data,
                                MemoryData       allocator_data) = 0;
 
+    virtual VkResult MapMemory2(const VkMemoryMapInfo* memory_map_info, void** data, MemoryData allocator_data) = 0;
+
     virtual void UnmapMemory(VkDeviceMemory memory, MemoryData allocator_data) = 0;
+
+    virtual VkResult UnmapMemory2(const VkMemoryUnmapInfo* memory_unmap_info, MemoryData allocator_data) = 0;
 
     virtual VkResult FlushMappedMemoryRanges(uint32_t                   memory_range_count,
                                              const VkMappedMemoryRange* memory_ranges,
@@ -262,8 +283,25 @@ class VulkanResourceAllocator
     virtual void ReportBindVideoSessionIncompatibility(VkVideoSessionKHR                      video_session,
                                                        uint32_t                               bind_info_count,
                                                        const VkBindVideoSessionMemoryInfoKHR* bind_infos,
-                                                       const ResourceData*                    allocator_resource_datas,
+                                                       const ResourceData                     allocator_resource_data,
                                                        const MemoryData* allocator_memory_datas) = 0;
+
+    virtual void
+    ReportBindAccelerationStructureMemoryNVIncompatibility(uint32_t bind_info_count,
+                                                           const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+                                                           const ResourceData* allocator_acc_datas,
+                                                           const MemoryData*   allocator_memory_datas) = 0;
+
+    virtual void ReportQueueBindSparseIncompatibility(VkQueue                 queue,
+                                                      uint32_t                bind_info_count,
+                                                      const VkBindSparseInfo* bind_infos,
+                                                      VkFence                 fence,
+                                                      const ResourceData*     allocator_buf_datas,
+                                                      const MemoryData*       allocator_buf_mem_datas,
+                                                      const ResourceData*     allocator_img_op_datas,
+                                                      const MemoryData*       allocator_img_op_mem_datas,
+                                                      const ResourceData*     allocator_img_datas,
+                                                      const MemoryData*       allocator_img_mem_datas) = 0;
 
     // Direct allocation methods allocate memory and create resources without performing memory translation, while using
     // the replay memory type of the current allocator implementation.
@@ -330,6 +368,52 @@ class VulkanResourceAllocator
 
     virtual bool SupportsOpaqueDeviceAddresses() = 0;
     virtual bool SupportBindVideoSessionMemory() = 0;
+
+    virtual void SetDeviceMemoryPriority(VkDeviceMemory memory, float priority, MemoryData allocator_data) = 0;
+
+    virtual VkResult GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressInfoNV* memory_get_remote_address_info,
+                                              VkRemoteAddressNV*                    address,
+                                              MemoryData                            allocator_data) = 0;
+
+    virtual VkResult CreateAccelerationStructureNV(const VkAccelerationStructureCreateInfoNV* create_info,
+                                                   const VkAllocationCallbacks*               allocation_callbacks,
+                                                   format::HandleId                           capture_id,
+                                                   VkAccelerationStructureNV*                 acc_str,
+                                                   ResourceData*                              allocator_data) = 0;
+
+    virtual void DestroyAccelerationStructureNV(VkAccelerationStructureNV    acc_str,
+                                                const VkAllocationCallbacks* allocation_callbacks,
+                                                ResourceData                 allocator_data) = 0;
+
+    virtual void
+    GetAccelerationStructureMemoryRequirementsNV(const VkAccelerationStructureMemoryRequirementsInfoNV* info,
+                                                 VkMemoryRequirements2KHR* memory_requirements,
+                                                 ResourceData              allocator_data) = 0;
+
+    virtual VkResult BindAccelerationStructureMemoryNV(uint32_t                                       bind_info_count,
+                                                       const VkBindAccelerationStructureMemoryInfoNV* bind_infos,
+                                                       const ResourceData*    allocator_acc_datas,
+                                                       const MemoryData*      allocator_memory_datas,
+                                                       VkMemoryPropertyFlags* bind_memory_properties) = 0;
+
+    virtual VkResult GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int* pFd, MemoryData allocator_data) = 0;
+
+    virtual VkResult QueueBindSparse(VkQueue                 queue,
+                                     uint32_t                bind_info_count,
+                                     const VkBindSparseInfo* bind_infos,
+                                     VkFence                 fence,
+                                     ResourceData*           allocator_buf_datas,
+                                     const MemoryData*       allocator_buf_mem_datas,
+                                     VkMemoryPropertyFlags*  bind_buf_mem_properties,
+                                     ResourceData*           allocator_img_op_datas,
+                                     const MemoryData*       allocator_img_op_mem_datas,
+                                     VkMemoryPropertyFlags*  bind_img_op_mem_properties,
+                                     ResourceData*           allocator_img_datas,
+                                     const MemoryData*       allocator_img_mem_datas,
+                                     VkMemoryPropertyFlags*  bind_img_mem_properties) = 0;
+
+    virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
+                                                         MemoryData allocator_data) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

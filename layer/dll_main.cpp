@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,9 +20,12 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
-
+#if ENABLE_OPENXR_SUPPORT
+#include "encode/openxr_capture_manager.h"
+#endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
-#include "layer/trace_layer.h"
+#include "layer/layer_vulkan_entry.h"
+#include "generated/generated_vulkan_layer_func_table.h"
 
 #if defined(WIN32)
 
@@ -35,10 +38,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
-            gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
-                                                                  gfxrecon::vulkan_entry::dispatch_CreateDevice);
+            gfxrecon::vulkan_layer::LayerVulkanEntry::InitSingleton();
+            gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_layer::dispatch_CreateInstance,
+                                                                  gfxrecon::vulkan_layer::dispatch_CreateDevice);
+#if ENABLE_OPENXR_SUPPORT
+            gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(
+                gfxrecon::openxr_layer::dispatch_CreateApiLayerInstance);
+#endif // ENABLE_OPENXR_SUPPOR
             break;
         case DLL_PROCESS_DETACH:
+            gfxrecon::vulkan_layer::LayerVulkanEntry::DestroySingleton();
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
             //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
             //       we will need to split destroy_layer into a shutdown function, responsible for
@@ -59,12 +68,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 __attribute__((constructor)) static void create_trace_layer()
 {
-    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_entry::dispatch_CreateInstance,
-                                                          gfxrecon::vulkan_entry::dispatch_CreateDevice);
+    gfxrecon::vulkan_layer::LayerVulkanEntry::InitSingleton();
+    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::vulkan_layer::dispatch_CreateInstance,
+                                                          gfxrecon::vulkan_layer::dispatch_CreateDevice);
+#if ENABLE_OPENXR_SUPPORT
+    gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(gfxrecon::openxr_layer::dispatch_CreateApiLayerInstance);
+#endif // ENABLE_OPENXR_SUPPORT
 }
 
 __attribute__((destructor)) static void destroy_trace_layer()
 {
+    gfxrecon::vulkan_layer::LayerVulkanEntry::DestroySingleton();
     // TODO: Ensure that the trace is finalized.
 }
 

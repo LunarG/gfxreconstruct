@@ -3046,6 +3046,38 @@ static VKAPI_ATTR void VKAPI_CALL CmdDispatchGraphIndirectCountAMDX(
     VkCommandBuffer                             commandBuffer,
     VkDeviceAddress                             scratch,
     VkDeviceAddress                             countInfo);
+
+static VKAPI_ATTR VkResult VKAPI_CALL CreateCudaModuleNV(
+    VkDevice                                    device,
+    const VkCudaModuleCreateInfoNV*             pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkCudaModuleNV*                             pModule);
+
+static VKAPI_ATTR VkResult VKAPI_CALL GetCudaModuleCacheNV(
+    VkDevice                                    device,
+    VkCudaModuleNV                              module,
+    size_t*                                     pCacheSize,
+    void*                                       pCacheData);
+
+static VKAPI_ATTR VkResult VKAPI_CALL CreateCudaFunctionNV(
+    VkDevice                                    device,
+    const VkCudaFunctionCreateInfoNV*           pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkCudaFunctionNV*                           pFunction);
+
+static VKAPI_ATTR void VKAPI_CALL DestroyCudaModuleNV(
+    VkDevice                                    device,
+    VkCudaModuleNV                              module,
+    const VkAllocationCallbacks*                pAllocator);
+
+static VKAPI_ATTR void VKAPI_CALL DestroyCudaFunctionNV(
+    VkDevice                                    device,
+    VkCudaFunctionNV                            function,
+    const VkAllocationCallbacks*                pAllocator);
+
+static VKAPI_ATTR void VKAPI_CALL CmdCudaLaunchKernelNV(
+    VkCommandBuffer                             commandBuffer,
+    const VkCudaLaunchInfoNV*                   pLaunchInfo);
 #endif /* VK_ENABLE_BETA_EXTENSIONS */
 
 
@@ -3633,37 +3665,6 @@ static VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
 
 
 
-static VKAPI_ATTR VkResult VKAPI_CALL CreateCudaModuleNV(
-    VkDevice                                    device,
-    const VkCudaModuleCreateInfoNV*             pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkCudaModuleNV*                             pModule);
-
-static VKAPI_ATTR VkResult VKAPI_CALL GetCudaModuleCacheNV(
-    VkDevice                                    device,
-    VkCudaModuleNV                              module,
-    size_t*                                     pCacheSize,
-    void*                                       pCacheData);
-
-static VKAPI_ATTR VkResult VKAPI_CALL CreateCudaFunctionNV(
-    VkDevice                                    device,
-    const VkCudaFunctionCreateInfoNV*           pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkCudaFunctionNV*                           pFunction);
-
-static VKAPI_ATTR void VKAPI_CALL DestroyCudaModuleNV(
-    VkDevice                                    device,
-    VkCudaModuleNV                              module,
-    const VkAllocationCallbacks*                pAllocator);
-
-static VKAPI_ATTR void VKAPI_CALL DestroyCudaFunctionNV(
-    VkDevice                                    device,
-    VkCudaFunctionNV                            function,
-    const VkAllocationCallbacks*                pAllocator);
-
-static VKAPI_ATTR void VKAPI_CALL CmdCudaLaunchKernelNV(
-    VkCommandBuffer                             commandBuffer,
-    const VkCudaLaunchInfoNV*                   pLaunchInfo);
 
 
 #ifdef VK_USE_PLATFORM_METAL_EXT
@@ -5234,12 +5235,14 @@ static const std::unordered_map<std::string, void*> name_to_funcptr_map = {
     {"vkDestroyPrivateDataSlotEXT", (void*)DestroyPrivateDataSlotEXT},
     {"vkSetPrivateDataEXT", (void*)SetPrivateDataEXT},
     {"vkGetPrivateDataEXT", (void*)GetPrivateDataEXT},
+#ifdef VK_ENABLE_BETA_EXTENSIONS
     {"vkCreateCudaModuleNV", (void*)CreateCudaModuleNV},
     {"vkGetCudaModuleCacheNV", (void*)GetCudaModuleCacheNV},
     {"vkCreateCudaFunctionNV", (void*)CreateCudaFunctionNV},
     {"vkDestroyCudaModuleNV", (void*)DestroyCudaModuleNV},
     {"vkDestroyCudaFunctionNV", (void*)DestroyCudaFunctionNV},
     {"vkCmdCudaLaunchKernelNV", (void*)CmdCudaLaunchKernelNV},
+#endif
 #ifdef VK_USE_PLATFORM_METAL_EXT
     {"vkExportMetalObjectsEXT", (void*)ExportMetalObjectsEXT},
 #endif

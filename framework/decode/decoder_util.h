@@ -49,15 +49,16 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
     return consumers.empty();
 }
 
-static VkQueue GetDeviceQueue(const encode::VulkanDeviceTable* device_table,
-                              const VulkanDeviceInfo*          device_info,
-                              uint32_t                         queue_family_index,
-                              uint32_t                         queue_index)
+static VkQueue GetDeviceQueue(const graphics::VulkanDeviceTable* device_table,
+                              const VulkanDeviceInfo*            device_info,
+                              uint32_t                           queue_family_index,
+                              uint32_t                           queue_index)
 {
     VkQueue queue = VK_NULL_HANDLE;
 
-    const auto queue_family_flags = device_info->queue_family_creation_flags.find(queue_family_index);
-    assert(queue_family_flags != device_info->queue_family_creation_flags.end());
+    const auto queue_family_flags =
+        device_info->enabled_queue_family_flags.queue_family_creation_flags.find(queue_family_index);
+    assert(queue_family_flags != device_info->enabled_queue_family_flags.queue_family_creation_flags.end());
 
     // If the queue has flags, it has to use GetDeviceQueue2 to get it.
     if (queue_family_flags->second != 0)

@@ -137,6 +137,7 @@ enum CommandHandleType : uint32_t
     DescriptorUpdateTemplateHandle,
     IndirectCommandsLayoutEXTHandle,
     IndirectExecutionSetEXTHandle,
+    DeviceMemoryHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };

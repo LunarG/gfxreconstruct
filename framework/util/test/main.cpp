@@ -403,3 +403,48 @@ TEST_CASE("UtcString", "[datetime]")
 
     gfxrecon::util::Log::Release();
 }
+
+TEST_CASE("ExpandPathVariables", "[strings]")
+{
+    using namespace gfxrecon::util;
+
+    Log::Init(Log::kDebugSeverity);
+
+    filepath::FileInfo info{};
+
+    // Empty AppName
+    REQUIRE(ExpandPathVariables(info, "${AppName}/file.gfxr") == "/file.gfxr");
+#ifdef __ANDROID__
+    REQUIRE(ExpandPathVariables(info, "${AppName}/${InternalDataPath}") == "//data/data/");
+#endif
+
+#define APP_NAME "com.example.app"
+    const char* app_name = APP_NAME;
+    strncpy(info.AppName, app_name, std::strlen(app_name));
+
+    const std::string expected_internal = "/data/data/" APP_NAME;
+
+    // No variables
+    REQUIRE(ExpandPathVariables(info, "/foo/bar.txt") == "/foo/bar.txt");
+    // AppName variable
+    REQUIRE(ExpandPathVariables(info, "${AppName}/file.gfxr") == APP_NAME "/file.gfxr");
+    // Empty path
+    REQUIRE(ExpandPathVariables(info, "") == "");
+    // Multiple occurrences
+    REQUIRE(ExpandPathVariables(info, "${AppName}/${AppName}/${AppName}") == APP_NAME "/" APP_NAME "/" APP_NAME);
+    // Unknown variable (should remain unchanged)
+    REQUIRE(ExpandPathVariables(info, "${UnknownVar}/file.gfxr") == "${UnknownVar}/file.gfxr");
+
+#ifdef __ANDROID__
+    // InternalDataPath variable
+    REQUIRE(ExpandPathVariables(info, "${InternalDataPath}/file.gfxr") == expected_internal + "/file.gfxr");
+    // Both variables
+    REQUIRE(ExpandPathVariables(info, "${InternalDataPath}/${AppName}/file.gfxr") == expected_internal + "/" APP_NAME
+                                                                                                         "/file.gfxr");
+    // Mixed known and unknown variables
+    REQUIRE(ExpandPathVariables(info, "${AppName}/${UnknownVar}/${InternalDataPath}") ==
+            APP_NAME "/${UnknownVar}/" + expected_internal);
+#endif
+
+    Log::Release();
+}

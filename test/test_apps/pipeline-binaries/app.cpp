@@ -21,49 +21,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "pipeline_binaries_app.h"
+
 #include <iostream>
 
 #include <vulkan/vulkan_core.h>
 
-#include <test_app_base.h>
-
-#include <SDL3/SDL_main.h>
-
-namespace gfxrecon
-{
-
-namespace test_app
-{
-
-namespace pipeline_binaries
-{
-
-class App : public gfxrecon::test::TestAppBase
-{
-  public:
-    App() = default;
-
-  private:
-    VkPhysicalDeviceDynamicRenderingFeatures  dynamic_rendering_features_;
-    VkPhysicalDevicePipelineBinaryFeaturesKHR pipeline_binary_features_;
-
-    VkQueue graphics_queue_;
-
-    VkPipelineLayout pipeline_layout_;
-    VkPipeline       graphics_pipeline_;
-
-    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
-    void configure_physical_device_selector(test::PhysicalDeviceSelector& phys_device_selector,
-                                            vkmock::TestConfig*) override;
-
-    void configure_device_builder(test::DeviceBuilder&        device_builder,
-                                  test::PhysicalDevice const& physical_device,
-                                  vkmock::TestConfig*) override;
-    void create_graphics_pipeline();
-    void cleanup() override;
-    bool frame(const int frame_num) override;
-    void setup() override;
-};
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(pipeline_binaries)
 
 void App::configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig* test_config)
 {
@@ -100,8 +66,15 @@ void App::configure_device_builder(test::DeviceBuilder&        device_builder,
 
 void App::create_graphics_pipeline()
 {
-    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/vert.spv");
-    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "shaders/frag.spv");
+#ifdef __ANDROID__
+    auto vert_module =
+        gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/vert.spv", init.android_app);
+    auto frag_module =
+        gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/frag.spv", init.android_app);
+#else
+    auto vert_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/vert.spv");
+    auto frag_module = gfxrecon::test::readShaderFromFile(init.disp, "pipeline-binaries/shaders/frag.spv");
+#endif
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType                           = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -306,23 +279,6 @@ void App::setup()
     create_graphics_pipeline();
 }
 
-} // namespace pipeline_binaries
-
-} // namespace test_app
-
-} // namespace gfxrecon
-
-int main(int argc, char* argv[])
-{
-    try
-    {
-        gfxrecon::test_app::pipeline_binaries::App app{};
-        app.run("pipeline binaries");
-        return 0;
-    }
-    catch (const std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        return -1;
-    }
-}
+GFXRECON_END_NAMESPACE(pipeline_binaries)
+GFXRECON_END_NAMESPACE(test_app)
+GFXRECON_END_NAMESPACE(gfxrecon)

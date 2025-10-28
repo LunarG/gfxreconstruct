@@ -21,6 +21,7 @@
  */
 
 #include "vulkan_capture_common.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -126,6 +127,20 @@ static void CommonWriteFillMemoryCmd(format::HandleId      memory_id,
     else
     {
         vulkan_state_writer->WriteFillMemoryCmd(memory_id, 0u, size, data);
+    }
+}
+
+// Wrap vkuFormatRequiresYcbcrConversion so that we handle VK_FORMAT_UNDEFINED as a YCbCr format which applies for AHB
+// external formats
+static bool ExternalFormatRequiresYcbcrConversion(VkFormat format)
+{
+    if (format == VK_FORMAT_UNDEFINED)
+    {
+        return true;
+    }
+    else
+    {
+        return vkuFormatRequiresYcbcrConversion(format);
     }
 }
 
@@ -239,13 +254,13 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
     else
     {
         // The AHB is not CPU-readable, copy the data into a host visible buffer on the GPU
-        format::HandleId           device_id               = device_wrapper->handle_id;
-        VkDevice                   device                  = device_wrapper->handle;
-        auto                       physical_device_wrapper = device_wrapper->physical_device;
-        auto                       physical_device         = physical_device_wrapper->handle;
-        const VulkanInstanceTable* instance_table          = vulkan_wrappers::GetInstanceTable(physical_device);
-        auto                       device_table            = vulkan_wrappers::GetDeviceTable(device);
-        auto                       memory_properties       = &physical_device_wrapper->memory_properties;
+        format::HandleId                     device_id               = device_wrapper->handle_id;
+        VkDevice                             device                  = device_wrapper->handle;
+        auto                                 physical_device_wrapper = device_wrapper->physical_device;
+        auto                                 physical_device         = physical_device_wrapper->handle;
+        const graphics::VulkanInstanceTable* instance_table    = vulkan_wrappers::GetInstanceTable(physical_device);
+        auto                                 device_table      = vulkan_wrappers::GetDeviceTable(device);
+        auto                                 memory_properties = &physical_device_wrapper->memory_properties;
 
         uint32_t device_queue_index = -1;
         uint32_t queue_family_index = -1;
@@ -404,9 +419,12 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         sampler_ycbcr_conversion_info.pNext                        = nullptr;
         sampler_ycbcr_conversion_info.conversion                   = ycbcr_conversion;
 
+        auto ahb_image_aspect_mask = graphics::GetFormatAspects(format_properties.format);
+
         VkImageViewCreateInfo image_view_create_info;
-        image_view_create_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.pNext                           = &sampler_ycbcr_conversion_info;
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.pNext =
+            ExternalFormatRequiresYcbcrConversion(format_properties.format) ? &sampler_ycbcr_conversion_info : nullptr;
         image_view_create_info.flags                           = 0u;
         image_view_create_info.image                           = ahb_image;
         image_view_create_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
@@ -415,7 +433,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         image_view_create_info.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
         image_view_create_info.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
         image_view_create_info.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        image_view_create_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_view_create_info.subresourceRange.aspectMask     = ahb_image_aspect_mask;
         image_view_create_info.subresourceRange.baseMipLevel   = 0u;
         image_view_create_info.subresourceRange.levelCount     = 1u;
         image_view_create_info.subresourceRange.baseArrayLayer = 0u;
@@ -426,8 +444,9 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             vk_result = device_table->CreateImageView(device, &image_view_create_info, nullptr, &image_view);
 
         VkSamplerCreateInfo sampler_create_info;
-        sampler_create_info.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        sampler_create_info.pNext                   = &sampler_ycbcr_conversion_info;
+        sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        sampler_create_info.pNext =
+            ExternalFormatRequiresYcbcrConversion(format_properties.format) ? &sampler_ycbcr_conversion_info : nullptr;
         sampler_create_info.flags                   = 0u;
         sampler_create_info.magFilter               = VK_FILTER_LINEAR;
         sampler_create_info.minFilter               = VK_FILTER_LINEAR;
@@ -508,6 +527,8 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         if (vk_result == VK_SUCCESS)
             vk_result = device_table->BindImageMemory(device, host_image, host_image_memory, 0);
 
+        auto host_image_aspect_mask = graphics::GetFormatAspects(host_image_format);
+
         VkImageViewCreateInfo host_image_view_create_info{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, nullptr };
         host_image_view_create_info.flags                           = 0u;
         host_image_view_create_info.image                           = host_image;
@@ -517,7 +538,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         host_image_view_create_info.components.g                    = VK_COMPONENT_SWIZZLE_IDENTITY;
         host_image_view_create_info.components.b                    = VK_COMPONENT_SWIZZLE_IDENTITY;
         host_image_view_create_info.components.a                    = VK_COMPONENT_SWIZZLE_IDENTITY;
-        host_image_view_create_info.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        host_image_view_create_info.subresourceRange.aspectMask     = host_image_aspect_mask;
         host_image_view_create_info.subresourceRange.baseMipLevel   = 0u;
         host_image_view_create_info.subresourceRange.levelCount     = 1u;
         host_image_view_create_info.subresourceRange.baseArrayLayer = 0u;
@@ -575,7 +596,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[0].image                           = ahb_image;
-            barriers[0].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            barriers[0].subresourceRange.aspectMask     = ahb_image_aspect_mask;
             barriers[0].subresourceRange.baseMipLevel   = 0u;
             barriers[0].subresourceRange.levelCount     = 1u;
             barriers[0].subresourceRange.baseArrayLayer = 0u;
@@ -589,7 +610,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
             barriers[1].image                           = host_image;
-            barriers[1].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+            barriers[1].subresourceRange.aspectMask     = host_image_aspect_mask;
             barriers[1].subresourceRange.baseMipLevel   = 0u;
             barriers[1].subresourceRange.levelCount     = 1u;
             barriers[1].subresourceRange.baseArrayLayer = 0u;
@@ -608,10 +629,10 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
 
             VkImageCopy copy_region               = {};
             copy_region.dstSubresource.layerCount = 1;
-            copy_region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            copy_region.dstSubresource.aspectMask = host_image_aspect_mask;
             copy_region.extent                    = { desc.width, desc.height, 1 };
             copy_region.srcSubresource.layerCount = 1;
-            copy_region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            copy_region.srcSubresource.aspectMask = ahb_image_aspect_mask;
 
             device_table->CmdCopyImage(command_buffer,
                                        ahb_image,
@@ -846,7 +867,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                 barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[0].image                           = ahb_image;
-                barriers[0].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                barriers[0].subresourceRange.aspectMask     = ahb_image_aspect_mask;
                 barriers[0].subresourceRange.baseMipLevel   = 0u;
                 barriers[0].subresourceRange.levelCount     = 1u;
                 barriers[0].subresourceRange.baseArrayLayer = 0u;
@@ -859,7 +880,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                 barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                 barriers[1].image                           = host_image;
-                barriers[1].subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                barriers[1].subresourceRange.aspectMask     = host_image_aspect_mask;
                 barriers[1].subresourceRange.baseMipLevel   = 0u;
                 barriers[1].subresourceRange.levelCount     = 1u;
                 barriers[1].subresourceRange.baseArrayLayer = 0u;

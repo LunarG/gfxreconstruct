@@ -71,7 +71,7 @@ class VulkanDispatchTableGeneratorOptions(VulkanBaseGeneratorOptions):
             ''
         ))
 
-        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'encode'))
+        self.begin_end_file_data.namespaces.extend(('gfxrecon', 'graphics'))
 
 class VulkanDispatchTableGenerator(VulkanBaseGenerator, KhronosDispatchTableGenerator):
     """VulkanDispatchTableGenerator - subclass of VulkanBaseGenerator.
@@ -133,9 +133,3 @@ class VulkanDispatchTableGenerator(VulkanBaseGenerator, KhronosDispatchTableGene
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False

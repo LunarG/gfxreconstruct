@@ -38,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_D3D12SerializeRootSignature(
@@ -519,7 +519,14 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetHeapProperties(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pHeapProperties"], pHeapProperties, options);
-        FieldToJson_D3D12_HEAP_FLAGS(args["pHeapFlags"], *pHeapFlags->GetPointer(), options);
+        if (!pHeapFlags->IsNull())
+        {
+            FieldToJson_D3D12_HEAP_FLAGS(args["pHeapFlags"], *pHeapFlags->GetPointer(), options);
+        }
+        else
+        {
+            FieldToJson(args["pHeapFlags"], nullptr, options);
+        }
     }
     writer_->WriteBlockEnd();
 }
@@ -1863,7 +1870,14 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         FieldToJson(args["pResourceRegionSizes"], pResourceRegionSizes, options);
         FieldToJson(args["pHeap"], pHeap, options);
         FieldToJson(args["NumRanges"], NumRanges, options);
-        FieldToJson_D3D12_TILE_RANGE_FLAGS(args["pRangeFlags"], *pRangeFlags->GetPointer(), options);
+        if (!pRangeFlags->IsNull())
+        {
+            FieldToJson_D3D12_TILE_RANGE_FLAGS(args["pRangeFlags"], *pRangeFlags->GetPointer(), options);
+        }
+        else
+        {
+            FieldToJson(args["pRangeFlags"], nullptr, options);
+        }
         FieldToJson(args["pHeapRangeStartOffsets"], pHeapRangeStartOffsets, options);
         FieldToJson(args["pRangeTileCounts"], pRangeTileCounts, options);
         FieldToJson_D3D12_TILE_MAPPING_FLAGS(args["Flags"], Flags, options);
@@ -5036,6 +5050,26 @@ void Dx12JsonConsumer::Process_ID3D12Tools1_ClearReservedGPUVARangesList(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        format::HandleId pBlob)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Tools2", object_id, "SetApplicationSpecificDriverState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pAdapter"], pAdapter, options);
+        FieldToJson(args["pBlob"], pBlob, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12PageableTools_GetAllocation(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -5067,6 +5101,37 @@ void Dx12JsonConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
     {
         FieldToJsonAsHex(args["nextAllocationVirtualAddress"], nextAllocationVirtualAddress, options);
     }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<ID3D10Blob*>* ppBlob)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools1", object_id, "GetApplicationSpecificDriverState");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppBlob"], ppBlob, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools1", object_id, "GetApplicationSpecificDriverBlobStatus");
+    const JsonOptions& options = writer_->GetOptions();
+    FieldToJson_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(method[format::kNameReturn], return_value, options);
     writer_->WriteBlockEnd();
 }
 
@@ -5650,7 +5715,7 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GBVReserved1(
 }
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferPointer(
@@ -5720,7 +5785,7 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCall
 }
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_ID3D12Debug_EnableDebugLayer(
@@ -6985,7 +7050,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
 }
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_CreateDXGIFactory(
@@ -8093,7 +8158,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
 }
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -8932,7 +8997,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
 }
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_CreateDXGIFactory2(
@@ -9441,7 +9506,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
 }
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -9708,7 +9773,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNo
 }
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
@@ -9806,7 +9871,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
 }
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_DXGIDeclareAdapterRemovalSupport(
@@ -9942,7 +10007,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 }
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
 void Dx12JsonConsumer::Process_IUnknown_QueryInterface(

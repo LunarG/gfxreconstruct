@@ -37,6 +37,7 @@ target_sources(gfxrecon_format
                     ${CMAKE_CURRENT_LIST_DIR}/format_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/format_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/platform_types.h
+                    ${CMAKE_CURRENT_LIST_DIR}/platform_types_d3d_overrides.h
               )
 
 target_include_directories(gfxrecon_format

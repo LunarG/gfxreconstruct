@@ -446,9 +446,49 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value)
+{
+    EncodeStruct(encoder, value.DriverMatchingIdentifier);
+    encoder->EncodeUInt64Value(value.SerializedSizeInBytesIncludingHeader);
+    encoder->EncodeUInt64Value(value.DeserializedSizeInBytes);
+
+    encoder->EncodeEnumValue(value.HeaderPostambleType);
+
+    switch (value.HeaderPostambleType)
+    {
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BOTTOM_LEVEL_POINTERS:
+            encoder->EncodeUInt32Value(value.NumBottomLevelAccelerationStructurePointersAfterHeader);
+            break;
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BLOCKS:
+            encoder->EncodeUInt32Value(value.NumBlocks);
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE(
+                "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
+                value.HeaderPostambleType);
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder*                                                                encoder,
+                  const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value)
+{
+    encoder->EncodeUInt64Value(value.SerializedSizeInBytes);
+
+    // union
+    encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructureHeaderAndPointerListPairs);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.ByteOffset);
+    encoder->EncodeUInt32Value(value.SubdivisionLevel);
+    encoder->EncodeEnumValue(value.Format);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_DESC& value)

@@ -1,23 +1,40 @@
+
+add_library(native_app_glue STATIC
+            ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+
+target_include_directories(native_app_glue
+                           PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue)
+
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/util/ahardwarebuffer_format_converter.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/ahardwarebuffer_format_converter.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/intent.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/android/intent.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/alignment_utils.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/clock_cache.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/defines.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/file_input_stream.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/file_input_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/hash.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/heap_buffer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/heap_buffer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/json_util.h
@@ -50,12 +67,16 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/type_traits_extras.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/zstd_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/zstd_compressor.cpp
+                   $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
+                   $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
+                   $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
               )
@@ -69,16 +90,24 @@ target_compile_definitions(gfxrecon_util
 
 target_include_directories(gfxrecon_util
                            PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
                                ${GFXRECON_SOURCE_DIR}/framework)
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_util PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_link_libraries(gfxrecon_util
-                          platform_specific
-                          vulkan_registry
-                          spirv_registry
-                          spirv-reflect-static
-                          nlohmann_json::nlohmann_json
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
-                          z)
+                      platform_specific
+                      vulkan_registry
+                      spirv_registry
+                      spirv-reflect-static
+                      nlohmann_json::nlohmann_json
+                      android
+                      log
+                      ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
+                      ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
+                      z)

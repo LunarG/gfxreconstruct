@@ -31,6 +31,10 @@
 #include "util/file_path.h"
 #include "util/platform.h"
 
+#if ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_json_consumer.h"
+#endif
+
 #include "generated/generated_vulkan_json_consumer.h"
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
@@ -39,12 +43,20 @@
 #endif
 
 using gfxrecon::util::JsonFormat;
+
+#if ENABLE_OPENXR_SUPPORT
+using OpenXrJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
+    gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::OpenXrExportJsonConsumer>>;
+#endif
+
 using VulkanJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
     gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>>;
+
 #if defined(D3D12_SUPPORT)
 using Dx12JsonConsumer =
     gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
 #endif
+
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
 const char kArguments[] = "--output,--format,--log-level,--frame-range";
@@ -97,14 +109,19 @@ static void PrintUsage(const char* exe_name)
 #endif
 }
 
-static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
-                                     const std::string&                    input_filename,
-                                     JsonFormat                            output_format)
+static void GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_parser,
+                              const std::string&                    input_filename,
+                              JsonFormat                            output_format,
+                              bool&                                 output_to_stdout,
+                              std::string&                          output_stem,
+                              std::string&                          output_filename,
+                              std::string&                          output_data_dir)
 {
-    std::string output_filename;
     if (arg_parser.IsArgumentSet(kOutput))
     {
         output_filename = arg_parser.GetArgumentValue(kOutput);
+
+        output_to_stdout = (output_filename == "stdout");
     }
     else
     {
@@ -116,8 +133,24 @@ static std::string GetOutputFileName(const gfxrecon::util::ArgumentParser& arg_p
             output_filename = output_filename.substr(0, ext_pos);
         }
         output_filename += "." + gfxrecon::util::get_json_format(output_format);
+
+        output_to_stdout = false;
     }
-    return output_filename;
+
+    // If we're outputing to stdout, we still need to use a data filename using the
+    // capture file prefix
+    std::string output_dir;
+    if (output_to_stdout)
+    {
+        output_stem = gfxrecon::util::filepath::GetFilenameStem(input_filename);
+        output_dir  = gfxrecon::util::filepath::GetBasedir(input_filename);
+    }
+    else
+    {
+        output_stem = gfxrecon::util::filepath::GetFilenameStem(output_filename);
+        output_dir  = gfxrecon::util::filepath::GetBasedir(output_filename);
+    }
+    output_data_dir = gfxrecon::util::filepath::Join(output_dir, output_stem);
 }
 
 static gfxrecon::util::JsonFormat GetOutputFormat(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -206,18 +239,19 @@ int main(int argc, const char** argv)
     gfxrecon::util::Log::Release();
     gfxrecon::util::Log::Init(log_settings);
 
+    std::string filename_stem;
+    std::string output_filename;
+    std::string output_dir;
+    bool        output_to_stdout;
     const auto& positional_arguments = arg_parser.GetPositionalArguments();
     std::string input_filename       = positional_arguments[0];
     JsonFormat  output_format        = GetOutputFormat(arg_parser);
-    std::string output_filename      = GetOutputFileName(arg_parser, input_filename, output_format);
-    std::string filename_stem        = gfxrecon::util::filepath::GetFilenameStem(output_filename);
-    std::string output_dir           = gfxrecon::util::filepath::GetBasedir(output_filename);
-    std::string data_dir             = gfxrecon::util::filepath::Join(output_dir, filename_stem);
-    bool        dump_binaries        = arg_parser.IsOptionSet(kIncludeBinariesOption);
-    bool        expand_flags         = arg_parser.IsOptionSet(kExpandFlagsOption);
-    bool        file_per_frame       = arg_parser.IsOptionSet(kFilePerFrameOption);
-    bool        output_to_stdout     = output_filename == "stdout";
+    GetOutputFileName(
+        arg_parser, input_filename, output_format, output_to_stdout, filename_stem, output_filename, output_dir);
 
+    bool                  dump_binaries  = arg_parser.IsOptionSet(kIncludeBinariesOption);
+    bool                  expand_flags   = arg_parser.IsOptionSet(kExpandFlagsOption);
+    bool                  file_per_frame = arg_parser.IsOptionSet(kFilePerFrameOption);
     std::vector<uint32_t> frame_indices;
     bool                  frame_range_option = GetFrameIndices(arg_parser, frame_indices);
 
@@ -236,7 +270,8 @@ int main(int argc, const char** argv)
 #ifndef D3D12_SUPPORT
     bool detected_d3d12  = false;
     bool detected_vulkan = false;
-    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+    bool detected_openxr = false;
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
 
     if (!detected_vulkan && !is_asset_file)
     {
@@ -253,7 +288,7 @@ int main(int argc, const char** argv)
 
     if (dump_binaries)
     {
-        gfxrecon::util::filepath::MakeDirectory(data_dir);
+        gfxrecon::util::filepath::MakeDirectory(output_dir);
     }
 
     if (file_processor.Initialize(input_filename))
@@ -294,12 +329,20 @@ int main(int argc, const char** argv)
         else
         {
             gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
-            VulkanJsonConsumer                     json_consumer;
-            gfxrecon::util::JsonOptions            json_options;
-            gfxrecon::decode::VulkanDecoder        decoder;
-            decoder.AddConsumer(&json_consumer);
-            file_processor.AddDecoder(&decoder);
 
+            VulkanJsonConsumer              vulkan_json_consumer;
+            gfxrecon::decode::VulkanDecoder vulkan_decoder;
+            vulkan_decoder.AddConsumer(&vulkan_json_consumer);
+            file_processor.AddDecoder(&vulkan_decoder);
+
+#if ENABLE_OPENXR_SUPPORT
+            OpenXrJsonConsumer              openxr_json_consumer;
+            gfxrecon::decode::OpenXrDecoder openxr_decoder;
+            openxr_decoder.AddConsumer(&openxr_json_consumer);
+            file_processor.AddDecoder(&openxr_decoder);
+#endif
+
+            gfxrecon::util::JsonOptions json_options;
             json_options.root_dir      = output_dir;
             json_options.data_sub_dir  = filename_stem;
             json_options.format        = output_format;
@@ -313,7 +356,15 @@ int main(int argc, const char** argv)
             const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
-            json_consumer.Initialize(&json_writer, vulkan_version);
+            vulkan_json_consumer.Initialize(&json_writer, vulkan_version);
+
+#if ENABLE_OPENXR_SUPPORT
+            const std::string openxr_version{ std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+                                              std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
+                                              std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION)) };
+            openxr_json_consumer.Initialize(&json_writer, openxr_version);
+#endif
+
             json_writer.StartStream(&out_stream);
 
             if (frame_range_option)
@@ -406,8 +457,14 @@ int main(int argc, const char** argv)
                     }
                 }
             }
-            json_consumer.Destroy();
 
+            vulkan_json_consumer.Destroy();
+
+#if ENABLE_OPENXR_SUPPORT
+            openxr_json_consumer.Destroy();
+#endif
+
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
 #ifdef D3D12_SUPPORT
             dx12_json_consumer.Destroy();
 #endif
@@ -415,16 +472,13 @@ int main(int argc, const char** argv)
             if (tmp_file_handle != nullptr)
             {
                 gfxrecon::util::platform::FileClose(tmp_file_handle);
+                tmp_file_handle = nullptr;
             }
 
             if (!output_to_stdout)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
-            }
-            else
-            {
-                // Just make sure we haven't accidentally left a file open.
-                GFXRECON_ASSERT(out_file_handle == nullptr);
+                out_file_handle = nullptr;
             }
 
             if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)

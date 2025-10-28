@@ -57,6 +57,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t data[4], const ut
     FieldToJson(jdata, data, 4, options);
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const LUID& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata, *reinterpret_cast<const int64_t*>(&data), options);
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& data, const util::JsonOptions& options)
+{
+    FieldToJson(jdata["QuadPart"], data.QuadPart, options);
+}
+
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options)
 {
     if (options.hex_handles)
@@ -179,15 +189,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, con
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, const util::JsonOptions& options)
 {
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
-    jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
+    jdata = util::strings::convert_wstring_to_utf8(data);
 }
 
 #if defined(D3D12_SUPPORT)
@@ -275,6 +277,7 @@ void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const u
     FieldToJson(jdata, HresultToString(hresult), options);
 }
 
+#if defined(D3D12_SUPPORT)
 void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const format::InitDx12AccelerationStructureGeometryDesc& data,
                  const util::JsonOptions&                                 options)
@@ -292,6 +295,7 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
     FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
     FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
 }
+#endif // defined(D3D12_SUPPORT)
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options)
 {
@@ -385,7 +389,7 @@ bool RepresentBinaryFile(const util::JsonOptions& json_options,
         {
             std::string filename = GenerateFilename(filename_base, instance_counter);
             std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, basename);
+            std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, filename);
             if (WriteBinaryFile(filepath, data_size, data))
             {
                 FieldToJson(jdata, basename, json_options);

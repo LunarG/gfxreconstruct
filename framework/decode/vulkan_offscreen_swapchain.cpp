@@ -27,18 +27,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                            original_result,
-                                                 VulkanInstanceInfo*                 instance_info,
-                                                 const std::string&                  wsi_extension,
-                                                 VkFlags                             flags,
-                                                 HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                                 const encode::VulkanInstanceTable*  instance_table,
-                                                 application::Application*           application,
-                                                 const int32_t                       xpos,
-                                                 const int32_t                       ypos,
-                                                 const uint32_t                      width,
-                                                 const uint32_t                      height,
-                                                 bool                                force_windowed)
+VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                             original_result,
+                                                 VulkanInstanceInfo*                  instance_info,
+                                                 const std::string&                   wsi_extension,
+                                                 VkFlags                              flags,
+                                                 HandlePointerDecoder<VkSurfaceKHR>*  surface,
+                                                 const graphics::VulkanInstanceTable* instance_table,
+                                                 application::Application*            application,
+                                                 const int32_t                        xpos,
+                                                 const int32_t                        ypos,
+                                                 const uint32_t                       width,
+                                                 const uint32_t                       height,
+                                                 bool                                 force_windowed)
 {
     GFXRECON_ASSERT(surface);
 
@@ -85,7 +85,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
                                                       const VkSwapchainCreateInfoKHR*       create_info,
                                                       const VkAllocationCallbacks*          allocator,
                                                       HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                      const encode::VulkanDeviceTable*      device_table)
+                                                      const graphics::VulkanDeviceTable*    device_table)
 {
     GFXRECON_ASSERT(device_info);
     device_table_ = device_table;
@@ -300,12 +300,6 @@ VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(const VulkanQueueInfo* 
                                                          const VkSemaphore*     signal_semaphores,
                                                          VkFence                fence)
 {
-    uint32_t queue_family_index = default_queue_family_index_;
-    if (queue_info)
-    {
-        queue_family_index = queue_info->family_index;
-    }
-
     VkPipelineStageFlags wait_stage  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkSubmitInfo         submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 

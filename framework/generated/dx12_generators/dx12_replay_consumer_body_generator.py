@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -223,7 +224,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
-        
+
         code += (
             "    CustomReplayPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
             "        this,\n"
@@ -441,7 +442,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
                         arg_list.append('out_op_{}'.format(value.name))
                         post_extenal_object_list.append(
-                            'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                            'PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_{0}), out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
                             .format(value.name, name)
                         )
 
@@ -579,17 +580,10 @@ class Dx12ReplayConsumerBodyGenerator(
                     if is_struct:
                         arg_list.append('*' + value.name + '.decoded_value')
 
-                    elif value.base_type == 'PFN_DESTRUCTION_CALLBACK':
-                        arg_list.append(
-                            'reinterpret_cast<PFN_DESTRUCTION_CALLBACK>({})'.
-                            format(value.name)
-                        )
-
-                    elif value.base_type == 'D3D12MessageFunc':
-                        arg_list.append(
-                            'reinterpret_cast<D3D12MessageFunc>({})'.
-                            format(value.name)
-                        )
+                    elif self.is_callback(value.base_type):
+                        code += '    auto in_{0} = reinterpret_cast<{2}>(GetReplayCallback({0}, format::ApiCallId::ApiCall_{1}, "{1}"));\n'\
+                                .format(value.name, name, value.base_type)
+                        arg_list.append('in_{}'.format(value.name))
 
                     else:
                         arg_list.append(value.name)
@@ -653,7 +647,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 )
                 indent_length = len(code)
                 code += "            command_list{}".format(class_name[-1])
-                
+
             else:
                 indent_length = len(code)
                 code += "            command_set.list"
@@ -672,7 +666,7 @@ class Dx12ReplayConsumerBodyGenerator(
                 "        }\n"
                 "    }\n"
             )
-           
+
         for e in post_call_expr_list:
             code += '    {}'.format(e)
 

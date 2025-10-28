@@ -21,15 +21,23 @@
 */
 
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-util::platform::LibraryHandle InitializeLoader()
+util::platform::LibraryHandle InitializeLoader(const char* loader_path)
 {
-    return util::platform::OpenLibrary(kLoaderLibNames);
+    if (loader_path != nullptr && loader_path[0] != '\0')
+    {
+        return util::platform::OpenLibrary(loader_path);
+    }
+    else
+    {
+        return util::platform::OpenLibrary(kLoaderLibNames);
+    }
 }
 
 void ReleaseLoader(util::platform::LibraryHandle loader_handle)
@@ -43,6 +51,67 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle)
 bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit)
 {
     return (usage_flags & bit) == bit;
+}
+
+template <typename T>
+std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphoresUtil(T* submit_info)
+{
+    static_assert(std::is_same_v<T, VkSubmitInfo> || std::is_same_v<T, VkSubmitInfo2>);
+    std::vector<std::pair<VkSemaphore, uint64_t>> semaphore_wait_infos;
+
+    if constexpr (std::is_same_v<T, VkSubmitInfo>)
+    {
+        semaphore_wait_infos.resize(submit_info->waitSemaphoreCount);
+
+        for (uint32_t s = 0; s < submit_info->waitSemaphoreCount; ++s)
+        {
+            semaphore_wait_infos[s] = { submit_info->pWaitSemaphores[s], 1 };
+        }
+
+        if (auto* timeline_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(submit_info))
+        {
+            GFXRECON_ASSERT(submit_info->waitSemaphoreCount == timeline_info->waitSemaphoreValueCount);
+
+            for (uint32_t s = 0; s < timeline_info->waitSemaphoreValueCount; ++s)
+            {
+                semaphore_wait_infos[s].second = timeline_info->pWaitSemaphoreValues[s];
+            }
+
+            // strip out wait-semaphores from timeline_info-info
+            timeline_info->waitSemaphoreValueCount = 0;
+            timeline_info->pWaitSemaphoreValues    = nullptr;
+        }
+
+        // strip out wait-semaphores from submit-info
+        submit_info->waitSemaphoreCount = 0;
+        submit_info->pWaitSemaphores    = nullptr;
+    }
+
+    if constexpr (std::is_same_v<T, VkSubmitInfo2>)
+    {
+        semaphore_wait_infos.resize(submit_info->waitSemaphoreInfoCount);
+
+        for (uint32_t s = 0; s < submit_info->waitSemaphoreInfoCount; ++s)
+        {
+            semaphore_wait_infos[s] = { submit_info->pWaitSemaphoreInfos[s].semaphore,
+                                        submit_info->pWaitSemaphoreInfos[s].value };
+        }
+
+        // strip out wait-semaphores from submit-info
+        submit_info->waitSemaphoreInfoCount = 0;
+        submit_info->pWaitSemaphoreInfos    = nullptr;
+    }
+    return semaphore_wait_infos;
+}
+
+std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo* submit_info)
+{
+    return StripWaitSemaphoresUtil(submit_info);
+}
+
+std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2* submit_info)
+{
+    return StripWaitSemaphoresUtil(submit_info);
 }
 
 GFXRECON_END_NAMESPACE(graphics)

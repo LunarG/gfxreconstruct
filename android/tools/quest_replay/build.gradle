@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 33
+    namespace 'com.lunarg.gfxreconstruct.replay'
+    ndkVersion '26.3.11579264'
+    defaultConfig {
+        applicationId "com.lunarg.gfxreconstruct.replay"
+        minSdkVersion 26
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
+                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static", "-DGFXRECON_ENABLE_OPENXR=ON"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    if (project.hasProperty("EnableOpenXRCaptureOfReplay"))
+    {
+        logger.info('GFXReconstruct OpenXR capture layer enabled in replay application (you must also enable the Vulkan side as well manually)')
+    }
+    else
+    {
+        logger.info('GFXReconstruct OpenXR capture layer not enabled in replay application [default]')
+        androidResources {
+            ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
+        }
+    }
+ }
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.0'
+    implementation project(':layer')
+}

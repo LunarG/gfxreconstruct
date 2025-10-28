@@ -158,12 +158,12 @@ void ClearObjects(CommonObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(CommonObjectInfoTable*                                         table,
-                        bool                                                           remove_entries,
-                        bool                                                           report_leaks,
-                        std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
-                        std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table,
-                        VulkanSwapchain*                                               swapchain)
+void FreeAllLiveObjects(CommonObjectInfoTable*                                           table,
+                        bool                                                             remove_entries,
+                        bool                                                             report_leaks,
+                        std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
+                        std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table,
+                        VulkanSwapchain*                                                 swapchain)
 {
     FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,
@@ -570,6 +570,21 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                 ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
+    FreeChildObjects<VulkanDeviceInfo, VulkanMicromapEXTInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkMicromapEXT),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkMicromapEXTInfo,
+        &CommonObjectInfoTable::RemoveVkMicromapEXTInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanMicromapEXTInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)
+                ->DestroyMicromapEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
     FreeChildObjects<VulkanInstanceInfo, VulkanDebugReportCallbackEXTInfo>(
         table,
         GFXRECON_STR(VkInstance),
@@ -720,11 +735,11 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
     }
 }
 
-void FreeAllLiveInstances(CommonObjectInfoTable*                                         table,
-                          bool                                                           remove_entries,
-                          bool                                                           report_leaks,
-                          std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
-                          std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table)
+void FreeAllLiveInstances(CommonObjectInfoTable*                                           table,
+                          bool                                                             remove_entries,
+                          bool                                                             report_leaks,
+                          std::function<const graphics::VulkanInstanceTable*(const void*)> get_instance_table,
+                          std::function<const graphics::VulkanDeviceTable*(const void*)>   get_device_table)
 {
     FreeParentObjects<VulkanInstanceInfo>(table,
                                           remove_entries,

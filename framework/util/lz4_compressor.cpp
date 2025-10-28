@@ -35,7 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
                                const uint8_t*        uncompressed_data,
                                std::vector<uint8_t>* compressed_data,
-                               size_t                compressed_data_offset)
+                               size_t                compressed_data_offset) const
 {
     size_t data_size = 0;
 
@@ -66,10 +66,10 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
     return data_size;
 }
 
-size_t Lz4Compressor::Decompress(const size_t                compressed_size,
-                                 const std::vector<uint8_t>& compressed_data,
-                                 const size_t                expected_uncompressed_size,
-                                 std::vector<uint8_t>*       uncompressed_data)
+size_t Lz4Compressor::Decompress(const size_t   compressed_size,
+                                 const uint8_t* compressed_data,
+                                 const size_t   expected_uncompressed_size,
+                                 uint8_t*       uncompressed_data) const
 {
     size_t data_size = 0;
 
@@ -78,8 +78,8 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
         return 0;
     }
 
-    int uncompressed_size_generated = LZ4_decompress_safe(reinterpret_cast<const char*>(compressed_data.data()),
-                                                          reinterpret_cast<char*>(uncompressed_data->data()),
+    int uncompressed_size_generated = LZ4_decompress_safe(reinterpret_cast<const char*>(compressed_data),
+                                                          reinterpret_cast<char*>(uncompressed_data),
                                                           static_cast<int32_t>(compressed_size),
                                                           static_cast<int32_t>(expected_uncompressed_size));
 

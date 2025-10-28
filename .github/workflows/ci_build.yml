@@ -38,6 +38,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -53,18 +55,20 @@ jobs:
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
           python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
+          python3 framework/generated/generate_openxr.py # check generated code isn't out of date
           git diff --exit-code
         else
           python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
         fi
+      env:
+        SCCACHE_GHA_ENABLED: on
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
     - name: Run test app test cases
       id: test_apps
       run: |
         cd ${{matrix.config.build_dir}}/linux/x64/output/test
-        sudo useradd test
-        sudo usermod -a -G docker test
-        chmod -R g+w .
-        sudo -n -u test ./run-tests.sh
+        sudo -n ./run-tests.sh
     - name: Upload test failure artifacts
       uses: actions/upload-artifact@v4
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
@@ -120,13 +124,13 @@ jobs:
       run: pip install ply
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
-    - name: Install SDK 20348
+    - name: Install SDK 26100
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
-        sdk-version: 20348
+        sdk-version: 26100
     - name: Set WindowsSDKVersion
       run:
-        echo ("WindowsSDKVersion=10.0.20348.0\") >> $env:GITHUB_ENV
+        echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
     - name: Clone repository from merge of PR branch and dev branch
       uses: actions/checkout@v4
       with:
@@ -194,6 +198,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
     - name: Cache dependencies
       id: cache-deps
       uses: actions/cache@v3
@@ -205,7 +211,13 @@ jobs:
       run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0 --test-apps
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
+      env:
+        SCCACHE_GHA_ENABLED: on
+        SCCACHE_CACHE_MULTIARCH: on
+        SCCACHE_IDLE_TIMEOUT: 0
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
     - name: Run test app test cases
       id: test_apps
       run: |
@@ -230,7 +242,11 @@ jobs:
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
       with:
         name: ${{ matrix.config.test_failure_artifact }}
-        path: ${{matrix.config.build_dir}}/darwin/universal/output/test
+        path: |
+          ${{matrix.config.build_dir}}/darwin/universal/output/test
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk.zip
+          !${{matrix.config.build_dir}}/darwin/universal/output/test/VulkanSDK
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
@@ -276,9 +292,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - name: Update submodules
-        run: |
-          git submodule update --init
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Set up Java
         uses: "actions/setup-java@v4"
         with:
@@ -293,6 +308,10 @@ jobs:
           else
             sh gradlew assembleDebug -Parm64-v8a
           fi
+        env:
+          SCCACHE_GHA_ENABLED: on
+          CMAKE_C_COMPILER_LAUNCHER: sccache
+          CMAKE_CXX_COMPILER_LAUNCHER: sccache
       - name: Prepare artifacts
         run: |
           mkdir gfxreconstruct-dev

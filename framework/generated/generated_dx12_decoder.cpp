@@ -814,11 +814,20 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Tools1_ClearReservedGPUVARangesList:
         Decode_ID3D12Tools1_ClearReservedGPUVARangesList(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState:
+        Decode_ID3D12Tools2_SetApplicationSpecificDriverState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12PageableTools_GetAllocation:
         Decode_ID3D12PageableTools_GetAllocation(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12DeviceTools_SetNextAllocationAddress:
         Decode_ID3D12DeviceTools_SetNextAllocationAddress(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState:
+        Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus:
+        Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12SDKConfiguration_SetSDKVersion:
         Decode_ID3D12SDKConfiguration_SetSDKVersion(object_id, call_info, parameter_buffer, buffer_size);
@@ -7014,6 +7023,26 @@ size_t Dx12Decoder::Decode_ID3D12Tools1_ClearReservedGPUVARangesList(format::Han
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12Tools2_SetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId pAdapter;
+    format::HandleId pBlob;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pAdapter);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pBlob);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12Tools2_SetApplicationSpecificDriverState(call_info, object_id, return_value, pAdapter, pBlob);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12PageableTools_GetAllocation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7043,6 +7072,40 @@ size_t Dx12Decoder::Decode_ID3D12DeviceTools_SetNextAllocationAddress(format::Ha
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12DeviceTools_SetNextAllocationAddress(call_info, object_id, nextAllocationVirtualAddress);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    HandlePointerDecoder<ID3D10Blob*> ppBlob;
+    HRESULT return_value;
+
+    bytes_read += ppBlob.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(call_info, object_id, return_value, &ppBlob);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(call_info, object_id, return_value);
     }
 
     return bytes_read;

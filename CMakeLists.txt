@@ -32,10 +32,12 @@ set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/external/cmake-modules")
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
 option(USE_STRICT_COMPILER_WARNINGS "Use a stricter compiler-warning level" OFF)
 
@@ -125,6 +127,22 @@ include("Lint")
 include("Test")
 include("FindVulkanVersion")
 
+set(OPENXR_SUPPORT_ENABLED FALSE)
+
+option(GFXRECON_ENABLE_OPENXR "Enable OpenXR support." ON)
+if (GFXRECON_ENABLE_OPENXR)
+    include("FindOpenXRVersion")
+
+    if ((NOT XR_VERSION_MAJOR STREQUAL "") AND (NOT XR_VERSION_MINOR STREQUAL ""))
+        set(OPENXR_SUPPORT_ENABLED TRUE)
+        message(STATUS "OpenXR support enabled")
+    else()
+        message(FATAL_ERROR "Failed to find OpenXR headers for support!")
+    endif()
+else()
+    message(STATUS "OpenXR support disabled!")
+endif()
+
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
@@ -152,9 +170,25 @@ if (MSVC)
     message(STATUS "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: " ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
 
     set(GFXR_ARM_WINDOWS_BUILD FALSE)
-    if (CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
-        set(GFXR_ARM_WINDOWS_BUILD TRUE)
-    endif ()
+    # These checks help also keeping `cmake-gui` behaviour consistent when default values are passed.
+
+    # Some IDEs pass -A in lowercase or in mixed case.
+    # Normalize the CMAKE_GENERATOR_PLATFORM string to upper case to avoid architecture detection mismatch.
+    # can't assume ${CMAKE_GENERATOR_PLATFORM} is always defined and/or non-empty!
+    if(NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
+        string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
+        if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+            set(GFXR_ARM_WINDOWS_BUILD TRUE)
+        endif()
+    else()
+        # No target platform is specified. Try to compute using native tools architecture.
+        string(TOUPPER "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}" NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE)
+        if(NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64")
+            set(GFXR_ARM_WINDOWS_BUILD TRUE)
+        endif()
+    endif()
+
+    message(STATUS "GFXR_ARM_WINDOWS_BUILD: " ${GFXR_ARM_WINDOWS_BUILD})
 
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set(PRECOMPILED_ARCH "64")
@@ -164,7 +198,7 @@ if (MSVC)
 
     if (GFXR_ARM_WINDOWS_BUILD)
         set(PRECOMPILED_ARCH "64-arm")
-    endif ()
+    endif (GFXR_ARM_WINDOWS_BUILD)
 
     set(CMAKE_PREFIX_PATH
             ${CMAKE_PREFIX_PATH}
@@ -188,7 +222,7 @@ if (MSVC)
         add_definitions(-DD3D12_SUPPORT)
 
         # Check Windows SDK version and print warning if there is a mismatch.
-        set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
+        set(EXPECTED_WIN_SDK_VER "10.0.26100.0")
         if (NOT ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} STREQUAL ${EXPECTED_WIN_SDK_VER})
             message(WARNING
                     "D3D12 support is authored against Windows SDK ${EXPECTED_WIN_SDK_VER}. Windows SDK version "
@@ -212,8 +246,13 @@ if (MSVC)
         add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
     endif ()
 
-    # Add option to enable/disable AGS support.
-    option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
+    if(NOT ${GFXR_ARM_WINDOWS_BUILD})
+        # Add option to enable/disable AGS support. Only supported on non-ARM64 builds.
+        option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Not supported on Windows on ARM64. Ignored if D3D12_SUPPORT=OFF." ON)
+    else()
+        set(GFXRECON_AGS_SUPPORT OFF)
+        message(STATUS "GFXRECON_AGS_SUPPORT is disabled for Windows on ARM64 builds.")
+    endif()
 
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
@@ -315,6 +354,8 @@ target_compile_definitions(windows_specific INTERFACE
         WIN32_LEAN_AND_MEAN
         NOMINMAX
         VK_USE_PLATFORM_WIN32_KHR
+        XR_USE_PLATFORM_WIN32
+        XR_USE_GRAPHICS_API_VULKAN
         $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
         $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:"GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\"">
         $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\"">
@@ -324,15 +365,17 @@ target_compile_definitions(windows_specific INTERFACE
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
-        $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
+        XR_USE_GRAPHICS_API_VULKAN
+        $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR XR_USE_PLATFORM_XLIB>
         $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
-        $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
-        $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>
+        $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR XR_USE_PLATFORM_XCB>
+        $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR XR_USE_PLATFORM_WAYLAND>
         $<$<BOOL:${BUILD_WSI_DISPLAY_SUPPORT}>:VK_USE_PLATFORM_DISPLAY_KHR>
         $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
 add_library(macos_specific INTERFACE)
 target_compile_definitions(macos_specific INTERFACE
+        XR_USE_GRAPHICS_API_VULKAN
         VK_USE_PLATFORM_METAL_EXT
         $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
@@ -350,12 +393,24 @@ if (BUILD_WERROR)
     endif ()
 endif ()
 
+if(MSVC)
+    target_compile_options(platform_specific INTERFACE /MP)
+endif()
+
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
 target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/SPIRV-Headers/include)
+
+add_library(OpenXR INTERFACE)
+if (OPENXR_SUPPORT_ENABLED)
+    option(DYNAMIC_LOADER "" OFF)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/OpenXR-SDK)
+    target_include_directories(OpenXR INTERFACE ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
+endif()
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_compile_options(vulkan_memory_allocator INTERFACE

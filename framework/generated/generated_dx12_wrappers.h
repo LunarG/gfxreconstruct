@@ -56,13 +56,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -2106,6 +2106,17 @@ class ID3D12Tools1_Wrapper : public ID3D12Tools_Wrapper
 
 };
 
+class ID3D12Tools2_Wrapper : public ID3D12Tools1_Wrapper
+{
+  public:
+    ID3D12Tools2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetApplicationSpecificDriverState(
+        IUnknown* pAdapter,
+        ID3DBlob* pBlob);
+
+};
+
 class ID3D12PageableTools_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2154,6 +2165,18 @@ class ID3D12DeviceTools_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12DeviceToolsInfo> info_;
+};
+
+class ID3D12DeviceTools1_Wrapper : public ID3D12DeviceTools_Wrapper
+{
+  public:
+    ID3D12DeviceTools1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceTools1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetApplicationSpecificDriverState(
+        ID3DBlob** ppBlob);
+
+    virtual D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS STDMETHODCALLTYPE GetApplicationSpecificDriverBlobStatus();
+
 };
 
 class ID3D12SDKConfiguration_Wrapper : public IUnknown_Wrapper
@@ -2450,7 +2473,7 @@ class ID3D12GBVDiagnostics_Wrapper : public IUnknown_Wrapper
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -2512,7 +2535,7 @@ class ID3DDestructionNotifier_Wrapper : public IUnknown_Wrapper
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -3070,7 +3093,7 @@ class ID3D12InfoQueue1_Wrapper : public ID3D12InfoQueue_Wrapper
 
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -3505,7 +3528,7 @@ class IDXGIDevice1_Wrapper : public IDXGIDevice_Wrapper
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -3775,7 +3798,7 @@ class IDXGIOutput1_Wrapper : public IDXGIOutput_Wrapper
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -3981,7 +4004,7 @@ class IDXGIOutput3_Wrapper : public IDXGIOutput2_Wrapper
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -4072,7 +4095,7 @@ class IDXGIAdapter3_Wrapper : public IDXGIAdapter2_Wrapper
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -4134,7 +4157,7 @@ class IDXGIFactory5_Wrapper : public IDXGIFactory4_Wrapper
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -4192,37 +4215,37 @@ class IDXGIFactory7_Wrapper : public IDXGIFactory6_Wrapper
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.20348.0
+** This part is generated from windef.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 

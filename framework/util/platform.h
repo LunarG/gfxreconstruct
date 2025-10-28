@@ -35,6 +35,17 @@
 #include <thread>
 #include <vector>
 
+// NOTE: this works around potential issues on msvc / VS 2019 with wrongly defined __cplusplus constant
+#if defined(_MSVC_LANG)
+#define CPP_STD _MSVC_LANG
+#else
+#define CPP_STD __cplusplus
+#endif
+
+#if CPP_STD < 202002L
+#warning "Unsupported compiler: this project requires support for C++20."
+#endif
+
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -643,7 +654,7 @@ inline std::string GetCpuAffinity()
     return affinity;
 }
 
-static bool SetCpuAffinity(const std::string& affinity)
+inline bool SetCpuAffinity(const std::string& affinity)
 {
 #ifdef __linux__
     cpu_set_t mask;
@@ -799,6 +810,78 @@ inline uint64_t SizeTtoUint64(size_t value)
     return static_cast<uint64_t>(value);
 #endif
 }
+
+/// @brief Get the start address of the memory page containing the given pointer.
+/// @param ptr Pointer to the memory location.
+/// @return The start address of the memory page containing the pointer.
+inline uintptr_t GetPageStartAddress(const void* ptr)
+{
+    static size_t page_size = GetSystemPageSize();
+    return (reinterpret_cast<uintptr_t>(ptr) / page_size) * page_size;
+}
+
+#if defined(WIN32)
+
+/// @brief Heuristically determine whether a pointer likely refers to readable
+///        memory in the current process on Windows.
+/// @param ptr Pointer to the memory location to check.
+/// @return `true` if the pointer is valid, `false` otherwise.
+/// @note This is a best-effort probe only; it cannot guarantee safety.
+///       Even if this returns true, dereferencing the pointer can still fault.
+/// @note This implementation is adapted from the LLVM compiler-rt project:
+///       `llvm-project/compiler-rt/lib/sanitizer_common/sanitizer_win.cpp`
+/// @copyright License notice for the original source: https://llvm.org/LICENSE.txt
+///            Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+inline bool PointerIsValid(const void* ptr)
+{
+    if (ptr == nullptr)
+    {
+        return false;
+    }
+
+    uintptr_t page = GetPageStartAddress(ptr);
+
+    MEMORY_BASIC_INFORMATION info;
+    if (VirtualQuery(reinterpret_cast<LPCVOID>(page), &info, sizeof(info)) != sizeof(info))
+    {
+        return false;
+    }
+
+    if (info.Protect == 0 || info.Protect == PAGE_NOACCESS || info.Protect == PAGE_EXECUTE)
+    {
+        // The page is not accessible.
+        return false;
+    }
+
+    if (info.RegionSize == 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+#else  // (WIN32)
+
+/// @brief This implementation probes whether the page containing ptr is currently mapped in this process,
+///        to guess whether the pointer might be valid.
+/// @param ptr Pointer to the memory location to check.
+/// @return `true` if the pointer is valid, `false` otherwise.
+/// @note This is not a safety/readability guarantee. A mapped page may still be unreadable (e.g., `PROT_NONE`),
+///       so dereferencing ptr can still fault even if this returns `true`.
+inline bool PointerIsValid(const void* ptr)
+{
+    if (ptr == nullptr)
+    {
+        return false;
+    }
+
+    uintptr_t     page_start = GetPageStartAddress(ptr);
+    static size_t page_size  = GetSystemPageSize();
+    // Returns -1 with errno=ENOMEM if the indicated memory (or part of it) was not mapped.
+    return msync(reinterpret_cast<void*>(page_start), page_size, MS_ASYNC) == 0;
+}
+#endif // !WIN32
 
 GFXRECON_END_NAMESPACE(platform)
 GFXRECON_END_NAMESPACE(util)

@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 33
+    namespace 'com.lunarg.gfxreconstruct.test.test_apps.test_launcher'
+    ndkVersion '26.3.11579264'
+    defaultConfig {
+        applicationId "com.lunarg.gfxreconstruct.test.test_apps.test_launcher"
+        minSdkVersion 26
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            if (project.hasProperty("armeabi-v7a")) {
+                abiFilters 'armeabi-v7a'
+            } else if (project.hasProperty("arm64-v8a")) {
+                abiFilters 'arm64-v8a'
+            } else if (project.hasProperty("x86")) {
+                abiFilters 'x86'
+            } else if (project.hasProperty("x86_64")) {
+                abiFilters 'x86_64'
+            } else {
+                abiFilters 'arm64-v8a', 'x86_64'
+            }
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
+                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['../../../../test/test_apps/res']
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.0'
+}

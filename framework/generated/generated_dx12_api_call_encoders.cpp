@@ -42,13 +42,13 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.26100.0
 **
 */
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -896,6 +896,11 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PREDICATIO
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_HARDWARE_COPY& value)
+{
+    encoder->EncodeInt32Value(value.Supported);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE& value)
 {
     encoder->EncodeInt32Value(value.Supported);
 }
@@ -4928,6 +4933,20 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_AAB
     EncodeStruct(encoder, value.AABBs);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC& value)
+{
+    EncodeStruct(encoder, value.OpacityMicromapIndexBuffer);
+    encoder->EncodeEnumValue(value.OpacityMicromapIndexFormat);
+    encoder->EncodeUInt32Value(value.OpacityMicromapBaseLocation);
+    encoder->EncodeUInt64Value(value.OpacityMicromapArray);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC& value)
+{
+    EncodeStructPtr(encoder, value.pTriangles);
+    EncodeStructPtr(encoder, value.pOmmLinkage);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC& value)
 {
     encoder->EncodeUInt64Value(value.DestBuffer);
@@ -4950,12 +4969,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
     encoder->EncodeUInt32Value(value.NumDescs);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value)
-{
-    encoder->EncodeUInt64Value(value.SerializedSizeInBytes);
-    encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructurePointers);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER& value)
 {
     EncodeStruct(encoder, value.DriverOpaqueGUID);
@@ -4968,6 +4981,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_A
     encoder->EncodeUInt64Value(value.SerializedSizeInBytesIncludingHeader);
     encoder->EncodeUInt64Value(value.DeserializedSizeInBytes);
     encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructurePointersAfterHeader);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_SERIALIZED_BLOCK& value)
+{
+    encoder->EncodeEnumValue(value.Type);
+    encoder->EncodeUInt64Value(value.NumBlockPointersAfterHeader);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC& value)
@@ -4985,6 +5004,21 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_INSTANCE_DES
     encoder->EncodeUInt64Value(value.AccelerationStructure);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY& value)
+{
+    encoder->EncodeUInt32Value(value.Count);
+    encoder->EncodeUInt32Value(value.SubdivisionLevel);
+    encoder->EncodeEnumValue(value.Format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& value)
+{
+    encoder->EncodeUInt32Value(value.NumOmmHistogramEntries);
+    EncodeStructPtr(encoder, value.pOmmHistogram);
+    encoder->EncodeUInt64Value(value.InputBuffer);
+    EncodeStruct(encoder, value.PerOmmDescs);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& value)
 {
     encoder->EncodeUInt64Value(value.DestAccelerationStructureData);
@@ -4998,6 +5032,22 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_ACCELERATION
     encoder->EncodeUInt64Value(value.ResultDataMaxSizeInBytes);
     encoder->EncodeUInt64Value(value.ScratchDataSizeInBytes);
     encoder->EncodeUInt64Value(value.UpdateScratchDataSizeInBytes);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC& value)
+{
+    encoder->EncodeUInt64Value(value.DestBuffer);
+    encoder->EncodeEnumValue(value.InfoType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC& value)
+{
+    encoder->EncodeUInt64Value(value.CurrentSizeInBytes);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC& value)
+{
+    encoder->EncodeUInt64Value(value.DecodedSizeInBytes);
 }
 
 void Encode_ID3D12Device5_CreateLifetimeTracker(
@@ -6488,6 +6538,27 @@ void Encode_ID3D12Tools1_ClearReservedGPUVARangesList(
     }
 }
 
+void Encode_ID3D12Tools2_SetApplicationSpecificDriverState(
+    ID3D12Tools2_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pAdapter,
+    ID3DBlob* pBlob)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pAdapter);
+        encoder->EncodeObjectValue(pBlob);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 void Encode_ID3D12PageableTools_GetAllocation(
     ID3D12PageableTools_Wrapper* wrapper,
     HRESULT return_value,
@@ -6515,6 +6586,37 @@ void Encode_ID3D12DeviceTools_SetNextAllocationAddress(
     if(encoder)
     {
         encoder->EncodeUInt64Value(nextAllocationVirtualAddress);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+    ID3D12DeviceTools1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3DBlob** ppBlob)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectPtr(ppBlob, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_ID3D10Blob, reinterpret_cast<void**>(ppBlob), wrapper);
+    }
+}
+
+void Encode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+    ID3D12DeviceTools1_Wrapper* wrapper,
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeEnumValue(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
 }
@@ -7111,7 +7213,7 @@ void Encode_ID3D12GBVDiagnostics_GBVReserved1(
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -7189,7 +7291,7 @@ void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -8426,7 +8528,7 @@ void Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
 
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -9676,7 +9778,7 @@ void Encode_IDXGIDevice1_GetMaximumFrameLatency(
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -10638,7 +10740,7 @@ void Encode_IDXGIOutput1_DuplicateOutput(
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11190,7 +11292,7 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11468,7 +11570,7 @@ void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11589,7 +11691,7 @@ void Encode_IDXGIDevice4_ReclaimResources1(
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11767,7 +11869,7 @@ void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11785,7 +11887,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SAMPLE_DESC& value)
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11849,7 +11951,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE&
 
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11900,7 +12002,7 @@ void Encode_IUnknown_Release(
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11914,7 +12016,7 @@ void EncodeStruct(ParameterEncoder* encoder, const GUID& value)
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.20348.0
+** This part is generated from windef.h in Windows SDK: 10.0.26100.0
 **
 */
 
@@ -11934,7 +12036,7 @@ void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value)
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.26100.0
 **
 */
 

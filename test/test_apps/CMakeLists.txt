@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2024 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,19 +24,27 @@
 # Description: CMake script for test apps
 ###############################################################################
 
-find_package(SDL3)
-
-add_custom_target(gfxrecon-testapps)
-
 SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
+set(GFXRECON_TESTAPPS_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
+
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR} DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+endif()
 
 add_subdirectory(common)
 add_subdirectory(triangle)
+add_subdirectory(triangle-extra-device)
 add_subdirectory(multisample-depth)
 add_subdirectory(pipeline-binaries)
 add_subdirectory(host-image-copy)
 add_subdirectory(shader-objects)
 add_subdirectory(sparse-resources)
+add_subdirectory(acquired-image)
+add_subdirectory(set-environment)
+add_subdirectory(ahb)
 if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd)
+    add_subdirectory(external-memory-fd-export)
+    add_subdirectory(external-memory-fd-import)
+    add_subdirectory(wait-for-present)
 endif()
+add_subdirectory(launcher)

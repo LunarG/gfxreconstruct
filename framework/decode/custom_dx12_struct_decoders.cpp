@@ -671,6 +671,68 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t*                                                      buffer,
+                    size_t                                                              buffer_size,
+                    Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                                      bytes_read = 0;
+    D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* value      = wrapper->decoded_value;
+
+    wrapper->DriverMatchingIdentifier =
+        DecodeAllocator::Allocate<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>();
+    wrapper->DriverMatchingIdentifier->decoded_value = &(value->DriverMatchingIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DriverMatchingIdentifier);
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytesIncludingHeader));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->DeserializedSizeInBytes));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->HeaderPostambleType));
+
+    switch (value->HeaderPostambleType)
+    {
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BOTTOM_LEVEL_POINTERS:
+            bytes_read +=
+                ValueDecoder::DecodeUInt32Value((buffer + bytes_read),
+                                                (buffer_size - bytes_read),
+                                                &(value->NumBottomLevelAccelerationStructurePointersAfterHeader));
+            break;
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BLOCKS:
+            bytes_read +=
+                ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBlocks));
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE(
+                "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
+                value->HeaderPostambleType);
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t*                                                                     buffer,
+                    size_t                                                                             buffer_size,
+                    Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                                                     bytes_read = 0;
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytes));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read),
+                                        (buffer_size - bytes_read),
+                                        &(value->NumBottomLevelAccelerationStructureHeaderAndPointerListPairs));
+
+    return bytes_read;
+}
+
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -682,6 +744,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INT
 
     return bytes_read;
 }
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                  bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* value      = wrapper->decoded_value;
+
+    // subdivision_level and format are bit-field. It cannot take the address of a bit-field.
+    UINT                                     subdivision_level;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT format;
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ByteOffset));
+    
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(subdivision_level));
+    value->SubdivisionLevel = subdivision_level;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(format));
+    value->Format = format;
+
+    return bytes_read;
+}
+
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper)
 {

@@ -85,43 +85,43 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
 
 void VulkanResourceTrackingConsumer::AddInstanceTable(VkInstance instance)
 {
-    encode::VulkanDispatchKey dispatch_key = encode::GetVulkanDispatchKey(instance);
+    graphics::VulkanDispatchKey dispatch_key = graphics::GetVulkanDispatchKey(instance);
 
     get_device_proc_addrs_[dispatch_key] =
         reinterpret_cast<PFN_vkGetDeviceProcAddr>(get_instance_proc_addr_(instance, "vkGetDeviceProcAddr"));
     create_device_procs_[dispatch_key] =
         reinterpret_cast<PFN_vkCreateDevice>(get_instance_proc_addr_(instance, "vkCreateDevice"));
 
-    encode::VulkanInstanceTable& table = instance_tables_[dispatch_key];
-    encode::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
+    graphics::VulkanInstanceTable& table = instance_tables_[dispatch_key];
+    graphics::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
 }
 
 void VulkanResourceTrackingConsumer::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
-    encode::VulkanDeviceTable& table = device_tables_[encode::GetVulkanDispatchKey(device)];
-    encode::LoadVulkanDeviceTable(gpa, device, &table);
+    graphics::VulkanDeviceTable& table = device_tables_[graphics::GetVulkanDispatchKey(device)];
+    graphics::LoadVulkanDeviceTable(gpa, device, &table);
 }
 
 PFN_vkGetDeviceProcAddr VulkanResourceTrackingConsumer::GetDeviceAddrProc(VkPhysicalDevice physical_device)
 {
-    return get_device_proc_addrs_[encode::GetVulkanDispatchKey(physical_device)];
+    return get_device_proc_addrs_[graphics::GetVulkanDispatchKey(physical_device)];
 }
 
 PFN_vkCreateDevice VulkanResourceTrackingConsumer::GetCreateDeviceProc(VkPhysicalDevice physical_device)
 {
-    return create_device_procs_[encode::GetVulkanDispatchKey(physical_device)];
+    return create_device_procs_[graphics::GetVulkanDispatchKey(physical_device)];
 }
 
-const encode::VulkanInstanceTable* VulkanResourceTrackingConsumer::GetInstanceTable(const void* handle) const
+const graphics::VulkanInstanceTable* VulkanResourceTrackingConsumer::GetInstanceTable(const void* handle) const
 {
-    auto table = instance_tables_.find(encode::GetVulkanDispatchKey(handle));
+    auto table = instance_tables_.find(graphics::GetVulkanDispatchKey(handle));
     assert(table != instance_tables_.end());
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-const encode::VulkanDeviceTable* VulkanResourceTrackingConsumer::GetDeviceTable(const void* handle) const
+const graphics::VulkanDeviceTable* VulkanResourceTrackingConsumer::GetDeviceTable(const void* handle) const
 {
-    auto table = device_tables_.find(encode::GetVulkanDispatchKey(handle));
+    auto table = device_tables_.find(graphics::GetVulkanDispatchKey(handle));
     assert(table != device_tables_.end());
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }
@@ -813,14 +813,12 @@ void VulkanResourceTrackingConsumer::CalculateReplayBindingOffsetAndMemoryAlloca
             // during trace and update the replay binding offset  and then memory allocation size
             // accordingly.
 
-            VkDeviceSize replay_bind_offset = (*resources)[0]->GetTraceBindOffset();
-
             // loop through the bound resources and update replay resource binding offset
             // based on the memory alignment requirement and update memory allocation size
             for (size_t i = 0; i < (*resources).size(); i++)
             {
                 // assign replay bind offset to be the same as trace offset first
-                replay_bind_offset = (*resources)[i]->GetTraceBindOffset();
+                VkDeviceSize replay_bind_offset = (*resources)[i]->GetTraceBindOffset();
 
                 // make sure the assigned replay bind offset have the same alignment count as trace bind offset
                 // if trace alignment number is valid

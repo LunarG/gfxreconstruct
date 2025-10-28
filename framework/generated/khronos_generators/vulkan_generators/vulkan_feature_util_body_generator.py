@@ -49,7 +49,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'decode/vulkan_feature_util.h',
+            'graphics/vulkan_feature_util.h',
             '',
             'util/logging.h',
             '',
@@ -57,7 +57,7 @@ class VulkanFeatureUtilBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         ))
         self.begin_end_file_data.namespaces.extend((
             'gfxrecon',
-            'decode',
+            'graphics',
             'feature_util',
         ))
         self.begin_end_file_data.common_api_headers = []
@@ -116,9 +116,6 @@ class VulkanFeatureUtilBodyGenerator(VulkanBaseGenerator):
                 for member in self.feature_struct_members[typename]:
                     self.physical_device_features.append(member.name)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        return False
 
     def make_feature_helper(self):
         """Generate help function for features on replaying at device creation time."""

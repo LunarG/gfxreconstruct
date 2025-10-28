@@ -82,7 +82,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     // the appropriate resource cleanup.
     static void CheckVkCreateInstanceStatus(VkResult result);
 
-    static const VulkanLayerTable* GetLayerTable() { return &vulkan_layer_table_; }
+    static const graphics::VulkanLayerTable* GetLayerTable() { return &vulkan_layer_table_; }
 
     void InitVkInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
@@ -269,6 +269,29 @@ class VulkanCaptureManager : public ApiCaptureManager
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
 
+    bool CheckWriteWaitForPresentKHR(
+        VkResult result, VkDevice device, VkSwapchainKHR swapchain, graphics::PresentId present_id, uint64_t timeout)
+    {
+        if (IsCaptureModeWrite())
+        {
+            // During trimming, WaitForPresent's QueuePresent couldn't be written since it's before trim frame range.
+            // In this case, skip writing the WaitForPresent.
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+            GFXRECON_ASSERT(wrapper != nullptr);
+            auto entry = wrapper->record_queue_present_ids_not_written.find(present_id);
+            if (entry != wrapper->record_queue_present_ids_not_written.end())
+            {
+                GFXRECON_LOG_WARNING(
+                    "Skip writing WaitForPresent(Swapchain: %" PRIu64 ", Present Id: %" PRIu64
+                    ") because its QueuePresent is before trim frame range. The QueuePresent isn't written.",
+                    swapchain,
+                    present_id);
+                return false;
+            }
+        }
+        return true;
+    }
+
     static VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                            const VkAllocationCallbacks* pAllocator,
                                            VkInstance*                  pInstance);
@@ -364,6 +387,22 @@ class VulkanCaptureManager : public ApiCaptureManager
     void OverrideGetPhysicalDeviceQueueFamilyProperties2KHR(VkPhysicalDevice          physicalDevice,
                                                             uint32_t*                 pQueueFamilyPropertyCount,
                                                             VkQueueFamilyProperties2* pQueueFamilyProperties);
+
+    VkResult OverrideAllocateCommandBuffers(VkDevice                           device,
+                                            const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                            VkCommandBuffer*                   pCommandBuffers);
+
+    void PreProcess_vkBeginCommandBuffer(VkCommandBuffer commandBuffer, const VkCommandBufferBeginInfo* pBeginInfo);
+
+    void PostProcess_vkBeginCommandBuffer(VkResult                        result,
+                                          VkCommandBuffer                 commandBuffer,
+                                          const VkCommandBufferBeginInfo* pBeginInfo)
+    {
+        if (IsCaptureModeTrack() && result == VK_SUCCESS)
+        {
+            state_tracker_->TrackBeginCommandBuffer(commandBuffer, pBeginInfo->flags);
+        }
+    }
 
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
@@ -523,52 +562,20 @@ class VulkanCaptureManager : public ApiCaptureManager
                                            uint64_t,
                                            VkSemaphore semaphore,
                                            VkFence     fence,
-                                           uint32_t*   index)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(semaphore);
-            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
-        }
-    }
+                                           uint32_t*   index);
 
     void PostProcess_vkAcquireNextImage2KHR(VkResult result,
                                             VkDevice,
                                             const VkAcquireNextImageInfoKHR* pAcquireInfo,
-                                            uint32_t*                        index)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(pAcquireInfo->semaphore);
-            state_tracker_->TrackAcquireImage(*index,
-                                              pAcquireInfo->swapchain,
-                                              pAcquireInfo->semaphore,
-                                              pAcquireInfo->fence,
-                                              pAcquireInfo->deviceMask);
-        }
-    }
+                                            uint32_t*                        index);
 
     void PostProcess_vkQueuePresentKHR(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
                                        VkResult                                               result,
                                        VkQueue                                                queue,
-                                       const VkPresentInfoKHR*                                pPresentInfo)
-    {
-        if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-        {
-            assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(
-                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
-            state_tracker_->TrackPresentedImages(
-                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
-        }
-
-        EndFrame(current_lock);
-    }
+                                       const VkPresentInfoKHR*                                pPresentInfo);
 
     void PostProcess_vkQueueBindSparse(
-        VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
+        VkResult result, VkQueue queue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
     {
         if (IsCaptureModeTrack() && (result == VK_SUCCESS))
         {
@@ -579,6 +586,107 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           pBindInfo[i].pWaitSemaphores,
                                                           pBindInfo[i].signalSemaphoreCount,
                                                           pBindInfo[i].pSignalSemaphores);
+            }
+
+            const std::lock_guard<std::mutex> lock(sparse_resource_mutex);
+            for (uint32_t bind_info_index = 0; bind_info_index < bindInfoCount; bind_info_index++)
+            {
+                auto& bind_info = pBindInfo[bind_info_index];
+
+                // TODO: add device group support. In the following handling, we assume that the system only has one
+                // physical device or that resourceDeviceIndex and memoryDeviceIndex of VkDeviceGroupBindSparseInfo in
+                // the pnext chain are zero.
+
+                if (bind_info.pBufferBinds != nullptr)
+                {
+                    // The title binds sparse buffers to memory ranges, so we need to track the buffer binding
+                    // information. The following updates will reflect the latest binding states for all buffers in this
+                    // vkQueueBindSparse command, covering both fully-resident and partially-resident buffers.
+                    for (uint32_t buffer_bind_index = 0; buffer_bind_index < bind_info.bufferBindCount;
+                         buffer_bind_index++)
+                    {
+                        auto& buffer_bind   = bind_info.pBufferBinds[buffer_bind_index];
+                        auto  sparse_buffer = buffer_bind.buffer;
+                        auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(sparse_buffer);
+
+                        if (wrapper != nullptr)
+                        {
+                            wrapper->sparse_bind_queue = queue;
+                            for (uint32_t bind_memory_range_index = 0; bind_memory_range_index < buffer_bind.bindCount;
+                                 bind_memory_range_index++)
+                            {
+                                auto& bind_memory_range = buffer_bind.pBinds[bind_memory_range_index];
+                                graphics::UpdateSparseMemoryBindMap(wrapper->sparse_memory_bind_map, bind_memory_range);
+                            }
+                        }
+                    }
+                }
+
+                if (bind_info.pImageOpaqueBinds != nullptr)
+                {
+                    // The title binds sparse images to opaque memory ranges, so we need to track the image binding
+                    // information. The following handling will update the latest binding states for all images in this
+                    // vkQueueBindSparse command, which utilizes opaque memory binding. There are two cases covered by
+                    // the tracking. In the first case, the sparse image exclusively uses opaque memory binding. For
+                    // this case, the target title treats the binding memory ranges as a linear unified region. This
+                    // should represent a fully-resident binding because this linear region is entirely opaque, meaning
+                    // there is no application-visible mapping between texel locations and memory offsets. In another
+                    // case, the image utilizes subresource sparse memory binding, just binding only its mip tail region
+                    // to an opaque memory range. For this situation, we use the sparse_opaque_memory_bind_map and
+                    // sparse_subresource_memory_bind_map of the image wrapper to track the subresource bindings and
+                    // opaque bindings separately.
+                    for (uint32_t image_opaque_bind_index = 0; image_opaque_bind_index < bind_info.imageOpaqueBindCount;
+                         image_opaque_bind_index++)
+                    {
+                        auto& image_opaque_bind = bind_info.pImageOpaqueBinds[image_opaque_bind_index];
+                        auto  sparse_image      = image_opaque_bind.image;
+                        auto  wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(sparse_image);
+
+                        if (wrapper != nullptr)
+                        {
+                            wrapper->sparse_bind_queue = queue;
+
+                            for (uint32_t bind_memory_range_index = 0;
+                                 bind_memory_range_index < image_opaque_bind.bindCount;
+                                 bind_memory_range_index++)
+                            {
+                                auto& bind_memory_range = image_opaque_bind.pBinds[bind_memory_range_index];
+                                graphics::UpdateSparseMemoryBindMap(wrapper->sparse_opaque_memory_bind_map,
+                                                                    bind_memory_range);
+                            }
+                        }
+                    }
+                }
+
+                if (bind_info.pImageBinds != nullptr)
+                {
+                    // The title binds subresources of a sparse image to memory ranges, which requires us to keep track
+                    // of the sparse image subresource binding information. It's important to note that while the image
+                    // mainly use subresource sparse memory binding, its mip tail region must be bound to an opaque
+                    // memory range. Therefore, we use the sparse_opaque_memory_bind_map and
+                    // sparse_subresource_memory_bind_map of the image wrapper to separately track both the
+                    // subresource bindings and the opaque bindings.
+                    for (uint32_t image_bind_index = 0; image_bind_index < bind_info.imageBindCount; image_bind_index++)
+                    {
+                        auto& image_bind   = bind_info.pImageBinds[image_bind_index];
+                        auto  sparse_image = image_bind.image;
+                        auto  wrapper      = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(sparse_image);
+
+                        if (wrapper != nullptr)
+                        {
+                            wrapper->sparse_bind_queue = queue;
+
+                            for (uint32_t bind_memory_range_index = 0; bind_memory_range_index < image_bind.bindCount;
+                                 bind_memory_range_index++)
+                            {
+                                auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
+                                // TODO: Implement handling for tracking binding information of sparse image
+                                // subresources.
+                                GFXRECON_LOG_ERROR_ONCE("Binding of sparse image blocks is not supported!");
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -820,6 +928,50 @@ class VulkanCaptureManager : public ApiCaptureManager
                                         VkDevice                     device,
                                         uint32_t                     bindInfoCount,
                                         const VkBindImageMemoryInfo* pBindInfos);
+
+    void PostProcess_vkCreateBuffer(VkResult                     result,
+                                    VkDevice                     device,
+                                    const VkBufferCreateInfo*    pCreateInfo,
+                                    const VkAllocationCallbacks* pAllocator,
+                                    VkBuffer*                    pBuffer)
+    {
+        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+            auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+
+            if (buffer_wrapper->is_sparse_buffer)
+            {
+                // We will need to set the bind_device for handling sparse buffers. There will be no subsequent
+                // vkBindBufferMemory, vkBindBufferMemory2 or vkBindBufferMemory2KHR calls for sparse buffer, so we
+                // assign bind_device to the device that created the buffer.
+                buffer_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+            }
+        }
+    }
+
+    void PostProcess_vkCreateImage(VkResult                     result,
+                                   VkDevice                     device,
+                                   const VkImageCreateInfo*     pCreateInfo,
+                                   const VkAllocationCallbacks* pAllocator,
+                                   VkImage*                     pImage)
+    {
+        if (IsCaptureModeTrack() && (result == VK_SUCCESS) && (pCreateInfo != nullptr))
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+
+            auto image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
+
+            if (image_wrapper->is_sparse_image)
+            {
+                // We will need to set the bind_device for handling sparse images. There will be no subsequent
+                // vkBindImageMemory, vkBindImageMemory2, or vkBindImageMemory2KHR calls for sparse image, so we assign
+                // bind_device to the device that created the image.
+                image_wrapper->bind_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+            }
+        }
+    }
 
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
@@ -1270,6 +1422,14 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
+#if ENABLE_OPENXR_SUPPORT
+    void PreProcess_vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
+    void PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
+    void PreProcess_vkGetFenceStatus(VkDevice device, VkFence fence);
+    void PreProcess_vkWaitForFences(
+        VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
+#endif
+
     void PostProcess_vkSetPrivateData(VkResult          result,
                                       VkDevice          device,
                                       VkObjectType      objectType,
@@ -1555,6 +1715,23 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                  VkDevice                            device,
                                                  const VkDebugUtilsObjectTagInfoEXT* pTagInfo);
 
+#if ENABLE_OPENXR_SUPPORT
+    void PostProcess_vkCreateFence(VkResult                     result,
+                                   VkDevice                     device,
+                                   const VkFenceCreateInfo*     pCreateInfo,
+                                   const VkAllocationCallbacks* pAllocator,
+                                   VkFence*                     pFence);
+    void PostProcess_vkImportFenceWin32HandleKHR(VkResult                               result,
+                                                 VkDevice                               device,
+                                                 const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+    void
+    PostProcess_vkImportFenceFdKHR(VkResult result, VkDevice device, const VkImportFenceFdInfoKHR* pImportFenceFdInfo);
+
+    void AddValidFence(VkFence fence);
+    void RemoveValidFence(VkFence fence);
+    bool IsValidFence(VkFence fence);
+#endif
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -1584,6 +1761,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data) override;
+
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
+    {
+        return layer_settings_;
+    }
 
   private:
     struct HardwareBufferInfo
@@ -1644,8 +1826,9 @@ class VulkanCaptureManager : public ApiCaptureManager
   private:
     void QueueSubmitWriteFillMemoryCmd();
 
+    static std::mutex                               instance_lock_;
     static VulkanCaptureManager*                    singleton_;
-    static VulkanLayerTable                         vulkan_layer_table_;
+    static graphics::VulkanLayerTable               vulkan_layer_table_;
     std::set<vulkan_wrappers::DeviceMemoryWrapper*> mapped_memory_; // Track mapped memory for unassisted tracking mode.
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
@@ -1656,6 +1839,17 @@ class VulkanCaptureManager : public ApiCaptureManager
     // format conversion is bound to a specific device instance
     std::unordered_map<VkDevice, std::unique_ptr<util::AHardwareBufferFormatConverter>> ahb_format_converter_;
 #endif
+    // In default mode, the capture manager uses a shared mutex to capture every API function. As a result,
+    // multiple threads may access the sparse resource maps concurrently. Therefore, we use a dedicated mutex
+    // for write access to these maps.
+    std::mutex sparse_resource_mutex;
+
+#if ENABLE_OPENXR_SUPPORT
+    std::mutex        fence_mutex;
+    std::set<VkFence> valid_fences_;
+#endif
+
+    CaptureSettings::TraceSettings layer_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

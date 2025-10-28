@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2016-2025 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2015-2020 Valve Corporation
 ** Copyright (c) 2015-2020 LunarG, Inc.
 **
@@ -116,7 +116,7 @@ class PageGuardManager
     // shadow_memory is true.
     //
     // The shadow_memory_handle parameter is an option value that allows the lifetime of the shadow memory allocation to
-    // be managed externally.  Unless opy-on-map is disabled, copies from the mapped_range portion of mapped_memory to
+    // be managed externally.  Unless copy-on-map is disabled, copies from the mapped_range portion of mapped_memory to
     // the shadow memory are performed once, the first time that the shadow memory is added for tracking.  Copies will
     // not be performed if the mapped range is removed from tracking and then added again.
     //
@@ -174,7 +174,7 @@ class PageGuardManager
             status_tracker(tp),
             mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
-            use_write_watch(ww), is_modified(false), own_shadow_memory(os)
+            use_write_watch(ww), is_modified(false), own_shadow_memory(os), ref_count(0)
         {
 #if defined(WIN32)
             if (shadow_memory == nullptr)
@@ -201,6 +201,7 @@ class PageGuardManager
         bool        use_write_watch;
         bool        is_modified;
         bool        own_shadow_memory;
+        uint32_t    ref_count;
 
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.

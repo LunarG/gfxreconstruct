@@ -24,6 +24,13 @@ on:
   push:
     tags:
       - v[0-9]*
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch to run workflow on'
+        required: true
+        default: 'dev'
+        type: string
 
 jobs:
   linux:
@@ -35,7 +42,7 @@ jobs:
         config:
         - {
             name: "Ubuntu GCC Release",
-            os: ubuntu-20.04,
+            os: ubuntu-latest,
             artifact: "gfxreconstruct-ubuntu-gcc-release",
             cc: "gcc", cxx: "g++"
           }
@@ -131,7 +138,7 @@ jobs:
         run: .github/workflows/scripts/build-dependencies-macos.sh
       - name: Run build script
         run: |
-          python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0
+          python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0
       - name: Prepare artifacts
         run: |
           cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
@@ -155,19 +162,23 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Android Release/Debug",
+          - {
+            name: "Android Debug",
             os: ubuntu-latest,
-            artifact: "gfxreconstruct-android"
+            type: "debug",
+            artifact: "gfxreconstruct-android-debug",
+          }
+          - {
+            name: "Android Release",
+            os: ubuntu-latest,
+            type: "release",
+            artifact: "gfxreconstruct-android-release",
           }
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-    - name: Update submodules
-      run: |
-        git submodule update --init
     - name: Set up Java
       uses: "actions/setup-java@v4"
       with:
@@ -176,7 +187,13 @@ jobs:
     - name: Gradle build
       run: |
         cd android
-        sh gradlew assembleRelease assembleDebug
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          sh gradlew assembleRelease -Parm64-v8a
+          sh gradlew assembleRelease -Parmeabi-v7a
+        else
+          sh gradlew assembleDebug -Parm64-v8a
+        fi
     - name: Prepare artifacts
       run: |
         mkdir gfxreconstruct-dev
@@ -186,9 +203,13 @@ jobs:
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
-        cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+            cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        else
+            cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        fi
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -200,6 +221,7 @@ jobs:
     name: Create Release for Tag
     runs-on: ubuntu-latest
     needs: [ linux, windows, android, macOS ]
+    if: ${{ github.event_name == 'push' }}
     steps:
     - name: Clone repository
       uses: actions/checkout@v4
@@ -240,6 +262,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     needs: release
+    if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:

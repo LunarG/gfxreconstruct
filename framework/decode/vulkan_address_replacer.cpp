@@ -34,33 +34,52 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 //! RAII helper to mark injected commands in scope
 struct MarkInjectedCommandsHelper
 {
+    // allow nested usage without hitting an assertion
+    static thread_local std::atomic<uint32_t> semaphore;
+
     MarkInjectedCommandsHelper()
     {
         // mark injected commands
-        decode::BeginInjectedCommands();
+        if (semaphore++ == 0)
+        {
+            decode::BeginInjectedCommands();
+        };
     }
 
     ~MarkInjectedCommandsHelper()
     {
         // mark end of injected commands
-        decode::EndInjectedCommands();
+        if (--semaphore == 0)
+        {
+            decode::EndInjectedCommands();
+        }
     }
 };
+thread_local std::atomic<uint32_t> MarkInjectedCommandsHelper::semaphore = 0;
 
 //! RAII helper submit a command-buffer to a queue and synchronize via fence
 struct QueueSubmitHelper
 {
-    const encode::VulkanDeviceTable* device_table   = nullptr;
-    VkDevice                         device         = VK_NULL_HANDLE;
-    VkCommandBuffer                  command_buffer = VK_NULL_HANDLE;
-    VkFence                          fence          = VK_NULL_HANDLE;
-    VkQueue                          queue          = VK_NULL_HANDLE;
+    const graphics::VulkanDeviceTable* device_table   = nullptr;
+    VkDevice                           device         = VK_NULL_HANDLE;
+    VkCommandBuffer                    command_buffer = VK_NULL_HANDLE;
+    VkFence                            fence          = VK_NULL_HANDLE;
+    VkQueue                            queue          = VK_NULL_HANDLE;
 
-    QueueSubmitHelper(const encode::VulkanDeviceTable* device_table_,
-                      VkDevice                         device_,
-                      VkCommandBuffer                  command_buffer_,
-                      VkQueue                          queue_,
-                      VkFence                          fence_) :
+    QueueSubmitHelper()                         = default;
+    QueueSubmitHelper(const QueueSubmitHelper&) = delete;
+    QueueSubmitHelper(QueueSubmitHelper&& other) noexcept : QueueSubmitHelper() { swap(other); }
+
+    QueueSubmitHelper& operator=(QueueSubmitHelper other)
+    {
+        swap(other);
+        return *this;
+    }
+    QueueSubmitHelper(const graphics::VulkanDeviceTable* device_table_,
+                      VkDevice                           device_,
+                      VkCommandBuffer                    command_buffer_,
+                      VkQueue                            queue_,
+                      VkFence                            fence_) :
         device_table(device_table_),
         device(device_), command_buffer(command_buffer_), fence(fence_), queue(queue_)
     {
@@ -78,42 +97,73 @@ struct QueueSubmitHelper
 
     ~QueueSubmitHelper()
     {
-        MarkInjectedCommandsHelper mark_injected_commands_helper;
+        if (device_table != nullptr)
+        {
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
 
-        device_table->EndCommandBuffer(command_buffer);
+            device_table->EndCommandBuffer(command_buffer);
 
-        VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-        submit_info.pNext                = nullptr;
-        submit_info.waitSemaphoreCount   = 0;
-        submit_info.pWaitSemaphores      = nullptr;
-        submit_info.pWaitDstStageMask    = nullptr;
-        submit_info.commandBufferCount   = 1;
-        submit_info.pCommandBuffers      = &command_buffer;
-        submit_info.signalSemaphoreCount = 0;
-        submit_info.pSignalSemaphores    = nullptr;
+            VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            submit_info.pNext                = nullptr;
+            submit_info.waitSemaphoreCount   = 0;
+            submit_info.pWaitSemaphores      = nullptr;
+            submit_info.pWaitDstStageMask    = nullptr;
+            submit_info.commandBufferCount   = 1;
+            submit_info.pCommandBuffers      = &command_buffer;
+            submit_info.signalSemaphoreCount = 0;
+            submit_info.pSignalSemaphores    = nullptr;
 
-        // submit
-        device_table->QueueSubmit(queue, 1, &submit_info, fence);
+            // submit
+            device_table->QueueSubmit(queue, 1, &submit_info, fence);
 
-        // sync
-        device_table->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+            // sync
+            device_table->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+        }
+    }
+
+    void swap(QueueSubmitHelper& other)
+    {
+        std::swap(device_table, other.device_table);
+        std::swap(device, other.device);
+        std::swap(command_buffer, other.command_buffer);
+        std::swap(fence, other.fence);
+        std::swap(queue, other.queue);
     }
 };
 
-struct hashmap_t
+//! this struct groups data for an array in gpu-memory (either host- or device-visible)
+//! it's purpose is to serve as storage for sorted arrays (used for binary searches) or as linear hashmap-storage.
+struct gpu_array_t
 {
-    VkDeviceAddress storage;
-    uint32_t        size;
-    uint32_t        capacity;
+    VkDeviceAddress storage  = 0;
+    uint32_t        size     = 0;
+    uint32_t        capacity = 0;
 };
 
-struct replacer_params_t
+//! parameter-struct passed to SBT-replacer compute-shaders
+struct replacer_params_sbt_t
 {
-    hashmap_t hashmap;
+    gpu_array_t hashmap = {};
 
     // input-/output-arrays can be identical when sbt-alignments/strides match
-    VkDeviceAddress input_handles, output_handles;
-    uint32_t        num_handles;
+    VkDeviceAddress input_handles  = 0;
+    VkDeviceAddress output_handles = 0;
+    uint32_t        num_handles    = 0;
+};
+
+//! parameter-struct passed to BDA-replacer compute-shaders
+struct replacer_params_bda_t
+{
+    // sorted(!) array of bda_element_t, used for mapping device-address from capture -> replay.
+    gpu_array_t address_array = {};
+
+    // storage-buffer for a hashmap-control-block (gpu_array_t), caches addresses that have already been replaced
+    VkDeviceAddress address_blacklist = 0;
+
+    // input-/output-arrays can be identical when sbt-alignments/strides match
+    VkDeviceAddress input_handles  = 0;
+    VkDeviceAddress output_handles = 0;
+    uint32_t        num_handles    = 0;
 };
 
 decode::VulkanAddressReplacer::buffer_context_t::buffer_context_t(buffer_context_t&& other) noexcept :
@@ -149,7 +199,10 @@ decode::VulkanAddressReplacer::buffer_context_t::~buffer_context_t()
         if (buffer != VK_NULL_HANDLE)
         {
             // unmap/destroy buffer
-            resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            if (mapped_data != nullptr)
+            {
+                resource_allocator->UnmapResourceMemoryDirect(allocator_data);
+            }
             resource_allocator->DestroyBufferDirect(buffer, nullptr, allocator_data);
         }
         if (device_memory != VK_NULL_HANDLE)
@@ -171,11 +224,55 @@ decode::VulkanAddressReplacer::acceleration_structure_asset_t::~acceleration_str
     }
 }
 
+decode::VulkanAddressReplacer::submit_asset_t::submit_asset_t(submit_asset_t&& other) noexcept : submit_asset_t()
+{
+    swap(other);
+}
+
+decode::VulkanAddressReplacer::submit_asset_t&
+decode::VulkanAddressReplacer::submit_asset_t::operator=(submit_asset_t other)
+{
+    swap(other);
+    return *this;
+}
+
+void decode::VulkanAddressReplacer::submit_asset_t::swap(submit_asset_t& other)
+{
+    std::swap(device, other.device);
+    std::swap(command_pool, other.command_pool);
+    std::swap(command_buffer, other.command_buffer);
+    std::swap(fence, other.fence);
+    std::swap(signal_semaphore, other.signal_semaphore);
+    std::swap(destroy_fence_fn, other.destroy_fence_fn);
+    std::swap(free_command_buffers_fn, other.free_command_buffers_fn);
+    std::swap(destroy_semaphore_fn, other.destroy_semaphore_fn);
+}
+
+decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
+{
+    if (device != VK_NULL_HANDLE)
+    {
+        if (destroy_fence_fn != nullptr && fence != VK_NULL_HANDLE)
+        {
+            destroy_fence_fn(device, fence, nullptr);
+        }
+        if (free_command_buffers_fn != nullptr && command_buffer != VK_NULL_HANDLE)
+        {
+            free_command_buffers_fn(device, command_pool, 1, &command_buffer);
+        }
+        if (destroy_semaphore_fn != nullptr && signal_semaphore != VK_NULL_HANDLE)
+        {
+            destroy_semaphore_fn(device, signal_semaphore, nullptr);
+        }
+    }
+}
+
 VulkanAddressReplacer::VulkanAddressReplacer(const VulkanDeviceInfo*              device_info,
-                                             const encode::VulkanDeviceTable*     device_table,
-                                             const encode::VulkanInstanceTable*   instance_table,
-                                             const decode::CommonObjectInfoTable& object_table) :
-    device_table_(device_table), object_table_(&object_table)
+                                             const graphics::VulkanDeviceTable*   device_table,
+                                             const graphics::VulkanInstanceTable* instance_table,
+                                             decode::CommonObjectInfoTable&       object_table) :
+    device_table_(device_table),
+    object_table_(&object_table)
 {
     GFXRECON_ASSERT(device_info != nullptr && device_table != nullptr && instance_table != nullptr);
     physical_device_info_ = object_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
@@ -237,10 +334,16 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     pipeline_context_map_.clear();
     shadow_sbt_map_.clear();
     shadow_as_map_.clear();
+    submit_asset_map_.clear();
+    submit_asset_ = {};
 
     if (pipeline_bda_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyPipeline(device_, pipeline_bda_, nullptr);
+    }
+    if (pipeline_bda_rehash_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyPipeline(device_, pipeline_bda_rehash_, nullptr);
     }
     if (pipeline_sbt_ != VK_NULL_HANDLE)
     {
@@ -250,19 +353,9 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     {
         device_table_->DestroyPipelineLayout(device_, pipeline_layout_, nullptr);
     }
-
     if (query_pool_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyQueryPool(device_, query_pool_, nullptr);
-    }
-    if (fence_ != VK_NULL_HANDLE)
-    {
-        device_table_->DestroyFence(device_, fence_, nullptr);
-    }
-    if (command_buffer_ != VK_NULL_HANDLE)
-    {
-        GFXRECON_ASSERT(command_pool_ != VK_NULL_HANDLE);
-        device_table_->FreeCommandBuffers(device_, command_pool_, 1, &command_buffer_);
     }
     if (command_pool_ != VK_NULL_HANDLE)
     {
@@ -270,53 +363,107 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-void VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
-                                                  const VkDeviceAddress*                    addresses,
-                                                  uint32_t                                  num_addresses,
-                                                  const decode::VulkanDeviceAddressTracker& address_tracker)
+VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
+    const VulkanCommandBufferInfo*                                      command_buffer_info,
+    const VkDeviceAddress*                                              addresses,
+    uint32_t                                                            num_addresses,
+    const decode::VulkanDeviceAddressTracker&                           address_tracker,
+    const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores)
 {
     if (addresses != nullptr && num_addresses > 0)
     {
-        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting mismatching "
+        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting "
                                "buffer-device-addresses in-place using a compute-dispatch");
 
-        hashmap_bda_.clear();
+        storage_bda_binary_.clear();
 
         // populate hashmap
-        auto address_map = address_tracker.GetBufferDeviceAddressMap();
-        for (const auto& [capture_address, replay_address] : address_map)
+        const auto& address_map = address_tracker.GetBufferDeviceAddressMap();
+        for (const auto& [capture_address, replay_item] : address_map)
         {
-            hashmap_bda_.put(capture_address, replay_address);
-
-            // NOTE: this is correct but very slow.
-            // TODO: switch from hashmap to binary-search lookup to support offset-addresses
-            // generate offset-addresses for entire buffer-range
-            //            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
-            //            if (buffer_info != nullptr)
-            //            {
-            //                for (uint32_t offset = 0; offset < buffer_info->size; offset += sizeof(VkDeviceAddress))
-            //                {
-            //                    hashmap_bda_.put(capture_address + offset, replay_address + offset);
-            //                }
-            //            }
+            storage_bda_binary_.push_back({ capture_address, replay_item.address, replay_item.size });
         }
 
         if (command_buffer_info != nullptr)
         {
-            run_compute_replace(
-                command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+            if (!wait_semaphores)
+            {
+                run_compute_replace(
+                    command_buffer_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+            }
+            else
+            {
+                // don't inject into the command-buffer, instead use a separate submit
+                submit_asset_t& submit_asset = submit_asset_map_[command_buffer_info->handle];
+                if (!init_queue_assets() || !create_submit_asset(submit_asset))
+                {
+                    GFXRECON_LOG_WARNING_ONCE(
+                        "VulkanAddressReplacer::UpdateBufferAddresses: could not create required submit-assets");
+                    return VK_NULL_HANDLE;
+                }
+
+                device_table_->ResetFences(device_, 1, &submit_asset.fence);
+
+                VkCommandBufferBeginInfo command_buffer_begin_info;
+                command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+                command_buffer_begin_info.pNext            = nullptr;
+                command_buffer_begin_info.flags            = 0;
+                command_buffer_begin_info.pInheritanceInfo = nullptr;
+                device_table_->BeginCommandBuffer(submit_asset.command_buffer, &command_buffer_begin_info);
+
+                VulkanCommandBufferInfo fake_info = {};
+                fake_info.handle                  = submit_asset.command_buffer;
+                run_compute_replace(
+                    &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+                device_table_->EndCommandBuffer(submit_asset.command_buffer);
+
+                std::vector<VkSemaphore>          semaphore_handles(wait_semaphores->size());
+                std::vector<uint64_t>             semaphore_values(wait_semaphores->size());
+                std::vector<VkPipelineStageFlags> wait_dst_stages(wait_semaphores->size(),
+                                                                  VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+
+                for (uint32_t i = 0; i < wait_semaphores->size(); ++i)
+                {
+                    semaphore_handles[i] = wait_semaphores.value()[i].first;
+                    semaphore_values[i]  = wait_semaphores.value()[i].second;
+                }
+
+                VkTimelineSemaphoreSubmitInfo timeline_info = {};
+                timeline_info.sType                         = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
+                timeline_info.waitSemaphoreValueCount       = wait_semaphores->size();
+                timeline_info.pWaitSemaphoreValues = wait_semaphores->empty() ? nullptr : semaphore_values.data();
+
+                VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                submit_info.pNext                = &timeline_info;
+                submit_info.waitSemaphoreCount   = wait_semaphores->size();
+                submit_info.pWaitSemaphores      = wait_semaphores->empty() ? nullptr : semaphore_handles.data();
+                submit_info.pWaitDstStageMask    = wait_semaphores->empty() ? nullptr : wait_dst_stages.data();
+                submit_info.commandBufferCount   = 1;
+                submit_info.pCommandBuffers      = &submit_asset.command_buffer;
+                submit_info.signalSemaphoreCount = 1;
+                submit_info.pSignalSemaphores    = &submit_asset.signal_semaphore;
+
+                // submit
+                device_table_->QueueSubmit(queue_, 1, &submit_info, submit_asset.fence);
+
+                // return signal-semaphore
+                return submit_asset.signal_semaphore;
+            }
         }
         else if (init_queue_assets())
         {
             // reset/submit/sync command-buffer
-            QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+            QueueSubmitHelper queue_submit_helper(
+                device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
             VulkanCommandBufferInfo fake_info = {};
-            fake_info.handle                  = command_buffer_;
+            fake_info.handle                  = submit_asset_.command_buffer;
             run_compute_replace(
                 &fake_info, addresses, num_addresses, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         }
     }
+    return VK_NULL_HANDLE;
 }
 
 void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInfo*            command_buffer_info,
@@ -331,23 +478,26 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     GFXRECON_ASSERT(command_buffer_info != nullptr && data != nullptr);
     for (const auto& [bind_point, pipeline_id] : command_buffer_info->bound_pipelines)
     {
-        auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
+        const auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
         GFXRECON_ASSERT(pipeline_info != nullptr);
-        for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
+        if (pipeline_info != nullptr)
         {
-            if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
+            for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
             {
-                // find addresses in push-constant memory and replace in-place.
-                auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
-                                                                   buffer_ref_info.buffer_offset);
-
-                auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
-                if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                 {
-                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
-                                           "mismatching buffer-device-addresses in push-constants");
-                    uint32_t address_offset = *address - buffer_info->capture_address;
-                    *address                = buffer_info->replay_address + address_offset;
+                    // find addresses in push-constant memory and replace in-place.
+                    auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
+                                                                       buffer_ref_info.buffer_offset);
+
+                    auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+                    if (buffer_info != nullptr && buffer_info->replay_address != 0)
+                    {
+                        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
+                                               "buffer-device-addresses in push-constants");
+                        uint32_t address_offset = *address - buffer_info->capture_address;
+                        *address                = buffer_info->replay_address + address_offset;
+                    }
                 }
             }
         }
@@ -361,11 +511,14 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                                                          HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets,
                                                          VulkanDeviceAddressTracker&            address_tracker)
 {
-    auto* pipeline_info = object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines[pipelineBindPoint]);
+    const auto* pipeline_info =
+        object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines[pipelineBindPoint]);
     if (pipeline_info == nullptr)
     {
         return;
     };
+
+    std::map<std::pair<VkDescriptorSet, uint32_t>, VkWriteDescriptorSetInlineUniformBlock> sets_requiring_update;
 
     for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
     {
@@ -376,8 +529,11 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             continue;
         }
         GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+
+        // we need a mutable pointer, to allow for in-place corrections
         auto* descriptor_set_info =
             object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+
         if (descriptor_set_info == nullptr)
         {
             continue;
@@ -390,57 +546,112 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                                       "descriptor while sanitizing buffer-references.");
             continue;
         }
-        const auto& descriptor = it->second;
+        auto& descriptor_set_binding_info = it->second;
 
-        GFXRECON_ASSERT(!descriptor.buffer_info.empty());
+        // we expect a buffer or inline-uniform-block
+        GFXRECON_ASSERT(!descriptor_set_binding_info.buffer_info.empty() ||
+                        !descriptor_set_binding_info.inline_uniform_block.empty());
 
-        for (auto& desc_buffer_info : descriptor.buffer_info)
+        for (auto& [binding, desc_buffer_info] : descriptor_set_binding_info.buffer_info)
         {
-            auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.second.buffer_info);
-            if (buffer_info == nullptr)
-            {
-                continue;
-            };
+            auto* buffer_info = const_cast<VulkanBufferInfo*>(desc_buffer_info.buffer_info);
 
-            // we only track buffers with device-addresses here
-            if (auto* tracked_buffer = address_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
+            if (buffer_info != nullptr)
             {
-                // assert we got buffer-tracking correct
-                GFXRECON_ASSERT(tracked_buffer == buffer_info);
-            }
-            else
-            {
-                // patch an existing uniform-buffer and retrieve a buffer-address for it
-                decode::BeginInjectedCommands();
-                VkBufferDeviceAddressInfo address_info = {};
-                address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-                address_info.buffer                    = buffer_info->handle;
-                buffer_info->capture_address           = buffer_info->replay_address =
-                    get_device_address_fn_(device_, &address_info);
-                GFXRECON_ASSERT(buffer_info->replay_address != 0);
-                decode::EndInjectedCommands();
-
-                // track newly acquired buffer/address
-                address_tracker.TrackBuffer(buffer_info);
-            }
-
-            VkDeviceAddress address =
-                buffer_info->replay_address + desc_buffer_info.second.offset + buffer_ref_info.buffer_offset;
-            VkDeviceAddress range_end =
-                address + std::min<VkDeviceSize>(buffer_info->size - desc_buffer_info.second.offset,
-                                                 desc_buffer_info.second.range);
-            command_buffer_info->addresses_to_replace.insert(address);
-
-            if (buffer_ref_info.array_stride)
-            {
-                address += buffer_ref_info.array_stride;
-                for (; address < range_end; address += buffer_ref_info.array_stride)
+                // we only track buffers with device-addresses here
+                if (auto* tracked_buffer =
+                        address_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address))
                 {
-                    command_buffer_info->addresses_to_replace.insert(address);
+                    // assert we got buffer-tracking correct
+                    GFXRECON_ASSERT(tracked_buffer == buffer_info);
+                }
+                else
+                {
+                    // patch an existing uniform-buffer and retrieve a buffer-address for it
+                    decode::BeginInjectedCommands();
+                    VkBufferDeviceAddressInfo address_info = {};
+                    address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                    address_info.buffer                    = buffer_info->handle;
+                    buffer_info->capture_address           = buffer_info->replay_address =
+                        get_device_address_fn_(device_, &address_info);
+                    GFXRECON_ASSERT(buffer_info->replay_address != 0);
+                    decode::EndInjectedCommands();
+
+                    // track newly acquired buffer/address
+                    address_tracker.TrackBuffer(buffer_info);
+                }
+
+                VkDeviceSize    offset  = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
+                VkDeviceAddress address = buffer_info->replay_address + offset;
+                VkDeviceAddress range_end =
+                    address + std::min<VkDeviceSize>(buffer_info->size - offset, desc_buffer_info.range);
+                command_buffer_info->addresses_to_replace.insert(address);
+
+                if (buffer_ref_info.array_stride)
+                {
+                    address += buffer_ref_info.array_stride;
+                    for (; address < range_end; address += buffer_ref_info.array_stride)
+                    {
+                        command_buffer_info->addresses_to_replace.insert(address);
+                    }
                 }
             }
         }
+
+        if (buffer_ref_info.buffer_offset < descriptor_set_binding_info.inline_uniform_block.size())
+        {
+            // find addresses in inline-uniform-block and replace in-place.
+            auto* address = reinterpret_cast<VkDeviceAddress*>(descriptor_set_binding_info.inline_uniform_block.data() +
+                                                               buffer_ref_info.buffer_offset);
+
+            auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
+
+            // ensure buffer exists and replacement actually required
+            if (buffer_info != nullptr && buffer_info->replay_address != 0 &&
+                buffer_info->capture_address != buffer_info->replay_address)
+            {
+                GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets(): Replay is adjusting "
+                                       "buffer-device-addresses in inline-uniform-block");
+                uint32_t address_offset = *address - buffer_info->capture_address;
+                *address                = buffer_info->replay_address + address_offset;
+
+                // TODO: come back for this. we don't treat arrays in push-constants and here, but probably should
+                GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
+
+                // batch descriptor-updates
+                auto& write_inline_uniform_block =
+                    sets_requiring_update[{ descriptor_set_info->handle, buffer_ref_info.binding }];
+                write_inline_uniform_block.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
+                write_inline_uniform_block.dataSize = descriptor_set_binding_info.inline_uniform_block.size();
+                write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
+            }
+        }
+    } // pipeline_info->buffer_reference_infos
+
+    std::vector<VkWriteDescriptorSet> descriptor_updates;
+    descriptor_updates.reserve(sets_requiring_update.size());
+
+    for (const auto& [pair, write_inline_uniform_block] : sets_requiring_update)
+    {
+        const auto& [descriptor_set, binding] = pair;
+
+        // requires an injected call to vkUpdateDescriptorSets in order to correct addresses
+        VkWriteDescriptorSet& write_descriptor_set = descriptor_updates.emplace_back();
+        write_descriptor_set.sType                 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write_descriptor_set.descriptorType        = VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK;
+        write_descriptor_set.descriptorCount       = write_inline_uniform_block.dataSize;
+        write_descriptor_set.dstSet                = descriptor_set;
+        write_descriptor_set.dstBinding            = binding;
+        write_descriptor_set.pNext                 = &write_inline_uniform_block;
     }
+
+    if (!descriptor_updates.empty())
+    {
+        // mark injected commands
+        MarkInjectedCommandsHelper mark_injected_commands_helper;
+        device_table_->UpdateDescriptorSets(device_, descriptor_updates.size(), descriptor_updates.data(), 0, nullptr);
+    }
+
     if (!command_buffer_info->inside_renderpass)
     {
         std::vector<VkDeviceAddress> addresses_to_replace(command_buffer_info->addresses_to_replace.begin(),
@@ -549,7 +760,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         // get a context for this command-buffer
         auto& pipeline_context_sbt = pipeline_context_map_[command_buffer_info->handle].emplace_back();
 
-        if (!create_buffer(pipeline_context_sbt.hashmap_storage,
+        if (!create_buffer(pipeline_context_sbt.storage_array,
                            hashmap_sbt_.get_storage(nullptr),
                            0,
                            0,
@@ -558,7 +769,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         {
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
         }
-        hashmap_sbt_.get_storage(pipeline_context_sbt.hashmap_storage.mapped_data);
+        hashmap_sbt_.get_storage(pipeline_context_sbt.storage_array.mapped_data);
 
         // input-handles
         constexpr uint32_t max_num_handles = 512;
@@ -596,17 +807,17 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             }
         }
 
-        replacer_params_t replacer_params = {};
-        replacer_params.hashmap.storage   = pipeline_context_sbt.hashmap_storage.device_address;
-        replacer_params.hashmap.size      = hashmap_sbt_.size();
-        replacer_params.hashmap.capacity  = hashmap_sbt_.capacity();
+        replacer_params_sbt_t replacer_params = {};
+        replacer_params.hashmap.storage       = pipeline_context_sbt.storage_array.device_address;
+        replacer_params.hashmap.size          = hashmap_sbt_.size();
+        replacer_params.hashmap.capacity      = hashmap_sbt_.capacity();
 
         replacer_params.input_handles = pipeline_context_sbt.input_handle_buffer.device_address;
         replacer_params.num_handles   = num_addresses;
 
         if (valid_sbt_alignment_)
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting "
                                    "raytracing shader-group-handles");
 
             // rewrite group-handles in-place
@@ -625,7 +836,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         else
         {
-            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting mismatching "
+            GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdTraceRays: Replay is adjusting "
                                    "raytracing shader-binding-tables using shadow-buffers");
 
             // output-handles
@@ -709,7 +920,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                                         pipeline_layout_,
                                         VK_SHADER_STAGE_COMPUTE_BIT,
                                         0,
-                                        sizeof(replacer_params_t),
+                                        sizeof(replacer_params_sbt_t),
                                         &replacer_params);
         // run a single workgroup
         constexpr uint32_t wg_size = 32;
@@ -730,7 +941,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         // set previous compute-pipeline, if any
         if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
         {
-            auto* previous_pipeline = object_table_->GetVkPipelineInfo(
+            const auto* previous_pipeline = object_table_->GetVkPipelineInfo(
                 command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
             GFXRECON_ASSERT(previous_pipeline);
             if (previous_pipeline != nullptr)
@@ -782,11 +993,14 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // keep track of used handles
             buffer_set.insert(buffer_info->handle);
 
-            uint64_t offset = capture_address - buffer_info->capture_address;
+            if (buffer_info->capture_address != buffer_info->replay_address)
+            {
+                uint64_t offset = capture_address - buffer_info->capture_address;
 
-            // in-place address-remap via const-cast
-            capture_address = buffer_info->replay_address + offset;
-            return true;
+                // in-place address-remap via const-cast
+                capture_address = buffer_info->replay_address + offset;
+                return true;
+            }
         }
         return false;
     };
@@ -795,8 +1009,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
     for (uint32_t i = 0; i < info_count; ++i)
     {
-        auto& build_geometry_info = build_geometry_infos[i];
-        auto  range_info          = build_range_infos[i];
+        auto&       build_geometry_info = build_geometry_infos[i];
+        const auto* range_infos         = build_range_infos[i];
 
         const VulkanBufferInfo* scratch_buffer_info =
             address_tracker.GetBufferByCaptureDeviceAddress(build_geometry_info.scratchData.deviceAddress);
@@ -813,7 +1027,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 std::vector<uint32_t> primitive_counts(build_geometry_info.geometryCount);
                 for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
                 {
-                    primitive_counts[j] = range_info->primitiveCount;
+                    primitive_counts[j] = range_infos[j].primitiveCount;
                 }
 
                 MarkInjectedCommandsHelper mark_injected_commands_helper;
@@ -829,6 +1043,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             // retrieve VkAccelerationStructureKHR -> VkBuffer -> check/correct size
             auto* acceleration_structure_info =
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
+            GFXRECON_ASSERT(acceleration_structure_info != nullptr);
+
             if (acceleration_structure_info != nullptr)
             {
                 auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
@@ -837,22 +1053,35 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             }
 
             // determine required size of scratch-buffer
-            uint32_t scratch_size      = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
-                                             ? build_size_info.buildScratchSize
-                                             : build_size_info.updateScratchSize;
+            uint32_t scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
+                                        ? build_size_info.buildScratchSize
+                                        : build_size_info.updateScratchSize;
+
+            // scratch-buffer: check for nullptr and size
             bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;
+
+            // scratch-buffer: check usage-flags
+            auto scratch_usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+            scratch_buffer_usable =
+                scratch_buffer_usable && (scratch_buffer_info->usage & scratch_usage_flags) == scratch_usage_flags;
+
+            // scratch-buffer: check for alignment
+            scratch_buffer_usable =
+                scratch_buffer_usable &&
+                (build_geometry_info.scratchData.deviceAddress %
+                 replay_acceleration_structure_properties_->minAccelerationStructureScratchOffsetAlignment) == 0;
 
             if (!as_buffer_usable || !scratch_buffer_usable)
             {
                 MarkInjectedCommandsHelper mark_injected_commands_helper;
                 GFXRECON_LOG_INFO_ONCE(
-                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting mismatching "
+                    "VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR: Replay is adjusting "
                     "acceleration-structures using shadow-structures and -buffers");
 
                 // now definitely requiring address-replacement
                 force_replace = true;
 
-                auto& replacement_as = shadow_as_map_[build_geometry_info.dstAccelerationStructure];
+                auto& replacement_as = shadow_as_map_[acceleration_structure_info->capture_address];
 
                 if (replacement_as.handle == VK_NULL_HANDLE)
                 {
@@ -879,7 +1108,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 }
 
                 // check/correct source acceleration-structure
-                swap_acceleration_structure_handle(build_geometry_info.srcAccelerationStructure);
+                swap_acceleration_structure_handle(build_geometry_info.srcAccelerationStructure, address_tracker);
 
                 // hot swap acceleration-structure handle
                 build_geometry_info.dstAccelerationStructure = replacement_as.handle;
@@ -949,16 +1178,20 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 case VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
                     auto& instances = geometry->geometry.instances;
-                    address_remap(instances.data.deviceAddress);
 
-                    // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
-                    for (uint32_t k = 0; k < range_info->primitiveCount; ++k)
+                    // check if replacement is actually required
+                    if (address_remap(instances.data.deviceAddress))
                     {
-                        VkDeviceAddress accel_structure_reference =
-                            instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
-                            offsetof(VkAccelerationStructureInstanceKHR, accelerationStructureReference);
-                        addresses_to_replace.push_back(accel_structure_reference);
+                        // replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
+                        for (uint32_t k = 0; k < range_infos[j].primitiveCount; ++k)
+                        {
+                            VkDeviceAddress accel_structure_reference =
+                                instances.data.deviceAddress + k * sizeof(VkAccelerationStructureInstanceKHR) +
+                                offsetof(VkAccelerationStructureInstanceKHR, accelerationStructureReference);
+                            addresses_to_replace.push_back(accel_structure_reference);
+                        }
                     }
+
                     break;
                 }
                 default:
@@ -973,30 +1206,23 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     if (!addresses_to_replace.empty())
     {
         // prepare linear hashmap
-        hashmap_bda_.clear();
-        auto acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
+        storage_bda_binary_.clear();
+        const auto& acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
         for (const auto& [capture_address, replay_address] : acceleration_structure_map)
         {
-            auto* accel_info = address_tracker.GetAccelerationStructureByCaptureDeviceAddress(capture_address);
-            GFXRECON_ASSERT(accel_info != nullptr);
-
             if (force_replace || capture_address != replay_address)
             {
                 auto new_address = replay_address;
 
-                // extra look-up required for potentially replaced AS
-                if (accel_info != nullptr)
+                auto shadow_as_it = shadow_as_map_.find(capture_address);
+                if (shadow_as_it != shadow_as_map_.end())
                 {
-                    auto shadow_as_it = shadow_as_map_.find(accel_info->handle);
-                    if (shadow_as_it != shadow_as_map_.end())
-                    {
-                        new_address = shadow_as_it->second.address;
-                    }
+                    new_address = shadow_as_it->second.address;
                 }
 
                 // store addresses we will need to replace
                 GFXRECON_ASSERT(new_address != 0);
-                hashmap_bda_.put(capture_address, new_address);
+                storage_bda_binary_.push_back({ capture_address, new_address });
             }
         }
 
@@ -1037,24 +1263,32 @@ void VulkanAddressReplacer::ProcessCmdCopyAccelerationStructuresKHR(
         }
 
         // correct in-place
-        swap_acceleration_structure_handle(info->src);
-        swap_acceleration_structure_handle(info->dst);
+        swap_acceleration_structure_handle(info->src, address_tracker);
+        swap_acceleration_structure_handle(info->dst, address_tracker);
     }
 }
 
 void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
-    uint32_t                    count,
-    VkAccelerationStructureKHR* acceleration_structures,
-    VkQueryType                 query_type,
-    VkQueryPool                 pool,
-    uint32_t                    first_query)
+    uint32_t                                  count,
+    VkAccelerationStructureKHR*               acceleration_structures,
+    VkQueryType                               query_type,
+    VkQueryPool                               pool,
+    uint32_t                                  first_query,
+    const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     for (uint32_t i = 0; i < count; ++i)
     {
-        auto shadow_as_it = shadow_as_map_.find(acceleration_structures[i]);
-        if (shadow_as_it != shadow_as_map_.end())
+        // retrieve VkAccelerationStructureKHR -> VkDeviceAddress
+        const auto* acceleration_structure_info =
+            address_tracker.GetAccelerationStructureByHandle(acceleration_structures[i]);
+
+        if (acceleration_structure_info != nullptr)
         {
-            acceleration_structures[i] = shadow_as_it->second.handle;
+            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
+            if (shadow_as_it != shadow_as_map_.end())
+            {
+                acceleration_structures[i] = shadow_as_it->second.handle;
+            }
         }
 
         if (query_type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR)
@@ -1068,7 +1302,8 @@ void VulkanAddressReplacer::ProcessCmdWriteAccelerationStructuresPropertiesKHR(
 void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              descriptor_write_count,
                                                         VkWriteDescriptorSet* descriptor_writes,
                                                         uint32_t              descriptor_copy_count,
-                                                        VkCopyDescriptorSet*  descriptor_copies)
+                                                        VkCopyDescriptorSet*  descriptor_copies,
+                                                        const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     GFXRECON_UNREFERENCED_PARAMETER(descriptor_copy_count);
     GFXRECON_UNREFERENCED_PARAMETER(descriptor_copies);
@@ -1092,15 +1327,23 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
         {
             for (uint32_t j = 0; j < write_as->accelerationStructureCount; ++j)
             {
-                auto acceleration_structure_it = shadow_as_map_.find(write_as->pAccelerationStructures[j]);
-                if (acceleration_structure_it != shadow_as_map_.end())
-                {
-                    // we found an existing replacement-structure -> swap
-                    auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
-                    out_array[j]    = acceleration_structure_it->second.handle;
+                // retrieve VkAccelerationStructureKHR -> VkDeviceAddress
+                const auto* acceleration_structure_info =
+                    address_tracker.GetAccelerationStructureByHandle(write_as->pAccelerationStructures[j]);
 
-                    GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessUpdateDescriptorSets: Replay adjusted "
-                                           "AccelerationStructure handles")
+                if (acceleration_structure_info != nullptr)
+                {
+                    auto acceleration_structure_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
+                    if (acceleration_structure_it != shadow_as_map_.end() &&
+                        acceleration_structure_it->second.storage.num_bytes > 0)
+                    {
+                        // we found an existing replacement-structure -> swap
+                        auto* out_array = const_cast<VkAccelerationStructureKHR*>(write_as->pAccelerationStructures);
+                        out_array[j]    = acceleration_structure_it->second.handle;
+
+                        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessUpdateDescriptorSets: Replay adjusted "
+                                               "AccelerationStructure handles")
+                    }
                 }
             }
         }
@@ -1150,17 +1393,19 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     if (info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(
+            device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         // dummy-wrapper
         VulkanCommandBufferInfo command_buffer_info = {};
-        command_buffer_info.handle                  = command_buffer_;
+        command_buffer_info.handle                  = submit_asset_.command_buffer;
         ProcessCmdBuildAccelerationStructuresKHR(
             &command_buffer_info, info_count, geometry_infos, range_infos, address_tracker);
 
         // issue build-command
         MarkInjectedCommandsHelper mark_injected_commands_helper;
-        device_table_->CmdBuildAccelerationStructuresKHR(command_buffer_, info_count, geometry_infos, range_infos);
+        device_table_->CmdBuildAccelerationStructuresKHR(
+            submit_asset_.command_buffer, info_count, geometry_infos, range_infos);
     }
 }
 
@@ -1172,7 +1417,8 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
     if (copy_infos != nullptr && info_count > 0 && init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(
+            device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
         for (uint32_t i = 0; i < info_count; ++i)
         {
@@ -1184,7 +1430,7 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
 
                 // issue copy command
                 MarkInjectedCommandsHelper mark_injected_commands_helper;
-                device_table_->CmdCopyAccelerationStructureKHR(command_buffer_, copy_info);
+                device_table_->CmdCopyAccelerationStructureKHR(submit_asset_.command_buffer, copy_info);
             }
             else
             {
@@ -1195,20 +1441,24 @@ void VulkanAddressReplacer::ProcessCopyVulkanAccelerationStructuresMetaCommand(
 }
 
 void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
-    VkQueryType query_type, VkAccelerationStructureKHR acceleration_structure)
+    VkQueryType                               query_type,
+    VkAccelerationStructureKHR                acceleration_structure,
+    const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     if (init_queue_assets())
     {
         // reset/submit/sync command-buffer
-        QueueSubmitHelper queue_submit_helper(device_table_, device_, command_buffer_, queue_, fence_);
+        QueueSubmitHelper queue_submit_helper(
+            device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
 
-        ProcessCmdWriteAccelerationStructuresPropertiesKHR(1, &acceleration_structure, query_type, query_pool_, 0);
+        ProcessCmdWriteAccelerationStructuresPropertiesKHR(
+            1, &acceleration_structure, query_type, query_pool_, 0, address_tracker);
 
         // issue vkCmdResetQueryPool and vkCmdWriteAccelerationStructuresPropertiesKHR
         MarkInjectedCommandsHelper mark_injected_commands_helper;
-        device_table_->CmdResetQueryPool(command_buffer_, query_pool_, 0, 1);
+        device_table_->CmdResetQueryPool(submit_asset_.command_buffer, query_pool_, 0, 1);
         device_table_->CmdWriteAccelerationStructuresPropertiesKHR(
-            command_buffer_, 1, &acceleration_structure, query_type, query_pool_, 0);
+            submit_asset_.command_buffer, 1, &acceleration_structure, query_type, query_pool_, 0);
     }
 
     VkDeviceSize compact_size = 0;
@@ -1245,7 +1495,7 @@ bool VulkanAddressReplacer::init_pipeline()
     VkPushConstantRange push_constant_range = {};
     push_constant_range.stageFlags          = VK_SHADER_STAGE_COMPUTE_BIT;
     push_constant_range.offset              = 0;
-    push_constant_range.size                = sizeof(replacer_params_t);
+    push_constant_range.size                = std::max(sizeof(replacer_params_sbt_t), sizeof(replacer_params_bda_t));
 
     VkPipelineLayoutCreateInfo pipeline_layout_info = {};
     pipeline_layout_info.sType                      = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -1320,14 +1570,20 @@ bool VulkanAddressReplacer::init_pipeline()
         return result;
     };
 
-    // create SBT pipeline
+    // create SBT pipeline (hashmap search)
     if (create_pipeline(pipeline_layout_, g_replacer_sbt_comp, pipeline_sbt_) != VK_SUCCESS)
     {
         return false;
     }
 
-    // create BDA pipeline
-    if (create_pipeline(pipeline_layout_, g_replacer_bda_comp, pipeline_bda_) != VK_SUCCESS)
+    // create BDA pipeline (binary search)
+    if (create_pipeline(pipeline_layout_, g_replacer_bda_binary_comp, pipeline_bda_) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    // create rehashing pipeline
+    if (create_pipeline(pipeline_layout_, g_replacer_rehash_comp, pipeline_bda_rehash_) != VK_SUCCESS)
     {
         return false;
     }
@@ -1354,30 +1610,6 @@ bool VulkanAddressReplacer::init_queue_assets()
         return false;
     }
 
-    VkCommandBufferAllocateInfo alloc_info = {};
-    alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    alloc_info.pNext                       = nullptr;
-    alloc_info.commandPool                 = command_pool_;
-    alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    alloc_info.commandBufferCount          = 1;
-    result = device_table_->AllocateCommandBuffers(device_, &alloc_info, &command_buffer_);
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-buffer creation failed");
-        return false;
-    }
-
-    VkFenceCreateInfo fence_create_info;
-    fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fence_create_info.pNext = nullptr;
-    fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-    result                  = device_table_->CreateFence(device_, &fence_create_info, nullptr, &fence_);
-    if (result != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal fence creation failed");
-        return false;
-    }
-
     VkQueryPoolCreateInfo pool_info;
     pool_info.sType              = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     pool_info.pNext              = nullptr;
@@ -1394,7 +1626,9 @@ bool VulkanAddressReplacer::init_queue_assets()
 
     device_table_->GetDeviceQueue(device_, 0, 0, &queue_);
     GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
-    return queue_ != VK_NULL_HANDLE;
+
+    bool submit_asset_created = create_submit_asset(submit_asset_);
+    return queue_ != VK_NULL_HANDLE && submit_asset_created;
 }
 
 bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_t& buffer_context,
@@ -1408,7 +1642,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
 
     // 4kB min-size
     constexpr uint32_t min_buffer_size = 1 << 12;
-    num_bytes = std::max<uint32_t>(util::aligned_value(num_bytes, min_alignment), min_buffer_size);
+    num_bytes = std::max<uint32_t>(util::aligned_value(num_bytes + min_alignment, min_alignment), min_buffer_size);
 
     // nothing to do
     if (num_bytes <= buffer_context.num_bytes)
@@ -1541,15 +1775,22 @@ void VulkanAddressReplacer::barrier(VkCommandBuffer      command_buffer,
         command_buffer, src_stage, dst_stage, VkDependencyFlags(0), 0, nullptr, 1, &barrier, 0, nullptr);
 }
 
-bool VulkanAddressReplacer::swap_acceleration_structure_handle(VkAccelerationStructureKHR& handle)
+bool VulkanAddressReplacer::swap_acceleration_structure_handle(
+    VkAccelerationStructureKHR& handle, const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     if (handle != VK_NULL_HANDLE)
     {
-        auto shadow_as_it = shadow_as_map_.find(handle);
-        if (shadow_as_it != shadow_as_map_.end())
+        // retrieve VkAccelerationStructureKHR -> VkDeviceAddress
+        const auto* acceleration_structure_info = address_tracker.GetAccelerationStructureByHandle(handle);
+
+        if (acceleration_structure_info != nullptr)
         {
-            handle = shadow_as_it->second.handle;
-            return true;
+            auto shadow_as_it = shadow_as_map_.find(acceleration_structure_info->capture_address);
+            if (shadow_as_it != shadow_as_map_.end())
+            {
+                handle = shadow_as_it->second.handle;
+                return true;
+            }
         }
     }
     return false;
@@ -1559,12 +1800,26 @@ void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR ha
 {
     if (handle != VK_NULL_HANDLE)
     {
-        auto remove_as_it = shadow_as_map_.find(handle);
-
-        if (remove_as_it != shadow_as_map_.end())
+        auto remove_as_size_it = as_compact_sizes_.find(handle);
+        if (remove_as_size_it != as_compact_sizes_.end())
         {
-            MarkInjectedCommandsHelper mark_injected_commands_helper;
-            shadow_as_map_.erase(remove_as_it);
+            as_compact_sizes_.erase(remove_as_size_it);
+        }
+    }
+}
+
+void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo* buffer_info)
+{
+    if (buffer_info != nullptr)
+    {
+        for (const auto& [capture_address, as_infos] : buffer_info->acceleration_structures)
+        {
+            auto remove_shadow_as_it = shadow_as_map_.find(capture_address);
+            if (remove_shadow_as_it != shadow_as_map_.end())
+            {
+                MarkInjectedCommandsHelper mark_injected_commands_helper;
+                shadow_as_map_.erase(remove_shadow_as_it);
+            }
         }
     }
 }
@@ -1574,7 +1829,6 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
     if (handle != VK_NULL_HANDLE)
     {
         auto shadow_sbt_it = shadow_sbt_map_.find(handle);
-
         if (shadow_sbt_it != shadow_sbt_map_.end())
         {
             MarkInjectedCommandsHelper mark_injected_commands_helper;
@@ -1582,11 +1836,17 @@ void VulkanAddressReplacer::DestroyShadowResources(VkCommandBuffer handle)
         }
 
         auto pipeline_sbt_it = pipeline_context_map_.find(handle);
-
         if (pipeline_sbt_it != pipeline_context_map_.end())
         {
             MarkInjectedCommandsHelper mark_injected_commands_helper;
             pipeline_context_map_.erase(pipeline_sbt_it);
+        }
+
+        auto submit_asset_it = submit_asset_map_.find(handle);
+        if (submit_asset_it != submit_asset_map_.end())
+        {
+            MarkInjectedCommandsHelper mark_injected_commands_helper;
+            submit_asset_map_.erase(submit_asset_it);
         }
     }
 }
@@ -1636,16 +1896,78 @@ bool VulkanAddressReplacer::create_acceleration_asset(VulkanAddressReplacer::acc
     return true;
 }
 
+bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
+{
+    // clear previous content and setup
+    submit_asset.device                  = device_;
+    submit_asset.command_pool            = command_pool_;
+    submit_asset.destroy_fence_fn        = device_table_->DestroyFence;
+    submit_asset.free_command_buffers_fn = device_table_->FreeCommandBuffers;
+    submit_asset.destroy_semaphore_fn    = device_table_->DestroySemaphore;
+
+    if (submit_asset.command_buffer == VK_NULL_HANDLE)
+    {
+        VkCommandBufferAllocateInfo alloc_info = {};
+        alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        alloc_info.pNext                       = nullptr;
+        alloc_info.commandPool                 = command_pool_;
+        alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        alloc_info.commandBufferCount          = 1;
+        VkResult result = device_table_->AllocateCommandBuffers(device_, &alloc_info, &submit_asset.command_buffer);
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal command-buffer creation failed");
+            return false;
+        }
+
+        // Because this command buffer was not allocated through the loader, it must be assigned a dispatch table.
+        graphics::copy_dispatch_table_from_device(device_, submit_asset.command_buffer);
+    }
+
+    // create a fence
+    if (submit_asset.fence == VK_NULL_HANDLE)
+    {
+        VkFenceCreateInfo fence_create_info;
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.pNext = nullptr;
+        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        VkResult result         = device_table_->CreateFence(device_, &fence_create_info, nullptr, &submit_asset.fence);
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal fence creation failed");
+            return false;
+        }
+    }
+
+    // create a signal-semaphore
+    if (submit_asset.signal_semaphore == VK_NULL_HANDLE)
+    {
+        VkSemaphoreCreateInfo semaphore_create_info = {};
+        semaphore_create_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VkResult result =
+            device_table_->CreateSemaphore(device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore);
+        if (result != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal semaphore creation failed");
+            return false;
+        }
+    }
+    return true;
+}
+
 void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
                                                 const VkDeviceAddress*                    addresses,
                                                 uint32_t                                  num_addresses,
                                                 const decode::VulkanDeviceAddressTracker& address_tracker,
                                                 VkPipelineStageFlags                      sync_stage)
 {
-    if (addresses == nullptr || !num_addresses || hashmap_bda_.empty())
+    if (addresses == nullptr || !num_addresses || storage_bda_binary_.empty())
     {
         return;
     }
+
+    // sort array to allow binary-search
+    std::sort(storage_bda_binary_.begin(), storage_bda_binary_.end());
 
     std::unordered_set<VkBuffer> buffer_set;
     for (uint32_t i = 0; i < num_addresses; ++i)
@@ -1664,27 +1986,34 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
 
     if (pipeline_bda_ == VK_NULL_HANDLE && !init_pipeline())
     {
-        GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::run_compute_replace(): internal pipeline-creation failed",
-                                  __func__)
+        GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::run_compute_replace(): internal pipeline-creation failed")
         return;
     }
 
+    // retrieve a storage-context
     auto& pipeline_context_bda = pipeline_context_map_[command_buffer_info->handle].emplace_back();
 
-    if (!create_buffer(pipeline_context_bda.hashmap_storage,
-                       hashmap_bda_.get_storage(nullptr),
+    // init/resize/rehash hashmap storage if necessary
+    update_global_hashmap(command_buffer_info->handle);
+
+    if (!create_buffer(pipeline_context_bda.storage_array,
+                       sizeof(bda_element_t) * storage_bda_binary_.size(),
                        0,
                        0,
                        true,
-                       "GFXR VulkanAddressReplacer hashmap_storage_bda"))
+                       "GFXR VulkanAddressReplacer storage_bda_binary_"))
     {
-        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap-storage-buffer creation failed");
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: storage-buffer creation failed");
         return;
     }
-    hashmap_bda_.get_storage(pipeline_context_bda.hashmap_storage.mapped_data);
+
+    memcpy(pipeline_context_bda.storage_array.mapped_data,
+           storage_bda_binary_.data(),
+           sizeof(bda_element_t) * storage_bda_binary_.size());
 
     uint32_t num_bytes = num_addresses * sizeof(VkDeviceAddress);
 
+    // create a buffer holding input-handles
     if (!create_buffer(pipeline_context_bda.input_handle_buffer,
                        num_bytes,
                        0,
@@ -1697,16 +2026,30 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     }
     memcpy(pipeline_context_bda.input_handle_buffer.mapped_data, addresses, num_bytes);
 
-    replacer_params_t replacer_params = {};
-    replacer_params.hashmap.storage   = pipeline_context_bda.hashmap_storage.device_address;
-    replacer_params.hashmap.size      = hashmap_bda_.size();
-    replacer_params.hashmap.capacity  = hashmap_bda_.capacity();
+    // a sorted array of bda_element_t
+    replacer_params_bda_t replacer_params = {};
+    replacer_params.address_array.storage = pipeline_context_bda.storage_array.device_address;
+    replacer_params.address_array.size    = storage_bda_binary_.size();
+
+    // blacklist hashmap
+    replacer_params.address_blacklist = hashmap_control_block_bda_binary_.device_address;
 
     // in-place
     replacer_params.input_handles  = pipeline_context_bda.input_handle_buffer.device_address;
     replacer_params.output_handles = pipeline_context_bda.input_handle_buffer.device_address;
 
     replacer_params.num_handles = num_addresses;
+
+    // pre memory-barrier
+    for (const auto& buf : buffer_set)
+    {
+        barrier(command_buffer_info->handle,
+                buf,
+                VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_ACCESS_SHADER_WRITE_BIT);
+    }
 
     device_table_->CmdBindPipeline(command_buffer_info->handle, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_);
 
@@ -1715,7 +2058,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                     pipeline_layout_,
                                     VK_SHADER_STAGE_COMPUTE_BIT,
                                     0,
-                                    sizeof(replacer_params_t),
+                                    sizeof(replacer_params_bda_t),
                                     &replacer_params);
     // dispatch workgroups
     constexpr uint32_t wg_size = 32;
@@ -1729,13 +2072,21 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 VK_ACCESS_SHADER_WRITE_BIT,
                 sync_stage,
-                VK_ACCESS_SHADER_READ_BIT);
+                VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT);
     }
+
+    // synchronize host-reads
+    barrier(command_buffer_info->handle,
+            hashmap_control_block_bda_binary_.buffer,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_ACCESS_SHADER_WRITE_BIT,
+            VK_PIPELINE_STAGE_HOST_BIT,
+            VK_ACCESS_HOST_READ_BIT);
 
     // set previous compute-pipeline, if any
     if (command_buffer_info->bound_pipelines.count(VK_PIPELINE_BIND_POINT_COMPUTE))
     {
-        auto* previous_pipeline =
+        const auto* previous_pipeline =
             object_table_->GetVkPipelineInfo(command_buffer_info->bound_pipelines.at(VK_PIPELINE_BIND_POINT_COMPUTE));
         GFXRECON_ASSERT(previous_pipeline);
 
@@ -1755,6 +2106,169 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                         0,
                                         command_buffer_info->push_constant_data.size(),
                                         command_buffer_info->push_constant_data.data());
+    }
+}
+
+void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer)
+{
+    // blacklist hashmap storage  >= 16 bytes * 2^12 slots (64kB)
+    constexpr uint32_t hashmap_elem_size     = 2 * sizeof(VkDeviceSize);
+    constexpr uint32_t hashmap_min_num_slots = 1U << 12U;
+
+    //! define a maximum load_factor and grow factor for hashmap_storage_bda_binary_
+    constexpr float max_load_factor = 0.25f;
+    constexpr float grow_factor     = 2.f;
+
+    std::optional<buffer_context_t> previous_hashmap_storage_bda_binary;
+    std::optional<buffer_context_t> previous_hashmap_control_block;
+
+    auto create_control_block = [this, hashmap_min_num_slots = hashmap_min_num_slots]() {
+        // if that buffer already existed we read back some values
+        bool init_address_blacklist = hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE;
+
+        // init hashmap control-block
+        if (!create_buffer(hashmap_control_block_bda_binary_,
+                           sizeof(gpu_array_t),
+                           0,
+                           0,
+                           true,
+                           "GFXR VulkanAddressReplacer hashmap_control_block_bda_binary_"))
+        {
+            return false;
+        }
+        auto& hashmap_control_block = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+
+        if (init_address_blacklist)
+        {
+            hashmap_control_block.size     = 0;
+            hashmap_control_block.capacity = hashmap_min_num_slots;
+        }
+        return true;
+    };
+
+    auto create_storage = [this, hashmap_elem_size = hashmap_elem_size](uint32_t capacity) {
+        GFXRECON_ASSERT(util::is_pow_2(capacity));
+
+        // global/device-mem hashmap-storage with atomic access, contains addresses which have already been replaced
+        return create_buffer(hashmap_storage_bda_binary_,
+                             hashmap_elem_size * capacity,
+                             VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                             0,
+                             false,
+                             "GFXR VulkanAddressReplacer hashmap_storage_bda_binary_");
+    };
+
+    auto init_storage = [this, hashmap_elem_size = hashmap_elem_size](VkCommandBuffer command_buffer) {
+        device_table_->CmdFillBuffer(
+            command_buffer, hashmap_storage_bda_binary_.buffer, 0, hashmap_storage_bda_binary_.num_bytes, 0);
+        barrier(command_buffer,
+                hashmap_storage_bda_binary_.buffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                VK_ACCESS_TRANSFER_WRITE_BIT,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+
+        auto& current_control_block    = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+        current_control_block.capacity = hashmap_storage_bda_binary_.num_bytes / hashmap_elem_size;
+        current_control_block.storage  = hashmap_storage_bda_binary_.device_address;
+    };
+
+    // if that buffer already existed we read back some values
+    bool init_address_blacklist = hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE;
+
+    if (!create_control_block())
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap_control_block_bda_binary_ creation failed");
+        return;
+    }
+
+    auto prev_buffer = hashmap_storage_bda_binary_.buffer;
+
+    auto& hashmap_control_block = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+
+    if (!create_storage(hashmap_control_block.capacity))
+    {
+        GFXRECON_LOG_ERROR("VulkanAddressReplacer: hashmap_storage_bda_binary_ creation failed");
+        return;
+    }
+
+    if (!init_address_blacklist)
+    {
+        float load_factor =
+            static_cast<float>(hashmap_control_block.size) / static_cast<float>(hashmap_control_block.capacity);
+        if (load_factor > max_load_factor)
+        {
+            // store previous storage
+            previous_hashmap_storage_bda_binary = std::move(hashmap_storage_bda_binary_);
+            previous_hashmap_control_block      = std::move(hashmap_control_block_bda_binary_);
+
+            GFXRECON_LOG_DEBUG(
+                "%s(): hashmap_control_block_bda_binary_: %d / %d (load-factor: %.2f) -> Resize (x %.1f) + Rehashing",
+                __func__,
+                hashmap_control_block.size,
+                hashmap_control_block.capacity,
+                hashmap_control_block.size / static_cast<float>(hashmap_control_block.capacity),
+                grow_factor);
+        }
+    }
+
+    // init hashmap storage
+    if (prev_buffer != hashmap_storage_bda_binary_.buffer)
+    {
+        std::optional<QueueSubmitHelper> queue_submit_helper;
+
+        if (command_buffer != submit_asset_.command_buffer)
+        {
+            if (!init_queue_assets())
+            {
+                GFXRECON_LOG_ERROR("%s(): cannot initialize a local command-buffer");
+            }
+
+            // reset/submit/sync command-buffer
+            queue_submit_helper =
+                QueueSubmitHelper(device_table_, device_, submit_asset_.command_buffer, queue_, submit_asset_.fence);
+            command_buffer = submit_asset_.command_buffer;
+        }
+
+        if (init_address_blacklist)
+        {
+            init_storage(command_buffer);
+        }
+        else
+        {
+            // we need a bigger boat. this will require running a local rehashing-dispatch
+            GFXRECON_ASSERT(previous_hashmap_control_block && previous_hashmap_storage_bda_binary);
+            GFXRECON_ASSERT(hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE &&
+                            hashmap_storage_bda_binary_.buffer == VK_NULL_HANDLE);
+            auto& previous_control_block = *reinterpret_cast<gpu_array_t*>(previous_hashmap_control_block->mapped_data);
+
+            // create new storage- and control-blocks
+            create_control_block();
+            create_storage(static_cast<uint32_t>(static_cast<float>(previous_control_block.capacity) * grow_factor));
+            init_storage(command_buffer);
+
+            struct rehash_params_t
+            {
+                VkDeviceAddress hashmap_old = 0;
+                VkDeviceAddress hashmap_new = 0;
+            };
+            rehash_params_t rehash_params;
+            rehash_params.hashmap_old = previous_hashmap_control_block->device_address;
+            rehash_params.hashmap_new = hashmap_control_block_bda_binary_.device_address;
+
+            device_table_->CmdBindPipeline(
+                submit_asset_.command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline_bda_rehash_);
+            device_table_->CmdPushConstants(submit_asset_.command_buffer,
+                                            pipeline_layout_,
+                                            VK_SHADER_STAGE_COMPUTE_BIT,
+                                            0,
+                                            sizeof(rehash_params_t),
+                                            &rehash_params);
+            // dispatch workgroups
+            constexpr uint32_t wg_size = 32;
+            device_table_->CmdDispatch(
+                submit_asset_.command_buffer, util::div_up(previous_control_block.capacity, wg_size), 1, 1);
+        }
     }
 }
 

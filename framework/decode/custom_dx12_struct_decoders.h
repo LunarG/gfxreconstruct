@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 
+#if defined(D3D12_SUPPORT)
+
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
@@ -30,7 +32,9 @@
 #include "generated/generated_dx12_struct_decoders.h"
 #include "util/defines.h"
 
+#ifdef WIN32
 #include <d3d12.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -364,7 +368,32 @@ struct Decoded_D3D12_DISPATCH_GRAPH_DESC
     Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
 };
 
+struct Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1
+{
+    using struct_type = D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1;
+
+    D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* decoded_value{ nullptr };
+
+    Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* DriverMatchingIdentifier{ nullptr };
+};
+
+struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC
+{
+    using struct_type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC;
+
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC
+{
+    using struct_type = D3D12_RAYTRACING_OPACITY_MICROMAP_DESC;
+
+    D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* decoded_value{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)
 
 #endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H

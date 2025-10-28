@@ -266,6 +266,18 @@ adb shell settings put global gpu_debug_layers VK_LAYER_LUNARG_gfxreconstruct
 adb shell settings put global gpu_debug_layer_app com.lunarg.gfxreconstruct.replay
 ```
 
+You can also restrict the layer to a specific application using these three steps:
+1. Push the GFXReconstruct capture layer to `/data/local/debug/vulkan` directory.
+2. Enable the global layer.
+3. Set the `capture_process_name` capture option.
+
+For example like this:
+```
+adb shell setprop debug.vulkan.layer.1 VK_LAYER_LUNARG_gfxreconstruct
+adb shell setprop debug.gfxrecon.capture_process_name ${Package name}
+```
+
+
 If you attempt to capture and nothing is happening, check the `logcat` output.
 A successful run of GFXReconstruct should show a message like the following:
 
@@ -302,8 +314,9 @@ option values.
 
 | Option                                         | Property                                                      | Type    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------------------------- | ------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capture File Name                              | debug.gfxrecon.capture_file                                   | STRING  | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Capture File Name                              | debug.gfxrecon.capture_file                                   | STRING  | Path to use when creating the capture file. Supports variable patterns for dynamic file paths, such as `${AppName}` (the application package name) and `${InternalDataPath}` (app's internal data directory, Android only). For example, `/sdcard/${AppName}/capture.gfxr` will expand to `/sdcard/com.example.your-android-app/capture.gfxr`. Default is: `/sdcard/gfxrecon_capture.gfxr` |
 | Capture Specific Frames                        | debug.gfxrecon.capture_frames                                 | STRING  | Specify one or more comma-separated frame ranges to capture.  Each range will be written to its own file.  A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture.  Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: `200,301-305` will create two capture files, one containing a single frame and one containing five frames.  Default is: Empty string (all frames are captured).                                                                                                                                                                                                                                                                                                                                                                  |
+| Capture Specific app                           | debug.gfxrecon.capture_process_name                           | STRING  | Specify one app package name to be captured. Default is: ""                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Quit after capturing frame ranges              | debug.gfxrecon.quit_after_capture_frames                      | BOOL    | Setting it to `true` will force the application to terminate once all frame ranges specified by `debug.gfxrecon.capture_frames` have been captured. Default is: `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Capture trigger for Android                    | debug.gfxrecon.capture_android_trigger                        | BOOL    | Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). Default is not set.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Capture Trigger Frames                         | debug.gfxrecon.capture_trigger_frames                         | STRING  | Specify a limit on the number of frames to be captured via trim trigger. Example: `1` will capture exactly one frame when the trimming is triggered. Default is: Empty string (no limit) |
@@ -360,6 +373,52 @@ A sample layer settings file, documenting each available setting, can be found
 in the GFXReconstruct GitHub repository at `layer/vk_layer_settings.txt`. Most
 binary distributions of the GFXReconstruct software will also include a sample
 settings file.
+
+#### Layer Settings via VK_EXT_layer_settings
+
+An alternative way to configure the GFXReconstruct Vulkan capture layer is via the Vulkan
+`VK_EXT_layer_settings` extension, which allows settings to be passed directly through the
+Vulkan API at instance creation time. This is especially useful in environments where
+environment variables and settings files are not available or convenient (such as some
+launchers or embedded systems).
+
+GFXReconstruct supports reading capture options from `VkLayerSettingEXT` structures
+provided in the `pNext` chain of `VkInstanceCreateInfo` when creating a Vulkan instance.
+This allows you to specify settings programmatically, without relying on environment
+variables or external files.
+
+To use this feature, add a `VkLayerSettingsCreateInfoEXT` structure to the `pNext` chain
+of your `VkInstanceCreateInfo`, and include settings for the
+`VK_LAYER_LUNARG_gfxreconstruct` layer. For example, to set the capture file name:
+
+```c
+const char* capture_file_value[] = { "my_capture.gfxr" };
+
+VkLayerSettingEXT capture_file_setting = {
+    .pLayerName = "VK_LAYER_LUNARG_gfxreconstruct",
+    .pSettingName = "capture_file",
+    .type = VK_LAYER_SETTING_TYPE_STRING_EXT,
+    .valueCount = 1,
+    .pValues = capture_file_value,
+};
+
+VkLayerSettingsCreateInfoEXT layer_settings_info = {
+    .sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT,
+    .pNext = NULL,
+    .settingCount = 1,
+    .pSettings = &capture_file_setting
+};
+
+VkInstanceCreateInfo instance_info = {
+    .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+    .pNext = &layer_settings_info,
+    // ... other fields ...
+};
+```
+
+Supported settings include:
+
+- `capture_file` (string): Path to use when creating the capture file (same as `GFXRECON_CAPTURE_FILE`).
 
 #### Selecting Settings for the page_guard Memory Tracking Mode
 
@@ -701,276 +760,290 @@ queryable permission to apply.
 The `gfxrecon.py replay` command has the following usage:
 
 ```text
-usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version]
-                          [--cpu-mask <binary-mask>] [--pause-frame N]
-                          [--paused] [--screenshot-all] [--screenshots RANGES]
+usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
+                          [--log-timestamps] [--log-file DEVICE_FILE]
+                          [--debug-messenger-level LEVEL] [--pause-frame N]
+                          [--paused] [--cpu-mask binary_mask]
+                          [--screenshot-all] [--screenshots RANGES]
                           [--screenshot-format FORMAT] [--screenshot-dir DIR]
-                          [--screenshot-prefix PREFIX] [--screenshot-scale SCALE]
-                          [--screenshot-size WIDTHxHEIGHT] [--sfa] [--opcd]
-                          [--surface-index N] [--sync] [--remove-unsupported]
-                          [--mfr START-END] [--replace-shaders <dir>]
-                          [--measurement-file DEVICE_FILE] [--quit-after-measurement-range]
-                          [--flush-measurement-range] [-m MODE]
-                          [--swapchain MODE] [--use-captured-swapchain-indices]
-                          [--use-colorspace-fallback] [--wait-before-present]
-                          [--dump-resources <submit-index,command-index,draw-call-index>]
-                          [--dump-resources <arg>]
-                          [--dump-resources <filename>]
-                          [--dump-resources <filename>.json]
-                          [--dump-resources-before-draw] [--dump-resources-scale <scale>]
-                          [--dump-resources-dir <dir>]
-                          [--dump-resources-image-format <format>]
+                          [--screenshot-prefix PREFIX]
+                          [--screenshot-interval INTERVAL]
+                          [--screenshot-size SIZE] [--screenshot-scale SCALE]
+                          [--capture]
+                          [--sfa] [--opcd] [--surface-index N] [--sync]
+                          [--remove-unsupported] [--validate] [--onhb]
+                          [--use-colorspace-fallback]
+                          [--offscreen-swapchain-frame-boundary]
+                          [--mfr START-END] [--measurement-file DEVICE_FILE]
+                          [--quit-after-measurement-range]
+                          [--flush-measurement-range]
+                          [--flush-inside-measurement-range] [--sgfs STATUS]
+                          [--sgfr FRAME-RANGES] [--wait-before-present]
+                          [-m MODE] [--swapchain MODE] [--present-mode MODE]
+                          [--vssb] [--use-captured-swapchain-indices]
+                          [--dump-resources DUMP_RESOURCES]
+                          [--dump-resources-before-draw]
+                          [--dump-resources-image-format FORMAT]
+                          [--dump-resources-scale DR_SCALE]
+                          [--dump-resources-dir DIR]
                           [--dump-resources-dump-depth-attachment]
-                          [--dump-resources-dump-color-attachment-index <index>]
+                          [--dump-resources-dump-color-attachment-index N]
                           [--dump-resources-dump-vertex-index-buffers]
                           [--dump-resources-json-output-per-command]
                           [--dump-resources-dump-immutable-resources]
-                          [--dump-resources-dump-raw-images]
                           [--dump-resources-dump-all-image-subresources]
-                          [--pbi-all] [--pbis <index1,index2>]
-                          [--quit-after-frame]
+                          [--dump-resources-dump-raw-images]
+                          [--dump-resources-dump-separate-alpha] [--pbi-all]
+                          [--pbis RANGES] [--pcj]
+                          [--save-pipeline-cache DEVICE_FILE]
+                          [--load-pipeline-cache DEVICE_FILE]
+                          [--add-new-pipeline-caches]
+                          [--quit-after-frame FRAME]
+                          [--screenshot-ignore-FrameBoundaryANDROID]
                           [file]
 
 Launch the replay tool.
 
 positional arguments:
-  file        File on device to play (forwarded to replay tool)
+  file                  File on device to play (forwarded to replay tool)
 
-optional arguments:
-  -h, --help  show this help message and exit
-  --version
-              Print version information and exit (forwarded to
-              replay tool)
-  --log-level LEVEL
-              Specify highest level message to log. Options are:
-              debug, info, warning, error, and fatal. Default is
-              info. (forwarded to replay tool)
-  --log-file DEVICE_FILE
-              Write log messages to a file at the specified path
-              instead of logcat (forwarded to replay tool)
-  --pause-frame N
-              Pause after replaying frame number N (forwarded to
-              replay tool)
-  --paused
-              Pause after replaying the first frame (same as "--
-              pause-frame 1"; forwarded to replay tool)
+options:
+  -h, --help            show this help message and exit
   -p LOCAL_FILE, --push-file LOCAL_FILE
-              Local file to push to the location on device specified
-              by <file>
-  --cpu-mask <binary-mask>
-              Set of CPU cores used by the replayer.
-              `binary-mask` is a succession of '0' and '1' read from left
-              to right that specifies used/unused cores.
-              For example '10010' activates the first and
-              fourth cores and deactivate all other cores.
-              If the option is not set, all cores can be used. If the option
-              is set only for some cores, the other cores are not used.
-  --screenshot-all
-              Generate screenshots for all frames. When this option
-              is specified, --screenshots is ignored (forwarded to
-              replay tool)
-  --screenshots RANGES
-              Generate screenshots for the specified frames. Target
-              frames are specified as a comma separated list of
-              frame ranges. A frame range can be specified as a
-              single value, to specify a single frame, or as two
-              hyphenated values, to specify the first and last
-              frames to process. Frame ranges should be specified in
-              ascending order and cannot overlap. Note that frame
-              numbering is 1-based (i.e. the first frame is frame
-              1). Example: 200,301-305 will generate six screenshots
-              (forwarded to replay tool)
+                        Local file to push to the location on device specified
+                        by <file>
+  --version             Print version information and exit (forwarded to
+                        replay tool)
+  --log-level LEVEL     Specify highest level message to log. Options are:
+                        debug, info, warning, error, and fatal. Default is
+                        info. (forwarded to replay tool)
+  --log-timestamps      Output a timestamp in front of each log message.
+  --log-file DEVICE_FILE
+                        Write log messages to a file at the specified path
+                        instead of logcat (forwarded to replay tool)
+  --debug-messenger-level LEVEL
+                        Specify highest debug messenger severity level.
+                        Options are: debug, info, warning, and error. Default
+                        is warning. (forwarded to replay tool)
+  --pause-frame N       Pause after replaying frame number N (forwarded to
+                        replay tool)
+  --paused              Pause after replaying the first frame (same as "--
+                        pause-frame 1"; forwarded to replay tool)
+  --cpu-mask binary_mask
+                        Set of CPU cores used by the replayer. `binary-mask`
+                        is a succession of "0" and "1" that specifies
+                        used/unused cores read from left to right. For example
+                        "10010" activates the first and fourth cores and
+                        deactivate all other cores. If the option is not set,
+                        all cores can be used. If the option is set only for
+                        some cores, the other cores are not used. (forwarded
+                        to replay tool)
+  --screenshot-all      Generate screenshots for all frames. When this option
+                        is specified, --screenshots is ignored (forwarded to
+                        replay tool)
+  --screenshots RANGES  Generate screenshots for the specified frames. Target
+                        frames are specified as a comma separated list of
+                        frame ranges. A frame range can be specified as a
+                        single value, to specify a single frame, or as two
+                        hyphenated values, to specify the first and last
+                        frames to process. Frame ranges should be specified in
+                        ascending order and cannot overlap. Note that frame
+                        numbering is 1-based (i.e. the first frame is frame
+                        1). Example: 200,301-305 will generate six screenshots
+                        (forwarded to replay tool)
   --screenshot-format FORMAT
-              Image file format to use for screenshot generation.
-              Available formats are:
-                  bmp         Bitmap file format.  This is the default format.
-                  png         Portable Network Graphics file format.
-              (forwarded to replay tool)
-  --screenshot-dir DIR
-              Directory to write screenshots. Default is "/sdcard"
+                        Image file format to use for screenshot generation.
+                        Available formats are: bmp, png (forwarded to replay
+                        tool)
+  --screenshot-dir DIR  Directory to write screenshots. Default is "/sdcard"
+                        (forwarded to replay tool)
+  --screenshot-interval INTERVAL
+                        Specifies the number of frames between two screenshots
+                        within a screenshot range.
+                        Example: If screenshot range is 10-15 and interval is 2,
+                        screenshot will be generated for frames 10, 12 and 14.
+                        Default is 1.
   --screenshot-prefix PREFIX
-              Prefix to apply to the screenshot file name. Default
-              is "screenshot" (forwarded to replay tool)
+                        Prefix to apply to the screenshot file name. Default
+                        is "screenshot" (forwarded to replay tool)
+  --screenshot-size SIZE
+                        Screenshot dimensions. Ignored if --screenshot-scale
+                        is specified. Expected format is <width>x<height>.
   --screenshot-scale SCALE
-              Specify a decimal factor which will determine screenshot
-              sizes. The factor will be multiplied with the swapchain
-              images dimension to determine the screenshot dimensions.
-              Default is 1.0.
-  --screenshot-size WIDTHxHEIGHT
-              Specify desired screenshot dimensions. Leaving this
-              unspecified screenshots will use the swapchain images
-              dimensions. If --screenshot-scale is also specified then
-              this option is ignored.
+                        Scale screenshot dimensions. Overrides --screenshot-
+                        size, if specified. Expects a number which can be
+                        decimal
+  --capture             Capture the replaying GFXR file. Capture uses the same log
+                        options as replay. All other capture option behavior and
+                        usage is the same as when capturing with the GFXR layer. The
+                        capture functionality is included in the `gfxrecon-replay`
+                        executable--no GFXR capture layer is added to the Vulkan layer
+                        chain.
   --sfa, --skip-failed-allocations
-              Skip vkAllocateMemory, vkAllocateCommandBuffers, and
-              vkAllocateDescriptorSets calls that failed during
-              capture (forwarded to replay tool)
-  --replace-shaders <dir>
-              Replace the shader code in each CreateShaderModule
-              with the contents of the file <dir>/sh<handle_id> if found, where
-              <handle_id> is the handle id of the CreateShaderModule call.
-              See gfxrecon-extract.
+                        Skip vkAllocateMemory, vkAllocateCommandBuffers, and
+                        vkAllocateDescriptorSets calls that failed during
+                        capture (forwarded to replay tool)
   --opcd, --omit-pipeline-cache-data
-              Omit pipeline cache data from calls to
-              vkCreatePipelineCache and skip calls to
-              vkGetPipelineCacheData (forwarded to replay tool)
-  --surface-index N
-              Restrict rendering to the Nth surface object created.
-              Used with captures that include multiple surfaces.
-              Default is -1 (render to all surfaces; forwarded to
-              replay tool)
-  --sync
-              Synchronize after each queue submission with
-              vkQueueWaitIdle (forwarded to replay tool)
-  --remove-unsupported
-              Remove unsupported extensions and features from
-              instance and device creation parameters (forwarded to
-              replay tool)
-  -m MODE, --memory-translation MODE
-              Enable memory translation for replay on GPUs with
-              memory types that are not compatible with the capture
-              GPU's memory types. Available modes are: none, remap,
-              realign, rebind (forwarded to replay tool)
+                        Omit pipeline cache data from calls to
+                        vkCreatePipelineCache and skip calls to
+                        vkGetPipelineCacheData (forwarded to replay tool)
+  --surface-index N     Restrict rendering to the Nth surface object created.
+                        Used with captures that include multiple surfaces.
+                        Default is -1 (render to all surfaces; forwarded to
+                        replay tool)
+  --sync                Synchronize after each queue submission with
+                        vkQueueWaitIdle (forwarded to replay tool)
+  --remove-unsupported  Remove unsupported extensions and features from
+                        instance and device creation parameters (forwarded to
+                        replay tool)
+  --validate            Enables the Khronos Vulkan validation layer (forwarded
+                        to replay tool)
   --onhb, --omit-null-hardware-buffers
-              Omit Vulkan API calls which would pass a NULL
-              AHardwareBuffer*.  (forwarded to replay tool)
-  --swapchain MODE
-              Choose a swapchain mode to replay. Available modes are:
-              virtual, captured, offscreen (forwarded to replay tool)
-  --vssb, --virtual-swapchain-skip-blit
-              Skip blit to real swapchain to gain performance during
-              replay. (forwarded to replay tool)
-  --use-captured-swapchain-indices
-              Same as "--swapchain captured". Ignored if the "--swapchain" option is used.
-  --mfr START-END, --measurement-frame-range START-END
-              Custom framerange to measure FPS for. This range will
-              include the start frame but not the end frame. The
-              measurement frame range defaults to all frames except
-              the loading frame but can be configured for any range.
-              If the end frame is past the last frame in the trace it
-              will be clamped to the frame after the last (so in that
-              case the results would include the last frame).
-              (forwarded to replay tool)
-  --measurement-file DEVICE_FILE
-              Write measurements to a file at the specified path.
-              Default is: '/sdcard/gfxrecon-measurements.json' on
-              android and './gfxrecon-measurements.json' on desktop.
-              (forwarded to replay tool)
-  --quit-after-measurement-range
-              If this is specified the replayer will abort when it
-              reaches the <end_frame> specified in the
-              --measurement-frame-range argument.
-              (forwarded to replay tool)
-  --flush-measurement-range
-              If this is specified the replayer will flush and wait
-              for all current GPU work to finish at the start and end
-              of the measurement range. (forwarded to replay tool)
-  --flush-inside-measurement-range
-              If this is specified the replayer will flush and wait
-              for all current GPU work to finish at the end of each
-              frame inside the measurement range. (forwarded to replay tool)
+                        Omit Vulkan calls that would pass a NULL
+                        AHardwareBuffer* (forwarded to replay tool)
   --use-colorspace-fallback
-              Swap the swapchain color space if unsupported by replay device.
-              Check if color space is not supported by replay device and swap
-              to VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to replay tool).
+                        Swap the swapchain color space if unsupported by
+                        replay device. Check if color space is not supported
+                        by replay device and swap to
+                        VK_COLOR_SPACE_SRGB_NONLINEAR_KHR. (forwarded to
+                        replay tool).
   --offscreen-swapchain-frame-boundary
-              Should only be used with offscreen swapchain. Activates
-              the extension VK_EXT_frame_boundary (always supported
-              if trimming, checks for driver support otherwise) and
-              inserts command buffer submission with
-              VkFrameBoundaryEXT where vkQueuePresentKHR was called
-              in the original capture. This allows preserving frames
-              when capturing a replay that uses. offscreen swapchain.
+                        Should only be used with offscreen swapchain.
+                        Activates the extension VK_EXT_frame_boundary (always
+                        supported if trimming, checks for driver support
+                        otherwise) and inserts command buffer submission with
+                        VkFrameBoundaryEXT where vkQueuePresentKHR was called
+                        in the original capture. This allows preserving frames
+                        when capturing a replay that uses. offscreen
+                        swapchain. (forwarded to replay tool)
+  --mfr START-END, --measurement-frame-range START-END
+                        Custom framerange to measure FPS for. This range will
+                        include the start frame but not the end frame. The
+                        measurement frame range defaults to all frames except
+                        the loading frame but can be configured for any range.
+                        If the end frame is past the last frame in the trace
+                        it will be clamped to the frame after the last (so in
+                        that case the results would include the last frame).
+                        (forwarded to replay tool)
+  --measurement-file DEVICE_FILE
+                        Write measurements to a file at the specified path.
+                        Default is: '/sdcard/gfxrecon-measurements.json' on
+                        android and './gfxrecon-measurements.json' on desktop.
+                        (forwarded to replay tool)
+  --quit-after-measurement-range
+                        If this is specified the replayer will abort when it
+                        reaches the <end_frame> specified in the
+                        --measurement-frame-range argument. (forwarded to
+                        replay tool)
+  --flush-measurement-range
+                        If this is specified the replayer will flush and wait
+                        for all current GPU work to finish at the start and
+                        end of the measurement range. (forwarded to replay
+                        tool)
+  --flush-inside-measurement-range
+                        If this is specified the replayer will flush and wait
+                        for all current GPU work to finish at end of each
+                        frame inside the measurement range. (forwarded to
+                        replay tool)
   --sgfs STATUS, --skip-get-fence-status STATUS
-              Specify behaviour to skip calls to vkWaitForFences and
-              vkGetFenceStatus. Default is 0 - No skip
-              (forwarded to replay tool)
+                        Specify behaviour to skip calls to vkWaitForFences and
+                        vkGetFenceStatus. Default is 0 - No skip (forwarded to
+                        replay tool)
   --sgfr FRAME-RANGES, --skip-get-fence-ranges FRAME-RANGES
-              Frame ranges where --sgfs applies. Default is all frames
-              (forwarded to replay tool)
+                        Frame ranges where --sgfs applies. Default is all
+                        frames (forwarded to replay tool)
   --wait-before-present
-              Force wait on completion of queue operations for all queues
-              before calling Present. This is needed for accurate acquisition
-              of instrumentation data on some platforms.
-  --dump-resources <submit-index,command-index,draw-call-index>
-              The capture file will be examined, and <submit-index,command-index,draw-call-index>
-              will be converted to <arg> as used in --dump-resources <arg>.
-              The converted args will be used used as the args for dump resources.
-  --dump-resources <arg>
-              <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
-              NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
-              QueueSubmit=<u>
-              Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR
-              is replayed. The parameter for each is a block index from the capture file. The
-              additional parameters are used to identify during which occurence of the
-              vkCmdDraw/vkCmdDispath/vkCmdTraceRaysKHR resources will be dumped.  NextSubPass can
-              be repeated 0 or more times to indicate subpasses within a render pass.  Note that
-              the minimal set of parameters must be one of:
-                  BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
-                  BeginCmdBuffer, Dispatch and QueueSubmit
-                  BeginCmdBuffer, TraceRays and QueueSubmit
-  --dump-resources <filename>
-              Extract --dump-resources block indices args from the specified file, with each line in
-              the file containing a comma or space separated list of the parameters to
-              --dump-resources block indices. The file can contain multiple lines specifying multiple dumps.
-  --dump-resources <filename>.json
-              Extract --dump-resources block indices args from the specified json file. The format for the
-              json file is documented in detail in the gfxreconstruct documentation.
-  --dump-resources-image-format <format>
-              Image file format to use for image resource dumping.
-              Available formats are:
-                  bmp         Bitmap file format.  This is the default format.
-                  png         Png file format.
+                        Force wait on completion of queue operations for all
+                        queues before calling Present. This is needed for
+                        accurate acquisition of instrumentation data on some
+                        platforms.
+  -m MODE, --memory-translation MODE
+                        Enable memory translation for replay on GPUs with
+                        memory types that are not compatible with the capture
+                        GPU's memory types. Available modes are: none, remap,
+                        realign, rebind (forwarded to replay tool)
+  --swapchain MODE      Choose a swapchain mode to replay. Available modes
+                        are: virtual, captured, offscreen (forwarded to replay
+                        tool)
+  --present-mode MODE   Set swapchain's VkPresentModeKHR. Available modes are:
+                        capture, immediate, mailbox, fifo, fifo_relaxed
+                        (forwarded to replay tool)
+  --vssb, --virtual-swapchain-skip-blit
+                        Skip blit to real swapchain to gain performance during
+                        replay.
+  --use-captured-swapchain-indices
+                        Same as "--swapchain captured". Ignored if the "--
+                        swapchain" option is used.
+  --dump-resources DUMP_RESOURCES
+                        The capture file will be examined, and <submit-
+                        index,command-index,draw-call-index> will be converted
+                        to <arg> as used in --dump-resources <arg>. The
+                        converted args will be used used as the args for dump
+                        resources.
   --dump-resources-before-draw
-              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls
-              specified by the --dump-resources argument, also dump resources before those calls.
-  --dump-resources-scale <scale>
-              Scale images generated by dump resources by the given scale factor. The scale factor must
-              be a floating point number greater than 0. Values greater than 10 are capped at 10. Default
-              value is 1.0.
-  --dump-resources-dir <dir>
-              Directory to write dump resources output files. Default is the current working directory.
+                        In addition to dumping gpu resources after the Vulkan
+                        draw calls specified by the --dump-resources argument,
+                        also dump resources before the draw calls.
+  --dump-resources-image-format FORMAT
+                        Image file format to use when dumping image resources.
+                        Available formats are: bmp, png
+  --dump-resources-scale DR_SCALE
+                        tScale images generated by dump resources by the given
+                        scale factor. The scale factor must be a floating
+                        point number greater than 0. Values greater than 10
+                        are capped at 10. Default value is 1.0.
+  --dump-resources-dir DIR
+                        Directory to write dump resources output files.
+                        Default is "/sdcard" (forwarded to replay tool)
   --dump-resources-dump-depth-attachment
-              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
-  --dump-resources-dump-color-attachment-index <index>
-              Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
-              based integer. Default is to dump all color attachment
+                        Dump depth attachment when dumping a draw call.
+                        Default is false.
+  --dump-resources-dump-color-attachment-index N
+                        Specify which color attachment to dump when dumping
+                        draw calls. It should be an unsigned zero based
+                        integer. Default is to dump all color attachments.
   --dump-resources-dump-vertex-index-buffers
-              Enables dumping of vertex and index buffers while dumping draw call resources.
+                        Enables dumping of vertex and index buffers while
+                        dumping draw call resources. Default is disabled.
   --dump-resources-json-output-per-command
-              Enables storing a json output file for each dumped command. Overrides default behavior which
-              is generating one output json file that contains the information for all dumped commands.
+                        Enables storing a json output file for each dumped
+                        command. Default is disabled.
   --dump-resources-dump-immutable-resources
-              Enables dumping of resources that are used as inputs in the commands requested for dumping
+                        Dump immutable immutable shader resources.
   --dump-resources-dump-all-image-subresources
-              Enables dumping of all image sub resources (mip map levels and array layers)
+                        Dump all available mip levels and layers when dumping
+                        images.
   --dump-resources-dump-raw-images
-              When enabled all image resources will be dumped verbatim as raw bin files.
+                        Dump images verbatim as raw binary files.
   --dump-resources-dump-separate-alpha
-              When enabled alpha channel of dumped images will be dumped in a separate file.
-  --pbi-all
-              Print all block information.
-  --pbis <index1,index2>
-              Print block information between block index1 and block index2.
+                        Dump image alpha in a separate image file.
+  --pbi-all             Print all block information.
+  --pbis RANGES         Print block information between block index1 and block
+                        index2
+  --pcj, --pipeline-creation-jobs
+                        Specify the number of pipeline-creation-jobs or
+                        background-threads.
   --save-pipeline-cache DEVICE_FILE
-              If set, produces pipeline caches at replay time instead
-              of using the one saved at capture time and save those
-              caches in DEVICE_FILE.
-              (forwarded to replay tool)
+                        If set, produces pipeline caches at replay time
+                        instead of using the one saved at capture time and
+                        save those caches in DEVICE_FILE. (forwarded to replay
+                        tool)
   --load-pipeline-cache DEVICE_FILE
-              If set, loads data created by the
-              `--save-pipeline-cache` option in DEVICE_FILE
-              and uses it to create the pipelines instead of the
-              pipeline caches saved at capture time.
-              (forwarded to replay tool)
+                        If set, loads data created by the `--save-pipeline-
+                        cache` option in DEVICE_FILE and uses it to create the
+                        pipelines instead of the pipeline caches saved at
+                        capture time. (forwarded to replay tool)
   --add-new-pipeline-caches
-              If set, allows gfxreconstruct to create new
-              vkPipelineCache objects when it encounters a pipeline
-              created without cache. This option can be used in
-              coordination with `--save-pipeline-cache` and
-              `--load-pipeline-cache`. (forwarded to replay tool)
-  --quit-after-frame
-              Specify a frame after which replay will terminate.
+                        If set, allows gfxreconstruct to create new
+                        vkPipelineCache objects when it encounters a pipeline
+                        created without cache. This option can be used in
+                        coordination with `--save-pipeline-cache` and `--load-
+                        pipeline-cache`. (forwarded to replay tool)
+  --quit-after-frame FRAME
+                        Specify a frame after which replay will terminate.
+  --screenshot-ignore-FrameBoundaryANDROID
+                        If set, frames switced with vkFrameBoundANDROID will
+                        be ignored from the screenshot handler.
 ```
 
 The command will force-stop an active replay process before starting the replay

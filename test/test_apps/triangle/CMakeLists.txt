@@ -24,13 +24,16 @@
 # Description: CMake script for triangle test app
 ###############################################################################
 
-add_executable(gfxrecon-testapp-triangle app.cpp)
+add_library(gfxrecon-testapp-triangle app.cpp)
 
-target_link_libraries(gfxrecon-testapp-triangle gfxrecon-testapp-base)
+target_include_directories(gfxrecon-testapp-triangle PUBLIC
+${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gfxrecon-testapp-triangle
+    PUBLIC
+        gfxrecon-testapp-base)
 
 common_build_directives(gfxrecon-testapp-triangle)
 
-install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
-install(DIRECTORY shaders DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
-
-add_dependencies(gfxrecon-testapps gfxrecon-testapp-triangle)
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+    install(TARGETS gfxrecon-testapp-triangle RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/triangle)
+endif()

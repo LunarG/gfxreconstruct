@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -63,7 +64,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record)
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
@@ -93,9 +94,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override;
 
-    virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                 uint64_t         max_resource_size,
-                                                 uint64_t         max_copy_size) override;
+    void ProcessBeginResourceInitCommand(format::HandleId device_id,
+                                         uint64_t         total_copy_size,
+                                         uint64_t         max_copy_size) override;
 
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
@@ -109,9 +110,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                const uint8_t*                              data) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) override;
+
+    virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
+                                              const uint8_t*                       parameters_data) override;
 
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
@@ -434,10 +438,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 
+    FARPROC GetReplayCallback(uint64_t callback_id, format::ApiCallId call_id, const char* call_name);
+
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(
-        HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
+        HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
 
     ULONG OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result);
 
@@ -554,28 +560,33 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
         auto resource_object_info = GetObjectInfo(*resource->GetPointer());
 
-        GFXRECON_ASSERT(resource_object_info != nullptr);
-
-        if (resource_object_info->extra_info == nullptr)
+        // GetObjectInfo() can return a null pointer if resource creation succeeded at replay but failed at capture. For
+        // this case, the created resource will not have a valid capture ID and will be released instead of being added
+        // to the object table.
+        if (resource_object_info != nullptr)
         {
-            auto resource_info               = std::make_unique<D3D12ResourceInfo>();
-            resource_object_info->extra_info = std::move(resource_info);
+
+            if (resource_object_info->extra_info == nullptr)
+            {
+                auto resource_info               = std::make_unique<D3D12ResourceInfo>();
+                resource_object_info->extra_info = std::move(resource_info);
+            }
+
+            auto extra_info = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
+
+            extra_info->desc.Dimension        = desc->GetPointer()->Dimension;
+            extra_info->desc.Alignment        = desc->GetPointer()->Alignment;
+            extra_info->desc.Width            = desc->GetPointer()->Width;
+            extra_info->desc.Height           = desc->GetPointer()->Height;
+            extra_info->desc.DepthOrArraySize = desc->GetPointer()->DepthOrArraySize;
+            extra_info->desc.MipLevels        = desc->GetPointer()->MipLevels;
+            extra_info->desc.Format           = desc->GetPointer()->Format;
+            extra_info->desc.SampleDesc       = desc->GetPointer()->SampleDesc;
+            extra_info->desc.Layout           = desc->GetPointer()->Layout;
+            extra_info->desc.Flags            = desc->GetPointer()->Flags;
+
+            SetResourceSamplerFeedbackMipRegion(extra_info->desc, desc->GetPointer());
         }
-
-        auto extra_info = reinterpret_cast<D3D12ResourceInfo*>(resource_object_info->extra_info.get());
-
-        extra_info->desc.Dimension        = desc->GetPointer()->Dimension;
-        extra_info->desc.Alignment        = desc->GetPointer()->Alignment;
-        extra_info->desc.Width            = desc->GetPointer()->Width;
-        extra_info->desc.Height           = desc->GetPointer()->Height;
-        extra_info->desc.DepthOrArraySize = desc->GetPointer()->DepthOrArraySize;
-        extra_info->desc.MipLevels        = desc->GetPointer()->MipLevels;
-        extra_info->desc.Format           = desc->GetPointer()->Format;
-        extra_info->desc.SampleDesc       = desc->GetPointer()->SampleDesc;
-        extra_info->desc.Layout           = desc->GetPointer()->Layout;
-        extra_info->desc.Flags            = desc->GetPointer()->Flags;
-
-        SetResourceSamplerFeedbackMipRegion(extra_info->desc, desc->GetPointer());
     };
 
     HRESULT OverrideCreateCommittedResource(DxObjectInfo*                                        replay_object_info,
@@ -954,6 +965,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* root_signature_decoder);
 
+    HRESULT OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                     HRESULT                      original_result,
+                                     uint64_t                     NTHandle,
+                                     Decoded_GUID                 riid,
+                                     HandlePointerDecoder<void*>* ppvObj);
+
     HRESULT OverrideCreateStateObject(DxObjectInfo*                                          device5_object_info,
                                       HRESULT                                                original_result,
                                       StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
@@ -1129,6 +1146,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     {
         void*            data_pointer{ 0 };
         format::HandleId resource_id{ format::kNullHandleId };
+        uint32_t         ref_count{ 0 };
     };
 
     struct ResourceInitInfo
@@ -1170,15 +1188,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RaiseFatalError(const char* message) const;
 
+    uint64_t GetUniqueProxyWindowId()
+    {
+        return ++unique_proxy_window_id_counter_;
+    }
+
     HRESULT
-    CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
-                           HRESULT                                                        original_result,
-                           DxObjectInfo*                                                  device_info,
-                           uint64_t                                                       hwnd_id,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
-                           DxObjectInfo*                                                  restrict_to_output_info,
-                           HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
+    CreateSwapChainForHwnd(DxObjectInfo*                           replay_object_info,
+                           HRESULT                                 original_result,
+                           DxObjectInfo*                           device_info,
+                           uint64_t                                hwnd_id,
+                           DXGI_SWAP_CHAIN_DESC1*                  desc,
+                           DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                           DxObjectInfo*                           restrict_to_output_info,
+                           HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
     void SetSwapchainInfo(DxObjectInfo* info,
                           Window*       window,
@@ -1266,6 +1289,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>                   heap_allocations_;
     std::unordered_map<uint64_t, HANDLE>                  event_objects_;
     std::unordered_map<uint64_t, LUID>                    adapter_luid_map_;
+    std::unordered_map<uint64_t, void*>                   shared_handles_;
     std::function<void(const char*)>                      fatal_error_handler_;
     Dx12DescriptorMap                                     descriptor_map_;
     graphics::Dx12GpuVaMap                                gpu_va_map_;
@@ -1288,6 +1312,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::string                                           screenshot_file_prefix_;
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
+    uint64_t                                              unique_proxy_window_id_counter_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;

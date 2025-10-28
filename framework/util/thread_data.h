@@ -39,6 +39,28 @@ class ThreadData
 
     std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
 
+#if ENABLE_OPENXR_SUPPORT
+    void EnableSkipCurrentThreadInFuture()
+    {
+        // If not already in the list, add this thread ID to the list of IDs we
+        // will skip content for.
+        if (skip_threads_.find(thread_id_) == skip_threads_.end())
+        {
+            GFXRECON_LOG_INFO("WriteToFile: Adding thread 0x%x to skip list", thread_id_);
+            skip_threads_.insert(thread_id_);
+        }
+    }
+
+    bool SkipCurrentThread() const
+    {
+        if (skip_threads_.find(thread_id_) != skip_threads_.end())
+        {
+            return true;
+        }
+        return false;
+    }
+#endif
+
     const format::ThreadId                    thread_id_;
     format::ApiCallId                         call_id_;
     format::HandleId                          object_id_;
@@ -56,6 +78,11 @@ class ThreadData
 
     // Used for combining multiple buffers for a single file write.
     std::vector<uint8_t> scratch_buffer_;
+
+#if ENABLE_OPENXR_SUPPORT
+    // Used to skip threads we have determined have bad data
+    std::set<format::ThreadId> skip_threads_;
+#endif
 };
 
 GFXRECON_END_NAMESPACE(util)

@@ -848,6 +848,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
         info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
         info->heap_size       = desc->SizeInBytes;
+        info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
@@ -1093,6 +1094,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wr
         info->page_property   = desc->Properties.CPUPageProperty;
         info->memory_pool     = desc->Properties.MemoryPoolPreference;
         info->has_write_watch = UseWriteWatch(info->heap_type, desc->Flags, info->page_property);
+        info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
     }
@@ -1563,38 +1565,6 @@ void D3D12CaptureManager::PreProcess_ID3D12Resource_Unmap(ID3D12Resource_Wrapper
     }
 }
 
-void D3D12CaptureManager::PostProcess_ID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
-                                                                       HRESULT                 result,
-                                                                       D3D12_HEAP_PROPERTIES*  heap_properties,
-                                                                       D3D12_HEAP_FLAGS*       heap_flags)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-    GFXRECON_UNREFERENCED_PARAMETER(heap_properties);
-
-    if (SUCCEEDED(result) && (heap_flags != nullptr) && (IsPageGuardMemoryModeExternal()))
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        if (info->has_write_watch)
-        {
-            if (heap_flags != nullptr)
-            {
-                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
-                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
-            }
-
-            if (heap_properties != nullptr)
-            {
-                // Replace the custom heap properties that were set at resource creation.
-                heap_properties->Type                 = info->heap_type;
-                heap_properties->CPUPageProperty      = info->page_property;
-                heap_properties->MemoryPoolPreference = info->memory_pool;
-            }
-        }
-    }
-}
-
 void D3D12CaptureManager::PostProcess_ID3D12Resource_GetGPUVirtualAddress(ID3D12Resource_Wrapper*   wrapper,
                                                                           D3D12_GPU_VIRTUAL_ADDRESS result)
 {
@@ -1736,28 +1706,6 @@ void D3D12CaptureManager::Destroy_ID3D12Resource(ID3D12Resource_Wrapper* wrapper
                 std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_resources_.erase(wrapper);
             }
-        }
-    }
-}
-
-void D3D12CaptureManager::PostProcess_ID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper, D3D12_HEAP_DESC& desc)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-
-    if (IsPageGuardMemoryModeExternal())
-    {
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-
-        if (info->has_write_watch)
-        {
-            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
-            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
-
-            // Replace the custom heap properties that were set at heapcreation.
-            desc.Properties.Type                 = info->heap_type;
-            desc.Properties.CPUPageProperty      = info->page_property;
-            desc.Properties.MemoryPoolPreference = info->memory_pool;
         }
     }
 }
@@ -2144,6 +2092,62 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device1_CreatePipelineLibrary(
     return device1->CreatePipelineLibrary(library_blob, blob_length, riid, library);
 }
 
+D3D12_HEAP_DESC D3D12CaptureManager::OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapper* wrapper)
+{
+    auto heap = wrapper->GetWrappedObjectAs<ID3D12Heap>();
+    auto desc = heap->GetDesc();
+
+    if (IsPageGuardMemoryModeExternal())
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+        if (info->has_write_watch)
+        {
+            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
+            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+
+            // Replace the custom heap properties that were set at heapcreation.
+            desc.Properties.Type                 = info->heap_type;
+            desc.Properties.CPUPageProperty      = info->page_property;
+            desc.Properties.MemoryPoolPreference = info->memory_pool;
+        }
+    }
+    return desc;
+}
+
+HRESULT D3D12CaptureManager::OverrideID3D12Resource_GetHeapProperties(ID3D12Resource_Wrapper* wrapper,
+                                                                      D3D12_HEAP_PROPERTIES*  heap_properties,
+                                                                      D3D12_HEAP_FLAGS*       heap_flags)
+{
+    auto resource = wrapper->GetWrappedObjectAs<ID3D12Resource>();
+    auto result   = resource->GetHeapProperties(heap_properties, heap_flags);
+
+    if (SUCCEEDED(result) && (heap_flags != nullptr) && (IsPageGuardMemoryModeExternal()))
+    {
+        auto info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(info != nullptr);
+
+        if (info->has_write_watch)
+        {
+            if (heap_flags != nullptr)
+            {
+                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
+                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+            }
+
+            if (heap_properties != nullptr)
+            {
+                // Replace the custom heap properties that were set at resource creation.
+                heap_properties->Type                 = info->heap_type;
+                heap_properties->CPUPageProperty      = info->page_property;
+                heap_properties->MemoryPoolPreference = info->memory_pool;
+            }
+        }
+    }
+
+    return result;
+}
+
 HRESULT
 D3D12CaptureManager::OverrideID3D12PipelineLibrary_LoadComputePipeline(ID3D12PipelineLibrary_Wrapper*           wrapper,
                                                                        LPCWSTR                                  name,
@@ -2361,6 +2365,10 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CheckFeatureSupport(ID3D12Devi
         HRESULT result           = device->CheckFeatureSupport(feature, features, feature_support_data_size);
         features->RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
         return result;
+    }
+    else if (GetDisableMetaCommandSetting() && (feature == D3D12_FEATURE_QUERY_META_COMMAND))
+    {
+        return E_INVALIDARG;
     }
     else
     {
@@ -3370,6 +3378,15 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
     IncrementCallScope();
 }
 
+static void MarkCommandListForTrim(graphics::dx12::ID3D12GraphicsCommandListComPtr list)
+{
+    auto wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(list.GetInterfacePtr());
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+    info->is_trim_target = true;
+}
+
 bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
     std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
     ID3D12CommandQueue_Wrapper*                            wrapper,
@@ -3434,6 +3451,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
                                      trim_draw_calls.bundle_draw_call_indices.first,
                                      trim_draw_calls.bundle_draw_call_indices.last);
             }
+
+            auto target_bundle_cmd =
+                target_info->target_bundle_commandlist_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex]
+                    .list;
+            MarkCommandListForTrim(target_bundle_cmd);
         }
 
         std::vector<ID3D12CommandList*> cmdlists;
@@ -3458,11 +3480,12 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         cmdlists.clear();
 
         // target of splitted
-        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
-
         auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
         GFXRECON_ASSERT(target_draw_call_cmd);
         cmdlists.emplace_back(target_draw_call_cmd);
+
+        MarkCommandListForTrim(target_draw_call_cmd);
+        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
 
         auto unwrap_memory = GetHandleUnwrapMemory();
         queue->ExecuteCommandLists(cmdlists.size(),
@@ -3782,6 +3805,20 @@ void D3D12CaptureManager::PostProcess_SetName(IUnknown_Wrapper* wrapper, HRESULT
     if (IsCaptureModeTrack())
     {
         state_tracker_->TrackSetName(wrapper, result, Name);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_InitializeMetaCommand(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                                            ID3D12MetaCommand*                  pMetaCommand,
+                                                            const void* pInitializationParametersData,
+                                                            SIZE_T      InitializationParametersDataSizeInBytes)
+{
+    if (IsCaptureModeTrack())
+    {
+        auto metacommand_info             = reinterpret_cast<ID3D12MetaCommand_Wrapper*>(pMetaCommand)->GetObjectInfo();
+        metacommand_info->was_initialized = true;
+        metacommand_info->initialize_parameters = std::make_unique<util::MemoryOutputStream>(
+            pInitializationParametersData, InitializationParametersDataSizeInBytes);
     }
 }
 

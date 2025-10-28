@@ -506,6 +506,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkCreateBuffer(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateImage>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkCreateImage(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
 {
     template <typename... Args>
@@ -684,6 +704,49 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>
         manager->PostProcess_vkFreeMemory(args...);
     }
 };
+
+#if ENABLE_OPENXR_SUPPORT
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroyFence(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkResetFences(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceStatus>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkGetFenceStatus(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkWaitForFences(args...);
+    }
+};
+
+#endif
 
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
@@ -1709,6 +1772,59 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTag
         manager->PostProcess_vkSetDebugUtilsObjectTagEXT(result, args...);
     }
 };
+
+#if ENABLE_OPENXR_SUPPORT
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateFence>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkCreateFence(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkImportFenceWin32HandleKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkImportFenceFdKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkImportFenceFdKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkBeginCommandBuffer(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBeginCommandBuffer(result, args...);
+    }
+};
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

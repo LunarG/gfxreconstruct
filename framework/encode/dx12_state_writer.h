@@ -112,10 +112,23 @@ class Dx12StateWriter
     void
     WriteMethodCall(format::ApiCallId call_id, format::HandleId object_id, util::MemoryOutputStream* parameter_buffer);
 
+    bool IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const;
+
+    bool IsRootSignatureBlob(const ID3D10Blob_Wrapper* wrapper) const
+    {
+        return !IsCachedPSOBlob(wrapper);
+    }
+
+    void WriteRootSignatureBlobState(const Dx12StateTable& state_table);
+
+    void WriteCachedPSOBlobState(const Dx12StateTable& state_table);
+
     void WriteHeapState(const Dx12StateTable& state_table);
 
     // Returns true if memory information was successfully retrieved and written and false otherwise.
     bool WriteCreateHeapAllocationCmd(const void* address);
+
+    void WriteHeapMakeResidentCmd(const ID3D12Heap_Wrapper* wrapper);
 
     void WriteDescriptorState(const Dx12StateTable& state_table);
 
@@ -133,6 +146,8 @@ class Dx12StateWriter
         const Dx12StateTable&                                                    state_table,
         std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& resource_snapshots,
         std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes);
+
+    void WriteMetaCommandCreationState(const Dx12StateTable& state_table);
 
     void WriteTileMappings(const Dx12StateTable& state_table, ID3D12ResourceInfo* resource_info);
 

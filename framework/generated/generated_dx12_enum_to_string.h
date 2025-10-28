@@ -28,6 +28,9 @@
 #ifndef  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 #define  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 
+#if defined(D3D12_SUPPORT)
+
+#ifdef WIN32
 #include <dxgiformat.h>
 #include <d3d12.h>
 #include <d3dcommon.h>
@@ -44,6 +47,8 @@
 #include <guiddef.h>
 #include <windef.h>
 #include <minwinbase.h>
+#endif // WIN32
+
 #include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/to_string.h"
@@ -214,6 +219,9 @@ std::string ToString_D3D12_RAYTRACING_GEOMETRY_FLAGS(uint32_t flags);
 std::string ToString(D3D12_RAYTRACING_GEOMETRY_TYPE value);
 std::string ToString(D3D12_RAYTRACING_INSTANCE_FLAGS value);
 std::string ToString_D3D12_RAYTRACING_INSTANCE_FLAGS(uint32_t flags);
+std::string ToString(D3D12_RAYTRACING_OPACITY_MICROMAP_SPECIAL_INDEX value);
+std::string ToString(D3D12_RAYTRACING_OPACITY_MICROMAP_STATE value);
+std::string ToString(D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT value);
 std::string ToString(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS value);
 std::string ToString_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(uint32_t flags);
 std::string ToString(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE value);
@@ -223,6 +231,9 @@ std::string ToString(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TYPE
 std::string ToString(D3D12_SERIALIZED_DATA_TYPE value);
 std::string ToString(D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS value);
 std::string ToString_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(uint32_t flags);
+std::string ToString(D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE value);
+std::string ToString(D3D12_RAYTRACING_SERIALIZED_BLOCK_TYPE value);
+std::string ToString(D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TYPE value);
 std::string ToString(D3D12_RAY_FLAGS value);
 std::string ToString_D3D12_RAY_FLAGS(uint32_t flags);
 std::string ToString(D3D12_HIT_KIND value);
@@ -258,6 +269,8 @@ std::string ToString(D3D12_SHADER_CACHE_KIND_FLAGS value);
 std::string ToString_D3D12_SHADER_CACHE_KIND_FLAGS(uint32_t flags);
 std::string ToString(D3D12_SHADER_CACHE_CONTROL_FLAGS value);
 std::string ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(uint32_t flags);
+std::string ToString(D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS value);
+std::string ToString_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(uint32_t flags);
 std::string ToString(D3D12_DEVICE_FACTORY_FLAGS value);
 std::string ToString_D3D12_DEVICE_FACTORY_FLAGS(uint32_t flags);
 std::string ToString(D3D12_DEVICE_FLAGS value);
@@ -347,5 +360,7 @@ inline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT)
 
 #endif

@@ -125,7 +125,7 @@ def parse_args():
         help='Build test apps')
     arg_parser.add_argument(
         '--cmake-system-version', dest='cmake_system_version',
-        type=str, default="10.0.20348.0",help='Select SDK version')
+        type=str, default="10.0.26100.0",help='Select SDK version')
     arg_parser.add_argument(
         '--skip-d3d12-support', dest='skip_d3d12_support',
         action='store_true', default=False,help='Skip Direct3D 12 build')
@@ -140,6 +140,10 @@ def parse_args():
         '--cmake-extra', dest='cmake_extra',
         action='append', default=[],
         help='Extra variables to set on the cmake invocation')
+    arg_parser.add_argument(
+        '-g', '--generator', dest='generator',
+        metavar='GENERATOR', action='store', default=None,
+        help='CMake generator to use for the build. If not specified, the default generator will be used.')
     return arg_parser.parse_args()
 
 
@@ -240,6 +244,8 @@ def cmake_generate_options(args):
             '-DBUILD_LAUNCHER_AND_INTERCEPTOR={}'.format(
                 'OFF' if not args.build_launcher else 'ON'))
         generate_options.extend('-D' + arg for arg in args.cmake_extra)
+        if args.generator:
+            generate_options.append('-G{}'.format(args.generator))
     
     return generate_options
 

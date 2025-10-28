@@ -141,7 +141,6 @@ Run the script with the `-h` option for additional usage information.
   - Supported Versions
     - [2022](https://www.visualstudio.com/vs/downloads/)
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
-    - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
 - [CMake](http://www.cmake.org/download/) (Version 3.24 or newer)
   - The build instructions assume that CMake has been added to the system PATH
@@ -166,19 +165,19 @@ GFXReconstruct repository, create a build folder, and generate the Visual
 Studio project files.
 
 The following example demonstrates the generation of project files for the
-Visual Studio 2017 x64 build configuration:
+Visual Studio 2019 x64 build configuration:
 
 ```bat
 cd gfxreconstruct
 mkdir build
-cmake . -Bbuild -G "Visual Studio 15 Win64"
+cmake . -Bbuild -G "Visual Studio 16 Win64"
 ```
 
 The following commands can be used to generate project files for different
-variations of the Visual Studio 2017 WIN32 and x64 build configurations:
+variations of the Visual Studio 2019 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15 Win64"`
-- 32-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15"`
+- 64-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16 Win64"`
+- 32-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -188,16 +187,16 @@ Visual Studio configuration will include support for capturing and replaying Dir
 At this point, you can build the solution from the command line or open the
 generated solution with Visual Studio.
 
-**Note: The D3D12 build uses Windows 10 SDK 10.0.20348.0. Other Windows SDK versions may not be compatible. If you need to specify a Windows SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.20348.0`. If Python code generation is required, the shell used to run it should set the environment variable `WindowsSDKVersion=10.0.20348.0`.**
+**Note: The D3D12 build uses Windows 10 SDK 10.0.26100.0. Other Windows SDK versions may not be compatible. If you need to specify a Windows SDK, please use `-DCMAKE_SYSTEM_VERSION=10.0.26100.0`. If Python code generation is required, the shell used to run it should set the environment variable `WindowsSDKVersion=10.0.26100.0`.**
 
 When generating a native build on an ARM64 Windows host the Visual Studio
-Installer can be used to install the required Windows SDK version, `10.0.20348.0`.
+Installer can be used to install the required Windows SDK version, `10.0.26100.0`.
 Once the correct Windows SDK is installed, from a newly opened developer command
 prompt for Visual Studio 2022, the following CMake invocation will generate a Visual
 Studio solution and projects.
 
 ```bat
-cmake . -Bbuild -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_SYSTEM_VERSION=10.0.20348.0
+cmake . -Bbuild -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_SYSTEM_VERSION=10.0.26100.0
 ```
 
 #### Build the Solution From the Command Line
@@ -229,7 +228,7 @@ Solution menu item.
 
 Building on Linux requires the installation of the following packages:
 
-- A C++ compiler with C++-17 support
+- A C++ compiler with C++-20 support
 - Git
 - CMake
 - X11 + XCB and/or Wayland development libraries
@@ -242,13 +241,14 @@ For Ubuntu, the required packages can be installed with the following command:
 
 ```bash
 sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev \
-        libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev
+        libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev libxcb-glx0-dev
 ```
 
 For 32-bit builds (DXVK might require 32-bit):
 ```bash
 sudo apt-get install g++-multilib libx11-xcb-dev:i386 libxcb-keysyms1-dev:i386 \
-        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 libzstd-dev:i386
+        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 \
+        libzstd-dev:i386 libxcb-glx0-dev:i386
 ```
 
 For arm64 builds (cross compilation):
@@ -392,6 +392,18 @@ codesign -dvvv libVkLayer_gfxreconstruct.dylib`
 Apple's developer information about code-signing can be found here:
 https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html
 
+### Disabling OpenXR Inclusion For Desktop Builds
+
+If there are any concerns about using the OpenXR content in the resulting components of GFXReconstruct,
+it may be disabled during CMake build target generation by setting the following CMake option:
+
+```bash
+-DGFXRECON_ENABLE_OPENXR=OFF
+```
+
+This causes the code generation to skip over any OpenXR specific files, and not define the
+environment variables used to enable OpenXR code in files that are included.
+
 ## Building for Android
 
 ### Android Development Requirements
@@ -441,6 +453,16 @@ On Linux:
 ```
 
 To perform a release build, replace the `assembleDebug` task name with `assembleRelease`.
+
+##### Disabling OpenXR support in Gradle
+
+It is also possible to disable OpenXR support in the GFXReconstruct layer when
+building Gradle.
+This can be done by defining the Gradle property `DisableOpenXR` to `true`.
+The Gradle property can be provided either in the command line of the
+build, or defined in the gradle.properties file.
+The later is most useful if the layer is included in a separate external application
+build.
 
 #### Building with Android Studio
 

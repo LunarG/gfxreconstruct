@@ -320,6 +320,31 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
         }
         break;
 
+        case kFormat_S8_UINT:
+        {
+            const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                for (uint32_t x = 0; x < width; ++x)
+                {
+                    const uint8_t s = bytes[x];
+
+                    *(temp_buffer++) = s;
+                    *(temp_buffer++) = s;
+                    *(temp_buffer++) = s;
+
+                    if (write_alpha)
+                    {
+                        *(temp_buffer++) = 0xff;
+                    }
+                }
+
+                bytes       = bytes + data_pitch;
+                temp_buffer = temporary_buffer.data() + (y + 1) * output_pitch;
+            }
+        }
+        break;
+
         default:
             GFXRECON_LOG_ERROR("Format %u not handled", format);
             assert(0);

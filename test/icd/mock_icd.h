@@ -35,6 +35,9 @@
 #include "vk_video/vulkan_video_codec_h265std_decode.h"
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vulkan/vulkan.h"
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+#include "vulkan/vulkan_android.h"
+#endif
 
 #include "vulkan/vk_icd.h"
 #include "vk_typemap_helper.h"

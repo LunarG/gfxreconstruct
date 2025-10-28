@@ -373,16 +373,6 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Resource_Unmap>
 };
 
 template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapProperties>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12Resource_GetHeapProperties(args...);
-    }
-};
-
-template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress>
 {
     template <typename... Args>
@@ -397,16 +387,6 @@ inline void CustomWrapperDestroyCall<ID3D12Resource_Wrapper>(ID3D12Resource_Wrap
 {
     D3D12CaptureManager::Get()->Destroy_ID3D12Resource(wrapper);
 }
-
-template <>
-struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Heap_GetDesc>
-{
-    template <typename... Args>
-    static void Dispatch(D3D12CaptureManager* manager, Args... args)
-    {
-        manager->PostProcess_ID3D12Heap_GetDesc(args...);
-    }
-};
 
 template <>
 struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists>
@@ -831,6 +811,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetName>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_SetName(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_InitializeMetaCommand(args...);
     }
 };
 

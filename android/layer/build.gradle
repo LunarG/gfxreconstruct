@@ -19,13 +19,21 @@ android {
             } else if (project.hasProperty("x86_64")) {
                 abiFilters 'x86_64'
             } else {
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'arm64-v8a', 'x86_64'
             }
         }
         externalNativeBuild {
             cmake {
-                cppFlags "-fexceptions", "-std=c++17", "-Wno-nullability-completeness"
+                cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
+                if (project.hasProperty("DisableOpenXR")) {
+                    logger.info('GFXReconstruct layer built with NO OpenXr Support! [DisableOpenXR found]')
+                    arguments.add("-DGFXRECON_ENABLE_OPENXR=OFF")
+                }
+                else {
+                    logger.info('GFXReconstruct layer built with OpenXr Support.')
+                    arguments.add("-DGFXRECON_ENABLE_OPENXR=ON")
+                }
             }
         }
     }
@@ -39,5 +47,11 @@ android {
         cmake {
             path "CMakeLists.txt"
         }
+    }
+
+    sourceSets {
+       main {
+           assets.srcDirs = ['assets']
+       }
     }
 }

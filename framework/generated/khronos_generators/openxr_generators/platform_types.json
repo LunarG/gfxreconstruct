@@ -1,0 +1,86 @@
+{ "windows" : {
+    "types" : {
+      "DWORD"         : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "HANDLE"        : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HDC"           : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HGLRC"         : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HINSTANCE"     : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HWND"          : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HMONITOR"      : { "baseType" : "void",     "replaceWith" : "void*" }
+    },
+    "structs" : [
+      "ACL",
+      "SECURITY_ATTRIBUTES",
+      "SECURITY_DESCRIPTOR",
+      "SID",
+      "SID_IDENTIFIER_AUTHORITY"
+    ]
+  },
+  "linux" : {
+    "types" : {
+      "Display"            : { "baseType" : "void",     "replaceWith" : "void" },
+      "GLXFBConfig"        : { "baseType" : "void",     "replaceWith" : "void*" },
+      "GLXDrawable"        : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "GLXContext"         : { "baseType" : "void",     "replaceWith" : "void*" },
+      "MirConnection"      : { "baseType" : "void",     "replaceWith" : "void" },
+      "MirSurface"         : { "baseType" : "void",     "replaceWith" : "void" },
+      "RROutput"           : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "VisualID"           : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "Window"             : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "wl_display"         : { "baseType" : "void",     "replaceWith" : "void" },
+      "wl_surface"         : { "baseType" : "void",     "replaceWith" : "void" },
+      "xcb_connection_t"   : { "baseType" : "void",     "replaceWith" : "void" },
+      "xcb_visualid_t"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "xcb_window_t"       : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "xcb_glx_fbconfig_t" : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "xcb_glx_drawable_t" : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "xcb_glx_context_t"  : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
+    },
+    "structs" : []
+  },
+  "android" : {
+    "types" : {
+      "ANativeWindow"   : { "baseType" : "void", "replaceWith" : "void" },
+      "AHardwareBuffer" : { "baseType" : "void", "replaceWith" : "void" },
+      "jobject"         : { "baseType" : "void", "replaceWith" : "void" }
+    },
+    "structs" : []
+  },
+  "fuchsia" : {
+    "types" : {
+      "zx_handle_t" : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
+    },
+    "structs" : []
+  },
+  "metal": {
+    "types": {
+      "CAMetalLayer" : { "baseType" :  "void", "replaceWith" : "void"}
+    },
+    "structs": []
+  },
+  "d3d": {
+    "types": {
+      "ID3D11Device"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D11Texture2D"    : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12Device"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12CommandQueue" : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12Resource"     : { "baseType" : "void",     "replaceWith" : "void" },
+      "IUnknown"           : { "baseType" : "void",     "replaceWith" : "void" }
+    },
+    "structs": []
+  },
+  "egl": {
+    "types": {
+      "EGLenum"      : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "EGLDisplay"   : { "baseType" : "void",     "replaceWith" : "void*" },
+      "EGLConfig"    : { "baseType" : "void",     "replaceWith" : "void*" },
+      "EGLContext"   : { "baseType" : "void",     "replaceWith" : "void*" }
+    },
+    "structs": []
+  },
+  "vulkan": {
+    "types": {
+    },
+    "structs": []
+  }
+}

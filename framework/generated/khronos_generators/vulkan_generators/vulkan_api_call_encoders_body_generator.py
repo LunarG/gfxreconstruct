@@ -90,6 +90,8 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
     # Functions that can activate trimming from a post call command.
     POSTCALL_TRIM_TRIGGERS = ['vkQueueSubmit', 'vkQueueSubmit2', 'vkQueueSubmit2KHR', 'vkQueuePresentKHR', 'vkFrameBoundaryANDROID']
 
+    CHECK_WRITE = ['vkWaitForPresentKHR']
+
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
@@ -99,6 +101,8 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             warn_file=warn_file,
             diag_file=diag_file
         )
+        KhronosApiCallEncodersGenerator.__init__(self, check_write=['vkWaitForPresentKHR'])
+
 
     def beginFile(self, gen_opts):
         """Method override."""
