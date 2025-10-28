@@ -61,6 +61,12 @@ file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${
 # Since project_version_$<CONFIG>.h differs per build, set a compiler definition that files can use to include it
 add_definitions(-DPROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
 
+# Isolate the repo SHA in a library to reduce the amount of recompilation on git commit, checkout, etc.
+# Clients should #include PROJECT_VERSION_HEADER_FILE and call GetProjectVersionString()
+configure_file("${GFXRECON_SOURCE_DIR}/project_version_string.h.in" "${CMAKE_BINARY_DIR}/project_version_string.h")
+add_library(project_version "${GFXRECON_SOURCE_DIR}/project_version.cpp")
+target_include_directories(project_version PUBLIC "${CMAKE_BINARY_DIR}")
+
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE
                                 _FILE_OFFSET_BITS=64
