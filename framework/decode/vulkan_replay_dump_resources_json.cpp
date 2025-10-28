@@ -47,7 +47,7 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-    header_["gfxreconVersion"] = GFXRECON_PROJECT_VERSION_STRING;
+    header_["gfxreconVersion"] = GetProjectVersionString();
     header_["captureFile"]     = options.capture_filename;
 
     auto& dr_options            = header_[kVDROptions];

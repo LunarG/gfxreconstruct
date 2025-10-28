@@ -58,7 +58,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
 endif()
 
 target_link_libraries(${TARGET_NAME}
-                      ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})
+                      ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES}
+                      project_version)
 
 common_build_directives(${TARGET_NAME})
 
