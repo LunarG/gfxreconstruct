@@ -115,9 +115,8 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
 
         if ((result == VK_SUCCESS) && (replay_surface != nullptr))
         {
-            auto surface_id   = surface->GetPointer();
             auto surface_info = reinterpret_cast<VulkanSurfaceKHRInfo*>(surface->GetConsumerData(0));
-            assert((surface_id != nullptr) && (surface_info != nullptr));
+            assert(surface_info != nullptr);
             assert(!surface_info->surface_creation_skipped);
 
             surface_info->window = window;

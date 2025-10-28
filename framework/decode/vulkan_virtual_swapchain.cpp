@@ -25,7 +25,11 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
 #include "decode/mark_injected_commands.h"
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
+
 #include "vulkan/vulkan_core.h"
 #include <array>
 
@@ -1086,6 +1090,233 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
     func(command_buffer, pDependencyInfo);
 }
 
+void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                                  const VulkanDeviceInfo*              device_info,
+                                                  const VulkanSemaphoreInfo*           semaphore_info,
+                                                  const VulkanImageInfo*               image_info,
+                                                  VulkanInstanceInfo*                  instance_info,
+                                                  const graphics::VulkanInstanceTable* instance_table,
+                                                  const graphics::VulkanDeviceTable*   device_table,
+                                                  application::Application*            application)
+{
+    ProcessOffscreenFrameBoundary(instance_info,
+                                  instance_table,
+                                  device_info,
+                                  device_table,
+                                  application,
+                                  image_info,
+                                  semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
+}
+
+VkResult VulkanVirtualSwapchain::QueueSubmit(PFN_vkQueueSubmit                    func,
+                                             const VulkanQueueInfo*               queue_info,
+                                             uint32_t                             submit_count,
+                                             const VkSubmitInfo*                  submit_infos,
+                                             const Decoded_VkSubmitInfo*          meta_submit_infos,
+                                             const VulkanFenceInfo*               fence_info,
+                                             VulkanInstanceInfo*                  instance_info,
+                                             const graphics::VulkanInstanceTable* instance_table,
+                                             const VulkanDeviceInfo*              device_info,
+                                             const graphics::VulkanDeviceTable*   device_table,
+                                             application::Application*            application,
+                                             const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0) &&
+                    instance_info != nullptr && instance_table != nullptr && device_info != nullptr &&
+                    device_table != nullptr && application != nullptr);
+
+    // For now, we only process the first image of the first offscreen frame boundary encountered. More would require
+    // opening as many windows as images, and correctly identifying which image should be displayed on which window over
+    // several frames.
+
+    VkResult               result       = VK_SUCCESS;
+    const VulkanImageInfo* image_info   = nullptr;
+    uint32_t               submit_index = 0;
+
+    // Trying to get an image with VK_EXT_frame_boundary
+    for (uint32_t i = 0; i < submit_count; ++i)
+    {
+        format::HandleId image_id = FindExtFrameBoundaryImage(meta_submit_infos + i);
+        if (image_id != format::kNullHandleId)
+        {
+            image_info   = object_info_table.GetVkImageInfo(image_id);
+            submit_index = i;
+            break;
+        }
+    }
+
+    // If unsuccessful, try to get an image from VK_EXT_debug_utils/VK_EXT_debug_marker
+    if (image_info == nullptr)
+    {
+        for (uint32_t i = 0; i < submit_count; ++i)
+        {
+            const format::HandleId* command_buffer_ids = meta_submit_infos[i].pCommandBuffers.GetPointer();
+            for (uint32_t j = 0; j < submit_infos[i].commandBufferCount; ++j)
+            {
+                format::HandleId image_id =
+                    FindCommandBufferFrameBoundaryImage(object_info_table, command_buffer_ids[j]);
+
+                if (image_id != format::kNullHandleId)
+                {
+                    image_info   = object_info_table.GetVkImageInfo(image_id);
+                    submit_index = i;
+                    break;
+                }
+            }
+
+            if (image_info != nullptr)
+            {
+                break;
+            }
+        }
+    }
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+    if (image_info == nullptr)
+    {
+        // No usable offscreen frame boundary, just submit the workload as-is
+        return func(queue_info->handle, submit_count, submit_infos, fence);
+    }
+
+    // Create semaphores for the presentation if necessary
+    CreateSubmitSemaphores(device_info, device_table);
+
+    // Submit workload with additional semaphore and remove VkFrameBoundaryEXT in pNext chain if it exists
+
+    VkSemaphore& semaphore = ofb_submit_semaphores_[ofb_data_.acquire_index];
+
+    std::vector<VkSubmitInfo> modified_submit_infos(submit_infos, submit_infos + submit_count);
+    std::vector<VkSemaphore>  modified_semaphores(submit_infos[submit_index].pSignalSemaphores,
+                                                 submit_infos[submit_index].pSignalSemaphores +
+                                                     submit_infos[submit_index].signalSemaphoreCount);
+
+    modified_semaphores.push_back(semaphore);
+    modified_submit_infos[submit_index].signalSemaphoreCount = modified_semaphores.size();
+    modified_submit_infos[submit_index].pSignalSemaphores    = modified_semaphores.data();
+
+    graphics::vulkan_struct_remove_pnext<VkFrameBoundaryEXT>(&modified_submit_infos[submit_index]);
+
+    result = func(queue_info->handle, modified_submit_infos.size(), modified_submit_infos.data(), fence);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    // Present the image
+
+    return ProcessOffscreenFrameBoundary(
+        instance_info, instance_table, device_info, device_table, application, image_info, semaphore);
+}
+
+VkResult VulkanVirtualSwapchain::QueueSubmit2(PFN_vkQueueSubmit2                   func,
+                                              const VulkanQueueInfo*               queue_info,
+                                              uint32_t                             submit_count,
+                                              const VkSubmitInfo2*                 submit_infos,
+                                              const Decoded_VkSubmitInfo2*         meta_submit_infos,
+                                              const VulkanFenceInfo*               fence_info,
+                                              VulkanInstanceInfo*                  instance_info,
+                                              const graphics::VulkanInstanceTable* instance_table,
+                                              const VulkanDeviceInfo*              device_info,
+                                              const graphics::VulkanDeviceTable*   device_table,
+                                              application::Application*            application,
+                                              const CommonObjectInfoTable&         object_info_table)
+{
+    GFXRECON_ASSERT(queue_info != nullptr && (submit_infos != nullptr || submit_count == 0) &&
+                    instance_info != nullptr && instance_table != nullptr && device_info != nullptr &&
+                    device_table != nullptr && application != nullptr);
+
+    // For now, we only process the first image of the first offscreen frame boundary encountered. More would require
+    // opening as many windows as images, and correctly identifying which image should be displayed on which window over
+    // several frames.
+
+    VkResult               result       = VK_SUCCESS;
+    const VulkanImageInfo* image_info   = nullptr;
+    uint32_t               submit_index = 0;
+
+    // Trying to get an image with VK_EXT_frame_boundary
+    for (uint32_t i = 0; i < submit_count; ++i)
+    {
+        format::HandleId image_id = FindExtFrameBoundaryImage(meta_submit_infos + i);
+        if (image_id != format::kNullHandleId)
+        {
+            image_info   = object_info_table.GetVkImageInfo(image_id);
+            submit_index = i;
+            break;
+        }
+    }
+
+    // If unsuccessful, try to get an image from VK_EXT_debug_utils/VK_EXT_debug_marker
+    if (image_info == nullptr)
+    {
+        for (uint32_t i = 0; i < submit_count; ++i)
+        {
+            if (meta_submit_infos[i].pCommandBufferInfos != nullptr)
+            {
+                const Decoded_VkCommandBufferSubmitInfo* cmd_buf_sub_info =
+                    meta_submit_infos[i].pCommandBufferInfos->GetMetaStructPointer();
+                for (uint32_t j = 0; j < submit_infos[i].commandBufferInfoCount; ++j)
+                {
+                    format::HandleId image_id =
+                        FindCommandBufferFrameBoundaryImage(object_info_table, cmd_buf_sub_info[j].commandBuffer);
+
+                    if (image_id != format::kNullHandleId)
+                    {
+                        image_info   = object_info_table.GetVkImageInfo(image_id);
+                        submit_index = i;
+                        break;
+                    }
+                }
+
+                if (image_info != nullptr)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    VkFence fence = (fence_info == nullptr ? VK_NULL_HANDLE : fence_info->handle);
+    if (image_info == nullptr)
+    {
+        // No usable offscreen frame boundary, just submit the workload as-is
+        return func(queue_info->handle, submit_count, submit_infos, fence);
+    }
+
+    // Create semaphores for the presentation if necessary
+    CreateSubmitSemaphores(device_info, device_table);
+
+    // Submit workload with additional semaphore and remove VkFrameBoundaryEXT in pNext chain if it exists
+
+    VkSemaphore& semaphore = ofb_submit_semaphores_[ofb_data_.acquire_index];
+
+    std::vector<VkSubmitInfo2>         modified_submit_infos(submit_infos, submit_infos + submit_count);
+    std::vector<VkSemaphoreSubmitInfo> modified_semaphore_submit_infos(
+        submit_infos[submit_index].pSignalSemaphoreInfos,
+        submit_infos[submit_index].pSignalSemaphoreInfos + submit_infos[submit_index].signalSemaphoreInfoCount);
+
+    VkSemaphoreSubmitInfo semaphore_submit_info{};
+    semaphore_submit_info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+    semaphore_submit_info.semaphore = semaphore;
+    semaphore_submit_info.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+
+    modified_semaphore_submit_infos.push_back(semaphore_submit_info);
+    modified_submit_infos[submit_index].signalSemaphoreInfoCount = modified_semaphore_submit_infos.size();
+    modified_submit_infos[submit_index].pSignalSemaphoreInfos    = modified_semaphore_submit_infos.data();
+
+    graphics::vulkan_struct_remove_pnext<VkFrameBoundaryEXT>(&modified_submit_infos[submit_index]);
+
+    result = func(queue_info->handle, modified_submit_infos.size(), modified_submit_infos.data(), fence);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+
+    // Present the image
+
+    return ProcessOffscreenFrameBoundary(
+        instance_info, instance_table, device_info, device_table, application, image_info, semaphore);
+}
+
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
                                                              const VkImageCreateInfo& image_create_info,
                                                              VirtualImage&            image)
@@ -1153,6 +1384,385 @@ VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceI
             image.image = VK_NULL_HANDLE;
         }
     }
+    return result;
+}
+
+void VulkanVirtualSwapchain::CreateSubmitSemaphores(const VulkanDeviceInfo*            device_info,
+                                                    const graphics::VulkanDeviceTable* device_table)
+{
+    decode::BeginInjectedCommands();
+
+    if (ofb_submit_semaphores_.size() < ofb_data_.acquire_semaphores.size() + 1)
+    {
+        ofb_submit_semaphores_.resize(ofb_data_.acquire_semaphores.size() + 1, VK_NULL_HANDLE);
+
+        VkSemaphoreCreateInfo semaphore_create_info;
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphore_create_info.pNext = nullptr;
+        semaphore_create_info.flags = 0;
+
+        for (VkSemaphore& semaphore : ofb_submit_semaphores_)
+        {
+            if (semaphore == VK_NULL_HANDLE)
+            {
+                VkResult result =
+                    device_table->CreateSemaphore(device_info->handle, &semaphore_create_info, nullptr, &semaphore);
+                GFXRECON_ASSERT(result == VK_SUCCESS);
+            }
+        }
+    }
+
+    decode::EndInjectedCommands();
+}
+
+format::HandleId VulkanVirtualSwapchain::FindExtFrameBoundaryImage(const void* decoded_struct)
+{
+    const Decoded_VkBaseInStructure* current = reinterpret_cast<const Decoded_VkBaseInStructure*>(decoded_struct);
+
+    while (current != nullptr && current->decoded_value->sType != VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT)
+    {
+        if (current->pNext != nullptr)
+        {
+            current = reinterpret_cast<const Decoded_VkBaseInStructure*>(current->pNext->GetMetaStructPointer());
+        }
+        else
+        {
+            current = nullptr;
+        }
+    }
+
+    if (current != nullptr)
+    {
+        const Decoded_VkFrameBoundaryEXT* frame_boundary = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(current);
+
+        const format::HandleId* images_ptr = frame_boundary->pImages.GetPointer();
+        if (images_ptr != nullptr && *images_ptr != format::kNullHandleId)
+        {
+            return *images_ptr;
+        }
+    }
+
+    return format::kNullHandleId;
+}
+
+format::HandleId
+VulkanVirtualSwapchain::FindCommandBufferFrameBoundaryImage(const CommonObjectInfoTable& object_info_table,
+                                                            format::HandleId             command_buffer_id)
+{
+    const VulkanCommandBufferInfo* command_buffer_info = object_info_table.GetVkCommandBufferInfo(command_buffer_id);
+
+    if (command_buffer_info->is_frame_boundary)
+    {
+        for (format::HandleId framebuffer_id : command_buffer_info->frame_buffer_ids)
+        {
+            const VulkanFramebufferInfo* framebuffer_info = object_info_table.GetVkFramebufferInfo(framebuffer_id);
+            if (!framebuffer_info->attachment_image_view_ids.empty())
+            {
+                format::HandleId           image_view_id   = framebuffer_info->attachment_image_view_ids[0];
+                const VulkanImageViewInfo* image_view_info = object_info_table.GetVkImageViewInfo(image_view_id);
+                return image_view_info->image_id;
+            }
+        }
+    }
+
+    return format::kNullHandleId;
+}
+
+VkResult VulkanVirtualSwapchain::ProcessOffscreenFrameBoundary(VulkanInstanceInfo*                  instance_info,
+                                                               const graphics::VulkanInstanceTable* instance_table,
+                                                               const VulkanDeviceInfo*              device_info,
+                                                               const graphics::VulkanDeviceTable*   device_table,
+                                                               application::Application*            application,
+                                                               const VulkanImageInfo*               image_info,
+                                                               VkSemaphore                          semaphore)
+{
+    GFXRECON_ASSERT(instance_info != nullptr && instance_table != nullptr && device_info != nullptr &&
+                    device_table != nullptr && application != nullptr);
+
+    VkResult result = VK_SUCCESS;
+    VkDevice device = device_info->handle;
+    VkImage  image  = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
+
+    // If there is no image to present, do nothing
+    if (image == VK_NULL_HANDLE)
+    {
+        return result;
+    }
+
+    decode::BeginInjectedCommands();
+
+    // Create a new surface if necessary
+
+    if (ofb_data_.surface_info.handle == VK_NULL_HANDLE)
+    {
+        // Create a window and surface
+
+        ofb_data_.surface_ptr.SetHandleLength(1);
+        ofb_data_.surface_ptr.SetConsumerData(0, &ofb_data_.surface_info);
+
+        result = CreateSurface(VK_SUCCESS,
+                               instance_info,
+                               VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
+                               0,
+                               &ofb_data_.surface_ptr,
+                               instance_table,
+                               application);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        ofb_data_.surface_info.handle = *ofb_data_.surface_ptr.GetHandlePointer();
+        ofb_data_.surface_info.window->SetSize(image_info->extent.width, image_info->extent.height);
+
+        // Retrieve the queue that will be used for presentation/image copy and create a command pool
+
+        device_table->GetDeviceQueue(device, 0, 0, &ofb_data_.queue);
+
+        VkCommandPoolCreateInfo command_pool_create_info;
+        command_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        command_pool_create_info.pNext = nullptr;
+        command_pool_create_info.flags =
+            VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        command_pool_create_info.queueFamilyIndex = 0;
+
+        result = device_table->CreateCommandPool(device, &command_pool_create_info, nullptr, &ofb_data_.command_pool);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+    }
+
+    // Create/Re-create a swapchain if necessary
+
+    VkExtent2D window_size = ofb_data_.surface_info.window->GetSize();
+    if (image_info->extent.width != window_size.width || image_info->extent.height != window_size.height ||
+        ofb_data_.swapchain == VK_NULL_HANDLE)
+    {
+
+        // Create a swapchain
+
+        VkSwapchainCreateInfoKHR swapchain_create_info;
+        swapchain_create_info.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchain_create_info.pNext                 = nullptr;
+        swapchain_create_info.flags                 = 0;
+        swapchain_create_info.surface               = ofb_data_.surface_info.handle;
+        swapchain_create_info.minImageCount         = 3;
+        swapchain_create_info.imageFormat           = VK_FORMAT_B8G8R8A8_UNORM;
+        swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        swapchain_create_info.imageExtent.width     = image_info->extent.width;
+        swapchain_create_info.imageExtent.height    = image_info->extent.height;
+        swapchain_create_info.imageArrayLayers      = 1;
+        swapchain_create_info.imageUsage            = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        swapchain_create_info.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+        swapchain_create_info.queueFamilyIndexCount = 0;
+        swapchain_create_info.pQueueFamilyIndices   = nullptr;
+        swapchain_create_info.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+        swapchain_create_info.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swapchain_create_info.clipped               = VK_TRUE;
+        swapchain_create_info.oldSwapchain          = ofb_data_.swapchain;
+
+        switch (swapchain_options_.present_mode_option)
+        {
+            case util::PresentModeOption::kCapture:
+                // There is no "capture", but the closest is immediate as it is non-blocking.
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                break;
+            case util::PresentModeOption::kImmediate:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                break;
+            case util::PresentModeOption::kMailbox:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+                break;
+            case util::PresentModeOption::kFifo:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+                break;
+            case util::PresentModeOption::kFifoRelaxed:
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+                break;
+            default:
+                // Falling here means a case has been forgotten, it is an implementation error.
+                assert(false);
+                break;
+        }
+
+        VkSwapchainKHR swapchain;
+        result = device_table->CreateSwapchainKHR(device, &swapchain_create_info, nullptr, &swapchain);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        // Destroy old swapchain resources if necessary
+
+        if (ofb_data_.swapchain != VK_NULL_HANDLE)
+        {
+            // We need to be sure that swapchain resources are not in use anymore
+            result = device_table->QueueWaitIdle(ofb_data_.queue);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            for (VkSemaphore acquire_semaphore : ofb_data_.acquire_semaphores)
+            {
+                device_table->DestroySemaphore(device, acquire_semaphore, nullptr);
+            }
+            for (auto& image_data : ofb_data_.image_datas)
+            {
+                device_table->DestroySemaphore(device, image_data.copy_semaphore, nullptr);
+                device_table->FreeCommandBuffers(device, ofb_data_.command_pool, 1, &image_data.copy_command_buffer);
+            }
+            device_table->DestroySwapchainKHR(device, ofb_data_.swapchain, nullptr);
+
+            ofb_data_.acquire_semaphores.clear();
+            ofb_data_.image_datas.clear();
+        }
+
+        ofb_data_.swapchain = swapchain;
+
+        // Get swapchain images and create swapchain resources
+
+        uint32_t image_count = 0;
+        result               = device_table->GetSwapchainImagesKHR(device, ofb_data_.swapchain, &image_count, nullptr);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        std::vector<VkImage> swapchain_images(image_count, VK_NULL_HANDLE);
+        result =
+            device_table->GetSwapchainImagesKHR(device, ofb_data_.swapchain, &image_count, swapchain_images.data());
+        GFXRECON_ASSERT((result == VK_SUCCESS) && (swapchain_images.size() == image_count));
+
+        ofb_data_.acquire_semaphores.resize(image_count);
+        ofb_data_.image_datas.resize(image_count);
+
+        VkSemaphoreCreateInfo semaphore_create_info;
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        semaphore_create_info.pNext = nullptr;
+        semaphore_create_info.flags = 0;
+
+        VkCommandBufferAllocateInfo command_buffer_alloc_info;
+        command_buffer_alloc_info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_alloc_info.pNext              = nullptr;
+        command_buffer_alloc_info.commandPool        = ofb_data_.command_pool;
+        command_buffer_alloc_info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        command_buffer_alloc_info.commandBufferCount = 1;
+
+        for (uint32_t i = 0; i < image_count; ++i)
+        {
+            ofb_data_.image_datas[i].image = swapchain_images[i];
+
+            result = device_table->CreateSemaphore(
+                device, &semaphore_create_info, nullptr, &ofb_data_.acquire_semaphores[i]);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            result = device_table->CreateSemaphore(
+                device, &semaphore_create_info, nullptr, &ofb_data_.image_datas[i].copy_semaphore);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            result = device_table->AllocateCommandBuffers(
+                device, &command_buffer_alloc_info, &ofb_data_.image_datas[i].copy_command_buffer);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
+    }
+
+    // Acquire next image from the swapchain
+
+    VkSemaphore& acquire_semaphore     = ofb_data_.acquire_semaphores[ofb_data_.acquire_index];
+    uint32_t     swapchain_image_index = 0;
+
+    result = device_table->AcquireNextImageKHR(
+        device, ofb_data_.swapchain, UINT64_MAX, acquire_semaphore, VK_NULL_HANDLE, &swapchain_image_index);
+
+    auto& image_data = ofb_data_.image_datas[swapchain_image_index];
+
+    ofb_data_.acquire_index = (ofb_data_.acquire_index + 1) % ofb_data_.acquire_semaphores.size();
+
+    std::vector<VkSemaphore> submit_wait_semaphores = { acquire_semaphore };
+    if (semaphore != VK_NULL_HANDLE)
+    {
+        submit_wait_semaphores.push_back(semaphore);
+    }
+
+    // Copy frame boundary image to present image
+
+    if (!swapchain_options_.virtual_swapchain_skip_blit)
+    {
+
+        // Record command buffer for copy
+
+        result = device_table->ResetCommandBuffer(image_data.copy_command_buffer, 0);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        VkCommandBufferBeginInfo command_buffer_begin_info;
+        command_buffer_begin_info.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        command_buffer_begin_info.pNext            = nullptr;
+        command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        command_buffer_begin_info.pInheritanceInfo = nullptr;
+
+        result = device_table->BeginCommandBuffer(image_data.copy_command_buffer, &command_buffer_begin_info);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        VkImageCopy image_copy;
+        image_copy.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_copy.srcSubresource.mipLevel       = 0;
+        image_copy.srcSubresource.baseArrayLayer = 0;
+        image_copy.srcSubresource.layerCount     = 1;
+        image_copy.srcOffset.x                   = 0;
+        image_copy.srcOffset.y                   = 0;
+        image_copy.srcOffset.z                   = 0;
+        image_copy.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_copy.dstSubresource.mipLevel       = 0;
+        image_copy.dstSubresource.baseArrayLayer = 0;
+        image_copy.dstSubresource.layerCount     = 1;
+        image_copy.dstOffset.x                   = 0;
+        image_copy.dstOffset.y                   = 0;
+        image_copy.dstOffset.z                   = 0;
+        image_copy.extent                        = image_info->extent;
+
+        device_table->CmdCopyImage(image_data.copy_command_buffer,
+                                   image_info->handle,
+                                   VK_IMAGE_LAYOUT_GENERAL,
+                                   image_data.image,
+                                   VK_IMAGE_LAYOUT_GENERAL,
+                                   1,
+                                   &image_copy);
+
+        result = device_table->EndCommandBuffer(image_data.copy_command_buffer);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+
+        // Submit copy command buffer
+
+        std::vector<VkPipelineStageFlags> submit_wait_stages(submit_wait_semaphores.size(),
+                                                             VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+        VkSubmitInfo submit_info;
+        submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.pNext                = nullptr;
+        submit_info.waitSemaphoreCount   = submit_wait_semaphores.size();
+        submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
+        submit_info.pWaitDstStageMask    = submit_wait_stages.data();
+        submit_info.commandBufferCount   = 1;
+        submit_info.pCommandBuffers      = &image_data.copy_command_buffer;
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores    = &image_data.copy_semaphore;
+
+        result = device_table->QueueSubmit(ofb_data_.queue, 1, &submit_info, VK_NULL_HANDLE);
+        GFXRECON_ASSERT(result == VK_SUCCESS);
+    }
+
+    // Present image
+
+    VkPresentInfoKHR present_info;
+    present_info.sType          = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.pNext          = nullptr;
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains    = &ofb_data_.swapchain;
+    present_info.pImageIndices  = &swapchain_image_index;
+    present_info.pResults       = nullptr;
+
+    if (swapchain_options_.virtual_swapchain_skip_blit)
+    {
+        present_info.waitSemaphoreCount = submit_wait_semaphores.size();
+        present_info.pWaitSemaphores    = submit_wait_semaphores.data();
+    }
+    else
+    {
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores    = &image_data.copy_semaphore;
+    }
+
+    result = device_table->QueuePresentKHR(ofb_data_.queue, &present_info);
+
+    decode::EndInjectedCommands();
+
     return result;
 }
 
