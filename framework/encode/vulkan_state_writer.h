@@ -191,13 +191,13 @@ class VulkanStateWriter
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
-                                VkDeviceSize*           max_resource_size,
+                                VkDeviceSize*           total_staging_copy_size,
                                 VkDeviceSize*           max_staging_copy_size,
                                 bool                    write_memory_state);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
-                               VkDeviceSize*           max_resource_size,
+                               VkDeviceSize*           total_staging_copy_size,
                                VkDeviceSize*           max_staging_copy_size,
                                bool                    write_memory_state);
 

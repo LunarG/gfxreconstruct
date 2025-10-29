@@ -237,6 +237,8 @@ class MetadataJsonConsumer : public Base
         const JsonOptions& json_options = GetJsonOptions();
         auto&              jdata        = WriteMetaCommandStart("BeginResourceInitCommand");
         HandleToJson(jdata["device_id"], device_id, json_options);
+
+        // TODO: should be "total_copy_size"
         FieldToJson(jdata["max_resource_size"], max_resource_size, json_options);
         FieldToJson(jdata["max_copy_size"], max_copy_size, json_options);
         WriteBlockEnd();

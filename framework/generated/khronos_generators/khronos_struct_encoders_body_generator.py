@@ -33,6 +33,10 @@ class KhronosStructEncodersBodyGenerator():
         """Override as needed"""
         return False
 
+    def must_extended_struct_be_null(self, struct_type):
+        """Override as needed"""
+        return False
+
     def write_encoder_content(self):
         api_data = self.get_api_data()
         for struct in self.get_all_filtered_struct_names():
@@ -118,9 +122,14 @@ class KhronosStructEncodersBodyGenerator():
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if self.is_extended_struct_definition(value):
-                body += '    Encode{}Struct(encoder, {});\n'.format(
-                    api_data.extended_struct_func_prefix, prefix + value.name
-                )
+                if self.must_extended_struct_be_null(name):
+                    body += '    Encode{}StructIfValid(encoder, {});\n'.format(
+                        api_data.extended_struct_func_prefix, prefix + value.name
+                    )
+                else:
+                    body += '    Encode{}Struct(encoder, {});\n'.format(
+                        api_data.extended_struct_func_prefix, prefix + value.name
+                    )
             else:
                 method_call = self.make_encoder_method_call(
                     name, value, values, prefix
