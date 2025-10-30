@@ -67,7 +67,7 @@ Application::Application(const std::string&     name,
                          void*                  platform_specific_wsi_data) :
     name_(name),
     file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
-    cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
+    cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr), consumer_(nullptr)
 {
     if (!cli_wsi_extension_.empty())
     {
