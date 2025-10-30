@@ -12077,7 +12077,7 @@ void VulkanReplayConsumerBase::LoadPipelineCache(format::HandleId id, std::vecto
     if (error)
     {
         GFXRECON_LOG_ERROR("Could not open pipeline cache file '%s' for loading. Error: '%s'",
-                           options_.save_pipeline_cache_filename.c_str(),
+                           options_.load_pipeline_cache_filename.c_str(),
                            strerror(error));
         return;
     }
