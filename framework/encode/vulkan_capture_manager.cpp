@@ -1995,7 +1995,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
             buffer, buffer_wrapper->size, memoryOffset, buffer_wrapper->queue_family_index, data);
         if (result == VK_SUCCESS)
         {
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size);
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size, buffer_wrapper->size);
 
             GetCommandWriter()->WriteInitBufferCmd(api_family_,
                                                    device_wrapper->handle_id,
@@ -2043,7 +2043,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                                                 true);
             GFXRECON_ASSERT(resource_size == num_bytes);
 
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
             GetCommandWriter()->WriteInitImageCmd(api_family_,
                                                   device_wrapper->handle_id,
                                                   img.handle_id,

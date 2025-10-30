@@ -196,6 +196,8 @@ class DrawCallsDumpingContext
 
     void UpdateSecondaries();
 
+    void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
+
   private:
     void SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
                           VulkanImageInfo*                     depth_att_img,
@@ -235,6 +237,7 @@ class DrawCallsDumpingContext
     VulkanDumpResourcesDelegate& delegate_;
     const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
+    bool                         secondary_with_dynamic_rendering_;
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
@@ -257,7 +260,7 @@ class DrawCallsDumpingContext
         VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
     };
 
-    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts_;
+    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> rendering_attachment_layouts_;
 
   public:
     struct RenderTargets

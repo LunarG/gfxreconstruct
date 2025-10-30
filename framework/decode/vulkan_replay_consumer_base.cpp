@@ -988,11 +988,9 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 }
 
 void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                               uint64_t         max_resource_size,
+                                                               uint64_t         total_copy_size,
                                                                uint64_t         max_copy_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(max_resource_size);
-
     VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
 
     if (device_info != nullptr)
@@ -1031,8 +1029,14 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
             have_shader_stencil_write = true;
         }
 
-        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(
-            device_info, max_copy_size, properties, memory_properties, have_shader_stencil_write, allocator, table);
+        device_info->resource_initializer = std::make_shared<VulkanResourceInitializer>(device_info,
+                                                                                        total_copy_size,
+                                                                                        max_copy_size,
+                                                                                        properties,
+                                                                                        memory_properties,
+                                                                                        have_shader_stencil_write,
+                                                                                        allocator,
+                                                                                        table);
     }
 }
 
@@ -5000,7 +5004,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 GFXRECON_LOG_INFO(
                     "A new VkDescriptorPool object (handle = 0x%" PRIx64
                     ") has been created to replace a VkDescriptorPool object (ID = %" PRIu64 ", handle = 0x%" PRIx64
-                    ") that has run our of pool memory (vkAllocateDescriptorSets returned VK_ERROR_OUT_OF_POOL_MEMORY)",
+                    ") that has run out of pool memory (vkAllocateDescriptorSets returned VK_ERROR_OUT_OF_POOL_MEMORY)",
                     new_pool,
                     pool_info->capture_id,
                     pool_info->handle);

@@ -57,6 +57,7 @@ class FileProcessor;
 class BlockBuffer
 {
   public:
+    using BlockSpan = util::DataSpan::OutputSpan;
     // Validity means that it has a payload and the payload size is consistent with the block header
     bool IsValid() const
     {
@@ -91,8 +92,8 @@ class BlockBuffer
     bool ReadBytes(void* buffer, size_t buffer_size);
     bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
 
-    util::DataSpan ReadSpan(size_t buffer_size);
-    util::DataSpan ReadSpanAt(size_t buffer_size, size_t at);
+    BlockSpan ReadSpan(size_t buffer_size);
+    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
 
     size_t                     Size() const { return block_span_.size(); }
     const format::BlockHeader& Header() const { return header_; }
@@ -200,6 +201,8 @@ class FileProcessor
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    bool                      FileSupportsFrameMarkers() const { return file_supports_frame_markers_; }
+    const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     void SetPrintBlockInfoFlag(bool enable_print_block_info, int64_t block_index_from, int64_t block_index_to)
     {
@@ -296,11 +299,11 @@ class FileProcessor
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
 
-    util::DataSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
+    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
 
-    util::DataSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                 size_t       compressed_buffer_size,
-                                                 size_t       expected_uncompressed_size);
+    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
+                                                         size_t       compressed_buffer_size,
+                                                         size_t       expected_uncompressed_size);
 
     bool IsFileValid() const
     {
@@ -336,7 +339,8 @@ class FileProcessor
     util::Compressor*                   compressor_;
     uint64_t                            api_call_index_;
     uint64_t                            block_limit_;
-    bool                                capture_uses_frame_markers_;
+    bool                                capture_uses_frame_markers_{ false };
+    bool                                file_supports_frame_markers_{ false };
     uint64_t                            first_frame_;
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
@@ -344,6 +348,7 @@ class FileProcessor
     bool                                loading_trimmed_capture_state_;
 
     std::string absolute_path_;
+    format::FileHeader file_header_;
 
   protected:
     struct ActiveFileContext

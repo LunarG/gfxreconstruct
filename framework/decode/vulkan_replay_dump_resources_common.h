@@ -95,6 +95,13 @@ enum class DumpResourceType
     kDispatchTraceRaysInlineUniformBufferDescriptor,
 };
 
+enum ImageDumpResult
+{
+    kCanDump,
+    kCanNotResolve,
+    kFormatNotSupported
+};
+
 struct DumpedFile
 {
     DumpedFile() = default;
@@ -129,7 +136,9 @@ struct DumpedImage
 {
     DumpedImage() = default;
 
-    DumpedImage(const VulkanImageInfo* i_f) : image_info(i_f), scaling_failed(false), dumped_raw(false) {}
+    DumpedImage(const VulkanImageInfo* i_f, ImageDumpResult cd) :
+        image_info(i_f), scaling_failed(false), dumped_raw(false), can_dump(cd)
+    {}
 
     const VulkanImageInfo* image_info{ nullptr };
 
@@ -166,6 +175,8 @@ struct DumpedImage
         dumped_format       = other.dumped_format;
         dumped_subresources = other.dumped_subresources;
     }
+
+    ImageDumpResult can_dump;
 };
 
 struct DumpedResourceBase
@@ -296,10 +307,11 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 b,
                      uint32_t                 ai,
                      const VulkanImageInfo*   img_info,
+                     ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
         stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing image descriptors
@@ -313,10 +325,11 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 b,
                      uint32_t                 ai,
                      const VulkanImageInfo*   img_info,
+                     ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs),
         stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info)
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
@@ -386,13 +399,14 @@ struct DumpedRenderTarget : DumpedResourceBase
                        uint64_t               sp,
                        uint32_t               l,
                        bool                   before,
-                       const VulkanImageInfo* img_info) :
+                       const VulkanImageInfo* img_info,
+                       ImageDumpResult        cd) :
         DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        location(l), dumped_image(img_info)
+        location(l), dumped_image(img_info, cd)
     {
         if (before)
         {
-            dumped_image_before = DumpedImage(img_info);
+            dumped_image_before = DumpedImage(img_info, cd);
         }
     }
 
@@ -451,9 +465,9 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                                           int32_t                     vertex_offset,
                                           VkIndexType                 type);
 
-bool IsImageDumpable(const graphics::VulkanInstanceTable* instance_table,
-                     const VulkanObjectInfoTable&         object_info_table,
-                     const VulkanImageInfo*               image_info);
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
+                             VkPhysicalDevice                     phys_dev,
+                             const VulkanImageInfo*               image_info);
 
 VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
@@ -516,24 +530,51 @@ static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
     return scaled_extent;
 }
 
-static constexpr VkImageSubresourceRange
-ConvertRemainingToSpecificNumber(const VkImageSubresourceRange& subresource_range, const VulkanImageInfo* image_info)
+static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkImageSubresourceRange& subresource_range,
+                                                                     const VulkanImageInfo*         image_info)
 {
     GFXRECON_ASSERT(image_info != nullptr);
-    GFXRECON_ASSERT(image_info->level_count >= subresource_range.baseMipLevel);
-    GFXRECON_ASSERT(image_info->layer_count - subresource_range.baseArrayLayer);
 
-    const VkImageSubresourceRange modified_subresource_range = {
-        subresource_range.aspectMask,
-        subresource_range.baseMipLevel,
-        subresource_range.levelCount == VK_REMAINING_MIP_LEVELS
-            ? image_info->level_count - subresource_range.baseMipLevel
-            : subresource_range.levelCount,
-        subresource_range.baseArrayLayer,
-        subresource_range.layerCount == VK_REMAINING_ARRAY_LAYERS
-            ? image_info->layer_count - subresource_range.baseArrayLayer
-            : subresource_range.layerCount
-    };
+    VkImageSubresourceRange modified_subresource_range;
+    modified_subresource_range.aspectMask = subresource_range.aspectMask;
+
+    // Handle base mip level and count
+    if (subresource_range.baseMipLevel > image_info->level_count)
+    {
+        modified_subresource_range.baseMipLevel = 0;
+    }
+    else
+    {
+        modified_subresource_range.baseMipLevel = subresource_range.baseMipLevel;
+    }
+
+    if (subresource_range.levelCount == VK_REMAINING_MIP_LEVELS)
+    {
+        modified_subresource_range.levelCount = image_info->level_count - modified_subresource_range.baseMipLevel;
+    }
+    else
+    {
+        modified_subresource_range.levelCount = std::min(image_info->level_count, subresource_range.levelCount);
+    }
+
+    // Handle base array layer and count
+    if (subresource_range.baseArrayLayer > image_info->layer_count)
+    {
+        modified_subresource_range.baseArrayLayer = 0;
+    }
+    else
+    {
+        modified_subresource_range.baseArrayLayer = subresource_range.baseArrayLayer;
+    }
+
+    if (subresource_range.layerCount == VK_REMAINING_ARRAY_LAYERS)
+    {
+        modified_subresource_range.layerCount = image_info->layer_count - modified_subresource_range.baseArrayLayer;
+    }
+    else
+    {
+        modified_subresource_range.layerCount = std::min(image_info->layer_count, subresource_range.layerCount);
+    }
 
     return modified_subresource_range;
 }
