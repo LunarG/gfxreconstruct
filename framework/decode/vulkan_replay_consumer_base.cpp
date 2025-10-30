@@ -65,6 +65,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <functional>
 #include <numeric>
 #include <unordered_set>
 #include <future>
@@ -191,18 +192,43 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
+std::function<void(int)> cpphandler = NULL;
+extern "C"
+{
+    void signal_handler(int i);
+}
+
+void signal_handler(int i)
+{
+    cpphandler(i);
+    return;
+}
+
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const VulkanReplayOptions&                options) :
     options_(options),
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     application_(application), loading_trim_state_(false), replaying_trimmed_capture_(false), fps_info_(nullptr),
-    have_imported_semaphores_(false), omitted_pipeline_cache_data_(false)
+    have_imported_semaphores_(false), omitted_pipeline_cache_data_(false),
+    save_pipeline_caches_to_file(!options.save_pipeline_cache_filename.empty()),
+    load_pipeline_caches_from_file(!options.load_pipeline_cache_filename.empty())
 {
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
     assert(object_info_table_);
 
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
+
+    application->SetConsumer(this);
+
+    struct sigaction sigIntHandler;
+
+    cpphandler = std::bind(&VulkanReplayConsumerBase::SignalHandler, this, std::placeholders::_1);
+
+    sigIntHandler.sa_handler = signal_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
     if (!options.screenshot_ranges.empty())
     {
@@ -242,9 +268,16 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
         background_queue_.set_num_threads(std::clamp<uint32_t>(num_threads, 0, std::thread::hardware_concurrency()));
     }
 
+    // --save-pipeline-cache and --load-pipeline-cache can point to the same file. Read the pipeline caches from the
+    // file before emptying the file
+    if (load_pipeline_caches_from_file)
+    {
+        LoadPipelineCachesFromFile();
+    }
+
     // If we want to save a pipeline cache file, we do this to be sure the file exists, is empty, and optionally, is
     // cached for faster access
-    if (!options_.save_pipeline_cache_filename.empty())
+    if (save_pipeline_caches_to_file)
     {
         FILE*   file  = nullptr;
         int32_t error = util::platform::FileOpen(&file, options_.save_pipeline_cache_filename.c_str(), "w");
@@ -259,13 +292,44 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     }
 }
 
+void VulkanReplayConsumerBase::SignalHandler(int signal)
+{
+    GFXRECON_WRITE_CONSOLE("%s(signal: %d)", __func__, signal)
+    if (signal == SIGINT)
+    {
+        this->~VulkanReplayConsumerBase();
+    }
+
+    exit(1);
+}
+
+void VulkanReplayConsumerBase::SavePipelineCachesToFile()
+{
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("tracked_pipeline_caches_.size: %zu", tracked_pipeline_caches_.size())
+
+    for (const auto& [handle_id, cache] : tracked_pipeline_caches_)
+    {
+        SavePipelineCache(handle_id, cache.device_info, cache.vk_cache);
+    }
+
+    tracked_pipeline_caches_.clear();
+}
+
+void VulkanReplayConsumerBase::Terminate()
+{
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("tracked_pipeline_caches_.size: %zu", tracked_pipeline_caches_.size())
+
+    SavePipelineCachesToFile();
+}
+
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 {
-    for (const auto& [handle_id, cache_pair] : tracked_pipeline_caches_)
-    {
-        const auto& [device_info, pipeline_cache] = cache_pair;
-        SavePipelineCache(handle_id, device_info, pipeline_cache);
-    }
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("tracked_pipeline_caches_.size: %zu", tracked_pipeline_caches_.size())
+
+    SavePipelineCachesToFile();
 
     // Idle all devices before destroying other resources.
     WaitDevicesIdle();
@@ -7067,15 +7131,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         override_create_info.initialDataSize = 0;
         override_create_info.pInitialData    = nullptr;
     }
-    else if (!options_.load_pipeline_cache_filename.empty())
+    else if (load_pipeline_caches_from_file)
     {
-        // If pipeline cache must be loaded from file
-        LoadPipelineCache(*pPipelineCache->GetPointer(), override_cache_data);
-
-        if (!override_cache_data.empty())
+        const auto ppl_cache_entry = tracked_pipeline_caches_.find(*pPipelineCache->GetPointer());
+        if (ppl_cache_entry != tracked_pipeline_caches_.end() && !ppl_cache_entry->second.cache_data.empty())
         {
-            override_create_info.initialDataSize = override_cache_data.size();
-            override_create_info.pInitialData    = override_cache_data.data();
+            override_create_info.initialDataSize = ppl_cache_entry->second.cache_data.size();
+            override_create_info.pInitialData    = ppl_cache_entry->second.cache_data.data();
         }
         else
         {
@@ -7084,6 +7146,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             // previous run and feeding it to create the next cache with more data until everything is built.
             override_create_info.initialDataSize = 0;
             override_create_info.pInitialData    = nullptr;
+            tracked_pipeline_caches_.emplace(std::piecewise_construct,
+                                             std::forward_as_tuple(*pPipelineCache->GetPointer()),
+                                             std::forward_as_tuple());
         }
     }
     else if ((override_create_info.pInitialData != nullptr) && (override_create_info.initialDataSize != 0))
@@ -7155,11 +7220,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
                            GetAllocationCallbacks(pAllocator),
                            pPipelineCache->GetHandlePointer());
 
-    // If we are creating a pipeline cache file, add this pipeline cache to the tracked list
-    if (!options_.save_pipeline_cache_filename.empty())
+    if (load_pipeline_caches_from_file)
     {
-        tracked_pipeline_caches_.emplace(*pPipelineCache->GetPointer(),
-                                         std::make_pair(device_info, *pPipelineCache->GetHandlePointer()));
+        auto ppl_cache_entry                = tracked_pipeline_caches_.find(*pPipelineCache->GetPointer());
+        ppl_cache_entry->second.vk_cache    = *(pPipelineCache->GetHandlePointer());
+        ppl_cache_entry->second.device_info = device_info;
+    }
+
+    // If we are creating a pipeline cache file, add this pipeline cache to the tracked list
+    if (save_pipeline_caches_to_file && result == VK_SUCCESS &&
+        (tracked_pipeline_caches_.find(*pPipelineCache->GetPointer()) == tracked_pipeline_caches_.end()))
+    {
+        tracked_pipeline_caches_.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(*pPipelineCache->GetPointer()),
+            std::forward_as_tuple(TrackedPipelineCache{ device_info, *pPipelineCache->GetHandlePointer() }));
     }
 
     // keep track if external synchronization is required
@@ -7185,9 +7260,11 @@ void VulkanReplayConsumerBase::OverrideDestroyPipelineCache(
     }
 
     // If pipeline cache must be saved to a file
-    if (!options_.save_pipeline_cache_filename.empty())
+    if (save_pipeline_caches_to_file)
     {
         SavePipelineCache(pipeline_cache_info->capture_id, device_info, pipeline_cache_info->handle);
+        GFXRECON_ASSERT(tracked_pipeline_caches_.find(pipeline_cache_info->capture_id) !=
+                        tracked_pipeline_caches_.end());
         tracked_pipeline_caches_.erase(tracked_pipeline_caches_.find(pipeline_cache_info->capture_id));
     }
 
@@ -11570,13 +11647,15 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
             if (!sameIdFound)
             {
                 auto itTracked = tracked_pipeline_caches_.find(id);
+                GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
 
-                if (!options_.save_pipeline_cache_filename.empty())
+                if (save_pipeline_caches_to_file)
                 {
-                    SavePipelineCache(id, itTracked->second.first, itTracked->second.second);
+                    SavePipelineCache(id, itTracked->second.device_info, itTracked->second.vk_cache);
                 }
                 auto device_table = GetDeviceTable(device_info->handle);
-                device_table->DestroyPipelineCache(itTracked->second.first->handle, itTracked->second.second, nullptr);
+                device_table->DestroyPipelineCache(
+                    itTracked->second.device_info->handle, itTracked->second.vk_cache, nullptr);
                 tracked_pipeline_caches_.erase(itTracked);
             }
         }
@@ -12070,7 +12149,7 @@ bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*   
     return true;
 }
 
-void VulkanReplayConsumerBase::LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData)
+void VulkanReplayConsumerBase::LoadPipelineCachesFromFile()
 {
     FILE*   file  = nullptr;
     int32_t error = util::platform::FileOpen(&file, options_.load_pipeline_cache_filename.c_str(), "r");
@@ -12090,34 +12169,26 @@ void VulkanReplayConsumerBase::LoadPipelineCache(format::HandleId id, std::vecto
     {
         if (util::platform::FileRead(&cacheSizeRead, sizeof(uint64_t), file) != 1)
         {
-            GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
+            GFXRECON_LOG_WARNING("Pipeline cache file corrupted.");
             util::platform::FileClose(file);
             return;
         }
 
-        if (id == idRead)
-        {
-            pipelineCacheData.resize(cacheSizeRead);
-            if (util::platform::FileRead(pipelineCacheData.data(), cacheSizeRead, file) != 1)
-            {
-                pipelineCacheData.clear();
-                GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
-            }
+        auto new_entry = tracked_pipeline_caches_.emplace(
+            std::piecewise_construct, std::forward_as_tuple(idRead), std::forward_as_tuple());
+        // We expect one entry for each cache
+        GFXRECON_ASSERT(new_entry.second);
 
+        new_entry.first->second.cache_data.resize(cacheSizeRead);
+        if (util::platform::FileRead(new_entry.first->second.cache_data.data(), cacheSizeRead, file) != 1)
+        {
+            new_entry.first->second.cache_data.clear();
+            GFXRECON_LOG_WARNING("Pipeline cache file corrupted.");
             util::platform::FileClose(file);
             return;
-        }
-        else
-        {
-            if (!util::platform::FileSeek(file, static_cast<int64_t>(cacheSizeRead), util::platform::FileSeekCurrent))
-            {
-                GFXRECON_LOG_FATAL("Pipeline cache file corrupted.");
-                util::platform::FileClose(file);
-                return;
-            }
         }
     }
-    GFXRECON_LOG_ERROR("Pipeline cache file entry not found: %u", id);
+
     util::platform::FileClose(file);
 }
 
@@ -12167,10 +12238,10 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
     pipelineCacheCreateInfo.pInitialData    = nullptr;
 
     std::vector<uint8_t> pipelineCacheData;
-    if (!options_.load_pipeline_cache_filename.empty())
+    if (load_pipeline_caches_from_file)
     {
-        LoadPipelineCache(id, pipelineCacheData);
-        if (!pipelineCacheData.empty())
+        auto cache_entry = tracked_pipeline_caches_.find(id);
+        if (cache_entry != tracked_pipeline_caches_.end() && !pipelineCacheData.empty())
         {
             pipelineCacheCreateInfo.initialDataSize = pipelineCacheData.size();
             pipelineCacheCreateInfo.pInitialData    = pipelineCacheData.data();
@@ -12210,7 +12281,9 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
                                                      VkPipeline*             pipelines,
                                                      uint32_t                pipelineCount)
 {
-    tracked_pipeline_caches_.emplace(id, std::make_pair(device_info, pipelineCache));
+    tracked_pipeline_caches_.emplace(std::piecewise_construct,
+                                     std::forward_as_tuple(id),
+                                     std::forward_as_tuple(TrackedPipelineCache{ device_info, pipelineCache }));
     for (uint32_t i = 0; i < pipelineCount; ++i)
     {
         pipeline_cache_correspondances_.emplace(pipelines[i], id);

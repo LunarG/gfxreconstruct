@@ -339,6 +339,30 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
                 application->SetPaused(true);
                 break;
             }
+            case APP_CMD_STOP:
+            {
+                GFXRECON_LOG_INFO("Application has received APP_CMD_STOP")
+                application->Terminate();
+                break;
+            }
+            case APP_CMD_PAUSE:
+            {
+                GFXRECON_LOG_INFO("Application has received APP_CMD_PAUSE")
+                application->Terminate();
+                break;
+            }
+            case APP_CMD_TERM_WINDOW:
+            {
+                GFXRECON_LOG_INFO("Application has received APP_CMD_TERM_WINDOW")
+                application->Terminate();
+                break;
+            }
+            case APP_CMD_DESTROY:
+            {
+                GFXRECON_LOG_INFO("Application has received APP_CMD_DESTROY")
+                application->Terminate();
+                break;
+            }
         }
     }
 }
