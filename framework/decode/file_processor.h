@@ -119,7 +119,7 @@ class BlockBuffer
     // Validity means that it has a payload and the payload size is consistent with the block header
     bool IsValid() const
     {
-        return (block_span_.data() != nullptr) && (block_span_.Size() == (header_.size + sizeof(format::BlockHeader)));
+        return (block_span_.data() != nullptr) && (block_span_.size() == (header_.size + sizeof(format::BlockHeader)));
     }
     bool IsEof() const { return read_pos_ >= block_span_.size(); }
 
@@ -232,20 +232,22 @@ class ParsedBlock
   public:
     enum BlockState
     {
-        kInvalid = 0,       // Set on read error (typically block size doesn't match expected parsed size)
-        kUnknown,           // Set when block is of an unknown type (no parsing done beyond header)
-        kReady,             // Set when block is decompressed, or doesn't need to be
-        kDelayedDecompress, // Set when block type is compressed, but decompression was suppressed
-        kSkip,              // Set when block should be skipped
+        kInvalid = 0,        // Set on read error (typically block size doesn't match expected parsed size)
+        kUnknown,            // Set when block is of an unknown type (no parsing done beyond header)
+        kReady,              // Set when block is decompressed, or doesn't need to be
+        kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
+        kSkip,               // Set when block should be skipped
     };
+
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
     using UncompressedStore = PoolEntry;
 
     bool                  IsValid() const { return state_ != BlockState::kInvalid; }
     bool                  IsReady() const { return state_ == BlockState::kReady; }
+    bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
     bool                  IsUnknown() const { return state_ == BlockState::kUnknown; }
     bool                  IsSkip() const { return state_ == BlockState::kSkip; }
-    bool                  NeedsDecompression() const { return state_ == BlockState::kDelayedDecompress; }
+    bool                  NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
     BlockState            GetState() const { return state_; }
     const util::DataSpan& GetBlockData() const { return block_data_; }
     const DispatchArgs&   GetArgs() const { return dispatch_args_; }
@@ -274,22 +276,68 @@ class ParsedBlock
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(BlockState::kReady)
     {}
 
-    void Decompress(BlockParser& parser); // Modify in place by reparsing
+    // This is called for for when blocks are parsed with deferred decompression
+    template <typename ArgPayload>
+    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, bool is_compressed) :
+        block_data_(std::move(block_data)), uncompressed_store_(),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))),
+        state_(is_compressed ? BlockState::kDeferredDecompress : BlockState::kReady)
+    {}
 
     template <typename Visitor>
-    void Visit(Visitor& visitor) const
+    void Visit(Visitor& visitor)
     {
         if (state_ != BlockState::kSkip)
         {
-            GFXRECON_ASSERT((state_ == BlockState::kReady) || (state_ == BlockState::kDelayedDecompress));
+            GFXRECON_ASSERT((state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress));
             auto visit_call = [this, &visitor](auto&& args) { visitor.Visit(*this, *args); };
             std::visit(visit_call, dispatch_args_);
         }
     }
 
+    template <typename Args>
+    BlockBuffer::BlockSpan GetCompressedSpan(Args& args)
+    {
+        if constexpr (DispatchTraits<Args>::kHasData)
+        {
+            // The data field for a deferred decompresion points to the start of the compressed block
+            GFXRECON_ASSERT(state_ == kDeferredDecompress);
+            GFXRECON_ASSERT(!block_data_.empty());
+            // Assure that the data pointer is within block_data span (part 1)
+            GFXRECON_ASSERT(args.data >= block_data_.GetDataAs<uint8_t>());
+            const size_t offset = args.data - block_data_.GetDataAs<uint8_t>();
+
+            // Assure that the data pointer is within block_data span (part 2)
+            GFXRECON_ASSERT(offset <= block_data_.size());
+            return block_data_.AsSpan(offset);
+        }
+        return BlockBuffer::BlockSpan();
+    }
+
+    template <typename Args>
+    static BlockBuffer::BlockSpan::size_type GetUncompressedSize(Args& args)
+    {
+        if constexpr (DispatchTraits<Args>::kHasDataSize)
+        {
+            return args.data_size;
+        }
+        else if constexpr (DispatchTraits<Args>::kHasCommandHeader)
+        {
+            return args.command_header.data_size;
+        }
+        return 0;
+    }
+
+    void UpdateUncompressedStore(UncompressedStore&& from_store)
+    {
+        GFXRECON_ASSERT(state_ == kDeferredDecompress);
+        state_              = kReady;
+        uncompressed_store_ = std::move(from_store);
+    }
+
   private:
     template <typename ArgPayload>
-    DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
+    static DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
     {
         using Args     = util::RemoveCvRef_t<ArgPayload>;
         using ArgStore = DispatchStore<Args>;
@@ -320,6 +368,18 @@ using BufferPool = util::HeapBufferPool::PoolPtr;
 class BlockParser
 {
   public:
+    enum DecompressionPolicy
+    {
+        kAlways = 0,     // Always decompress parameter data when parsing blocks
+        kNever,          // Never decompress parameter data when parsing blocks
+        kQueueOptimized, // Decompress only "small" blocks deferring large block to JIT decompression, suitable for
+                         // block preload/preparsed content
+    };
+
+    // The threshold is based on a trade off, maximize the number blocks with no decompression at replay
+    // but minimizing the memory overhead of the non-deferred compressions.
+    static constexpr size_t kSmallThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
+
     using UncompressedStore = ParsedBlock::UncompressedStore;
 
     void SetFrameNumber(uint64_t frame_number) noexcept { frame_number_ = frame_number; }
@@ -340,12 +400,8 @@ class BlockParser
     ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
     ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
 
-    void                   HandleBlockReadError(BlockReadError error_code, const char* error_message);
-    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer&       block_buffer,
-                                                         size_t             compressed_size,
-                                                         size_t             expanded_size,
-                                                         UncompressedStore& out_store);
-    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
+    void                           HandleBlockReadError(BlockReadError error_code, const char* error_message);
+    ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
 
     // TODO: Replace with actual ErrorHandler s.t. FileTransformer can use the BlockParser
     using ErrorHandler = FileProcessor;
@@ -353,10 +409,50 @@ class BlockParser
         pool_(pool), err_handler_(err), compressor_(compressor)
     {}
 
+    void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
+    DecompressionPolicy GetDecompressionPolicy() const { return decompression_policy_; }
+
+    class DecompressionVisitor
+    {
+      public:
+        template <typename Args>
+        void Visit(ParsedBlock& parsed_block, Args& args)
+        {
+            // Shouldn't call this unless we know it's needed
+            // Also, not safe if it isn't needed...
+            GFXRECON_ASSERT(parsed_block.NeedsDecompression());
+            if constexpr (DispatchTraits<Args>::kHasData)
+            {
+                auto compressed_span     = parsed_block.GetCompressedSpan(args);
+                auto uncompressed_size   = ParsedBlock::GetUncompressedSize(args);
+                auto uncompressed_buffer = parser_.DecompressSpan(compressed_span, uncompressed_size);
+                // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
+                args.data = uncompressed_buffer.template GetAs<const uint8_t>();
+                parsed_block.UpdateUncompressedStore(std::move(uncompressed_buffer));
+            }
+        }
+        DecompressionVisitor(BlockParser& parser) : parser_(parser) {}
+
+      private:
+        BlockParser& parser_;
+    };
+
   private:
-    BufferPool        pool_; // TODO: Get a better pool, and share with FileInputStream
-    ErrorHandler&     err_handler_;
-    util::Compressor* compressor_;
+    struct ParameterReadResult
+    {
+        bool                   success           = true;
+        bool                   is_compressed     = false;
+        size_t                 uncompressed_size = 0;
+        BlockBuffer::BlockSpan buffer;
+    };
+    constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
+    ParameterReadResult
+    ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
+    bool                DecompressWhenParsed(const ParsedBlock& parsed_block);
+    BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
+    ErrorHandler&       err_handler_;
+    util::Compressor*   compressor_           = nullptr;
+    DecompressionPolicy decompression_policy_ = DecompressionPolicy::kAlways;
 
     uint64_t frame_number_ = 0;
     uint64_t block_index_  = 0;
@@ -517,8 +613,12 @@ class FileProcessor
     {
       public:
         template <typename Args>
-        void Visit(const ParsedBlock& parsed_block, const Args& args)
+        void Visit(ParsedBlock& parsed_block, const Args& args)
         {
+            if (parsed_block.NeedsDecompression())
+            {
+                parsed_block.Visit(decompressor_);
+            }
             constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
             for (auto decoder : decoders_)
             {
@@ -533,7 +633,7 @@ class FileProcessor
                 }
             }
         }
-        void Visit(const ParsedBlock& parsed_block, const AnnotationArgs& annotation)
+        void Visit(ParsedBlock& parsed_block, const AnnotationArgs& annotation)
         {
             if (annotation_handler_)
             {
@@ -543,13 +643,17 @@ class FileProcessor
                 std::apply(annotation_call, annotation.GetTuple());
             }
         }
-        DispatchVisitor(const std::vector<ApiDecoder*>& decoders, AnnotationHandler* annotation_handler) :
-            decoders_(decoders), annotation_handler_(annotation_handler)
+        DispatchVisitor(BlockParser&                    parser,
+                        const std::vector<ApiDecoder*>& decoders,
+                        AnnotationHandler*              annotation_handler) :
+            decoders_(decoders),
+            annotation_handler_(annotation_handler), decompressor_(parser)
         {}
 
       private:
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
+        BlockParser::DecompressionVisitor decompressor_;
     };
 
     class ProcessVisitor
@@ -634,12 +738,6 @@ class FileProcessor
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
-
-    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
-
-    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                         size_t       compressed_buffer_size,
-                                                         size_t       expected_uncompressed_size);
 
     bool IsFileValid() const
     {
