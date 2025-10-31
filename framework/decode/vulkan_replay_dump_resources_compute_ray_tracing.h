@@ -461,8 +461,8 @@ class DispatchTraceRaysDumpingContext
     // multiple times
     struct DumpedDescriptors
     {
-        std::unordered_map<const VulkanImageInfo*, const DumpedImage&>   image_descriptors;
-        std::unordered_map<const VulkanBufferInfo*, const DumpedBuffer&> buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedImage&>  image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&> buffer_descriptors;
     };
 
     DumpedDescriptors dispatch_dumped_descriptors_;

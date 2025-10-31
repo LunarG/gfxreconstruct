@@ -688,8 +688,8 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::unordered_map<const VulkanImageInfo*, const DumpedImage&>   image_descriptors;
-        std::unordered_map<const VulkanBufferInfo*, const DumpedBuffer&> buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedImage&>  image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&> buffer_descriptors;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
