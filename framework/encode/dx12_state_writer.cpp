@@ -801,8 +801,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
                     format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitializeMetaCommand);
                 init_meta_command.thread_id  = thread_id_;
                 init_meta_command.capture_id = wrapper->GetCaptureId();
-                init_meta_command.initialization_parameters_data_size =
-                    wrapper_info->initialize_parameters->GetDataSize();
+                init_meta_command.data_size  = wrapper_info->initialize_parameters->GetDataSize();
                 init_meta_command.total_number_of_initializemetacommand = metacommand_wrappers.size();
                 init_meta_command.block_index                           = ++block_index;
 
