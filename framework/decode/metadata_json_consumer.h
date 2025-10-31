@@ -224,9 +224,7 @@ class MetadataJsonConsumer : public Base
         const util::JsonOptions& json_options = GetJsonOptions();
         auto&                    jdata        = WriteMetaCommandStart("InitializeMetaCommand");
         HandleToJson(jdata["MetaCommand_id"], command_header.capture_id, json_options);
-        FieldToJson(jdata["InitializationParametersDataSizeInBytes"],
-                    command_header.initialization_parameters_data_size,
-                    json_options);
+        FieldToJson(jdata["InitializationParametersDataSizeInBytes"], command_header.data_size, json_options);
         WriteBlockEnd();
     }
 
