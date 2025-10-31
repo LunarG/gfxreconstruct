@@ -1346,9 +1346,10 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 continue;
                             }
 
-                            auto&      new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
-                            const auto dumped_desc_entry =
-                                render_pass_dumped_descriptors_[rp].image_descriptors.find(image_info);
+                            auto& new_dumped_image       = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+                            const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
+                            const auto               dumped_desc_entry =
+                                render_pass_dumped_descriptors_[rp].image_descriptors.find(loc);
                             if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].image_descriptors.end())
                             {
                                 VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1391,8 +1392,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                                 delegate_.DumpResource(res_info);
 
-                                render_pass_dumped_descriptors_[rp].image_descriptors.emplace(image_info,
-                                                                                              new_dumped_image);
+                                render_pass_dumped_descriptors_[rp].image_descriptors.emplace(loc, new_dumped_image);
                             }
                             else
                             {
@@ -1444,8 +1444,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             size,
                             DumpResourcesCommandType::kGraphics);
 
-                        const auto& dumped_desc_entry =
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info);
+                        const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
+                        const auto&              dumped_desc_entry =
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.find(loc);
                         if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end())
                         {
                             const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1473,8 +1474,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                             delegate_.DumpResource(res_info);
 
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(buffer_info,
-                                                                                           new_dumped_buffer);
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(loc, new_dumped_buffer);
                         }
                         else
                         {
@@ -1526,8 +1526,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             size,
                             DumpResourcesCommandType::kGraphics);
 
-                        const auto& dumped_desc_entry =
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.find(buffer_info);
+                        const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
+                        const auto&              dumped_desc_entry =
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.find(loc);
                         if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end())
                         {
                             const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1555,8 +1556,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                             delegate_.DumpResource(res_info);
 
-                            render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(buffer_info,
-                                                                                           new_dumped_buffer);
+                            render_pass_dumped_descriptors_[rp].buffer_descriptors.emplace(loc, new_dumped_buffer);
                         }
                         else
                         {

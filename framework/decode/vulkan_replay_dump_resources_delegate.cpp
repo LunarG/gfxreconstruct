@@ -555,7 +555,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(con
 
     filename << capture_filename_ << "_"
              << "buffer_" << buffer_info->capture_id << "_qs_" << dumped_desc.qs_index << "_bcb_"
-             << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << ".bin";
+             << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_" << dumped_desc.set << "_binding_"
+             << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -571,8 +572,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBuf
 
     std::stringstream filename;
     filename << capture_filename_ << "_"
-             << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+             << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
+             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+             << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1139,8 +1141,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferD
     GFXRECON_ASSERT(buffer_info != nullptr);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_buffer_" << buffer_info->capture_id << "_qs_" << buffer_desc_info.qs_index
-             << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+    filename << capture_filename_ << "_buffer_" << buffer_info->capture_id << "_set_" << buffer_desc_info.set
+             << "_binding_" << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_qs_"
+             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1156,8 +1159,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
 
     std::stringstream filename;
     filename << capture_filename_ << '_' << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_"
-             << buffer_desc_info.binding << "_qs_" << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index
-             << ".bin";
+             << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_qs_"
+             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
