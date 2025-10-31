@@ -37,6 +37,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -411,6 +412,8 @@ bool FileProcessor::ProcessBlocks()
     bool                success = true;
 
     BlockParser block_parser(*this, pool_, compressor_);
+    // NOTE: To test deferred decompression operation uncomment next line
+    // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 
     while (success)
     {
@@ -442,16 +445,16 @@ bool FileProcessor::ProcessBlocks()
                     ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
 
                     ProcessVisitor process_visitor(*this);
-                    // NOTE: We don't support delayed decompression in these visitors at this point,
-                    //       but the IsReady condition should be updated when support is added for
-                    //       deferred decomprssion
-                    if (parsed_block.IsReady())
+
+                    // NOTE: Visitable is either Ready or DeferredDecompression,
+                    //       Invalid, Unknown, and Skip are not Visitable
+                    if (parsed_block.IsVisitable())
                     {
                         parsed_block.Visit(process_visitor);
                         success = process_visitor.IsSuccess();
                         if (success)
                         {
-                            DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
+                            DispatchVisitor dispatch_visitor(block_parser, decoders_, annotation_handler_);
                             parsed_block.Visit(dispatch_visitor);
                         }
                     }
@@ -578,77 +581,43 @@ bool FileProcessor::PeekBlockHeader(format::BlockHeader* block_header)
     return success;
 }
 
-BlockBuffer::BlockSpan FileProcessor::ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size)
-{
-    return block_buffer.ReadSpan(buffer_size);
-}
-
-BlockBuffer::BlockSpan FileProcessor::ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                                    size_t       compressed_buffer_size,
-                                                                    size_t       expected_uncompressed_size)
-{
-    // This should only be null if initialization failed.
-    GFXRECON_ASSERT(compressor_ != nullptr);
-
-    BlockBuffer::BlockSpan compressed_span = block_buffer.ReadSpan(compressed_buffer_size);
-    if (!compressed_span.empty())
-    {
-        // Resize the buffer
-        if (uncompressed_buffer_.size() < expected_uncompressed_size)
-        {
-            uncompressed_buffer_.resize(expected_uncompressed_size);
-        }
-
-        size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
-                                                           reinterpret_cast<const uint8_t*>(compressed_span.data()),
-                                                           expected_uncompressed_size,
-                                                           uncompressed_buffer_.data());
-        if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
-        {
-            return BlockBuffer::BlockSpan(reinterpret_cast<const std::byte*>(uncompressed_buffer_.data()),
-                                          uncompressed_size);
-        }
-    }
-    return BlockBuffer::BlockSpan();
-}
-
 void BlockParser::HandleBlockReadError(BlockReadError error_code, const char* error_message)
 {
     err_handler_.HandleBlockReadError(error_code, error_message);
 }
 
-BlockBuffer::BlockSpan BlockParser::ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size)
+bool BlockParser::DecompressWhenParsed(const ParsedBlock& parsed_block)
 {
-    return block_buffer.ReadSpan(buffer_size);
+    switch (decompression_policy_)
+    {
+        case kAlways:
+            return parsed_block.NeedsDecompression();
+        case kNever:
+            return false;
+        case kQueueOptimized:
+            return parsed_block.NeedsDecompression() && parsed_block.GetBlockData().size() <= kSmallThreshold;
+        default:
+            break;
+    }
+    // always Decompressing when needed is safest
+    return parsed_block.NeedsDecompression();
 }
 
-BlockBuffer::BlockSpan BlockParser::ReadCompressedParameterBuffer(BlockBuffer&       block_buffer,
-                                                                  size_t             compressed_buffer_size,
-                                                                  size_t             expanded_size,
-                                                                  UncompressedStore& uncompressed_store)
+ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
+                                                           size_t                        expanded_size)
 {
-    // This should only be null if initialization failed.
-    GFXRECON_ASSERT(compressor_ != nullptr);
-
-    BlockBuffer::BlockSpan compressed_span = block_buffer.ReadSpan(compressed_buffer_size);
     if (!compressed_span.empty())
     {
-        // Resize the buffer
-        auto uncompressed_buffer = pool_->Acquire(expanded_size);
-
-        size_t uncompressed_size = compressor_->Decompress(compressed_buffer_size,
+        auto   uncompressed_buffer = pool_->Acquire(expanded_size);
+        size_t uncompressed_size   = compressor_->Decompress(compressed_span.size(),
                                                            reinterpret_cast<const uint8_t*>(compressed_span.data()),
                                                            expanded_size,
                                                            uncompressed_buffer.GetAs<uint8_t>());
-        if ((0 < uncompressed_size) && (uncompressed_size == expanded_size))
-        {
-            uncompressed_store = std::move(uncompressed_buffer);
-            return BlockBuffer::BlockSpan(uncompressed_store.data(), uncompressed_size);
-        }
+        return uncompressed_buffer;
     }
-    // need to export the owning pool entry too...
-    return BlockBuffer::BlockSpan();
+    return ParsedBlock::UncompressedStore();
 }
+
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
     // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
@@ -860,7 +829,7 @@ void FileProcessor::ProcessAnnotation(const AnnotationArgs& annotation)
         annotation.label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
     {
         // This is an operations annotation containing the version of the capture tool.
-        format::GfxrVersion version = format::ParseVersionFromOperations(annotation.data.c_str());
+        format::GfxrVersion version = format::ParseVersionFromOperations(annotation.annotation_data.c_str());
         if (version.SupportsFrameMarkers())
         {
             GFXRECON_ASSERT(current_frame_number_ == kFirstFrame);
@@ -876,25 +845,107 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
     const format::BlockHeader& block_header = block_buffer.Header();
     format::BlockType          base_type    = format::RemoveCompressedBlockBit(block_header.type);
-
+    ParsedBlock parsed_block = ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kUnknown);
     switch (base_type)
     {
         case format::kFunctionCallBlock:
-            return ParseFunctionCall(block_buffer);
+            parsed_block = ParseFunctionCall(block_buffer);
+            break;
         case format::kMethodCallBlock:
-            return ParseMethodCall(block_buffer);
+            parsed_block = ParseMethodCall(block_buffer);
+            break;
         case format::kMetaDataBlock:
-            return ParseMetaData(block_buffer);
+            parsed_block = ParseMetaData(block_buffer);
+            break;
         case format::kFrameMarkerBlock:
-            return ParseFrameMarker(block_buffer);
+            parsed_block = ParseFrameMarker(block_buffer);
+            break;
         case format::kStateMarkerBlock:
-            return ParseStateMarker(block_buffer);
+            parsed_block = ParseStateMarker(block_buffer);
+            break;
         case format::kAnnotation:
-            return ParseAnnotation(block_buffer);
+            parsed_block = ParseAnnotation(block_buffer);
+            break;
         case format::kUnknownBlock:
+            break;
         default:
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kUnknown);
+            break;
     }
+
+    // Support various Decompression policies, also checks if decompression is needed
+    if (DecompressWhenParsed(parsed_block))
+    {
+        GFXRECON_ASSERT(format::IsBlockCompressed(block_buffer.Header().type));
+        DecompressionVisitor decompressor(*this);
+        parsed_block.Visit(decompressor);
+    }
+
+    return parsed_block;
+}
+
+// The parameter buffer always takes up the end of the block
+// Default value for uncompressed_size is kReadSizeFromBuffer -- which is the behavior of Function and method call
+BlockParser::ParameterReadResult
+BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size)
+{
+    ParameterReadResult result; // result.success initializes to true;
+
+    auto error_string = [&result, label](const char* tag) {
+        std::stringstream err;
+        err << "Failed to read ";
+        if (result.is_compressed)
+        {
+            err << "compressed ";
+        }
+        err << std::string(label);
+        if (tag)
+        {
+            err << " " << tag;
+        }
+        return err;
+    };
+
+    result.is_compressed = format::IsBlockCompressed(block_buffer.Header().type);
+    if (result.is_compressed)
+    {
+        // The data size is encoded just ahead of the compressed buffer
+        if (kReadSizeFromBuffer == uncompressed_size)
+        {
+            result.success = block_buffer.Read(uncompressed_size);
+        }
+
+        // For passed in uncompressed sizes this is always true, but it centralized the conversion loss path
+        if (result.success)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+            result.uncompressed_size = static_cast<size_t>(uncompressed_size);
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingCompressedBlockHeader, error_string("size").str().c_str());
+            result.success = false;
+        }
+    }
+    else
+    {
+        // For uncompressed blocks the data size is the parameter buffer size
+        result.uncompressed_size = block_buffer.Remainder();
+    }
+
+    if (result.success)
+    {
+        const size_t buffer_size = block_buffer.Remainder();
+        result.buffer            = block_buffer.ReadSpan(buffer_size);
+        result.success           = result.buffer.size() == buffer_size; // To correctly handle correctly empty buffers
+
+        if (!result.success)
+        {
+            const BlockReadError error_code =
+                result.is_compressed ? kErrorReadingCompressedBlockData : kErrorReadingBlockData;
+            HandleBlockReadError(error_code, error_string("data").str().c_str());
+        }
+    }
+    return result;
 }
 
 ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
@@ -904,74 +955,24 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
     const format::BlockHeader& block_header = block_buffer.Header();
     format::ApiCallId          api_call_id  = format::ApiCallId::ApiCall_Unknown;
 
-    uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info{ GetBlockIndex() };
 
     bool success = block_buffer.Read(api_call_id);
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-    size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(api_call_id);
-    success                      = success && block_buffer.Read(call_info.thread_id);
+    success = success && block_buffer.Read(call_info.thread_id);
 
     if (success)
     {
-        parameter_buffer_size -= sizeof(call_info.thread_id);
+        const char*         label       = "function call block";
+        ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer);
 
-        BlockBuffer::BlockSpan parameter_data;
-
-        // Optional backing store for uncompressed parameter_data, moved to ParsedBlock
-        UncompressedStore uncompressed_store;
-
-        if (format::IsBlockCompressed(block_header.type))
-        {
-            parameter_buffer_size -= sizeof(uncompressed_size);
-            success = block_buffer.Read(uncompressed_size);
-
-            if (success)
-            {
-                // NOTE: Given this is true, we can stop tracking parameter_buffer_size independently from
-                // BlockBuffer::Remainder.
-                GFXRECON_ASSERT(block_buffer.Remainder() == parameter_buffer_size);
-
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
-                const size_t data_size = static_cast<size_t>(uncompressed_size);
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, parameter_buffer_size, data_size, uncompressed_store);
-                success = parameter_data.size() == data_size;
-
-                if (success)
-                {
-                    assert(parameter_data.size() == data_size);
-                    parameter_buffer_size = data_size;
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read compressed function call block data");
-                }
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
-                                     "Failed to read compressed function call block header");
-            }
-        }
-        else
-        {
-            parameter_data = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-            success        = parameter_data.size() == parameter_buffer_size;
-
-            if (!success)
-            {
-                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
-            }
-        }
-
-        if (success)
+        if (read_result.success)
         {
             return ParsedBlock(
                 block_buffer.ReleaseData(),
-                FunctionCallArgs{ api_call_id, call_info, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
-                std::move(uncompressed_store));
+                FunctionCallArgs{
+                    api_call_id, call_info, read_result.buffer.GetDataAs<uint8_t>(), read_result.uncompressed_size },
+                read_result.is_compressed);
         }
     }
     else
@@ -990,9 +991,7 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
     format::ApiCallId          call_id      = format::ApiCallId::ApiCall_Unknown;
     bool                       success      = block_buffer.Read(call_id);
 
-    size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
-    uint64_t         uncompressed_size     = 0;
-    format::HandleId object_id             = 0;
+    format::HandleId object_id = 0;
     ApiCallInfo      call_info{ GetBlockIndex() };
 
     success = success && block_buffer.Read(object_id);
@@ -1000,65 +999,22 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
 
     if (success)
     {
-        parameter_buffer_size -= (sizeof(object_id) + sizeof(call_info.thread_id));
-
-        // Optional backing store for uncompressed parameter_data, moved to ParsedBlock
-        UncompressedStore uncompressed_store;
-
-        BlockBuffer::BlockSpan parameter_data;
-        if (format::IsBlockCompressed(block_header.type))
+        const char*         label       = "method call block";
+        ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer);
+        if (read_result.success)
         {
-            parameter_buffer_size -= sizeof(uncompressed_size);
-            success = block_buffer.Read(uncompressed_size);
-
-            if (success)
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
-                const size_t data_size = static_cast<size_t>(uncompressed_size);
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, parameter_buffer_size, data_size, uncompressed_store);
-                success = parameter_data.size() == data_size;
-
-                if (success)
-                {
-                    assert(parameter_data.size() == uncompressed_size);
-                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read compressed function call block data");
-                }
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
-                                     "Failed to read compressed function call block header");
-            }
-        }
-        else
-        {
-            parameter_data = ReadParameterBuffer(block_buffer, parameter_buffer_size);
-            success        = parameter_data.size() == parameter_buffer_size;
-
-            if (!success)
-            {
-                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
-            }
-        }
-
-        if (success)
-        {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()),
-                MethodCallArgs{
-                    call_id, object_id, call_info, parameter_data.GetDataAs<const uint8_t>(), parameter_buffer_size },
-                std::move(uncompressed_store));
+            return ParsedBlock(std::move(block_buffer.ReleaseData()),
+                               MethodCallArgs{ call_id,
+                                               object_id,
+                                               call_info,
+                                               read_result.buffer.GetDataAs<const uint8_t>(),
+                                               read_result.uncompressed_size },
+                               read_result.is_compressed);
         }
     }
     else
     {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
     }
 
     return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
@@ -1093,28 +1049,10 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = success && block_buffer.Read(header.memory_offset);
         success = success && block_buffer.Read(header.memory_size);
 
-        if (success)
+        const char*         label       = "fill memory meta-data block";
+        ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.memory_size);
+        if (read_result.success)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
-            const size_t memory_size = static_cast<size_t>(header.memory_size);
-
-            BlockBuffer::BlockSpan parameter_data;
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                size_t uncompressed_size = 0;
-                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_data_id) -
-                                         sizeof(header.thread_id) - sizeof(header.memory_id) -
-                                         sizeof(header.memory_offset) - sizeof(header.memory_size);
-
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, memory_size, uncompressed_store);
-            }
-            else
-            {
-                parameter_data = ReadParameterBuffer(block_buffer, memory_size);
-            }
-            success = parameter_data.size() == memory_size;
-
             if (success)
             {
                 return ParsedBlock(std::move(block_buffer.ReleaseData()),
@@ -1123,20 +1061,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                                    header.memory_id,
                                                    header.memory_offset,
                                                    header.memory_size,
-                                                   parameter_data.GetDataAs<uint8_t>() },
-                                   std::move(uncompressed_store));
-            }
-            else
-            {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read fill memory meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData, "Failed to read fill memory meta-data block");
-                }
+                                                   read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
             }
         }
         else
@@ -1156,35 +1082,19 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             // Uncompressed parameter_data size is computed and not encoded.
             uint64_t parameter_data_size =
                 header.resource_value_count * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, parameter_data_size);
-            const size_t data_size = static_cast<size_t>(parameter_data_size);
 
-            BlockBuffer::BlockSpan parameter_data;
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_data_id) -
-                                         sizeof(header.thread_id) - sizeof(header.resource_value_count);
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-            }
-            else
-            {
-                parameter_data = ReadParameterBuffer(block_buffer, data_size);
-            }
-            success = parameter_data.size() == data_size;
+            const char*         label       = "memory resource value meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, parameter_data_size);
 
-            if (success)
+            if (read_result.success)
             {
                 return ParsedBlock(
                     std::move(block_buffer.ReleaseData()),
-                    FillMemoryResourceValueArgs{ meta_data_id, header, parameter_data.GetDataAs<uint8_t>() },
-                    std::move(uncompressed_store));
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingBlockData,
-                                     "Failed to read fill memory resource value meta-data block");
+                    // Note that both the meta_data_id and the data_size are not passed to the decoder in Dispatch
+                    // but needed by the Dispatch and Decompression visitors respectively.
+                    FillMemoryResourceValueArgs{
+                        meta_data_id, read_result.uncompressed_size, header, read_result.buffer.GetDataAs<uint8_t>() },
+                    read_result.is_compressed);
             }
         }
         else
@@ -1307,7 +1217,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, message_size);
             const size_t           data_size      = static_cast<size_t>(message_size);
-            BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, data_size);
+            BlockBuffer::BlockSpan parameter_data = block_buffer.ReadSpan(data_size);
             success                               = parameter_data.size() == data_size;
 
             if (success)
@@ -1740,7 +1650,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
             size_t data_size = static_cast<size_t>(header.data_size);
-            parameter_data   = ReadParameterBuffer(block_buffer, static_cast<size_t>(data_size));
+            parameter_data   = block_buffer.ReadSpan(data_size);
             success          = parameter_data.size() == data_size;
         }
 
@@ -1871,26 +1781,9 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
-            const size_t data_size = static_cast<size_t>(header.data_size);
-
-            BlockBuffer::BlockSpan parameter_data;
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                size_t compressed_size =
-                    static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
-
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-            }
-            else
-            {
-                parameter_data = ReadParameterBuffer(block_buffer, data_size);
-            }
-            success = parameter_data.size() == data_size;
-
-            if (success)
+            const char*         label       = "init buffer data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+            if (read_result.success)
             {
                 return ParsedBlock(std::move(block_buffer.ReleaseData()),
                                    InitBufferArgs{ meta_data_id,
@@ -1898,20 +1791,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                                    header.device_id,
                                                    header.buffer_id,
                                                    header.data_size,
-                                                   parameter_data.GetDataAs<uint8_t>() },
-                                   std::move(uncompressed_store));
-            }
-            else
-            {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read init buffer data meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData, "Failed to read init buffer data meta-data block");
-                }
+                                                   read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
             }
         }
         else
@@ -1939,54 +1820,30 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                 success && block_buffer.ReadBytes(level_sizes.data(), header.level_count * sizeof(level_sizes[0]));
         }
 
-        BlockBuffer::BlockSpan parameter_data;
-        if (success && (header.data_size > 0))
-        {
-            assert(header.data_size == std::accumulate(level_sizes.begin(), level_sizes.end(), 0ull));
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
-            const size_t data_size = static_cast<size_t>(header.data_size);
-
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                size_t compressed_size   = static_cast<size_t>(block_header.size) -
-                                         (sizeof(header) - sizeof(header.meta_header.block_header)) -
-                                         (level_sizes.size() * sizeof(level_sizes[0]));
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-            }
-            else
-            {
-                parameter_data = ReadParameterBuffer(block_buffer, data_size);
-            }
-            success = parameter_data.size() == data_size;
-        }
-
         if (success)
         {
-            return ParsedBlock(std::move(block_buffer.ReleaseData()),
-                               InitImageArgs{ meta_data_id,
-                                              header.thread_id,
-                                              header.device_id,
-                                              header.image_id,
-                                              header.data_size,
-                                              header.aspect,
-                                              header.layout,
-                                              level_sizes,
-                                              parameter_data.GetDataAs<uint8_t>() },
-                               std::move(uncompressed_store));
+            const char*         label       = "init image data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+            assert(header.data_size == std::accumulate(level_sizes.begin(), level_sizes.end(), 0ull));
+
+            if (read_result.success)
+            {
+                return ParsedBlock(std::move(block_buffer.ReleaseData()),
+                                   InitImageArgs{ meta_data_id,
+                                                  header.thread_id,
+                                                  header.device_id,
+                                                  header.image_id,
+                                                  header.data_size,
+                                                  header.aspect,
+                                                  header.layout,
+                                                  level_sizes,
+                                                  read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
+            }
         }
         else
         {
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                     "Failed to read init image data meta-data block");
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingBlockData, "Failed to read init image data meta-data block");
-            }
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init image data meta-data block header");
         }
     }
     else if (meta_data_type == format::MetaDataType::kInitSubresourceCommand)
@@ -2004,43 +1861,14 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
-            const size_t data_size = static_cast<size_t>(header.data_size);
+            const char*         label       = "init subresource data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
 
-            BlockBuffer::BlockSpan parameter_data;
-            if (format::IsBlockCompressed(block_header.type))
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                size_t compressed_size =
-                    static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
-
-                parameter_data =
-                    ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-            }
-            else
-            {
-                parameter_data = ReadParameterBuffer(block_buffer, data_size);
-            }
-            success = parameter_data.size() == data_size;
-
-            if (success)
+            if (read_result.success)
             {
                 return ParsedBlock(std::move(block_buffer.ReleaseData()),
-                                   InitSubresourceArgs{ meta_data_id, header, parameter_data.GetDataAs<uint8_t>() },
-                                   std::move(uncompressed_store));
-            }
-            else
-            {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read init subresource data meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData,
-                                         "Failed to read init subresource data meta-data block");
-                }
+                                   InitSubresourceArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
             }
         }
         else
@@ -2085,42 +1913,20 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         }
 
         BlockBuffer::BlockSpan parameter_data;
+        size_t                 data_size = 0;
         if (success)
         {
-            if (header.inputs_data_size > 0)
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.inputs_data_size);
-                const size_t data_size = static_cast<size_t>(header.inputs_data_size);
-
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                    size_t compressed_size =
-                        static_cast<size_t>(block_header.size) -
-                        (sizeof(header) - sizeof(header.meta_header.block_header)) -
-                        (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * header.inputs_num_geometry_descs);
-
-                    parameter_data =
-                        ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-                }
-                else
-                {
-                    parameter_data = ReadParameterBuffer(block_buffer, data_size);
-                }
-                success = parameter_data.size() == data_size;
-            }
-
-            if (success)
+            const char*         label       = "init DX12 acceleration structure meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
+            if (read_result.success)
             {
                 return ParsedBlock(std::move(block_buffer.ReleaseData()),
-                                   InitDx12AccelerationStructureArgs{
-                                       meta_data_id, header, geom_descs, parameter_data.GetDataAs<uint8_t>() },
-                                   std::move(uncompressed_store));
-            }
-            else
-            {
-                HandleBlockReadError(kErrorReadingBlockData,
-                                     "Failed to read init DX12 acceleration structure meta-data block");
+                                   InitDx12AccelerationStructureArgs{ meta_data_id,
+                                                                      read_result.uncompressed_size,
+                                                                      header,
+                                                                      geom_descs,
+                                                                      read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
             }
         }
         else
@@ -2245,7 +2051,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
         const size_t           data_size      = static_cast<size_t>(header.string_length);
-        BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, data_size);
+        BlockBuffer::BlockSpan parameter_data = block_buffer.ReadSpan(data_size);
         success                               = parameter_data.size() == data_size;
 
         if (!success)
@@ -2264,7 +2070,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         format::VulkanMetaBuildAccelerationStructuresHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
         success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
@@ -2285,7 +2091,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         format::VulkanCopyAccelerationStructuresCommandHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
         success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
@@ -2301,7 +2107,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         format::VulkanCopyAccelerationStructuresCommandHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
-        BlockBuffer::BlockSpan parameter_data        = ReadParameterBuffer(block_buffer, parameter_buffer_size);
+        BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
         success                                      = parameter_data.size() == parameter_buffer_size;
 
         if (success)
@@ -2378,49 +2184,18 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = success && block_buffer.Read(header.capture_id);
         success = success && block_buffer.Read(header.block_index);
         success = success && block_buffer.Read(header.total_number_of_initializemetacommand);
-        success = success && block_buffer.Read(header.initialization_parameters_data_size);
+        success = success && block_buffer.Read(header.data_size);
 
         if (success)
         {
-            BlockBuffer::BlockSpan parameter_data;
+            const char*         label       = "init subresource data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
 
-            if (header.initialization_parameters_data_size > 0)
-            {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.initialization_parameters_data_size);
-                const size_t data_size = static_cast<size_t>(header.initialization_parameters_data_size);
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                    size_t compressed_size   = static_cast<size_t>(block_header.size) -
-                                             (sizeof(header) - sizeof(header.meta_header.block_header));
-
-                    parameter_data =
-                        ReadCompressedParameterBuffer(block_buffer, compressed_size, data_size, uncompressed_store);
-                }
-                else
-                {
-                    parameter_data = ReadParameterBuffer(block_buffer, data_size);
-                }
-                success = parameter_data.size() == data_size;
-            }
-            if (success)
+            if (read_result.success)
             {
                 return ParsedBlock(std::move(block_buffer.ReleaseData()),
-                                   InitializeMetaArgs{ meta_data_id, header, parameter_data.GetDataAs<uint8_t>() },
-                                   std::move(uncompressed_store));
-            }
-            else
-            {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read init subresource data meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData,
-                                         "Failed to read init subresource data meta-data block");
-                }
+                                   InitializeMetaArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
+                                   read_result.is_compressed);
             }
         }
         else
@@ -2565,7 +2340,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size_sum);
             const size_t total_length = static_cast<size_t>(size_sum);
 
-            BlockBuffer::BlockSpan parameter_data = ReadParameterBuffer(block_buffer, total_length);
+            BlockBuffer::BlockSpan parameter_data = block_buffer.ReadSpan(total_length);
             success                               = parameter_data.size() == total_length;
 
             if (success)
@@ -2671,11 +2446,6 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         }
     }
     return success;
-}
-
-void ParsedBlock::Decompress(BlockParser& parser)
-{
-    GFXRECON_ASSERT("Not supported" == nullptr);
 }
 
 GFXRECON_END_NAMESPACE(decode)
