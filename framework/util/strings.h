@@ -57,7 +57,26 @@ std::string_view ViewOfCharArray(const char* array, const size_t capacity);
 /// Convert a std::wstring_view to an UTF-8 encoded std::string
 std::string convert_wstring_to_utf8(const std::wstring_view& wstr);
 
+// Wraps stoul so the caller doesn't have to worry about exceptions
 bool StringToU32(const std::string& value_string, uint32_t& value);
+
+/// Convert string to lowercase
+std::string ToLowerCase(const std::string& str);
+
+/// Case-insensitive hash; use with unordered_map<string, ...> to make case-insensitive map
+struct CaseInsensitiveHash {
+    size_t operator()(const std::string& key) const {
+        return std::hash<std::string>{}(strings::ToLowerCase(key));
+    }
+};
+
+/// Case-insensitive equality; use with unordered_map<string, ...> to make case-insensitive map
+struct CaseInsensitiveEqual {
+    bool operator()(const std::string& lhs, const std::string& rhs) const {
+        return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
+             [](char a, char b) { return std::tolower(a) == std::tolower(b); });
+    }
+};
 
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
