@@ -125,6 +125,14 @@ bool StringToU32(const std::string& value_string, uint32_t& value)
     return success;
 }
 
+/// Convert string to lowercase
+std::string ToLowerCase(const std::string& str)
+{
+    std::string lower = str;
+    std::transform(str.begin(), str.end(), lower.begin(), [](char c) { return (char)::tolower(c); });
+    return lower;
+}
+
 GFXRECON_END_NAMESPACE(strings)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

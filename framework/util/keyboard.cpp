@@ -25,6 +25,7 @@
 
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/strings.h"
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 #include <X11/keysym.h>
@@ -90,9 +91,10 @@ bool Keyboard::Initialize(Display* display)
 bool Keyboard::GetKeyState(const std::string& key)
 {
     bool result = false;
+    using namespace gfxrecon::util::strings;
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    static const std::unordered_map<std::string, int> win32_key_code_map = { { "F1", VK_F1 },
+    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> win32_key_code_map = { { "F1", VK_F1 },
                                                                              { "F2", VK_F2 },
                                                                              { "F3", VK_F3 },
                                                                              { "F4", VK_F4 },
@@ -116,7 +118,7 @@ bool Keyboard::GetKeyState(const std::string& key)
 #endif
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-    static const std::unordered_map<std::string, int> xcb_key_code_map = { { "F1", XK_F1 },
+    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> xcb_key_code_map = { { "F1", XK_F1 },
                                                                            { "F2", XK_F2 },
                                                                            { "F3", XK_F3 },
                                                                            { "F4", XK_F4 },
@@ -161,7 +163,7 @@ bool Keyboard::GetKeyState(const std::string& key)
 #endif
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    static const std::unordered_map<std::string, CGKeyCode> carbon_key_code_map = {
+    static const std::unordered_map<std::string, CGKeyCode, CaseInsensitiveHash, CaseInsensitiveEqual> carbon_key_code_map = {
         { "F1", kVK_F1 },
         { "F2", kVK_F2 },
         { "F3", kVK_F3 },
