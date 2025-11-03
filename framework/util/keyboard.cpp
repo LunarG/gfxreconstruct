@@ -94,21 +94,23 @@ bool Keyboard::GetKeyState(const std::string& key)
     using namespace gfxrecon::util::strings;
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> win32_key_code_map = { { "F1", VK_F1 },
-                                                                             { "F2", VK_F2 },
-                                                                             { "F3", VK_F3 },
-                                                                             { "F4", VK_F4 },
-                                                                             { "F5", VK_F5 },
-                                                                             { "F6", VK_F6 },
-                                                                             { "F7", VK_F7 },
-                                                                             { "F8", VK_F8 },
-                                                                             { "F9", VK_F9 },
-                                                                             { "F10", VK_F10 },
-                                                                             { "F11", VK_F11 },
-                                                                             { "F12", VK_F12 },
-                                                                             { "TAB", VK_TAB },
-                                                                             { "ControlLeft", VK_LCONTROL },
-                                                                             { "ControlRight", VK_RCONTROL } };
+    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> win32_key_code_map = {
+        { "F1", VK_F1 },
+        { "F2", VK_F2 },
+        { "F3", VK_F3 },
+        { "F4", VK_F4 },
+        { "F5", VK_F5 },
+        { "F6", VK_F6 },
+        { "F7", VK_F7 },
+        { "F8", VK_F8 },
+        { "F9", VK_F9 },
+        { "F10", VK_F10 },
+        { "F11", VK_F11 },
+        { "F12", VK_F12 },
+        { "TAB", VK_TAB },
+        { "ControlLeft", VK_LCONTROL },
+        { "ControlRight", VK_RCONTROL }
+    };
 
     auto iterator_key_code = win32_key_code_map.find(key);
     if (iterator_key_code != win32_key_code_map.end())
@@ -118,21 +120,23 @@ bool Keyboard::GetKeyState(const std::string& key)
 #endif
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> xcb_key_code_map = { { "F1", XK_F1 },
-                                                                           { "F2", XK_F2 },
-                                                                           { "F3", XK_F3 },
-                                                                           { "F4", XK_F4 },
-                                                                           { "F5", XK_F5 },
-                                                                           { "F6", XK_F6 },
-                                                                           { "F7", XK_F7 },
-                                                                           { "F8", XK_F8 },
-                                                                           { "F9", XK_F9 },
-                                                                           { "F10", XK_F10 },
-                                                                           { "F11", XK_F11 },
-                                                                           { "F12", XK_F12 },
-                                                                           { "Tab", XK_Tab },
-                                                                           { "ControlLeft", XK_Control_L },
-                                                                           { "ControlRight", XK_Control_R } };
+    static const std::unordered_map<std::string, int, CaseInsensitiveHash, CaseInsensitiveEqual> xcb_key_code_map = {
+        { "F1", XK_F1 },
+        { "F2", XK_F2 },
+        { "F3", XK_F3 },
+        { "F4", XK_F4 },
+        { "F5", XK_F5 },
+        { "F6", XK_F6 },
+        { "F7", XK_F7 },
+        { "F8", XK_F8 },
+        { "F9", XK_F9 },
+        { "F10", XK_F10 },
+        { "F11", XK_F11 },
+        { "F12", XK_F12 },
+        { "Tab", XK_Tab },
+        { "ControlLeft", XK_Control_L },
+        { "ControlRight", XK_Control_R }
+    };
     if (xcb_connection_)
     {
         auto& xcb_keysyms       = xcb_keysyms_loader_.GetFunctionTable();
@@ -163,25 +167,26 @@ bool Keyboard::GetKeyState(const std::string& key)
 #endif
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
-    static const std::unordered_map<std::string, CGKeyCode, CaseInsensitiveHash, CaseInsensitiveEqual> carbon_key_code_map = {
-        { "F1", kVK_F1 },
-        { "F2", kVK_F2 },
-        { "F3", kVK_F3 },
-        { "F4", kVK_F4 },
-        { "F5", kVK_F5 },
-        { "F6", kVK_F6 },
-        { "F7", kVK_F7 },
-        { "F8", kVK_F8 },
-        { "F9", kVK_F9 },
-        { "F10", kVK_F10 },
-        { "F11", kVK_F11 },
-        { "F12", kVK_F12 },
-        { "Tab", kVK_Tab },
-        { "ControlLeft", kVK_Control },
-        { "ControlRight", kVK_RightControl },
-        { "CommandLeft", kVK_Command },
-        { "CommandRight", kVK_RightCommand },
-    };
+    static const std::unordered_map<std::string, CGKeyCode, CaseInsensitiveHash, CaseInsensitiveEqual>
+        carbon_key_code_map = {
+            { "F1", kVK_F1 },
+            { "F2", kVK_F2 },
+            { "F3", kVK_F3 },
+            { "F4", kVK_F4 },
+            { "F5", kVK_F5 },
+            { "F6", kVK_F6 },
+            { "F7", kVK_F7 },
+            { "F8", kVK_F8 },
+            { "F9", kVK_F9 },
+            { "F10", kVK_F10 },
+            { "F11", kVK_F11 },
+            { "F12", kVK_F12 },
+            { "Tab", kVK_Tab },
+            { "ControlLeft", kVK_Control },
+            { "ControlRight", kVK_RightControl },
+            { "CommandLeft", kVK_Command },
+            { "CommandRight", kVK_RightCommand },
+        };
 
     auto iterator_key_code = carbon_key_code_map.find(key);
     if (iterator_key_code != carbon_key_code_map.end())
