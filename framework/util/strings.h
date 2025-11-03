@@ -64,17 +64,19 @@ bool StringToU32(const std::string& value_string, uint32_t& value);
 std::string ToLowerCase(const std::string& str);
 
 /// Case-insensitive hash; use with unordered_map<string, ...> to make case-insensitive map
-struct CaseInsensitiveHash {
-    size_t operator()(const std::string& key) const {
-        return std::hash<std::string>{}(strings::ToLowerCase(key));
-    }
+struct CaseInsensitiveHash
+{
+    size_t operator()(const std::string& key) const { return std::hash<std::string>{}(strings::ToLowerCase(key)); }
 };
 
 /// Case-insensitive equality; use with unordered_map<string, ...> to make case-insensitive map
-struct CaseInsensitiveEqual {
-    bool operator()(const std::string& lhs, const std::string& rhs) const {
-        return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
-             [](char a, char b) { return std::tolower(a) == std::tolower(b); });
+struct CaseInsensitiveEqual
+{
+    bool operator()(const std::string& lhs, const std::string& rhs) const
+    {
+        return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char a, char b) {
+            return std::tolower(a) == std::tolower(b);
+        });
     }
 };
 
