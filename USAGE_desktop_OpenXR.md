@@ -14,7 +14,7 @@ Copyright &copy; 2022 Advanced Micro Devices, Inc.
 # GFXReconstruct API Capture and Replay - OpenXR
 
 ***This document describes the GFXReconstruct software for capturing and
-replaying OpenXR on Desktop systems (i.e. Windows, Linux, MacOS).***
+replaying OpenXR on Desktop systems (i.e. Windows, Linux, macOS).***
 
 If you are looking for capturing/replaying on a different platform, please refer
 to one of these other documents:
