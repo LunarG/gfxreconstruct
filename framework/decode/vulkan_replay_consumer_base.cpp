@@ -4028,10 +4028,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
-        std::vector<VkDeviceAddress> addresses_to_replace;
-
         for (uint32_t i = 0; i < submitCount; i++)
         {
+            std::vector<VkDeviceAddress> addresses_to_replace;
+
             uint32_t num_command_buffers  = submit_info_data[i].pCommandBuffers.GetLength();
             auto*    cmd_buf_handles      = submit_info_data[i].pCommandBuffers.GetPointer();
             bool     sync_wait_semaphores = false;
@@ -4268,7 +4268,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     {
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            VkSubmitInfo2&               submit_info_mut = pSubmits->GetPointer()[i];
             std::vector<VkDeviceAddress> addresses_to_replace;
 
             uint32_t num_command_buffers  = submit_info_data[i].pCommandBufferInfos->GetLength();
@@ -4295,7 +4294,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
             if (sync_wait_semaphores)
             {
-                auto wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
+                VkSubmitInfo2& submit_info_mut = pSubmits->GetPointer()[i];
+                auto           wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
 
                 VkSemaphoreSubmitInfo& semaphore_info = semaphore_infos[i];
                 semaphore_info.sType                  = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
