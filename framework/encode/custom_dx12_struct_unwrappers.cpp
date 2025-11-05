@@ -361,20 +361,29 @@ void UnwrapStructObjects(D3D12_BARRIER_GROUP* value, HandleUnwrapMemory* unwrap_
 
     if (value != nullptr)
     {
-        for (UINT i = 0; i < value->NumBarriers; ++i)
+        switch (value->Type)
         {
-            switch (value->Type)
+            case D3D12_BARRIER_TYPE_TEXTURE:
             {
-                case D3D12_BARRIER_TYPE_TEXTURE:
-                    UnwrapStructObjects(const_cast<D3D12_TEXTURE_BARRIER*>(&value->pTextureBarriers[i]), unwrap_memory);
-                    break;
-                case D3D12_BARRIER_TYPE_BUFFER:
-                    UnwrapStructObjects(const_cast<D3D12_BUFFER_BARRIER*>(&value->pBufferBarriers[i]), unwrap_memory);
-                    break;
-                case D3D12_BARRIER_TYPE_GLOBAL:
-                default:
-                    break;
+                // Deep copy pTextureBarrier into a new struct array and return pointer to the raw unwrapped struct
+                auto unwrapped_structs =
+                    UnwrapStructArrayObjects(value->pTextureBarriers, value->NumBarriers, unwrap_memory);
+                // assign this new struct to the parent unwrapped struct
+                value->pTextureBarriers = unwrapped_structs;
+                break;
             }
+            case D3D12_BARRIER_TYPE_BUFFER:
+            {
+                // Deep copy pBufferBarriers into a new struct array and return pointer to the raw unwrapped struct
+                auto unwrapped_structs =
+                    UnwrapStructArrayObjects(value->pBufferBarriers, value->NumBarriers, unwrap_memory);
+                // assign this new struct to the parent unwrapped struct
+                value->pBufferBarriers = unwrapped_structs;
+                break;
+            }
+            case D3D12_BARRIER_TYPE_GLOBAL:
+            default:
+                break;
         }
     }
 }

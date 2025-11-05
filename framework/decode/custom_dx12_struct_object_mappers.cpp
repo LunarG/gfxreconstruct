@@ -386,12 +386,31 @@ void MapStructObjects(Decoded_D3D12_BARRIER_GROUP*  wrapper,
 {
     if (wrapper != nullptr)
     {
-        auto length   = wrapper->texture_barriers->GetLength();
-        auto wrappers = wrapper->texture_barriers->GetMetaStructPointer();
-
-        for (size_t i = 0; i < length; ++i)
+        if (wrapper->decoded_value->Type == D3D12_BARRIER_TYPE_TEXTURE)
         {
-            MapStructObjects(&wrappers[i], object_info_table, gpu_va_map);
+            auto length   = wrapper->texture_barriers->GetLength();
+            auto wrappers = wrapper->texture_barriers->GetMetaStructPointer();
+
+            for (size_t i = 0; i < length; ++i)
+            {
+                MapStructObjects(&wrappers[i], object_info_table, gpu_va_map);
+            }
+        }
+        else if (wrapper->decoded_value->Type == D3D12_BARRIER_TYPE_BUFFER)
+        {
+            auto length   = wrapper->buffer_barriers->GetLength();
+            auto wrappers = wrapper->buffer_barriers->GetMetaStructPointer();
+
+            for (size_t i = 0; i < length; ++i)
+            {
+                MapStructObjects(&wrappers[i], object_info_table, gpu_va_map);
+            }
+        }
+        else
+        {
+            // D3D12_BARRIER_TYPE_GLOBAL
+            // no handling required for this type because there are
+            // no api handles to patch in this struct.
         }
     }
 }
