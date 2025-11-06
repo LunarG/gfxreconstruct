@@ -58,6 +58,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/span.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_helper.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.cpp
