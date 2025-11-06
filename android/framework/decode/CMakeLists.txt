@@ -5,6 +5,10 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_payload.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/block_buffer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/block_buffer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/block_parser.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/block_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_handle_mapping_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_object_info_table.h
@@ -68,6 +72,7 @@ target_sources(gfxrecon_decode
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info_table.cpp>
                    ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/parsed_block.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
