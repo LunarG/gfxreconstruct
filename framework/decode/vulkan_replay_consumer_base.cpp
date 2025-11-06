@@ -9697,7 +9697,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     {
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
-        res = resource_dumper_->CloneCommandBuffer(
+        res = resource_dumper_->BeginCommandBuffer(
             index, command_buffer_info, GetDeviceTable(device->handle), GetInstanceTable(device->parent), begin_info);
     }
 

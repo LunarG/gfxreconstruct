@@ -31,6 +31,7 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -321,12 +322,11 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
     if (vulkan_replay_options.dump_resources_block_indices.empty() || dump_resource_option_is_d3d12)
     {
         // Clear dump resources indices and return if arg is either null or intended for d3d12
-        vulkan_replay_options.BeginCommandBuffer_Indices.clear();
+        vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.clear();
         vulkan_replay_options.Draw_Indices.clear();
         vulkan_replay_options.RenderPass_Indices.clear();
         vulkan_replay_options.Dispatch_Indices.clear();
         vulkan_replay_options.TraceRays_Indices.clear();
-        vulkan_replay_options.QueueSubmit_Indices.clear();
         return true;
     }
 
@@ -347,10 +347,33 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             dr_json_file >> jargs;
 
             // Transfer jargs to vectors in vulkan_replay_options
+            if (jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size() != jargs[decode::DUMP_ARG_QUEUE_SUBMIT].size())
+            {
+                GFXRECON_LOG_FATAL("Malformed VDR input json: BeginCommandBuffer and QueueSubmit index lists are "
+                                   "expected to have the same length.");
+                vulkan_replay_options.dumping_resources = false;
+                return false;
+            }
+
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size(); idx0++)
             {
-                vulkan_replay_options.BeginCommandBuffer_Indices.push_back(
-                    jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0]);
+                const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
+                const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
+
+                const decode::BeginCmdBufQueueSubmitPair new_pair = std::make_pair(bcb, qs);
+                if (std::find(vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.begin(),
+                              vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end(),
+                              new_pair) != vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end())
+                {
+                    GFXRECON_LOG_FATAL(
+                        "Malformed VDR input json: BeginCommandBuffer and QueueSubmit index pair (%" PRIu64 ", %" PRIu64
+                        ") already exist",
+                        bcb,
+                        qs);
+                    vulkan_replay_options.dumping_resources = false;
+                    return false;
+                }
+                vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.emplace_back(new_pair);
             }
 
             for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
@@ -419,13 +442,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                         }
                     }
                 }
-            }
-
-            for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_QUEUE_SUBMIT].size(); idx0++)
-            {
-                uint64_t qs = static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]);
-                vulkan_replay_options.QueueSubmit_Indices.push_back(
-                    static_cast<uint64_t>(jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0]));
             }
         }
     }
@@ -550,7 +566,8 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 }
                 else
                 {
-                    vulkan_replay_options.BeginCommandBuffer_Indices.push_back(BeginCommandBuffer);
+                    vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.emplace_back(
+                        std::make_pair(BeginCommandBuffer, QueueSubmit));
                 }
 
                 vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
@@ -582,8 +599,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 {
                     vulkan_replay_options.TraceRays_Indices[i].push_back(TraceRays);
                 }
-
-                vulkan_replay_options.QueueSubmit_Indices.push_back(QueueSubmit);
             }
         }
 
