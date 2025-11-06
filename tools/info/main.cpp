@@ -119,11 +119,11 @@ class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
 
 struct ApiAgnosticStats
 {
-    gfxrecon::format::CompressionType      compression_type;
-    uint32_t                               trim_start_frame;
-    uint32_t                               frame_count;
-    gfxrecon::decode::FileProcessor::Error error_state;
-    bool                                   uses_frame_markers;
+    gfxrecon::format::CompressionType compression_type;
+    uint32_t                          trim_start_frame;
+    uint32_t                          frame_count;
+    gfxrecon::decode::BlockReadError  error_state;
+    bool                              uses_frame_markers;
 };
 
 std::string AdapterTypeToString(gfxrecon::format::AdapterType type)

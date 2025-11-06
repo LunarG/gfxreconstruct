@@ -35,30 +35,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-bool DataRange::Contains(int64_t access_offset) const
-{
-    auto relative_offset = RelativeOffset(access_offset);
-    return (0 <= relative_offset) && (relative_offset < size);
-}
-bool DataRange::Contains(const DataRange& range) const
-{
-    if (!Contains(range.offset))
-    {
-        return false;
-    }
-
-    // One or zero sized accesses don't need another check
-    if (range.size > 1)
-    {
-        // More than one bytes access, the last byte also needs to be InView
-        // But we can use the one that doesn't check for validity again
-        if (!Contains(range.offset + range.size - 1))
-            return false;
-    }
-
-    return true;
-}
-
 bool FStreamFileInputStream::Open(const std::string& filename)
 {
     if (IsOpen())
