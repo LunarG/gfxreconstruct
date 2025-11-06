@@ -60,7 +60,7 @@ class DispatchTraceRaysDumpingContext
 
     ~DispatchTraceRaysDumpingContext();
 
-    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
                                 const graphics::VulkanDeviceTable*   dev_table,
                                 const graphics::VulkanInstanceTable* inst_table,
                                 const VkCommandBufferBeginInfo*      begin_info);
