@@ -74,7 +74,7 @@ class DrawCallsDumpingContext
 
     ~DrawCallsDumpingContext();
 
-    bool IsRecording() const { return current_cb_index_ < command_buffers_.size(); }
+    bool IsRecording() const { return recording_; }
 
     bool MustDumpDrawCall(uint64_t index) const;
 
@@ -90,7 +90,7 @@ class DrawCallsDumpingContext
 
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
-    VkResult CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+    VkResult BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
                                 const graphics::VulkanDeviceTable*   dev_table,
                                 const graphics::VulkanInstanceTable* inst_table,
                                 const VkCommandBufferBeginInfo*      begin_info);
@@ -701,6 +701,9 @@ class DrawCallsDumpingContext
     VkCommandBuffer                 aux_command_buffer_;
     VkFence                         aux_fence_;
     DumpResourcesCommandBufferLevel command_buffer_level_;
+
+    // recording_ will be true between the corresponding BCB and the last FinalizeCommandBuffer
+    bool recording_;
 
     const graphics::VulkanDeviceTable*      device_table_;
     const graphics::VulkanInstanceTable*    instance_table_;
