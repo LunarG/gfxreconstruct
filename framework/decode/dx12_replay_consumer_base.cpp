@@ -753,6 +753,95 @@ void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     dxr_workload_ = true;
 }
 
+HRESULT
+Dx12ReplayConsumerBase::ApplyRecreateAtRanges(HRESULT                                  replay_result,
+                                              IUnknown*                                adapter,
+                                              D3D_FEATURE_LEVEL                        minimum_feature_level,
+                                              const Decoded_GUID&                      riid,
+                                              HandlePointerDecoder<void*>*             device,
+                                              graphics::dx12::ResourceVaRangesPtr&     device_ranges,
+                                              graphics::dx12::ID3D12DeviceToolsComPtr& device_tools) const
+{
+    GFXRECON_ASSERT(device != nullptr);
+
+    auto apply_result = replay_result;
+    auto device_ptr   = device->GetHandlePointer();
+
+    // Determine if recreate-at GPU VA ranges need to be reserved.
+    if ((replay_result == S_OK) && (device_ptr != nullptr) && (*device_ptr != nullptr))
+    {
+        GFXRECON_ASSERT(device->GetPointer() != nullptr);
+
+        auto device_id          = *device->GetPointer();
+        auto device_ranges_iter = recreate_at_ranges_.find(device_id);
+        auto device_object      = reinterpret_cast<ID3D12Device*>(*device_ptr);
+        if ((device_ranges_iter != recreate_at_ranges_.end()) && graphics::dx12::SupportsRecreateAt(device_object))
+        {
+            // The capture file contained recreate data for this device and the device supports the recreate at
+            // feature. Recreate the device with reserved GPU VA ranges.
+            graphics::dx12::ID3D12DeviceFactoryComPtr device_factory;
+            graphics::dx12::ID3D12Tools1ComPtr        tools;
+
+            auto recreate_result = D3D12GetInterface(CLSID_D3D12DeviceFactory, IID_PPV_ARGS(&device_factory));
+
+            if (SUCCEEDED(recreate_result))
+            {
+                recreate_result = device_factory->GetConfigurationInterface(CLSID_D3D12Tools, IID_PPV_ARGS(&tools));
+            }
+
+            if (SUCCEEDED(recreate_result))
+            {
+                // Build vector of ranges to reserve.
+                auto gpu_va_ranges = std::vector<D3D12_GPU_VIRTUAL_ADDRESS_RANGE>{};
+                auto va_ranges     = device_ranges_iter->second;
+
+                if (!va_ranges->empty())
+                {
+                    gpu_va_ranges.reserve(va_ranges->size());
+                    for (const auto& device_range : *va_ranges)
+                    {
+                        gpu_va_ranges.push_back(device_range.second);
+                    }
+                }
+
+                recreate_result =
+                    tools->ReserveGPUVARangesAtCreate(gpu_va_ranges.data(), static_cast<UINT>(gpu_va_ranges.size()));
+                if (SUCCEEDED(recreate_result))
+                {
+                    // Clear the current device.
+                    device_object->Release();
+                    (*device_ptr) = nullptr;
+
+                    apply_result =
+                        device_factory->CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device_ptr);
+
+                    if (SUCCEEDED(apply_result))
+                    {
+                        reinterpret_cast<ID3D12Device*>(*device_ptr)->QueryInterface(IID_PPV_ARGS(&device_tools));
+                        device_ranges = va_ranges;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_DEBUG("Failed to recreate device %" PRIu64 " with reserved GPU VA ranges",
+                                           device_id);
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_DEBUG("Failed to reserve GPU VA ranges for device %" PRIu64, device_id);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve ID3D12Tools1 to reserve GPU VA ranges at device creation. "
+                                   "Ensure that Developer Mode is enabled to use this feature.");
+            }
+        }
+    }
+
+    return apply_result;
+}
+
 void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(ID3D12CommandQueue* command_queue,
                                                                       DxObjectInfo*       swapchain_info,
                                                                       uint32_t            current_buffer_index)
@@ -814,6 +903,30 @@ void Dx12ReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         {
             GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized IDXGISwapChain object (ID = %" PRIu64 ")",
                                  swapchain_id);
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::ProcessSetGpuVirtualAddressRangeCommand(format::HandleId device_id,
+                                                                     format::HandleId pageable_id,
+                                                                     uint64_t         start_address,
+                                                                     uint64_t         size)
+{
+    if (recreate_at_ranges_.empty())
+    {
+        auto device_info       = GetObjectInfo(device_id);
+        auto device_extra_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
+
+        // Recreate at range data needs to be pre-processed so that ranges can be pre-allocated at device creation.
+        // It the data has not been pre-processed, and the recreate at feature is supported by the device, alert the
+        // user that pre-processing is required.
+        if (device_extra_info->supports_recreate_at)
+        {
+            GFXRECON_LOG_INFO_ONCE("Capture file contains unused 'Recreate At' data for buffer and heap GPU virtual "
+                                   "addresses, which may be required for replay to work correctly.");
+            GFXRECON_LOG_INFO_ONCE("Specify --scan-recreate-at to enable a pre-processing pass that builds a usable "
+                                   "'Recreate At' table before replay, or use gfxrecon-optimize to generate a file "
+                                   "containing a usable recreate at table.");
         }
     }
 }
@@ -898,6 +1011,19 @@ void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawCall& track_dump_target)
         dump_resources_      = std::make_unique<Dx12DumpResources>(get_object_func, gpu_va_map_, options_);
     }
     dump_resources_->SetDumpTarget(track_dump_target);
+}
+
+void Dx12ReplayConsumerBase::SetGpuVirtualAddressRanges(const graphics::dx12::DeviceVaRanges& ranges)
+{
+    if (!recreate_at_ranges_.empty())
+    {
+        // This data is generally only expected to be set once, either after a replay pre-processing pass or a meta-data
+        // command.
+        GFXRECON_LOG_WARNING("Overwriting existing recreate-at data for buffer and heap GPU virtual address ranges.");
+        recreate_at_ranges_.clear();
+    }
+
+    recreate_at_ranges_ = ranges;
 }
 
 void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
@@ -1336,6 +1462,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
 
     IUnknown* adapter = GetCreateDeviceAdapter(adapter_info);
 
+    auto device_ranges = graphics::dx12::ResourceVaRangesPtr{};
+    auto device_tools  = graphics::dx12::ID3D12DeviceToolsComPtr{};
     auto replay_result = E_FAIL;
 #ifdef GFXRECON_AGS_SUPPORT
     if (options_.ags_inject_markers)
@@ -1386,11 +1514,17 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateDevice(HRESULT               
     {
         replay_result =
             D3D12CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
+
+        if (!recreate_at_ranges_.empty())
+        {
+            replay_result = ApplyRecreateAtRanges(
+                replay_result, adapter, minimum_feature_level, riid, device, device_ranges, device_tools);
+        }
     }
 
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
-        InitializeD3D12Device(device);
+        InitializeD3D12Device(device, device_ranges, device_tools);
     }
 
     return replay_result;
@@ -1412,9 +1546,18 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectI
     auto replay_result =
         device_factory->CreateDevice(adapter, minimum_feature_level, *riid.decoded_value, device->GetHandlePointer());
 
+    auto device_ranges = graphics::dx12::ResourceVaRangesPtr{};
+    auto device_tools  = graphics::dx12::ID3D12DeviceToolsComPtr{};
+
+    if (!recreate_at_ranges_.empty())
+    {
+        replay_result = ApplyRecreateAtRanges(
+            replay_result, adapter, minimum_feature_level, riid, device, device_ranges, device_tools);
+    }
+
     if (SUCCEEDED(replay_result) && !device->IsNull())
     {
-        InitializeD3D12Device(device);
+        InitializeD3D12Device(device, device_ranges, device_tools);
     }
 
     return replay_result;
@@ -1518,7 +1661,9 @@ IUnknown* Dx12ReplayConsumerBase::GetCreateDeviceAdapter(DxObjectInfo* adapter_i
     return render_adapter_;
 }
 
-void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>* device)
+void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>*                   device,
+                                                   const graphics::dx12::ResourceVaRangesPtr&     device_ranges,
+                                                   const graphics::dx12::ID3D12DeviceToolsComPtr& device_tools)
 {
     GFXRECON_ASSERT((device != nullptr) && !device->IsNull());
 
@@ -1528,6 +1673,10 @@ void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>* 
     graphics::dx12::GetAdapterAndIndexbyDevice(
         reinterpret_cast<ID3D12Device*>(device_ptr), device_info->adapter3, device_info->adapter_node_index, adapters_);
     device_info->is_uma = graphics::dx12::IsUma(device_ptr);
+
+    device_info->supports_recreate_at = graphics::dx12::SupportsRecreateAt(device_ptr);
+    device_info->va_ranges            = device_ranges;
+    device_info->device_tools         = device_tools;
 
     SetExtraInfo(device, std::move(device_info));
 
@@ -1707,6 +1856,57 @@ Dx12ReplayConsumerBase::OverrideCreateDescriptorHeap(DxObjectInfo* replay_object
     return replay_result;
 }
 
+template <typename Desc>
+static void SetBufferGpuVa(HRESULT                      original_result,
+                           const Desc*                  resource_desc,
+                           HandlePointerDecoder<void*>* resource,
+                           const D3D12DeviceInfo*       device_info)
+{
+    GFXRECON_ASSERT(resource->GetPointer() != nullptr);
+    auto resource_id = *resource->GetPointer();
+
+    if ((resource_desc != nullptr) && (resource_desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER) &&
+        (device_info->va_ranges != nullptr) && (!device_info->va_ranges->empty()) &&
+        (device_info->device_tools != nullptr) && (original_result == S_OK) && (resource_id != format::kNullHandleId))
+    {
+        auto& va_ranges     = device_info->va_ranges;
+        auto  current_range = va_ranges->find(resource_id);
+
+        if (current_range != va_ranges->end())
+        {
+            auto& device_tools = device_info->device_tools;
+            device_tools->SetNextAllocationAddress(current_range->second.StartAddress);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("GPU virtual address range not found for buffer with ID %" PRIu64, resource_id);
+        }
+    }
+}
+
+static void SetHeapGpuVa(HRESULT original_result, HandlePointerDecoder<void*>* heap, const D3D12DeviceInfo* device_info)
+{
+    GFXRECON_ASSERT(heap->GetPointer() != nullptr);
+    auto heap_id = *heap->GetPointer();
+
+    if ((device_info->va_ranges != nullptr) && (!device_info->va_ranges->empty()) &&
+        (device_info->device_tools != nullptr) && (original_result == S_OK) && (heap_id != format::kNullHandleId))
+    {
+        auto& va_ranges     = device_info->va_ranges;
+        auto  current_range = va_ranges->find(heap_id);
+
+        if (current_range != va_ranges->end())
+        {
+            auto& device_tools = device_info->device_tools;
+            device_tools->SetNextAllocationAddress(current_range->second.StartAddress);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("GPU virtual address range not found for heap with ID %" PRIu64, heap_id);
+        }
+    }
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
     DxObjectInfo*                                        replay_object_info,
     HRESULT                                              original_result,
@@ -1745,6 +1945,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
             GFXRECON_LOG_WARNING("Failed to create dummy committed resource");
         }
     }
+
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetBufferGpuVa(original_result, desc_pointer, resource, replay_object_extra_info);
 
     // Playback will use this resource
     auto replay_result = replay_object->CreateCommittedResource(heap_properties_pointer,
@@ -1826,6 +2030,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateHeap(DxObjectInfo*                
         }
     }
 
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetHeapGpuVa(original_result, ppvHeap, replay_object_extra_info);
+
     auto replay_result = replay_object->CreateHeap(heap_desc, *riid.decoded_value, ppvHeap->GetHandlePointer());
 
     if (options_.create_dummy_allocations)
@@ -1868,6 +2076,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateHeap1(DxObjectInfo*               
             GFXRECON_LOG_WARNING("Failed to create dummy heap");
         }
     }
+
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetHeapGpuVa(return_value, ppvHeap, replay_object_extra_info);
 
     auto replay_result =
         replay_object->CreateHeap1(heap_desc, in_pProtectedSession, *riid.decoded_value, ppvHeap->GetHandlePointer());
@@ -1930,6 +2142,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource1(
             GFXRECON_LOG_WARNING("Failed to create dummy committed resource");
         }
     }
+
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetBufferGpuVa(original_result, desc_pointer, resource, replay_object_extra_info);
 
     // Playback will use this resource
     auto replay_result = replay_object->CreateCommittedResource1(heap_properties_pointer,
@@ -2035,6 +2251,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource2(
             GFXRECON_LOG_WARNING("Failed to create dummy committed resource");
         }
     }
+
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetBufferGpuVa(original_result, desc_pointer, resource, replay_object_extra_info);
 
     // Playback will use this resource
     auto replay_result = replay_object->CreateCommittedResource2(heap_properties_pointer,
@@ -2148,6 +2368,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource3(
             GFXRECON_LOG_WARNING("Failed to create dummy committed resource");
         }
     }
+
+    auto replay_object_extra_info = GetExtraInfo<D3D12DeviceInfo>(replay_object_info);
+    GFXRECON_ASSERT(replay_object_extra_info != nullptr);
+    SetBufferGpuVa(original_result, desc_pointer, resource, replay_object_extra_info);
 
     // Playback will use this resource
     auto replay_result = replay_object->CreateCommittedResource3(heap_properties_pointer,

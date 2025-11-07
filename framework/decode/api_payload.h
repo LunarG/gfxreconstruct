@@ -540,6 +540,19 @@ struct InitializeMetaArgs
 
     auto GetTuple() const { return std::tie(command_header, data); }
 };
+struct SetGpuVirtualAddressRangeArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId pageable_id;
+    uint64_t         start_address;
+    uint64_t         size;
+
+    auto GetTuple() const { return std::tie(thread_id, device_id, pageable_id, start_address, size); }
+};
+
 struct AnnotationArgs
 {
     uint64_t               block_index;
@@ -776,6 +789,13 @@ struct DispatchTraits<InitializeMetaArgs> : DispatchFlagTraits<InitializeMetaArg
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchInitializeMetaCommand;
 };
+
+template <>
+struct DispatchTraits<SetGpuVirtualAddressRangeArgs> : DispatchFlagTraits<SetGpuVirtualAddressRangeArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchSetGpuVirtualAddressRangeCommand;
+};
+
 template <>
 struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
 {
@@ -904,6 +924,7 @@ using DispatchArgs = std::variant<DispatchStore<FunctionCallArgs>,
                                   DispatchStore<VulkanAccelerationStructuresWritePropertiesMetaArgs>,
                                   DispatchStore<ViewRelativeLocationArgs>,
                                   DispatchStore<InitializeMetaArgs>,
+                                  DispatchStore<SetGpuVirtualAddressRangeArgs>,
                                   DispatchStore<AnnotationArgs>>;
 
 GFXRECON_END_NAMESPACE(decode)

@@ -435,8 +435,9 @@ void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** d
                 reinterpret_cast<ID3D12Device*>(*device), info->adapter3, info->adapter_node_index, adapters_);
 
             // Cache info on device features:
-            auto wrapped_device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
-            info->is_uma        = graphics::dx12::IsUma(wrapped_device);
+            auto wrapped_device        = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+            info->is_uma               = graphics::dx12::IsUma(wrapped_device);
+            info->supports_recreate_at = graphics::dx12::SupportsRecreateAt(wrapped_device);
         }
     }
 }
@@ -851,6 +852,15 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateHeap(
         info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
+
+        auto device_info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        if (device_info->supports_recreate_at)
+        {
+            WriteSetGpuVirtualAddressRangeCommand(
+                wrapper->GetCaptureId(), heap_wrapper->GetCaptureId(), heap_wrapper->GetWrappedObjectAs<ID3D12Heap>());
+        }
     }
 }
 
@@ -887,6 +897,19 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
                                      0);
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+
+        if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+        {
+            auto device_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(device_info != nullptr);
+
+            if (device_info->supports_recreate_at)
+            {
+                WriteSetGpuVirtualAddressRangeCommand(wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetWrappedObjectAs<ID3D12Resource>());
+            }
+        }
     }
 }
 
@@ -1097,6 +1120,15 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wr
         info->heap_flags      = desc->Flags;
 
         CheckWriteWatchIgnored(desc->Flags, heap_wrapper->GetCaptureId());
+
+        auto device_info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        if (device_info->supports_recreate_at)
+        {
+            WriteSetGpuVirtualAddressRangeCommand(
+                wrapper->GetCaptureId(), heap_wrapper->GetCaptureId(), heap_wrapper->GetWrappedObjectAs<ID3D12Heap>());
+        }
     }
 }
 
@@ -1135,6 +1167,19 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
                                      0);
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+
+        if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+        {
+            auto device_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(device_info != nullptr);
+
+            if (device_info->supports_recreate_at)
+            {
+                WriteSetGpuVirtualAddressRangeCommand(wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetWrappedObjectAs<ID3D12Resource>());
+            }
+        }
     }
 }
 
@@ -1173,6 +1218,19 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
                                      0);
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+
+        if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+        {
+            auto device_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(device_info != nullptr);
+
+            if (device_info->supports_recreate_at)
+            {
+                WriteSetGpuVirtualAddressRangeCommand(wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetWrappedObjectAs<ID3D12Resource>());
+            }
+        }
     }
 }
 
@@ -1216,6 +1274,19 @@ void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateCommittedResource3(
                                      0);
 
         CheckWriteWatchIgnored(heap_flags, resource_wrapper->GetCaptureId());
+
+        if (desc->Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+        {
+            auto device_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(device_info != nullptr);
+
+            if (device_info->supports_recreate_at)
+            {
+                WriteSetGpuVirtualAddressRangeCommand(wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetCaptureId(),
+                                                      resource_wrapper->GetWrappedObjectAs<ID3D12Resource>());
+            }
+        }
     }
 }
 
@@ -3134,6 +3205,49 @@ void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeIn
                                    sizeof(runtime_info));
 
         WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
+    }
+}
+
+void D3D12CaptureManager::WriteSetGpuVirtualAddressRangeCommand(format::HandleId device_id,
+                                                                format::HandleId pageable_id,
+                                                                ID3D12Pageable*  pageable)
+{
+    if (IsCaptureModeWrite() && (pageable != nullptr))
+    {
+        D3D12_GPU_VIRTUAL_ADDRESS_RANGE allocation{};
+        ID3D12PageableTools*            tools = nullptr;
+
+        auto result = pageable->QueryInterface(IID_PPV_ARGS(&tools));
+        if (SUCCEEDED(result))
+        {
+            GFXRECON_ASSERT(tools != nullptr);
+            result = tools->GetAllocation(&allocation);
+        }
+
+        if (SUCCEEDED(result))
+        {
+            format::SetGpuVirtualAddressRangeCommand gpu_va_range_cmd;
+
+            auto thread_data = GetThreadData();
+            GFXRECON_ASSERT(thread_data != nullptr);
+
+            gpu_va_range_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+            gpu_va_range_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(gpu_va_range_cmd);
+            gpu_va_range_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kSetGpuVirtualAddressRangeCommand);
+            gpu_va_range_cmd.thread_id     = thread_data->thread_id_;
+            gpu_va_range_cmd.device_id     = device_id;
+            gpu_va_range_cmd.pageable_id   = pageable_id;
+            gpu_va_range_cmd.start_address = allocation.StartAddress;
+            gpu_va_range_cmd.size          = allocation.SizeInBytes;
+
+            WriteToFile(&gpu_va_range_cmd, sizeof(gpu_va_range_cmd));
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR_ONCE("Failed to retrieve GPU virtual address range from buffer or heap. Capture file "
+                                    "may not replay correctly without this data.");
+        }
     }
 }
 

@@ -1051,6 +1051,29 @@ bool IsUma(ID3D12Device* device)
     return isUma;
 }
 
+bool SupportsRecreateAt(ID3D12Device* device)
+{
+    GFXRECON_ASSERT(nullptr != device && "Null device pointer is expected to have been checked by callers.");
+    bool                               supports_recreate_at = false;
+    D3D12_FEATURE_DATA_D3D12_OPTIONS20 options20{};
+    const auto                         result = device->CheckFeatureSupport(
+        D3D12_FEATURE_D3D12_OPTIONS20, &options20, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS20));
+    if (SUCCEEDED(result))
+    {
+        if ((options20.RecreateAtTier != D3D12_RECREATE_AT_TIER_NOT_SUPPORTED))
+        {
+            supports_recreate_at = true;
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS20,...) failed with result: %ld. The GPU "
+                           "recreate at tier will be assumed to be none.",
+                           static_cast<long>(result));
+    }
+    return supports_recreate_at;
+}
+
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usage, const bool is_uma)
 {
     GFXRECON_ASSERT(memory_usage > 0.0 && memory_usage <= 1.0);

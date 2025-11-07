@@ -43,6 +43,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #endif
+#include <memory>
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -101,6 +102,9 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12DeviceFactory, &__uuidof(ID3D12DeviceFactory)>> ID3D12DeviceFactoryComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12Tools1, &__uuidof(ID3D12Tools1)>>               ID3D12Tools1ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12DeviceTools, &__uuidof(ID3D12DeviceTools)>>     ID3D12DeviceToolsComPtr;
 
 #if defined(GFXRECON_DXC_SUPPORT)
 typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>> IDxcUtilsComPtr;
@@ -110,6 +114,10 @@ typedef _com_ptr_t<_com_IIID<IDxcBlobEncoding, &__uuidof(IDxcBlobEncoding)>> IDx
 typedef _com_ptr_t<_com_IIID<ID3D12LibraryReflection, &__uuidof(ID3D12LibraryReflection)>>
     ID3D12LibraryReflectionComPtr;
 #endif // GFXRECON_DXC_SUPPORT
+
+typedef std::unordered_map<format::HandleId, D3D12_GPU_VIRTUAL_ADDRESS_RANGE> ResourceVaRanges;
+typedef std::shared_ptr<ResourceVaRanges>                                     ResourceVaRangesPtr;
+typedef std::unordered_map<format::HandleId, ResourceVaRangesPtr>             DeviceVaRanges;
 
 struct CommandSet
 {
@@ -289,6 +297,9 @@ IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int3
 // If the underlying D3D call fails, the function will also return false and the
 // error will be logged.
 bool IsUma(ID3D12Device* device);
+
+// Returns whether the specified device supports recreate at functionality for buffer and heap GPU VA ranges.
+bool SupportsRecreateAt(ID3D12Device* device);
 
 // This function is used to get available GPU virtual memory.
 // The input is current adapter which created current device.
