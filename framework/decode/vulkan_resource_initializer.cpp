@@ -105,6 +105,12 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     {
         GFXRECON_LOG_WARNING("%s: no suitable staging-buffer could be created", __func__);
     }
+
+    constexpr VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                                             nullptr,
+                                             static_cast<VkFenceCreateFlags>(0) };
+    VkResult                    result   = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence_);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
@@ -130,6 +136,11 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
     if (draw_set_layout_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+    }
+
+    if (fence_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyFence(device_, fence_, nullptr);
     }
 }
 
@@ -1063,8 +1074,6 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 
             if (result == VK_SUCCESS)
             {
-                staging_buffer_size_ = size;
-
                 // Map staging buffer
                 result =
                     resource_allocator_->MapResourceMemoryDirect(staging_buffer_size_,
@@ -1185,28 +1194,25 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
-    const VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, VkFenceCreateFlags(0) };
-    VkFence                 fence;
-
-    VkResult result = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence);
+    VkResult result = device_table_->QueueSubmit(queue, 1, &submit_info, fence_);
     if (result != VK_SUCCESS)
     {
         return result;
     }
 
-    result = device_table_->QueueSubmit(queue, 1, &submit_info, fence);
-    if (result != VK_SUCCESS)
-    {
-        device_table_->DestroyFence(device_, fence, nullptr);
-        return result;
-    }
+    // keep track of queue-submits for introspection and profiling
+    num_queue_submits_++;
 
     // Wait a sensible amount of time (10 seconds) to avoid hanging in case a prior
     // operation caused the GPU to hang or crash.
-    result = device_table_->WaitForFences(device_, 1, &fence, VK_TRUE, 10000000000);
+    result = device_table_->WaitForFences(device_, 1, &fence_, VK_TRUE, 10000000000);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
 
-    device_table_->DestroyFence(device_, fence, nullptr);
-
+    // reset to unsignaled state
+    result = device_table_->ResetFences(device_, 1, &fence_);
     return result;
 }
 
