@@ -97,6 +97,7 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     VkDeviceSize staging_buffer_min = std::max<VkDeviceSize>(max_copy_size, 32U << 20U);
     VkDeviceSize staging_buffer_max = std::max<VkDeviceSize>(staging_buffer_min, 128U << 20U);
     staging_buffer_size_            = std::clamp(total_copy_size, staging_buffer_min, staging_buffer_max);
+    staging_buffer_size_            = util::aligned_value(staging_buffer_size_, staging_buffer_alignment_);
 
     VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
@@ -1023,10 +1024,11 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 {
     VkResult result = VK_SUCCESS;
 
-    // align staging-buffer size to VkPhysicalDeviceLimits::nonCoherentAtomSize
-    size = util::aligned_value(size, staging_buffer_alignment_);
+    // increase size if necessary, but we expect this is not necessary
+    GFXRECON_ASSERT(size <= staging_buffer_size_);
+    size = std::max<VkDeviceSize>(util::aligned_value(size, staging_buffer_alignment_), staging_buffer_size_);
 
-    if ((staging_buffer_ == VK_NULL_HANDLE) || (size > staging_buffer_size_))
+    if (staging_buffer_ == VK_NULL_HANDLE || size > staging_buffer_size_)
     {
         if (staging_buffer_ != VK_NULL_HANDLE)
         {
@@ -1074,6 +1076,8 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 
             if (result == VK_SUCCESS)
             {
+                staging_buffer_size_ = size;
+
                 // Map staging buffer
                 result =
                     resource_allocator_->MapResourceMemoryDirect(staging_buffer_size_,
@@ -1092,7 +1096,6 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
             }
         }
     }
-
     return result;
 }
 
