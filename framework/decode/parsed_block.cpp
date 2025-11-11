@@ -60,13 +60,13 @@ BlockBuffer::BlockSpan::size_type ParsedBlock::GetUncompressedSize(Args& args)
     return 0;
 }
 
-void ParsedBlock::Decompress(BlockParser& parser)
+bool ParsedBlock::Decompress(BlockParser& parser)
 {
     // Shouldn't call this unless we know it's needed
     // Also, not safe if it isn't needed...
     if (!NeedsDecompression())
     {
-        return;
+        return IsReady();
     }
 
     auto decompress = [this, &parser](auto&& args_store) {
@@ -76,14 +76,18 @@ void ParsedBlock::Decompress(BlockParser& parser)
         {
             auto compressed_span     = GetCompressedSpan(args);
             auto uncompressed_size   = GetUncompressedSize(args);
-            auto uncompressed_buffer = parser.DecompressSpan(compressed_span, uncompressed_size);
-            // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
-            args.data = uncompressed_buffer.template GetAs<const uint8_t>();
-            UpdateUncompressedStore(std::move(uncompressed_buffer));
+            auto result              = parser.DecompressSpan(compressed_span, uncompressed_size);
+            if (result.success)
+            {
+                // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
+                args.data = result.decompressed_store.template GetAs<const uint8_t>();
+                UpdateUncompressedStore(std::move(result.decompressed_store));
+            }
         }
     };
 
     std::visit(decompress, dispatch_args_);
+    return IsReady();
 }
 
 void ParsedBlock::UpdateUncompressedStore(UncompressedStore&& from_store)

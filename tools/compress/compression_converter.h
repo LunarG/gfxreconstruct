@@ -46,36 +46,36 @@ class CompressionConverter : public decode::FileTransformer
                     format::CompressionType target_compression_type);
 
   protected:
-    virtual bool WriteFileHeader(const format::FileHeader&                  header,
-                                 const std::vector<format::FileOptionPair>& options) override;
+    bool WriteFileHeader(const format::FileHeader& header, const std::vector<format::FileOptionPair>& options) override;
 
-    virtual bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id) override;
+    bool ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
+    bool ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
 
-    virtual bool
-    ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, uint64_t block_index = 0) override;
-
-    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id) override;
+    bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
 
   private:
-    bool WriteFunctionCall(format::ApiCallId call_id, format::ThreadId thread_id, size_t buffer_size);
+    bool
+    WriteFunctionCall(format::ApiCallId call_id, format::ThreadId thread_id, size_t buffer_size, const uint8_t* buffer);
 
     bool WriteMethodCall(format::ApiCallId call_id,
                          format::HandleId  object_id,
                          format::ThreadId  thread_id,
-                         size_t            buffer_size);
+                         size_t            buffer_size,
+                         const uint8_t*    buffer);
 
-    bool WriteFillMemoryMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+    // Specialists called by the vistor in ProcessMetaData
+    VisitResult WriteMetaData(const decode::FillMemoryArgs& args);
+    VisitResult WriteMetaData(const decode::InitBufferArgs& args);
+    VisitResult WriteMetaData(const decode::InitImageArgs& args);
+    VisitResult WriteMetaData(const decode::InitSubresourceArgs& args);
+    VisitResult WriteMetaData(const decode::InitDx12AccelerationStructureArgs& args);
+    VisitResult WriteMetaData(const decode::FillMemoryResourceValueArgs& args);
 
-    bool WriteInitBufferMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
-    bool WriteInitImageMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
-    bool WriteInitSubresourceMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
-    bool WriteInitDx12AccelerationStructureMetaData(const format::BlockHeader& block_header,
-                                                    format::MetaDataId         meta_data_id);
-
-    bool WriteFillMemoryResourceValueMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+    template <typename Args>
+    VisitResult WriteMetaData(Args&)
+    {
+        return kNeedsPassthrough;
+    }
 
     void PrepMetadataBlock(format::MetaDataHeader& meta_data_header,
                            format::MetaDataId      meta_data_id,

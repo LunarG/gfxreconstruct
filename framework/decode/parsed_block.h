@@ -76,7 +76,6 @@ class ParsedBlock
         kUnknown,            // Set when block is of an unknown type (no parsing done beyond header)
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
-        kSkip,               // Set when block should be skipped
     };
 
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
@@ -86,12 +85,26 @@ class ParsedBlock
     bool IsReady() const { return state_ == BlockState::kReady; }
     bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
     bool IsUnknown() const { return state_ == BlockState::kUnknown; }
-    bool IsSkip() const { return state_ == BlockState::kSkip; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
     BlockState            GetState() const { return state_; }
     const util::DataSpan& GetBlockData() const { return block_data_; }
     const DispatchArgs&   GetArgs() const { return dispatch_args_; }
     explicit              operator bool() const { return IsValid(); }
+
+    template <typename T>
+    bool Holds() const
+    {
+        using Store = DispatchStore<T>;
+        return std::holds_alternative<Store>(dispatch_args_);
+    }
+
+    template <typename T>
+    const T& Get() const
+    {
+        using Store = DispatchStore<T>;
+        GFXRECON_ASSERT(Holds<T>());
+        return *(std::get<Store>(dispatch_args_));
+    }
 
     // Move only (has owning data)
     ParsedBlock(ParsedBlock&&) noexcept            = default;
@@ -101,11 +114,18 @@ class ParsedBlock
     ParsedBlock(const ParsedBlock&)            = delete;
     ParsedBlock& operator=(const ParsedBlock&) = delete;
 
-    // the EmptyBlockTag tag isn't really needed, we could just overload on BlockState, but I want to make this more
+    // The *BlockTag tags aren't really needed, we could just overload on BlockState, but I want to make this more
     // obvious.
-    struct EmptyBlockTag
+    struct InvalidBlockTag // Marks an empty block with no valid data
     {};
-    ParsedBlock(const EmptyBlockTag&, BlockState reason) : block_data_(), uncompressed_store_(), state_(reason) {}
+    ParsedBlock(const InvalidBlockTag&) : block_data_(), uncompressed_store_(), state_(BlockState::kInvalid) {}
+
+    struct UnknownBlockTag // Marks an unparsed block, either because the block type is unknown, or is known, but has no
+                           // matching Args struct
+    {};
+    ParsedBlock(const UnknownBlockTag&, util::DataSpan&& block_data) :
+        block_data_(std::move(block_data)), uncompressed_store_(), state_(BlockState::kUnknown)
+    {}
 
     // NOTE: need to ensure correct state is state vis-a-vis uncompressed store
     // This is called for compressed blocks to provide the backing store for the uncompress parameter block views
@@ -124,7 +144,7 @@ class ParsedBlock
         state_(is_compressed ? BlockState::kDeferredDecompress : BlockState::kReady)
     {}
 
-    void Decompress(BlockParser& parser);
+    [[nodiscard]] bool Decompress(BlockParser& parser);
 
   private:
     template <typename Args>

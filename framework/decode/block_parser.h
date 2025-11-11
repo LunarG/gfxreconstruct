@@ -39,20 +39,30 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 using FileInputStream    = util::FStreamFileInputStream;
 using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
 
-enum BlockReadError : int32_t
+enum BlockIOError : int32_t
 {
     kEndOfFile                         = 1, // when block reading is EOF at a block boundary
     kErrorNone                         = 0,
     kErrorInvalidFileDescriptor        = -1,
     kErrorOpeningFile                  = -2,
-    kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
+    kErrorReadingFile                  = -3, // ferror() return true at start of file
     kErrorReadingFileHeader            = -4,
     kErrorReadingBlockHeader           = -5,
     kErrorReadingCompressedBlockHeader = -6,
     kErrorReadingBlockData             = -7,
     kErrorReadingCompressedBlockData   = -8,
     kErrorInvalidFourCC                = -9,
-    kErrorUnsupportedCompressionType   = -10
+    kErrorUnsupportedCompressionType   = -10,
+    kErrorSeekingFile                  = -11, // Additional error types from FileTransformer
+    kErrorWritingFile                  = -12,
+    kErrorWritingFileHeader            = -13,
+    kErrorWritingBlockHeader           = -14,
+    kErrorWritingCompressedBlockHeader = -15,
+    kErrorWritingBlockData             = -16,
+    kErrorWritingCompressedBlockData   = -17,
+    kErrorCopyingBlockData             = -18,
+    kErrorUnsupportedBlockType         = -19
+
 };
 
 // TODO: Find a better allocator (or improve this one), and share with FileInputStream
@@ -90,7 +100,7 @@ class BlockParser
     [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
 
     // Parse the block header and load a block buffer
-    BlockReadError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
+    BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     // Define parsers for every block and sub-block type
     ParsedBlock ParseBlock(BlockBuffer& block_buffer);
@@ -101,10 +111,16 @@ class BlockParser
     ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
     ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
 
-    void                           HandleBlockReadError(BlockReadError error_code, const char* error_message);
-    ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message);
 
-    using ErrorHandler = std::function<void(BlockReadError, const char*)>;
+    struct DecompressionResult
+    {
+        ParsedBlock::UncompressedStore decompressed_store = {};
+        bool                           success            = false;
+    };
+    DecompressionResult DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
+
+    using ErrorHandler = std::function<void(BlockIOError, const char*)>;
     BlockParser(const ErrorHandler& err, BufferPool& pool, util::Compressor* compressor) :
         pool_(pool), err_handler_(err), compressor_(compressor)
     {}
