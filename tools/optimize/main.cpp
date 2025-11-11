@@ -136,12 +136,12 @@ void GetUnreferencedResources(const std::string&                              in
             exit(65);
         }
         else if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                 (file_processor.GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
+                 (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
             resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
         }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
+        else if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
@@ -165,7 +165,7 @@ void FilterUnreferencedResources(const std::string&                             
     {
         file_processor.Process();
 
-        if (file_processor.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone)
+        if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
