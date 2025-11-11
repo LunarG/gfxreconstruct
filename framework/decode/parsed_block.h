@@ -73,10 +73,9 @@ class ParsedBlock
     enum BlockState
     {
         kInvalid = 0,        // Set on read error (typically block size doesn't match expected parsed size)
-        kUnknown,            // Set when block is of an unknown type (no parsing done beyond header)
+        kRawBlock,           // Set when block is of an unknown type (no parsing done beyond header)
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
-        kSkip,               // Set when block should be skipped
     };
 
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
@@ -85,8 +84,7 @@ class ParsedBlock
     bool IsValid() const { return state_ != BlockState::kInvalid; }
     bool IsReady() const { return state_ == BlockState::kReady; }
     bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
-    bool IsUnknown() const { return state_ == BlockState::kUnknown; }
-    bool IsSkip() const { return state_ == BlockState::kSkip; }
+    bool IsRawBlock() const { return state_ == BlockState::kRawBlock; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
     BlockState            GetState() const { return state_; }
     const util::DataSpan& GetBlockData() const { return block_data_; }
@@ -101,11 +99,18 @@ class ParsedBlock
     ParsedBlock(const ParsedBlock&)            = delete;
     ParsedBlock& operator=(const ParsedBlock&) = delete;
 
-    // the EmptyBlockTag tag isn't really needed, we could just overload on BlockState, but I want to make this more
+    // The *BlockTag tags aren't really needed, we could just overload on BlockState, but I want to make this more
     // obvious.
-    struct EmptyBlockTag
+    struct InvalidBlockTag // Marks an empty block with no valid data
     {};
-    ParsedBlock(const EmptyBlockTag&, BlockState reason) : block_data_(), uncompressed_store_(), state_(reason) {}
+    ParsedBlock(const InvalidBlockTag&) : block_data_(), uncompressed_store_(), state_(BlockState::kInvalid) {}
+
+    struct RawBlockTag // Marks an unparsed block, either because the block type is unknown, or valid, but has no match
+                       // Args struct
+    {};
+    ParsedBlock(const RawBlockTag&, util::DataSpan&& block_data) :
+        block_data_(std::move(block_data)), uncompressed_store_(), state_(BlockState::kRawBlock)
+    {}
 
     // NOTE: need to ensure correct state is state vis-a-vis uncompressed store
     // This is called for compressed blocks to provide the backing store for the uncompress parameter block views

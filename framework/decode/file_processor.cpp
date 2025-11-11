@@ -49,12 +49,6 @@ FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
 
 FileProcessor::~FileProcessor()
 {
-    if (nullptr != compressor_)
-    {
-        delete compressor_;
-        compressor_ = nullptr;
-    }
-
     DecodeAllocator::DestroyInstance();
 }
 
@@ -221,7 +215,7 @@ bool FileProcessor::ProcessFileHeader()
                     }
                 }
 
-                compressor_ = format::CreateCompressor(enabled_options_.compression_type);
+                compressor_.reset(format::CreateCompressor(enabled_options_.compression_type));
 
                 if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
                 {
@@ -272,8 +266,8 @@ bool FileProcessor::ProcessBlocks()
     BlockBuffer         block_buffer;
     bool                success = true;
 
-    auto        err_handler = [this](BlockReadError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_);
+    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
+    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
     // NOTE: To test deferred decompression operation uncomment next line
     // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 
@@ -321,7 +315,7 @@ bool FileProcessor::ProcessBlocks()
                             std::visit(dispatch_visitor, parsed_block.GetArgs());
                         }
                     }
-                    else if (parsed_block.IsUnknown())
+                    else if (parsed_block.IsRawBlock())
                     {
                         // Unrecognized block type.
                         GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64
@@ -511,7 +505,7 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
     }
 }
 
-void FileProcessor::HandleBlockReadError(BlockReadError error_code, const char* error_message)
+void FileProcessor::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
     GFXRECON_ASSERT(!file_stack_.empty());
     const auto& active_file = file_stack_.back().active_file;

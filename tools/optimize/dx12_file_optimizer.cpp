@@ -44,8 +44,7 @@ void Dx12FileOptimizer::SetFillCommandResourceValues(
     }
 }
 
-bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header,
-                                                          format::MetaDataId         meta_data_id)
+bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand()
 {
     bool success = true;
 
@@ -125,20 +124,25 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(const format::BlockHea
     return success;
 }
 
-bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id)
+template <typename Args>
+decode::FileTransformer::VisitResult Dx12FileOptimizer::VisitMetaData([[maybe_unused]] const Args& args)
 {
-    format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
-
+    constexpr bool kIsFillMemoryCommand      = std::is_same_v<decode::FillMemoryArgs, Args>;
+    constexpr bool kIsInitSubresourceCommand = std::is_same_v<decode::InitSubresourceArgs, Args>;
     // If needed, add a FillMemoryResourceValueCommand before the fill memory command.
-    if ((meta_data_type == format::MetaDataType::kFillMemoryCommand) ||
-        (meta_data_type == format::MetaDataType::kInitSubresourceCommand))
+    if constexpr (kIsFillMemoryCommand || kIsInitSubresourceCommand)
     {
+        GFXRECON_ASSERT(!kIsFillMemoryCommand ||
+                        (format::MetaDataType::kFillMemoryCommand == format::GetMetaDataType(args.meta_data_id)));
+        GFXRECON_ASSERT(!kIsInitSubresourceCommand ||
+                        (format::MetaDataType::kInitSubresourceCommand == format::GetMetaDataType(args.meta_data_id)));
+
         if ((fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()))
         {
             if ((resource_values_iter_ != fill_command_resource_values_->end()) &&
                 (resource_values_iter_->first == GetCurrentBlockIndex()))
             {
-                if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+                if (!AddFillMemoryResourceValueCommand())
                 {
                     GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR or EI "
                                        "optimization. Optimized file may be invalid.");
@@ -155,7 +159,7 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
             fill_command_resource_values_ = &rvm;
             resource_values_iter_         = fill_command_resource_values_->begin();
 
-            if (!AddFillMemoryResourceValueCommand(block_header, meta_data_id))
+            if (!AddFillMemoryResourceValueCommand())
             {
                 GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR/EI optimization. "
                                    "Optimized file may be invalid.");
@@ -166,7 +170,21 @@ bool Dx12FileOptimizer::ProcessMetaData(const format::BlockHeader& block_header,
         }
     }
 
-    return FileOptimizer::ProcessMetaData(block_header, meta_data_id);
+    // Always passthrough, even on failure.
+    return kNeedsPassthrough;
+}
+
+bool Dx12FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
+{
+    auto                meta_visitor = [this](const auto& store) { return VisitMetaData(*store); };
+    VisitResult         result       = std::visit(meta_visitor, parsed_block.GetArgs());
+
+    if (result == kNeedsPassthrough)
+    {
+        return FileOptimizer::ProcessMetaData(parsed_block);
+    }
+
+    return result == kSuccess;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

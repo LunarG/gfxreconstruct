@@ -38,19 +38,29 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 using FileInputStream    = util::FStreamFileInputStream;
 using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
 
-enum BlockReadError : int32_t
+enum BlockIOError : int32_t
 {
     kErrorNone                         = 0,
     kErrorInvalidFileDescriptor        = -1,
     kErrorOpeningFile                  = -2,
-    kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
+    kErrorReadingFile                  = -3,
     kErrorReadingFileHeader            = -4,
     kErrorReadingBlockHeader           = -5,
     kErrorReadingCompressedBlockHeader = -6,
     kErrorReadingBlockData             = -7,
     kErrorReadingCompressedBlockData   = -8,
     kErrorInvalidFourCC                = -9,
-    kErrorUnsupportedCompressionType   = -10
+    kErrorUnsupportedCompressionType   = -10,
+    kErrorSeekingFile                  = -11, // Additional error types from FileTransformer
+    kErrorWritingFile                  = -12,
+    kErrorWritingFileHeader            = -13,
+    kErrorWritingBlockHeader           = -14,
+    kErrorWritingCompressedBlockHeader = -15,
+    kErrorWritingBlockData             = -16,
+    kErrorWritingCompressedBlockData   = -17,
+    kErrorCopyingBlockData             = -18,
+    kErrorUnsupportedBlockType         = -19
+
 };
 
 // TODO: Find a better allocator (or improve this one), and share with FileInputStream
@@ -91,10 +101,10 @@ class BlockParser
     ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
     ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
 
-    void                           HandleBlockReadError(BlockReadError error_code, const char* error_message);
+    void                           HandleBlockReadError(BlockIOError error_code, const char* error_message);
     ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
 
-    using ErrorHandler = std::function<void(BlockReadError, const char*)>;
+    using ErrorHandler = std::function<void(BlockIOError, const char*)>;
     BlockParser(const ErrorHandler& err, BufferPool& pool, util::Compressor* compressor) :
         pool_(pool), err_handler_(err), compressor_(compressor)
     {}
