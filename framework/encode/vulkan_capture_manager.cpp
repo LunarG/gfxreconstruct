@@ -2651,6 +2651,16 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
     }
 }
 
+void VulkanCaptureManager::SetOriginalMappedMemoryPointer(VkDeviceMemory memory, const void* original_ptr)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+    assert(wrapper != nullptr);
+    if (wrapper->mapped_data != nullptr)
+    {
+        wrapper->original_mapped_data = original_ptr;
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
@@ -2673,6 +2683,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
             wrapper->mapped_offset = 0;
             wrapper->mapped_size   = 0;
         }
+        wrapper->original_mapped_data = nullptr;
 
         if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)

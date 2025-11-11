@@ -289,6 +289,12 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
+        self.NEED_TEMP_VALUE_OVERRIDES = {
+            "vkMapMemory": False,
+            "vkMapMemory2": False,
+            "vkMapMemory2KHR": False,
+        }
+
         self.VIDEO_TREE = None
 
         self.generate_video = False
