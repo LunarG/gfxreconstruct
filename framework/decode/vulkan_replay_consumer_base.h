@@ -802,14 +802,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                     HandlePointerDecoder<VkDeviceMemory>*                      pMemory);
 
-    VkResult OverrideMapMemory(PFN_vkMapMemory         func,
-                               VkResult                original_result,
-                               const VulkanDeviceInfo* device_info,
-                               VulkanDeviceMemoryInfo* memory_info,
-                               VkDeviceSize            offset,
-                               VkDeviceSize            size,
-                               VkMemoryMapFlags        flags,
-                               void**                  ppData);
+    VkResult OverrideMapMemory(PFN_vkMapMemory                  func,
+                               VkResult                         original_result,
+                               const VulkanDeviceInfo*          device_info,
+                               VulkanDeviceMemoryInfo*          memory_info,
+                               VkDeviceSize                     offset,
+                               VkDeviceSize                     size,
+                               VkMemoryMapFlags                 flags,
+                               PointerDecoder<uint64_t, void*>* ppData);
 
     void OverrideUnmapMemory(PFN_vkUnmapMemory       func,
                              const VulkanDeviceInfo* device_info,
@@ -1524,7 +1524,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                 VkResult                                       original_result,
                                 const VulkanDeviceInfo*                        device_info,
                                 StructPointerDecoder<Decoded_VkMemoryMapInfo>* pMemoryMapInfo,
-                                void**                                         ppData);
+                                PointerDecoder<uint64_t, void*>*               ppData);
 
     VkResult OverrideUnmapMemory2(PFN_vkUnmapMemory2                               func,
                                   VkResult                                         original_result,
@@ -1662,6 +1662,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
 
     void WriteTrimBlockForRecapture(const ParsedBlock* parsed_block);
+
+    void SetOriginalMappedMemoryPointer(VkResult                         replay_result,
+                                        VkDeviceMemory                   handle,
+                                        PointerDecoder<uint64_t, void*>* data_ptr_decoder);
+
     //// End recapture members
 
   private:

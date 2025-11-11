@@ -468,6 +468,8 @@ class KhronosBaseGenerator(OutputGenerator):
         # These types represent pointers to non-Khronos objects that were written as 64-bit address IDs.
         self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
+        self.NEED_TEMP_VALUE_OVERRIDES = {}
+
         # Commands for which no code generation should be done
         self.MANUALLY_GENERATED_COMMANDS = set()
 
