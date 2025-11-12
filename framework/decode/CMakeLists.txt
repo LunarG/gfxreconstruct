@@ -118,6 +118,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${CMAKE_CURRENT_LIST_DIR}/openxr_tracked_object_info_table.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/mark_injected_commands.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/parsed_block.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parsed_block.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder.h

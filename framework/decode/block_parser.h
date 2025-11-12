@@ -112,31 +112,6 @@ class BlockParser
     void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
     DecompressionPolicy GetDecompressionPolicy() const { return decompression_policy_; }
 
-    class DecompressionVisitor
-    {
-      public:
-        template <typename Args>
-        void Visit(ParsedBlock& parsed_block, Args& args)
-        {
-            // Shouldn't call this unless we know it's needed
-            // Also, not safe if it isn't needed...
-            GFXRECON_ASSERT(parsed_block.NeedsDecompression());
-            if constexpr (DispatchTraits<Args>::kHasData)
-            {
-                auto compressed_span     = parsed_block.GetCompressedSpan(args);
-                auto uncompressed_size   = ParsedBlock::GetUncompressedSize(args);
-                auto uncompressed_buffer = parser_.DecompressSpan(compressed_span, uncompressed_size);
-                // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
-                args.data = uncompressed_buffer.template GetAs<const uint8_t>();
-                parsed_block.UpdateUncompressedStore(std::move(uncompressed_buffer));
-            }
-        }
-        DecompressionVisitor(BlockParser& parser) : parser_(parser) {}
-
-      private:
-        BlockParser& parser_;
-    };
-
   private:
     struct ParameterReadResult
     {

@@ -244,12 +244,8 @@ class FileProcessor
     {
       public:
         template <typename Args>
-        void Visit(ParsedBlock& parsed_block, const Args& args)
+        void operator()(const Args& args)
         {
-            if (parsed_block.NeedsDecompression())
-            {
-                parsed_block.Visit(decompressor_);
-            }
             constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
             for (auto decoder : decoders_)
             {
@@ -264,7 +260,7 @@ class FileProcessor
                 }
             }
         }
-        void Visit(ParsedBlock& parsed_block, const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs& annotation)
         {
             if (annotation_handler_)
             {
@@ -274,39 +270,43 @@ class FileProcessor
                 std::apply(annotation_call, annotation.GetTuple());
             }
         }
-        DispatchVisitor(BlockParser&                    parser,
-                        const std::vector<ApiDecoder*>& decoders,
-                        AnnotationHandler*              annotation_handler) :
-            decoders_(decoders),
-            annotation_handler_(annotation_handler), decompressor_(parser)
+
+        // Avoid unpacking the Arg from it's store in the Arg specific overloads
+        template <typename Args>
+        void operator()(const DispatchStore<Args>& store)
+        {
+            this->operator()(*store);
+        }
+
+        DispatchVisitor(const std::vector<ApiDecoder*>& decoders, AnnotationHandler* annotation_handler) :
+            decoders_(decoders), annotation_handler_(annotation_handler)
         {}
 
       private:
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
-        BlockParser::DecompressionVisitor decompressor_;
     };
 
     class ProcessVisitor
     {
       public:
-        // NOTE: All Visit overloads should set all state, as there's no way to prevent
-        //       the caller from *reusing* a Visitor object across any number of Visit calls
+        // NOTE: All overloads should set all state, as the caller is *reusing* the Visitor object across a number of
+        //       std::visit calls
 
         // Frame boundary control
-        void Visit(const ParsedBlock& parsed_block, const FunctionCallArgs& function_call)
+        void operator()(const FunctionCallArgs& function_call)
         {
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call.call_id);
             success            = true;
         }
 
-        void Visit(const ParsedBlock& parsed_block, const MethodCallArgs& method_call)
+        void operator()(const MethodCallArgs& method_call)
         {
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call.call_id);
             success            = true;
         }
 
-        void Visit(const ParsedBlock& parsed_block, const FrameEndMarkerArgs& end_frame)
+        void operator()(const FrameEndMarkerArgs& end_frame)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(end_frame);
@@ -314,7 +314,7 @@ class FileProcessor
         }
 
         // I/O Control
-        void Visit(const ParsedBlock& parsed_block, const ExecuteBlocksFromFileArgs& execute_blocks)
+        void operator()(const ExecuteBlocksFromFileArgs& execute_blocks)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -322,7 +322,7 @@ class FileProcessor
         }
 
         // State Marker control
-        void Visit(const ParsedBlock& parsed_block, const StateBeginMarkerArgs& state_begin)
+        void operator()(const StateBeginMarkerArgs& state_begin)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -330,7 +330,7 @@ class FileProcessor
             file_processor_.ProcessStateBeginMarker(state_begin);
         }
 
-        void Visit(const ParsedBlock& parsed_block, const StateEndMarkerArgs& state_end)
+        void operator()(const StateEndMarkerArgs& state_end)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -338,7 +338,7 @@ class FileProcessor
             file_processor_.ProcessStateEndMarker(state_end);
         }
 
-        void Visit(const ParsedBlock& parsed_block, const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs& annotation)
         {
             // The block and marker type are implied by the Command type
             is_frame_delimiter = false;
@@ -347,11 +347,18 @@ class FileProcessor
         }
 
         template <typename Args>
-        void Visit(const ParsedBlock& parsed_block, const Args&)
+        void operator()(const Args&)
         {
             // The default behavior for a Visit is a successful, non-frame-delimiter
             is_frame_delimiter = false;
             success            = true;
+        }
+
+        // Avoid unpacking the Arg from it's store in the Arg specific overloads
+        template <typename Args>
+        void operator()(const DispatchStore<Args>& store)
+        {
+            this->operator()(*store);
         }
 
         bool IsSuccess() const { return success; }
