@@ -73,6 +73,8 @@ class Application final
 
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
+    void SetStreamlineAnnotate(bool streamline_annotate) { streamline_annotate_ = streamline_annotate; }
+
     bool PlaySingleFrame();
 
     void ProcessEvents(bool wait_for_input);
@@ -85,7 +87,10 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-    void StopRunning() { running_ = false; }
+    void StopRunning()
+    {
+        running_ = false;
+    }
 
     uint32_t GetCurrentFrameNumber() const
     {
@@ -99,6 +104,7 @@ class Application final
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
+    bool                                                         streamline_annotate_;   ///< Set if the application should annotate frames using gator for Streamline
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.

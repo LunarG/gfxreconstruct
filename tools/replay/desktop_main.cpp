@@ -315,6 +315,7 @@ int main(int argc, const char** argv)
             fps_info.BeginFile();
 
             application->SetPauseFrame(GetPauseFrame(arg_parser));
+            application->SetStreamlineAnnotate(vulkan_replay_options.streamline_annotate);
             application->SetFpsInfo(&fps_info);
             application->Run();
 

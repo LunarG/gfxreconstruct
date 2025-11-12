@@ -295,6 +295,7 @@ Optional arguments:
                         Replay may fail if the specified device is not compatible with the
                         original capture devices.
   --pbi-all             Print all block information.
+  --streamline-annotate Add gator annotation tags to mark replay frames.
   --pbis <index1,index2>Print block information between block index1 and block index2.
 
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.

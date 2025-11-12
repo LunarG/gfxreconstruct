@@ -1018,6 +1018,7 @@ options:
   --dump-resources-dump-separate-alpha
                         Dump image alpha in a separate image file.
   --pbi-all             Print all block information.
+  --streamline-annotate Add gator annotation tags to mark replay frames.
   --pbis RANGES         Print block information between block index1 and block
                         index2
   --pcj, --pipeline-creation-jobs

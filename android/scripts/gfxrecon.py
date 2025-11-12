@@ -148,6 +148,7 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-unused-vertex-bindings', action='store_true', default=False, help= 'Dump a vertex binding even if no vertex attributes references it.')
     parser.add_argument('--dump-resources-binary-file-compression-type', metavar='FORMAT', choices=['none', 'lz4', 'zlib', 'zstd'], help='Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib, zstd]. Default is none (no compression).')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
+    parser.add_argument('--streamline-annotate', action='store_true', default=False, help='Add gator annotation tags to mark replay frames.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
     parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
@@ -350,6 +351,9 @@ def MakeExtrasString(args):
 
     if args.pbi_all:
         arg_list.append('--pbi-all')
+
+    if args.streamline_annotate:
+        arg_list.append('--streamline-annotate')
 
     if args.pbis:
         arg_list.append('--pbis')

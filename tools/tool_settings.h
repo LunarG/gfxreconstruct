@@ -147,6 +147,7 @@ const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
+const char kStreamlineAnnotateOption[]            = "--streamline-annotate";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -1069,6 +1070,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsArgumentSet(kQuitAfterFrameArgument))
     {
         options.quit_after_frame = true;
+    }
+
+    if (arg_parser.IsOptionSet(kStreamlineAnnotateOption))
+    {
+        options.streamline_annotate = true;
     }
 
     IsForceWindowed(options, arg_parser);

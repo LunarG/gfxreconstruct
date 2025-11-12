@@ -15,6 +15,9 @@ target_sources(gfxrecon_application_multiwin
                    ${GFXRECON_SOURCE_DIR}/framework/application/application.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.h
                    ${GFXRECON_SOURCE_DIR}/framework/application/wsi_context.cpp
+                   ${GFXRECON_SOURCE_DIR}/external/gator/include/streamline_annotate_logging.h
+                   ${GFXRECON_SOURCE_DIR}/external/gator/include/streamline_annotate.h
+                   ${GFXRECON_SOURCE_DIR}/external/gator/src/streamline_annotate.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/application/android_jni.cpp
               )
 
@@ -25,7 +28,8 @@ endif()
 
 target_include_directories(gfxrecon_application_multiwin
                            PUBLIC
-                               ${GFXRECON_SOURCE_DIR}/framework)
+                               ${GFXRECON_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/external/gator/include)
 
 target_link_libraries(gfxrecon_application_multiwin
                       gfxrecon_decode
