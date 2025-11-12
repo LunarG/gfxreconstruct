@@ -168,8 +168,7 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
     if (DecompressWhenParsed(parsed_block))
     {
         GFXRECON_ASSERT(format::IsBlockCompressed(block_buffer.Header().type));
-        DecompressionVisitor decompressor(*this);
-        parsed_block.Visit(decompressor);
+        parsed_block.Decompress(*this);
     }
 
     return parsed_block;
