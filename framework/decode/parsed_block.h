@@ -30,6 +30,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+class BlockParser;
+
 // -----------------------------------------------------------------------------
 // ParsedBlock
 //
@@ -122,58 +124,15 @@ class ParsedBlock
         state_(is_compressed ? BlockState::kDeferredDecompress : BlockState::kReady)
     {}
 
-    template <typename Visitor>
-    void Visit(Visitor& visitor)
-    {
-        if (state_ != BlockState::kSkip)
-        {
-            GFXRECON_ASSERT((state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress));
-            auto visit_call = [this, &visitor](auto&& args) { visitor.Visit(*this, *args); };
-            std::visit(visit_call, dispatch_args_);
-        }
-    }
-
-    template <typename Args>
-    BlockBuffer::BlockSpan GetCompressedSpan(Args& args)
-    {
-        if constexpr (DispatchTraits<Args>::kHasData)
-        {
-            // The data field for a deferred decompresion points to the start of the compressed block
-            GFXRECON_ASSERT(state_ == kDeferredDecompress);
-            GFXRECON_ASSERT(!block_data_.empty());
-            // Assure that the data pointer is within block_data span (part 1)
-            GFXRECON_ASSERT(args.data >= block_data_.GetDataAs<uint8_t>());
-            const size_t offset = args.data - block_data_.GetDataAs<uint8_t>();
-
-            // Assure that the data pointer is within block_data span (part 2)
-            GFXRECON_ASSERT(offset <= block_data_.size());
-            return block_data_.AsSpan(offset);
-        }
-        return BlockBuffer::BlockSpan();
-    }
-
-    template <typename Args>
-    static BlockBuffer::BlockSpan::size_type GetUncompressedSize(Args& args)
-    {
-        if constexpr (DispatchTraits<Args>::kHasDataSize)
-        {
-            return args.data_size;
-        }
-        else if constexpr (DispatchTraits<Args>::kHasCommandHeader)
-        {
-            return args.command_header.data_size;
-        }
-        return 0;
-    }
-
-    void UpdateUncompressedStore(UncompressedStore&& from_store)
-    {
-        GFXRECON_ASSERT(state_ == kDeferredDecompress);
-        state_              = kReady;
-        uncompressed_store_ = std::move(from_store);
-    }
+    void Decompress(BlockParser& parser);
 
   private:
+    template <typename Args>
+    BlockBuffer::BlockSpan GetCompressedSpan(Args& args);
+    template <typename Args>
+    static BlockBuffer::BlockSpan::size_type GetUncompressedSize(Args& args);
+    void                                     UpdateUncompressedStore(UncompressedStore&& from_store);
+
     template <typename ArgPayload>
     static DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
     {
