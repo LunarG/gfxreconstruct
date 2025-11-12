@@ -28,8 +28,6 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "util/compressor.h"
-#include "util/image_writer.h"
-#include "util/buffer_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -40,7 +38,6 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
-#include <sstream>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #if !defined(WIN32)
@@ -50,21 +47,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const CommandIndices*          dispatch_indices,
-                                                                 const CommandImageSubresource& disp_subresources,
-                                                                 const CommandIndices*          trace_rays_indices,
-                                                                 const CommandImageSubresource& tr_subresources,
-                                                                 CommonObjectInfoTable&         object_info_table,
-                                                                 const VulkanReplayOptions&     options,
-                                                                 VulkanDumpResourcesDelegate&   delegate,
-                                                                 const util::Compressor*        compressor) :
+DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
+    const CommandIndices*                       dispatch_indices,
+    const CommandImageSubresource&              disp_subresources,
+    const CommandIndices*                       trace_rays_indices,
+    const CommandImageSubresource&              tr_subresources,
+    CommonObjectInfoTable&                      object_info_table,
+    const VulkanReplayOptions&                  options,
+    VulkanDumpResourcesDelegate&                delegate,
+    const util::Compressor*                     compressor,
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&       address_trackers) :
     original_command_buffer_info_(nullptr),
     DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
     delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
     bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
     device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), reached_end_command_buffer_(false)
+    current_trace_rays_index_(0), reached_end_command_buffer_(false),
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
     if (dispatch_indices != nullptr)
     {
@@ -675,6 +676,16 @@ static void SnapshotBoundDescriptorsTraceRays(DispatchTraceRaysDumpingContext::T
 
                             tr_params.referenced_descriptors[desc_set_index][desc_binding_index]
                                 .buffer_info[array_idx] = buf_info;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        for (const auto& [array_idx, as_info] : binding_info.acceleration_structs_khr_info)
+                        {
+                            tr_params.referenced_descriptors[desc_set_index][desc_binding_index]
+                                .acceleration_structs_khr_info[array_idx] = as_info;
                         }
                     }
                     break;
@@ -1750,11 +1761,75 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                 }
                 break;
 
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                {
+                    for (const auto& [array_index, as_info] : desc_binding_info.acceleration_structs_khr_info)
+                    {
+                        if (as_info == nullptr)
+                        {
+                            continue;
+                        }
+
+                        GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+                        auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
+                            DumpResourceType::kAccelerationStructure,
+                            bcb_index,
+                            cmd_index,
+                            qs_index,
+                            desc_binding_info.stage_flags,
+                            desc_binding_info.desc_type,
+                            desc_set_index,
+                            desc_binding_index,
+                            array_index,
+                            as_info,
+                            options_.dump_resources_dump_build_AS_input_buffers,
+                            resource_type);
+
+                        auto& new_dumped_as =
+                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        const DescriptorLocation loc  = { desc_set_index, desc_binding_index, array_index };
+                        const auto& dumped_desc_entry = dumped_descriptors.acceleration_structures.find(loc);
+                        if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end())
+                        {
+                            dumped_descriptors.acceleration_structures.emplace(loc, new_dumped_as);
+
+                            VulkanDelegateDumpResourceContext res_info = res_info_base;
+                            res_info.dumped_resource                   = &new_dumped_desc;
+                            res_info.dumped_data = VulkanDelegateAccelerationStructureDumpedData();
+                            auto& dumped_as_data =
+                                std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
+
+                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
+                                                                             dumped_as_data.data,
+                                                                             acceleration_structures_context_,
+                                                                             device_info,
+                                                                             *device_table_,
+                                                                             object_info_table_,
+                                                                             *instance_table_,
+                                                                             address_trackers_);
+                            if (res != VK_SUCCESS)
+                            {
+                                GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
+                                                   as_info->capture_id,
+                                                   util::ToString(res).c_str());
+                                dumped_resources.dumped_descriptors.pop_back();
+                                return res;
+                            }
+
+                            delegate_.DumpResource(res_info);
+                        }
+                        else
+                        {
+                            new_dumped_as.CopyDumpedInfo(dumped_desc_entry->second);
+                        }
+                    }
+                }
+                break;
+
                 case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
                     break;
 
@@ -1850,10 +1925,12 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     VkBuffer       buffer_on_device_address;
     VkDeviceMemory buffer_on_device_address_memory;
     VkResult       res = CreateVkBuffer(size,
-                                  device_table_,
+                                  *device_table_,
                                   parent_device_,
-                                  reinterpret_cast<VkBaseInStructure*>(&bdaci),
+                                  reinterpret_cast<const VkBaseInStructure*>(&bdaci),
+                                  nullptr,
                                   replay_device_phys_mem_props_,
+                                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                   &buffer_on_device_address,
                                   &buffer_on_device_address_memory);
     if (res != VK_SUCCESS)
@@ -1868,10 +1945,12 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     VkBuffer       new_params_buffer;
     VkDeviceMemory new_params_buffer_memory;
     res = CreateVkBuffer(size,
-                         device_table_,
+                         *device_table_,
                          parent_device_,
-                         reinterpret_cast<VkBaseInStructure*>(&bdaci),
+                         reinterpret_cast<const VkBaseInStructure*>(&bdaci),
+                         nullptr,
                          replay_device_phys_mem_props_,
+                         VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                          &new_params_buffer,
                          &new_params_buffer_memory);
     if (res != VK_SUCCESS)
@@ -2168,9 +2247,9 @@ void DispatchTraceRaysDumpingContext::SecondaryUpdateContextFromPrimary(
     }
 
     // Having updated all secondary's context attributes update its dispatch/trace rays params.
-    // Secondary command buffer can inherit state from the primary. Part of that state that we care about are the bound
-    // descriptors. If that state is missing from the secondary then we get it from the primary. The best time to do
-    // this is when vkCmdExecuteCommands is called.
+    // Secondary command buffer can inherit state from the primary. Part of that state that we care about are the
+    // bound descriptors. If that state is missing from the secondary then we get it from the primary. The best time
+    // to do this is when vkCmdExecuteCommands is called.
     for (auto& params : dispatch_params_)
     {
         GFXRECON_ASSERT(params.second);

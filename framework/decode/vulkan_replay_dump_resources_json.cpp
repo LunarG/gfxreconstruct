@@ -61,6 +61,8 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
     dr_options["dumpResourcesDumpSeparateAlpha"]        = options.dump_resources_dump_separate_alpha;
     dr_options["dumpResourcesDumpUnusedVertexBindings"] = options.dump_resources_dump_unused_vertex_bindings;
+    dr_options["dumpResourcesDumpBuildAccelerationStructuresInputBuffers"] =
+        options.dump_resources_dump_build_AS_input_buffers;
     dr_options["dumpResourcesBinaryFileCompressionType"] =
         format::GetCompressionTypeName(options.dump_resources_binary_file_compression_type);
 };
@@ -233,12 +235,15 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
                                                      const DumpedBuffer&     dumped_buffer)
 {
     const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
-    GFXRECON_ASSERT(buffer_info != nullptr);
 
-    json_entry["bufferId"] = buffer_info->capture_id;
-    json_entry["offset"]   = dumped_buffer.offset;
-    json_entry["size"]     = dumped_buffer.size;
-    json_entry["file"]     = dumped_buffer.filename;
+    if (buffer_info != nullptr)
+    {
+        json_entry["bufferId"] = buffer_info->capture_id;
+    }
+
+    json_entry["offset"] = dumped_buffer.offset;
+    json_entry["size"]   = dumped_buffer.size;
+    json_entry["file"]   = dumped_buffer.filename;
 
     if (dumped_buffer.compressed_size)
     {
@@ -249,15 +254,22 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
 void VulkanReplayDumpResourcesJson::InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry,
                                                            const DumpedBuffer&     dumped_buffer)
 {
-    const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
-    GFXRECON_ASSERT(buffer_info != nullptr);
-
     json_entry["beforeFile"] = dumped_buffer.filename;
 
     if (dumped_buffer.compressed_size)
     {
         json_entry["compressedSizeBefore"] = dumped_buffer.compressed_size;
     }
+}
+
+void VulkanReplayDumpResourcesJson::InsertASBuildRangeInfo(nlohmann::ordered_json&                         json_entry,
+                                                           const VkAccelerationStructureBuildRangeInfoKHR& range)
+{
+    auto& range_entry              = json_entry["VkAccelerationStructureBuildRangeInfoKHR"];
+    range_entry["primitiveCount"]  = range.primitiveCount;
+    range_entry["primitiveOffset"] = range.primitiveOffset;
+    range_entry["firstVertex"]     = range.firstVertex;
+    range_entry["transformOffset"] = range.transformOffset;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
