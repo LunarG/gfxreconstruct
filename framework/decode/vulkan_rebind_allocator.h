@@ -671,9 +671,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                             VkBuffer                     buffer,
                             VkImage                      image,
                             const std::string&           type_string,
-                            VkDeviceSize                 alloc_size,
-                            bool                         use_minimum_alloc_size,
-                            VkMemoryPropertyFlags        memory_prop_flags);
+                            VkDeviceSize                 alloc_size);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;

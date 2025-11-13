@@ -2730,14 +2730,14 @@ void VulkanRebindAllocator::RebindSparseMemory(const T&                     orig
                                                VkBuffer                     buffer,
                                                VkImage                      image,
                                                const std::string&           type_string,
-                                               VkDeviceSize                 alloc_size,
-                                               bool                         use_minimum_alloc_size,
-                                               VkMemoryPropertyFlags        memory_prop_flags)
+                                               VkDeviceSize                 alloc_size)
 {
+    static_assert(std::is_same_v<T, VkSparseMemoryBind> || std::is_same_v<T, VkSparseImageMemoryBind>);
+
     VmaMemoryInfo*& vma_mem_info = vma_memory_infos.emplace_back(nullptr);
 
     VkMemoryRequirements capture_req = {};
-    if (res_alloc_info->capture_mem_reqs.size() > 0)
+    if (!res_alloc_info->capture_mem_reqs.empty())
     {
         capture_req = res_alloc_info->capture_mem_reqs[0];
     }
@@ -2766,20 +2766,19 @@ void VulkanRebindAllocator::RebindSparseMemory(const T&                     orig
                 image, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
         }
 
-        VkDeviceSize new_alloc_size = alloc_size;
-        if (use_minimum_alloc_size)
+        if constexpr (std::is_same_v<T, VkSparseImageMemoryBind>)
         {
-            new_alloc_size = std::min(replay_req.size, new_alloc_size);
+            alloc_size = std::min(replay_req.size, mem_alloc_info->allocation_size - original_memory_bind.memoryOffset);
         }
 
         if (alloc_size > 0)
         {
-            replay_req.size = new_alloc_size;
+            replay_req.size = alloc_size;
         }
 
         if (capture_req.size != 0)
         {
-            capture_req.size = new_alloc_size;
+            capture_req.size = alloc_size;
         }
 
         VmaMemoryUsage usage;
@@ -2913,9 +2912,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     original_buffer_bind_info.buffer,
                     VK_NULL_HANDLE,
                     "buffer",
-                    original_memory_bind.size,
-                    false,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags);
+                    original_memory_bind.size);
                 ++alc_buf_mem_i;
             }
 
@@ -2938,8 +2935,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
             for (uint32_t img_op_mem_i = 0; img_op_mem_i < original_image_opaque_bind_info.bindCount; ++img_op_mem_i)
             {
                 const VkSparseMemoryBind& original_memory_bind = original_image_opaque_bind_info.pBinds[img_op_mem_i];
-                MemoryAllocInfo*          mem_alloc_info =
-                    reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
+                auto* mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
                 RebindSparseMemory<VkSparseMemoryBind, std::unordered_set<VmaDeviceMemoryBlock*>>(
                     original_memory_bind,
                     memory_binds.back()[img_op_mem_i],
@@ -2950,9 +2946,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     VK_NULL_HANDLE,
                     original_image_opaque_bind_info.image,
                     "imageOpaque",
-                    original_memory_bind.size,
-                    false,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags);
+                    original_memory_bind.size);
                 ++alc_img_op_mem_i;
             }
 
@@ -2972,11 +2966,8 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
             for (uint32_t img_mem_i = 0; img_mem_i < original_image_bind_info.bindCount; ++img_mem_i)
             {
                 const VkSparseImageMemoryBind& original_memory_bind = original_image_bind_info.pBinds[img_mem_i];
-                MemoryAllocInfo*               mem_alloc_info =
-                    reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
+                auto* mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
 
-                // TODO: Set the exact size in requirements.size for allocating sparse image memory.
-                VkDeviceSize size = mem_alloc_info->allocation_size - original_memory_bind.memoryOffset;
                 RebindSparseMemory<VkSparseImageMemoryBind, std::unordered_set<VmaDeviceMemoryBlock*>>(
                     original_memory_bind,
                     image_memory_binds.back()[img_mem_i],
@@ -2987,15 +2978,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                     VK_NULL_HANDLE,
                     original_image_bind_info.image,
                     "image",
-                    size,
-                    true,
-                    capture_memory_properties_.memoryTypes[mem_alloc_info->original_index].propertyFlags);
+                    0);
 
                 ++alc_img_mem_i;
             }
-
             modified_image_bind_info.pBinds = image_memory_binds.back().data();
-
             ++alc_img_i;
         }
 
