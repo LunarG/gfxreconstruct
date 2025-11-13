@@ -142,11 +142,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(VulkanBaseGenerator):
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
 
     def generate_replay_dump_resources(self):
         """Performs C++ code generation for replay dump resources."""

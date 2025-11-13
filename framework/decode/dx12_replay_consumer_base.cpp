@@ -566,14 +566,14 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
 }
 
 void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                             uint64_t         max_resource_size,
+                                                             uint64_t         total_copy_size,
                                                              uint64_t         max_copy_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(max_copy_size);
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
+    GFXRECON_UNREFERENCED_PARAMETER(total_copy_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_copy_size);
 
     auto device         = MapObject<ID3D12Device>(device_id);
-    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_resource_size);
+    resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_copy_size);
 }
 
 void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
@@ -950,7 +950,11 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
     void* object = nullptr;
     switch (call_id)
     {
+        case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent:
+        case format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent:
+        case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent:
         case format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent:
+        case format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent:
             object = GetEventObject(object_id, false);
             break;
         case format::ApiCallId::ApiCall_IDXGIFactory_MakeWindowAssociation:

@@ -78,7 +78,7 @@ more details
 
 **Legend**
 * :white_check_mark: : Supported
-* :x: : Not Suported
+* :x: : Not Supported
 * :large_orange_diamond: : Not supported on Android/Meta Quest, but Desktop tools support modifying the resulting captures
 * :construction: : Early Preview / Alpha / Beta
 

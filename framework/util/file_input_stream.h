@@ -26,6 +26,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 
+#include <cstddef>
 #include <type_traits>
 #include <variant>
 
@@ -44,22 +45,84 @@ struct DataRange
     bool    Contains(const DataRange& range) const;
 };
 
-// An type anonymous union that can represent a data span from one of three sources:
+// Back porting a portion from C++20
+// Dynamic extent only
+template <typename T>
+class Span
+{
+  public:
+    using element_type    = T;
+    using value_type      = std::remove_cv_t<T>;
+    using size_type       = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using pointer         = T*;
+    using const_pointer   = const T*;
+    using reference       = T&;
+    using const_reference = const T&;
+
+    // This is where we get lazy about the backport
+    using iterator       = pointer;
+    using const_iterator = const_pointer;
+
+    // No extent parameter
+    constexpr Span() noexcept : data_(nullptr), size_(0U) {}
+    constexpr Span(pointer ptr, size_type count) noexcept : data_(ptr), size_(count)
+    {
+        GFXRECON_ASSERT((data_ != nullptr) || (count == 0));
+    }
+
+    Span(Span&&)                 = default;
+    Span(const Span&)            = default;
+    Span& operator=(Span&&)      = default;
+    Span& operator=(const Span&) = default;
+
+    // Add other constructors as needed (c.f. YAGNI)
+
+    constexpr iterator begin() noexcept { return data_; }
+    constexpr iterator end() noexcept { return data_ ? data_ + size_ : data_; }
+
+    constexpr iterator begin() const noexcept { return data_; }
+    constexpr iterator end() const noexcept { return data_ ? data_ + size_ : data_; }
+
+    constexpr const_iterator cbegin() const noexcept { return data_; }
+    constexpr const_iterator cend() const noexcept { return data_ ? data_ + size_ : data_; }
+
+    constexpr pointer       data() noexcept { return data_; }
+    constexpr const_pointer data() const noexcept { return data_; }
+
+    [[nodiscard]] constexpr size_type size() const noexcept { return size_; }
+    [[nodiscard]] constexpr bool      empty() const noexcept { return size_ == 0U; }
+
+    // Non-standard accessor
+    template <typename U>
+    [[nodiscard]] const U* GetDataAs() const noexcept
+    {
+        static_assert(!std::is_reference_v<U>, "U must not be a reference type");
+        static_assert(IsByteEquivalent_v<U>, "Buffer reinterpretation only valid for byte-like types.");
+        return reinterpret_cast<const U*>(data_);
+    }
+
+  private:
+    pointer   data_;
+    size_type size_;
+};
+
+// A type anonymous union that can represent a data span from one of two sources:
 // 1) A heap allocated buffer owned by this object
 // 2) An entry from a heap buffer pool
-// 3) A borrowed data pointer, not owned by this object
 //
 // NOTE: Access is designed to be read-only
 // NOTE: Only one of the available sources will be active at any time.
 // NOTE: This class is *NOT* copyable, only movable
 // NOTE: Additional constructors could be added to support other data sources
 //
-//
-// NOTE: Currently only non-owning subspans are supported, but require explicit use of a tag type
+// TODO: Some housekeeping
+//       Add capacity assert in DataSpan(HeapBuffer&&, size_type).
+//       Decide if empty() should reflect size_ == 0 rather than !IsValid(). Document.
 class DataSpan
 {
   public:
-    using DataType = char;
+    using DataType = std::byte;
     using SizeType = size_t;
 
     // STL style types
@@ -67,16 +130,13 @@ class DataSpan
     using size_type     = SizeType;
     using const_pointer = const DataType*;
 
+    // Output Span
+    using OutputSpan                      = Span<const DataType>;
+    static constexpr size_type kRemainder = static_cast<size_type>(-1);
+
     using PoolEntry = HeapBufferPool::Entry;
 
-    struct BorrowedBuffer
-    {
-        const DataType* data;
-        // As we create subspans, we need might want know the remaining capacity after offsets
-        // const size_type capacity;
-    };
-
-    using Storage = std::variant<std::monostate, HeapBuffer, PoolEntry, BorrowedBuffer>;
+    using Storage = std::variant<std::monostate, HeapBuffer, PoolEntry>;
     // NOTE: When adding supported types
     //     * they must be move-assignable
     //     * they noexcept move-constructible
@@ -90,22 +150,26 @@ class DataSpan
 
     // Could check for size as well, but we'll just say non-nullptr is valid, and ensure size is non-zero when data_ is
     // set
-    bool          IsValid() const { return data_ != nullptr; }
-    size_type     Size() const { return size_; }
-    const_pointer GetData() const { return data_; }
+    [[nodiscard]] bool      IsValid() const { return data_ != nullptr; }
+    [[nodiscard]] size_type Size() const { return size_; }
+
+    [[nodiscard]] const_pointer GetData() const { return data_; }
+
     template <typename T>
-    const T* GetDataAs()
+    [[nodiscard]] const T* GetDataAs() const noexcept
     {
+        static_assert(!std::is_reference_v<T>, "T must not be a reference type");
+        static_assert(IsByteEquivalent_v<T>, "Buffer reinterpretation only valid for byte-like types.");
         return reinterpret_cast<const T*>(data_);
     }
 
     explicit operator bool() const { return IsValid(); }
 
     // Alternate STL style interface...
-    const_pointer data() const { return data_; }
-    size_type     size() const { return size_; }
-    bool          has_value() const { return IsValid(); }
-    bool          empty() const { return !IsValid(); }
+    [[nodiscard]] const_pointer data() const { return data_; }
+    [[nodiscard]] size_type     size() const { return size_; }
+    [[nodiscard]] bool          has_value() const { return IsValid(); }
+    [[nodiscard]] bool          empty() const { return !IsValid(); }
 
     DataSpan() : size_(0), data_(nullptr), store_(std::monostate()) {}
     DataSpan(const DataSpan&) = delete;
@@ -129,17 +193,13 @@ class DataSpan
         return *this;
     }
 
-    DataSpan(HeapBuffer&& from_heap, size_t size) : size_(size)
+    DataSpan(HeapBuffer&& from_heap, size_type size) : size_(size)
     {
         store_.emplace<HeapBuffer>(std::move(from_heap));
         data_ = std::get<HeapBuffer>(store_).get();
     }
 
-    DataSpan(const DataType* borrowed_data, size_t size) :
-        size_(size), data_(borrowed_data), store_(BorrowedBuffer{ borrowed_data })
-    {}
-
-    DataSpan(PoolEntry&& from_pool, size_t size) : size_(size)
+    DataSpan(PoolEntry&& from_pool, size_type size) : size_(size)
     {
         GFXRECON_ASSERT(size <= from_pool.Capacity());
         store_.emplace<PoolEntry>(std::move(from_pool));
@@ -154,39 +214,33 @@ class DataSpan
     }
     void reset() noexcept { Reset(); }
 
-    // Make a borrowed data subspan from offset, offset+count (or to end if count is 0)
-    // NOTE: We might want to add similar subspan support for retaining shared ownership of
-    //       of shared ownership types
-    struct NonOwningTag
-    {};
-
-    DataSpan(const DataSpan& other, const NonOwningTag&, size_t offset, size_t count = 0) noexcept
+    [[nodiscard]] OutputSpan AsSpan(size_type offset = 0, size_type count = kRemainder) const noexcept
     {
-        if (!other.IsValid() || (offset >= other.size_))
+        const_pointer span_data  = nullptr;
+        size_type     span_count = 0;
+        if (data_ && (offset <= size_))
         {
-            Reset();
-            return;
+            // Remainder can be zero, offset starting address can be "end"
+            // If we ask for (size_, kRemainder) return empty span at end (it's what std::span does, apparently)
+            const size_type remainder   = size_ - offset;
+            const_pointer   offset_data = data_ + offset;
+            if (count == kRemainder)
+            {
+                span_data  = offset_data;
+                span_count = remainder;
+            }
+            else if (count <= remainder)
+            {
+                span_data  = offset_data;
+                span_count = count;
+            }
         }
 
-        const size_t remainder = other.size_ - offset;
-        if (count == 0)
-        {
-            count = remainder;
-        }
-
-        if (count > remainder)
-        {
-            Reset();
-            return;
-        }
-
-        data_ = other.data_ + offset;
-        size_ = count;
-        store_.emplace<BorrowedBuffer>(BorrowedBuffer{ data_ });
+        return OutputSpan(span_data, span_count);
     }
 
   private:
-    size_t        size_{ 0 };
+    size_type     size_{ 0 };
     const_pointer data_{ nullptr };
 
     Storage store_;

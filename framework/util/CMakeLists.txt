@@ -108,6 +108,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/to_string.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.h
                     ${CMAKE_CURRENT_LIST_DIR}/thread_data.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
                     $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
@@ -222,6 +223,7 @@ if (${RUN_TESTS})
             ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_linear_hashmap.cpp
             ${CMAKE_CURRENT_LIST_DIR}/test/test_spirv_parsing_util.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/test/test_valid_pointer.cpp
             ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx_pointers.h>
             $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/test/dx12_utils.cpp>

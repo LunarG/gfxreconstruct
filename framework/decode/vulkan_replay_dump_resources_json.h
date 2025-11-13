@@ -75,6 +75,9 @@ class VulkanReplayDumpResourcesJson
 
     void InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
 
+    void InsertASBuildRangeInfo(nlohmann::ordered_json&                         json_entry,
+                                const VkAccelerationStructureBuildRangeInfoKHR& range);
+
     uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
 
     uint32_t FetchAndAddDispatchEntryIndex() { return dispatch_entry_index++; }

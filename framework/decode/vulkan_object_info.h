@@ -715,26 +715,6 @@ struct VulkanDescriptorTypeBufferInfo
     VkDeviceSize            range;
 };
 
-struct VulkanDescriptorSetBindingInfo
-{
-    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
-    VkShaderStageFlags stage_flags{ 0 };
-
-    // Use a map to represent array as many entries can be left unpopulated.
-    // Use a sorted map so that array indices are printed in order in the json output
-    std::map<uint32_t, VulkanDescriptorTypeImageInfo>  image_info;
-    std::map<uint32_t, VulkanDescriptorTypeBufferInfo> buffer_info;
-    std::map<uint32_t, const VulkanBufferViewInfo*>    texel_buffer_view_info;
-    std::vector<uint8_t>                               inline_uniform_block;
-};
-
-struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
-{
-    // One entry per binding
-    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
-    VulkanDescriptorBindingsInfo descriptors;
-};
-
 struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>
 {
     VkDeviceAddress capture_address = 0;
@@ -755,6 +735,27 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+};
+
+struct VulkanDescriptorSetBindingInfo
+{
+    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    VkShaderStageFlags stage_flags{ 0 };
+
+    // Use a map to represent array as many entries can be left unpopulated.
+    // Use a sorted map so that array indices are printed in order in the json output
+    std::map<uint32_t, VulkanDescriptorTypeImageInfo>             image_info;
+    std::map<uint32_t, VulkanDescriptorTypeBufferInfo>            buffer_info;
+    std::map<uint32_t, const VulkanBufferViewInfo*>               texel_buffer_view_info;
+    std::map<uint32_t, const VulkanAccelerationStructureKHRInfo*> acceleration_structs_khr_info;
+    std::vector<uint8_t>                                          inline_uniform_block;
+};
+
+struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
+{
+    // One entry per binding
+    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
+    VulkanDescriptorBindingsInfo descriptors;
 };
 
 //

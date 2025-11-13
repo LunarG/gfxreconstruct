@@ -46,10 +46,10 @@ class Compressor
                             std::vector<uint8_t>* compressed_data,
                             size_t                compressed_data_offset) const = 0;
 
-    virtual size_t Decompress(size_t                compressed_size,
-                              const uint8_t*        compressed_data,
-                              size_t                expected_uncompressed_size,
-                              std::vector<uint8_t>* uncompressed_data) const = 0;
+    virtual size_t Decompress(size_t         compressed_size,
+                              const uint8_t* compressed_data,
+                              size_t         expected_uncompressed_size,
+                              uint8_t*       uncompressed_data) const = 0;
 };
 
 GFXRECON_END_NAMESPACE(util)

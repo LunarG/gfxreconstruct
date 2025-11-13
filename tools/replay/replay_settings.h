@@ -38,7 +38,7 @@ const char kOptions[] =
     "--dump-resources-dump-all-image-subresources,--dump-resources-dump-raw-images,--dump-resources-dump-"
     "separate-alpha,--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,"
     "--add-new-pipeline-caches,--screenshot-ignore-FrameBoundaryANDROID,--dump-resources-dump-unused-vertex-bindings,--"
-    "deduplicate-device,--log-timestamps,--capture";
+    "deduplicate-device,--log-timestamps,--capture,--dump-resources-dump-build-acceleration-structures-input-buffers";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -321,7 +321,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
     GFXRECON_WRITE_CONSOLE("  --sgfs <status>");
-    GFXRECON_WRITE_CONSOLE("          \t\tSpecify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus:");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify behavior to skip calls to vkWaitForFences and vkGetFenceStatus:");
     GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=0 : Don't skip");
     GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=1 : Skip unsuccessful calls");
     GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=2 : Always skip");
@@ -375,6 +375,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tCompress files that are dumped as binary. Available compression types");
     GFXRECON_WRITE_CONSOLE("          \t\tare: [none, lz4 (block format), zlib, zstd]. Default is none");
     GFXRECON_WRITE_CONSOLE("          \t\t(no compression).");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-build-acceleration-structures-input-buffers");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump all input buffers used in vkCmdBuildAccelerationStructures. This");
+    GFXRECON_WRITE_CONSOLE("          \t\tincludes vertex, index, transformation matrix, AABB and instance buffers.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is off.");
     GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
     GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");

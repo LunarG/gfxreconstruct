@@ -847,10 +847,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id         = thread_id_;
-            begin_cmd.device_id         = device_id;
-            begin_cmd.max_resource_size = max_resource_size;
-            begin_cmd.max_copy_size     = max_resource_size;
+            begin_cmd.thread_id       = thread_id_;
+            begin_cmd.device_id       = device_id;
+
+            // TODO: adjust to hold sum of resource-sizes
+            begin_cmd.total_copy_size = max_resource_size;
+
+            begin_cmd.max_copy_size   = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 

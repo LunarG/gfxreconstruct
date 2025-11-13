@@ -481,7 +481,7 @@ int main(int argc, const char** argv)
                 out_file_handle = nullptr;
             }
 
-            if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            if (file_processor.GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");
                 ret_code = 1;

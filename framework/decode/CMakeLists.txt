@@ -32,6 +32,7 @@ target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_payload.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_handle_mapping_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/common_object_info_table.h

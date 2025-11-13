@@ -24,6 +24,7 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_DRAW_CALLS_H
 
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
@@ -61,13 +62,15 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const CommandIndices*          dc_indices,
-                            const RenderPassIndices*       rp_indices,
-                            const CommandImageSubresource& dc_subresources,
-                            CommonObjectInfoTable&         object_info_table,
-                            const VulkanReplayOptions&     options,
-                            VulkanDumpResourcesDelegate&   delegate,
-                            const util::Compressor*        compressor);
+    DrawCallsDumpingContext(const CommandIndices*                       dc_indices,
+                            const RenderPassIndices*                    rp_indices,
+                            const CommandImageSubresource&              dc_subresources,
+                            CommonObjectInfoTable&                      object_info_table,
+                            const VulkanReplayOptions&                  options,
+                            VulkanDumpResourcesDelegate&                delegate,
+                            const util::Compressor*                     compressor,
+                            DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                            const VulkanPerDeviceAddressTrackers&       address_trackers);
 
     ~DrawCallsDumpingContext();
 
@@ -196,6 +199,8 @@ class DrawCallsDumpingContext
 
     void UpdateSecondaries();
 
+    void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
+
   private:
     void SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
                           VulkanImageInfo*                     depth_att_img,
@@ -235,6 +240,7 @@ class DrawCallsDumpingContext
     VulkanDumpResourcesDelegate& delegate_;
     const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
+    bool                         secondary_with_dynamic_rendering_;
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
@@ -257,7 +263,7 @@ class DrawCallsDumpingContext
         VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
     };
 
-    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts_;
+    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> rendering_attachment_layouts_;
 
   public:
     struct RenderTargets
@@ -685,8 +691,9 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::unordered_map<const VulkanImageInfo*, const DumpedImage&>   image_descriptors;
-        std::unordered_map<const VulkanBufferInfo*, const DumpedBuffer&> buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedImage&>                         image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&>                        buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedTopLevelAccelerationStructure&> acceleration_structures;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
@@ -699,6 +706,10 @@ class DrawCallsDumpingContext
     const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
+
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+
+    const VulkanPerDeviceAddressTrackers& address_trackers_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

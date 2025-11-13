@@ -331,9 +331,9 @@ Dump resources feature can be control in several ways. To do so, a number of par
               NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
               QueueSubmit=<u>
               Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
-              each is a block index from the capture file.  The additional parameters are used to identify during which occurence
-              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
-              indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
+              each is a block index from the capture file.  The additional parameters are used to identify during which occurrence
+              of the vkCmdDraw/vkCmdDispatch/vkCmdTraceRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
+              indicate subpasses within a render pass.  Note that the minimal set of parameters must be one of:
                   BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, QueueSubmit
                   BeginCmdBuffer, Dispatch, QueueSubmit
                   BeginCmdBuffer, TraceRays, QueueSubmit
@@ -378,6 +378,9 @@ Dump resources feature can be control in several ways. To do so, a number of par
   --dump-resources-binary-file-compression-type
               Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib,
               zlib, zstd]. Default is none (no compression).
+  --dump-resources-dump-build-acceleration-structures-input-buffers
+              Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index,
+              transformation matrix, AABB and instance buffers. Default is off.
 ```
 
 ## Output
