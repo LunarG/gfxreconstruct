@@ -2106,6 +2106,17 @@ class ID3D12Tools1_Wrapper : public ID3D12Tools_Wrapper
 
 };
 
+class ID3D12Tools2_Wrapper : public ID3D12Tools1_Wrapper
+{
+  public:
+    ID3D12Tools2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12Tools2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetApplicationSpecificDriverState(
+        IUnknown* pAdapter,
+        ID3DBlob* pBlob);
+
+};
+
 class ID3D12PageableTools_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2154,6 +2165,18 @@ class ID3D12DeviceTools_Wrapper : public IUnknown_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12DeviceToolsInfo> info_;
+};
+
+class ID3D12DeviceTools1_Wrapper : public ID3D12DeviceTools_Wrapper
+{
+  public:
+    ID3D12DeviceTools1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12DeviceTools1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetApplicationSpecificDriverState(
+        ID3DBlob** ppBlob);
+
+    virtual D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS STDMETHODCALLTYPE GetApplicationSpecificDriverBlobStatus();
+
 };
 
 class ID3D12SDKConfiguration_Wrapper : public IUnknown_Wrapper

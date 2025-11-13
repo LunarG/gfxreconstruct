@@ -49,7 +49,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 {
   public:
-    VulkanReplayDumpResources(const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table) : VulkanReplayDumpResourcesBase(options, object_info_table) { }
+    VulkanReplayDumpResources(const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table, const VulkanPerDeviceAddressTrackers& address_trackers) : VulkanReplayDumpResourcesBase(options, object_info_table, address_trackers) { }
 
     ~VulkanReplayDumpResources() { }
 
@@ -1023,6 +1023,18 @@ void Process_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(
     PFN_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT func,
     VkCommandBuffer                             commandBuffer,
     const VkBindDescriptorBufferEmbeddedSamplersInfoEXT* pBindDescriptorBufferEmbeddedSamplersInfo);
+
+void Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryIndirectKHR              func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo);
+
+void Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryToImageIndirectKHR       func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
 
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,

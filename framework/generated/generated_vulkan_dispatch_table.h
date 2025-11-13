@@ -498,6 +498,8 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSet2KHR(VkCommandBuffer, co
 inline VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffer, const VkPushDescriptorSetWithTemplateInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdPushDescriptorSetWithTemplate2KHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsets2EXT(VkCommandBuffer, const VkSetDescriptorBufferOffsetsInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDescriptorBufferOffsets2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(VkCommandBuffer, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBindDescriptorBufferEmbeddedSamplers2EXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryIndirectKHR(VkCommandBuffer, const VkCopyMemoryIndirectInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyMemoryIndirectKHR was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectKHR(VkCommandBuffer, const VkCopyMemoryToImageIndirectInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdCopyMemoryToImageIndirectKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkFrameBoundaryANDROID(VkDevice, VkSemaphore, VkImage) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkFrameBoundaryANDROID was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDebugMarkerSetObjectTagEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkDebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDebugMarkerSetObjectNameEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -1197,6 +1199,8 @@ struct VulkanDeviceTable
     PFN_vkCmdPushDescriptorSetWithTemplate2KHR CmdPushDescriptorSetWithTemplate2KHR{ noop::vkCmdPushDescriptorSetWithTemplate2KHR };
     PFN_vkCmdSetDescriptorBufferOffsets2EXT CmdSetDescriptorBufferOffsets2EXT{ noop::vkCmdSetDescriptorBufferOffsets2EXT };
     PFN_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT CmdBindDescriptorBufferEmbeddedSamplers2EXT{ noop::vkCmdBindDescriptorBufferEmbeddedSamplers2EXT };
+    PFN_vkCmdCopyMemoryIndirectKHR CmdCopyMemoryIndirectKHR{ noop::vkCmdCopyMemoryIndirectKHR };
+    PFN_vkCmdCopyMemoryToImageIndirectKHR CmdCopyMemoryToImageIndirectKHR{ noop::vkCmdCopyMemoryToImageIndirectKHR };
     PFN_vkFrameBoundaryANDROID FrameBoundaryANDROID{ noop::vkFrameBoundaryANDROID };
     PFN_vkDebugMarkerSetObjectTagEXT DebugMarkerSetObjectTagEXT{ noop::vkDebugMarkerSetObjectTagEXT };
     PFN_vkDebugMarkerSetObjectNameEXT DebugMarkerSetObjectNameEXT{ noop::vkDebugMarkerSetObjectNameEXT };
@@ -1903,6 +1907,8 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdPushDescriptorSetWithTemplate2KHR", &table->CmdPushDescriptorSetWithTemplate2KHR);
     LoadVulkanFunction(gpa, device, "vkCmdSetDescriptorBufferOffsets2EXT", &table->CmdSetDescriptorBufferOffsets2EXT);
     LoadVulkanFunction(gpa, device, "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT", &table->CmdBindDescriptorBufferEmbeddedSamplers2EXT);
+    LoadVulkanFunction(gpa, device, "vkCmdCopyMemoryIndirectKHR", &table->CmdCopyMemoryIndirectKHR);
+    LoadVulkanFunction(gpa, device, "vkCmdCopyMemoryToImageIndirectKHR", &table->CmdCopyMemoryToImageIndirectKHR);
     LoadVulkanFunction(gpa, device, "vkFrameBoundaryANDROID", &table->FrameBoundaryANDROID);
     LoadVulkanFunction(gpa, device, "vkDebugMarkerSetObjectTagEXT", &table->DebugMarkerSetObjectTagEXT);
     LoadVulkanFunction(gpa, device, "vkDebugMarkerSetObjectNameEXT", &table->DebugMarkerSetObjectNameEXT);

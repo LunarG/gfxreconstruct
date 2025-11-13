@@ -566,6 +566,12 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCooperativeVectorPropertiesNV*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceCornerSampledImageFeaturesNV*>(base));
             break;
@@ -1280,6 +1286,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderTileImagePropertiesEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceShadingRateImageFeaturesNV*>(base));
             break;
@@ -1376,11 +1385,11 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceVulkan11Features*>(base));
@@ -1766,9 +1775,6 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeAV1DpbSlotInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(base));
-            break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeAV1PictureInfoKHR*>(base));
             break;
@@ -1787,9 +1793,6 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264DpbSlotInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(base));
-            break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264PictureInfoKHR*>(base));
             break;
@@ -1801,27 +1804,6 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265CapabilitiesKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265ProfileInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(base));
@@ -1913,53 +1895,17 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_SESSION_PARAMETERS_GET_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH264SessionParametersGetInfoKHR*>(base));
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(base));
-            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(base));
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
-            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeIntraRefreshInfoKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeProfileRgbConversionInfoVALVE*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeQualityLevelInfoKHR*>(base));
@@ -1976,8 +1922,14 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(base));
             break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeRgbConversionCapabilitiesVALVE*>(base));
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeSessionIntraRefreshCreateInfoKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(base));
             break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base));

@@ -77,12 +77,26 @@ extern "C"
 {
     uint64_t MainGetCurrentBlockIndex()
     {
-        return file_processor->GetCurrentBlockIndex();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetCurrentBlockIndex();
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     bool MainGetLoadingTrimmedState()
     {
-        return file_processor->GetLoadingTrimmedState();
+        if (file_processor != nullptr)
+        {
+            return file_processor->GetLoadingTrimmedState();
+        }
+        else
+        {
+            return false;
+        }
     }
 }
 
@@ -156,13 +170,10 @@ void android_main(struct android_app* app)
 
                     // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
                     // calls into the capture layer instead of directly into the loader and Vulkan runtime.
-                    vulkan_replay_consumer.SetGetInstanceProcAddrOverride(
-                        gfxrecon::vulkan_recapture::GetInstanceProcAddr);
-
-                    // Set the capture manager's instance and device creation callbacks.
-                    gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(
-                        gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                        gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                    // Also sets the capture manager's instance and device creation callbacks.
+                    vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                                                             gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                                                             gfxrecon::vulkan_recapture::dispatch_CreateDevice);
                 }
 
                 ApiReplayOptions  api_replay_options;
@@ -245,7 +256,7 @@ void android_main(struct android_app* app)
                 fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
                 if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                    (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                    (file_processor->GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
                 {
                     if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                     {
@@ -260,7 +271,7 @@ void android_main(struct android_app* app)
                         fps_info.LogMeasurements();
                     }
                 }
-                else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                else if (file_processor->GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 }

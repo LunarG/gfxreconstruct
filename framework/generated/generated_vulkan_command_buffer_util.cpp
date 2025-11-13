@@ -1516,6 +1516,16 @@ void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(vulkan_wrappers::Co
     }
 }
 
+void TrackCmdCopyMemoryToImageIndirectKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyMemoryToImageIndirectInfoKHR* pCopyMemoryToImageIndirectInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyMemoryToImageIndirectInfo != nullptr)
+    {
+        if(pCopyMemoryToImageIndirectInfo->dstImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pCopyMemoryToImageIndirectInfo->dstImage));
+    }
+}
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
 {
     assert(wrapper != nullptr);

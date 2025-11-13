@@ -164,6 +164,10 @@
     "vkGetAccelerationStructureMemoryRequirementsNV": "OverrideGetAccelerationStructureMemoryRequirementsNV",
     "vkGetMemoryFdKHR": "OverrideGetMemoryFdKHR",
     "vkGetDeviceMemoryOpaqueCaptureAddress": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
-    "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress"
+    "vkGetDeviceMemoryOpaqueCaptureAddressKHR": "OverrideGetDeviceMemoryOpaqueCaptureAddress",
+    "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
+    "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE",
+    "vkGetPhysicalDeviceSurfaceFormatsKHR" : "OverrideGetPhysicalDeviceSurfaceFormatsKHR",
+    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR"
   }
 }

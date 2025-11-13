@@ -52,15 +52,16 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
                                                     const graphics::VulkanDeviceTable*    device_table)
 {
-    VkDevice                 device = VK_NULL_HANDLE;
+    VkDevice                 device          = VK_NULL_HANDLE;
+    VkPhysicalDevice         physical_device = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
 
     if (device_info != nullptr)
     {
         device = device_info->handle;
+        physical_device = device_info->parent;
     }
-    device_table_                    = device_table;
-    VkPhysicalDevice physical_device = device_info->parent;
+    device_table_ = device_table;
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
     modified_create_info.imageUsage =
@@ -522,7 +523,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
                 VK_NULL_HANDLE,                         // image
                 VkImageSubresourceRange{
-                    graphics::GetFormatAspectMask(swapchain_info->format),
+                    graphics::GetFormatAspects(swapchain_info->format),
                     0,
                     image_create_info.mipLevels,
                     0,
@@ -810,7 +811,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
 
-        auto aspect_mask       = graphics::GetFormatAspectMask(swapchain_info->format);
+        auto aspect_mask       = graphics::GetFormatAspects(swapchain_info->format);
         subresource.aspectMask = aspect_mask;
         initial_barrier_virtual_image.subresourceRange.aspectMask   = aspect_mask;
         final_barrier_virtual_image.subresourceRange.aspectMask     = aspect_mask;

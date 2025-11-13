@@ -21,6 +21,7 @@
  */
 
 #include "vulkan_capture_common.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -126,6 +127,20 @@ static void CommonWriteFillMemoryCmd(format::HandleId      memory_id,
     else
     {
         vulkan_state_writer->WriteFillMemoryCmd(memory_id, 0u, size, data);
+    }
+}
+
+// Wrap vkuFormatRequiresYcbcrConversion so that we handle VK_FORMAT_UNDEFINED as a YCbCr format which applies for AHB
+// external formats
+static bool ExternalFormatRequiresYcbcrConversion(VkFormat format)
+{
+    if (format == VK_FORMAT_UNDEFINED)
+    {
+        return true;
+    }
+    else
+    {
+        return vkuFormatRequiresYcbcrConversion(format);
     }
 }
 
@@ -402,11 +417,12 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         sampler_ycbcr_conversion_info.pNext                        = nullptr;
         sampler_ycbcr_conversion_info.conversion                   = ycbcr_conversion;
 
-        auto ahb_image_aspect_mask = graphics::GetFormatAspectMask(format_properties.format);
+        auto ahb_image_aspect_mask = graphics::GetFormatAspects(format_properties.format);
 
         VkImageViewCreateInfo image_view_create_info;
-        image_view_create_info.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        image_view_create_info.pNext                           = &sampler_ycbcr_conversion_info;
+        image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        image_view_create_info.pNext =
+            ExternalFormatRequiresYcbcrConversion(format_properties.format) ? &sampler_ycbcr_conversion_info : nullptr;
         image_view_create_info.flags                           = 0u;
         image_view_create_info.image                           = ahb_image;
         image_view_create_info.viewType                        = VK_IMAGE_VIEW_TYPE_2D;
@@ -426,8 +442,9 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             vk_result = device_table->CreateImageView(device, &image_view_create_info, nullptr, &image_view);
 
         VkSamplerCreateInfo sampler_create_info;
-        sampler_create_info.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        sampler_create_info.pNext                   = &sampler_ycbcr_conversion_info;
+        sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        sampler_create_info.pNext =
+            ExternalFormatRequiresYcbcrConversion(format_properties.format) ? &sampler_ycbcr_conversion_info : nullptr;
         sampler_create_info.flags                   = 0u;
         sampler_create_info.magFilter               = VK_FILTER_LINEAR;
         sampler_create_info.minFilter               = VK_FILTER_LINEAR;
@@ -508,7 +525,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         if (vk_result == VK_SUCCESS)
             vk_result = device_table->BindImageMemory(device, host_image, host_image_memory, 0);
 
-        auto host_image_aspect_mask = graphics::GetFormatAspectMask(host_image_format);
+        auto host_image_aspect_mask = graphics::GetFormatAspects(host_image_format);
 
         VkImageViewCreateInfo host_image_view_create_info{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, nullptr };
         host_image_view_create_info.flags                           = 0u;

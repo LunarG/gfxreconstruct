@@ -195,7 +195,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
             if (result == VK_SUCCESS)
             {
-                auto image_aspect_mask = graphics::GetFormatAspectMask(format);
+                auto image_aspect_mask = graphics::GetFormatAspects(format);
 
                 // Transition source image from image_layout to the TRANSFER_DST layout.
                 VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
@@ -226,7 +226,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
 
                 // The 'copy_image' is the image to be used with the image to buffer copy.
                 VkImage copy_image             = image;
-                auto    copy_image_aspect_mask = graphics::GetFormatAspectMask(copy_format);
+                auto    copy_image_aspect_mask = graphics::GetFormatAspects(copy_format);
 
                 if (copy_resource.convert_image != VK_NULL_HANDLE)
                 {

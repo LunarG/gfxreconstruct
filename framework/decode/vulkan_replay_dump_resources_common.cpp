@@ -20,60 +20,65 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
-#include "util/compressor.h"
-#include "util/logging.h"
-#include "util/image_writer.h"
-#include "util/buffer_writer.h"
+#include "decode/vulkan_object_info_table.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "util/logging.h"
 #include "graphics/vulkan_resources_util.h"
+#include "util/platform.h"
 #include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-static util::imagewriter::DataFormats VkFormatToImageWriterDataFormat(VkFormat format)
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
+                             VkPhysicalDevice                     phys_dev,
+                             const VulkanImageInfo*               image_info)
 {
-    switch (format)
+    GFXRECON_ASSERT(instance_table != nullptr);
+    GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    VkFormatProperties format_properties{};
+    instance_table->GetPhysicalDeviceFormatProperties(phys_dev, image_info->format, &format_properties);
+
+    // A format might not be supported on the replay implementation. Check before attempting to dump
+    if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
+         format_properties.optimalTilingFeatures == VkFormatFeatureFlags(0)) ||
+        (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
+         format_properties.linearTilingFeatures == VkFormatFeatureFlags(0)))
     {
-        case VK_FORMAT_R8G8B8_SRGB:
-        case VK_FORMAT_R8G8B8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_RGB;
-
-        case VK_FORMAT_R8G8B8A8_SRGB:
-        case VK_FORMAT_R8G8B8A8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_RGBA;
-
-        case VK_FORMAT_B8G8R8_SRGB:
-        case VK_FORMAT_B8G8R8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_BGR;
-
-        case VK_FORMAT_B8G8R8A8_SRGB:
-        case VK_FORMAT_B8G8R8A8_UNORM:
-            return util::imagewriter::DataFormats::kFormat_BGRA;
-
-        case VK_FORMAT_D32_SFLOAT:
-        case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return util::imagewriter::DataFormats::kFormat_D32_FLOAT;
-
-        case VK_FORMAT_D24_UNORM_S8_UINT:
-        case VK_FORMAT_X8_D24_UNORM_PACK32:
-            return util::imagewriter::DataFormats::kFormat_D24_UNORM;
-
-        case VK_FORMAT_D16_UNORM:
-            return util::imagewriter::DataFormats::kFormat_D16_UNORM;
-
-        default:
-            GFXRECON_LOG_ERROR("%s isn't supported in VkFormatToImageWriterDataFormat",
-                               util::ToString<VkFormat>(format).c_str());
-            return util::imagewriter::DataFormats::kFormat_UNSPECIFIED;
+        GFXRECON_LOG_WARNING("Format %s is not supported by the implementation",
+                             util::ToString<VkFormat>(image_info->format).c_str());
+        return ImageDumpResult::kFormatNotSupported;
     }
+
+    // Check for multisampled images that cannot be resolved
+    if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
+    {
+        if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
+             (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+            (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
+             (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))
+        {
+            GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
+                                 "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
+                                 util::ToString<VkFormat>(image_info->format).c_str());
+            return ImageDumpResult::kCanNotResolve;
+        }
+    }
+
+    return ImageDumpResult::kCanDump;
 }
 
 const char* ImageFileExtension(DumpedImageFormat image_format)
@@ -98,7 +103,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
 
     if (vkuFormatIsSRGB(format))
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8_SRGB;
+        dst_format = VK_FORMAT_B8G8R8A8_SRGB;
     }
     else if (vkuFormatIsDepthOrStencil(format))
     {
@@ -108,7 +113,7 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
     }
     else
     {
-        dst_format = vkuFormatHasAlpha(format) ? VK_FORMAT_B8G8R8A8_UNORM : VK_FORMAT_B8G8R8_UNORM;
+        dst_format = VK_FORMAT_B8G8R8A8_UNORM;
     }
 
     return dst_format;
@@ -408,32 +413,23 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
     }
 }
 
-VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
-                         const VulkanDeviceInfo*              device_info,
-                         const graphics::VulkanDeviceTable*   device_table,
-                         const graphics::VulkanInstanceTable* instance_table,
-                         CommonObjectInfoTable&               object_info_table,
-                         const std::vector<std::string>&      filenames,
-                         float                                scale,
-                         bool&                                scaling_supported,
-                         util::ScreenshotFormat               image_file_format,
-                         const util::Compressor*              compressor,
-                         bool                                 dump_all_subresources,
-                         bool                                 dump_image_raw,
-                         bool                                 dump_separate_alpha,
-                         VkImageLayout                        layout)
+VkResult DumpImage(DumpedImage&                         dumped_image,
+                   VkImageLayout                        layout,
+                   float                                scale,
+                   bool                                 dump_image_raw,
+                   const VkImageSubresourceRange&       subresource_range,
+                   std::vector<DumpedRawData>&          data,
+                   const VulkanDeviceInfo*              device_info,
+                   const graphics::VulkanDeviceTable*   device_table,
+                   const graphics::VulkanInstanceTable* instance_table,
+                   CommonObjectInfoTable&               object_info_table)
 {
-    assert(image_info != nullptr);
-    assert(device_info != nullptr);
-    assert(device_table != nullptr);
-    assert(instance_table != nullptr);
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
 
-    std::vector<VkImageAspectFlagBits> aspects;
-    GetFormatAspects(image_info->format, aspects);
-
-    const uint32_t total_files =
-        dump_all_subresources ? (aspects.size() * image_info->layer_count * image_info->level_count) : aspects.size();
-    assert(total_files == filenames.size());
+    const VulkanImageInfo* image_info = dumped_image.image_info;
+    GFXRECON_ASSERT(image_info != nullptr);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -444,14 +440,53 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    const VkFormat dst_format = dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
-
-    uint32_t f = 0;
-    for (size_t i = 0; i < aspects.size(); ++i)
+    // Choose the format in which the image will be dumped from the gpu into the host memory
+    VkFormat dst_format;
     {
-        const VkImageAspectFlagBits aspect = aspects[i];
+        // When dumping images raw, the data will be fetched in the same format, otherwise they will be transformed into
+        // a VK_FORMAT_B8G8R8A8_* format, more suitable for dumping in an image file.
+        const VkFormat target_format =
+            dump_image_raw ? image_info->format : ChooseDestinationImageFormat(image_info->format);
 
-        std::vector<uint8_t>  data;
+        if (target_format != image_info->format)
+        {
+            // Check if we can convert the image into the desired format
+            const bool is_blit_supported =
+                resource_util.IsBlitSupported(image_info->format, image_info->tiling, target_format);
+
+            // If we cannot convert then we will dump the image verbatim into a binary finaly
+            dst_format = is_blit_supported ? target_format : image_info->format;
+        }
+        else
+        {
+            dst_format = image_info->format;
+        }
+    }
+
+    // Scale can be greater than one so we need to check if we can scale that much
+    const bool scaling_supported = resource_util.IsScalingSupported(
+        image_info->format, image_info->tiling, dst_format, image_info->type, image_info->extent, scale);
+
+    dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
+    dumped_image.dumped_format  = dst_format;
+
+    const VkImageSubresourceRange modified_subresource_range =
+        FilterImageSubresourceRange(subresource_range, image_info);
+
+    std::vector<VkImageAspectFlagBits> aspects;
+    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
+
+    const uint32_t total_subresources =
+        aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
+
+    data.resize(total_subresources);
+
+    // data will hold dumped data for all aspects and sub resources, total_subresources in total.
+    // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
+    // For that reason keep a different counter for the data vector
+    size_t data_index = 0;
+    for (const auto aspect : aspects)
+    {
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
 
@@ -474,38 +509,24 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
         image_resource.dst_format           = dst_format;
         image_resource.all_layers_per_level = false;
 
-        scaling_supported = resource_util.IsScalingSupported(image_resource.format,
-                                                             image_resource.tiling,
-                                                             dst_format,
-                                                             image_resource.type,
-                                                             image_resource.extent,
-                                                             scale);
-        const bool blit_supported =
-            resource_util.IsBlitSupported(image_resource.format, image_resource.tiling, dst_format);
-        const bool use_blit = (image_resource.format != dst_format && blit_supported) ||
-                              (image_resource.scale != 1.0f && scaling_supported);
-
-        VkExtent3D scaled_extent = {
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.width) * scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.height) * scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(image_resource.extent.depth) * scale, 1.0f))
-        };
+        const VkExtent3D scaled_extent =
+            (scale != 1.0f && scaling_supported) ? ScaleExtent(image_info->extent, scale) : image_info->extent;
 
         image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(use_blit ? dst_format : image_resource.format,
-                                                       image_resource.type,
-                                                       use_blit ? scaled_extent : image_resource.extent,
-                                                       image_resource.level_count,
-                                                       image_resource.layer_count,
-                                                       image_resource.tiling,
+            resource_util.GetImageResourceSizesOptimal(dst_format,
+                                                       image_info->type,
+                                                       scaling_supported ? scaled_extent : image_info->extent,
+                                                       image_info->level_count,
+                                                       image_info->layer_count,
+                                                       image_info->tiling,
                                                        aspect,
                                                        &subresource_offsets,
                                                        &subresource_sizes,
-                                                       image_resource.all_layers_per_level);
+                                                       false);
 
         if (!image_resource.resource_size)
         {
-            GFXRECON_LOG_ERROR("Unsupported format. Image cannot be dumped");
+            GFXRECON_LOG_WARNING("Unsupported format. Image cannot be dumped");
             // This should not prohibit us from dumping other images though. Treat it as a no error
             return VK_SUCCESS;
         }
@@ -515,136 +536,92 @@ VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
             return VK_ERROR_INITIALIZATION_FAILED;
         }
 
-        VkResult result = resource_util.ReadImageResource(image_resource, data);
+        DumpedRawData raw_data;
+        VkResult      result = resource_util.ReadImageResource(image_resource, raw_data);
 
         if (result != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
-                               image_info->capture_id,
-                               util::ToString<VkResult>(result).c_str())
+            GFXRECON_LOG_WARNING("Reading from image resource %" PRIu64 " failed (%s)",
+                                 image_info->capture_id,
+                                 util::ToString<VkResult>(result).c_str())
             return result;
         }
 
-        const DumpedImageFormat output_image_format = GetDumpedImageFormat(device_info,
-                                                                           device_table,
-                                                                           instance_table,
-                                                                           object_info_table,
-                                                                           image_info->format,
-                                                                           image_info->tiling,
-                                                                           image_info->type,
-                                                                           image_file_format,
-                                                                           dump_image_raw);
-
-        for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+        for (uint32_t mip = modified_subresource_range.baseMipLevel;
+             mip < modified_subresource_range.baseMipLevel + modified_subresource_range.levelCount;
+             ++mip)
         {
-            for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+            for (uint32_t layer = modified_subresource_range.baseArrayLayer;
+                 layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
+                 ++layer)
             {
-                const std::string& filename = filenames[f++];
+                const VkExtent3D subresource_extent        = ScaleToMipLevel(image_info->extent, mip);
+                const VkExtent3D subresource_scaled_extent = ScaleToMipLevel(scaled_extent, mip);
 
-                // We don't support stencil output yet
-                if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
-                    continue;
+                dumped_image.dumped_subresources.emplace_back(
+                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
 
-                const uint32_t sub_res_idx    = mip * image_info->layer_count + layer;
-                const void*    offsetted_data = reinterpret_cast<const void*>(
-                    reinterpret_cast<const uint8_t*>(data.data()) + subresource_offsets[sub_res_idx]);
+                const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
+                const void*    offsetted_data =
+                    reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
-                if (output_image_format != KFormatRaw)
-                {
-                    const util::imagewriter::DataFormats image_writer_format =
-                        VkFormatToImageWriterDataFormat(dst_format);
-                    assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
-
-                    if (scale != 1.0f && scaling_supported)
-                    {
-                        scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
-                        scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
-                        scaled_extent.depth  = image_info->extent.depth;
-                    }
-                    else
-                    {
-                        scaled_extent = image_info->extent;
-                    }
-
-                    scaled_extent.width  = std::max(1u, scaled_extent.width >> mip);
-                    scaled_extent.height = std::max(1u, scaled_extent.height >> mip);
-                    scaled_extent.depth  = std::max(1u, scaled_extent.depth >> mip);
-
-                    const uint32_t texel_size = vkuFormatElementSizeWithAspect(dst_format, aspect);
-                    const uint32_t stride     = texel_size * scaled_extent.width;
-
-                    if (output_image_format == kFormatBMP)
-                    {
-                        if (dump_separate_alpha)
-                        {
-                            util::imagewriter::WriteBmpImageSeparateAlpha(filename,
-                                                                          scaled_extent.width,
-                                                                          scaled_extent.height,
-                                                                          offsetted_data,
-                                                                          stride,
-                                                                          image_writer_format);
-                        }
-                        else
-                        {
-                            util::imagewriter::WriteBmpImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             offsetted_data,
-                                                             stride,
-                                                             image_writer_format,
-                                                             vkuFormatHasAlpha(image_info->format));
-                        }
-                    }
-                    else if (output_image_format == KFormatPNG)
-                    {
-                        if (dump_separate_alpha)
-                        {
-                            util::imagewriter::WritePngImageSeparateAlpha(filename,
-                                                                          scaled_extent.width,
-                                                                          scaled_extent.height,
-                                                                          offsetted_data,
-                                                                          stride,
-                                                                          image_writer_format);
-                        }
-                        else
-                        {
-                            util::imagewriter::WritePngImage(filename,
-                                                             scaled_extent.width,
-                                                             scaled_extent.height,
-                                                             offsetted_data,
-                                                             stride,
-                                                             image_writer_format,
-                                                             vkuFormatHasAlpha(image_info->format));
-                        }
-                    }
-                }
-                else
-                {
-                    if (!dump_image_raw)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "%s format is not handled. Images with that format will be dump as a plain binary file.",
-                            util::ToString<VkFormat>(image_info->format).c_str());
-                    }
-
-                    util::bufferwriter::WriteBuffer(
-                        filename, offsetted_data, subresource_sizes[sub_res_idx], compressor);
-                }
-
-                if (!dump_all_subresources)
-                {
-                    break;
-                }
-            }
-
-            if (!dump_all_subresources)
-            {
-                break;
+                data[data_index].resize(subresource_sizes[sub_res_idx]);
+                util::platform::MemoryCopy(data[data_index].data(),
+                                           subresource_sizes[sub_res_idx],
+                                           offsetted_data,
+                                           subresource_sizes[sub_res_idx]);
+                ++data_index;
             }
         }
     }
 
-    assert(f == total_files);
+    GFXRECON_ASSERT(data_index == total_subresources);
+
+    return VK_SUCCESS;
+}
+
+VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
+                    DumpedRawData&                       data,
+                    const VulkanDeviceInfo*              device_info,
+                    const graphics::VulkanDeviceTable*   device_table,
+                    const graphics::VulkanInstanceTable* instance_table,
+                    CommonObjectInfoTable&               object_info_table)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(device_table != nullptr);
+    GFXRECON_ASSERT(instance_table != nullptr);
+
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    assert(phys_dev_info);
+
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                *device_table,
+                                                *instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
+
+    const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
+    GFXRECON_ASSERT(buffer_info != nullptr);
+
+    GFXRECON_ASSERT(dumped_buffer.size);
+    GFXRECON_ASSERT(dumped_buffer.size != VK_WHOLE_SIZE);
+    GFXRECON_ASSERT(dumped_buffer.offset != VK_WHOLE_SIZE);
+
+    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
+
+    VkResult res = resource_util.ReadFromBufferResource(
+        buffer_info->handle, dumped_buffer.size, dumped_buffer.offset, transfer_queue_index, data);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Failed reading from buffer %" PRIu64, buffer_info->parent_id);
+        return res;
+    }
+
     return VK_SUCCESS;
 }
 
@@ -703,15 +680,16 @@ std::string IndexTypeToStr(VkIndexType type)
 }
 
 VkResult CreateVkBuffer(VkDeviceSize                            size,
-                        const graphics::VulkanDeviceTable*      device_table,
+                        const graphics::VulkanDeviceTable&      device_table,
                         VkDevice                                parent_device,
-                        VkBaseInStructure*                      pNext,
+                        const VkBaseInStructure*                buffer_create_info_pNext,
+                        const VkBaseInStructure*                allocate_memory_info_pNext,
                         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                        VkBufferUsageFlags                      usage_flags,
                         VkBuffer*                               new_buffer,
                         VkDeviceMemory*                         new_memory)
 {
     assert(size);
-    assert(device_table != nullptr);
     assert(new_buffer != nullptr);
     assert(new_memory != nullptr);
     assert(parent_device != VK_NULL_HANDLE);
@@ -719,15 +697,15 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
 
     VkBufferCreateInfo bci;
     bci.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bci.pNext                 = pNext;
+    bci.pNext                 = buffer_create_info_pNext;
     bci.flags                 = 0;
     bci.size                  = size;
-    bci.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    bci.usage                 = usage_flags;
     bci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     bci.queueFamilyIndexCount = 0;
     bci.pQueueFamilyIndices   = nullptr;
 
-    VkResult res = device_table->CreateBuffer(parent_device, &bci, nullptr, new_buffer);
+    VkResult res = device_table.CreateBuffer(parent_device, &bci, nullptr, new_buffer);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): CreateBuffer failed with: %s", __func__, util::ToString<VkResult>(res).c_str());
@@ -735,9 +713,9 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     }
 
     VkMemoryRequirements mem_reqs       = {};
-    VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr };
+    VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, allocate_memory_info_pNext };
 
-    device_table->GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
+    device_table.GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
     mem_alloc_info.allocationSize = mem_reqs.size;
 
     uint32_t mem_index =
@@ -750,14 +728,23 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
 
     mem_alloc_info.memoryTypeIndex = mem_index;
 
-    res = device_table->AllocateMemory(parent_device, &mem_alloc_info, nullptr, new_memory);
+    // If VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT is requested then we need to pass that information vkAllocateMemory
+    VkMemoryAllocateFlagsInfoKHR alloc_flags_info{};
+    if ((usage_flags & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) == VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+    {
+        alloc_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO_KHR;
+        alloc_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
+        mem_alloc_info.pNext   = &alloc_flags_info;
+    }
+
+    res = device_table.AllocateMemory(parent_device, &mem_alloc_info, nullptr, new_memory);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): AllocateMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
         return res;
     }
 
-    res = device_table->BindBufferMemory(parent_device, *new_buffer, *new_memory, 0);
+    res = device_table.BindBufferMemory(parent_device, *new_buffer, *new_memory, 0);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s(): BindBufferMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
@@ -765,74 +752,6 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     }
 
     return VK_SUCCESS;
-}
-
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects)
-{
-    aspects.clear();
-    graphics::GetFormatAspects(format, &aspects);
-
-    for (auto it = aspects.begin(); it < aspects.end();)
-    {
-        if (*it == VK_IMAGE_ASPECT_STENCIL_BIT)
-        {
-            it = aspects.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
-                                       const graphics::VulkanDeviceTable*   device_table,
-                                       const graphics::VulkanInstanceTable* instance_table,
-                                       VulkanObjectInfoTable&               object_info_table,
-                                       VkFormat                             src_format,
-                                       VkImageTiling                        src_image_tiling,
-                                       VkImageType                          type,
-                                       util::ScreenshotFormat               image_file_format,
-                                       bool                                 dump_raw)
-{
-    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    // If there's a request for images to be dumped as raw bin files
-    if (dump_raw)
-    {
-        return KFormatRaw;
-    }
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table,
-                                                *instance_table,
-                                                *phys_dev_info->replay_device_info->memory_properties);
-
-    // Image cannot be converted into a format compatible for dumping in an image file
-    const VkFormat dst_format        = ChooseDestinationImageFormat(src_format);
-    bool           is_blit_supported = resource_util.IsBlitSupported(src_format, src_image_tiling, dst_format);
-    if (!vkuFormatIsDepthOrStencil(src_format) && src_format != dst_format && !is_blit_supported)
-    {
-        return KFormatRaw;
-    }
-
-    // Choose the requested preference for image file extension
-    switch (image_file_format)
-    {
-        case util::ScreenshotFormat::kBmp:
-            return kFormatBMP;
-
-        case util::ScreenshotFormat::kPng:
-            return KFormatPNG;
-
-        default:
-            assert(0);
-            return KFormatRaw;
-    }
-
-    return KFormatRaw;
 }
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags)
@@ -1187,6 +1106,739 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamily
     }
 
     return index;
+}
+
+bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
+                    uint32_t                        desc_set,
+                    uint32_t                        binding,
+                    uint32_t                        array_index,
+                    VkImageSubresourceRange*        subresource_range)
+{
+    const DescriptorLocation desc_loc                = DescriptorLocation{ desc_set, binding, array_index };
+    const auto               image_subresource_entry = cmd_subresources_entry->second.find(desc_loc);
+    if (image_subresource_entry == cmd_subresources_entry->second.end())
+    {
+        return true;
+    }
+
+    if (subresource_range != nullptr)
+    {
+        *subresource_range = image_subresource_entry->second;
+    }
+
+    return false;
+}
+
+uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
+{
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    {
+        if (families.queue_family_index_enabled[i])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
+            {
+                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+                {
+                    return i;
+                }
+            }
+        }
+    }
+
+    return VK_QUEUE_FAMILY_IGNORED;
+}
+
+VkResult
+SerializeAccelerationStructures(const std::vector<AccelerationStructureDumpResourcesContext*>& acceleration_structures,
+                                const VulkanDeviceInfo*                                        device_info,
+                                const graphics::VulkanDeviceTable&                             device_table,
+                                const VulkanObjectInfoTable&                                   object_info_table_)
+{
+    const uint32_t query_count = static_cast<uint32_t>(acceleration_structures.size());
+    if (!query_count)
+    {
+        return VK_SUCCESS;
+    }
+
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(phys_dev_info != nullptr);
+
+    const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
+
+    const VkQueryPoolCreateInfo qci = {
+        VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr,
+        VK_QUERY_POOL_CREATE_RESET_BIT_KHR,       VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
+        static_cast<uint32_t>(query_count),       VkQueryPipelineStatisticFlags(0)
+    };
+
+    const VkDevice device = device_info->handle;
+    VkQueryPool    query_pool;
+    VkResult       res = device_table.CreateQueryPool(device, &qci, nullptr, &query_pool);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: CreateQueryPool failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    const uint32_t compute_queue_family_index = FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (compute_queue_family_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("%s: Failed to find a compute queue family index", __func__)
+        return VK_ERROR_UNKNOWN;
+    }
+
+    const VkCommandPoolCreateInfo cpci = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+                                           nullptr,
+                                           VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                                           compute_queue_family_index };
+    VkCommandPool                 cmd_pool;
+    res = device_table.CreateCommandPool(device, &cpci, nullptr, &cmd_pool);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("(%s) CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
+        return res;
+    }
+
+    const VkCommandBufferAllocateInfo cbai = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, cmd_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1
+    };
+    VkCommandBuffer cmd_buffer;
+    res = device_table.AllocateCommandBuffers(device, &cbai, &cmd_buffer);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("(%s) AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
+        return res;
+    }
+
+    res = device_table.ResetCommandBuffer(cmd_buffer, 0);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    const VkCommandBufferBeginInfo cbbi = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
+    };
+    res = device_table.BeginCommandBuffer(cmd_buffer, &cbbi);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    const VkMemoryBarrier mem_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+                                          nullptr,
+                                          VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
+                                          VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT };
+
+    device_table.CmdPipelineBarrier(
+        cmd_buffer,
+        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VkDependencyFlagBits(0),
+        1,
+        &mem_barrier,
+        0,
+        nullptr,
+        0,
+        nullptr);
+
+    for (uint32_t i = 0; i < query_count; ++i)
+    {
+        const VkBufferMemoryBarrier as_buf_mem_barrier = {
+            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            acceleration_structures[i]->as_info->buffer,
+            0,
+            VK_WHOLE_SIZE
+        };
+        device_table.CmdPipelineBarrier(
+            cmd_buffer,
+            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VkDependencyFlagBits(0),
+            0,
+            nullptr,
+            1,
+            &as_buf_mem_barrier,
+            0,
+            nullptr);
+
+        GFXRECON_ASSERT(acceleration_structures[i]->as_info != nullptr);
+        device_table.CmdWriteAccelerationStructuresPropertiesKHR(
+            cmd_buffer,
+            1,
+            &acceleration_structures[i]->as_info->handle,
+            VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
+            query_pool,
+            static_cast<uint32_t>(i));
+    }
+
+    device_table.EndCommandBuffer(cmd_buffer);
+
+    VkQueue compute_queue = VK_NULL_HANDLE;
+    device_table.GetDeviceQueue(device, compute_queue_family_index, 0, &compute_queue);
+    if (compute_queue == VK_NULL_HANDLE)
+    {
+        GFXRECON_LOG_ERROR("%s: GetDeviceQueue failed to get family index %u", __func__, compute_queue_family_index)
+        return VK_ERROR_UNKNOWN;
+    }
+
+    const VkFenceCreateInfo fci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+    VkFence                 fence;
+    res = device_table.CreateFence(device, &fci, nullptr, &fence);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: CreateFence failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    res = device_table.ResetFences(device, 1, &fence);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
+    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: QueueSubmit failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
+    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    // Read query results
+    std::vector<VkDeviceSize> query_results(query_count);
+    res = device_table.GetQueryPoolResults(device,
+                                           query_pool,
+                                           0,
+                                           query_count,
+                                           query_results.size() * sizeof(VkDeviceSize),
+                                           query_results.data(),
+                                           sizeof(VkDeviceSize),
+                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: GetQueryPoolResults failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    res = device_table.ResetCommandBuffer(cmd_buffer, 0);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: ResetCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    res = device_table.BeginCommandBuffer(cmd_buffer, &cbbi);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: BeginCommandBuffer (2) failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    for (uint32_t i = 0; i < query_count; ++i)
+    {
+        const VkDeviceSize serialized_size               = query_results[i];
+        acceleration_structures[i]->serialized_data.size = serialized_size;
+
+        if (!serialized_size)
+        {
+            continue;
+        }
+
+        res = CreateVkBuffer(serialized_size,
+                             device_table,
+                             device,
+                             nullptr,
+                             nullptr,
+                             &mem_props,
+                             VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                                 VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+                             &acceleration_structures[i]->serialized_data.buffer,
+                             &acceleration_structures[i]->serialized_data.memory);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("%s: CreateBuffer failed (%s)", __func__, util::ToString(res).c_str())
+            return res;
+        }
+
+        const VkBufferDeviceAddressInfo bdai = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+                                                 nullptr,
+                                                 acceleration_structures[i]->serialized_data.buffer };
+
+        VkDeviceOrHostAddressKHR device_address;
+        device_address.deviceAddress = device_table.GetBufferDeviceAddressKHR(device, &bdai);
+
+        GFXRECON_ASSERT(acceleration_structures[i]->as_info != VK_NULL_HANDLE);
+        const VkCopyAccelerationStructureToMemoryInfoKHR castmi = {
+            VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR,
+            nullptr,
+            acceleration_structures[i]->as_info->handle,
+            device_address,
+            VK_COPY_ACCELERATION_STRUCTURE_MODE_SERIALIZE_KHR
+        };
+        device_table.CmdCopyAccelerationStructureToMemoryKHR(cmd_buffer, &castmi);
+
+        const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                    nullptr,
+                                                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                    VK_ACCESS_TRANSFER_READ_BIT,
+                                                    VK_QUEUE_FAMILY_IGNORED,
+                                                    VK_QUEUE_FAMILY_IGNORED,
+                                                    acceleration_structures[i]->serialized_data.buffer,
+                                                    0,
+                                                    serialized_size };
+
+        device_table.CmdPipelineBarrier(cmd_buffer,
+                                        VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                        VkDependencyFlagBits(0),
+                                        0,
+                                        nullptr,
+                                        1,
+                                        &buf_barrier,
+                                        0,
+                                        nullptr);
+    }
+
+    device_table.EndCommandBuffer(cmd_buffer);
+
+    res = device_table.ResetFences(device, 1, &fence);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    res = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: QueueSubmit (2) failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
+    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s: WaitForFences (2) failed (%s)", __func__, util::ToString(res).c_str())
+        return res;
+    }
+
+    return VK_SUCCESS;
+}
+
+void AccelerationStructureDumpResourcesContext::ReleaseResources()
+{
+    if (as_info == nullptr)
+    {
+        return;
+    }
+
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const VkDevice device = device_info->handle;
+
+    as_info = nullptr;
+
+    if (serialized_data.buffer != VK_NULL_HANDLE)
+    {
+        device_table.DestroyBuffer(device, serialized_data.buffer, nullptr);
+        serialized_data.buffer = VK_NULL_HANDLE;
+    }
+
+    if (serialized_data.memory != VK_NULL_HANDLE)
+    {
+        device_table.FreeMemory(device, serialized_data.memory, nullptr);
+        serialized_data.memory = VK_NULL_HANDLE;
+    }
+
+    serialized_data.size = 0;
+
+    for (auto& as_data : as_build_data)
+    {
+        if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
+        {
+            triangles->vertex_format      = VK_FORMAT_UNDEFINED;
+            triangles->vertex_buffer_size = 0;
+
+            if (triangles->vertex_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
+                triangles->vertex_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->vertex_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
+                triangles->vertex_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            triangles->index_type        = VK_INDEX_TYPE_NONE_KHR;
+            triangles->index_buffer_size = 0;
+
+            if (triangles->index_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->index_buffer, nullptr);
+                triangles->index_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->index_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->index_buffer_memory, nullptr);
+                triangles->index_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            if (triangles->transform_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->transform_buffer, nullptr);
+                triangles->transform_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->transform_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->transform_buffer_memory, nullptr);
+                triangles->transform_buffer_memory = VK_NULL_HANDLE;
+            }
+        }
+        else if (auto* instance = std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&as_data))
+        {
+            instance->instance_count       = 0;
+            instance->instance_buffer_size = 0;
+
+            if (instance->instance_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
+                instance->instance_buffer = VK_NULL_HANDLE;
+            }
+
+            if (instance->instance_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, instance->instance_buffer_memory, nullptr);
+                instance->instance_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            if (instance->compute_ppl != VK_NULL_HANDLE)
+            {
+                device_table.DestroyPipeline(device, instance->compute_ppl, nullptr);
+                instance->compute_ppl = VK_NULL_HANDLE;
+            }
+
+            if (instance->compute_ppl_layout != VK_NULL_HANDLE)
+            {
+                device_table.DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
+                instance->compute_ppl_layout = VK_NULL_HANDLE;
+            }
+        }
+        else if (auto* aabb = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&as_data))
+        {
+            aabb->buffer_size = 0;
+
+            if (aabb->buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, aabb->buffer, nullptr);
+                aabb->buffer = VK_NULL_HANDLE;
+            }
+
+            if (aabb->buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, aabb->buffer_memory, nullptr);
+                aabb->buffer_memory = VK_NULL_HANDLE;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Unexpected as data entry");
+            GFXRECON_ASSERT(0);
+        }
+    }
+
+    as_build_data.clear();
+}
+
+VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure&        dumped_tlas,
+                                           TLASDumpedHostData&                         dumped_tlas_data,
+                                           DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                                           const VulkanDeviceInfo*                     device_info,
+                                           const graphics::VulkanDeviceTable&          device_table,
+                                           const VulkanObjectInfoTable&                object_info_table,
+                                           const graphics::VulkanInstanceTable&        instance_table,
+                                           const VulkanPerDeviceAddressTrackers&       address_trackers)
+{
+    const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    assert(phys_dev_info);
+
+    const auto address_tracker_entry = address_trackers.find(device_info);
+    if (address_tracker_entry == address_trackers.end())
+    {
+        GFXRECON_LOG_WARNING("Could not detect address tracker for device %" PRIu64, device_info->capture_id);
+        return VK_SUCCESS;
+    }
+
+    const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
+
+    graphics::VulkanResourcesUtil resource_util(device_info->handle,
+                                                device_info->parent,
+                                                device_table,
+                                                instance_table,
+                                                *phys_dev_info->replay_device_info->memory_properties);
+
+    const uint32_t transfer_queue_index = FindTransferQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (transfer_queue_index == VK_QUEUE_FAMILY_IGNORED)
+    {
+        GFXRECON_LOG_ERROR("Failed to find a transfer queue")
+        return VK_ERROR_UNKNOWN;
+    }
+
+    const VulkanAccelerationStructureKHRInfo* tlas_info = dumped_tlas.as_info;
+    GFXRECON_ASSERT(tlas_info != nullptr);
+
+    auto tlas_context_entry = acceleration_structures_context.find(tlas_info);
+    GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context.end());
+    AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
+
+    std::vector<AccelerationStructureDumpResourcesContext*> referenced_ases;
+    for (const auto& tlas_build_data : tlas_context->as_build_data)
+    {
+        GFXRECON_ASSERT(
+            (std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&tlas_build_data) == nullptr) &&
+            (std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&tlas_build_data) == nullptr));
+
+        const auto* instance_build_data =
+            std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&tlas_build_data);
+        GFXRECON_ASSERT(instance_build_data != nullptr);
+
+        dumped_tlas.instance_data.emplace_back(
+            DumpedBuffer(static_cast<VkDeviceSize>(instance_build_data->instance_buffer_size)));
+
+        auto& new_dumped_instance_data = dumped_tlas_data.instance_data.emplace_back(TLASDumpedHostData::Instances());
+
+        // Fetch instance data
+        VkResult res =
+            resource_util.ReadFromBufferResource(instance_build_data->instance_buffer,
+                                                 static_cast<uint64_t>(instance_build_data->instance_buffer_size),
+                                                 0,
+                                                 transfer_queue_index,
+                                                 new_dumped_instance_data.instance_buffer);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_WARNING("Error dumping input instance buffer for TLAS %" PRIu64 " (%s)",
+                                 tlas_info->capture_id,
+                                 util::ToString(res).c_str());
+            return res;
+        }
+
+        // Parse instance buffer and extract referenced BLASes
+        const VkAccelerationStructureInstanceKHR* instances =
+            reinterpret_cast<const VkAccelerationStructureInstanceKHR*>(
+                new_dumped_instance_data.instance_buffer.data());
+        for (uint32_t i = 0; i < instance_build_data->instance_count; ++i)
+        {
+            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
+                static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
+            if (blases_infos.empty())
+            {
+                continue;
+            }
+
+            for (auto blas_it = blases_infos.begin(); blas_it != blases_infos.end(); ++blas_it)
+            {
+                if (*blas_it == nullptr)
+                {
+                    continue;
+                }
+
+                const auto blas_context_entry = acceleration_structures_context.find(*blas_it);
+                // It is valid for a TLAS to reference BLASes which have not yet been built
+                // (vkCmdBuildAccelerationStructuresIndirectKHR has not been called for the VkAccelerationStructureKHR).
+                // This works as that BLAS can alias the memory of another BLAS which has been properly built.
+                if (blas_context_entry != acceleration_structures_context.end())
+                {
+                    referenced_ases.push_back(blas_context_entry->second.get());
+                    break;
+                }
+            }
+        }
+    }
+
+    for (const auto blas : referenced_ases)
+    {
+        GFXRECON_ASSERT(blas->as_info != nullptr);
+        auto& new_dumped_blass      = dumped_tlas.blass.emplace_back(blas->as_info);
+        auto& new_dumped_blass_data = dumped_tlas_data.blass_dumped_data.emplace_back(BLASDumpedHostData());
+        for (const auto& build_data : blas->as_build_data)
+        {
+            if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&build_data))
+            {
+                new_dumped_blass.input_data.emplace_back(
+                    std::in_place_type<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataTriangles>,
+                    triangles->vertex_format,
+                    triangles->max_vertex,
+                    triangles->vertex_buffer_size,
+                    triangles->vertex_buffer_stride,
+                    triangles->index_type,
+                    triangles->index_buffer_size,
+                    triangles->transform_buffer_size,
+                    triangles->range);
+
+                auto& new_dumped_triangles_data_variant =
+                    new_dumped_blass_data.build_data.emplace_back(std::in_place_type<BLASDumpedHostData::Triangles>);
+                auto& new_dumped_triangles_data =
+                    std::get<BLASDumpedHostData::Triangles>(new_dumped_triangles_data_variant);
+
+                GFXRECON_ASSERT(triangles->vertex_buffer != VK_NULL_HANDLE);
+                VkResult res =
+                    resource_util.ReadFromBufferResource(triangles->vertex_buffer,
+                                                         static_cast<uint64_t>(triangles->vertex_buffer_size),
+                                                         0,
+                                                         transfer_queue_index,
+                                                         new_dumped_triangles_data.vertex_buffer);
+                if (res != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Error dumping input vertex buffer for BLAS %" PRIu64 " (%s)",
+                                         blas->as_info->capture_id,
+                                         util::ToString(res).c_str());
+                    return res;
+                }
+
+                if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR)
+                {
+                    GFXRECON_ASSERT(triangles->index_buffer != VK_NULL_HANDLE);
+                    VkResult res =
+                        resource_util.ReadFromBufferResource(triangles->index_buffer,
+                                                             static_cast<uint64_t>(triangles->index_buffer_size),
+                                                             0,
+                                                             transfer_queue_index,
+                                                             new_dumped_triangles_data.index_buffer);
+                    if (res != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_WARNING("Error dumping input index buffer for BLAS %" PRIu64 " (%s)",
+                                             blas->as_info->capture_id,
+                                             util::ToString(res).c_str());
+                        return res;
+                    }
+                }
+
+                if (triangles->transform_buffer != VK_NULL_HANDLE)
+                {
+                    VkResult res =
+                        resource_util.ReadFromBufferResource(triangles->transform_buffer,
+                                                             static_cast<uint64_t>(sizeof(VkTransformMatrixKHR)),
+                                                             0,
+                                                             transfer_queue_index,
+                                                             new_dumped_triangles_data.transform_buffer);
+                    if (res != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_WARNING("Error dumping transform buffer for BLAS %" PRIu64 " (%s)",
+                                             blas->as_info->capture_id,
+                                             util::ToString(res).c_str());
+                        return res;
+                    }
+                }
+            }
+            else if (auto* aabbs = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&build_data))
+            {
+                GFXRECON_ASSERT(aabbs->buffer != VK_NULL_HANDLE);
+                new_dumped_blass.input_data.emplace_back(
+                    std::in_place_type<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataAABB>,
+                    aabbs->buffer_size,
+                    aabbs->range);
+
+                auto& new_dumped_aabb_data_variant =
+                    new_dumped_blass_data.build_data.emplace_back(std::in_place_type<BLASDumpedHostData::AABBS>);
+                auto& new_dumped_aabb_data = std::get<BLASDumpedHostData::AABBS>(new_dumped_aabb_data_variant);
+
+                VkResult res = resource_util.ReadFromBufferResource(aabbs->buffer,
+                                                                    static_cast<uint64_t>(aabbs->buffer_size),
+                                                                    0,
+                                                                    transfer_queue_index,
+                                                                    new_dumped_aabb_data.aabb_buffer);
+                if (res != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Error dumping input AABB buffer for BLAS %" PRIu64 " (%s)",
+                                         blas->as_info->capture_id,
+                                         util::ToString(res).c_str());
+                    return res;
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Unexpected build data")
+            }
+        }
+    }
+
+    // Serialize TLAS + BLASes
+    referenced_ases.push_back(tlas_context);
+    VkResult res = SerializeAccelerationStructures(referenced_ases, device_info, device_table, object_info_table);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Error serializing acceleration structures for TLAS %" PRIu64 " (%s)",
+                             tlas_info->capture_id,
+                             util::ToString(res).c_str());
+        return res;
+    }
+
+    // Fetch serialized data for TLAS
+    if (tlas_context->serialized_data.buffer != VK_NULL_HANDLE)
+    {
+        dumped_tlas.serialized_data.size = tlas_context->serialized_data.size;
+        VkResult res                     = resource_util.ReadFromBufferResource(tlas_context->serialized_data.buffer,
+                                                            static_cast<uint64_t>(tlas_context->serialized_data.size),
+                                                            0,
+                                                            transfer_queue_index,
+                                                            dumped_tlas_data.serialized_data);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_WARNING("Error dumping fetching serialized data for TLAS %" PRIu64 " (%s)",
+                                 tlas_info->capture_id,
+                                 util::ToString(res).c_str());
+            return res;
+        }
+    }
+
+    // Fetch serialized data for referenced BLASes. Last one is the TLAS hence the -1 in the loop
+    for (size_t i = 0; i < referenced_ases.size() - 1; ++i)
+    {
+        dumped_tlas.blass[i].serialized_data.size = referenced_ases[i]->serialized_data.size;
+
+        if (referenced_ases[i]->serialized_data.buffer != VK_NULL_HANDLE)
+        {
+            VkResult res =
+                resource_util.ReadFromBufferResource(referenced_ases[i]->serialized_data.buffer,
+                                                     static_cast<uint64_t>(referenced_ases[i]->serialized_data.size),
+                                                     0,
+                                                     transfer_queue_index,
+                                                     dumped_tlas_data.blass_dumped_data[i].serialized_data);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Error dumping fetching serialized data from BLAS %" PRIu64 " (%s)",
+                                     referenced_ases[i]->as_info->capture_id,
+                                     util::ToString(res).c_str());
+                return res;
+            }
+        }
+    }
+
+    return VK_SUCCESS;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

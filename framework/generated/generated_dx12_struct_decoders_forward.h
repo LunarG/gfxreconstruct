@@ -105,6 +105,7 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21;
 struct Decoded_D3D12_FEATURE_DATA_PREDICATION;
 struct Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY;
+struct Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE;
 struct Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED;
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO;
 struct Decoded_D3D12_RESOURCE_ALLOCATION_INFO1;
@@ -248,6 +249,9 @@ struct Decoded_D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE;
 struct Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC;
 struct Decoded_D3D12_RAYTRACING_AABB;
 struct Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC;
+struct Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC;
+struct Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC;
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC;
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC;
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC;
@@ -255,12 +259,19 @@ struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC;
 struct Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER;
 struct Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER;
+struct Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1;
+struct Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK;
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC;
 struct Decoded_D3D12_RAYTRACING_INSTANCE_DESC;
 struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC;
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC;
 struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC;
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC;
 struct Decoded_D3D12_AUTO_BREADCRUMB_NODE;
 struct Decoded_D3D12_DRED_BREADCRUMB_CONTEXT;
 struct Decoded_D3D12_AUTO_BREADCRUMB_NODE1;
@@ -487,6 +498,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PREDICATION* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED* wrapper);
 
@@ -736,6 +749,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_COMPACTED_SIZE_DESC* wrapper);
@@ -744,19 +761,29 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_TOOLS_VISUALIZATION_HEADER* wrapper);
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* wrapper);
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_SERIALIZED_BLOCK* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_CURRENT_SIZE_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_INSTANCE_DESC* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_CURRENT_SIZE_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TOOLS_VISUALIZATION_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_AUTO_BREADCRUMB_NODE* wrapper);
 

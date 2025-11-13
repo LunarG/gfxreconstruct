@@ -26,6 +26,7 @@
 #include "injection.h"
 #include "ref_tracker.h"
 #include "ref_tracker_counter.h"
+#include "util/strings.h"
 
 #include <algorithm>
 
@@ -82,22 +83,13 @@ const static int k_max_hop_count_ = 20;
 static int       total_hop_count_ = 0;
 
 //----------------------------------------------------------------------------
-/// Utility function to convert string to lowercase
-/// \param  str output string
-//----------------------------------------------------------------------------
-static void ToLowerCase(std::string& str)
-{
-    std::transform(str.begin(), str.end(), str.begin(), [](char c) { return (char)::tolower(c); });
-}
-
-//----------------------------------------------------------------------------
 /// Try to detect blacklisted app
 /// \param  app_name
 /// \return True if disallowed, false otherwise
 //----------------------------------------------------------------------------
 static bool CheckBlackList(std::string app_name)
 {
-    ToLowerCase(app_name);
+    gfxrecon::util::strings::ToLowerCase(app_name);
 
     const int count = sizeof(kBlackList) / sizeof(kBlackList[0]);
 

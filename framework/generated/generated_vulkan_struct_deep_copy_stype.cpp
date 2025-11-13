@@ -1289,62 +1289,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265CapabilitiesKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265SessionCreateInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265QualityLevelPropertiesKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265SessionParametersAddInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265SessionParametersCreateInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265SessionParametersGetInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265SessionParametersFeedbackInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_NALU_SLICE_SEGMENT_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265NaluSliceSegmentInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265DpbSlotInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265ProfileInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265RateControlInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265RateControlLayerInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoEncodeH265GopRemainingFrameInfoKHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkVideoDecodeH264ProfileInfoKHR*>(pNext), 1, out_ptr);
@@ -1529,30 +1473,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265ProfileInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265CapabilitiesKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265SessionParametersAddInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265SessionParametersCreateInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265DpbSlotInfoKHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkFragmentShadingRateAttachmentInfoKHR*>(pNext), 1, out_ptr);
@@ -1688,6 +1608,10 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceShaderUntypedPointersFeaturesKHR*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
@@ -1925,6 +1849,22 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_INDIRECT_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkCopyMemoryIndirectInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkCopyMemoryToImageIndirectInfoKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(pNext), 1, out_ptr);
@@ -2009,13 +1949,13 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceLayeredApiVulkanPropertiesKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkMemoryBarrierAccessFlags3KHR*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_8_FEATURES_KHR:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceMaintenance8FeaturesKHR*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
@@ -2028,22 +1968,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDeviceVideoMaintenance2FeaturesKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH264InlineSessionParametersInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeH265InlineSessionParametersInfoKHR*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkVideoDecodeAV1InlineSessionParametersInfoKHR*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_ZERO_ONE_FEATURES_KHR:
             offset += vulkan_struct_deep_copy(
@@ -3052,6 +2976,22 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeRgbConversionCapabilitiesVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeProfileRgbConversionInfoVALVE*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(

@@ -3109,6 +3109,58 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
     }
 }
 
+void VulkanReplayDumpResources::Process_vkCmdCopyMemoryIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryIndirectKHR              func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryIndirectInfoKHR*          pCopyMemoryIndirectInfo)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, pCopyMemoryIndirectInfo);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, pCopyMemoryIndirectInfo);
+        }
+    }
+}
+
+void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyMemoryToImageIndirectKHR       func,
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, pCopyMemoryToImageIndirectInfo);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, pCopyMemoryToImageIndirectInfo);
+        }
+    }
+}
+
 void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDebugMarkerBeginEXT                func,

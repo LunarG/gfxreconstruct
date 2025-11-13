@@ -874,10 +874,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                              vulkan_wrappers::BufferWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pBuffer, GetUniqueId);
 
-        auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
-        GFXRECON_ASSERT(buffer_wrapper)
-        buffer_wrapper->size  = modified_create_info->size;
-        buffer_wrapper->usage = pCreateInfo->usage;
+        auto* buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+        GFXRECON_ASSERT(buffer_wrapper);
+        buffer_wrapper->device = device;
+        buffer_wrapper->size   = modified_create_info->size;
+        buffer_wrapper->usage  = pCreateInfo->usage;
 
         if (uses_address)
         {
@@ -984,7 +985,7 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
                                              vulkan_wrappers::AccelerationStructureKHRWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pAccelerationStructureKHR, GetUniqueId);
 
-        auto accel_struct_wrapper =
+        auto* accel_struct_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(*pAccelerationStructureKHR);
 
         VkAccelerationStructureDeviceAddressInfoKHR address_info{
@@ -998,6 +999,17 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
         accel_struct_wrapper->device  = device_wrapper;
         accel_struct_wrapper->address = address;
         accel_struct_wrapper->type    = modified_create_info->type;
+
+        auto* buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(modified_create_info->buffer, true);
+        GFXRECON_ASSERT(buffer_wrapper != nullptr);
+
+        accel_struct_wrapper->buffer = buffer_wrapper;
+        accel_struct_wrapper->offset = modified_create_info->offset;
+        accel_struct_wrapper->size   = modified_create_info->size;
+
+        // associated buffer keeps track of existing acceleration-structures
+        buffer_wrapper->acceleration_structures[accel_struct_wrapper->address].type = accel_struct_wrapper->type;
 
         if (IsCaptureModeTrack())
         {
@@ -1983,7 +1995,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
             buffer, buffer_wrapper->size, memoryOffset, buffer_wrapper->queue_family_index, data);
         if (result == VK_SUCCESS)
         {
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size);
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, buffer_wrapper->size, buffer_wrapper->size);
 
             GetCommandWriter()->WriteInitBufferCmd(api_family_,
                                                    device_wrapper->handle_id,
@@ -2031,7 +2043,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                                                 true);
             GFXRECON_ASSERT(resource_size == num_bytes);
 
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size);
+            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
             GetCommandWriter()->WriteInitImageCmd(api_family_,
                                                   device_wrapper->handle_id,
                                                   img.handle_id,
@@ -4029,6 +4041,7 @@ void VulkanCaptureManager::AddValidFence(VkFence fence)
 {
     if (fence != VK_NULL_HANDLE && common_manager_->IsCaptureModeWrite())
     {
+        std::lock_guard<std::mutex> lock(fence_mutex);
         valid_fences_.insert(fence);
     }
 }
@@ -4037,6 +4050,7 @@ void VulkanCaptureManager::RemoveValidFence(VkFence fence)
 {
     if (fence != VK_NULL_HANDLE)
     {
+        std::lock_guard<std::mutex> lock(fence_mutex);
         valid_fences_.erase(fence);
     }
 }
@@ -4047,6 +4061,7 @@ bool VulkanCaptureManager::IsValidFence(VkFence fence)
     {
         return true;
     }
+    std::lock_guard<std::mutex> lock(fence_mutex);
     return valid_fences_.find(fence) != valid_fences_.end();
 }
 

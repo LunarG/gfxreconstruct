@@ -448,6 +448,8 @@ static inline const std::unordered_map<std::string, PFN_vkVoidFunction> GetVulka
         { "vkCmdPushDescriptorSetWithTemplate2KHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdPushDescriptorSetWithTemplate2KHR) },
         { "vkCmdSetDescriptorBufferOffsets2EXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdSetDescriptorBufferOffsets2EXT) },
         { "vkCmdBindDescriptorBufferEmbeddedSamplers2EXT",                                                       reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdBindDescriptorBufferEmbeddedSamplers2EXT) },
+        { "vkCmdCopyMemoryIndirectKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdCopyMemoryIndirectKHR) },
+        { "vkCmdCopyMemoryToImageIndirectKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdCopyMemoryToImageIndirectKHR) },
         { "vkFrameBoundaryANDROID",                                                                              reinterpret_cast<PFN_vkVoidFunction>(encode::vkFrameBoundaryANDROID) },
         { "vkCreateDebugReportCallbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateDebugReportCallbackEXT) },
         { "vkDestroyDebugReportCallbackEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::vkDestroyDebugReportCallbackEXT) },

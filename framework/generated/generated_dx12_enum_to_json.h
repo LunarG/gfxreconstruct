@@ -1123,6 +1123,33 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_IN
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_SPECIAL_INDEX value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_SPECIAL_INDEX* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_STATE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_STATE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -1182,6 +1209,33 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DRIVER_MATCHI
     FieldToJson(jdata, ToString(value), options);
 }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_SERIALIZED_BLOCK_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_SERIALIZED_BLOCK_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_POSTBUILD_INFO_TYPE* pEnum, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, *pEnum, options);
 }
@@ -1416,6 +1470,15 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SHADER_CACHE_
     FieldToJson(jdata, ToString(value), options);
 }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_SHADER_CACHE_CONTROL_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS* pEnum, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, *pEnum, options);
 }
@@ -2746,6 +2809,19 @@ inline void FieldToJson_D3D12_SHADER_CACHE_CONTROL_FLAGS(nlohmann::ordered_json&
     else
     {
         representation = ToString_D3D12_SHADER_CACHE_CONTROL_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(flags);
     }
     FieldToJson(jdata, representation, options);
 }

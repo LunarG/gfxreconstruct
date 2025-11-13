@@ -83,16 +83,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetCurrentFrameNumber(uint64_t frame_number) override;
 
-    // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
-    // For example, this is used during recapture to return the capture layer's Vulkan functions.
-    void SetGetInstanceProcAddrOverride(PFN_vkGetInstanceProcAddr get_instance_proc_addr)
-    {
-        GFXRECON_ASSERT((get_instance_proc_addr_ == nullptr) &&
-                        "SetGetInstanceProcAddrOverride should be called before InitializeLoader().")
-        get_instance_proc_addr_ = get_instance_proc_addr;
-    }
-
-    void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
+    void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
@@ -161,11 +152,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          uint32_t                                            last_presented_image,
                                          const std::vector<format::SwapchainImageStateInfo>& image_info) override;
 
-    virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                 uint64_t         max_resource_size,
-                                                 uint64_t         max_copy_size) override;
+    void ProcessBeginResourceInitCommand(format::HandleId device_id,
+                                         uint64_t         total_copy_size,
+                                         uint64_t         max_copy_size) override;
 
-    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
+    void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
     virtual void ProcessInitBufferCommand(format::HandleId device_id,
                                           format::HandleId buffer_id,
@@ -1054,6 +1045,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                const VulkanDeviceInfo*         device_info,
                                                StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info);
 
+    VkResult
+    OverrideGetPhysicalDeviceSurfaceFormatsKHR(PFN_vkGetPhysicalDeviceSurfaceFormatsKHR          func,
+                                               VkResult                                          original_result,
+                                               decode::VulkanPhysicalDeviceInfo*                 physical_device_info,
+                                               decode::VulkanSurfaceKHRInfo*                     surface_info,
+                                               PointerDecoder<uint32_t>*                         pSurfaceFormatCount,
+                                               StructPointerDecoder<Decoded_VkSurfaceFormatKHR>* pSurfaceFormats);
+
+    VkResult OverrideGetPhysicalDeviceSurfaceFormats2KHR(
+        PFN_vkGetPhysicalDeviceSurfaceFormats2KHR                      func,
+        VkResult                                                       original_result,
+        decode::VulkanPhysicalDeviceInfo*                              physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>* surface_info,
+        PointerDecoder<uint32_t>*                                      pSurfaceFormatCount,
+        StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>*             pSurfaceFormats);
+
     VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                                      func,
                                         VkResult                                                      original_result,
                                         VulkanDeviceInfo*                                             device_info,
@@ -1555,6 +1562,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanDeviceInfo*                                               device_info,
         StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo);
 
+    VkResult OverrideGetPastPresentationTimingGOOGLE(
+        PFN_vkGetPastPresentationTimingGOOGLE                         func,
+        VkResult                                                      original_result,
+        const VulkanDeviceInfo*                                       device_info,
+        const VulkanSwapchainKHRInfo*                                 swapchain_info,
+        PointerDecoder<uint32_t>*                                     pPresentationTimingCount,
+        StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>* pPresentationTimings);
+
+    VkResult OverrideGetRefreshCycleDurationGOOGLE(
+        PFN_vkGetRefreshCycleDurationGOOGLE                         func,
+        VkResult                                                    original_result,
+        const VulkanDeviceInfo*                                     device_info,
+        const VulkanSwapchainKHRInfo*                               swapchain_info,
+        StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
@@ -1591,6 +1613,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     std::unique_ptr<VulkanReplayDumpResources> resource_dumper_;
 
+    //// Begin recapture members
+  private:
+    // UINT64_MAX =                                      18446744073709551615ULL
+    static constexpr uint64_t kRecaptureHandleIdOffset = 10000000000000000000ULL;
+
+  public:
+    // Provide a custom implementation of vkGetInstanceProcAddr for the replay consumer to use to find Vulkan functions.
+    // For example, this is used during recapture to return the capture layer's Vulkan functions.
+    void SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                           PFN_vkCreateInstance      create_instance,
+                           PFN_vkCreateDevice        create_device);
+
+    virtual void PushRecaptureHandleId(const format::HandleId* id) override;
+    virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
+    virtual void ClearRecaptureHandleIds() override;
+
+    //// End recapture members
+
   private:
     void RaiseFatalError(const char* message) const;
 
@@ -1620,9 +1660,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const VkPhysicalDeviceProperties* capture_properties,
                                      const VkPhysicalDeviceProperties* replay_properties);
 
-    void SetPhysicalDeviceProperties(VulkanPhysicalDeviceInfo*          physical_device_info,
-                                     const VkPhysicalDeviceProperties2* capture_properties,
-                                     const VkPhysicalDeviceProperties2* replay_properties);
+    void SetPhysicalDeviceProperties2(VulkanPhysicalDeviceInfo*          physical_device_info,
+                                      const VkPhysicalDeviceProperties2* capture_properties,
+                                      const VkPhysicalDeviceProperties2* replay_properties);
 
     void SetPhysicalDeviceMemoryProperties(VulkanPhysicalDeviceInfo*               physical_device_info,
                                            const VkPhysicalDeviceMemoryProperties* capture_properties,
@@ -1771,6 +1811,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           VkPipeline*             pipelines,
                                           uint32_t                pipelineCount);
 
+    bool IsExtensionBeingFaked(const char* extension);
+
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
     VulkanDeviceInfo* FindkDuplicateDeviceInfo(const VulkanPhysicalDeviceInfo* physical_device_info,
@@ -1829,8 +1871,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                    screenshot_file_prefix_;
     graphics::FpsInfo*                                                             fps_info_;
 
-    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker> _device_address_trackers;
-    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>      _device_address_replacers;
+    VulkanPerDeviceAddressTrackers  _device_address_trackers;
+    VulkanPerDeviceAddressReplacers _device_address_replacers;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
@@ -1842,7 +1884,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::function<void()> sync_fn;
 
         //! function used to defer deletion of a tracked async-dependency
-        std::function<void()> destroy_fn;
+        std::function<void()> post_build_fn;
     };
     //! stores handles used/referenced by currently running async tasks
     std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
@@ -1874,6 +1916,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>            removed_swapchain_indices_;
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
+
+    // faked extensions is a list of currently bypassed extensions.
+    // goal is to allow replay when 'benign' extensions are missing during replay.
+    std::vector<const char*> faked_extensions_;
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

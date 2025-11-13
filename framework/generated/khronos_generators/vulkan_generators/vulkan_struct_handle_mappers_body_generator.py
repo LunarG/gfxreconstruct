@@ -93,9 +93,3 @@ class VulkanStructHandleMappersBodyGenerator(
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
-            return True
-        return False

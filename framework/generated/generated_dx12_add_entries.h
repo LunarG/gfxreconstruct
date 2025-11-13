@@ -124,8 +124,10 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
+    { IID_ID3D12Tools2, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
     { IID_ID3D12PageableTools, AddEntry<ID3D12PageableTools_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceTools, AddEntry<ID3D12DeviceTools_Wrapper, ParentWrapper> },
+    { IID_ID3D12DeviceTools1, AddEntry<ID3D12DeviceTools_Wrapper, ParentWrapper> },
     { IID_ID3D12SDKConfiguration, AddEntry<ID3D12SDKConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12SDKConfiguration1, AddEntry<ID3D12SDKConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceFactory, AddEntry<ID3D12DeviceFactory_Wrapper, ParentWrapper> },
@@ -269,8 +271,10 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper> },
+    { IID_ID3D12Tools2, AddEntry<ID3D12Tools_Wrapper> },
     { IID_ID3D12PageableTools, AddEntry<ID3D12PageableTools_Wrapper> },
     { IID_ID3D12DeviceTools, AddEntry<ID3D12DeviceTools_Wrapper> },
+    { IID_ID3D12DeviceTools1, AddEntry<ID3D12DeviceTools_Wrapper> },
     { IID_ID3D12SDKConfiguration, AddEntry<ID3D12SDKConfiguration_Wrapper> },
     { IID_ID3D12SDKConfiguration1, AddEntry<ID3D12SDKConfiguration_Wrapper> },
     { IID_ID3D12DeviceFactory, AddEntry<ID3D12DeviceFactory_Wrapper> },
@@ -628,12 +632,22 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12Tools_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12Tools2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12Tools_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12PageableTools)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12PageableTools_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12DeviceTools)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12DeviceTools_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12DeviceTools1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12DeviceTools_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();

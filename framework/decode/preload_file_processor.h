@@ -24,6 +24,8 @@
 #ifndef GFXRECON_DECODE_PRELOAD_FILE_PROCESSOR_H
 #define GFXRECON_DECODE_PRELOAD_FILE_PROCESSOR_H
 
+#include <deque>
+
 #include "decode/file_processor.h"
 #include "format/format_util.h"
 
@@ -33,79 +35,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class PreloadFileProcessor : public FileProcessor
 {
   public:
+    using Base = FileProcessor;
     PreloadFileProcessor();
 
     // Preloads *count* frames to continuous, expandable memory buffer
     void PreloadNextFrames(size_t count);
+    // Replaces ProcessBlocksOneFrame() to just read blocks into memory buffer
+    bool PreloadBlocksOneFrame();
 
   private:
-    class PreloadBuffer
-    {
-      public:
-        PreloadBuffer();
+    bool GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer) override;
 
-        // Ensures the buffer can store additional *size* bytes
-        void Reserve(size_t size);
-
-        // Copies the preloaded data from the internal container into the provided destination buffer
-        // Accounts for current replay position
-        size_t Read(void* destination, size_t destination_size);
-
-        // Copies provided object of type T into the preload buffer
-        // Returns a pointer to inserted object in the container
-        template <typename T>
-        inline void* Add(T* data)
-        {
-            return &*container_.insert(
-                container_.end(), reinterpret_cast<char*>(data), reinterpret_cast<char*>(data) + sizeof(T));
-        }
-
-        // Allocates *size* bytes in the preload buffer
-        // Returns the pointer to initialized memory
-        inline void* Add(size_t size) { return &*container_.insert(container_.end(), size, 0); }
-
-        // Indicates whether the preloaded calls have been replayed in full
-        inline bool ReplayFinished() { return !container_.empty() && replay_offset_ >= container_.size(); }
-
-        // Clears the preload buffer, resets internal state
-        void Reset();
-
-      private:
-        std::vector<char> container_;
-        size_t            replay_offset_;
-
-    } preload_buffer_;
-
-    enum class PreloadStatus
-    {
-        kInactive,
-        kRecord,
-        kReplay
-    } status_;
-
-    template <typename T>
-    bool ReadParameterBytes(format::BlockHeader& block_header, T& data, PreloadBuffer& preload_buffer)
-    {
-        preload_buffer.Reserve(sizeof(block_header) + block_header.size);
-        preload_buffer.Add(&block_header);
-        preload_buffer.Add(&data);
-        size_t parameters_size  = block_header.size - sizeof(T);
-        void*  parameter_buffer = preload_buffer.Add(parameters_size);
-        return ReadBytes(parameter_buffer, parameters_size);
-    }
-
-    bool ReadParameterBytes(format::BlockHeader& block_header, PreloadBuffer& preload_buffer)
-    {
-        preload_buffer.Reserve(sizeof(block_header) + block_header.size);
-        preload_buffer.Add(&block_header);
-        size_t parameters_size  = block_header.size;
-        void*  parameter_buffer = preload_buffer.Add(parameters_size);
-        return ReadBytes(parameter_buffer, parameters_size);
-    }
-
-    bool ProcessBlocks() override;
-
-    bool ReadBytes(void* buffer, size_t buffer_size) override;
+    // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
+    //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
+    //       the compact choice
+    std::deque<util::DataSpan> pending_block_data_;
+    std::deque<util::DataSpan> preload_block_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -116,7 +116,7 @@ class PageGuardManager
     // shadow_memory is true.
     //
     // The shadow_memory_handle parameter is an option value that allows the lifetime of the shadow memory allocation to
-    // be managed externally.  Unless opy-on-map is disabled, copies from the mapped_range portion of mapped_memory to
+    // be managed externally.  Unless copy-on-map is disabled, copies from the mapped_range portion of mapped_memory to
     // the shadow memory are performed once, the first time that the shadow memory is added for tracking.  Copies will
     // not be performed if the mapped range is removed from tracking and then added again.
     //

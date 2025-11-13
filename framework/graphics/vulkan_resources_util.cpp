@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/vulkan_replay_dump_resources_common.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -107,20 +108,98 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspec
     }
 }
 
-VkImageAspectFlags GetFormatAspectMask(VkFormat format)
+void AspectFlagsToFlagBits(VkImageAspectFlags aspect_mask, std::vector<VkImageAspectFlagBits>& aspects)
 {
+    if ((aspect_mask & VK_IMAGE_ASPECT_COLOR_BIT) == VK_IMAGE_ASPECT_COLOR_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_COLOR_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) == VK_IMAGE_ASPECT_DEPTH_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_DEPTH_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) == VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_STENCIL_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_METADATA_BIT) == VK_IMAGE_ASPECT_METADATA_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_METADATA_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT) == VK_IMAGE_ASPECT_PLANE_0_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_0_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT) == VK_IMAGE_ASPECT_PLANE_1_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_1_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT) == VK_IMAGE_ASPECT_PLANE_2_BIT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_2_BIT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_0_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT) == VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_0_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_0_BIT_KHR);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_1_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_1_BIT_KHR);
+    }
+
+    if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT_KHR) == VK_IMAGE_ASPECT_PLANE_2_BIT_KHR)
+    {
+        aspects.push_back(VK_IMAGE_ASPECT_PLANE_2_BIT_KHR);
+    }
+}
+
+VkImageAspectFlags GetFormatAspects(VkFormat format)
+{
+    VkImageAspectFlags aspects = VK_IMAGE_ASPECT_NONE;
+
     switch (format)
     {
         case VK_FORMAT_D16_UNORM_S8_UINT:
         case VK_FORMAT_D24_UNORM_S8_UINT:
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+            aspects = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+            break;
         case VK_FORMAT_D16_UNORM:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
         case VK_FORMAT_D32_SFLOAT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT;
+            aspects = VK_IMAGE_ASPECT_DEPTH_BIT;
+            break;
         case VK_FORMAT_S8_UINT:
-            return VK_IMAGE_ASPECT_STENCIL_BIT;
+            aspects = VK_IMAGE_ASPECT_STENCIL_BIT;
+            break;
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
         case VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM:
         case VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM:
@@ -133,7 +212,8 @@ VkImageAspectFlags GetFormatAspectMask(VkFormat format)
         case VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM:
         case VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM:
         case VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM:
-            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+            aspects = VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+            break;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
         case VK_FORMAT_G8_B8R8_2PLANE_444_UNORM_EXT:
@@ -146,10 +226,14 @@ VkImageAspectFlags GetFormatAspectMask(VkFormat format)
         case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
         case VK_FORMAT_G16_B16R16_2PLANE_444_UNORM_EXT:
-            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
+            aspects = VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
+            break;
         default:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
+            aspects = VK_IMAGE_ASPECT_COLOR_BIT;
+            break;
     }
+
+    return aspects;
 }
 
 VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
@@ -421,11 +505,10 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                                    VkDeviceSize*              current_row_remaining_size_ptr)
 {
     bool         is_texel_block_size = false;
-    VkDeviceSize texel_size          = 0;
+    VkDeviceSize texel_size;
     uint16_t     block_width = 0, block_height = 0;
-    bool         result = GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height);
 
-    if (!result)
+    if (GetImageTexelSize(format, &texel_size, &is_texel_block_size, &block_width, &block_height))
     {
         // The image format is not supported
         return false;
@@ -463,9 +546,9 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             if (z >= extent.depth)
             {
                 // offset_to_subresource_data_start is beyond the range of subresource data. Because current
-                // Vulakn specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
+                // Vulkan specification doesn't allow VK_IMAGE_TYPE_3D for array image, so no next array layer
                 // exist;
-                result = false;
+                return false;
             }
             else
             {
@@ -585,7 +668,7 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
         *current_row_remaining_size_ptr = current_row_remaining_size;
     }
 
-    return result;
+    return true;
 }
 
 // Get the offset which is relative to the start of subresource data for a location (pointed by texel
@@ -832,11 +915,6 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
         GFXRECON_LOG_ERROR("Format %s is not supported by the implementation",
                            util::ToString<VkFormat>(format).c_str());
         return 0;
-    }
-
-    if (mip_levels > 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))))
-    {
-        GFXRECON_LOG_WARNING_ONCE("%s(): too many mip_levels for extent", __func__);
     }
 
     if (subresource_sizes != nullptr)
@@ -1420,6 +1498,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                            VkImage           image,
                                            VkFormat          format,
                                            VkImageType       type,
+                                           VkImageTiling     tiling,
                                            const VkExtent3D& extent,
                                            uint32_t          array_layers,
                                            VkImageLayout     current_layout,
@@ -1430,8 +1509,12 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 
     VkFormatProperties format_properties{};
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
-    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    if ((tiling == VK_IMAGE_TILING_OPTIMAL &&
+         (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+             VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+        (((tiling == VK_IMAGE_TILING_LINEAR &&
+           (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))))
     {
         GFXRECON_LOG_WARNING_ONCE(
             "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
@@ -1494,7 +1577,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 
         if (command_buffer != VK_NULL_HANDLE)
         {
-            VkImageAspectFlags aspect_mask = GetFormatAspectMask(format);
+            VkImageAspectFlags aspect_mask = GetFormatAspects(format);
 
             uint32_t             num_barriers = 1;
             VkImageMemoryBarrier memory_barriers[2];
@@ -1756,6 +1839,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         return result;
     }
 
+    VkResult last_error = VK_SUCCESS;
+
     // accumulate timing data
     uint32_t gpu_micros = 0, cpu_micros = 0;
 
@@ -1781,7 +1866,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                 command_buffer = cmd_buf_it->second;
             }
 
-            VkImage copy_image = tmp_data[i].resolve_image != VK_NULL_HANDLE ? tmp_data[i].resolve_image : img.image;
+            VkImage copy_image = img.image;
 
             if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
@@ -1789,6 +1874,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       img.image,
                                       img.format,
                                       img.type,
+                                      img.tiling,
                                       img.extent,
                                       img.layer_count,
                                       img.layout,
@@ -1796,10 +1882,15 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                       &tmp_data[i].resolve_memory);
                 if (result != VK_SUCCESS)
                 {
+                    last_error = result;
+
                     // free temporary resource, continue
                     tmp_data[i] = {};
                     continue;
                 }
+
+                GFXRECON_ASSERT(tmp_data[i].resolve_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].resolve_image;
             }
 
             tmp_data[i].transition_aspect = img.aspect;
@@ -1807,7 +1898,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             {
                 // Depth and stencil aspects need to be transitioned together, so get full aspect
                 // mask for image.
-                tmp_data[i].transition_aspect = GetFormatAspectMask(img.format);
+                tmp_data[i].transition_aspect = GetFormatAspects(img.format);
             }
 
             if (img.sample_count == VK_SAMPLE_COUNT_1_BIT && img.layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
@@ -1825,9 +1916,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             // Blit image to change dimensions or convert format
             if (tmp_data[i].use_blit)
             {
-                VkImage blit_src = tmp_data[i].resolve_image ? tmp_data[i].resolve_image : img.image;
-                result           = BlitImage(command_buffer,
-                                   blit_src,
+                result = BlitImage(command_buffer,
+                                   copy_image,
                                    img.format,
                                    dst_format,
                                    img.type,
@@ -1842,14 +1932,17 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                    tmp_data[i].scaled_image,
                                    tmp_data[i].scaled_image_memory);
 
-                copy_image = tmp_data[i].scaled_image != VK_NULL_HANDLE ? tmp_data[i].scaled_image : copy_image;
-
                 if (result != VK_SUCCESS)
                 {
+                    last_error = result;
+
                     // free temporary resource, continue
                     tmp_data[i] = {};
                     continue;
                 }
+
+                GFXRECON_ASSERT(tmp_data[i].scaled_image != VK_NULL_HANDLE);
+                copy_image = tmp_data[i].scaled_image;
             }
 
             if (!img.external_format)
@@ -1952,7 +2045,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         cpu_micros += batch_micros - gpu_micros;
     } // batch_ranges
     GFXRECON_LOG_DEBUG("gpu: %d ms - cpu: %d ms", gpu_micros / 1000, cpu_micros / 1000);
-    return VK_SUCCESS;
+    return last_error;
 }
 
 VkResult VulkanResourcesUtil::ReadImageResource(const VulkanResourcesUtil::ImageResource& image_resource,
@@ -1983,7 +2076,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    VkResult result = CreateStagingBuffer(size);
+    VkResult result = CreateStagingBuffer(static_cast<VkDeviceSize>(size));
     if (result != VK_SUCCESS)
     {
         return result;
@@ -2013,7 +2106,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     data.resize(static_cast<size_t>(size));
 
     InvalidateStagingBuffer();
-    util::platform::MemoryCopy(data.data(), size, staging_buffer_.mapped_ptr, size);
+    util::platform::MemoryCopy(data.data(), static_cast<size_t>(size), staging_buffer_.mapped_ptr, size);
 
     return result;
 }
@@ -2286,9 +2379,12 @@ bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkFormat       dst_format,
                                           VkImageTiling* dst_image_tiling) const
 {
-    // Integer formats must match
-    if ((vkuFormatIsSINT(src_format) != vkuFormatIsSINT(dst_format)) ||
-        (vkuFormatIsUINT(src_format) != vkuFormatIsUINT(dst_format)))
+    // According to spec: "Integer formats can only be converted to other integer formats with the same signedness."
+    const bool is_src_sint = vkuFormatIsSINT(src_format) || vkuFormatIsSSCALED(src_format);
+    const bool is_src_uint = vkuFormatIsUINT(src_format) || vkuFormatIsUSCALED(src_format);
+    const bool is_dst_sint = vkuFormatIsSINT(dst_format) || vkuFormatIsSSCALED(dst_format);
+    const bool is_dst_uint = vkuFormatIsUINT(dst_format) || vkuFormatIsUSCALED(dst_format);
+    if ((is_src_sint != is_dst_sint) || (is_src_uint != is_dst_uint))
     {
         return false;
     }
@@ -2357,8 +2453,10 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        if (dst_img_format_props.maxExtent.width < static_cast<uint32_t>(static_cast<float>(extent.width) * scale) ||
-            dst_img_format_props.maxExtent.height < static_cast<uint32_t>(static_cast<float>(extent.height) * scale))
+        const VkExtent3D scaled_extent = decode::ScaleExtent(extent, scale);
+        if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
+            (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
+            (dst_img_format_props.maxExtent.depth < scaled_extent.depth))
         {
             return false;
         }
@@ -2547,6 +2645,114 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
                                      &img_barrier);
 
     return VK_SUCCESS;
+}
+
+/**
+ * @brief Computes the required byte size of host memory referenced by a structure
+ *        for a copy-buffer-to-image or a copy-image-to-buffer operation.
+ *
+ * @note Origin: Adapted from Vulkan-ValidationLayers/layers/state_tracker/image_stat.cpp.
+ *       Mirrors the logic used in the Validation Layers to determine how many bytes are
+ *       consumed based on the copy region, image format, and block/texel sizing rules.
+ *
+ * @param region        The region structure describing the copy (e.g. `VkMemoryToImageCopy`).
+ * @param array_layers  The total number of array layers in the destination image (used when
+ *                      layerCount is VK_REMAINING_ARRAY_LAYERS).
+ * @param format        The VkFormat of the destination image.
+ *
+ * @return VkDeviceSize The number of bytes that must be available from region.pHostPointer
+ *                      to satisfy the copy described by 'region'.
+ *
+ * @details
+ * - Handles depth/stencil special cases per the Vulkan specification.
+ * - Accounts for block-compressed formats by converting to texel-block units and rounding up for partial blocks.
+ * - Returns 0 for invalid/empty copies; callers should already have guards for those cases.
+ */
+template <typename RegionCopy>
+static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_t array_layers, VkFormat format)
+{
+    VkDeviceSize buffer_size   = 0;
+    VkExtent3D   copy_extent   = region.imageExtent;
+    VkDeviceSize buffer_width  = (0 == region.memoryRowLength ? copy_extent.width : region.memoryRowLength);
+    VkDeviceSize buffer_height = (0 == region.memoryImageHeight ? copy_extent.height : region.memoryImageHeight);
+    uint32_t     layer_count   = region.imageSubresource.layerCount != VK_REMAINING_ARRAY_LAYERS
+                                     ? region.imageSubresource.layerCount
+                                     : array_layers - region.imageSubresource.baseArrayLayer;
+    // VUID-VkImageCreateInfo-imageType-00961 prevents having both depth and layerCount ever both be greater than 1
+    // together. Take max to logic simple. This is the number of 'slices' to copy.
+    const uint32_t z_copies = std::max(copy_extent.depth, layer_count);
+
+    // Invalid if copy size is 0 and other validation checks will catch it. Returns zero as the caller should have
+    // fallback already to ignore.
+    if (copy_extent.width == 0 || copy_extent.height == 0 || copy_extent.depth == 0 || z_copies == 0)
+    {
+        return 0;
+    }
+
+    VkDeviceSize unit_size = 0;
+    if (region.imageSubresource.aspectMask & (VK_IMAGE_ASPECT_STENCIL_BIT | VK_IMAGE_ASPECT_DEPTH_BIT))
+    {
+        // Spec in VkBufferImageCopy section list special cases for each format
+        if (region.imageSubresource.aspectMask & VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            unit_size = 1;
+        }
+        else
+        {
+            // VK_IMAGE_ASPECT_DEPTH_BIT
+            switch (format)
+            {
+                case VK_FORMAT_D16_UNORM:
+                case VK_FORMAT_D16_UNORM_S8_UINT:
+                    unit_size = 2;
+                    break;
+                case VK_FORMAT_D32_SFLOAT:
+                case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                // packed with the D24 value in the LSBs of the word, and undefined values in the eight MSBs
+                case VK_FORMAT_X8_D24_UNORM_PACK32:
+                case VK_FORMAT_D24_UNORM_S8_UINT:
+                    unit_size = 4;
+                    break;
+                default:
+                    // Any misuse of formats vs aspect mask should be caught before here
+                    return 0;
+            }
+        }
+    }
+    else
+    {
+        // size (bytes) of texel or block
+        unit_size = vkuFormatElementSizeWithAspect(
+            format, static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
+    }
+
+    if (vkuFormatIsBlockedImage(format))
+    {
+        // Switch to texel block units, rounding up for any partially-used blocks
+        const VkExtent3D block_extent = vkuFormatTexelBlockExtent(format);
+        buffer_width                  = (buffer_width + block_extent.width - 1) / block_extent.width;
+        buffer_height                 = (buffer_height + block_extent.height - 1) / block_extent.height;
+
+        copy_extent.width  = (copy_extent.width + block_extent.width - 1) / block_extent.width;
+        copy_extent.height = (copy_extent.height + block_extent.height - 1) / block_extent.height;
+        copy_extent.depth  = (copy_extent.depth + block_extent.depth - 1) / block_extent.depth;
+    }
+
+    // Calculate buffer offset of final copied byte, + 1.
+    buffer_size = (z_copies - 1) * buffer_height * buffer_width;                  // offset to slice
+    buffer_size += ((copy_extent.height - 1) * buffer_width) + copy_extent.width; // add row,col
+    buffer_size *= unit_size;                                                     // convert to bytes
+    return buffer_size;
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkMemoryToImageCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkMemoryToImageCopy>(region, array_layers, format);
+}
+
+VkDeviceSize GetBufferSizeFromCopyImage(const VkImageToMemoryCopy& region, uint32_t array_layers, VkFormat format)
+{
+    return GetBufferSizeFromCopyImage<VkImageToMemoryCopy>(region, array_layers, format);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

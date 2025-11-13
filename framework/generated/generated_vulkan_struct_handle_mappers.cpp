@@ -1385,6 +1385,16 @@ void MapStructHandles(Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wra
     }
 }
 
+void MapStructHandles(Decoded_VkCopyMemoryToImageIndirectInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkCopyMemoryToImageIndirectInfoKHR* value = wrapper->decoded_value;
+
+        value->dstImage = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->dstImage, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkVideoEncodeQuantizationMapInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

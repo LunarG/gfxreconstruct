@@ -24,6 +24,7 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_DRAW_CALLS_H
 
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
@@ -44,6 +45,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DrawCallsDumpingContext
 {
   public:
+    // Forward declaration
+    struct DrawCallParams;
+
     enum DrawCallType
     {
         kDraw,
@@ -58,12 +62,15 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const DrawCallIndices*       dc_indices_,
-                            const RenderPassIndices*     rp_indices,
-                            CommonObjectInfoTable&       object_info_table,
-                            const VulkanReplayOptions&   options,
-                            VulkanDumpResourcesDelegate& delegate,
-                            const util::Compressor*      compressor);
+    DrawCallsDumpingContext(const CommandIndices*                       dc_indices,
+                            const RenderPassIndices*                    rp_indices,
+                            const CommandImageSubresource&              dc_subresources,
+                            CommonObjectInfoTable&                      object_info_table,
+                            const VulkanReplayOptions&                  options,
+                            VulkanDumpResourcesDelegate&                delegate,
+                            const util::Compressor*                     compressor,
+                            DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                            const VulkanPerDeviceAddressTrackers&       address_trackers);
 
     ~DrawCallsDumpingContext();
 
@@ -133,7 +140,8 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
-    void FinalizeCommandBuffer();
+    // When this is called for a command buffer that corresponds to a before command, dc_params should be null
+    void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
@@ -143,36 +151,27 @@ class DrawCallsDumpingContext
     VkResult DumpRenderTargetAttachments(
         uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index);
 
-    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
+    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
 
     VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
 
-    void InsertNewDrawParameters(
+    DrawCallParams* InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
 
-    void InsertNewDrawIndexedParameters(uint64_t index,
-                                        uint32_t index_count,
-                                        uint32_t instance_count,
-                                        uint32_t first_index,
-                                        int32_t  vertexOffset,
-                                        uint32_t first_instance);
+    DrawCallParams* InsertNewDrawIndexedParameters(uint64_t index,
+                                                   uint32_t index_count,
+                                                   uint32_t instance_count,
+                                                   uint32_t first_index,
+                                                   int32_t  vertexOffset,
+                                                   uint32_t first_instance);
 
-    void InsertNewDrawIndirectParameters(
+    DrawCallParams* InsertNewDrawIndirectParameters(
         uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void InsertNewDrawIndexedIndirectParameters(
+    DrawCallParams* InsertNewDrawIndexedIndirectParameters(
         uint64_t index, const VulkanBufferInfo* buffer_info, VkDeviceSize offset, uint32_t draw_count, uint32_t stride);
 
-    void InsertNewIndirectCountParameters(uint64_t                index,
-                                          const VulkanBufferInfo* buffer_info,
-                                          VkDeviceSize            offset,
-                                          const VulkanBufferInfo* count_buffer_info,
-                                          VkDeviceSize            count_buffer_offset,
-                                          uint32_t                max_draw_count,
-                                          uint32_t                stride,
-                                          DrawCallType            drawcall_type);
-
-    void InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
+    DrawCallParams* InsertNewIndirectCountParameters(uint64_t                index,
                                                      const VulkanBufferInfo* buffer_info,
                                                      VkDeviceSize            offset,
                                                      const VulkanBufferInfo* count_buffer_info,
@@ -180,6 +179,15 @@ class DrawCallsDumpingContext
                                                      uint32_t                max_draw_count,
                                                      uint32_t                stride,
                                                      DrawCallType            drawcall_type);
+
+    DrawCallParams* InsertNewDrawIndexedIndirectCountParameters(uint64_t                index,
+                                                                const VulkanBufferInfo* buffer_info,
+                                                                VkDeviceSize            offset,
+                                                                const VulkanBufferInfo* count_buffer_info,
+                                                                VkDeviceSize            count_buffer_offset,
+                                                                uint32_t                max_draw_count,
+                                                                uint32_t                stride,
+                                                                DrawCallType            drawcall_type);
 
     void Release();
 
@@ -190,6 +198,8 @@ class DrawCallsDumpingContext
     uint32_t RecaclulateCommandBuffers();
 
     void UpdateSecondaries();
+
+    void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
 
   private:
     void SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
@@ -219,21 +229,18 @@ class DrawCallsDumpingContext
     VulkanCommandBufferInfo*     original_command_buffer_info_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
-    DrawCallIndices              dc_indices_;
+    CommandIndices               dc_indices_;
     RenderPassIndices            RP_indices_;
+    CommandImageSubresource      dc_subresources_;
     const VulkanRenderPassInfo*  active_renderpass_;
     const VulkanFramebufferInfo* active_framebuffer_;
     const VulkanPipelineInfo*    bound_gr_pipeline_;
     uint32_t                     current_renderpass_;
     uint32_t                     current_subpass_;
-    bool                         dump_resources_before_;
     VulkanDumpResourcesDelegate& delegate_;
-    bool                         dump_depth_;
-    int32_t                      color_attachment_to_dump_;
-    bool                         dump_vertex_index_buffers_;
-    bool                         dump_immutable_resources_;
-    bool                         dump_unused_vertex_bindings_;
+    const VulkanReplayOptions&   options_;
     const util::Compressor*      compressor_;
+    bool                         secondary_with_dynamic_rendering_;
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
@@ -256,7 +263,7 @@ class DrawCallsDumpingContext
         VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
     };
 
-    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts_;
+    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> rendering_attachment_layouts_;
 
   public:
     struct RenderTargets
@@ -312,14 +319,14 @@ class DrawCallsDumpingContext
     {
         struct BufferPerBinding
         {
-            BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0), actual_size(0) {}
+            BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0) {}
 
             BufferPerBinding(const VulkanBufferInfo* buffer_info,
                              VkDeviceSize            offset,
                              VkDeviceSize            size   = 0,
                              VkDeviceSize            stride = 0) :
                 buffer_info(buffer_info),
-                offset(offset), size(size), stride(stride), actual_size(0)
+                offset(offset), size(size), stride(stride)
             {}
 
             const VulkanBufferInfo* buffer_info;
@@ -328,10 +335,6 @@ class DrawCallsDumpingContext
             // These are provided only by CmdBindVertexBuffers2
             VkDeviceSize size;
             VkDeviceSize stride;
-
-            // This is the size actually used as an vertex buffer from all referencing draw calls
-            // and is calculated based on the indices (if an index buffer is used)
-            VkDeviceSize actual_size;
         };
 
         // One entry for each vertex buffer bound at each binding
@@ -345,16 +348,14 @@ class DrawCallsDumpingContext
     // Keep track of bound index buffer
     struct BoundIndexBuffer
     {
-        BoundIndexBuffer() :
-            buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0), actual_size(0)
-        {}
+        BoundIndexBuffer() : buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0) {}
 
         BoundIndexBuffer(const VulkanBufferInfo* buffer_info,
                          VkDeviceSize            offset,
                          VkIndexType             index_type,
                          VkDeviceSize            size) :
             buffer_info(buffer_info),
-            offset(offset), index_type(index_type), size(size), actual_size(0)
+            offset(offset), index_type(index_type), size(size)
         {}
 
         const VulkanBufferInfo* buffer_info;
@@ -363,9 +364,6 @@ class DrawCallsDumpingContext
 
         // This is provided only by vkCmdBindIndexBuffer2KHR
         VkDeviceSize size;
-
-        // This is the size actually used as an index buffer from all referencing draw calls
-        VkDeviceSize actual_size;
     };
 
   private:
@@ -659,28 +657,13 @@ class DrawCallsDumpingContext
         // Keep copies of the descriptor bindings referenced by each draw call
         BoundDescriptorSets referenced_descriptors;
 
-        // These are used to store information calculated when dumping vertex and index buffers.
-        // This information is latter used when writting the output json file.
-        struct
-        {
-            struct
-            {
-                bool   dumped{ false };
-                size_t offset{ 0 };
-            } index_buffer_info;
-
-            struct VertexBufferBindingInfo
-            {
-                size_t offset{ 0 };
-            };
-            std::unordered_map<uint32_t, VertexBufferBindingInfo> vertex_bindings_info;
-        } json_output_info;
-
-        // Need to keep track if a draw call context from a secondary command buffer has been updated with information
-        // that might be available only from the primary command buffer
+        // Need to keep track if a draw call context from a secondary command buffer has been updated with
+        // information that might be available only from the primary command buffer
         bool updated_bound_vertex_buffers;
         bool updated_bound_index_buffer;
         bool updated_referenced_descriptors;
+
+        DumpedResourcesInfo dumped_resources;
     };
 
   private:
@@ -688,9 +671,9 @@ class DrawCallsDumpingContext
     using DrawCallParameters = std::unordered_map<uint64_t, std::unique_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
-    DrawCallParameters&    GetDrawCallParameters() { return draw_call_params_; }
-    DrawCallIndices&       GetDrawCallIndices() { return dc_indices_; }
-    const DrawCallIndices& GetDrawCallIndices() const { return dc_indices_; }
+    DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
+    CommandIndices&       GetDrawCallIndices() { return dc_indices_; }
+    const CommandIndices& GetDrawCallIndices() const { return dc_indices_; }
 
     struct
     {
@@ -708,9 +691,9 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::unordered_set<const VulkanImageInfo*>      image_descriptors;
-        std::unordered_set<const VulkanBufferInfo*>     buffer_descriptors;
-        std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
+        std::map<DescriptorLocation, const DumpedImage&>                         image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&>                        buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedTopLevelAccelerationStructure&> acceleration_structures;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
@@ -723,6 +706,10 @@ class DrawCallsDumpingContext
     const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
+
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+
+    const VulkanPerDeviceAddressTrackers& address_trackers_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

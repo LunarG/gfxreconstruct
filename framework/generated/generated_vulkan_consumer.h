@@ -2671,6 +2671,16 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo) {}
 
+    virtual void Process_vkCmdCopyMemoryIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo) {}
+
+    virtual void Process_vkCmdCopyMemoryToImageIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo) {}
+
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,

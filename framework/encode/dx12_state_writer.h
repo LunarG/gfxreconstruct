@@ -112,6 +112,17 @@ class Dx12StateWriter
     void
     WriteMethodCall(format::ApiCallId call_id, format::HandleId object_id, util::MemoryOutputStream* parameter_buffer);
 
+    bool IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const;
+
+    bool IsRootSignatureBlob(const ID3D10Blob_Wrapper* wrapper) const
+    {
+        return !IsCachedPSOBlob(wrapper);
+    }
+
+    void WriteRootSignatureBlobState(const Dx12StateTable& state_table);
+
+    void WriteCachedPSOBlobState(const Dx12StateTable& state_table);
+
     void WriteHeapState(const Dx12StateTable& state_table);
 
     // Returns true if memory information was successfully retrieved and written and false otherwise.

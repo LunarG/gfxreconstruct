@@ -472,14 +472,16 @@ int main(int argc, const char** argv)
             if (tmp_file_handle != nullptr)
             {
                 gfxrecon::util::platform::FileClose(tmp_file_handle);
+                tmp_file_handle = nullptr;
             }
 
             if (!output_to_stdout)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
+                out_file_handle = nullptr;
             }
 
-            if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            if (file_processor.GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");
                 ret_code = 1;

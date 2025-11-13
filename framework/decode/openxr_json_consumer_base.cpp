@@ -325,8 +325,8 @@ void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&       
     WriteBlockEnd();
 }
 
-void OpenXrExportJsonConsumerBase::ProcessViewRelativeLocation(format::ThreadId              thread_id,
-                                                               format::ViewRelativeLocation& location)
+void OpenXrExportJsonConsumerBase::ProcessViewRelativeLocation(format::ThreadId                    thread_id,
+                                                               const format::ViewRelativeLocation& location)
 {
     const util::JsonOptions& json_options = writer_->GetOptions();
     // TODO: Fold this into a override for WriteMetaCommandStart if we add many more meta data blocks

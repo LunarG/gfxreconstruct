@@ -52,11 +52,11 @@
 #if defined(WIN32)
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 615;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 616;
 }
 extern "C"
 {
-    __declspec(dllexport) extern const char* D3D12SDKPath = u8".\\D3D12\\";
+    __declspec(dllexport) extern const char* D3D12SDKPath = reinterpret_cast<const char*>(u8".\\D3D12\\");
 }
 #endif
 
@@ -136,12 +136,12 @@ void GetUnreferencedResources(const std::string&                              in
             exit(65);
         }
         else if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                 (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                 (file_processor.GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
             resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
         }
-        else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+        else if (file_processor.GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();

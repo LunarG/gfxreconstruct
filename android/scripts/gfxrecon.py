@@ -123,11 +123,12 @@ def CreateReplayParser():
     parser.add_argument('--quit-after-measurement-range', action='store_true', default=False, help='If this is specified the replayer will abort when it reaches the <end_frame> specified in the --measurement-frame-range argument. (forwarded to replay tool)')
     parser.add_argument('--flush-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at the start and end of the measurement range. (forwarded to replay tool)')
     parser.add_argument('--flush-inside-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at end of each frame inside the measurement range. (forwarded to replay tool)')
-    parser.add_argument('--sgfs', '--skip-get-fence-status', metavar='STATUS', default=0, help='Specify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus. Default is 0 - No skip (forwarded to replay tool)')
+    parser.add_argument('--sgfs', '--skip-get-fence-status', metavar='STATUS', default=0, help='Specify behavior to skip calls to vkWaitForFences and vkGetFenceStatus. Default is 0 - No skip (forwarded to replay tool)')
     parser.add_argument('--sgfr', '--skip-get-fence-ranges', metavar='FRAME-RANGES', default='', help='Frame ranges where --sgfs applies. Default is all frames (forwarded to replay tool)')
     parser.add_argument('--wait-before-present', action='store_true', default=False, help='Force wait on completion of queue operations for all queues before calling Present. This is needed for accurate acquisition of instrumentation data on some platforms.')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('--swapchain', metavar='MODE', choices=['virtual', 'captured', 'offscreen'], help='Choose a swapchain mode to replay. Available modes are: virtual, captured, offscreen (forwarded to replay tool)')
+    parser.add_argument('--present-mode', metavar='MODE', choices=['capture', 'immediate', 'mailbox', 'fifo', 'fifo_relaxed'], help='Set swapchain\'s VkPresentModeKHR. Available modes are: auto, immediate, mailbox, fifo, fifo_relaxed (forwarded to replay tool)')
     parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
@@ -146,6 +147,7 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-separate-alpha', action='store_true', default=False, help= 'Dump image alpha in a separate image file.')
     parser.add_argument('--dump-resources-dump-unused-vertex-bindings', action='store_true', default=False, help= 'Dump a vertex binding even if no vertex attributes references it.')
     parser.add_argument('--dump-resources-binary-file-compression-type', metavar='FORMAT', choices=['none', 'lz4', 'zlib', 'zstd'], help='Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib, zstd]. Default is none (no compression).')
+    parser.add_argument('--dump-resources-dump-build-acceleration-structures-input-buffers', action='store_true', default=False, help= 'Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index, transformation matrix, AABB and instance buffers. Default is off.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
@@ -271,6 +273,10 @@ def MakeExtrasString(args):
         arg_list.append('--swapchain')
         arg_list.append('{}'.format(args.swapchain))
 
+    if args.present_mode:
+        arg_list.append('--present-mode')
+        arg_list.append('{}'.format(args.present_mode))
+
     if args.offscreen_swapchain_frame_boundary:
         arg_list.append('--offscreen-swapchain-frame-boundary')
 
@@ -342,6 +348,9 @@ def MakeExtrasString(args):
     if args.dump_resources_binary_file_compression_type:
         arg_list.append('--dump-resources-binary-file-compression-type')
         arg_list.append('{}'.format(args.dump_resources_binary_file_compression_type))
+
+    if args.dump_resources_dump_build_acceleration_structures_input_buffers:
+        arg_list.append('--dump-resources-dump-build-acceleration-structures-input-buffers')
 
     if args.pbi_all:
         arg_list.append('--pbi-all')

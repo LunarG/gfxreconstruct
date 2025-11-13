@@ -141,7 +141,6 @@ Run the script with the `-h` option for additional usage information.
   - Supported Versions
     - [2022](https://www.visualstudio.com/vs/downloads/)
     - [2019](https://www.visualstudio.com/vs/older-downloads/)
-    - [2017](https://www.visualstudio.com/vs/older-downloads/)
   - The Community Edition for each of the above versions is sufficient
 - [CMake](http://www.cmake.org/download/) (Version 3.24 or newer)
   - The build instructions assume that CMake has been added to the system PATH
@@ -166,19 +165,19 @@ GFXReconstruct repository, create a build folder, and generate the Visual
 Studio project files.
 
 The following example demonstrates the generation of project files for the
-Visual Studio 2017 x64 build configuration:
+Visual Studio 2019 x64 build configuration:
 
 ```bat
 cd gfxreconstruct
 mkdir build
-cmake . -Bbuild -G "Visual Studio 15 Win64"
+cmake . -Bbuild -G "Visual Studio 16 Win64"
 ```
 
 The following commands can be used to generate project files for different
-variations of the Visual Studio 2017 WIN32 and x64 build configurations:
+variations of the Visual Studio 2019 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15 Win64"`
-- 32-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15"`
+- 64-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16 Win64"`
+- 32-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -229,7 +228,7 @@ Solution menu item.
 
 Building on Linux requires the installation of the following packages:
 
-- A C++ compiler with C++-17 support
+- A C++ compiler with C++-20 support
 - Git
 - CMake
 - X11 + XCB and/or Wayland development libraries
@@ -297,7 +296,7 @@ cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
 The following commands can be used to generate makefiles for different
 variations of Debug and Release, as well as different architectures.
 `-DCMAKE_BUILD_TYPE` is used to specify `Debug` or `Release` build
-profiles and the `-DCMAKE_TOOLCHAIN_FILE` with a matching toolcain file
+profiles and the `-DCMAKE_TOOLCHAIN_FILE` with a matching toolchain file
 can be changed to compile for different architectures:
 
 - 64-bit x64 Release (default): cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
@@ -334,12 +333,12 @@ variable. For example, to install to a "/tmp/gfxreconstruct" directory, run `cma
 from gfxreconstruct's root source directory. Then install with `make install`.
 
 
-## Building for MacOS
+## Building for macOS
 
 
 ### Required Package List
 
-Building on MacOS requires the installation of the following packages:
+Building on macOS requires the installation of the following packages:
 
 - Command Line Tools (CLT) for Xcode: 
   - from `xcode-select --install` 
@@ -349,7 +348,7 @@ Building on MacOS requires the installation of the following packages:
 - CMake
   - install e.g. via https://brew.sh/
 
-### MacOS Build
+### macOS Build
 The approach is identical to a linux-build with few additions.
 
 #### Explicit CPU-Architecture
@@ -376,7 +375,7 @@ ERROR: dlopen(/path/to/libVkLayer_gfxreconstruct.dylib, 0x0005): ...
 ```
 
 In this case the layer can be signed using the same certificate, allowing it to be loaded at runtime.
-This can be achieved with either XCode or via command-line using `Apple's codesign utility`.
+This can be achieved with either Xcode or via command-line using `Apple's codesign utility`.
 
 Example usage of Apple's codesign commandline utility:
 ```bash
@@ -473,7 +472,7 @@ build.
     - If import succeeds, the following two project modules will be displayed by the Project browser:
     - layer  - The GFXReconstruct capture layer for recording Vulkan API data
     - replay - The GFXReconstruct tool to replay GFXR capture files
-3. Build the project by selecting the `Build -> Make Project` menu item or pressing `Ctrl+F9`
+3. Build the project by selecting the `Build -> Make Project` menu item or pressing `CTRL+F9`
 
 #### Adding the Layer to Existing Projects
 

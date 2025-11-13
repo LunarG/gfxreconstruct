@@ -504,7 +504,7 @@ def make_gen_opts(args):
             base_class_header='vulkan_replay_dump_resources.h',
             is_override=True,
             constructor_args=
-            'const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table',
+            'const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table, const VulkanPerDeviceAddressTrackers& address_trackers',
             filename='generated_vulkan_replay_dump_resources.h',
             directory=directory,
             blacklists=None,
@@ -980,7 +980,7 @@ def gen_target(args):
                 file=sys.stderr
             )
             write(
-                '* options.emitEtensions    =',
+                '* options.emitExtensions    =',
                 options.emitExtensions,
                 file=sys.stderr
             )

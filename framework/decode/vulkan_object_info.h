@@ -172,6 +172,13 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceDriverProperties>                   driver_properties;
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+
+    bool IsPropertiesNull()
+    {
+        // Not include memory properties.
+        return properties == std::nullopt || driver_properties == std::nullopt ||
+               raytracing_properties == std::nullopt || acceleration_structure_properties == std::nullopt;
+    }
 };
 
 template <typename T>
@@ -302,6 +309,9 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 
     // When Non-null, the GetVkObject will recur on the alias Id
     format::HandleId vulkan_alias{ format::kNullHandleId };
+
+    // keep track of queried surface-formats
+    std::optional<std::vector<VkSurfaceFormatKHR>> surface_formats;
 };
 
 struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
@@ -387,6 +397,7 @@ struct VulkanDeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
     VulkanResourceAllocator::MemoryData allocator_data{ 0 };
 };
 
+struct VulkanAccelerationStructureKHRInfo;
 struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
 {
     // The following values are only used for memory portability.
@@ -402,6 +413,10 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkBufferUsageFlags usage{ 0 };
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
+
+    // map acceleration-structure capture-addresses to existing (alias) AS-handles
+    std::unordered_map<VkDeviceAddress, std::unordered_set<const VulkanAccelerationStructureKHRInfo*>>
+        acceleration_structures;
 };
 
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
@@ -700,26 +715,6 @@ struct VulkanDescriptorTypeBufferInfo
     VkDeviceSize            range;
 };
 
-struct VulkanDescriptorSetBindingInfo
-{
-    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
-    VkShaderStageFlags stage_flags{ 0 };
-
-    // Use a map to represent array as many entries can be left unpopulated.
-    // Use a sorted map so that array indices are printed in order in the json output
-    std::map<uint32_t, VulkanDescriptorTypeImageInfo>  image_info;
-    std::map<uint32_t, VulkanDescriptorTypeBufferInfo> buffer_info;
-    std::map<uint32_t, const VulkanBufferViewInfo*>    texel_buffer_view_info;
-    std::vector<uint8_t>                               inline_uniform_block;
-};
-
-struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
-{
-    // One entry per binding
-    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
-    VulkanDescriptorBindingsInfo descriptors;
-};
-
 struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>
 {
     VkDeviceAddress capture_address = 0;
@@ -728,7 +723,9 @@ struct VulkanAccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerati
     VkAccelerationStructureTypeKHR type = VK_ACCELERATION_STRUCTURE_TYPE_MAX_ENUM_KHR;
 
     //! associated buffer
-    VkBuffer buffer = VK_NULL_HANDLE;
+    VkBuffer     buffer = VK_NULL_HANDLE;
+    VkDeviceSize offset = 0;
+    VkDeviceSize size   = 0;
 };
 
 struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAccelerationStructureNV>
@@ -738,6 +735,27 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+};
+
+struct VulkanDescriptorSetBindingInfo
+{
+    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    VkShaderStageFlags stage_flags{ 0 };
+
+    // Use a map to represent array as many entries can be left unpopulated.
+    // Use a sorted map so that array indices are printed in order in the json output
+    std::map<uint32_t, VulkanDescriptorTypeImageInfo>             image_info;
+    std::map<uint32_t, VulkanDescriptorTypeBufferInfo>            buffer_info;
+    std::map<uint32_t, const VulkanBufferViewInfo*>               texel_buffer_view_info;
+    std::map<uint32_t, const VulkanAccelerationStructureKHRInfo*> acceleration_structs_khr_info;
+    std::vector<uint8_t>                                          inline_uniform_block;
+};
+
+struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
+{
+    // One entry per binding
+    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
+    VulkanDescriptorBindingsInfo descriptors;
 };
 
 //

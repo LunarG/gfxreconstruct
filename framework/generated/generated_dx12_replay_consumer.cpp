@@ -5237,7 +5237,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateSharedHandle(
             Access,
             Name,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle, "ID3D12Device_CreateSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_ID3D12Device_CreateSharedHandle, "ID3D12Device_CreateSharedHandle");
     }
 }
 
@@ -5259,16 +5259,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandle(
             NTHandle,
             riid,
             ppvObj);
-        auto in_NTHandle = static_cast<HANDLE>(PreProcessExternalObject(NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
-        if(!ppvObj->IsNull()) ppvObj->SetHandleLength(1);
-        auto out_p_ppvObj    = ppvObj->GetPointer();
-        auto out_hp_ppvObj   = ppvObj->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12Device*>(replay_object->object)->OpenSharedHandle(in_NTHandle,
-                                                                                                      *riid.decoded_value,
-                                                                                                      out_hp_ppvObj);
+        DxObjectInfo object_info_ppvObj{};
+        if(!ppvObj->IsNull())
+        {
+            ppvObj->SetHandleLength(1);
+            ppvObj->SetConsumerData(0, &object_info_ppvObj);
+        }
+        auto replay_result = OverrideOpenSharedHandle(replay_object,
+                                                      return_value,
+                                                      NTHandle,
+                                                      riid,
+                                                      ppvObj);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppvObj, out_hp_ppvObj, format::ApiCall_ID3D12Device_OpenSharedHandle);
+            AddObject(ppvObj->GetPointer(), ppvObj->GetHandlePointer(), std::move(object_info_ppvObj), format::ApiCall_ID3D12Device_OpenSharedHandle);
         }
         CheckReplayResult("ID3D12Device_OpenSharedHandle", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle>::Dispatch(
@@ -5320,7 +5324,7 @@ void Dx12ReplayConsumer::Process_ID3D12Device_OpenSharedHandleByName(
             Name,
             Access,
             pNTHandle);
-        PostProcessExternalObject(replay_result, out_op_pNTHandle, out_p_pNTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName, "ID3D12Device_OpenSharedHandleByName");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pNTHandle), out_p_pNTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandleByName, "ID3D12Device_OpenSharedHandleByName");
     }
 }
 
@@ -9553,7 +9557,7 @@ void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
             replay_result,
             pObject,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost, "ID3D12VirtualizationGuestDevice_ShareWithHost");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost, "ID3D12VirtualizationGuestDevice_ShareWithHost");
     }
 }
 
@@ -9690,6 +9694,38 @@ void Dx12ReplayConsumer::Process_ID3D12Tools1_ClearReservedGPUVARangesList(
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pAdapter,
+    format::HandleId                            pBlob)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pAdapter,
+            pBlob);
+        auto in_pAdapter = MapObject<IUnknown>(pAdapter);
+        auto in_pBlob = MapObject<ID3D10Blob>(pBlob);
+        auto replay_result = reinterpret_cast<ID3D12Tools2*>(replay_object->object)->SetApplicationSpecificDriverState(in_pAdapter,
+                                                                                                                       in_pBlob);
+        CheckReplayResult("ID3D12Tools2_SetApplicationSpecificDriverState", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pAdapter,
+            pBlob);
+    }
+}
+
 void Dx12ReplayConsumer::Process_ID3D12PageableTools_GetAllocation(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,
@@ -9737,6 +9773,61 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
             call_info,
             replay_object,
             nextAllocationVirtualAddress);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverState(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    HandlePointerDecoder<ID3D10Blob*>*          ppBlob)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            ppBlob);
+        if(!ppBlob->IsNull()) ppBlob->SetHandleLength(1);
+        auto out_p_ppBlob    = ppBlob->GetPointer();
+        auto out_hp_ppBlob   = ppBlob->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D12DeviceTools1*>(replay_object->object)->GetApplicationSpecificDriverState(out_hp_ppBlob);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppBlob, out_hp_ppBlob, format::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState);
+        }
+        CheckReplayResult("ID3D12DeviceTools1_GetApplicationSpecificDriverState", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            ppBlob);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS return_value)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        auto replay_result = reinterpret_cast<ID3D12DeviceTools1*>(replay_object->object)->GetApplicationSpecificDriverBlobStatus();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result);
     }
 }
 
@@ -13147,7 +13238,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetSharedHandle(
             return_value,
             replay_result,
             pSharedHandle);
-        PostProcessExternalObject(replay_result, out_op_pSharedHandle, out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pSharedHandle), out_p_pSharedHandle, format::ApiCallId::ApiCall_IDXGIResource_GetSharedHandle, "IDXGIResource_GetSharedHandle");
     }
 }
 
@@ -13409,7 +13500,7 @@ void Dx12ReplayConsumer::Process_IDXGISurface1_GetDC(
             replay_result,
             Discard,
             phdc);
-        PostProcessExternalObject(replay_result, out_op_phdc, out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_phdc), out_p_phdc, format::ApiCallId::ApiCall_IDXGISurface1_GetDC, "IDXGISurface1_GetDC");
     }
 }
 
@@ -14341,7 +14432,7 @@ void Dx12ReplayConsumer::Process_IDXGIFactory_GetWindowAssociation(
             return_value,
             replay_result,
             pWindowHandle);
-        PostProcessExternalObject(replay_result, out_op_pWindowHandle, out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pWindowHandle), out_p_pWindowHandle, format::ApiCallId::ApiCall_IDXGIFactory_GetWindowAssociation, "IDXGIFactory_GetWindowAssociation");
     }
 }
 
@@ -15200,7 +15291,7 @@ void Dx12ReplayConsumer::Process_IDXGIResource1_CreateSharedHandle(
             dwAccess,
             lpName,
             pHandle);
-        PostProcessExternalObject(replay_result, out_op_pHandle, out_p_pHandle, format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle, "IDXGIResource1_CreateSharedHandle");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHandle), out_p_pHandle, format::ApiCallId::ApiCall_IDXGIResource1_CreateSharedHandle, "IDXGIResource1_CreateSharedHandle");
     }
 }
 
@@ -15394,7 +15485,7 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetHwnd(
             return_value,
             replay_result,
             pHwnd);
-        PostProcessExternalObject(replay_result, out_op_pHwnd, out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
+        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pHwnd), out_p_pHwnd, format::ApiCallId::ApiCall_IDXGISwapChain1_GetHwnd, "IDXGISwapChain1_GetHwnd");
     }
 }
 

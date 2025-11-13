@@ -20,11 +20,16 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
+#include "decode/vulkan_replay_dump_resources_copy_array_of_pointers.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -33,9 +38,11 @@
 #include "decode/vulkan_pnext_node.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"
+#include "util/to_string.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -49,12 +56,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
-                                                             CommonObjectInfoTable*     object_info_table) :
+VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions&            options,
+                                                             CommonObjectInfoTable*                object_info_table,
+                                                             const VulkanPerDeviceAddressTrackers& address_trackers) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), default_delegate_(nullptr),
-    user_delegate_(nullptr), active_delegate_(nullptr)
+    user_delegate_(nullptr), active_delegate_(nullptr), address_trackers_(address_trackers),
+    dump_as_build_input_buffers_(options.dump_resources_dump_build_AS_input_buffers)
 {
     capture_filename = std::filesystem::path(options.capture_filename).stem().string();
 
@@ -101,10 +110,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                        std::forward_as_tuple(bcb_index),
                                        std::forward_as_tuple(&options.Draw_Indices[i],
                                                              &options.RenderPass_Indices[i],
+                                                             options.DrawSubresources,
                                                              *object_info_table,
                                                              options,
                                                              *active_delegate_,
-                                                             compressor_.get()));
+                                                             compressor_.get(),
+                                                             acceleration_structures_context_,
+                                                             address_trackers));
         }
 
         if (has_dispatch)
@@ -115,13 +127,17 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::forward_as_tuple((options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size())
                                           ? &options.Dispatch_Indices[i]
                                           : nullptr,
+                                      options.DispatchSubresources,
                                       (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
                                           ? &options.TraceRays_Indices[i]
                                           : nullptr,
+                                      options.TraceRaysSubresources,
                                       *object_info_table_,
                                       options,
                                       *active_delegate_,
-                                      compressor_.get()));
+                                      compressor_.get(),
+                                      acceleration_structures_context_,
+                                      address_trackers));
         }
     }
 
@@ -150,10 +166,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                        std::forward_as_tuple(bcb_index),
                                                        std::forward_as_tuple(nullptr,
                                                                              &options.RenderPass_Indices[i],
+                                                                             options.DrawSubresources,
                                                                              *object_info_table,
                                                                              options,
                                                                              *active_delegate_,
-                                                                             compressor_.get()));
+                                                                             compressor_.get(),
+                                                                             acceleration_structures_context_,
+                                                                             address_trackers));
 
                         primary_dc_context = FindDrawCallCommandBufferContext(bcb_index);
                     }
@@ -175,11 +194,18 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 {
                     if (primary_disp_context == nullptr)
                     {
-                        dispatch_ray_contexts.emplace(
-                            std::piecewise_construct,
-                            std::forward_as_tuple(bcb_index),
-                            std::forward_as_tuple(
-                                nullptr, nullptr, *object_info_table_, options, *active_delegate_, compressor_.get()));
+                        dispatch_ray_contexts.emplace(std::piecewise_construct,
+                                                      std::forward_as_tuple(bcb_index),
+                                                      std::forward_as_tuple(nullptr,
+                                                                            options.DispatchSubresources,
+                                                                            nullptr,
+                                                                            options.TraceRaysSubresources,
+                                                                            *object_info_table_,
+                                                                            options,
+                                                                            *active_delegate_,
+                                                                            compressor_.get(),
+                                                                            acceleration_structures_context_,
+                                                                            address_trackers));
 
                         primary_disp_context = FindDispatchRaysCommandBufferContext(bcb_index);
                     }
@@ -228,6 +254,8 @@ void VulkanReplayDumpResourcesBase::Release()
     dispatch_ray_contexts.clear();
     cmd_buf_begin_map_.clear();
     QueueSubmit_indices_.clear();
+
+    acceleration_structures_context_.clear();
 
     recording_ = false;
 }
@@ -424,9 +452,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (must_dump)
     {
-        dc_context->InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
+        dc_params =
+            dc_context->InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
     }
 
     CommandBufferIterator first, last;
@@ -446,7 +476,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDraw(const ApiCallInfo& call_info
     {
         assert(dc_context != nullptr);
 
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -476,9 +506,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     }
 
     // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedParameters(
+        dc_params = dc_context->InsertNewDrawIndexedParameters(
             dc_index, index_count, instance_count, first_index, vertexOffset, first_instance);
     }
 
@@ -498,7 +529,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -527,9 +558,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     }
 
     // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+        dc_params = dc_context->InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
     CommandBufferIterator first, last;
@@ -548,7 +580,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -576,9 +608,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+        dc_params =
+            dc_context->InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
     }
 
     CommandBufferIterator first, last;
@@ -597,7 +631,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -628,16 +662,17 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewIndirectCountParameters(dc_index,
-                                                     buffer_info,
-                                                     offset,
-                                                     count_buffer_info,
-                                                     count_buffer_offset,
-                                                     max_draw_count,
-                                                     stride,
-                                                     drawcall_type);
+        dc_params = dc_context->InsertNewIndirectCountParameters(dc_index,
+                                                                 buffer_info,
+                                                                 offset,
+                                                                 count_buffer_info,
+                                                                 count_buffer_offset,
+                                                                 max_draw_count,
+                                                                 stride,
+                                                                 drawcall_type);
     }
 
     CommandBufferIterator first, last;
@@ -662,7 +697,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndirectCount(const ApiCallInfo
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -694,16 +729,17 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
         UpdateRecordingStatus(original_command_buffer);
     }
 
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
     if (dc_context != nullptr && must_dump)
     {
-        dc_context->InsertNewDrawIndexedIndirectCountParameters(dc_index,
-                                                                buffer_info,
-                                                                offset,
-                                                                count_buffer_info,
-                                                                count_buffer_offset,
-                                                                max_draw_count,
-                                                                stride,
-                                                                drawcall_type);
+        dc_params = dc_context->InsertNewDrawIndexedIndirectCountParameters(dc_index,
+                                                                            buffer_info,
+                                                                            offset,
+                                                                            count_buffer_info,
+                                                                            count_buffer_offset,
+                                                                            max_draw_count,
+                                                                            stride,
+                                                                            drawcall_type);
     }
 
     CommandBufferIterator first, last;
@@ -728,7 +764,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdDrawIndexedIndirectCount(
     if (must_dump)
     {
         assert(dc_context != nullptr);
-        dc_context->FinalizeCommandBuffer();
+        dc_context->FinalizeCommandBuffer(dc_params);
         UpdateRecordingStatus(original_command_buffer);
     }
 }
@@ -1978,8 +2014,12 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
-                res = dr_context->DumpDispatchTraceRays(
-                    queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
+                res = dr_context->DumpDispatchTraceRays(queue,
+                                                        index,
+                                                        cmd_buf_begin_map_[command_buffer_handles[o]],
+                                                        modified_submit_infos[s],
+                                                        fence,
+                                                        !submitted);
                 if (res != VK_SUCCESS)
                 {
                     Release();
@@ -2306,6 +2346,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     {
                         func(*(primary_first + finalized_primaries), 1, &secondarys_command_buffers[scb]);
                         primary_context->FinalizeCommandBuffer();
+                        primary_context->MergeRenderPasses(*secondary_context);
                         ++finalized_primaries;
                     }
 
@@ -2381,6 +2422,737 @@ void VulkanReplayDumpResourcesBase::RaiseFatalError(const char* message) const
     {
         fatal_error_handler_(message);
     }
+}
+
+void VulkanReplayDumpResourcesBase::HandleCmdBuildAccelerationStructures(
+    const VulkanCommandBufferInfo*                                             original_command_buffer,
+    const graphics::VulkanDeviceTable&                                         device_table,
+    uint32_t                                                                   infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
+{
+    auto*                                      p_infos_meta = pInfos->GetMetaStructPointer();
+    const auto*                                p_infos      = p_infos_meta->decoded_value;
+    VkAccelerationStructureBuildRangeInfoKHR** range_infos  = ppBuildRangeInfos->GetPointer();
+
+    for (uint32_t i = 0; i < infoCount; ++i)
+    {
+        if (p_infos[i].pGeometries == nullptr)
+        {
+            continue;
+        }
+
+        const auto* dst_as =
+            object_info_table_->GetVkAccelerationStructureKHRInfo(p_infos_meta[i].dstAccelerationStructure);
+        GFXRECON_ASSERT(dst_as != nullptr);
+
+        const VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(dst_as->parent_id);
+        GFXRECON_ASSERT(device_info != nullptr);
+
+        VkDevice        device         = device_info->handle;
+        VkCommandPool   command_pool   = VK_NULL_HANDLE;
+        VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+        VkQueue         queue          = VK_NULL_HANDLE;
+
+        // kVulkanBuildAccelerationStructuresCommand will not have a command buffer like
+        // vkCmdBuildAccelerationStructuresKHR. We create one so we can submit our commands.
+        if (original_command_buffer == nullptr)
+        {
+            const uint32_t compute_queue_index = FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+            GFXRECON_ASSERT(compute_queue_index != VK_QUEUE_FAMILY_IGNORED);
+
+            const VkCommandPoolCreateInfo create_info = {
+                VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, nullptr, VkCommandPoolCreateFlags(0), compute_queue_index
+            };
+            VkResult res = device_table.CreateCommandPool(device, &create_info, nullptr, &command_pool);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("%s() CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
+                return;
+            }
+
+            const VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                                             nullptr,
+                                                             command_pool,
+                                                             VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                                             1 };
+            res = device_table.AllocateCommandBuffers(device, &alloc_info, &command_buffer);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("%s() AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
+                return;
+            }
+
+            device_table.GetDeviceQueue(device, compute_queue_index, 0, &queue);
+
+            const VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+                                                          nullptr,
+                                                          VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+                                                          nullptr };
+
+            res = device_table.BeginCommandBuffer(command_buffer, &begin_info);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("%s() BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str());
+                return;
+            }
+        }
+        else
+        {
+            command_buffer = original_command_buffer->handle;
+        }
+
+        auto entry = acceleration_structures_context_.find(dst_as);
+        if (entry != acceleration_structures_context_.end())
+        {
+            // Call destructor to release any resources
+            acceleration_structures_context_.erase(entry);
+        }
+
+        auto new_entry = acceleration_structures_context_.emplace(
+            dst_as,
+            std::make_shared<AccelerationStructureDumpResourcesContext>(dst_as, device_table, *object_info_table_));
+
+        AccelerationStructureDumpResourcesContext* as_context = new_entry.first->second.get();
+
+        GFXRECON_ASSERT(p_infos_meta[i].pGeometries != nullptr);
+        const auto* p_geometries_meta = p_infos_meta[i].pGeometries->GetMetaStructPointer();
+
+        const VulkanPhysicalDeviceInfo* phys_dev_info =
+            object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+        GFXRECON_ASSERT(phys_dev_info != nullptr);
+
+        const VkPhysicalDeviceMemoryProperties& mem_props =
+            phys_dev_info->replay_device_info->memory_properties.value();
+
+        const auto address_tracker_entry = address_trackers_.find(device_info);
+        if (address_tracker_entry == address_trackers_.end())
+        {
+            GFXRECON_LOG_WARNING("Could not detect address tracker for device %" PRIu64, device_info->capture_id);
+            return;
+        }
+
+        const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
+
+        for (uint32_t g = 0; g < p_infos[i].geometryCount; ++g)
+        {
+            // Either pGeometries or ppGeometries is used. The other one must be NULL
+            const VkAccelerationStructureGeometryKHR* const geometry =
+                p_infos[i].pGeometries != nullptr ? &p_infos[i].pGeometries[g] : p_infos[i].ppGeometries[g];
+
+            switch (geometry->geometryType)
+            {
+                case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                {
+                    // If dumping build input buffers is not requested then we only care about getting the TLAS instance
+                    // buffer.
+                    if (!dump_as_build_input_buffers_)
+                    {
+                        continue;
+                    }
+
+                    auto& new_variant = as_context->as_build_data.emplace_back(
+                        std::in_place_type<AccelerationStructureDumpResourcesContext::Triangles>);
+                    auto& new_triangles = std::get<AccelerationStructureDumpResourcesContext::Triangles>(new_variant);
+
+                    const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[i][g];
+                    const VkAccelerationStructureGeometryTrianglesDataKHR& triangles = geometry->geometry.triangles;
+
+                    size_t                  buffer_device_address_offset;
+                    const VulkanBufferInfo* vertex_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
+                        triangles.vertexData.deviceAddress, &buffer_device_address_offset);
+                    if (vertex_buffer_info == nullptr)
+                    {
+                        continue;
+                    }
+
+                    GFXRECON_ASSERT(vertex_buffer_info->size > buffer_device_address_offset);
+
+                    size_t vertex_buffer_size = (triangles.maxVertex + 1) * triangles.vertexStride;
+                    // Check if we are exceeding the size of the input vertex buffer. This could happen in case of
+                    // malformed data (too much maxVertex).
+                    if (buffer_device_address_offset + vertex_buffer_size > vertex_buffer_info->size)
+                    {
+                        vertex_buffer_size = vertex_buffer_info->size - buffer_device_address_offset;
+                    }
+
+                    new_triangles.vertex_format        = triangles.vertexFormat;
+                    new_triangles.max_vertex           = triangles.maxVertex;
+                    new_triangles.vertex_buffer_size   = vertex_buffer_size;
+                    new_triangles.vertex_buffer_stride = triangles.vertexStride;
+                    new_triangles.range                = range;
+
+                    VkResult res = CreateVkBuffer(vertex_buffer_size,
+                                                  device_table,
+                                                  device,
+                                                  nullptr,
+                                                  nullptr,
+                                                  &mem_props,
+                                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                                  &new_triangles.vertex_buffer,
+                                                  &new_triangles.vertex_buffer_memory);
+                    if (res != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("Failed cloning vertex buffer used as input in "
+                                           "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                           util::ToString(res).c_str());
+                        continue;
+                    }
+
+                    // Copy vertex buffer
+                    {
+                        // Copy buffer
+                        const VkBufferCopy copy_region = { static_cast<VkDeviceSize>(buffer_device_address_offset),
+                                                           0,
+                                                           vertex_buffer_size };
+                        device_table.CmdCopyBuffer(
+                            command_buffer, vertex_buffer_info->handle, new_triangles.vertex_buffer, 1, &copy_region);
+
+                        const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                       nullptr,
+                                                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                       VK_ACCESS_TRANSFER_READ_BIT |
+                                                                           VK_ACCESS_HOST_READ_BIT,
+                                                                       VK_QUEUE_FAMILY_IGNORED,
+                                                                       VK_QUEUE_FAMILY_IGNORED,
+                                                                       new_triangles.vertex_buffer,
+                                                                       0,
+                                                                       VK_WHOLE_SIZE };
+                        device_table.CmdPipelineBarrier(command_buffer,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
+                                                        VkDependencyFlags(0),
+                                                        0,
+                                                        nullptr,
+                                                        1,
+                                                        &buffer_barrier,
+                                                        0,
+                                                        nullptr);
+                    }
+
+                    // Index buffer
+                    new_triangles.index_type = triangles.indexType;
+                    if (triangles.indexType != VK_INDEX_TYPE_NONE_KHR)
+                    {
+                        const VulkanBufferInfo* index_buffer_info =
+                            device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.indexData.deviceAddress,
+                                                                                   &buffer_device_address_offset);
+
+                        if (index_buffer_info != nullptr)
+                        {
+                            const size_t index_buffer_size =
+                                3 * range.primitiveCount * VkIndexTypeToBytes(triangles.indexType);
+                            new_triangles.index_type        = triangles.indexType;
+                            new_triangles.index_buffer_size = index_buffer_size;
+
+                            res = CreateVkBuffer(index_buffer_size,
+                                                 device_table,
+                                                 device,
+                                                 nullptr,
+                                                 nullptr,
+                                                 &mem_props,
+                                                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                                 &new_triangles.index_buffer,
+                                                 &new_triangles.index_buffer_memory);
+                            if (res != VK_SUCCESS)
+                            {
+                                GFXRECON_LOG_ERROR("Failed cloning index buffer used as input in "
+                                                   "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                                   util::ToString(res).c_str());
+
+                                continue;
+                            }
+
+                            // Copy Index buffer
+                            {
+                                const VkDeviceSize src_offset = static_cast<VkDeviceSize>(range.primitiveOffset) +
+                                                                static_cast<VkDeviceSize>(buffer_device_address_offset);
+                                const VkBufferCopy copy_region = { src_offset, 0, index_buffer_size };
+                                device_table.CmdCopyBuffer(command_buffer,
+                                                           index_buffer_info->handle,
+                                                           new_triangles.index_buffer,
+                                                           1,
+                                                           &copy_region);
+
+                                const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                               nullptr,
+                                                                               VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                               VK_ACCESS_TRANSFER_READ_BIT |
+                                                                                   VK_ACCESS_HOST_READ_BIT,
+                                                                               VK_QUEUE_FAMILY_IGNORED,
+                                                                               VK_QUEUE_FAMILY_IGNORED,
+                                                                               new_triangles.index_buffer,
+                                                                               0,
+                                                                               VK_WHOLE_SIZE };
+                                device_table.CmdPipelineBarrier(command_buffer,
+                                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                                VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                                                    VK_PIPELINE_STAGE_HOST_BIT,
+                                                                VkDependencyFlags(0),
+                                                                0,
+                                                                nullptr,
+                                                                1,
+                                                                &buffer_barrier,
+                                                                0,
+                                                                nullptr);
+                            }
+                        }
+                    }
+
+                    // Transformation matrix
+                    if (triangles.transformData.deviceAddress)
+                    {
+                        const VulkanBufferInfo* transform_buffer_info =
+                            device_address_tracker.GetBufferByCaptureDeviceAddress(
+                                triangles.transformData.deviceAddress, &buffer_device_address_offset);
+                        if (transform_buffer_info == nullptr)
+                        {
+                            continue;
+                        }
+
+                        const size_t transform_buffer_size  = sizeof(VkTransformMatrixKHR);
+                        new_triangles.transform_buffer_size = transform_buffer_size;
+
+                        res = CreateVkBuffer(transform_buffer_size,
+                                             device_table,
+                                             device,
+                                             nullptr,
+                                             nullptr,
+                                             &mem_props,
+                                             VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                             &new_triangles.transform_buffer,
+                                             &new_triangles.transform_buffer_memory);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Failed cloning transform buffer used as input in "
+                                               "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                               util::ToString(res).c_str());
+
+                            continue;
+                        }
+
+                        // Copy transform buffer
+                        {
+                            const VkDeviceSize src_offset  = static_cast<VkDeviceSize>(buffer_device_address_offset);
+                            const VkBufferCopy copy_region = { src_offset,
+                                                               0,
+                                                               static_cast<VkDeviceSize>(transform_buffer_size) };
+                            device_table.CmdCopyBuffer(command_buffer,
+                                                       transform_buffer_info->handle,
+                                                       new_triangles.transform_buffer,
+                                                       1,
+                                                       &copy_region);
+
+                            const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                           nullptr,
+                                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                           VK_ACCESS_TRANSFER_READ_BIT |
+                                                                               VK_ACCESS_HOST_READ_BIT,
+                                                                           VK_QUEUE_FAMILY_IGNORED,
+                                                                           VK_QUEUE_FAMILY_IGNORED,
+                                                                           new_triangles.transform_buffer,
+                                                                           0,
+                                                                           VK_WHOLE_SIZE };
+                            device_table.CmdPipelineBarrier(command_buffer,
+                                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                            VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
+                                                            VkDependencyFlags(0),
+                                                            0,
+                                                            nullptr,
+                                                            1,
+                                                            &buffer_barrier,
+                                                            0,
+                                                            nullptr);
+                        }
+                    }
+                }
+                break;
+
+                case VK_GEOMETRY_TYPE_AABBS_KHR:
+                {
+                    // If dumping build input buffers is not requested then we only care about getting the TLAS instance
+                    // buffer.
+                    if (!dump_as_build_input_buffers_)
+                    {
+                        continue;
+                    }
+
+                    const VkAccelerationStructureGeometryAabbsDataKHR& aabbs = geometry->geometry.aabbs;
+
+                    size_t                  buffer_device_address_offset;
+                    const VulkanBufferInfo* aabb_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
+                        aabbs.data.deviceAddress, &buffer_device_address_offset);
+                    GFXRECON_ASSERT(aabb_buffer_info != nullptr);
+                    if (aabb_buffer_info == nullptr)
+                    {
+                        continue;
+                    }
+
+                    auto& new_variant = as_context->as_build_data.emplace_back(
+                        std::in_place_type<AccelerationStructureDumpResourcesContext::AABBS>);
+                    auto& new_aabbs = std::get<AccelerationStructureDumpResourcesContext::AABBS>(new_variant);
+
+                    const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[i][g];
+                    new_aabbs.buffer_size = range.primitiveCount * sizeof(VkAabbPositionsKHR);
+                    new_aabbs.range       = range;
+
+                    VkResult res = CreateVkBuffer(new_aabbs.buffer_size,
+                                                  device_table,
+                                                  device,
+                                                  nullptr,
+                                                  nullptr,
+                                                  &mem_props,
+                                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                                  &new_aabbs.buffer,
+                                                  &new_aabbs.buffer_memory);
+                    if (res != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("Failed cloning AABB buffer used as input in "
+                                           "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                           util::ToString(res).c_str());
+
+                        continue;
+                    }
+
+                    // Copy AABBs
+                    {
+                        // Spec does not explicity state what happens for 0 stride.
+                        // We will assume tightly packed data.
+                        const size_t region_count =
+                            (aabbs.stride == sizeof(VkAabbPositionsKHR) || !aabbs.stride) ? 1 : range.primitiveCount;
+
+                        const VkDeviceSize src_buffer_offset = static_cast<VkDeviceSize>(buffer_device_address_offset) +
+                                                               static_cast<VkDeviceSize>(range.primitiveOffset);
+
+                        std::vector<VkBufferCopy> regions(region_count);
+                        if (region_count == 1)
+                        {
+                            regions[0].dstOffset = 0;
+                            regions[0].srcOffset = src_buffer_offset;
+                            regions[0].size      = new_aabbs.buffer_size;
+                        }
+                        else
+                        {
+                            VkDeviceSize       src_region_offset = src_buffer_offset;
+                            VkDeviceSize       dst_region_offset = 0;
+                            const VkDeviceSize region_size = static_cast<VkDeviceSize>(sizeof(VkAabbPositionsKHR));
+                            for (auto& region : regions)
+                            {
+                                region.srcOffset = src_region_offset;
+                                src_region_offset += aabbs.stride;
+
+                                region.dstOffset = dst_region_offset;
+                                dst_region_offset += region_size;
+
+                                region.size = region_size;
+                            }
+                        }
+
+                        device_table.CmdCopyBuffer(
+                            command_buffer, aabb_buffer_info->handle, new_aabbs.buffer, region_count, regions.data());
+
+                        const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                    nullptr,
+                                                                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                    VK_ACCESS_TRANSFER_READ_BIT |
+                                                                        VK_ACCESS_HOST_READ_BIT,
+                                                                    VK_QUEUE_FAMILY_IGNORED,
+                                                                    VK_QUEUE_FAMILY_IGNORED,
+                                                                    new_aabbs.buffer,
+                                                                    0,
+                                                                    VK_WHOLE_SIZE };
+                        device_table.CmdPipelineBarrier(command_buffer,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
+                                                        0,
+                                                        0,
+                                                        nullptr,
+                                                        1,
+                                                        &buf_barrier,
+                                                        0,
+                                                        nullptr);
+                    }
+                }
+                break;
+
+                case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                {
+                    const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[i][g];
+                    const VkAccelerationStructureGeometryInstancesDataKHR& instances = geometry->geometry.instances;
+
+                    auto& new_variant = as_context->as_build_data.emplace_back(
+                        std::in_place_type<AccelerationStructureDumpResourcesContext::Instances>);
+                    auto& new_instances = std::get<AccelerationStructureDumpResourcesContext::Instances>(new_variant);
+                    new_instances.array_of_pointers = instances.arrayOfPointers;
+
+                    // Addresses and VkAccelerationStructureInstanceKHR structures should be tightly packed
+                    const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
+                    const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
+                    new_instances.instance_count        = range.primitiveCount;
+                    new_instances.instance_buffer_size  = instance_buffer_size;
+
+                    size_t                  buffer_device_address_offset;
+                    const VulkanBufferInfo* instances_buffer_info =
+                        device_address_tracker.GetBufferByCaptureDeviceAddress(instances.data.deviceAddress,
+                                                                               &buffer_device_address_offset);
+                    if (instances_buffer_info == nullptr)
+                    {
+                        continue;
+                    }
+
+                    if (!instances.arrayOfPointers)
+                    {
+                        VkResult res = CreateVkBuffer(instance_buffer_size,
+                                                      device_table,
+                                                      device,
+                                                      nullptr,
+                                                      nullptr,
+                                                      &mem_props,
+                                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                                      &new_instances.instance_buffer,
+                                                      &new_instances.instance_buffer_memory);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Failed cloning instances buffer used as input in "
+                                               "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                               util::ToString(res).c_str());
+                            continue;
+                        }
+
+                        // Copy instance buffer
+                        const VkDeviceSize src_offset = static_cast<VkDeviceSize>(buffer_device_address_offset) +
+                                                        static_cast<VkDeviceSize>(range.primitiveOffset);
+                        const VkBufferCopy copy_region = { src_offset, 0, instance_buffer_size };
+                        device_table.CmdCopyBuffer(command_buffer,
+                                                   instances_buffer_info->handle,
+                                                   new_instances.instance_buffer,
+                                                   1,
+                                                   &copy_region);
+
+                        const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                       nullptr,
+                                                                       VK_ACCESS_TRANSFER_WRITE_BIT,
+                                                                       VK_ACCESS_TRANSFER_READ_BIT |
+                                                                           VK_ACCESS_HOST_READ_BIT,
+                                                                       VK_QUEUE_FAMILY_IGNORED,
+                                                                       VK_QUEUE_FAMILY_IGNORED,
+                                                                       new_instances.instance_buffer,
+                                                                       0,
+                                                                       VK_WHOLE_SIZE };
+                        device_table.CmdPipelineBarrier(command_buffer,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
+                                                        VkDependencyFlags(0),
+                                                        0,
+                                                        nullptr,
+                                                        1,
+                                                        &buffer_barrier,
+                                                        0,
+                                                        nullptr);
+                    }
+                    else
+                    {
+                        // If instances.arrayOfPointers is true then we go through a compute path
+                        CreateComputeResources(
+                            device_table, device, &new_instances.compute_ppl, &new_instances.compute_ppl_layout);
+
+                        // In this case we will also need VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+                        VkResult res =
+                            CreateVkBuffer(instance_buffer_size,
+                                           device_table,
+                                           device,
+                                           nullptr,
+                                           nullptr,
+                                           &mem_props,
+                                           VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                           &new_instances.instance_buffer,
+                                           &new_instances.instance_buffer_memory);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Failed cloning instances buffer used as input in "
+                                               "vkCmdBuildAccelerationstructuresKHR (%s)",
+                                               util::ToString(res).c_str());
+                            continue;
+                        }
+
+                        const VkBufferDeviceAddressInfo bdai = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+                                                                 nullptr,
+                                                                 new_instances.instance_buffer };
+                        const VkDeviceAddress           output_buffer_device_address =
+                            device_table.GetBufferDeviceAddress(device, &bdai);
+
+                        device_table.CmdBindPipeline(
+                            command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, new_instances.compute_ppl);
+
+                        const PushConstantBlock references{ instances.data.deviceAddress,
+                                                            output_buffer_device_address,
+                                                            range.primitiveCount };
+                        device_table.CmdPushConstants(command_buffer,
+                                                      new_instances.compute_ppl_layout,
+                                                      VK_SHADER_STAGE_COMPUTE_BIT,
+                                                      0,
+                                                      sizeof(PushConstantBlock),
+                                                      &references);
+
+                        device_table.CmdDispatch(command_buffer, 1, 1, 1);
+
+                        const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                                     nullptr,
+                                                                     VK_ACCESS_SHADER_WRITE_BIT,
+                                                                     VK_ACCESS_TRANSFER_READ_BIT |
+                                                                         VK_ACCESS_HOST_READ_BIT,
+                                                                     VK_QUEUE_FAMILY_IGNORED,
+                                                                     VK_QUEUE_FAMILY_IGNORED,
+                                                                     new_instances.instance_buffer,
+                                                                     0,
+                                                                     VK_WHOLE_SIZE };
+                        device_table.CmdPipelineBarrier(command_buffer,
+                                                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                        0,
+                                                        0,
+                                                        nullptr,
+                                                        1,
+                                                        &buff_barrier,
+                                                        0,
+                                                        nullptr);
+                    }
+                }
+                break;
+
+                default:
+                    GFXRECON_LOG_ERROR("Unhandled acceleration structure geometry type")
+            }
+        }
+
+        if (original_command_buffer == nullptr)
+        {
+            const VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                                                   nullptr,
+                                                   VkFenceCreateFlags(0) };
+            VkFence                 fence;
+            VkResult                res = device_table.CreateFence(device, &fence_info, nullptr, &fence);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("%s() CreateFence failed (%s)", __func__, util::ToString(res).c_str());
+                return;
+            }
+
+            device_table.EndCommandBuffer(command_buffer);
+
+            device_table.ResetFences(device, 1, &fence);
+
+            const VkSubmitInfo submit_info = {
+                VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &command_buffer, 0, nullptr
+            };
+            device_table.QueueSubmit(queue, 1, &submit_info, fence);
+
+            // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or
+            // crash.
+            res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
+                return;
+            }
+
+            device_table.DestroyCommandPool(device, command_pool, nullptr);
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
+    const VulkanCommandBufferInfo*            original_command_buffer,
+    const graphics::VulkanDeviceTable&        device_table,
+    const VulkanAccelerationStructureKHRInfo* src,
+    const VulkanAccelerationStructureKHRInfo* dst)
+{
+    GFXRECON_ASSERT(src != nullptr);
+    GFXRECON_ASSERT(dst != nullptr);
+
+    const auto src_context_entry = acceleration_structures_context_.find(src);
+    if (src_context_entry == acceleration_structures_context_.end())
+    {
+        return;
+    }
+
+    const auto dst_context_entry = acceleration_structures_context_.find(dst);
+    if (dst_context_entry != acceleration_structures_context_.end())
+    {
+        acceleration_structures_context_.erase(dst_context_entry);
+    }
+
+    acceleration_structures_context_.emplace(dst, src_context_entry->second);
+}
+
+void VulkanReplayDumpResourcesBase::HandleDestroyAccelerationStructureKHR(
+    const VulkanAccelerationStructureKHRInfo* as_info)
+{
+    if (as_info != nullptr)
+    {
+        const auto& entry = acceleration_structures_context_.find(as_info);
+        if (entry != acceleration_structures_context_.end())
+        {
+            acceleration_structures_context_.erase(entry);
+        }
+    }
+}
+
+VkResult VulkanReplayDumpResourcesBase::CreateComputeResources(const graphics::VulkanDeviceTable& device_table,
+                                                               VkDevice                           device,
+                                                               VkPipeline*                        compute_ppl,
+                                                               VkPipelineLayout*                  ppl_layout)
+{
+    GFXRECON_ASSERT(compute_ppl != nullptr);
+    GFXRECON_ASSERT(ppl_layout != nullptr);
+
+    // We'll be using push constants to upload the device addresses to the compute shader
+    const VkPushConstantRange        push_constant_range{ VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstantBlock) };
+    const VkPipelineLayoutCreateInfo pipelineLayoutCI{
+        VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO, nullptr, 0, 0, nullptr, 1, &push_constant_range
+    };
+
+    VkResult res = device_table.CreatePipelineLayout(device, &pipelineLayoutCI, nullptr, ppl_layout);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("vkCreatePipelineLayout failed (%s)", util::ToString(res).c_str());
+        return res;
+    }
+
+    const VkShaderModuleCreateInfo sci = {
+        VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0, sizeof(g_CompShaderMain), g_CompShaderMain
+    };
+    VkShaderModule compute_shader;
+    res = device_table.CreateShaderModule(device, &sci, nullptr, &compute_shader);
+    if (res != VK_SUCCESS)
+    {
+        device_table.DestroyPipelineLayout(device, *ppl_layout, nullptr);
+        GFXRECON_LOG_WARNING("vkCreateShaderModule failed (%s)", util::ToString(res).c_str());
+        return res;
+    }
+
+    const VkPipelineShaderStageCreateInfo stage_ci = { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+                                                       nullptr,
+                                                       0,
+                                                       VK_SHADER_STAGE_COMPUTE_BIT,
+                                                       compute_shader,
+                                                       "ComputeMain",
+                                                       nullptr };
+
+    const VkComputePipelineCreateInfo ppl_ci = {
+        VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO, nullptr, 0, stage_ci, *ppl_layout, VK_NULL_HANDLE, 0
+    };
+
+    res = device_table.CreateComputePipelines(device, VK_NULL_HANDLE, 1, &ppl_ci, nullptr, compute_ppl);
+    if (res != VK_SUCCESS)
+    {
+        device_table.DestroyPipelineLayout(device, *ppl_layout, nullptr);
+        GFXRECON_LOG_WARNING("vkCreateComputePipelines failed (%s)", util::ToString(res).c_str());
+    }
+
+    device_table.DestroyShaderModule(device, compute_shader, nullptr);
+
+    return VK_SUCCESS;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

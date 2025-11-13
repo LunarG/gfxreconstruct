@@ -614,7 +614,7 @@ void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12Tools1_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12Tools2_Wrapper(riid, *wrap_object, resources);
     }
 }
 
@@ -654,7 +654,7 @@ void WrapID3D12DeviceTools(REFIID riid, void** object, DxWrapperResources* resou
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D12DeviceTools_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D12DeviceTools1_Wrapper(riid, *wrap_object, resources);
     }
 }
 

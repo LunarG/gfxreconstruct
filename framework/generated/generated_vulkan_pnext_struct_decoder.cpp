@@ -736,6 +736,14 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceCooperativeVectorPropertiesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceCopyMemoryIndirectFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COPY_MEMORY_INDIRECT_PROPERTIES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceCopyMemoryIndirectPropertiesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1688,6 +1696,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNTYPED_POINTERS_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShaderUntypedPointersFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1816,12 +1828,12 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR>>();
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceVideoMaintenance2FeaturesKHR>>();
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
@@ -2336,10 +2348,6 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeAV1DpbSlotInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_INLINE_SESSION_PARAMETERS_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeAV1InlineSessionParametersInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeAV1PictureInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -2364,10 +2372,6 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH264DpbSlotInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_INLINE_SESSION_PARAMETERS_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH264InlineSessionParametersInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH264PictureInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -2382,34 +2386,6 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265CapabilitiesKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265DpbSlotInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_INLINE_SESSION_PARAMETERS_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265InlineSessionParametersInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265PictureInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265ProfileInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
@@ -2532,60 +2508,8 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_CAPABILITIES_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265CapabilitiesKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_DPB_SLOT_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265DpbSlotInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_GOP_REMAINING_FRAME_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265PictureInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PROFILE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265ProfileInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUALITY_LEVEL_PROPERTIES_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265QuantizationMapCapabilitiesKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265RateControlInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_RATE_CONTROL_LAYER_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265RateControlLayerInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_CREATE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265SessionCreateInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR>>();
-                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
-                break;
-            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_SESSION_PARAMETERS_GET_INFO_KHR:
-                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
@@ -2594,6 +2518,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeIntraRefreshInfoKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_PROFILE_RGB_CONVERSION_INFO_VALVE:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeProfileRgbConversionInfoVALVE>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
@@ -2616,8 +2544,16 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeRateControlInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeRgbConversionCapabilitiesVALVE>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeSessionIntraRefreshCreateInfoKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkVideoEncodeSessionRgbConversionCreateInfoVALVE>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:

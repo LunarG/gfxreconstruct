@@ -4,6 +4,7 @@ target_sources(gfxrecon_decode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/api_payload.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_handle_mapping_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_object_info_table.h

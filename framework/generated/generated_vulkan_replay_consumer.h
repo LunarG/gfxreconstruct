@@ -2671,6 +2671,16 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT>* pBindDescriptorBufferEmbeddedSamplersInfo) override;
 
+    virtual void Process_vkCmdCopyMemoryIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryIndirectInfoKHR>* pCopyMemoryIndirectInfo) override;
+
+    virtual void Process_vkCmdCopyMemoryToImageIndirectKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo) override;
+
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,

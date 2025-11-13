@@ -300,12 +300,6 @@ VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(const VulkanQueueInfo* 
                                                          const VkSemaphore*     signal_semaphores,
                                                          VkFence                fence)
 {
-    uint32_t queue_family_index = default_queue_family_index_;
-    if (queue_info)
-    {
-        queue_family_index = queue_info->family_index;
-    }
-
     VkPipelineStageFlags wait_stage  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkSubmitInfo         submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 

@@ -93,6 +93,7 @@ void Log::Init(Severity    min_severity,
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
@@ -127,6 +128,7 @@ void Log::Init(const util::Log::Settings& settings)
             if (!settings_.leave_file_open)
             {
                 platform::FileClose(settings_.file_pointer);
+                settings_.file_pointer = nullptr;
             }
         }
     }
@@ -148,7 +150,7 @@ void Log::LogMessage(
     bool  opened_file      = false;
     bool  write_indent     = settings_.use_indent && (settings_.indent > 0);
     bool  output_to_stderr = false;
-    FILE* log_file_ptr;
+    FILE* log_file_ptr     = nullptr;
 
     // Log message prefix
     const char  process_tag[] = "gfxrecon";

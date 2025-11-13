@@ -70,11 +70,11 @@
 
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 615;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 616;
 }
 extern "C"
 {
-    __declspec(dllexport) extern const char* D3D12SDKPath = u8".\\D3D12\\";
+    __declspec(dllexport) extern const char* D3D12SDKPath = reinterpret_cast<const char*>(u8".\\D3D12\\");
 }
 
 #include <conio.h>
@@ -212,15 +212,10 @@ int main(int argc, const char** argv)
 
                 // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
                 // calls into the capture layer instead of directly into the loader and Vulkan runtime.
-                vulkan_replay_consumer.SetGetInstanceProcAddrOverride(gfxrecon::vulkan_recapture::GetInstanceProcAddr);
-
                 // Set the capture manager's instance and device creation callbacks.
-                gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(
-                    gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                    gfxrecon::vulkan_recapture::dispatch_CreateDevice);
-
-                // Logger is already initialized by replay, so inform capture manager not to initialize it again.
-                gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
+                vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                                                         gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                                                         gfxrecon::vulkan_recapture::dispatch_CreateDevice);
             }
 
             ApiReplayOptions  api_replay_options;
@@ -328,7 +323,7 @@ int main(int argc, const char** argv)
             fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
             if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                (file_processor->GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
             {
                 if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                 {
@@ -356,7 +351,7 @@ int main(int argc, const char** argv)
                     fps_info.LogMeasurements();
                 }
             }
-            else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            else if (file_processor->GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
             {
                 GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;

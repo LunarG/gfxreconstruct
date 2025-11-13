@@ -33,9 +33,10 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <map>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -53,13 +54,45 @@ enum class SkipGetFenceStatus
     COUNT
 };
 
-using Index                 = uint64_t;
-using DrawCallIndices       = std::vector<Index>;
-using RenderPassIndices     = std::vector<std::vector<Index>>;
-using DispatchIndices       = std::vector<Index>;
-using TraceRaysIndices      = std::vector<Index>;
-using ExecuteCommandIndices = std::vector<Index>;
-using ExecuteCommands       = std::unordered_map<Index, ExecuteCommandIndices>;
+using Index             = uint64_t;
+using CommandIndices    = std::vector<Index>;
+using RenderPassIndices = std::vector<std::vector<Index>>;
+using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
+
+struct DescriptorLocation
+{
+    bool const operator==(const DescriptorLocation& other) const
+    {
+        return set == other.set && binding == other.binding && array_index == other.array_index;
+    }
+
+    bool const operator<(const DescriptorLocation& other) const
+    {
+        if (set == other.set)
+        {
+            if (binding == other.binding)
+            {
+                return array_index < other.array_index;
+            }
+            else
+            {
+                return binding < other.binding;
+            }
+        }
+        else
+        {
+            return set < other.set;
+        }
+    }
+
+    uint32_t set;
+    uint32_t binding;
+    uint32_t array_index;
+};
+
+using CommandImageSubresource =
+    std::unordered_map<decode::Index, std::map<DescriptorLocation, VkImageSubresourceRange>>;
+using CommandImageSubresourceIterator = CommandImageSubresource::const_iterator;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -73,6 +106,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
+    util::PresentModeOption      present_mode_option{ util::PresentModeOption::kCapture };
     bool                         virtual_swapchain_skip_blit{ false };
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
@@ -87,12 +121,18 @@ struct VulkanReplayOptions : public ReplayOptions
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options
-    std::vector<decode::Index>     BeginCommandBuffer_Indices;
-    std::vector<DrawCallIndices>   Draw_Indices;
+    std::vector<decode::Index> BeginCommandBuffer_Indices;
+    std::vector<decode::Index> QueueSubmit_Indices;
+
     std::vector<RenderPassIndices> RenderPass_Indices;
-    std::vector<DispatchIndices>   Dispatch_Indices;
-    std::vector<TraceRaysIndices>  TraceRays_Indices;
-    std::vector<decode::Index>     QueueSubmit_Indices;
+    std::vector<CommandIndices>    Draw_Indices;
+    CommandImageSubresource        DrawSubresources;
+
+    std::vector<CommandIndices> Dispatch_Indices;
+    CommandImageSubresource     DispatchSubresources;
+
+    std::vector<CommandIndices> TraceRays_Indices;
+    CommandImageSubresource     TraceRaysSubresources;
 
     // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
     std::vector<ExecuteCommands> ExecuteCommands_Indices;
@@ -112,6 +152,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_raw_images{ false };
     bool  dump_resources_dump_separate_alpha{ false };
     bool  dump_resources_dump_unused_vertex_bindings{ false };
+    bool  dump_resources_dump_build_AS_input_buffers{ false };
 
     format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 

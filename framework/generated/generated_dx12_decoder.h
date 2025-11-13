@@ -304,8 +304,11 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D12Tools_ShaderInstrumentationEnabled(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Tools1_ReserveGPUVARangesAtCreate(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12Tools1_ClearReservedGPUVARangesList(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12Tools2_SetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12PageableTools_GetAllocation(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12DeviceTools_SetNextAllocationAddress(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverState(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12SDKConfiguration_SetSDKVersion(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12SDKConfiguration1_CreateDeviceFactory(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_ID3D12SDKConfiguration1_FreeUnusedSDKs(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

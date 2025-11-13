@@ -792,6 +792,19 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1333),
     ApiCall_vkWaitForPresent2KHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1334),
     ApiCall_vkReleaseSwapchainImagesKHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1335),
+    ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplersEXT                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1336),
+    ApiCall_vkCmdBindDescriptorBuffersEXT                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1337),
+    ApiCall_vkCmdSetDescriptorBufferOffsetsEXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1338),
+    ApiCall_vkGetBufferOpaqueCaptureDescriptorDataEXT                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1339),
+    ApiCall_vkGetDescriptorEXT                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x133a),
+    ApiCall_vkGetDescriptorSetLayoutBindingOffsetEXT                                              = MakeApiCallId(ApiFamily_Vulkan, 0x133b),
+    ApiCall_vkGetDescriptorSetLayoutSizeEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x133c),
+    ApiCall_vkGetImageOpaqueCaptureDescriptorDataEXT                                              = MakeApiCallId(ApiFamily_Vulkan, 0x133d),
+    ApiCall_vkGetImageViewOpaqueCaptureDescriptorDataEXT                                          = MakeApiCallId(ApiFamily_Vulkan, 0x133e),
+    ApiCall_vkGetSamplerOpaqueCaptureDescriptorDataEXT                                            = MakeApiCallId(ApiFamily_Vulkan, 0x133f),
+    ApiCall_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT                              = MakeApiCallId(ApiFamily_Vulkan, 0x1340),
+    ApiCall_vkCmdCopyMemoryIndirectKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1341),
+    ApiCall_vkCmdCopyMemoryToImageIndirectKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1342),
 
     ApiCall_VulkanLast,
 
@@ -1342,6 +1355,11 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12GBVDiagnostics_GetGBVResourceInfo                                               = MakeApiCallId(ApiFamily_D3D12, 0x1165),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved0                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1166),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1167),
+
+    // Agility SDK 1.616.1
+    ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState                                        = MakeApiCallId(ApiFamily_D3D12, 0x1168),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState                                  = MakeApiCallId(ApiFamily_D3D12, 0x1169),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus                             = MakeApiCallId(ApiFamily_D3D12, 0x116a),
 
     // AGS API
     // amd_ags.h
