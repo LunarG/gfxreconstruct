@@ -119,10 +119,11 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if not is_override:
             body += '    if (IsRecording(commandBuffer))\n'
             body += '    {\n'
-            body += '        CommandBufferIterator first, last;\n'
-            body += '        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);\n'
-            body += '        if (found)\n'
+            body += '        const std::vector<DrawCallsDumpingContext*> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);\n'
+            body += '        for (auto dc_context : dc_contexts)\n'
             body += '        {\n'
+            body += '            CommandBufferIterator first, last;\n'
+            body += '            dc_context->GetDrawCallActiveCommandBuffers(first, last);\n'
             body += '            for (CommandBufferIterator it = first; it < last; ++it)\n'
             body += '            {\n'
 
@@ -133,17 +134,21 @@ class VulkanReplayDumpResourcesBodyGenerator(
                 call_expr += '{}, '.format(val.name)
 
             dispatchfunc += call_expr
-            body += '                 ' + dispatchfunc[:-2] + ');\n'
+            body += '                     ' + dispatchfunc[:-2] + ');\n'
             body += '            }\n'
             body += '        }\n'
             body += '\n'
-            body += '        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);\n'
-            body += '        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
+            body += '        const std::vector<DispatchTraceRaysDumpingContext*> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);\n'
+            body += '        for (auto dr_context : dr_contexts)\n'
             body += '        {\n'
+            body += '            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();\n'
+            body += '            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
+            body += '            {\n'
 
             dispatchfunc = 'func(dispatch_rays_command_buffer, ' + call_expr
             body += '             ' + dispatchfunc[:-2] + ');\n'
 
+            body += '            }\n'
             body += '        }\n'
             body += '    }\n'
         else:

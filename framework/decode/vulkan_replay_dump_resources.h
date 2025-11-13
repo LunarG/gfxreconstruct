@@ -60,7 +60,7 @@ class VulkanReplayDumpResourcesBase
 
     ~VulkanReplayDumpResourcesBase();
 
-    VkResult CloneCommandBuffer(uint64_t                             bcb_index,
+    VkResult BeginCommandBuffer(uint64_t                             bcb_index,
                                 VulkanCommandBufferInfo*             original_command_buffer_info,
                                 const graphics::VulkanDeviceTable*   device_table,
                                 const graphics::VulkanInstanceTable* inst_table,
@@ -412,27 +412,13 @@ class VulkanReplayDumpResourcesBase
 
     bool MustDumpQueueSubmitIndex(uint64_t index) const;
 
-    bool MustDumpDrawCall(VkCommandBuffer original_command_buffer, uint64_t dc_index) const;
-
-    bool MustDumpDispatch(VkCommandBuffer original_command_buffer, uint64_t index) const;
-
-    bool MustDumpTraceRays(VkCommandBuffer original_command_buffer, uint64_t index) const;
-
     bool DumpingBeginCommandBufferIndex(uint64_t index) const;
 
     bool IsRecording(VkCommandBuffer original_command_buffer) const;
 
-    bool GetDrawCallActiveCommandBuffers(VkCommandBuffer        original_command_buffer,
-                                         CommandBufferIterator& first,
-                                         CommandBufferIterator& last) const;
-
-    VkCommandBuffer GetDispatchRaysCommandBuffer(VkCommandBuffer original_command_buffer) const;
-
     void Release();
 
     void ResetCommandBuffer(VkCommandBuffer original_command_buffer);
-
-    uint64_t GetBeginCommandBufferIndexOfCommandBuffer(VkCommandBuffer original_command_buffer) const;
 
     void DumpGraphicsPipelineInfos(const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
                                    uint32_t                                                          createInfoCount,
@@ -517,25 +503,30 @@ class VulkanReplayDumpResourcesBase
 
     void HandleDestroyAccelerationStructureKHR(const VulkanAccelerationStructureKHRInfo* as_info);
 
+    std::vector<DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
+
+    std::vector<DispatchTraceRaysDumpingContext*>
+    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer);
+
   private:
     bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
 
-    DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
+    std::vector<DispatchTraceRaysDumpingContext*> FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
+    DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer,
+                                                                          decode::Index   qs_index);
 
-    const DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(uint64_t bcb_id) const;
-
-    DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer);
-
-    const DispatchTraceRaysDumpingContext*
+    std::vector<const DispatchTraceRaysDumpingContext*> FindDispatchRaysCommandBufferContext(uint64_t bcb_id) const;
+    std::vector<const DispatchTraceRaysDumpingContext*>
     FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer) const;
 
-    DrawCallsDumpingContext* FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
+    DrawCallsDumpingContext* FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer,
+                                                              decode::Index   qs_index);
 
-    const DrawCallsDumpingContext* FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
+    std::vector<DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(uint64_t bcb_id);
 
-    DrawCallsDumpingContext* FindDrawCallCommandBufferContext(uint64_t bcb_id);
-
-    const DrawCallsDumpingContext* FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
+    std::vector<const DrawCallsDumpingContext*>
+    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
+    std::vector<const DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,
@@ -584,11 +575,17 @@ class VulkanReplayDumpResourcesBase
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
-    std::vector<uint64_t> QueueSubmit_indices_;
+    // BeginCommandBuffer - QueueSubmit pairs
+    std::vector<BeginCmdBufQueueSubmitPair> BeginCommandBufferQueueSubmit_Indices_;
 
-    // One per BeginCommandBuffer index
-    std::unordered_map<uint64_t, DrawCallsDumpingContext>         draw_call_contexts;
-    std::unordered_map<uint64_t, DispatchTraceRaysDumpingContext> dispatch_ray_contexts;
+    // Mapping between the original VkCommandBuffer handle and its BeginCommandBuffer indices we care about
+    std::unordered_map<VkCommandBuffer, decode::Index> cb_bcb_map_;
+
+    // DrawCall dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
+    std::map<BeginCmdBufQueueSubmitPair, DrawCallsDumpingContext> draw_call_contexts_;
+
+    // Dispatch-TraceRays call dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
+    std::map<BeginCmdBufQueueSubmitPair, DispatchTraceRaysDumpingContext> dispatch_ray_contexts_;
 
     bool                   recording_;
     bool                   dump_resources_before_;
