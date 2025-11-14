@@ -63,6 +63,30 @@ template <typename Command>
 struct DispatchHasMetaDataId<Command, std::void_t<decltype(std::declval<Command>().meta_data_id)>> : std::true_type
 {};
 
+template <typename Command, typename Dummy = void>
+struct DispatchHasData : std::false_type
+{};
+
+template <typename Command>
+struct DispatchHasData<Command, std::void_t<decltype(std::declval<Command>().data)>> : std::true_type
+{};
+
+template <typename Command, typename Dummy = void>
+struct DispatchHasDataSize : std::false_type
+{};
+
+template <typename Command>
+struct DispatchHasDataSize<Command, std::void_t<decltype(std::declval<Command>().data_size)>> : std::true_type
+{};
+
+template <typename Command, typename Dummy = void>
+struct DispatchHasCommandHeader : std::false_type
+{};
+
+template <typename Command>
+struct DispatchHasCommandHeader<Command, std::void_t<decltype(std::declval<Command>().command_header)>> : std::true_type
+{};
+
 template <typename Command>
 struct DispatchHasAllocGuard : std::false_type
 {};
@@ -75,10 +99,13 @@ struct DispatchHasAllocGuard : std::false_type
 template <typename Command>
 struct DispatchFlagTraits
 {
-    static constexpr bool kIsLarge       = CommandStoragePolicy::IsLarge<Command>();
-    static constexpr bool kHasCallId     = DispatchHasCallId<Command>::value;
-    static constexpr bool kHasMetaDataId = DispatchHasMetaDataId<Command>::value;
-    static constexpr bool kHasAllocGuard = DispatchHasAllocGuard<Command>::value;
+    static constexpr bool kIsLarge          = CommandStoragePolicy::IsLarge<Command>();
+    static constexpr bool kHasCallId        = DispatchHasCallId<Command>::value;
+    static constexpr bool kHasMetaDataId    = DispatchHasMetaDataId<Command>::value;
+    static constexpr bool kHasAllocGuard    = DispatchHasAllocGuard<Command>::value;
+    static constexpr bool kHasData          = DispatchHasData<Command>::value;
+    static constexpr bool kHasDataSize      = DispatchHasDataSize<Command>::value;
+    static constexpr bool kHasCommandHeader = DispatchHasCommandHeader<Command>::value;
 };
 
 // --- Payload structs (argument order preserved) ---
@@ -90,10 +117,10 @@ struct FunctionCallArgs
 {
     format::ApiCallId call_id;
     ApiCallInfo       call_info;
-    const uint8_t*    buffer;
-    size_t            buffer_size;
+    const uint8_t*    data;
+    size_t            data_size;
 
-    auto GetTuple() const { return std::tie(call_id, call_info, buffer, buffer_size); }
+    auto GetTuple() const { return std::tie(call_id, call_info, data, data_size); }
 };
 template <>
 struct DispatchHasAllocGuard<FunctionCallArgs> : std::true_type
@@ -104,10 +131,10 @@ struct MethodCallArgs
     format::ApiCallId call_id;
     format::HandleId  object_id;
     ApiCallInfo       call_info;
-    const uint8_t*    parameter_buffer;
-    size_t            buffer_size;
+    const uint8_t*    data;
+    size_t            data_size;
 
-    auto GetTuple() const { return std::tie(call_id, object_id, call_info, parameter_buffer, buffer_size); }
+    auto GetTuple() const { return std::tie(call_id, object_id, call_info, data, data_size); }
 };
 template <>
 struct DispatchHasAllocGuard<MethodCallArgs> : std::true_type
@@ -165,14 +192,15 @@ struct FillMemoryArgs
     format::ThreadId thread_id;
     uint64_t         memory_id;
     uint64_t         offset;
-    uint64_t         size;
+    uint64_t         data_size;
     const uint8_t*   data;
 
-    auto GetTuple() const { return std::tie(thread_id, memory_id, offset, size, data); }
+    auto GetTuple() const { return std::tie(thread_id, memory_id, offset, data_size, data); }
 };
 struct FillMemoryResourceValueArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+    size_t             data_size;    // Needed for deferred decompression, but not ApiDecoder
 
     format::FillMemoryResourceValueCommandHeader command_header;
     const uint8_t*                               data;
@@ -401,12 +429,14 @@ struct InitSubresourceArgs
 struct InitDx12AccelerationStructureArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+    // Note: the command header has uniquely named size field... so duplicate this info for visitor use
+    size_t data_size; // Needed for deferred decompression, but not ApiDecoder
 
     format::InitDx12AccelerationStructureCommandHeader             command_header;
     std::vector<format::InitDx12AccelerationStructureGeometryDesc> geometry_descs;
-    const uint8_t*                                                 build_inputs_data;
+    const uint8_t*                                                 data;
 
-    auto GetTuple() const { return std::tie(command_header, geometry_descs, build_inputs_data); }
+    auto GetTuple() const { return std::tie(command_header, geometry_descs, data); }
 };
 struct GetDxgiAdapterArgs
 {
@@ -505,19 +535,19 @@ struct InitializeMetaArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
 
-    format::InitializeMetaCommand header;
-    const uint8_t*                initialization_parameters_data;
+    format::InitializeMetaCommand command_header;
+    const uint8_t*                data;
 
-    auto GetTuple() const { return std::tie(header, initialization_parameters_data); }
+    auto GetTuple() const { return std::tie(command_header, data); }
 };
 struct AnnotationArgs
 {
     uint64_t               block_index;
     format::AnnotationType type;
     std::string            label;
-    std::string            data;
+    std::string            annotation_data;
 
-    auto GetTuple() const { return std::tie(block_index, type, label, data); }
+    auto GetTuple() const { return std::tie(block_index, type, label, annotation_data); }
 };
 
 // --- DispatchTraits specializations (kIsLarge via sizeof at compile time) ---
