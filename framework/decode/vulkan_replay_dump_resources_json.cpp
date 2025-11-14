@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_dump_resources_options.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format_util.h"
 #include "util/file_path.h"
@@ -49,21 +50,24 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     header_["gfxreconVersion"] = GFXRECON_PROJECT_VERSION_STRING;
     header_["captureFile"]     = options.capture_filename;
 
-    auto& dr_options                                    = header_["dumpResourcesOptions"];
-    dr_options["scale"]                                 = options.dump_resources_scale;
-    dr_options["dumpResourcesOutputDir"]                = options.dump_resources_output_dir;
-    dr_options["dumpResourcesColorAttachmentIndex"]     = options.dump_resources_color_attachment_index;
-    dr_options["dumpResourcesBefore"]                   = options.dump_resources_before;
-    dr_options["dumpResourcesDumpDepth"]                = options.dump_resources_dump_depth;
-    dr_options["dumpResourcesDumpVertexIndexBuffer"]    = options.dump_resources_dump_vertex_index_buffer;
-    dr_options["dumpResourcesDumpImmutableResources"]   = options.dump_resources_dump_immutable_resources;
-    dr_options["dumpResourcesDumpAllImageSubresources"] = options.dump_resources_dump_all_image_subresources;
-    dr_options["dumpResourcesDumpRawImages"]            = options.dump_resources_dump_raw_images;
-    dr_options["dumpResourcesDumpSeparateAlpha"]        = options.dump_resources_dump_separate_alpha;
-    dr_options["dumpResourcesDumpUnusedVertexBindings"] = options.dump_resources_dump_unused_vertex_bindings;
-    dr_options["dumpResourcesDumpBuildAccelerationStructuresInputBuffers"] =
+    auto& dr_options            = header_[kVDROptions];
+    dr_options[kVDROptionScale] = options.dump_resources_scale;
+    dr_options[kVDROptionImageFormat] =
+        options.dump_resources_dump_raw_images ? "bin" : ImageFormatToString(options.dump_resources_image_format);
+    dr_options[kVDROptionOutputDir]                = options.dump_resources_output_dir;
+    dr_options[kVDROptionColorAttachmentIndex]     = options.dump_resources_color_attachment_index;
+    dr_options[kVDROptionBefore]                   = options.dump_resources_before;
+    dr_options[kVDROptionDumpDepth]                = options.dump_resources_dump_depth;
+    dr_options[kVDROptionDumpVertexIndexBuffer]    = options.dump_resources_dump_vertex_index_buffer;
+    dr_options[kVDROptionDumpAllDescriptors]       = options.dump_all_descriptors;
+    dr_options[kVDROptionDumpAllImageSubresources] = options.dump_resources_dump_all_image_subresources;
+    dr_options[kVDROptionDumpRawImages]            = options.dump_resources_dump_raw_images;
+    dr_options[kVDROptionDumpSeparateAlpha]        = options.dump_resources_dump_separate_alpha;
+    dr_options[kVDROptionDumpUnusedVertexBindings] = options.dump_resources_dump_unused_vertex_bindings;
+    dr_options[kVDROptionJsonOutputPerCommand]     = options.dump_resources_json_per_command;
+    dr_options[kVDROptionDumpBuildAccelerationStructuresInputBuffers] =
         options.dump_resources_dump_build_AS_input_buffers;
-    dr_options["dumpResourcesBinaryFileCompressionType"] =
+    dr_options[kVDROptionBinaryFileCompressionType] =
         format::GetCompressionTypeName(options.dump_resources_binary_file_compression_type);
 };
 
