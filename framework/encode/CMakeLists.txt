@@ -187,7 +187,8 @@ target_link_libraries(gfxrecon_encode
                       gfxrecon_util
                       vulkan_registry
                       OpenXR
-                      platform_specific)
+                      platform_specific
+                      project_version)
 
 if (BSD)
 

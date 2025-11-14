@@ -96,4 +96,4 @@ target_include_directories(gfxrecon_encode
                                ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific android)
+target_link_libraries(gfxrecon_encode gfxrecon_graphics gfxrecon_format gfxrecon_util vulkan_registry platform_specific project_version android)
