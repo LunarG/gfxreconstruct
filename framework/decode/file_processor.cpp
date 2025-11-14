@@ -360,14 +360,21 @@ bool FileProcessor::ProcessBlocks()
 // the correct sizing of the block payload are done by the caller
 bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
 {
-    bool success = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
-    if (success)
+
+    bool           success = true;
+    BlockReadError status  = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
+    if (status == kErrorNone)
     {
         bytes_read_ += block_buffer.Size();
     }
     else
     {
-        HandleBlockReadError(kErrorReadingBlockData, "Failed to read block body data");
+        // Caller handles end of file on block boundaries
+        if (status != kEndOfFile)
+        {
+            HandleBlockReadError(status, "Failed to read next block");
+        }
+        success = false;
     }
     return success;
 }
