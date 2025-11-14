@@ -120,9 +120,10 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 }
 
 const decode::VulkanBufferInfo*
-decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const
+decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address,
+                                                                    size_t*         offset) const
 {
-    return GetBufferInfo(capture_address, buffer_capture_addresses_);
+    return GetBufferInfo(capture_address, buffer_capture_addresses_, offset);
 }
 
 const decode::VulkanBufferInfo*
@@ -155,7 +156,8 @@ const VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer h
 
 const VulkanBufferInfo*
 VulkanDeviceAddressTracker::GetBufferInfo(VkDeviceAddress                                         device_address,
-                                          const VulkanDeviceAddressTracker::buffer_address_map_t& address_map) const
+                                          const VulkanDeviceAddressTracker::buffer_address_map_t& address_map,
+                                          size_t*                                                 offset) const
 {
     if (!address_map.empty())
     {
@@ -181,6 +183,11 @@ VulkanDeviceAddressTracker::GetBufferInfo(VkDeviceAddress                       
         {
             if (device_address < found_address + found_buffer->size)
             {
+                if (offset != nullptr)
+                {
+                    *offset = device_address - found_address;
+                }
+
                 return found_buffer;
             }
         }

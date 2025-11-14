@@ -2076,7 +2076,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    VkResult result = CreateStagingBuffer(size);
+    VkResult result = CreateStagingBuffer(static_cast<VkDeviceSize>(size));
     if (result != VK_SUCCESS)
     {
         return result;
@@ -2106,7 +2106,7 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     data.resize(static_cast<size_t>(size));
 
     InvalidateStagingBuffer();
-    util::platform::MemoryCopy(data.data(), size, staging_buffer_.mapped_ptr, size);
+    util::platform::MemoryCopy(data.data(), static_cast<size_t>(size), staging_buffer_.mapped_ptr, size);
 
     return result;
 }

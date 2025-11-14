@@ -24,6 +24,7 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMPUTE_RAY_TRACING_H
 
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
@@ -46,14 +47,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class DispatchTraceRaysDumpingContext
 {
   public:
-    DispatchTraceRaysDumpingContext(const CommandIndices*          dispatch_indices,
-                                    const CommandImageSubresource& disp_subresources,
-                                    const CommandIndices*          trace_rays_indices,
-                                    const CommandImageSubresource& tr_subresources,
-                                    CommonObjectInfoTable&         object_info_table,
-                                    const VulkanReplayOptions&     options,
-                                    VulkanDumpResourcesDelegate&   delegate,
-                                    const util::Compressor*        compressor);
+    DispatchTraceRaysDumpingContext(const CommandIndices*                       dispatch_indices,
+                                    const CommandImageSubresource&              disp_subresources,
+                                    const CommandIndices*                       trace_rays_indices,
+                                    const CommandImageSubresource&              tr_subresources,
+                                    CommonObjectInfoTable&                      object_info_table,
+                                    const VulkanReplayOptions&                  options,
+                                    VulkanDumpResourcesDelegate&                delegate,
+                                    const util::Compressor*                     compressor,
+                                    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                                    const VulkanPerDeviceAddressTrackers&       address_trackers);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -461,8 +464,9 @@ class DispatchTraceRaysDumpingContext
     // multiple times
     struct DumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>  image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&> buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedImage&>                         image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&>                        buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedTopLevelAccelerationStructure&> acceleration_structures;
     };
 
     DumpedDescriptors dispatch_dumped_descriptors_;
@@ -487,6 +491,10 @@ class DispatchTraceRaysDumpingContext
 
     // Execute commands block index : DrawCallContexts
     std::unordered_map<uint64_t, std::vector<DispatchTraceRaysDumpingContext*>> secondaries_;
+
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+
+    const VulkanPerDeviceAddressTrackers& address_trackers_;
 
     const graphics::VulkanDeviceTable*      device_table_;
     VkDevice                                parent_device_;

@@ -24,6 +24,7 @@
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_DRAW_CALLS_H
 
 #include "decode/common_object_info_table.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
@@ -61,13 +62,15 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const CommandIndices*          dc_indices,
-                            const RenderPassIndices*       rp_indices,
-                            const CommandImageSubresource& dc_subresources,
-                            CommonObjectInfoTable&         object_info_table,
-                            const VulkanReplayOptions&     options,
-                            VulkanDumpResourcesDelegate&   delegate,
-                            const util::Compressor*        compressor);
+    DrawCallsDumpingContext(const CommandIndices*                       dc_indices,
+                            const RenderPassIndices*                    rp_indices,
+                            const CommandImageSubresource&              dc_subresources,
+                            CommonObjectInfoTable&                      object_info_table,
+                            const VulkanReplayOptions&                  options,
+                            VulkanDumpResourcesDelegate&                delegate,
+                            const util::Compressor*                     compressor,
+                            DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                            const VulkanPerDeviceAddressTrackers&       address_trackers);
 
     ~DrawCallsDumpingContext();
 
@@ -688,8 +691,9 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>  image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&> buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedImage&>                         image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&>                        buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedTopLevelAccelerationStructure&> acceleration_structures;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
@@ -702,6 +706,10 @@ class DrawCallsDumpingContext
     const graphics::VulkanInstanceTable*    instance_table_;
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
+
+    DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+
+    const VulkanPerDeviceAddressTrackers& address_trackers_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

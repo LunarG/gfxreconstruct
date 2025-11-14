@@ -48,7 +48,12 @@ endif()
 
 macro(generate_target_source_files TARGET TARGET_SOURCE_FILES)
     get_target_property(${TARGET_SOURCE_FILES} ${TARGET} SOURCES)
-    list(FILTER ${TARGET_SOURCE_FILES} EXCLUDE REGEX ".+\.def|generated_.+")
+
+    # Skip the following things from clang-format
+    #   * Files under the /external/ folder
+    #   * Files that end with the ".def" extension
+    #   * Files that start with "generated_"
+    list(FILTER ${TARGET_SOURCE_FILES} EXCLUDE REGEX "/external/|.+\.def|generated_.+")
 endmacro()
 
 # Apply code style build directives

@@ -642,6 +642,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--dump-resources-json-output-per-command]
                         [--dump-resources-dump-immutable-resources]
                         [--dump-resources-dump-all-image-subresources] <file>
+                        [--dump-resources-dump-build-acceleration-structures-input-buffers]
                         [--pbi-all] [--pbis <index1,index2>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
@@ -903,6 +904,9 @@ Optional arguments:
               When enabled all image resources will be dumped verbatim as raw bin files.
   --dump-resources-dump-separate-alpha
               When enabled alpha channel of dumped images will be dumped in a separate file.
+  --dump-resources-dump-build-acceleration-structures-input-buffers
+              Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index,
+              transformation matrix, AABB and instance buffers. Default is off.
   --pbi-all
               Print all block information.
   --pbis <index1,index2>

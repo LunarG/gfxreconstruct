@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "util/logging.h"
 #ifdef GFXRECON_ENABLE_ZLIB_COMPRESSION
 
 #include "util/zlib_compressor.h"
@@ -29,6 +30,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+static constexpr size_t CHUNK = 256;
 
 size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
@@ -57,16 +60,41 @@ size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
     compress_stream.next_in  = const_cast<Bytef*>(uncompressed_data);
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, compressed_data->size());
-    compress_stream.avail_out = static_cast<uInt>(compressed_data->size());
+    compress_stream.avail_out = static_cast<uInt>(compressed_data->size() - compressed_data_offset);
     compress_stream.next_out  = compressed_data->data() + compressed_data_offset;
 
-    // Perform the compression (deflate the data).
+    // Initialize the compressor
     deflateInit(&compress_stream, Z_BEST_COMPRESSION);
-    deflate(&compress_stream, Z_FINISH);
+
+    while (true)
+    {
+        // Perform the compression (deflate the data).
+        int ret = deflate(&compress_stream, Z_FINISH);
+
+        if (ret == Z_STREAM_ERROR)
+        {
+            GFXRECON_LOG_ERROR("%s() There was an error while compressing.")
+            return 0;
+        }
+
+        // This means that the compression is complete
+        if (ret == Z_STREAM_END)
+        {
+            break;
+        }
+
+        // deflate() has exhausted the out buffer. Allocate some more and call deflate again
+        const size_t current_size = compressed_data->size();
+        compressed_data->resize(current_size + CHUNK);
+        compress_stream.avail_out = static_cast<uInt>(CHUNK);
+        compress_stream.next_out  = compressed_data->data() + current_size;
+    }
+
     deflateEnd(&compress_stream);
 
     // Determine the size of data from the stream
     copy_size = compress_stream.total_out;
+    compressed_data->resize(copy_size);
 
     return copy_size;
 }

@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_BUFFER_TRACKER_H
 #define GFXRECON_DECODE_VULKAN_BUFFER_TRACKER_H
 
+#include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
 #include "vulkan_object_info_table.h"
 #include <map>
@@ -77,9 +78,12 @@ class VulkanDeviceAddressTracker
      * @brief   Retrieve a buffer by providing a capture-time VkDeviceAddress within its range.
      *
      * @param   capture_address  a capture-time VkDeviceAddress pointing inside a buffer.
+     * @param   offset           a pointer to a size_t where the offset from the base of
+     *                           the buffer is returned. Can be null and in this case is ignored
      * @return  a const-pointer to a found BufferInfo or nullptr.
      */
-    [[nodiscard]] const VulkanBufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
+    [[nodiscard]] const VulkanBufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address,
+                                                                          size_t*         offset = nullptr) const;
 
     /**
      * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
@@ -152,7 +156,8 @@ class VulkanDeviceAddressTracker
     using buffer_address_map_t = std::map<VkDeviceAddress, format::HandleId>;
 
     [[nodiscard]] const VulkanBufferInfo* GetBufferInfo(VkDeviceAddress             device_address,
-                                                        const buffer_address_map_t& address_map) const;
+                                                        const buffer_address_map_t& address_map,
+                                                        size_t*                     offset = nullptr) const;
 
     VulkanObjectInfoTable&                               object_info_table_;
     buffer_address_map_t                                 buffer_capture_addresses_, buffer_replay_addresses_;
@@ -163,6 +168,9 @@ class VulkanDeviceAddressTracker
 
     std::unordered_map<VkDeviceAddress, device_address_range_t> address_lookup_helper_map_;
 };
+
+using VulkanPerDeviceAddressTrackers =
+    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanDeviceAddressTracker>;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

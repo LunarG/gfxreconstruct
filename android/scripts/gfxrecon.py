@@ -147,6 +147,7 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-separate-alpha', action='store_true', default=False, help= 'Dump image alpha in a separate image file.')
     parser.add_argument('--dump-resources-dump-unused-vertex-bindings', action='store_true', default=False, help= 'Dump a vertex binding even if no vertex attributes references it.')
     parser.add_argument('--dump-resources-binary-file-compression-type', metavar='FORMAT', choices=['none', 'lz4', 'zlib', 'zstd'], help='Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib, zstd]. Default is none (no compression).')
+    parser.add_argument('--dump-resources-dump-build-acceleration-structures-input-buffers', action='store_true', default=False, help= 'Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index, transformation matrix, AABB and instance buffers. Default is off.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
@@ -347,6 +348,9 @@ def MakeExtrasString(args):
     if args.dump_resources_binary_file_compression_type:
         arg_list.append('--dump-resources-binary-file-compression-type')
         arg_list.append('{}'.format(args.dump_resources_binary_file_compression_type))
+
+    if args.dump_resources_dump_build_acceleration_structures_input_buffers:
+        arg_list.append('--dump-resources-dump-build-acceleration-structures-input-buffers')
 
     if args.pbi_all:
         arg_list.append('--pbi-all')

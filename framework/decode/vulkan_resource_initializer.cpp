@@ -97,6 +97,7 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     VkDeviceSize staging_buffer_min = std::max<VkDeviceSize>(max_copy_size, 32U << 20U);
     VkDeviceSize staging_buffer_max = std::max<VkDeviceSize>(staging_buffer_min, 128U << 20U);
     staging_buffer_size_            = std::clamp(total_copy_size, staging_buffer_min, staging_buffer_max);
+    staging_buffer_size_            = util::aligned_value(staging_buffer_size_, staging_buffer_alignment_);
 
     VkFlags staging_mem_flags = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     auto    mem_index         = GetMemoryTypeIndex(0xFFFFFFFF, staging_mem_flags);
@@ -105,6 +106,12 @@ VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*    
     {
         GFXRECON_LOG_WARNING("%s: no suitable staging-buffer could be created", __func__);
     }
+
+    constexpr VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+                                             nullptr,
+                                             static_cast<VkFenceCreateFlags>(0) };
+    VkResult                    result   = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence_);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
 }
 
 VulkanResourceInitializer::~VulkanResourceInitializer()
@@ -130,6 +137,11 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
     if (draw_set_layout_ != VK_NULL_HANDLE)
     {
         device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
+    }
+
+    if (fence_ != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyFence(device_, fence_, nullptr);
     }
 }
 
@@ -1012,10 +1024,11 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
 {
     VkResult result = VK_SUCCESS;
 
-    // align staging-buffer size to VkPhysicalDeviceLimits::nonCoherentAtomSize
-    size = util::aligned_value(size, staging_buffer_alignment_);
+    // increase size if necessary, but we expect this is not necessary
+    GFXRECON_ASSERT(size <= staging_buffer_size_);
+    size = std::max<VkDeviceSize>(util::aligned_value(size, staging_buffer_alignment_), staging_buffer_size_);
 
-    if ((staging_buffer_ == VK_NULL_HANDLE) || (size > staging_buffer_size_))
+    if (staging_buffer_ == VK_NULL_HANDLE || size > staging_buffer_size_)
     {
         if (staging_buffer_ != VK_NULL_HANDLE)
         {
@@ -1083,7 +1096,6 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceSize size)
             }
         }
     }
-
     return result;
 }
 
@@ -1185,28 +1197,25 @@ VkResult VulkanResourceInitializer::ExecuteCommandBuffer(VkQueue queue, VkComman
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
-    const VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, VkFenceCreateFlags(0) };
-    VkFence                 fence;
-
-    VkResult result = device_table_->CreateFence(device_, &fence_ci, nullptr, &fence);
+    VkResult result = device_table_->QueueSubmit(queue, 1, &submit_info, fence_);
     if (result != VK_SUCCESS)
     {
         return result;
     }
 
-    result = device_table_->QueueSubmit(queue, 1, &submit_info, fence);
-    if (result != VK_SUCCESS)
-    {
-        device_table_->DestroyFence(device_, fence, nullptr);
-        return result;
-    }
+    // keep track of queue-submits for introspection and profiling
+    num_queue_submits_++;
 
     // Wait a sensible amount of time (10 seconds) to avoid hanging in case a prior
     // operation caused the GPU to hang or crash.
-    result = device_table_->WaitForFences(device_, 1, &fence, VK_TRUE, 10000000000);
+    result = device_table_->WaitForFences(device_, 1, &fence_, VK_TRUE, 10000000000);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
 
-    device_table_->DestroyFence(device_, fence, nullptr);
-
+    // reset to unsignaled state
+    result = device_table_->ResetFences(device_, 1, &fence_);
     return result;
 }
 
