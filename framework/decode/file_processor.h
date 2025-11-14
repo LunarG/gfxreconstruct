@@ -98,6 +98,7 @@ class FileProcessor;
 
 enum BlockReadError : int32_t
 {
+    kEndOfFile                         = 1, // when block reading is EOF at a block boundary
     kErrorNone                         = 0,
     kErrorInvalidFileDescriptor        = -1,
     kErrorOpeningFile                  = -2,
@@ -328,7 +329,7 @@ class BlockParser
     [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
 
     // Parse the block header and load a block buffer
-    bool ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
+    BlockReadError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     // Define parsers for every block and sub-block type
     ParsedBlock ParseBlock(BlockBuffer& block_buffer);

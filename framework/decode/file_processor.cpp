@@ -494,27 +494,46 @@ bool FileProcessor::ProcessBlocks()
 // the correct sizing of the block payload are done by the caller
 bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
 {
-    bool success = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
-    if (success)
+    bool           success = true;
+    BlockReadError status  = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
+    if (status == kErrorNone)
     {
         bytes_read_ += block_buffer.Size();
     }
     else
     {
-        HandleBlockReadError(kErrorReadingBlockData, "Failed to read block body data");
+        // Caller handles end of file on block boundaries
+        if (status != kEndOfFile)
+        {
+            HandleBlockReadError(status, "Failed to read next block");
+        }
+        success = false;
     }
     return success;
 }
 
 // Parse the block header and load the whole block into a block buffer
-bool BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
+BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     using BlockSizeType = decltype(format::BlockHeader::size);
     BlockSizeType block_size;
-    bool          success = input_stream->PeekBytes(&block_size, sizeof(block_size));
-    if (success)
+    BlockReadError status = kErrorNone;
+
+    if (!input_stream->PeekBytes(&block_size, 1))
     {
-        // NOTE: If BlockSkippingFileProcessor preformance is significantly harmed we could defer the data span read
+        // No bytes remaining in file, or an error condition
+        // If no error return kEndOfFile with an empty block
+        status = input_stream->IsError() ? kErrorReadingBlockHeader : kEndOfFile;
+    }
+    else if (!input_stream->PeekBytes(&block_size, sizeof(block_size)))
+    {
+        // The file is empty, but doesn't contain even a full header's information
+        status = kErrorReadingBlockHeader;
+    }
+
+    if (status == kErrorNone)
+    {
+        // NOTE: If BlockSkippingFileProcessor performance is significantly harmed we could defer the data span read
         // here For 32bit size_t is << BlockSizeType ... but expecting support for > 4GB blocks on 32 bit platforms
         // isn't reasonable
         constexpr size_t        size_t_max        = std::numeric_limits<size_t>::max();
@@ -530,24 +549,33 @@ bool BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer&
         {
             if (total_block_size > size_t_max)
             {
-                block_buffer.Reset();
                 // This is a fatal error (caller will catch). SkipBytes takes size_t and fseek takes *long*,
                 // which means we can't even skip this block on all 32 bit systems
-                return false;
+                status = kErrorReadingBlockData;
             }
         }
-        // Note this leave the BlockBuffer read position at the first byte following the header.
-        util::DataSpan block_span = input_stream->ReadSpan(static_cast<size_t>(total_block_size));
-        success                   = block_span.IsValid();
-        if (success)
+        if (status == kErrorNone)
         {
-            block_buffer.Reset(std::move(block_span));
+            // Note this leave the BlockBuffer read position at the first byte following the header.
+            util::DataSpan block_span = input_stream->ReadSpan(static_cast<size_t>(total_block_size));
+            if (block_span.IsValid())
+            {
+                block_buffer.Reset(std::move(block_span));
+            }
+            else
+            {
+                status = kErrorReadingBlockData;
+            }
         }
     }
 
-    return success;
-}
+    if (status != kErrorNone)
+    {
+        block_buffer.Reset();
+    }
 
+    return status;
+}
 // Preloading overloads this to get preloaded blocks
 bool FileProcessor::GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
 {
