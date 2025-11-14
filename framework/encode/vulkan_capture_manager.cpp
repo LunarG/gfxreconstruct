@@ -1395,26 +1395,14 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 deferred_operation_wrapper->p_allocator,
                                                                 deferred_operation_wrapper->pipelines.data());
 
-            if ((result == VK_OPERATION_NOT_DEFERRED_KHR) || (result == VK_SUCCESS))
+            if ((result == VK_OPERATION_NOT_DEFERRED_KHR) || (result == VK_SUCCESS) ||
+                (result == VK_OPERATION_DEFERRED_KHR))
             {
-                // VK_OPERATION_NOT_DEFERRED_KHR means the operation successfully completed immediately, so here we copy
-                // the created pipelines to original array which is used to store them by target application.
-                //
-                // Note:
-                //       VK_OPERATION_DEFERRED_KHR means the operation is successfully deferred, but the pipeline
-                //       creation might not be finished. We must therefore lean on
-                //       vkDeferredOperationJoinKHR/vkGetDeferredOperationResultKHR to get the final result. If the
-                //       result indicated the operation has finished, then the created pipelines are ready for use.
-                //
-                //       By Vulkan doc of VK_KHR_deferred_host_operations, if deferred operation object was
-                //       provided and the operation successfully completed immediately without deferring, the
-                //       command return VK_OPERATION_NOT_DEFERRED_KHR. Some hardware/driver may return VK_SUCCESS on
-                //       such case, so same handling is proceeded with VK_SUCCESS.
-                //
                 std::memcpy(
                     pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
             }
-            else if (result == VK_OPERATION_DEFERRED_KHR)
+
+            if (result == VK_OPERATION_DEFERRED_KHR)
             {
                 const std::lock_guard<std::mutex> lock(deferred_operation_mutex);
                 deferred_operation_wrapper->pending_state = true;
@@ -1446,14 +1434,14 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
                                                                 deferred_operation_wrapper->create_infos.data(),
                                                                 deferred_operation_wrapper->p_allocator,
                                                                 deferred_operation_wrapper->pipelines.data());
-            if ((result == VK_OPERATION_NOT_DEFERRED_KHR) || (result == VK_SUCCESS))
+            if ((result == VK_OPERATION_NOT_DEFERRED_KHR) || (result == VK_SUCCESS) ||
+                (result == VK_OPERATION_DEFERRED_KHR))
             {
-                // If the driver doesn't defer the command, and instead completed the operation immediately, we copy the
-                // created pipelines to original array which is used to store them by target application.
                 std::memcpy(
                     pPipelines, deferred_operation_wrapper->pipelines.data(), sizeof(VkPipeline) * createInfoCount);
             }
-            else if (result == VK_OPERATION_DEFERRED_KHR)
+
+            if (result == VK_OPERATION_DEFERRED_KHR)
             {
                 const std::lock_guard<std::mutex> lock(deferred_operation_mutex);
                 deferred_operation_wrapper->pending_state = true;
@@ -1539,9 +1527,6 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
     {
         deferred_operation_wrapper->pending_state = false;
         uint32_t create_info_count                = deferred_operation_wrapper->create_infos.size();
-        std::memcpy(deferred_operation_wrapper->pPipelines,
-                    deferred_operation_wrapper->pipelines.data(),
-                    sizeof(VkPipeline) * deferred_operation_wrapper->create_infos.size());
 
         vulkan_wrappers::CreateWrappedHandles<vulkan_wrappers::DeviceWrapper,
                                               vulkan_wrappers::DeferredOperationKHRWrapper,
