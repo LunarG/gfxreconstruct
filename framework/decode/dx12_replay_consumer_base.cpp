@@ -684,7 +684,7 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
             GFXRECON_ASSERT(SUCCEEDED(hr));
         }
 
-        if (command_header.initialization_parameters_data_size > 0)
+        if (command_header.data_size > 0)
         {
             if (meta_command_guids_.find(meta_command_obj) != meta_command_guids_.end())
             {
@@ -692,7 +692,7 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
                                          meta_command_guids_[meta_command_obj],
                                          D3D12_META_COMMAND_PARAMETER_STAGE_INITIALIZATION,
                                          const_cast<uint8_t*>(parameters_data),
-                                         command_header.initialization_parameters_data_size);
+                                         command_header.data_size);
             }
             else
             {
@@ -702,8 +702,7 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
 
         if (resource_data_util_ != nullptr)
         {
-            resource_data_util_->InitializeMetaCommand(
-                meta_command_obj, parameters_data, command_header.initialization_parameters_data_size);
+            resource_data_util_->InitializeMetaCommand(meta_command_obj, parameters_data, command_header.data_size);
 
             if (command_header.block_index == command_header.total_number_of_initializemetacommand)
             {
