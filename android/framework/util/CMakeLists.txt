@@ -10,6 +10,8 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/util/ahardwarebuffer_format_converter.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/ahardwarebuffer_format_converter.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/android/activity.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/android/intent.h
