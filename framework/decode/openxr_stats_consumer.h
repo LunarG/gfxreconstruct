@@ -42,14 +42,23 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+struct OpenXrInstanceTracker
+{
+    std::string              app_name;
+    uint32_t                 app_version{ 0 };
+    std::string              engine_name;
+    uint32_t                 engine_version{ 0 };
+    uint32_t                 api_version{ 0 };
+    std::vector<std::string> enabled_extensions;
+};
+
 class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
 {
   public:
-    const std::string& GetAppName() const { return app_name_; }
-    uint32_t           GetAppVersion() const { return app_version_; }
-    const std::string& GetEngineName() const { return engine_name_; }
-    uint32_t           GetEngineVersion() const { return engine_version_; }
-    uint32_t           GetApiVersion() const { return api_version_; }
+    const std::unordered_map<gfxrecon::format::HandleId, OpenXrInstanceTracker>& GetInstanceInfo() const
+    {
+        return instance_info_;
+    }
 
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override {}
 
@@ -58,26 +67,31 @@ class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
         XrResult                                                                                returnValue,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_XrInstanceCreateInfo>* info,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
-        gfxrecon::decode::HandlePointerDecoder<XrInstance>*) override
+        gfxrecon::decode::HandlePointerDecoder<XrInstance>*                                     pInstance) override
     {
         if ((info != nullptr) && (returnValue >= 0) && !info->IsNull())
         {
-            auto create_info = info->GetPointer();
-            app_name_        = create_info->applicationInfo.applicationName;
-            app_version_     = create_info->applicationInfo.applicationVersion;
-            engine_name_     = create_info->applicationInfo.engineName;
-            engine_version_  = create_info->applicationInfo.engineVersion;
-            api_version_     = create_info->applicationInfo.apiVersion;
+            auto  create_info = info->GetPointer();
+            auto& app_info    = create_info->applicationInfo;
+
+            OpenXrInstanceTracker instance_tracker{};
+            instance_tracker.app_name       = app_info.applicationName;
+            instance_tracker.engine_name    = app_info.engineName;
+            instance_tracker.app_version    = app_info.applicationVersion;
+            instance_tracker.engine_version = app_info.engineVersion;
+            instance_tracker.api_version    = app_info.apiVersion;
+
+            for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
+            {
+                instance_tracker.enabled_extensions.push_back(create_info->enabledExtensionNames[ext]);
+            }
+            gfxrecon::format::HandleId inst = *const_cast<gfxrecon::format::HandleId*>(pInstance->GetPointer());
+            instance_info_[inst]            = std::move(instance_tracker);
         }
     }
 
   private:
-    // Application info.
-    std::string app_name_;
-    uint32_t    app_version_{ 0 };
-    std::string engine_name_;
-    uint32_t    engine_version_{ 0 };
-    uint32_t    api_version_{ 0 };
+    std::unordered_map<gfxrecon::format::HandleId, OpenXrInstanceTracker> instance_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
