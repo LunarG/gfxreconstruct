@@ -21,7 +21,7 @@ to one of these other documents:
 
 If you are looking for how to debug the Android capture layer, please
 refer to this document:
- * [GFXReconstruct Capture layer debugging - Android](./DEBUG_android.md)
+ * [GFXReconstruct Capture layer debugging - Android](./docs/DEBUG_android.md)
 
 ## Index
 
