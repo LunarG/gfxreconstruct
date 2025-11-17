@@ -217,10 +217,8 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
-    functions_.free_command_buffers(device_, cmd_pool_, 1, &cmd_buffer_);
-    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
-
     ClearStagingResources();
+    functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
 
     if (allocator_ != VK_NULL_HANDLE)
     {
@@ -1685,21 +1683,24 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 
     std::vector<VkSemaphore>          waiting_semaphores;
     std::vector<VkPipelineStageFlags> waiting_semaphores_dst_stage_mask;
-    for (uint64_t i = 0; i < staging_resources_.size(); i++)
+
+    for (const auto& staging_resource : staging_resources_)
     {
-        bool is_already_in_use = (resource_alloc_info == staging_resources_[i].resource_alloc_info) &&
-                                 ((dst_offset == staging_resources_[i].dst_offset) ||
-                                  (dst_offset + data_size > staging_resources_[i].dst_offset));
+        bool is_already_in_use =
+            resource_alloc_info == staging_resource.resource_alloc_info &&
+            (dst_offset == staging_resource.dst_offset || dst_offset + data_size > staging_resource.dst_offset);
+
         if (is_already_in_use)
         {
             // If we have a scenario in which there are multiple staging copies on the same memory range before a
             // queue submit we are forced to chain them to avoid data corruption
             GFXRECON_LOG_WARNING("Detected multiple staging writes on the same resource before a vkQueueSubmit, "
                                  "staging writes will be chained.");
-            waiting_semaphores.push_back(staging_resources_[i].staging_semaphore);
+            waiting_semaphores.push_back(staging_resource.staging_semaphore);
             waiting_semaphores_dst_stage_mask.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         }
     }
+
     // The following operations will be submitted and waited upon at the time of the next trace file VkQueueSubmit
     StagingResources staging_resources{};
     staging_resources.resource_alloc_info = resource_alloc_info;
@@ -1707,7 +1708,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
 
     VkCommandBufferAllocateInfo cmd_buff_alloc_info = {};
     cmd_buff_alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    cmd_buff_alloc_info.pNext                       = NULL;
+    cmd_buff_alloc_info.pNext                       = nullptr;
     cmd_buff_alloc_info.commandPool                 = cmd_pool_;
     cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     cmd_buff_alloc_info.commandBufferCount          = 1;
@@ -3199,20 +3200,21 @@ void VulkanRebindAllocator::ClearStagingResources()
     {
         return;
     }
-    uint64_t             number_of_fences = staging_resources_.size();
-    std::vector<VkFence> fences(number_of_fences);
-    for (uint64_t i = 0; i < number_of_fences; i++)
+    const uint64_t       num_fences = staging_resources_.size();
+    std::vector<VkFence> fences(num_fences);
+    for (uint64_t i = 0; i < num_fences; i++)
     {
         fences[i] = staging_resources_[i].staging_fence;
     }
-    functions_.wait_for_fences(device_, number_of_fences, fences.data(), VK_TRUE, UINT64_MAX);
+    functions_.wait_for_fences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
     std::vector<VkCommandBuffer> cmd_buffers_to_delete;
-    for (uint64_t i = 0; i < staging_resources_.size(); i++)
+
+    for (auto& staging_resource : staging_resources_)
     {
-        cmd_buffers_to_delete.push_back(staging_resources_[i].cmd_buffer);
-        functions_.destroy_fence(device_, staging_resources_[i].staging_fence, nullptr);
-        functions_.destroy_semaphore(device_, staging_resources_[i].staging_semaphore, nullptr);
-        vmaDestroyBuffer(allocator_, staging_resources_[i].staging_buf, staging_resources_[i].staging_alloc);
+        cmd_buffers_to_delete.push_back(staging_resource.cmd_buffer);
+        functions_.destroy_fence(device_, staging_resource.staging_fence, nullptr);
+        functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
+        vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
     }
     functions_.free_command_buffers(device_, cmd_pool_, cmd_buffers_to_delete.size(), cmd_buffers_to_delete.data());
     staging_resources_.clear();

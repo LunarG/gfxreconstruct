@@ -404,7 +404,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                          MemoryData allocator_data) override;
 
-    virtual void ClearStagingResources() override;
+    void ClearStagingResources() override;
 
   private:
     struct MemoryAllocInfo;
@@ -686,7 +686,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                             const std::string&           type_string,
                             VkDeviceSize                 alloc_size);
 
-  private:
     VkDevice                         device_ = VK_NULL_HANDLE;
     VmaAllocator                     allocator_;
     Functions                        functions_;
