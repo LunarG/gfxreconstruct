@@ -1054,8 +1054,8 @@ adb shell am force-stop com.lunarg.gfxreconstruct.replay
 adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivity" \
                    -a android.intent.action.MAIN \
                    -c android.intent.category.LAUNCHER \
-                   --es "args" \
-                   "<arg-list>"
+                   --es args \
+                   '"<arg-list>"'
 ```
 
 If `gfxrecon-replay` was built with Vulkan Validation Layer support,
