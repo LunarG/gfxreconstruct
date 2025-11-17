@@ -420,8 +420,8 @@ def ReplayCommon(replay_args, activity):
 
         adb_start = 'adb shell am start -n {} -a {} -c {}'.format(activity, app_action, app_category)
 
-        cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
-        print('Executing:', cmd)
+        print(f'Executing: {adb_start} --es args \'"{extras}"\'')
+        cmd = ' '.join([adb_start, '--es', 'args', '"{}"'.format(extras)])
 
         # Specify posix=False to prevent removal of quotes from adb extras.
         subprocess.check_call(shlex.split(cmd, posix=False))
