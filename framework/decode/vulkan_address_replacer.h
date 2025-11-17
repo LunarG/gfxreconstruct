@@ -421,7 +421,7 @@ class VulkanAddressReplacer
                                      uint32_t           usage_flags   = 0,
                                      uint32_t           min_alignment = 0,
                                      bool               use_host_mem  = true,
-                                     const std::string& name          = "GFXR VulkanAddressReplacer Buffer");
+                                     const std::string& name          = "GFXR VulkanAddressReplacer Buffer") const;
 
     [[nodiscard]] bool create_acceleration_asset(acceleration_structure_asset_t& as_asset,
                                                  VkAccelerationStructureTypeKHR  type,
@@ -435,7 +435,7 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags src_stage,
                  VkAccessFlags        src_access,
                  VkPipelineStageFlags dst_stage,
-                 VkAccessFlags        dst_access);
+                 VkAccessFlags        dst_access) const;
 
     bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
                                             const decode::VulkanDeviceAddressTracker& address_tracker);

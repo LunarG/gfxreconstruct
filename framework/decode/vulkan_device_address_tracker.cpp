@@ -89,7 +89,7 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
             if (buffer_info != nullptr && buffer_info->replay_address != 0)
             {
                 // if not already present, keep track of AS<->VkBuffer association
-                buffer_info->acceleration_structures[acceleration_structure_info->capture_address].insert(
+                buffer_info->acceleration_structures[acceleration_structure_info->replay_address].insert(
                     acceleration_structure_info);
             }
         }
@@ -113,7 +113,7 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 
         if (buffer_info != nullptr)
         {
-            buffer_info->acceleration_structures[acceleration_structure_info->capture_address].erase(
+            buffer_info->acceleration_structures[acceleration_structure_info->replay_address].erase(
                 acceleration_structure_info);
         }
     }
