@@ -26,8 +26,9 @@ on Android using lldb-server.***
 ## Problem
 
 Android apps under development can be debugged easily through Android Studio. However, the GFXR capture layer is
-a shared object file that is loaded by the, typically non-debug, application. This document illustrates a 
-method by which the `lldb-server` binary included with the Android NDK can be used for debugging
+a shared object file, not an individual app that can be debugged the easy way.
+
+This document illustrates a method by which the `lldb-server` binary included with the Android NDK can be used for debugging
 a .so built in debug mode with any Android app.
 
 ## Setting up lldb-server
