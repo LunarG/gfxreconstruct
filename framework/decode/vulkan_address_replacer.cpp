@@ -179,7 +179,7 @@ decode::VulkanAddressReplacer::buffer_context_t::operator=(buffer_context_t othe
     return *this;
 }
 
-void decode::VulkanAddressReplacer::buffer_context_t::swap(buffer_context_t& other)
+void decode::VulkanAddressReplacer::buffer_context_t::swap(buffer_context_t& other) noexcept
 {
     std::swap(resource_allocator, other.resource_allocator);
     std::swap(num_bytes, other.num_bytes);
@@ -236,7 +236,7 @@ decode::VulkanAddressReplacer::submit_asset_t::operator=(submit_asset_t other)
     return *this;
 }
 
-void decode::VulkanAddressReplacer::submit_asset_t::swap(submit_asset_t& other)
+void decode::VulkanAddressReplacer::submit_asset_t::swap(submit_asset_t& other) noexcept
 {
     std::swap(device, other.device);
     std::swap(command_pool, other.command_pool);
@@ -1045,12 +1045,35 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 address_tracker.GetAccelerationStructureByHandle(build_geometry_info.dstAccelerationStructure);
             GFXRECON_ASSERT(acceleration_structure_info != nullptr);
 
+            VkDeviceAddress as_capture_address = 0;
+
             if (acceleration_structure_info != nullptr)
             {
                 auto* buffer_info = address_tracker.GetBufferByHandle(acceleration_structure_info->buffer);
                 as_buffer_usable =
                     buffer_info != nullptr && buffer_info->size >= build_size_info.accelerationStructureSize;
+
+                if (acceleration_structure_info->capture_address != 0)
+                {
+                    as_capture_address = acceleration_structure_info->capture_address;
+                }
+                else if (buffer_info != nullptr)
+                {
+                    as_capture_address = buffer_info->capture_address + acceleration_structure_info->offset;
+                }
+
+                // last resort to obtain a AS device-address -> issue vulkan-call
+                if (!as_capture_address)
+                {
+                    // get device-address
+                    VkBufferDeviceAddressInfo address_info = {};
+                    address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                    address_info.buffer                    = acceleration_structure_info->buffer;
+                    as_capture_address =
+                        get_device_address_fn_(device_, &address_info) + acceleration_structure_info->offset;
+                }
             }
+            GFXRECON_ASSERT(as_capture_address);
 
             // determine required size of scratch-buffer
             uint32_t scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
@@ -1081,7 +1104,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 // now definitely requiring address-replacement
                 force_replace = true;
 
-                auto& replacement_as = shadow_as_map_[acceleration_structure_info->capture_address];
+                auto& replacement_as = shadow_as_map_[as_capture_address];
 
                 if (replacement_as.handle == VK_NULL_HANDLE)
                 {
@@ -1675,20 +1698,11 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     device_table_->GetBufferMemoryRequirements(device_, buffer_context.buffer, &memory_requirements);
 
     VkMemoryPropertyFlags memory_property_flags =
-        use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT
+        use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
                      : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     uint32_t memory_type_index =
         graphics::GetMemoryTypeIndex(memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
-
-    if (memory_type_index == std::numeric_limits<uint32_t>::max() && use_host_mem)
-    {
-        /* fallback to coherent */
-        memory_type_index =
-            graphics::GetMemoryTypeIndex(memory_properties_,
-                                         memory_requirements.memoryTypeBits,
-                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    }
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
 
@@ -2168,7 +2182,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
                 VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                 VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 
-        auto& current_control_block    = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+        auto& current_control_block    = *static_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
         current_control_block.capacity = hashmap_storage_bda_binary_.num_bytes / hashmap_elem_size;
         current_control_block.storage  = hashmap_storage_bda_binary_.device_address;
     };
@@ -2240,7 +2254,12 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
             GFXRECON_ASSERT(previous_hashmap_control_block && previous_hashmap_storage_bda_binary);
             GFXRECON_ASSERT(hashmap_control_block_bda_binary_.buffer == VK_NULL_HANDLE &&
                             hashmap_storage_bda_binary_.buffer == VK_NULL_HANDLE);
-            auto& previous_control_block = *reinterpret_cast<gpu_array_t*>(previous_hashmap_control_block->mapped_data);
+
+            // defer cleanup of previous control-block
+            hashmap_control_block_bda_binary_prev_ = std::move(*previous_hashmap_control_block);
+
+            auto& previous_control_block =
+                *static_cast<gpu_array_t*>(hashmap_control_block_bda_binary_prev_.mapped_data);
 
             // create new storage- and control-blocks
             create_control_block();
@@ -2253,7 +2272,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
                 VkDeviceAddress hashmap_new = 0;
             };
             rehash_params_t rehash_params;
-            rehash_params.hashmap_old = previous_hashmap_control_block->device_address;
+            rehash_params.hashmap_old = hashmap_control_block_bda_binary_prev_.device_address;
             rehash_params.hashmap_new = hashmap_control_block_bda_binary_.device_address;
 
             device_table_->CmdBindPipeline(
