@@ -1057,20 +1057,22 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 {
                     as_replay_address = acceleration_structure_info->replay_address;
                 }
-                else if (buffer_info != nullptr)
+                else if (buffer_info != nullptr && buffer_info->replay_address != 0)
                 {
                     as_replay_address = buffer_info->replay_address + acceleration_structure_info->offset;
                 }
-
-                // last resort to obtain a AS device-address -> issue vulkan-call
-                if (!as_replay_address)
+                else
                 {
-                    // get device-address
+                    // last resort is to obtain a AS device-address -> issue vulkan-call, get device-address
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = acceleration_structure_info->buffer;
                     as_replay_address =
                         get_device_address_fn_(device_, &address_info) + acceleration_structure_info->offset;
+
+                    // we adjust/assign the queried address
+                    auto* accel_info_mut = const_cast<VulkanAccelerationStructureKHRInfo*>(acceleration_structure_info);
+                    accel_info_mut->replay_address = as_replay_address;
                 }
             }
             GFXRECON_ASSERT(as_replay_address);
@@ -1110,11 +1112,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                 {
                     if (as_buffer_usable)
                     {
-                        replacement_as.handle = build_geometry_info.dstAccelerationStructure;
-                        auto accel_info       = address_tracker.GetAccelerationStructureByHandle(
-                            build_geometry_info.dstAccelerationStructure);
-                        GFXRECON_ASSERT(accel_info != nullptr && accel_info->replay_address != 0);
-                        replacement_as.address = accel_info->replay_address;
+                        replacement_as.handle  = build_geometry_info.dstAccelerationStructure;
+                        replacement_as.address = as_replay_address;
                     }
                     else
                     {
