@@ -2617,6 +2617,10 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo) override;
+    virtual void Process_vkCmdEndRendering2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo) override;
     virtual void Process_vkFrameBoundaryANDROID(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
@@ -4172,6 +4176,19 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkTileMemoryBindInfoQCOM>* pTileMemoryBindInfo) override;
+    virtual void Process_vkCmdDecompressMemoryEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDecompressMemoryInfoEXT>* pDecompressMemoryInfoEXT) override;
+
+    virtual void Process_vkCmdDecompressMemoryIndirectCountEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkMemoryDecompressionMethodFlagsEXT         decompressionMethod,
+        VkDeviceAddress                             indirectCommandsAddress,
+        VkDeviceAddress                             indirectCommandsCountAddress,
+        uint32_t                                    maxDecompressionCount,
+        uint32_t                                    stride) override;
     virtual void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -4261,10 +4278,22 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         VkExternalMemoryHandleTypeFlagBits          handleType,
         uint64_t                                    pHandle,
         StructPointerDecoder<Decoded_VkMemoryMetalHandlePropertiesEXT>* pMemoryMetalHandleProperties) override;
+    virtual void Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        PointerDecoder<uint32_t>*                   pCounterCount,
+        StructPointerDecoder<Decoded_VkPerformanceCounterARM>* pCounters,
+        StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionARM>* pCounterDescriptions) override;
     virtual void Process_vkCmdEndRendering2EXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingEndInfoEXT>* pRenderingEndInfo) override;
+        StructPointerDecoder<Decoded_VkRenderingEndInfoKHR>* pRenderingEndInfo) override;
+    virtual void Process_vkCmdBeginCustomResolveEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT>* pBeginCustomResolveInfo) override;
     virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

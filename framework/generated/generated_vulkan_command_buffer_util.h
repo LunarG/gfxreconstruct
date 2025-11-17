@@ -47,25 +47,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 void TrackBeginCommandBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCommandBufferBeginInfo* pBeginInfo);
 
-void TrackCmdBindPipelineHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline);
-
-void TrackCmdBindDescriptorSetsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets);
-
-void TrackCmdBindIndexBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
-
-void TrackCmdBindVertexBuffersHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
-
-void TrackCmdDrawIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
-
-void TrackCmdDrawIndexedIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
-
-void TrackCmdDispatchIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
-
 void TrackCmdCopyBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkBuffer dstBuffer);
 
 void TrackCmdCopyImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
-
-void TrackCmdBlitImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
 
 void TrackCmdCopyBufferToImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkImage dstImage);
 
@@ -74,18 +58,6 @@ void TrackCmdCopyImageToBufferHandles(vulkan_wrappers::CommandBufferWrapper* wra
 void TrackCmdUpdateBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
 
 void TrackCmdFillBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer dstBuffer);
-
-void TrackCmdClearColorImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image);
-
-void TrackCmdClearDepthStencilImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image);
-
-void TrackCmdResolveImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
-
-void TrackCmdSetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
-
-void TrackCmdResetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
-
-void TrackCmdWaitEventsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
 
 void TrackCmdPipelineBarrierHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
 
@@ -99,23 +71,45 @@ void TrackCmdWriteTimestampHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
 void TrackCmdCopyQueryPoolResultsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool, VkBuffer dstBuffer);
 
+void TrackCmdExecuteCommandsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+
+void TrackCmdBindPipelineHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline);
+
+void TrackCmdBindDescriptorSetsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets);
+
+void TrackCmdClearColorImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image);
+
+void TrackCmdDispatchIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
+
+void TrackCmdSetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
+
+void TrackCmdResetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
+
+void TrackCmdWaitEventsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers);
+
 void TrackCmdPushConstantsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout);
 
-void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
+void TrackCmdBindIndexBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
 
-void TrackCmdExecuteCommandsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers);
+void TrackCmdBindVertexBuffersHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
+
+void TrackCmdDrawIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
+
+void TrackCmdDrawIndexedIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
+
+void TrackCmdBlitImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
+
+void TrackCmdClearDepthStencilImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image);
+
+void TrackCmdResolveImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage);
+
+void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
 
 void TrackCmdDrawIndirectCountHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
 void TrackCmdDrawIndexedIndirectCountHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
 void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin);
-
-void TrackCmdSetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
-
-void TrackCmdResetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
-
-void TrackCmdWaitEvents2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
 
 void TrackCmdPipelineBarrier2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
 
@@ -129,6 +123,12 @@ void TrackCmdCopyBufferToImage2Handles(vulkan_wrappers::CommandBufferWrapper* wr
 
 void TrackCmdCopyImageToBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
 
+void TrackCmdSetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo);
+
+void TrackCmdResetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event);
+
+void TrackCmdWaitEvents2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos);
+
 void TrackCmdBlitImage2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBlitImageInfo2* pBlitImageInfo);
 
 void TrackCmdResolveImage2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkResolveImageInfo2* pResolveImageInfo);
@@ -137,8 +137,6 @@ void TrackCmdBeginRenderingHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
 void TrackCmdBindVertexBuffers2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
-void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
-
 void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites);
 
 void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
@@ -146,6 +144,8 @@ void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* w
 void TrackCmdPushConstants2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushConstantsInfo* pPushConstantsInfo);
 
 void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetInfo* pPushDescriptorSetInfo);
+
+void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer);
 
 void TrackCmdBeginVideoCodingKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo);
 
