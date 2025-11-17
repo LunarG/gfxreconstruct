@@ -404,6 +404,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                          MemoryData allocator_data) override;
 
+    void ClearStagingResources() override;
+
   private:
     struct MemoryAllocInfo;
 
@@ -521,6 +523,17 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::vector<uint8_t> debug_utils_tag;
         uint64_t             debug_utils_tag_name;
         bool                 is_free{ false };
+    };
+
+    struct StagingResources
+    {
+        VkCommandBuffer    cmd_buffer;
+        VkBuffer           staging_buf;
+        VkSemaphore        staging_semaphore;
+        VmaAllocation      staging_alloc;
+        ResourceAllocInfo* resource_alloc_info;
+        size_t             dst_offset;
+        VkFence            staging_fence;
     };
 
   private:
@@ -673,7 +686,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                             const std::string&           type_string,
                             VkDeviceSize                 alloc_size);
 
-  private:
     VkDevice                         device_ = VK_NULL_HANDLE;
     VmaAllocator                     allocator_;
     Functions                        functions_;
@@ -681,13 +693,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
     VkPhysicalDeviceMemoryProperties replay_memory_properties_;
-    VkCommandBuffer                  cmd_buffer_    = VK_NULL_HANDLE;
     VkCommandPool                    cmd_pool_      = VK_NULL_HANDLE;
     VkQueue                          staging_queue_ = VK_NULL_HANDLE;
     uint32_t                         staging_queue_family_{};
 
     //! define a general minimum alignment for buffers
     uint32_t min_buffer_alignment_ = 128;
+
+    std::vector<StagingResources> staging_resources_{};
 };
 
 GFXRECON_END_NAMESPACE(decode)

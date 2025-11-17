@@ -162,17 +162,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         result = functions_.create_command_pool(device_, &cmd_pool_info, NULL, &cmd_pool_);
         assert(result == VK_SUCCESS);
 
-        VkCommandBufferAllocateInfo cmd_buff_alloc_info = {};
-        cmd_buff_alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        cmd_buff_alloc_info.pNext                       = NULL;
-        cmd_buff_alloc_info.commandPool                 = cmd_pool_;
-        cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        cmd_buff_alloc_info.commandBufferCount          = 1;
-
         functions_.get_device_queue(device_, staging_queue_family_, 0, &staging_queue_);
-
-        result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &cmd_buffer_);
-        assert(result == VK_SUCCESS);
 
         // Select creation flags from enabled extensions.
         bool have_memory_reqs2         = false;
@@ -227,7 +217,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 
 void VulkanRebindAllocator::Destroy()
 {
-    functions_.free_command_buffers(device_, cmd_pool_, 1, &cmd_buffer_);
+    ClearStagingResources();
     functions_.destroy_command_pool(device_, cmd_pool_, nullptr);
 
     if (allocator_ != VK_NULL_HANDLE)
@@ -1691,44 +1681,79 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         return;
     }
 
-    VkBuffer           staging_buf{};
-    VkBufferCreateInfo staging_buf_create_info{};
-    staging_buf_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    staging_buf_create_info.size  = data_size;
-    staging_buf_create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    std::vector<VkSemaphore>          waiting_semaphores;
+    std::vector<VkPipelineStageFlags> waiting_semaphores_dst_stage_mask;
 
-    VmaAllocation           staging_alloc{};
-    VmaAllocationInfo       staging_alloc_info{};
-    VmaAllocationCreateInfo staging_alloc_create_info = {};
-    staging_alloc_create_info.flags =
-        VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    staging_alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    for (const auto& staging_resource : staging_resources_)
+    {
+        bool is_already_in_use =
+            resource_alloc_info == staging_resource.resource_alloc_info &&
+            (dst_offset == staging_resource.dst_offset || dst_offset + data_size > staging_resource.dst_offset);
 
-    VkResult result = vmaCreateBuffer(allocator_,
-                                      &staging_buf_create_info,
-                                      &staging_alloc_create_info,
-                                      &staging_buf,
-                                      &staging_alloc,
-                                      &staging_alloc_info);
+        if (is_already_in_use)
+        {
+            // If we have a scenario in which there are multiple staging copies on the same memory range before a
+            // queue submit we are forced to chain them to avoid data corruption
+            GFXRECON_LOG_WARNING("Detected multiple staging writes on the same resource before a vkQueueSubmit, "
+                                 "staging writes will be chained.");
+            waiting_semaphores.push_back(staging_resource.staging_semaphore);
+            waiting_semaphores_dst_stage_mask.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
+    }
+
+    // The following operations will be submitted and waited upon at the time of the next trace file VkQueueSubmit
+    StagingResources staging_resources{};
+    staging_resources.resource_alloc_info = resource_alloc_info;
+    staging_resources.dst_offset          = dst_offset;
+
+    VkCommandBufferAllocateInfo cmd_buff_alloc_info = {};
+    cmd_buff_alloc_info.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    cmd_buff_alloc_info.pNext                       = nullptr;
+    cmd_buff_alloc_info.commandPool                 = cmd_pool_;
+    cmd_buff_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    cmd_buff_alloc_info.commandBufferCount          = 1;
+
+    VkResult result = functions_.allocate_command_buffers(device_, &cmd_buff_alloc_info, &staging_resources.cmd_buffer);
+
+    if (result == VK_SUCCESS)
+    {
+        VkBufferCreateInfo staging_buf_create_info{};
+        staging_buf_create_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        staging_buf_create_info.size  = data_size;
+        staging_buf_create_info.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+        VmaAllocationInfo       staging_alloc_info{};
+        VmaAllocationCreateInfo staging_alloc_create_info = {};
+        staging_alloc_create_info.flags =
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        staging_alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+        result = vmaCreateBuffer(allocator_,
+                                 &staging_buf_create_info,
+                                 &staging_alloc_create_info,
+                                 &staging_resources.staging_buf,
+                                 &staging_resources.staging_alloc,
+                                 &staging_alloc_info);
+    }
 
     void* copy_mapped_pointer{ bound_memory_info->mapped_pointer };
 
     if (result == VK_SUCCESS)
     {
-        result = vmaMapMemory(allocator_, staging_alloc, &bound_memory_info->mapped_pointer);
+        result = vmaMapMemory(allocator_, staging_resources.staging_alloc, &bound_memory_info->mapped_pointer);
     }
 
     if (result == VK_SUCCESS)
     {
         WriteBoundResourceDirect(resource_alloc_info, bound_memory_info, src_offset, 0, data_size, data);
         bound_memory_info->mapped_pointer = copy_mapped_pointer;
-        vmaFlushAllocation(allocator_, staging_alloc, 0, VK_WHOLE_SIZE);
-        vmaUnmapMemory(allocator_, staging_alloc);
+        vmaFlushAllocation(allocator_, staging_resources.staging_alloc, 0, VK_WHOLE_SIZE);
+        vmaUnmapMemory(allocator_, staging_resources.staging_alloc);
 
         VkCommandBufferBeginInfo cmd_buf_begin_info = {};
         cmd_buf_begin_info.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        result = functions_.begin_command_buffer(cmd_buffer_, &cmd_buf_begin_info);
+        result = functions_.begin_command_buffer(staging_resources.cmd_buffer, &cmd_buf_begin_info);
     }
 
     if (result == VK_SUCCESS)
@@ -1767,10 +1792,13 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                     region.imageSubresource  = { aspect_flags, 0, 0, 1 };
                     region.imageOffset       = { 0, 0, 0 };
                     region.imageExtent       = { 1, 1, 1 };
-                    functions_.cmd_copy_buffer_to_image(
-                        cmd_buffer_, staging_buf, original_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                    functions_.cmd_copy_buffer_to_image(staging_resources.cmd_buffer,
+                                                        staging_resources.staging_buf,
+                                                        original_image,
+                                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                        1,
+                                                        &region);
                 }
-                result = functions_.end_command_buffer(cmd_buffer_);
             }
         }
         else if (resource_alloc_info->object_type == VK_OBJECT_TYPE_BUFFER)
@@ -1792,33 +1820,54 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
                 copy_region.dstOffset = dst_offset;
                 copy_region.size      = data_size;
 
-                functions_.cmd_copy_buffer(cmd_buffer_, staging_buf, original_buffer, 1, &copy_region);
-                result = functions_.end_command_buffer(cmd_buffer_);
+                functions_.cmd_copy_buffer(
+                    staging_resources.cmd_buffer, staging_resources.staging_buf, original_buffer, 1, &copy_region);
             }
         }
     }
 
     if (result == VK_SUCCESS)
     {
+        result = functions_.end_command_buffer(staging_resources.cmd_buffer);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkSemaphoreCreateInfo semaphore_create_info{};
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        result =
+            functions_.create_semaphore(device_, &semaphore_create_info, nullptr, &staging_resources.staging_semaphore);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkFenceCreateInfo fence_create_info{};
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+        result = functions_.create_fence(device_, &fence_create_info, nullptr, &staging_resources.staging_fence);
+    }
+
+    if (result == VK_SUCCESS)
+    {
         VkSubmitInfo compute_submit_info{};
-        compute_submit_info.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        compute_submit_info.commandBufferCount = 1;
-        compute_submit_info.pCommandBuffers    = &cmd_buffer_;
+        compute_submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        compute_submit_info.commandBufferCount   = 1;
+        compute_submit_info.pCommandBuffers      = &staging_resources.cmd_buffer;
+        compute_submit_info.waitSemaphoreCount   = waiting_semaphores.size();
+        compute_submit_info.pWaitSemaphores      = waiting_semaphores.data();
+        compute_submit_info.pWaitDstStageMask    = waiting_semaphores_dst_stage_mask.data();
+        compute_submit_info.signalSemaphoreCount = 1;
+        compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
+        compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
 
-        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, VK_NULL_HANDLE);
+        result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
     }
 
     if (result == VK_SUCCESS)
     {
-        result = functions_.queue_wait_idle(staging_queue_);
+        staging_resources_.push_back(staging_resources);
     }
-
-    if (result == VK_SUCCESS)
-    {
-        result = functions_.reset_command_buffer(cmd_buffer_, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-    }
-
-    vmaDestroyBuffer(allocator_, staging_buf, staging_alloc);
 }
 
 void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
@@ -2849,7 +2898,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                                                 const MemoryData*       allocator_img_mem_datas,
                                                 VkMemoryPropertyFlags*  bind_img_mem_properties)
 {
-    VkResult result = VK_SUCCESS;
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     if (bind_info_count == 0)
     {
@@ -3143,6 +3192,32 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
         }
     }
     return result;
+}
+
+void VulkanRebindAllocator::ClearStagingResources()
+{
+    if (staging_resources_.empty())
+    {
+        return;
+    }
+    const uint64_t       num_fences = staging_resources_.size();
+    std::vector<VkFence> fences(num_fences);
+    for (uint64_t i = 0; i < num_fences; i++)
+    {
+        fences[i] = staging_resources_[i].staging_fence;
+    }
+    functions_.wait_for_fences(device_, num_fences, fences.data(), VK_TRUE, UINT64_MAX);
+    std::vector<VkCommandBuffer> cmd_buffers_to_delete;
+
+    for (auto& staging_resource : staging_resources_)
+    {
+        cmd_buffers_to_delete.push_back(staging_resource.cmd_buffer);
+        functions_.destroy_fence(device_, staging_resource.staging_fence, nullptr);
+        functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
+        vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
+    }
+    functions_.free_command_buffers(device_, cmd_pool_, cmd_buffers_to_delete.size(), cmd_buffers_to_delete.data());
+    staging_resources_.clear();
 }
 
 GFXRECON_END_NAMESPACE(decode)
