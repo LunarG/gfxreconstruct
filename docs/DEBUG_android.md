@@ -7,7 +7,7 @@
 [1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
 [2]: https://creativecommons.org/licenses/by-nd/4.0/
 
-Copyright &copy; 2018-2025 LunarG, Inc.
+Copyright &copy; 2025 LunarG, Inc.
 
 # GFXReconstruct Capture layer debugging - Android
 
