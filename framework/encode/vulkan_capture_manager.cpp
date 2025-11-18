@@ -583,7 +583,10 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
     {
         return result;
     }
-    singleton_->layer_settings_ = GetVulkanLayerTraceSettings(pCreateInfo);
+
+    CaptureSettings*                capture_settings = singleton_->GetCaptureSettings();
+    CaptureSettings::TraceSettings* trace_settings   = capture_settings->GetAdjustableTraceSettings();
+    GetVulkanLayerTraceSettings(pCreateInfo, trace_settings);
 
     if (CreateInstance())
     {
