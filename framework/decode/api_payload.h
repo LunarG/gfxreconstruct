@@ -545,6 +545,9 @@ struct AnnotationArgs
     uint64_t               block_index;
     format::AnnotationType type;
     std::string            label;
+
+    // NOTE: The string name is intentionally *not* data to differ from the "data" fields that are uint8_t *
+    // parameter data for the next level Decode operations, simplifying DispatchHasData logic
     std::string            annotation_data;
 
     auto GetTuple() const { return std::tie(block_index, type, label, annotation_data); }

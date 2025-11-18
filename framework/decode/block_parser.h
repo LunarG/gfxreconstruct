@@ -61,6 +61,10 @@ using BufferPool = util::HeapBufferPool::PoolPtr;
 class BlockParser
 {
   public:
+    // The three use cases are:
+    // Always: non-preloaded replay
+    // Never:  file transforming tools that pass through most blocks without decoding
+    // Queue Optimized: pre-loaded replay of ParsedBlocks
     enum DecompressionPolicy
     {
         kAlways = 0,     // Always decompress parameter data when parsing blocks
@@ -71,6 +75,10 @@ class BlockParser
 
     // The threshold is based on a trade off, maximize the number blocks with no decompression at replay
     // but minimizing the memory overhead of the non-deferred compressions.
+    //
+    // Threshhold data came from a histogram of numerous large traces and is chosen as a trade-off
+    // that allows the majority of blocks to be decompressed when parsed and enqueued (for preloaded replay), while
+    // the 3/4 of the *bytes* are not decompressed when enqueued, limiting the memory impact
     static constexpr size_t kSmallThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
 
     using UncompressedStore = ParsedBlock::UncompressedStore;
