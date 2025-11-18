@@ -1177,13 +1177,12 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
         setting_manager_source.write(generated_source_copyright)
         setting_manager_source.write("\n// clang-format off\n\n")
         setting_manager_source.write(
-            "\nbool SettingsManager::AdjustSettingFromFile(const std::string& key,\n"
+            "\nvoid SettingsManager::AdjustSettingFromFile(const std::string& key,\n"
         )
         setting_manager_source.write(
             "                                            const std::string& value)\n"
         )
         setting_manager_source.write("{\n")
-        setting_manager_source.write("    bool success = true;\n\n")
 
         if_string = ""
         for key, if_list in vulkan_capture_settings_per_platform["ALL"].items(
@@ -1223,9 +1222,7 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
         setting_manager_source.write(
             "        GFXRECON_LOG_ERROR(\"Failed to find setting associated with key %s\", key.c_str());\n"
         )
-        setting_manager_source.write("        success = false;\n")
         setting_manager_source.write("    }\n")
-        setting_manager_source.write("    return success;\n")
         setting_manager_source.write("}\n\n")
 
         setting_manager_source.write(
