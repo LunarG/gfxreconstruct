@@ -1,0 +1,341 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "Name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9_]*[a-zA-Z0-9])?$"
+        },
+        "SettingType": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "primitive": {
+                    "enum": [
+                        "BOOL",
+                        "ENUM",
+                        "GROUP",
+                        "INT",
+                        "LIST",
+                        "SAVE_FILE",
+                        "SAVE_FOLDER",
+                        "STRING",
+                        "UINT",
+                        "FLOAT"
+                    ]
+                },
+                "android-base": {
+                    "type": "string",
+                    "description": "Filter applied to incoming string value"
+                },
+                "default": {
+                    "anyOf": [
+                        {
+                            "type": "null",
+                            "description": "No parent value needed"
+                        },
+                        {
+                            "type": "array",
+                            "description": "Array value"
+                        },
+                        {
+                            "type": "boolean",
+                            "description": "Boolean value"
+                        },
+                        {
+                            "type": "number",
+                            "description": "Number value"
+                        },
+                        {
+                            "type": "string",
+                            "description": "String value"
+                        }
+                    ]
+                },
+                "filter": {
+                    "type": "string",
+                    "description": "Filter applied to incoming string value"
+                },
+                "flags": {
+                    "type": "array",
+                    "description": "APIs this setting is valid for",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "key": {
+                                "type": "string",
+                                "description": "Flag key"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "if": {
+                "properties": {
+                    "primitive": {
+                        "const": "BOOL"
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "default": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "default"
+                ]
+            },
+            "else": {
+                "if": {
+                    "properties": {
+                        "primitive": {
+                            "pattern": "(UINT|INT|FLOAT)"
+                        }
+                    }
+                },
+                "then": {
+                    "properties": {
+                        "default": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "default"
+                    ]
+                },
+                "else": {
+                    "if": {
+                        "properties": {
+                            "primitive": {
+                                "const": "LIST"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "default": {
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "default"
+                        ]
+                    },
+                    "else": {
+                        "if": {
+                            "properties": {
+                                "primitive": {
+                                    "const": "SAVE_FILE"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "default": {
+                                    "type": "string"
+                                },
+                                "filter": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "default",
+                                "filter"
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "default": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "primitive"
+                ]
+            }
+        },
+        "ArgumentDescription": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arg": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "Setting": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "key": {
+                    "$ref": "#/definitions/Name",
+                    "description": "Setting Key"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "apis": {
+                    "type": "array",
+                    "description": "APIs this setting is valid for",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "D3D12",
+                            "OPENXR",
+                            "VULKAN"
+                        ]
+                    }
+                },
+                "platforms": {
+                    "type": "array",
+                    "description": "Platforms this setting is valid for",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "ANDROID",
+                            "LINUX",
+                            "MACOS",
+                            "WINDOWS"
+                        ]
+                    }
+                },
+                "dynamic": {
+                    "type": "boolean",
+                    "description": "This setting may change during the course of executing one or more tools"
+                },
+                "deprecated": {
+                    "type": "boolean",
+                    "description": "This settings is deprecated and may have been replaced with another"
+                },
+                "tools": {
+                    "type": "array",
+                    "description": "Tools this setting is valid for",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "CAPTURE",
+                            "REPLAY",
+                            "INFO",
+                            "COMPRESS",
+                            "CONVERT",
+                            "EXTRACT",
+                            "OPTIMIZE",
+                            "TOCPP"
+                        ]
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/SettingType",
+                    "description": "Type used for this setting"
+                },
+                "parent": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "description": "Defines the parent setting to this setting",
+                    "properties": {
+                        "key": {
+                            "$ref": "#/definitions/Name"
+                        },
+                        "value": {
+                            "anyOf": [
+                                {
+                                    "type": "null",
+                                    "description": "No parent value needed"
+                                },
+                                {
+                                    "type": "string",
+                                    "description": "String value of parent setting"
+                                },
+                                {
+                                    "type": "boolean",
+                                    "description": "Boolean value of parent setting"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "key"
+                    ]
+                },
+                "additional_dependencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "An alias of a primitive type",
+                        "properties": {
+                            "key": {
+                                "$ref": "#/definitions/Name"
+                            },
+                            "value": {
+                                "anyOf": [
+                                    {
+                                        "type": "null",
+                                        "description": "No parent value needed"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "description": "String value of parent setting"
+                                    },
+                                    {
+                                        "type": "boolean",
+                                        "description": "Boolean value of parent setting"
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "key"
+                        ]
+                    },
+                    "required": [
+                        "key"
+                    ]
+                }
+            },
+            "required": [
+                "key",
+                "label",
+                "description",
+                "tools",
+                "type"
+            ]
+        }
+    },
+    "properties": {
+        "file_format_version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)(\\.(0|[1-9]\\d*)){2}$",
+            "description": "The Version of the JSON file format"
+        },
+        "settings": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Setting"
+            }
+        }
+    },
+    "required": [
+        "file_format_version",
+        "settings"
+    ]
+}
