@@ -33,6 +33,7 @@ python3 generate_settings.py
 This will update the settings in the following locations:
 
  - [layer/json/VkLayer_gfxreconstruct.json.in](../layer/json/VkLayer_gfxreconstruct.json.in)
+ - [layer/vk_layer_settings.txt](../layer/vk_layer_settings.txt)
 
 
 ## Setting File Format
