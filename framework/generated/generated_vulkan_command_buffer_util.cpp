@@ -65,69 +65,6 @@ void TrackBeginCommandBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
     }
 }
 
-void TrackCmdBindPipelineHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline)
-{
-    assert(wrapper != nullptr);
-
-    if(pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pipeline));
-}
-
-void TrackCmdBindDescriptorSetsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets)
-{
-    assert(wrapper != nullptr);
-
-    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
-
-    if (pDescriptorSets != nullptr)
-    {
-        for (uint32_t pDescriptorSets_index = 0; pDescriptorSets_index < descriptorSetCount; ++pDescriptorSets_index)
-        {
-            if(pDescriptorSets[pDescriptorSets_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[pDescriptorSets_index]));
-        }
-    }
-}
-
-void TrackCmdBindIndexBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
-{
-    assert(wrapper != nullptr);
-
-    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
-}
-
-void TrackCmdBindVertexBuffersHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
-{
-    assert(wrapper != nullptr);
-
-    if (pBuffers != nullptr)
-    {
-        for (uint32_t pBuffers_index = 0; pBuffers_index < bindingCount; ++pBuffers_index)
-        {
-            if(pBuffers[pBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pBuffers[pBuffers_index]));
-        }
-    }
-}
-
-void TrackCmdDrawIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
-{
-    assert(wrapper != nullptr);
-
-    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
-}
-
-void TrackCmdDrawIndexedIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
-{
-    assert(wrapper != nullptr);
-
-    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
-}
-
-void TrackCmdDispatchIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
-{
-    assert(wrapper != nullptr);
-
-    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
-}
-
 void TrackCmdCopyBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer srcBuffer, VkBuffer dstBuffer)
 {
     assert(wrapper != nullptr);
@@ -137,14 +74,6 @@ void TrackCmdCopyBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, V
 }
 
 void TrackCmdCopyImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage)
-{
-    assert(wrapper != nullptr);
-
-    if(srcImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(srcImage));
-    if(dstImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(dstImage));
-}
-
-void TrackCmdBlitImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage)
 {
     assert(wrapper != nullptr);
 
@@ -180,71 +109,6 @@ void TrackCmdFillBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, V
     assert(wrapper != nullptr);
 
     if(dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(dstBuffer));
-}
-
-void TrackCmdClearColorImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image)
-{
-    assert(wrapper != nullptr);
-
-    if(image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(image));
-}
-
-void TrackCmdClearDepthStencilImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image)
-{
-    assert(wrapper != nullptr);
-
-    if(image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(image));
-}
-
-void TrackCmdResolveImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage)
-{
-    assert(wrapper != nullptr);
-
-    if(srcImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(srcImage));
-    if(dstImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(dstImage));
-}
-
-void TrackCmdSetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
-{
-    assert(wrapper != nullptr);
-
-    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
-}
-
-void TrackCmdResetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
-{
-    assert(wrapper != nullptr);
-
-    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
-}
-
-void TrackCmdWaitEventsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers)
-{
-    assert(wrapper != nullptr);
-
-    if (pEvents != nullptr)
-    {
-        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
-        {
-            if(pEvents[pEvents_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(pEvents[pEvents_index]));
-        }
-    }
-
-    if (pBufferMemoryBarriers != nullptr)
-    {
-        for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
-        {
-            if(pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
-        }
-    }
-
-    if (pImageMemoryBarriers != nullptr)
-    {
-        for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
-        {
-            if(pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pImageMemoryBarriers[pImageMemoryBarriers_index].image));
-        }
-    }
 }
 
 void TrackCmdPipelineBarrierHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers)
@@ -304,11 +168,160 @@ void TrackCmdCopyQueryPoolResultsHandles(vulkan_wrappers::CommandBufferWrapper* 
     if(dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(dstBuffer));
 }
 
+void TrackCmdExecuteCommandsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers)
+{
+    assert(wrapper != nullptr);
+
+    if (pCommandBuffers != nullptr)
+    {
+        for (uint32_t pCommandBuffers_index = 0; pCommandBuffers_index < commandBufferCount; ++pCommandBuffers_index)
+        {
+            if(pCommandBuffers[pCommandBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::CommandBufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[pCommandBuffers_index]));
+        }
+    }
+}
+
+void TrackCmdBindPipelineHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline)
+{
+    assert(wrapper != nullptr);
+
+    if(pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pipeline));
+}
+
+void TrackCmdBindDescriptorSetsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets)
+{
+    assert(wrapper != nullptr);
+
+    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+
+    if (pDescriptorSets != nullptr)
+    {
+        for (uint32_t pDescriptorSets_index = 0; pDescriptorSets_index < descriptorSetCount; ++pDescriptorSets_index)
+        {
+            if(pDescriptorSets[pDescriptorSets_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[pDescriptorSets_index]));
+        }
+    }
+}
+
+void TrackCmdClearColorImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image)
+{
+    assert(wrapper != nullptr);
+
+    if(image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(image));
+}
+
+void TrackCmdDispatchIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
+}
+
+void TrackCmdSetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
+}
+
+void TrackCmdResetEventHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
+}
+
+void TrackCmdWaitEventsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, uint32_t bufferMemoryBarrierCount, const VkBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const VkImageMemoryBarrier* pImageMemoryBarriers)
+{
+    assert(wrapper != nullptr);
+
+    if (pEvents != nullptr)
+    {
+        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
+        {
+            if(pEvents[pEvents_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(pEvents[pEvents_index]));
+        }
+    }
+
+    if (pBufferMemoryBarriers != nullptr)
+    {
+        for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+        {
+            if(pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+        }
+    }
+
+    if (pImageMemoryBarriers != nullptr)
+    {
+        for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+        {
+            if(pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+        }
+    }
+}
+
 void TrackCmdPushConstantsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout)
 {
     assert(wrapper != nullptr);
 
     if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+}
+
+void TrackCmdBindIndexBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
+}
+
+void TrackCmdBindVertexBuffersHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
+{
+    assert(wrapper != nullptr);
+
+    if (pBuffers != nullptr)
+    {
+        for (uint32_t pBuffers_index = 0; pBuffers_index < bindingCount; ++pBuffers_index)
+        {
+            if(pBuffers[pBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pBuffers[pBuffers_index]));
+        }
+    }
+}
+
+void TrackCmdDrawIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
+}
+
+void TrackCmdDrawIndexedIndirectHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
+}
+
+void TrackCmdBlitImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage)
+{
+    assert(wrapper != nullptr);
+
+    if(srcImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(srcImage));
+    if(dstImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(dstImage));
+}
+
+void TrackCmdClearDepthStencilImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage image)
+{
+    assert(wrapper != nullptr);
+
+    if(image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(image));
+}
+
+void TrackCmdResolveImageHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImage srcImage, VkImage dstImage)
+{
+    assert(wrapper != nullptr);
+
+    if(srcImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(srcImage));
+    if(dstImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(dstImage));
 }
 
 void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin)
@@ -341,19 +354,6 @@ void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
         }
         if(pRenderPassBegin->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pRenderPassBegin->renderPass));
         if(pRenderPassBegin->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pRenderPassBegin->framebuffer));
-    }
-}
-
-void TrackCmdExecuteCommandsHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t commandBufferCount, const VkCommandBuffer* pCommandBuffers)
-{
-    assert(wrapper != nullptr);
-
-    if (pCommandBuffers != nullptr)
-    {
-        for (uint32_t pCommandBuffers_index = 0; pCommandBuffers_index < commandBufferCount; ++pCommandBuffers_index)
-        {
-            if(pCommandBuffers[pCommandBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::CommandBufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::CommandBufferWrapper>(pCommandBuffers[pCommandBuffers_index]));
-        }
     }
 }
 
@@ -403,74 +403,6 @@ void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
         }
         if(pRenderPassBegin->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pRenderPassBegin->renderPass));
         if(pRenderPassBegin->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pRenderPassBegin->framebuffer));
-    }
-}
-
-void TrackCmdSetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo)
-{
-    assert(wrapper != nullptr);
-
-    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
-
-    if (pDependencyInfo != nullptr)
-    {
-        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
-        {
-            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
-            {
-                if(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
-            }
-        }
-
-        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
-        {
-            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
-            {
-                if(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
-            }
-        }
-    }
-}
-
-void TrackCmdResetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
-{
-    assert(wrapper != nullptr);
-
-    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
-}
-
-void TrackCmdWaitEvents2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos)
-{
-    assert(wrapper != nullptr);
-
-    if (pEvents != nullptr)
-    {
-        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
-        {
-            if(pEvents[pEvents_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(pEvents[pEvents_index]));
-        }
-    }
-
-    if (pDependencyInfos != nullptr)
-    {
-        for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
-        {
-            if (pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers != nullptr)
-            {
-                for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
-                {
-                    if(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
-                }
-            }
-
-            if (pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers != nullptr)
-            {
-                for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
-                {
-                    if(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image));
-                }
-            }
-        }
     }
 }
 
@@ -546,6 +478,74 @@ void TrackCmdCopyImageToBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wr
     {
         if(pCopyImageToBufferInfo->srcImage != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pCopyImageToBufferInfo->srcImage));
         if(pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pCopyImageToBufferInfo->dstBuffer));
+    }
+}
+
+void TrackCmdSetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event, const VkDependencyInfo* pDependencyInfo)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
+
+    if (pDependencyInfo != nullptr)
+    {
+        if (pDependencyInfo->pBufferMemoryBarriers != nullptr)
+        {
+            for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfo->bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDependencyInfo->pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+            }
+        }
+
+        if (pDependencyInfo->pImageMemoryBarriers != nullptr)
+        {
+            for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfo->imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+            {
+                if(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pDependencyInfo->pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+            }
+        }
+    }
+}
+
+void TrackCmdResetEvent2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkEvent event)
+{
+    assert(wrapper != nullptr);
+
+    if(event != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(event));
+}
+
+void TrackCmdWaitEvents2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t eventCount, const VkEvent* pEvents, const VkDependencyInfo* pDependencyInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pEvents != nullptr)
+    {
+        for (uint32_t pEvents_index = 0; pEvents_index < eventCount; ++pEvents_index)
+        {
+            if(pEvents[pEvents_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::EventHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::EventWrapper>(pEvents[pEvents_index]));
+        }
+    }
+
+    if (pDependencyInfos != nullptr)
+    {
+        for (uint32_t pDependencyInfos_index = 0; pDependencyInfos_index < eventCount; ++pDependencyInfos_index)
+        {
+            if (pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers != nullptr)
+            {
+                for (uint32_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].bufferMemoryBarrierCount; ++pBufferMemoryBarriers_index)
+                {
+                    if(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDependencyInfos[pDependencyInfos_index].pBufferMemoryBarriers[pBufferMemoryBarriers_index].buffer));
+                }
+            }
+
+            if (pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers != nullptr)
+            {
+                for (uint32_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pDependencyInfos[pDependencyInfos_index].imageMemoryBarrierCount; ++pImageMemoryBarriers_index)
+                {
+                    if(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pDependencyInfos[pDependencyInfos_index].pImageMemoryBarriers[pImageMemoryBarriers_index].image));
+                }
+            }
+        }
     }
 }
 
@@ -634,13 +634,6 @@ void TrackCmdBindVertexBuffers2Handles(vulkan_wrappers::CommandBufferWrapper* wr
             if(pBuffers[pBuffers_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pBuffers[pBuffers_index]));
         }
     }
-}
-
-void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
-{
-    assert(wrapper != nullptr);
-
-    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
 }
 
 void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout, uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites)
@@ -886,6 +879,13 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
             }
         }
     }
+}
+
+void TrackCmdBindIndexBuffer2Handles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkBuffer buffer)
+{
+    assert(wrapper != nullptr);
+
+    if(buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer));
 }
 
 void TrackCmdBeginVideoCodingKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkVideoBeginCodingInfoKHR* pBeginInfo)

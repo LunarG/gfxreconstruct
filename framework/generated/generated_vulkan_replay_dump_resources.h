@@ -59,12 +59,210 @@ void Process_vkEndCommandBuffer(
     VkResult                                    returnValue,
     VkCommandBuffer                             commandBuffer);
 
+void Process_vkCmdCopyBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyBuffer                         func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    srcBuffer,
+    VkBuffer                                    dstBuffer,
+    uint32_t                                    regionCount,
+    const VkBufferCopy*                         pRegions);
+
+void Process_vkCmdCopyImage(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyImage                          func,
+    VkCommandBuffer                             commandBuffer,
+    VkImage                                     srcImage,
+    VkImageLayout                               srcImageLayout,
+    VkImage                                     dstImage,
+    VkImageLayout                               dstImageLayout,
+    uint32_t                                    regionCount,
+    const VkImageCopy*                          pRegions);
+
+void Process_vkCmdCopyBufferToImage(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyBufferToImage                  func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    srcBuffer,
+    VkImage                                     dstImage,
+    VkImageLayout                               dstImageLayout,
+    uint32_t                                    regionCount,
+    const VkBufferImageCopy*                    pRegions);
+
+void Process_vkCmdCopyImageToBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyImageToBuffer                  func,
+    VkCommandBuffer                             commandBuffer,
+    VkImage                                     srcImage,
+    VkImageLayout                               srcImageLayout,
+    VkBuffer                                    dstBuffer,
+    uint32_t                                    regionCount,
+    const VkBufferImageCopy*                    pRegions);
+
+void Process_vkCmdUpdateBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdUpdateBuffer                       func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    VkDeviceSize                                dataSize,
+    const void*                                 pData);
+
+void Process_vkCmdFillBuffer(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdFillBuffer                         func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    VkDeviceSize                                size,
+    uint32_t                                    data);
+
+void Process_vkCmdPipelineBarrier(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPipelineBarrier                    func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    VkDependencyFlags                           dependencyFlags,
+    uint32_t                                    memoryBarrierCount,
+    const VkMemoryBarrier*                      pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    const VkBufferMemoryBarrier*                pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    const VkImageMemoryBarrier*                 pImageMemoryBarriers);
+
+void Process_vkCmdBeginQuery(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBeginQuery                         func,
+    VkCommandBuffer                             commandBuffer,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    query,
+    VkQueryControlFlags                         flags);
+
+void Process_vkCmdEndQuery(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndQuery                           func,
+    VkCommandBuffer                             commandBuffer,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    query);
+
+void Process_vkCmdResetQueryPool(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdResetQueryPool                     func,
+    VkCommandBuffer                             commandBuffer,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount);
+
+void Process_vkCmdWriteTimestamp(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdWriteTimestamp                     func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlagBits                     pipelineStage,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    query);
+
+void Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyQueryPoolResults               func,
+    VkCommandBuffer                             commandBuffer,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    VkDeviceSize                                stride,
+    VkQueryResultFlags                          flags);
+
+void Process_vkCmdExecuteCommands(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdExecuteCommands                    func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    commandBufferCount,
+    const VkCommandBuffer*                      pCommandBuffers);
+
 void Process_vkCmdBindPipeline(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindPipeline                       func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
     const VulkanPipelineInfo*                   pipeline);
+
+void Process_vkCmdBindDescriptorSets(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindDescriptorSets                 func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    const VulkanPipelineLayoutInfo*             layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    descriptorSetCount,
+    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
+    uint32_t                                    dynamicOffsetCount,
+    const uint32_t*                             pDynamicOffsets);
+
+void Process_vkCmdClearColorImage(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdClearColorImage                    func,
+    VkCommandBuffer                             commandBuffer,
+    VkImage                                     image,
+    VkImageLayout                               imageLayout,
+    const VkClearColorValue*                    pColor,
+    uint32_t                                    rangeCount,
+    const VkImageSubresourceRange*              pRanges);
+
+void Process_vkCmdDispatch(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdDispatch                           func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    groupCountX,
+    uint32_t                                    groupCountY,
+    uint32_t                                    groupCountZ);
+
+void Process_vkCmdDispatchIndirect(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdDispatchIndirect                   func,
+    VkCommandBuffer                             commandBuffer,
+    const VulkanBufferInfo*                     buffer,
+    VkDeviceSize                                offset);
+
+void Process_vkCmdSetEvent(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetEvent                           func,
+    VkCommandBuffer                             commandBuffer,
+    VkEvent                                     event,
+    VkPipelineStageFlags                        stageMask);
+
+void Process_vkCmdResetEvent(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdResetEvent                         func,
+    VkCommandBuffer                             commandBuffer,
+    VkEvent                                     event,
+    VkPipelineStageFlags                        stageMask);
+
+void Process_vkCmdWaitEvents(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdWaitEvents                         func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    eventCount,
+    const VkEvent*                              pEvents,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    uint32_t                                    memoryBarrierCount,
+    const VkMemoryBarrier*                      pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    const VkBufferMemoryBarrier*                pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    const VkImageMemoryBarrier*                 pImageMemoryBarriers);
+
+void Process_vkCmdPushConstants(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPushConstants                      func,
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineLayout                            layout,
+    VkShaderStageFlags                          stageFlags,
+    uint32_t                                    offset,
+    uint32_t                                    size,
+    const void*                                 pValues);
 
 void Process_vkCmdSetViewport(
     const ApiCallInfo&                          call_info,
@@ -130,18 +328,6 @@ void Process_vkCmdSetStencilReference(
     VkStencilFaceFlags                          faceMask,
     uint32_t                                    reference);
 
-void Process_vkCmdBindDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindDescriptorSets                 func,
-    VkCommandBuffer                             commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    const VulkanPipelineLayoutInfo*             layout,
-    uint32_t                                    firstSet,
-    uint32_t                                    descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
-    uint32_t                                    dynamicOffsetCount,
-    const uint32_t*                             pDynamicOffsets);
-
 void Process_vkCmdBindIndexBuffer(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer                    func,
@@ -196,41 +382,6 @@ void Process_vkCmdDrawIndexedIndirect(
     uint32_t                                    drawCount,
     uint32_t                                    stride);
 
-void Process_vkCmdDispatch(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatch                           func,
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    groupCountX,
-    uint32_t                                    groupCountY,
-    uint32_t                                    groupCountZ);
-
-void Process_vkCmdDispatchIndirect(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdDispatchIndirect                   func,
-    VkCommandBuffer                             commandBuffer,
-    const VulkanBufferInfo*                     buffer,
-    VkDeviceSize                                offset);
-
-void Process_vkCmdCopyBuffer(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBuffer                         func,
-    VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    srcBuffer,
-    VkBuffer                                    dstBuffer,
-    uint32_t                                    regionCount,
-    const VkBufferCopy*                         pRegions);
-
-void Process_vkCmdCopyImage(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImage                          func,
-    VkCommandBuffer                             commandBuffer,
-    VkImage                                     srcImage,
-    VkImageLayout                               srcImageLayout,
-    VkImage                                     dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    const VkImageCopy*                          pRegions);
-
 void Process_vkCmdBlitImage(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBlitImage                          func,
@@ -242,54 +393,6 @@ void Process_vkCmdBlitImage(
     uint32_t                                    regionCount,
     const VkImageBlit*                          pRegions,
     VkFilter                                    filter);
-
-void Process_vkCmdCopyBufferToImage(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyBufferToImage                  func,
-    VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    srcBuffer,
-    VkImage                                     dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    const VkBufferImageCopy*                    pRegions);
-
-void Process_vkCmdCopyImageToBuffer(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyImageToBuffer                  func,
-    VkCommandBuffer                             commandBuffer,
-    VkImage                                     srcImage,
-    VkImageLayout                               srcImageLayout,
-    VkBuffer                                    dstBuffer,
-    uint32_t                                    regionCount,
-    const VkBufferImageCopy*                    pRegions);
-
-void Process_vkCmdUpdateBuffer(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdUpdateBuffer                       func,
-    VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                dataSize,
-    const void*                                 pData);
-
-void Process_vkCmdFillBuffer(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdFillBuffer                         func,
-    VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                size,
-    uint32_t                                    data);
-
-void Process_vkCmdClearColorImage(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdClearColorImage                    func,
-    VkCommandBuffer                             commandBuffer,
-    VkImage                                     image,
-    VkImageLayout                               imageLayout,
-    const VkClearColorValue*                    pColor,
-    uint32_t                                    rangeCount,
-    const VkImageSubresourceRange*              pRanges);
 
 void Process_vkCmdClearDepthStencilImage(
     const ApiCallInfo&                          call_info,
@@ -321,102 +424,6 @@ void Process_vkCmdResolveImage(
     uint32_t                                    regionCount,
     const VkImageResolve*                       pRegions);
 
-void Process_vkCmdSetEvent(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetEvent                           func,
-    VkCommandBuffer                             commandBuffer,
-    VkEvent                                     event,
-    VkPipelineStageFlags                        stageMask);
-
-void Process_vkCmdResetEvent(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetEvent                         func,
-    VkCommandBuffer                             commandBuffer,
-    VkEvent                                     event,
-    VkPipelineStageFlags                        stageMask);
-
-void Process_vkCmdWaitEvents(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdWaitEvents                         func,
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    eventCount,
-    const VkEvent*                              pEvents,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    uint32_t                                    memoryBarrierCount,
-    const VkMemoryBarrier*                      pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    const VkBufferMemoryBarrier*                pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    const VkImageMemoryBarrier*                 pImageMemoryBarriers);
-
-void Process_vkCmdPipelineBarrier(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdPipelineBarrier                    func,
-    VkCommandBuffer                             commandBuffer,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    VkDependencyFlags                           dependencyFlags,
-    uint32_t                                    memoryBarrierCount,
-    const VkMemoryBarrier*                      pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    const VkBufferMemoryBarrier*                pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    const VkImageMemoryBarrier*                 pImageMemoryBarriers);
-
-void Process_vkCmdBeginQuery(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdBeginQuery                         func,
-    VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
-    uint32_t                                    query,
-    VkQueryControlFlags                         flags);
-
-void Process_vkCmdEndQuery(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdEndQuery                           func,
-    VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
-    uint32_t                                    query);
-
-void Process_vkCmdResetQueryPool(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetQueryPool                     func,
-    VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount);
-
-void Process_vkCmdWriteTimestamp(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdWriteTimestamp                     func,
-    VkCommandBuffer                             commandBuffer,
-    VkPipelineStageFlagBits                     pipelineStage,
-    VkQueryPool                                 queryPool,
-    uint32_t                                    query);
-
-void Process_vkCmdCopyQueryPoolResults(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdCopyQueryPoolResults               func,
-    VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount,
-    VkBuffer                                    dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                stride,
-    VkQueryResultFlags                          flags);
-
-void Process_vkCmdPushConstants(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushConstants                      func,
-    VkCommandBuffer                             commandBuffer,
-    VkPipelineLayout                            layout,
-    VkShaderStageFlags                          stageFlags,
-    uint32_t                                    offset,
-    uint32_t                                    size,
-    const void*                                 pValues);
-
 void Process_vkCmdBeginRenderPass(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRenderPass                    func,
@@ -434,13 +441,6 @@ void Process_vkCmdEndRenderPass(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndRenderPass                      func,
     VkCommandBuffer                             commandBuffer);
-
-void Process_vkCmdExecuteCommands(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdExecuteCommands                    func,
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    commandBufferCount,
-    const VkCommandBuffer*                      pCommandBuffers);
 
 void Process_vkCmdSetDeviceMask(
     const ApiCallInfo&                          call_info,
@@ -501,28 +501,6 @@ void Process_vkCmdEndRenderPass2(
     VkCommandBuffer                             commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
 
-void Process_vkCmdSetEvent2(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetEvent2                          func,
-    VkCommandBuffer                             commandBuffer,
-    VkEvent                                     event,
-    const VkDependencyInfo*                     pDependencyInfo);
-
-void Process_vkCmdResetEvent2(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdResetEvent2                        func,
-    VkCommandBuffer                             commandBuffer,
-    VkEvent                                     event,
-    VkPipelineStageFlags2                       stageMask);
-
-void Process_vkCmdWaitEvents2(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdWaitEvents2                        func,
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    eventCount,
-    const VkEvent*                              pEvents,
-    const VkDependencyInfo*                     pDependencyInfos);
-
 void Process_vkCmdPipelineBarrier2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPipelineBarrier2                   func,
@@ -560,6 +538,28 @@ void Process_vkCmdCopyImageToBuffer2(
     PFN_vkCmdCopyImageToBuffer2                 func,
     VkCommandBuffer                             commandBuffer,
     const VkCopyImageToBufferInfo2*             pCopyImageToBufferInfo);
+
+void Process_vkCmdSetEvent2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetEvent2                          func,
+    VkCommandBuffer                             commandBuffer,
+    VkEvent                                     event,
+    const VkDependencyInfo*                     pDependencyInfo);
+
+void Process_vkCmdResetEvent2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdResetEvent2                        func,
+    VkCommandBuffer                             commandBuffer,
+    VkEvent                                     event,
+    VkPipelineStageFlags2                       stageMask);
+
+void Process_vkCmdWaitEvents2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdWaitEvents2                        func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    eventCount,
+    const VkEvent*                              pEvents,
+    const VkDependencyInfo*                     pDependencyInfos);
 
 void Process_vkCmdBlitImage2(
     const ApiCallInfo&                          call_info,
@@ -685,22 +685,6 @@ void Process_vkCmdSetPrimitiveRestartEnable(
     VkCommandBuffer                             commandBuffer,
     VkBool32                                    primitiveRestartEnable);
 
-void Process_vkCmdSetLineStipple(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetLineStipple                     func,
-    VkCommandBuffer                             commandBuffer,
-    uint32_t                                    lineStippleFactor,
-    uint16_t                                    lineStipplePattern);
-
-void Process_vkCmdBindIndexBuffer2(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdBindIndexBuffer2                   func,
-    VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    buffer,
-    VkDeviceSize                                offset,
-    VkDeviceSize                                size,
-    VkIndexType                                 indexType);
-
 void Process_vkCmdPushDescriptorSet(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet                  func,
@@ -719,18 +703,6 @@ void Process_vkCmdPushDescriptorSetWithTemplate(
     VkPipelineLayout                            layout,
     uint32_t                                    set,
     const void*                                 pData);
-
-void Process_vkCmdSetRenderingAttachmentLocations(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingAttachmentLocations    func,
-    VkCommandBuffer                             commandBuffer,
-    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
-
-void Process_vkCmdSetRenderingInputAttachmentIndices(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdSetRenderingInputAttachmentIndices func,
-    VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
 void Process_vkCmdBindDescriptorSets2(
     const ApiCallInfo&                          call_info,
@@ -755,6 +727,34 @@ void Process_vkCmdPushDescriptorSetWithTemplate2(
     PFN_vkCmdPushDescriptorSetWithTemplate2     func,
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetWithTemplateInfo*  pPushDescriptorSetWithTemplateInfo);
+
+void Process_vkCmdSetLineStipple(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetLineStipple                     func,
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern);
+
+void Process_vkCmdBindIndexBuffer2(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBindIndexBuffer2                   func,
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    buffer,
+    VkDeviceSize                                offset,
+    VkDeviceSize                                size,
+    VkIndexType                                 indexType);
+
+void Process_vkCmdSetRenderingAttachmentLocations(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingAttachmentLocations    func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingAttachmentLocationInfo*    pLocationInfo);
+
+void Process_vkCmdSetRenderingInputAttachmentIndices(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetRenderingInputAttachmentIndices func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingInputAttachmentIndexInfo*  pInputAttachmentIndexInfo);
 
 void Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
@@ -1035,6 +1035,12 @@ void Process_vkCmdCopyMemoryToImageIndirectKHR(
     PFN_vkCmdCopyMemoryToImageIndirectKHR       func,
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
+
+void Process_vkCmdEndRendering2KHR(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndRendering2KHR                   func,
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderingEndInfoKHR*                pRenderingEndInfo);
 
 void Process_vkCmdDebugMarkerBeginEXT(
     const ApiCallInfo&                          call_info,
@@ -1866,6 +1872,22 @@ void Process_vkCmdBindTileMemoryQCOM(
     VkCommandBuffer                             commandBuffer,
     const VkTileMemoryBindInfoQCOM*             pTileMemoryBindInfo);
 
+void Process_vkCmdDecompressMemoryEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdDecompressMemoryEXT                func,
+    VkCommandBuffer                             commandBuffer,
+    const VkDecompressMemoryInfoEXT*            pDecompressMemoryInfoEXT);
+
+void Process_vkCmdDecompressMemoryIndirectCountEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdDecompressMemoryIndirectCountEXT   func,
+    VkCommandBuffer                             commandBuffer,
+    VkMemoryDecompressionMethodFlagsEXT         decompressionMethod,
+    VkDeviceAddress                             indirectCommandsAddress,
+    VkDeviceAddress                             indirectCommandsCountAddress,
+    uint32_t                                    maxDecompressionCount,
+    uint32_t                                    stride);
+
 void Process_vkCmdBuildPartitionedAccelerationStructuresNV(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBuildPartitionedAccelerationStructuresNV func,
@@ -1890,7 +1912,13 @@ void Process_vkCmdEndRendering2EXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndRendering2EXT                   func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingEndInfoEXT*                pRenderingEndInfo);
+    const VkRenderingEndInfoKHR*                pRenderingEndInfo);
+
+void Process_vkCmdBeginCustomResolveEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBeginCustomResolveEXT              func,
+    VkCommandBuffer                             commandBuffer,
+    const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
 
 void Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,

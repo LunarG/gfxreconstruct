@@ -2883,6 +2883,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FMA_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderFmaFeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderFmaFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderFmaFeaturesKHR(out,
+                                                     casted_struct,
+                                                     decoded_struct,
+                                                     consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance9FeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance9FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -2950,6 +2960,46 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                       casted_struct,
                                                                       decoded_struct,
                                                                       consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance10FeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance10FeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMaintenance10FeaturesKHR(out,
+                                                         casted_struct,
+                                                         decoded_struct,
+                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_PROPERTIES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMaintenance10PropertiesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance10PropertiesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMaintenance10PropertiesKHR(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_FLAGS_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkRenderingAttachmentFlagsInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkRenderingAttachmentFlagsInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkRenderingAttachmentFlagsInfoKHR(out,
+                                                  casted_struct,
+                                                  decoded_struct,
+                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR: {
+                auto casted_struct = reinterpret_cast<const VkResolveImageModeInfoKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkResolveImageModeInfoKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkResolveImageModeInfoKHR(out,
+                                          casted_struct,
+                                          decoded_struct,
+                                          consumer);
 
                 break;
             }
@@ -5573,13 +5623,13 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV(out,
-                                                                      casted_struct,
-                                                                      decoded_struct,
-                                                                      consumer);
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT(out,
+                                                                       casted_struct,
+                                                                       decoded_struct,
+                                                                       consumer);
 
                 break;
             }
@@ -5933,6 +5983,26 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMemoryDecompressionFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMemoryDecompressionFeaturesEXT(out,
+                                                               casted_struct,
+                                                               decoded_struct,
+                                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_DECOMPRESSION_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceMemoryDecompressionPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceMemoryDecompressionPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceMemoryDecompressionPropertiesEXT(out,
+                                                                 casted_struct,
+                                                                 decoded_struct,
+                                                                 consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV: {
                 auto casted_struct = reinterpret_cast<const VkDisplayModeStereoPropertiesNV*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkDisplayModeStereoPropertiesNV*>(pnext_meta_data->GetMetaStructPointer());
@@ -6123,6 +6193,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT(out,
+                                                                         casted_struct,
+                                                                         decoded_struct,
+                                                                         consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDepthClampControlFeaturesEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
@@ -6200,6 +6280,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                  casted_struct,
                                                  decoded_struct,
                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_FEATURES_ARM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePerformanceCountersByRegionFeaturesARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePerformanceCountersByRegionFeaturesARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePerformanceCountersByRegionFeaturesARM(out,
+                                                                       casted_struct,
+                                                                       decoded_struct,
+                                                                       consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_COUNTERS_BY_REGION_PROPERTIES_ARM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePerformanceCountersByRegionPropertiesARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePerformanceCountersByRegionPropertiesARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePerformanceCountersByRegionPropertiesARM(out,
+                                                                         casted_struct,
+                                                                         decoded_struct,
+                                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_PERFORMANCE_COUNTERS_BY_REGION_BEGIN_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkRenderPassPerformanceCountersByRegionBeginInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkRenderPassPerformanceCountersByRegionBeginInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkRenderPassPerformanceCountersByRegionBeginInfoARM(out,
+                                                                    casted_struct,
+                                                                    decoded_struct,
+                                                                    consumer);
 
                 break;
             }
@@ -6283,6 +6393,46 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_64_BIT_INDEXING_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShader64BitIndexingFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShader64BitIndexingFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShader64BitIndexingFeaturesEXT(out,
+                                                               casted_struct,
+                                                               decoded_struct,
+                                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_CUSTOM_RESOLVE_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkCustomResolveCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkCustomResolveCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkCustomResolveCreateInfoEXT(out,
+                                             casted_struct,
+                                             decoded_struct,
+                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_RESOLVE_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCustomResolveFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCustomResolveFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCustomResolveFeaturesEXT(out,
+                                                         casted_struct,
+                                                         decoded_struct,
+                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDataGraphModelFeaturesQCOM(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC*>(pnext_meta_data->GetMetaStructPointer());
@@ -6290,6 +6440,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                         casted_struct,
                                                                         decoded_struct,
                                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT(out,
+                                                                           casted_struct,
+                                                                           decoded_struct,
+                                                                           consumer);
 
                 break;
             }
