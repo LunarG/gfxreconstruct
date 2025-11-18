@@ -38,6 +38,7 @@ schema_filename: str = "settings_schema.json"
 # Generated/Modified files
 layer_json_filename: str = "../../layer/json/VkLayer_gfxreconstruct.json.in"
 layer_settings_filename: str = "../../layer/vk_layer_settings.txt"
+generated_settings_struct_filename: str = "../../framework/util/generated_settings_struct.h"
 
 # Documents
 android_usage_doc_filename: str = "../../USAGE_android.md"
@@ -48,6 +49,14 @@ desktop_vulkan_usage_doc_filename: str = "../../USAGE_desktop_Vulkan.md"
 settings_env_var_prefix = "GFXRECON_"
 settings_android_property_prefix = "debug.gfxrecon."
 settings_file_layer_prefix = "lunarg_gfxreconstruct."
+
+# Strings definitions for helping to define the C behavior for outputing usage information
+app_name_usage_string = "    GFXRECON_WRITE_CONSOLE(\"  %s\\t"
+app_name_ending_string = "\", app_name.c_str());\n"
+description_start_string = "    GFXRECON_WRITE_CONSOLE(\"  "
+description_continue_string = "    GFXRECON_WRITE_CONSOLE(\"          \\t\\t"
+empty_usage_string = "    GFXRECON_WRITE_CONSOLE(\"\\t\\t\\t"
+empty_ending_string = "\");\n"
 
 # Strings used to identify Markdown/HTML docs sections that need to be replaced
 # during the codegen phanse
@@ -693,6 +702,74 @@ class ParsedSetting():
             markdown_setting_table_entry.append(table_string)
         return markdown_setting_table_entry
 
+    # Generate the settings structure containing all of the settings.
+    # Parameters:
+    #   None
+    # Returns:
+    #   setting_struct_entry : List of strings necessary to
+    #                          to define the current setting in the
+    #                          setting struct.  The reason it is a
+    #                          list is because some settings may
+    #                          vary value by platform.
+    def GenerateSettingsStructEntry(self):
+        setting_struct_entry = []
+        type_string = ""
+        name_string = self.key
+        default_string = ""
+
+        if self.type.primitive_type == "BOOL":
+            if self.type.default is None:
+                default_string += "false"
+            else:
+                if self.type.default:
+                    default_string += "true"
+                else:
+                    default_string += "false"
+            type_string = "bool"
+        elif self.type.primitive_type == "INT":
+            type_string = "int32_t"
+            default_string = f"{str(self.type.default)}"
+        elif self.type.primitive_type == "UINT":
+            type_string = "uint32_t"
+            default_string = f"{str(self.type.default)}"
+        elif self.type.primitive_type == "FLOAT":
+            type_string = "float"
+            default_string = f"{str(self.type.default)}f"
+        elif (self.type.primitive_type == "SAVE_FILE"
+              or self.type.primitive_type == "SAVE_FOLDER"):
+            type_string = "std::string"
+            default_string = f"std::string(\"{self.type.default}\")"
+        elif self.type.primitive_type == "LIST":
+            type_string = "std::string"
+            default_string = "std::string(\""
+            for item in self.type.default:
+                default_string += item
+            default_string += "\")"
+        else:
+            type_string = "std::string"
+            default_string = f"std::string(\"{self.type.default.lower()}\")"
+
+        if self.type.android_base is not None:
+            setting_struct_entry.append("#if defined(__ANDROID__)")
+            setting_struct_entry.append("    " +
+                                        PadStringToColumn(type_string, 12) +
+                                        name_string + "{std::string(\"" +
+                                        self.type.android_base +
+                                        self.type.default + "\")};")
+            setting_struct_entry.append("#else")
+            setting_struct_entry.append("    " +
+                                        PadStringToColumn(type_string, 12) +
+                                        name_string + "{" + default_string +
+                                        "};")
+            setting_struct_entry.append("#endif")
+        else:
+            setting_struct_entry.append("    " +
+                                        PadStringToColumn(type_string, 12) +
+                                        name_string + "{" + default_string +
+                                        "};")
+
+        return setting_struct_entry
+
 
 # Build up the list of children in each parent setting
 # Parameters:
@@ -808,6 +885,155 @@ def GenerateVulkanLayerSettingsFile(parsed_settings):
         current_layer_json.write('\n'.join(settings_file_contents))
 
 
+# Generate an if check in the c-code to determine if a tool type is valid
+# for the code to follow
+# Parameters:
+#   tool_list : a list of all valid tools ("ALL" indicates it is valid
+#               for all tools)
+#   indent    : the number of spaces to apply as an indent
+# Returns:
+#   if_string : the string containing the if check
+def GenerateToolIfCheck(tool_list, indent: int = 1):
+    if_string = ("    " * indent) + "if "
+    count = tool_list.count(',')
+    tools = tool_list.split(',')
+    if count > 0:
+        if_string += "("
+    previous = ""
+    for tool in tools:
+        if_string += previous
+        if tool == "CAPTURE":
+            if_string += "(tool_type == kGfxrToolType_Capture_Library)"
+        elif tool == "REPLAY":
+            if_string += "(tool_type == kGfxrToolType_Replay_Tool)"
+        elif tool == "INFO":
+            if_string += "(tool_type == kGfxrToolType_Info_Tool)"
+        elif tool == "COMPRESS":
+            if_string += "(tool_type == kGfxrToolType_Compress_Tool)"
+        elif tool == "CONVERT":
+            if_string += "(tool_type == kGfxrToolType_Convert_Tool)"
+        elif tool == "EXTRACT":
+            if_string += "(tool_type == kGfxrToolType_Extract_Tool)"
+        elif tool == "OPTIMIZE":
+            if_string += "(tool_type == kGfxrToolType_Optimize_Tool)"
+        elif tool == "TOCPP":
+            if_string += "(tool_type == kGfxrToolType_ToCpp_Tool)"
+        previous = " || "
+    if count > 0:
+        if_string += ")"
+    return if_string
+
+
+# Generate the settings structure containing all settings.
+# Parameters:
+#   parsed_settings :    The dictionary of all settings parsed from the
+#                        JSON file.
+#   settings_tools :     The list of all possible tools that were
+#                        discovered when from the parsed JSON settings
+#                        this is a convenience so we know ahead of time
+#                        how many groups to create and search for)
+#   settings_apis :      The list of all possible APIs that were
+#                        discovered when from the parsed JSON settings
+#                        this is a convenience so we know ahead of time
+#                        how many groups to create and search for)
+#   settings_platforms : The list of all possible platforms that were
+#                        discovered when from the parsed JSON settings
+#                        this is a convenience so we know ahead of time
+#                        how many platforms to create and search for)
+# Returns:
+#   None
+def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
+                           settings_platforms):
+    # Determine how many different lists we need to track individual
+    # groups of settings to tools regions
+    settings_per_tool_per_api_per_platform = OrderedDict()
+    for tool in settings_tools:
+        settings_per_tool_per_api_per_platform[tool] = OrderedDict()
+        for api in settings_apis:
+            settings_per_tool_per_api_per_platform[tool][api] = OrderedDict()
+            for platform in settings_platforms:
+                settings_per_tool_per_api_per_platform[tool][api][
+                    platform] = []
+
+    for key, parsed_setting in parsed_settings.items():
+        if parsed_setting.type.primitive_type == "GROUP":
+            continue
+
+        for tool in parsed_setting.tools:
+            for api in parsed_setting.apis:
+                for platform in parsed_setting.platforms:
+                    settings_per_tool_per_api_per_platform[tool][api][
+                        platform].extend(
+                            parsed_setting.GenerateSettingsStructEntry())
+
+    with open(generated_settings_struct_filename,
+              'w') as settings_struct_header:
+        settings_struct_header.write(generated_source_copyright)
+
+        settings_struct_header.write("\n#ifndef GFXRECON_SETTINGS_STRUCT_H\n")
+        settings_struct_header.write("#define GFXRECON_SETTINGS_STRUCT_H\n\n")
+        settings_struct_header.write("#include <cstdint>\n")
+        settings_struct_header.write("#include <string>\n\n")
+
+        tool_struct_names = []
+        for tool in settings_tools:
+            tool_string = tool.lower().capitalize()
+            tool_struct_name = f"Gfxr{tool_string}SettingsStruct"
+            tool_struct_names.append(
+                f"{tool_struct_name} {tool_string.lower()}_settings")
+            settings_struct_header.write(f"struct {tool_struct_name}\n")
+            settings_struct_header.write("{\n")
+            settings_struct_header.write("    // clang-format off\n")
+
+            for setting_init_str in settings_per_tool_per_api_per_platform[
+                    tool]["ALL"]["ALL"]:
+                settings_struct_header.write(setting_init_str + "\n")
+            for api in settings_apis:
+                if len(settings_per_tool_per_api_per_platform[tool][api]) == 0:
+                    continue
+
+                if api != "ALL":
+                    api_name = GetReadableApiString(api)
+                    settings_struct_header.write(
+                        f"\n    // {api_name}-Specific\n")
+
+                    for setting_init_str in settings_per_tool_per_api_per_platform[
+                            tool][api]["ALL"]:
+                        settings_struct_header.write(setting_init_str + "\n")
+
+                for platform in settings_platforms:
+                    if platform == "ALL" or len(
+                            settings_per_tool_per_api_per_platform[tool][api]
+                        [platform]) == 0:
+                        continue
+
+                    begin_ifdef, end_ifdef = GeneratePlatformIfdef([platform])
+                    if len(begin_ifdef) > 0:
+                        settings_struct_header.write(begin_ifdef + "\n")
+
+                    for setting_init_str in settings_per_tool_per_api_per_platform[
+                            tool][api][platform]:
+                        settings_struct_header.write(setting_init_str + "\n")
+
+                    if len(end_ifdef) > 0:
+                        settings_struct_header.write(end_ifdef + "\n")
+
+            settings_struct_header.write("\n    // clang-format on\n")
+            settings_struct_header.write("};\n\n")
+
+        settings_struct_header.write("struct GfxrSettingsStruct\n")
+        settings_struct_header.write("{\n")
+        settings_struct_header.write("    // clang-format off\n")
+        for tool_struct in tool_struct_names:
+            settings_struct_header.write(f"    {tool_struct};\n")
+        settings_struct_header.write("    // clang-format on\n")
+        settings_struct_header.write("};\n\n")
+        settings_struct_header.write(
+            "#endif // GFXRECON_SETTINGS_STRUCT_H\n\n")
+
+    settings_struct_header.close()
+
+
 # Update a USAGE_android.md options/settings table for the
 # capture library with the latest settings info.
 #   parsed_settings : The dictionary of all settings parsed from the
@@ -912,9 +1138,29 @@ if __name__ == "__main__":
 
     # Parse the setting information
     parsed_settings: OrderedDict[str, ParsedSetting] = OrderedDict()
+    settings_apis: list[str] = []
+    settings_tools: list[str] = []
+    settings_platforms: list[str] = []
+    settings_tool_groups: list[str] = []
     for setting in json_data["settings"]:
         parsed_setting = ParsedSetting(setting)
         parsed_settings[parsed_setting.key] = parsed_setting
+
+        # Make a list of all the unique combinations of tools, apis and settings.
+        # This will allow us to create blocks of if checks to reduce
+        # complexity and overhead during execution
+        joined_list = ','.join(parsed_setting.tools)
+        if joined_list not in settings_tool_groups:
+            settings_tool_groups.append(joined_list)
+        for tool in parsed_setting.tools:
+            if tool not in settings_tools:
+                settings_tools.append(tool)
+        for api in parsed_setting.apis:
+            if api not in settings_apis:
+                settings_apis.append(api)
+        for plat in parsed_setting.platforms:
+            if plat not in settings_platforms:
+                settings_platforms.append(plat)
 
     # Build the children lists
     BuildChildrenLists(parsed_settings)
@@ -927,3 +1173,7 @@ if __name__ == "__main__":
     UpdateAndroidUsageSettingsTable(parsed_settings)
     UpdateDesktopUsageSettingsTable(parsed_settings, "D3D12")
     UpdateDesktopUsageSettingsTable(parsed_settings, "VULKAN")
+
+    # Generate supporting code
+    GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
+                           settings_platforms)
