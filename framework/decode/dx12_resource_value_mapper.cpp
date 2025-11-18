@@ -501,6 +501,7 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
                 command_signature_extra_info->byte_stride,
                 state_object_extra_info);
         }
+        SourceCopyResources(command_list_extra_info->resource_copies, command_list_extra_info->resource_value_info_map);
     }
 }
 
@@ -579,6 +580,8 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
                 GFXRECON_LOG_ERROR("Unknown BuildRaytracingAccelerationStructure DescsLayout: %d",
                                    static_cast<int>(build_desc->Inputs.DescsLayout));
             }
+            SourceCopyResources(command_list_extra_info->resource_copies,
+                                command_list_extra_info->resource_value_info_map);
         }
         else
         {
@@ -793,6 +796,7 @@ void Dx12ResourceValueMapper::PostProcessDispatchRays(
         state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object);
     }
     GetDispatchRaysResourceValues(command_list_extra_info->resource_value_info_map, state_object_extra_info, *desc);
+    SourceCopyResources(command_list_extra_info->resource_copies, command_list_extra_info->resource_value_info_map);
 }
 
 void Dx12ResourceValueMapper::PostProcessSetPipelineState1(DxObjectInfo* command_list4_object_info,
@@ -912,6 +916,17 @@ void Dx12ResourceValueMapper::RemoveGpuDescriptorHeap(uint64_t capture_gpu_start
     }
 }
 
+void Dx12ResourceValueMapper::SourceCopyResources(std::vector<ResourceCopyInfo>& copy_infos,
+                                                  ResourceValueInfoMap&          resource_value_info_map)
+{
+    const auto copies_size = copy_infos.size();
+    for (size_t i = 0; i < copies_size; ++i)
+    {
+        auto& copy_info = copy_infos[copies_size - i - 1];
+        CopyResourceValues(copy_info, resource_value_info_map);
+    }
+}
+
 void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_info,
                                                  ResourceValueInfoMap&   resource_value_info_map)
 {
@@ -919,7 +934,10 @@ void Dx12ResourceValueMapper::CopyResourceValues(const ResourceCopyInfo& copy_in
     auto dst_iter = resource_value_info_map.find(copy_info.dst_resource_object_info);
     if (dst_iter != resource_value_info_map.end())
     {
-        GFXRECON_ASSERT(!dst_iter->second.empty());
+        if (dst_iter->second.empty())
+        {
+            return;
+        }
 
         auto& dst_values = dst_iter->second;
         auto& src_values = resource_value_info_map[copy_info.src_resource_object_info];
@@ -1043,16 +1061,11 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
 
     auto resource_value_info_map = std::move(args.resource_value_info_map);
     args.resource_value_info_map.clear();
-    const auto                                        copies_size = args.resource_copies.size();
     std::map<DxObjectInfo*, MappedResourceRevertInfo> resource_data_to_revert;
     while (!resource_value_info_map.empty())
     {
         // Process resource copies so values are mapped in the source resource.
-        for (size_t i = 0; i < copies_size; ++i)
-        {
-            auto& copy_info = args.resource_copies[copies_size - i - 1];
-            CopyResourceValues(copy_info, resource_value_info_map);
-        }
+        SourceCopyResources(args.resource_copies, resource_value_info_map);
 
         // Apply the resource value mappings to the resources on the GPU.
         ResourceValueInfoMap indirect_values_map;
@@ -1063,6 +1076,7 @@ void Dx12ResourceValueMapper::ProcessResourceMappings(ProcessResourceMappingsArg
     }
 
     // Track mapped values that were copied to other resources.
+    const auto copies_size = args.resource_copies.size();
     for (size_t i = 0; i < copies_size; ++i)
     {
         auto& copy_info = args.resource_copies[i];
