@@ -32,6 +32,7 @@ python3 generate_settings.py
 
 This will update the settings in the following locations:
 
+ - [framework/util/generated_settings_manager.cpp](../../framework/util/generated_settings_manager.cpp)
  - [framework/util/generated_settings_struct.h](../../framework/util/generated_settings_struct.h)
  - [layer/json/VkLayer_gfxreconstruct.json.in](../../layer/json/VkLayer_gfxreconstruct.json.in)
  - [layer/vk_layer_settings.txt](../../layer/vk_layer_settings.txt)
