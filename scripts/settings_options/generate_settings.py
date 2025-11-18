@@ -39,6 +39,7 @@ schema_filename: str = "settings_schema.json"
 layer_json_filename: str = "../../layer/json/VkLayer_gfxreconstruct.json.in"
 layer_settings_filename: str = "../../layer/vk_layer_settings.txt"
 generated_settings_struct_filename: str = "../../framework/util/generated_settings_struct.h"
+generated_settings_manager_filename: str = "../../framework/util/generated_settings_manager.cpp"
 
 # Documents
 android_usage_doc_filename: str = "../../USAGE_android.md"
@@ -770,6 +771,80 @@ class ParsedSetting():
 
         return setting_struct_entry
 
+    # Generate the lines necessary to read a setting from the Vulkan
+    # Capture layer settings file.
+    # Parameters:
+    #   None
+    # Returns:
+    #   file_read_lines : List of all strings necessary to
+    #                     perform the file read for the current
+    #                     setting.
+    def GenerateFileReadToSetting(self):
+        file_read_lines = []
+
+        file_read_lines.append(f"if (!key.compare(\"{self.key}\"))")
+        file_read_lines.append("{")
+
+        line_prefix = f"    settings_struct_.capture_settings.{self.key} = "
+        if self.type.primitive_type == "BOOL":
+            file_read_lines.append(f"{line_prefix}SettingValueToBool(value);")
+        elif self.type.primitive_type == "INT":
+            file_read_lines.append(f"{line_prefix}atoi(value.c_str());")
+        elif self.type.primitive_type == "FLOAT":
+            file_read_lines.append(
+                f"{line_prefix}static_cast<float>(atof(value.c_str()));")
+        else:
+            file_read_lines.append(f"{line_prefix}value;")
+        file_read_lines.append("}")
+
+        return file_read_lines
+
+    # Generate the lines necessary to read a setting from the given
+    # tool's environment variable/property into the appropriate
+    # corresponding setting.
+    # Parameters:
+    #   tool : The all-caps name of the tool we're reading this setting
+    #          for.
+    # Returns:
+    #   envvar_read_lines : List of all strings necessary to
+    #                           detect the current setting and return
+    #                           the appropriate setting ID.
+    def GenerateEnvVarReadToSetting(self, tool: str):
+        envvar_read_lines = []
+
+        tool_envvar_string = ""
+        settings_struct_string = "settings_struct_." + tool.lower(
+        ) + "_settings"
+        if tool == "CAPTURE":
+            # Nothing to do
+            tool_envvar_string = ""
+        else:
+            tool_envvar_string = tool.lower() + "_"
+
+        envvar_read_lines.append(
+            f"if (ReadEnvironmentVariable(\"{tool_envvar_string}{self.key}\", env_var_value))"
+        )
+        envvar_read_lines.append("{")
+
+        if self.type.primitive_type == "BOOL":
+            envvar_read_lines.append(
+                f"    {settings_struct_string}.{self.key} = SettingValueToBool(env_var_value);"
+            )
+        elif self.type.primitive_type == "INT" or self.type.primitive_type == "UINT":
+            envvar_read_lines.append(
+                f"    {settings_struct_string}.{self.key} = atoi(env_var_value.c_str());"
+            )
+        elif self.type.primitive_type == "FLOAT":
+            envvar_read_lines.append(
+                f"    {settings_struct_string}.{self.key} = static_cast<float>(atof(env_var_value.c_str()));"
+            )
+        else:
+            envvar_read_lines.append(
+                f"    {settings_struct_string}.{self.key} = env_var_value;")
+
+        envvar_read_lines.append("}")
+        return envvar_read_lines
+
 
 # Build up the list of children in each parent setting
 # Parameters:
@@ -944,6 +1019,10 @@ def GenerateToolIfCheck(tool_list, indent: int = 1):
 #   None
 def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
                            settings_platforms):
+    print(
+        f"Generating (GFXReconstruct)/{generated_settings_struct_filename[6:]} file"
+    )
+
     # Determine how many different lists we need to track individual
     # groups of settings to tools regions
     settings_per_tool_per_api_per_platform = OrderedDict()
@@ -1032,6 +1111,192 @@ def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
             "#endif // GFXRECON_SETTINGS_STRUCT_H\n\n")
 
     settings_struct_header.close()
+
+
+# Generate the settings manager source that contains generated
+# settings access.
+# Parameters:
+#   parsed_settings :    The dictionary of all settings parsed from the
+#                        JSON file.
+#   settings_tools :     The list of all possible tools that were
+#                        discovered when from the parsed JSON settings
+#                        this is a convenience so we know ahead of time
+#                        how many groups to create and search for)
+#   settings_platforms : The list of all possible platforms that were
+#                        discovered when from the parsed JSON settings
+#                        this is a convenience so we know ahead of time
+#                        how many platforms to create and search for)
+# Returns:
+#   None
+def GenerateSettingsManagerSource(parsed_settings, settings_tools,
+                                  settings_platforms):
+    print(
+        f"Generating (GFXReconstruct)/{generated_settings_manager_filename[6:]} file"
+    )
+
+    vulkan_capture_settings_per_platform = OrderedDict()
+    envvar_read_per_tool_per_api_per_platform = OrderedDict()
+    dynamic_envvar_read_per_tool_per_api_per_platform = OrderedDict()
+    for tool in settings_tools:
+        envvar_read_per_tool_per_api_per_platform[tool] = OrderedDict()
+        dynamic_envvar_read_per_tool_per_api_per_platform[tool] = OrderedDict()
+        for platform in settings_platforms:
+            vulkan_capture_settings_per_platform[platform] = OrderedDict()
+            envvar_read_per_tool_per_api_per_platform[tool][
+                platform] = OrderedDict()
+            dynamic_envvar_read_per_tool_per_api_per_platform[tool][
+                platform] = OrderedDict()
+
+    for key, parsed_setting in parsed_settings.items():
+        if (("ALL" in parsed_setting.apis or "VULKAN" in parsed_setting.apis)
+                and
+            (parsed_setting.tools is None or "CAPTURE" in parsed_setting.tools)
+                and (parsed_setting.type.primitive_type != "GROUP")):
+            # Generate the strings needed to read each capture setting from the
+            # layer settings file
+            for platform in parsed_setting.platforms:
+                vulkan_capture_settings_per_platform[platform][
+                    key] = parsed_setting.GenerateFileReadToSetting()
+
+        for tool in parsed_setting.tools:
+            if parsed_setting.type.primitive_type == "GROUP":
+                continue
+
+            # Generate the strings needed to read each settings environment variable
+            for platform in parsed_setting.platforms:
+                envvar_read_per_tool_per_api_per_platform[tool][platform][
+                    key] = parsed_setting.GenerateEnvVarReadToSetting(tool)
+                if parsed_setting.dynamic:
+                    dynamic_envvar_read_per_tool_per_api_per_platform[tool][
+                        platform][
+                            key] = parsed_setting.GenerateEnvVarReadToSetting(
+                                tool)
+
+    with open(generated_settings_manager_filename,
+              'w') as setting_manager_source:
+        setting_manager_source.write(generated_source_copyright)
+        setting_manager_source.write("\n// clang-format off\n\n")
+        setting_manager_source.write(
+            "\nbool SettingsManager::AdjustSettingFromFile(const std::string& key,\n"
+        )
+        setting_manager_source.write(
+            "                                            const std::string& value)\n"
+        )
+        setting_manager_source.write("{\n")
+        setting_manager_source.write("    bool success = true;\n\n")
+
+        if_string = ""
+        for key, if_list in vulkan_capture_settings_per_platform["ALL"].items(
+        ):
+            for index, line in enumerate(if_list):
+                if (index == 0):
+                    setting_manager_source.write("    " + if_string + line +
+                                                 "\n")
+                else:
+                    setting_manager_source.write("    " + line + "\n")
+            if_string = "else "
+
+        for platform in settings_platforms:
+            if platform == "ALL" or len(
+                    vulkan_capture_settings_per_platform[platform]) == 0:
+                continue
+
+            begin_ifdef, end_ifdef = GeneratePlatformIfdef([platform])
+            if len(begin_ifdef) > 0:
+                setting_manager_source.write(begin_ifdef + "\n")
+
+            for key, if_list in vulkan_capture_settings_per_platform[
+                    platform].items():
+                for index, line in enumerate(if_list):
+                    if (index == 0):
+                        setting_manager_source.write("    " + if_string +
+                                                     line + "\n")
+                    else:
+                        setting_manager_source.write("    " + line + "\n")
+                if_string = "else "
+
+            if len(end_ifdef) > 0:
+                setting_manager_source.write(end_ifdef + "\n")
+
+        setting_manager_source.write("    else\n")
+        setting_manager_source.write("    {\n")
+        setting_manager_source.write(
+            "        GFXRECON_LOG_ERROR(\"Failed to find setting associated with key %s\", key.c_str());\n"
+        )
+        setting_manager_source.write("        success = false;\n")
+        setting_manager_source.write("    }\n")
+        setting_manager_source.write("    return success;\n")
+        setting_manager_source.write("}\n\n")
+
+        setting_manager_source.write(
+            "\nvoid SettingsManager::ReadEnvironmentVariables()\n")
+        setting_manager_source.write("{\n")
+        setting_manager_source.write("    std::string env_var_value;\n")
+
+        for tool in settings_tools:
+            setting_manager_source.write(
+                f"\n    // -- {tool.lower().capitalize()}-specific\n")
+
+            for key, if_list in envvar_read_per_tool_per_api_per_platform[
+                    tool]["ALL"].items():
+                for line in if_list:
+                    setting_manager_source.write("    " + line + "\n")
+
+            for platform in settings_platforms:
+                if platform == "ALL" or len(
+                        envvar_read_per_tool_per_api_per_platform[tool]
+                    [platform]) == 0:
+                    continue
+
+                begin_ifdef, end_ifdef = GeneratePlatformIfdef([platform])
+                if len(begin_ifdef) > 0:
+                    setting_manager_source.write(begin_ifdef + "\n")
+
+                for key, if_list in envvar_read_per_tool_per_api_per_platform[
+                        tool][platform].items():
+                    for line in if_list:
+                        setting_manager_source.write("    " + line + "\n")
+
+                if len(end_ifdef) > 0:
+                    setting_manager_source.write(end_ifdef + "\n")
+
+        setting_manager_source.write("}\n\n")
+
+        setting_manager_source.write(
+            "\nvoid SettingsManager::UpdateDynamicEnvironmentVariables()\n")
+        setting_manager_source.write("{\n")
+        setting_manager_source.write("    std::string env_var_value;\n")
+
+        for tool in settings_tools:
+            setting_manager_source.write(
+                f"\n    // -- {tool.lower().capitalize()}-specific\n")
+
+            for key, if_list in dynamic_envvar_read_per_tool_per_api_per_platform[
+                    tool]["ALL"].items():
+                for line in if_list:
+                    setting_manager_source.write("    " + line + "\n")
+
+            for platform in settings_platforms:
+                if platform == "ALL" or len(
+                        dynamic_envvar_read_per_tool_per_api_per_platform[tool]
+                    [platform]) == 0:
+                    continue
+
+                begin_ifdef, end_ifdef = GeneratePlatformIfdef([platform])
+                if len(begin_ifdef) > 0:
+                    setting_manager_source.write(begin_ifdef + "\n")
+
+                for key, if_list in dynamic_envvar_read_per_tool_per_api_per_platform[
+                        tool][platform].items():
+                    for line in if_list:
+                        setting_manager_source.write("    " + line + "\n")
+
+                if len(end_ifdef) > 0:
+                    setting_manager_source.write(end_ifdef + "\n")
+
+        setting_manager_source.write("}\n\n")
+
+    setting_manager_source.close()
 
 
 # Update a USAGE_android.md options/settings table for the
@@ -1177,3 +1442,5 @@ if __name__ == "__main__":
     # Generate supporting code
     GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
                            settings_platforms)
+    GenerateSettingsManagerSource(parsed_settings, settings_tools,
+                                  settings_platforms)
