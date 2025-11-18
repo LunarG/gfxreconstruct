@@ -106,16 +106,14 @@ bool BlockParser::DecompressWhenParsed(const ParsedBlock& parsed_block)
     switch (decompression_policy_)
     {
         case kAlways:
+        default:
+            // always Decompressing when needed is safest with unknown mode
             return parsed_block.NeedsDecompression();
         case kNever:
             return false;
         case kQueueOptimized:
             return parsed_block.NeedsDecompression() && parsed_block.GetBlockData().size() <= kSmallThreshold;
-        default:
-            break;
     }
-    // always Decompressing when needed is safest
-    return parsed_block.NeedsDecompression();
 }
 
 ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
