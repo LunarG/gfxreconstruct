@@ -29,10 +29,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-CaptureSettings::TraceSettings ApiCaptureManager::GetDefaultTraceSettings()
+ApiCaptureManager::ApiCaptureManager(format::ApiFamilyId api_family) : api_family_(api_family)
 {
-    // Return default trace settings.
-    return CaptureSettings::TraceSettings();
+    capture_settings_ = new CaptureSettings(api_family);
+    GFXRECON_ASSERT(capture_settings_);
+}
+
+ApiCaptureManager::~ApiCaptureManager()
+{
+    if (capture_settings_)
+    {
+        delete capture_settings_;
+        capture_settings_ = nullptr;
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

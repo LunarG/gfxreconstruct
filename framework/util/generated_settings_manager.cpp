@@ -27,11 +27,9 @@
 // clang-format off
 
 
-bool SettingsManager::AdjustSettingFromFile(const std::string& key,
+void SettingsManager::AdjustSettingFromFile(const std::string& key,
                                             const std::string& value)
 {
-    bool success = true;
-
     if (!key.compare("allow_pipeline_compile_required"))
     {
         settings_struct_.capture_settings.allow_pipeline_compile_required = SettingValueToBool(value);
@@ -247,9 +245,7 @@ bool SettingsManager::AdjustSettingFromFile(const std::string& key,
     else
     {
         GFXRECON_LOG_ERROR("Failed to find setting associated with key %s", key.c_str());
-        success = false;
     }
-    return success;
 }
 
 

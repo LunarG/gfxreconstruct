@@ -79,14 +79,28 @@ void SettingsManager::ReleaseSingleton(bool final_time)
 
 SettingsManager::SettingsManager(format::ApiFamilyId api_family)
 {
-    if (api_family == format::ApiFamily_Vulkan)
+    switch (api_family)
     {
-        ReadVulkanCaptureLayerSettingsFile();
+        case format::ApiFamily_Vulkan:
+            ReadVulkanCaptureLayerSettingsFile();
+            break;
+        case format::ApiFamily_D3D12:
+            EnableD3D12SettingsDefaults();
+            break;
+        default:
+            break;
     }
     ReadEnvironmentVariables();
 }
 
 SettingsManager::~SettingsManager() {}
+
+void SettingsManager::EnableD3D12SettingsDefaults()
+{
+#ifdef WIN32
+    settings_struct_->capture_settings.page_guard_external_memory = true;
+#endif
+}
 
 bool SettingsManager::ReadVulkanCaptureLayerSettingsFile()
 {
@@ -128,11 +142,10 @@ bool SettingsManager::ReadVulkanCaptureLayerSettingsFile()
                 if (sscanf(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, value) == 2)
 #endif
                 {
-                    // Ignore entries with keys that do not start with the filter prefix as well as
-                    // values that do not exist (they can fall back to another setting source).
-                    if (!AdjustSettingFromFile(&key[kFilterLength], RemoveQuotes(value)))
+                    // Ignore entries with keys that do not start with the filter prefix.
+                    if (platform::StringCompare(key, gfxr_file_layer_prefix_.c_str(), kFilterLength) == 0)
                     {
-                        success = false;
+                        AdjustSettingFromFile(&key[kFilterLength], RemoveQuotes(value));
                     }
                 }
 

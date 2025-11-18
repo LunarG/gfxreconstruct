@@ -31,6 +31,7 @@
 #include "util/settings_loader.h"
 #include "util/generated_settings_struct.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <list>
 #include <string>
@@ -78,8 +79,9 @@ class SettingsManager
     SettingsManager(format::ApiFamilyId api_family);
     ~SettingsManager();
 
-    bool AdjustSettingFromFile(const std::string& key, const std::string& value);
+    void AdjustSettingFromFile(const std::string& key, const std::string& value);
 
+    void EnableD3D12SettingsDefaults();
     bool ReadVulkanCaptureLayerSettingsFile();
     void ReadEnvironmentVariables();
 
