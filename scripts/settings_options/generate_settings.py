@@ -39,10 +39,20 @@ schema_filename: str = "settings_schema.json"
 layer_json_filename: str = "../../layer/json/VkLayer_gfxreconstruct.json.in"
 layer_settings_filename: str = "../../layer/vk_layer_settings.txt"
 
+# Documents
+android_usage_doc_filename: str = "../../USAGE_android.md"
+desktop_d3d12_usage_doc_filename: str = "../../USAGE_desktop_D3D12.md"
+desktop_vulkan_usage_doc_filename: str = "../../USAGE_desktop_Vulkan.md"
+
 # Commonly used strings
 settings_env_var_prefix = "GFXRECON_"
 settings_android_property_prefix = "debug.gfxrecon."
 settings_file_layer_prefix = "lunarg_gfxreconstruct."
+
+# Strings used to identify Markdown/HTML docs sections that need to be replaced
+# during the codegen phanse
+capture_gen_begin_str = "<!-- CAPTURE_SETTINGS_OPTIONS TABLE CODEGEN BEGIN -->"
+capture_gen_end_str = "<!-- CAPTURE_SETTINGS_OPTIONS TABLE CODEGEN END -->"
 
 generated_source_copyright = f"""
 /*
@@ -547,6 +557,142 @@ class ParsedSetting():
                 f"{settings_file_layer_prefix}{self.key} = {default_value}")
         return settings_layer_file_text
 
+    # Generate the usage for this setting if it is used by the capture library.
+    # This is used for tables in the Markdown documentation
+    # Parameters:
+    #   None
+    # Returns:
+    #   markdown_setting_table_entry : List of strings necessary to
+    #                                  write the setting information to
+    #                                  a capture usage markdown table.
+    def GenerateAndroidCaptureUsageSettingsEntry(self):
+        markdown_setting_table_entry = []
+        if ((self.tools is None or "CAPTURE" in self.tools)
+                and (self.type.primitive_type != "GROUP")
+                and ("ALL" in self.platforms or "ANDROID" in self.platforms)):
+
+            table_string = f"| {self.label} | {settings_android_property_prefix}{self.key} | {self.type.primitive_type} | "
+            default_label, default_value = self.GetDefaultLabelAndValue(True)
+            table_string += default_label + " | " + self.description + " |"
+
+            markdown_setting_table_entry.append(table_string)
+        return markdown_setting_table_entry
+
+    # If the string has HTML tags in it, fix it so that it doesn't mess up the Markdown
+    # output
+    # Parameters:
+    #   input_string : String to replace any HTML tags in
+    # Returns:
+    #   new_string2 : the "fixed" string
+    def FixHtmlTagsInString(self, input_string: str):
+        new_string = input_string.replace("<", "\<")
+        new_string2 = new_string.replace(">", "\>")
+        return new_string2
+
+    # Generate a full detailed description used for a usage output.
+    # The output can be written to the command-line for a standard tool
+    # usage, or to a Markdown/HTML document.
+    # Parameters:
+    #  max_column_width : the widest to let any string get before starting a new line
+    #  continue_indent  : the indent applied when starting a new line
+    #  is_html_out      : indicates the output is being used by a Markdown/HTML file
+    # Returns:
+    #  usage_info : List of strings containing the full usage description
+    def GenerateFullUsageDescription(self,
+                                     max_column_width: int,
+                                     continue_indent: str = " ",
+                                     is_html_out: bool = False):
+        usage_info = []
+        continue_len = len(continue_indent)
+        desc_words = self.description.split(' ')
+        output_desc = ""
+        for word in desc_words:
+            if len(output_desc + word + " ") < max_column_width:
+                if len(output_desc) > 0:
+                    output_desc += " "
+                output_desc += word
+            else:
+                usage_info.append(output_desc)
+                output_desc = word
+
+        if len(output_desc) > 0:
+            usage_info.append(output_desc)
+
+        # If this is an enum, list each parameter in the usage and it's description
+        if self.type.primitive_type == "ENUM":
+            usage_info.append("May be the following:")
+
+            flag_indent = "   "
+            flag_dev_cont_indent = continue_indent
+            if is_html_out:
+                usage_info.append("<ul>")
+            for flag in self.type.flags:
+                output_desc = flag_indent
+                if is_html_out:
+                    output_desc += "<li>"
+
+                if len(flag.key) > 0:
+                    output_desc += flag.key.lower() + " "
+                else:
+                    output_desc += "\"\" "
+
+                if len(flag.description) > 0:
+                    if len(output_desc) < continue_len:
+                        if not is_html_out:
+                            output_desc += (continue_len - len(output_desc) -
+                                            1) * " "
+
+                    if is_html_out:
+                        output_desc += " - "
+
+                    desc_words = flag.description.split(' ')
+                    for word in desc_words:
+                        if len(output_desc + word + " ") < max_column_width:
+                            if len(output_desc) > 4:
+                                output_desc += " "
+                            output_desc += word
+                        else:
+                            usage_info.append(output_desc)
+                            output_desc = flag_dev_cont_indent + word
+
+                if len(output_desc) > continue_len:
+                    usage_info.append(output_desc)
+
+                if is_html_out:
+                    usage_info.append("</li>")
+
+            if is_html_out:
+                usage_info.append("</ul>")
+
+        return usage_info
+
+    # Generate the capture library usage information into a Markdown format
+    # for the appropriate api (specified in the "api" parameter)
+    # Parameters:
+    #   api : API desired to filter by
+    # Returns:
+    #   markdown_setting_table_entry : List of strings necessary to
+    #                                  write the setting information to
+    #                                  a capture usage markdown table.
+    def GenerateDesktopCaptureUsageSettingsEntry(self, api: str):
+        markdown_setting_table_entry = []
+        if ((self.tools is None or "CAPTURE" in self.tools)
+                and (self.type.primitive_type != "GROUP")
+                and ("ALL" in self.apis or api in self.apis) and
+            ("ALL" in self.platforms or "MACOS" in self.platforms
+             or "LINUX" in self.platforms or "WINDOWS" in self.platforms)
+                and ("ALL" in self.apis or api in self.apis)):
+
+            type_string = self.GetTypeString(True)
+            table_string = f"| {self.label} | {settings_env_var_prefix}{self.key.upper()} | {type_string} | "
+            default_label, default_value = self.GetDefaultLabelAndValue()
+            full_description = ' '.join(
+                self.GenerateFullUsageDescription(30, " ", True))
+            table_string += default_label + " | " + full_description + " |"
+
+            markdown_setting_table_entry.append(table_string)
+        return markdown_setting_table_entry
+
 
 # Build up the list of children in each parent setting
 # Parameters:
@@ -662,6 +808,100 @@ def GenerateVulkanLayerSettingsFile(parsed_settings):
         current_layer_json.write('\n'.join(settings_file_contents))
 
 
+# Update a USAGE_android.md options/settings table for the
+# capture library with the latest settings info.
+#   parsed_settings : The dictionary of all settings parsed from the
+#                     JSON file.
+def UpdateAndroidUsageSettingsTable(parsed_settings):
+    print(f"Updating (GFXReconstruct)/USAGE_android.md")
+
+    capture_markdown_table_lines = []
+
+    capture_markdown_table_lines.append(capture_gen_begin_str)
+    capture_markdown_table_lines.append(
+        "| Setting/Options | Property | Type | Default | Description |")
+    capture_markdown_table_lines.append(
+        "| ------- | -------- | ---- | ------- | ----------- |")
+
+    for key, parsed_setting in parsed_settings.items():
+        capture_markdown_table_lines.extend(
+            parsed_setting.GenerateAndroidCaptureUsageSettingsEntry())
+
+    capture_markdown_table_lines.append(capture_gen_end_str)
+
+    # Now, read the current capture settings source file and replace the old
+    # settings information with the new settings
+    markdown_lines = []
+    with open(android_usage_doc_filename, 'r') as markdown_doc:
+        record_lines = True
+        while line := markdown_doc.readline():
+            stripped_line = line.rstrip()
+            if record_lines and stripped_line == capture_gen_begin_str:
+                record_lines = False
+
+            if record_lines:
+                markdown_lines.append(stripped_line)
+            else:
+                if stripped_line == capture_gen_end_str:
+                    markdown_lines.extend(capture_markdown_table_lines)
+                    record_lines = True
+
+    markdown_doc.close()
+
+    with open(android_usage_doc_filename, 'w') as markdown_doc:
+        markdown_doc.write('\n'.join(markdown_lines))
+
+
+# Update a desktop USAGE.md options/settings tables for the
+# capture library with the latest settings info.
+#   parsed_settings : The dictionary of all settings parsed from the
+#                     JSON file.
+#   api             : The current API who's info we need to output
+def UpdateDesktopUsageSettingsTable(parsed_settings, api: str):
+    source_file = desktop_d3d12_usage_doc_filename
+    if api == "VULKAN":
+        source_file = desktop_vulkan_usage_doc_filename
+
+    print(f"Updating (GFXReconstruct)/{source_file[6:]}")
+
+    capture_markdown_table_lines = []
+
+    capture_markdown_table_lines.append(capture_gen_begin_str)
+    capture_markdown_table_lines.append(
+        "| Setting/Options | Environment Variable | Type | Default | Description |"
+    )
+    capture_markdown_table_lines.append(
+        "| ------- | -------- | ---- | ------- | ----------- |")
+
+    for key, parsed_setting in parsed_settings.items():
+        capture_markdown_table_lines.extend(
+            parsed_setting.GenerateDesktopCaptureUsageSettingsEntry(api))
+
+    capture_markdown_table_lines.append(capture_gen_end_str)
+
+    # Now, read the current capture settings source file and replace the old
+    # settings information with the new settings
+    markdown_lines = []
+    with open(source_file, 'r') as markdown_doc:
+        record_lines = True
+        while line := markdown_doc.readline():
+            stripped_line = line.rstrip()
+            if record_lines and stripped_line == capture_gen_begin_str:
+                record_lines = False
+
+            if record_lines:
+                markdown_lines.append(stripped_line)
+            else:
+                if stripped_line == capture_gen_end_str:
+                    markdown_lines.extend(capture_markdown_table_lines)
+                    record_lines = True
+
+    markdown_doc.close()
+
+    with open(source_file, 'w') as markdown_doc:
+        markdown_doc.write('\n'.join(markdown_lines))
+
+
 if __name__ == "__main__":
 
     # Load the JSON data from a file
@@ -682,3 +922,8 @@ if __name__ == "__main__":
     # Vulkan layer manifest file and layer settings generation
     UpdateVulkanLayerManifestInputFile(parsed_settings)
     GenerateVulkanLayerSettingsFile(parsed_settings)
+
+    # Update documentation
+    UpdateAndroidUsageSettingsTable(parsed_settings)
+    UpdateDesktopUsageSettingsTable(parsed_settings, "D3D12")
+    UpdateDesktopUsageSettingsTable(parsed_settings, "VULKAN")
