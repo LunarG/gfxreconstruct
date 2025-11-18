@@ -32,8 +32,11 @@ python3 generate_settings.py
 
 This will update the settings in the following locations:
 
- - [layer/json/VkLayer_gfxreconstruct.json.in](../layer/json/VkLayer_gfxreconstruct.json.in)
- - [layer/vk_layer_settings.txt](../layer/vk_layer_settings.txt)
+ - [layer/json/VkLayer_gfxreconstruct.json.in](../../layer/json/VkLayer_gfxreconstruct.json.in)
+ - [layer/vk_layer_settings.txt](../../layer/vk_layer_settings.txt)
+ - [USAGE_android.md](../../USAGE_android.md)
+ - [USAGE_desktop_D3D12.md](../../USAGE_desktop_D3D12.md)
+ - [USAGE_desktop_Vulkan.md](../../USAGE_desktop_Vulkan.md)
 
 
 ## Setting File Format

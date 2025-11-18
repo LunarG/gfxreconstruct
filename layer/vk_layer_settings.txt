@@ -10,7 +10,7 @@
 # VK_LAYER_LUNARG_gfxreconstruct
 #
 
-# Allow Pipeline Compile Required
+# Allow Application Compiled Pipeline Behavior
 # ===================================
 # <LayerIdentifier>.allow_pipeline_compile_required
 # [Vulkan Only] The default behavior forces VK_PIPELINE_COMPILE_REQUIRED to be
@@ -97,7 +97,7 @@ lunarg_gfxreconstruct.capture_file_timestamp = true
 # Default is <empty>
 lunarg_gfxreconstruct.capture_frames = 
 
-# Capture Process Name
+# Capture Specific Process Name
 # ===================================
 # <LayerIdentifier>.capture_process_name
 # The name of the process to capture content from, all other processes will be
@@ -187,7 +187,7 @@ lunarg_gfxreconstruct.force_fifo_present_mode = true
 # Default is false
 lunarg_gfxreconstruct.ignore_frame_boundary_android = false
 
-# Log Allow Additional Indents
+# Log Apply Additional Indentation
 # ===================================
 # <LayerIdentifier>.log_allow_indents
 # Apply additional indentation formatting to log messages.
@@ -201,7 +201,7 @@ lunarg_gfxreconstruct.log_allow_indents = false
 # Default is false
 lunarg_gfxreconstruct.log_break_on_error = false
 
-# Log Detailed
+# Log Name and Line Number
 # ===================================
 # <LayerIdentifier>.log_detailed
 # Include name and line number from the file responsible for the log message.
@@ -222,7 +222,7 @@ lunarg_gfxreconstruct.log_errors_to_stderr = true
 # Default is <empty>
 lunarg_gfxreconstruct.log_file = 
 
-# Log File Create New
+# Log File Overwrite
 # ===================================
 # <LayerIdentifier>.log_file_create_new
 # Specifies that log file initialization should overwrite an existing file when
