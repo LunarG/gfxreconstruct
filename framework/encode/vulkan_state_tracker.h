@@ -452,6 +452,9 @@ class VulkanStateTracker
                               const uint32_t*       image_indices,
                               VkQueue               queue);
 
+    // finds potential fences in pNext-chain and tracks their usage
+    void TrackPresentFences(const VkPresentInfoKHR* present_info);
+
     void TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);

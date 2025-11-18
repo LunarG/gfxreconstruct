@@ -705,6 +705,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>
     }
 };
 
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueueBindSparse(args...);
+    }
+};
+
 #if ENABLE_OPENXR_SUPPORT
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyFence>
@@ -747,6 +757,26 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>
 };
 
 #endif
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkWaitForFences(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkResetFences(args...);
+    }
+};
 
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
