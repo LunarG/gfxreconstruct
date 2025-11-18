@@ -190,13 +190,14 @@ class VulkanAddressReplacer
      * @param info_count            number of elements in 'build_geometry_infos'
      * @param build_geometry_infos  provided array of VkAccelerationStructureBuildGeometryInfoKHR
      * @param build_range_infos     provided array of VkAccelerationStructureBuildRangeInfoKHR*
-     * @param address_tracker       const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param address_tracker       reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     *                              and potentially update tracked information
      */
     void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
                                                   uint32_t                                     info_count,
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-                                                  const decode::VulkanDeviceAddressTracker&    address_tracker);
+                                                  decode::VulkanDeviceAddressTracker&          address_tracker);
 
     /**
      * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
@@ -282,7 +283,7 @@ class VulkanAddressReplacer
     ProcessBuildVulkanAccelerationStructuresMetaCommand(uint32_t                                     info_count,
                                                         VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
                                                         VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-                                                        const decode::VulkanDeviceAddressTracker&    address_tracker);
+                                                        decode::VulkanDeviceAddressTracker&          address_tracker);
 
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.

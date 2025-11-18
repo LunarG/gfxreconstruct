@@ -972,7 +972,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
     uint32_t                                     info_count,
     VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-    const VulkanDeviceAddressTracker&            address_tracker)
+    VulkanDeviceAddressTracker&                  address_tracker)
 {
     GFXRECON_ASSERT(device_table_ != nullptr);
 
@@ -1070,9 +1070,11 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
                     as_replay_address =
                         get_device_address_fn_(device_, &address_info) + acceleration_structure_info->offset;
 
-                    // we adjust/assign the queried address
-                    auto* accel_info_mut = const_cast<VulkanAccelerationStructureKHRInfo*>(acceleration_structure_info);
+                    // adjust/assign queried address and start tracking
+                    auto* accel_info_mut =
+                        object_table_->GetVkAccelerationStructureKHRInfo(acceleration_structure_info->capture_id);
                     accel_info_mut->replay_address = as_replay_address;
+                    address_tracker.TrackAccelerationStructure(accel_info_mut);
                 }
             }
             GFXRECON_ASSERT(as_replay_address);
@@ -1410,7 +1412,7 @@ void VulkanAddressReplacer::ProcessBuildVulkanAccelerationStructuresMetaCommand(
     uint32_t                                     info_count,
     VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
     VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-    const decode::VulkanDeviceAddressTracker&    address_tracker)
+    decode::VulkanDeviceAddressTracker&          address_tracker)
 {
     if (info_count > 0 && init_queue_assets())
     {
