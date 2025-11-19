@@ -42,7 +42,7 @@ Usage:
 
 Required arguments:
   <test_name>   Name of the test app to launch.
-                Options are: 
+                Options are:
                   acquired-image
                   host-image-copy
                   multisample-depth
@@ -76,8 +76,8 @@ Finally, make sure to add your test app library to the `GFXRECON_TEST_LAUNCHER_L
 
 ## **Building Test Apps**
 
-Test apps are built as part of the default build CMAKE build process. In order to stop test apps from building, set the
-**GFXRECON_INCLUDE_TEST_APPS** CMake variable to OFF, e.g. provide `-DGFXRECON_INCLUDE_TEST_APPS=OFF` in your cmake command line.
+Test apps are not built as part of the default build CMAKE build process. In order to enable building test apps, set the
+**GFXRECON_INCLUDE_TEST_APPS** CMake variable to ON, e.g. provide `-DGFXRECON_INCLUDE_TEST_APPS=ON` in your cmake command line.
 
 ## **Test App Verification**
 
@@ -86,11 +86,11 @@ To run the test apps and validate output against known good '.gfxr' files, build
 *On Windows:* The test app must not be run as administrator.  If you receive an error that the ps1 script is not digitally signed, you will need to run 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine' to allow the script to run.
 
 
-|Operating System| ./scripts/build.py Test Directory  |Test Script|
-|---------------|------------------------------------|------------|
-|Windows| build/windows/x64/output/test      |run-tests.ps1|
-|Linux| build/linux/x64/output/test        |run-tests.sh|
-|macOS| build/darwin/universal/output/test |run-tests_macos.sh|
+| Operating System | ./scripts/build.py Test Directory  | Test Script        |
+| ---------------- | ---------------------------------- | ------------------ |
+| Windows          | build/windows/x64/output/test      | run-tests.ps1      |
+| Linux            | build/linux/x64/output/test        | run-tests.sh       |
+| macOS            | build/darwin/universal/output/test | run-tests_macos.sh |
 
 ## **Run A Single Test App**
 
