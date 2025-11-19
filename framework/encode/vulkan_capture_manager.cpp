@@ -2897,7 +2897,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptu
         {
             if (fence != VK_NULL_HANDLE)
             {
-                auto *fence_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
+                auto* fence_wrapper      = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
                 fence_wrapper->in_flight = true;
             }
 
@@ -2940,7 +2940,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
         {
             if (fence != VK_NULL_HANDLE)
             {
-                auto *fence_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
+                auto* fence_wrapper      = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
                 fence_wrapper->in_flight = true;
             }
 
