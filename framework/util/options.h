@@ -64,6 +64,14 @@ enum class PresentModeOption : uint32_t
     kFifoRelaxed = 4,
 };
 
+const char kScreenshotFormatBmp[] = "bmp";
+const char kScreenshotFormatPng[] = "png";
+
+const char kCompressionTypeNone[] = "none";
+const char kCompressionTypeLz4[]  = "lz4";
+const char kCompressionTypeZlib[] = "zlib";
+const char kCompressionTypeZstd[] = "zstd";
+
 //----------------------------------------------------------------------------
 /// Read a boolean value out of a string
 /// \param  value_string Input string
