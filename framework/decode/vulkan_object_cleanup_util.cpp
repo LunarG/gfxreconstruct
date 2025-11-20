@@ -684,8 +684,8 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
         &CommonObjectInfoTable::RemoveVkSurfaceKHRInfo,
         [&](const VulkanInstanceInfo* parent_info, const VulkanSurfaceKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            auto table = get_instance_table(parent_info->handle);
-            swapchain->DestroySurface(table->DestroySurfaceKHR, parent_info, object_info, nullptr);
+            auto instance_table = get_instance_table(parent_info->handle);
+            swapchain->DestroySurface(instance_table->DestroySurfaceKHR, parent_info, object_info, nullptr);
         });
 
     FreeParentObjects<VulkanDeviceInfo>(table,
@@ -695,8 +695,8 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                                         [&](const VulkanDeviceInfo* object_info) {
                                             assert(object_info != nullptr);
                                             object_info->allocator->Destroy();
-                                            auto table = get_device_table(object_info->handle);
-                                            table->DestroyDevice(object_info->handle, nullptr);
+                                            auto device_table = get_device_table(object_info->handle);
+                                            device_table->DestroyDevice(object_info->handle, nullptr);
                                         });
 
     // Remove the objects that are not destroyed from the table.
@@ -747,8 +747,8 @@ void FreeAllLiveInstances(CommonObjectInfoTable*                                
                                           &CommonObjectInfoTable::RemoveVkInstanceInfo,
                                           [&](const VulkanInstanceInfo* object_info) {
                                               assert(object_info != nullptr);
-                                              auto table = get_instance_table(object_info->handle);
-                                              table->DestroyInstance(object_info->handle, nullptr);
+                                              auto instance_table = get_instance_table(object_info->handle);
+                                              instance_table->DestroyInstance(object_info->handle, nullptr);
                                           });
 }
 

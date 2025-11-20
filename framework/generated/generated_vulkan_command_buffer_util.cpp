@@ -43,21 +43,21 @@ void TrackBeginCommandBufferHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
     {
         if (pBeginInfo->pInheritanceInfo != nullptr)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBeginInfo->pInheritanceInfo->pNext);
-            while (pnext_header)
+            auto pnext_header_pInheritanceInfo = reinterpret_cast<const VkBaseInStructure*>(pBeginInfo->pInheritanceInfo->pNext);
+            while (pnext_header_pInheritanceInfo)
             {
-                switch (pnext_header->sType)
+                switch (pnext_header_pInheritanceInfo->sType)
                 {
                     default:
                         break;
                     case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
                     {
-                        auto pnext_value = reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(pnext_header);
+                        auto pnext_value = reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(pnext_header_pInheritanceInfo);
                         if(pnext_value->memory != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DeviceMemoryHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(pnext_value->memory));
                         break;
                     }
                 }
-                pnext_header = pnext_header->pNext;
+                pnext_header_pInheritanceInfo = pnext_header_pInheritanceInfo->pNext;
             }
             if(pBeginInfo->pInheritanceInfo->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pBeginInfo->pInheritanceInfo->renderPass));
             if(pBeginInfo->pInheritanceInfo->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pBeginInfo->pInheritanceInfo->framebuffer));
@@ -330,16 +330,16 @@ void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
 
     if (pRenderPassBegin != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
-        while (pnext_header)
+        auto pnext_header_pRenderPassBegin = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header_pRenderPassBegin)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pRenderPassBegin->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header_pRenderPassBegin);
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -350,7 +350,7 @@ void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pRenderPassBegin = pnext_header_pRenderPassBegin->pNext;
         }
         if(pRenderPassBegin->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pRenderPassBegin->renderPass));
         if(pRenderPassBegin->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pRenderPassBegin->framebuffer));
@@ -379,16 +379,16 @@ void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
 
     if (pRenderPassBegin != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
-        while (pnext_header)
+        auto pnext_header_pRenderPassBegin = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header_pRenderPassBegin)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pRenderPassBegin->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header_pRenderPassBegin);
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -399,7 +399,7 @@ void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pRenderPassBegin = pnext_header_pRenderPassBegin->pNext;
         }
         if(pRenderPassBegin->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pRenderPassBegin->renderPass));
         if(pRenderPassBegin->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pRenderPassBegin->framebuffer));
@@ -577,27 +577,27 @@ void TrackCmdBeginRenderingHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
     if (pRenderingInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pRenderingInfo = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
+        while (pnext_header_pRenderingInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pRenderingInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header_pRenderingInfo);
                     if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->imageView));
                     break;
                 }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header_pRenderingInfo);
                     if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->imageView));
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pRenderingInfo = pnext_header_pRenderingInfo->pNext;
         }
 
         if (pRenderingInfo->pColorAttachments != nullptr)
@@ -646,16 +646,16 @@ void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wra
     {
         for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < descriptorWriteCount; ++pDescriptorWrites_index)
         {
-            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
-            while (pnext_header)
+            auto pnext_header_pDescriptorWrites = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
+            while (pnext_header_pDescriptorWrites)
             {
-                switch (pnext_header->sType)
+                switch (pnext_header_pDescriptorWrites->sType)
                 {
                     default:
                         break;
                     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                     {
-                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header_pDescriptorWrites);
                         if (pnext_value->pAccelerationStructures != nullptr)
                         {
                             for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -667,7 +667,7 @@ void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wra
                     }
                     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
                     {
-                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header_pDescriptorWrites);
                         if (pnext_value->pAccelerationStructures != nullptr)
                         {
                             for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -678,7 +678,7 @@ void TrackCmdPushDescriptorSetHandles(vulkan_wrappers::CommandBufferWrapper* wra
                         break;
                     }
                 }
-                pnext_header = pnext_header->pNext;
+                pnext_header_pDescriptorWrites = pnext_header_pDescriptorWrites->pNext;
             }
             if(pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorWrites[pDescriptorWrites_index].dstSet));
 
@@ -716,16 +716,16 @@ void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* w
 
     if (pBindDescriptorSetsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pBindDescriptorSetsInfo = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
+        while (pnext_header_pBindDescriptorSetsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pBindDescriptorSetsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pBindDescriptorSetsInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -736,7 +736,7 @@ void TrackCmdBindDescriptorSets2Handles(vulkan_wrappers::CommandBufferWrapper* w
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pBindDescriptorSetsInfo = pnext_header_pBindDescriptorSetsInfo->pNext;
         }
         if(pBindDescriptorSetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pBindDescriptorSetsInfo->layout));
 
@@ -756,16 +756,16 @@ void TrackCmdPushConstants2Handles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
     if (pPushConstantsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pPushConstantsInfo = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
+        while (pnext_header_pPushConstantsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pPushConstantsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pPushConstantsInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -776,7 +776,7 @@ void TrackCmdPushConstants2Handles(vulkan_wrappers::CommandBufferWrapper* wrappe
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pPushConstantsInfo = pnext_header_pPushConstantsInfo->pNext;
         }
         if(pPushConstantsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushConstantsInfo->layout));
     }
@@ -788,16 +788,16 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
 
     if (pPushDescriptorSetInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pPushDescriptorSetInfo = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
+        while (pnext_header_pPushDescriptorSetInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pPushDescriptorSetInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pPushDescriptorSetInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -808,7 +808,7 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pPushDescriptorSetInfo = pnext_header_pPushDescriptorSetInfo->pNext;
         }
         if(pPushDescriptorSetInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushDescriptorSetInfo->layout));
 
@@ -816,16 +816,16 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
         {
             for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
             {
-                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
-                while (pnext_header)
+                auto pnext_header_pDescriptorWrites = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                while (pnext_header_pDescriptorWrites)
                 {
-                    switch (pnext_header->sType)
+                    switch (pnext_header_pDescriptorWrites->sType)
                     {
                         default:
                             break;
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                         {
-                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header_pDescriptorWrites);
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -837,7 +837,7 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
                         }
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
                         {
-                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header_pDescriptorWrites);
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -848,7 +848,7 @@ void TrackCmdPushDescriptorSet2Handles(vulkan_wrappers::CommandBufferWrapper* wr
                             break;
                         }
                     }
-                    pnext_header = pnext_header->pNext;
+                    pnext_header_pDescriptorWrites = pnext_header_pDescriptorWrites->pNext;
                 }
                 if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet));
 
@@ -916,21 +916,21 @@ void TrackCmdDecodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
     if (pDecodeInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDecodeInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pDecodeInfo = reinterpret_cast<const VkBaseInStructure*>(pDecodeInfo->pNext);
+        while (pnext_header_pDecodeInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pDecodeInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
                 {
-                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header_pDecodeInfo);
                     if(pnext_value->queryPool != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::QueryPoolHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::QueryPoolWrapper>(pnext_value->queryPool));
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pDecodeInfo = pnext_header_pDecodeInfo->pNext;
         }
         if(pDecodeInfo->srcBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pDecodeInfo->srcBuffer));
         if(pDecodeInfo->dstPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pDecodeInfo->dstPictureResource.imageViewBinding));
@@ -962,27 +962,27 @@ void TrackCmdBeginRenderingKHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
 
     if (pRenderingInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pRenderingInfo = reinterpret_cast<const VkBaseInStructure*>(pRenderingInfo->pNext);
+        while (pnext_header_pRenderingInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pRenderingInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header_pRenderingInfo);
                     if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->imageView));
                     break;
                 }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(pnext_header_pRenderingInfo);
                     if(pnext_value->imageView != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->imageView));
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pRenderingInfo = pnext_header_pRenderingInfo->pNext;
         }
 
         if (pRenderingInfo->pColorAttachments != nullptr)
@@ -1014,16 +1014,16 @@ void TrackCmdBeginRenderPass2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
 
     if (pRenderPassBegin != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
-        while (pnext_header)
+        auto pnext_header_pRenderPassBegin = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header_pRenderPassBegin)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pRenderPassBegin->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header_pRenderPassBegin);
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -1034,7 +1034,7 @@ void TrackCmdBeginRenderPass2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pRenderPassBegin = pnext_header_pRenderPassBegin->pNext;
         }
         if(pRenderPassBegin->renderPass != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::RenderPassHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::RenderPassWrapper>(pRenderPassBegin->renderPass));
         if(pRenderPassBegin->framebuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::FramebufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::FramebufferWrapper>(pRenderPassBegin->framebuffer));
@@ -1063,27 +1063,27 @@ void TrackCmdEncodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 
     if (pEncodeInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pEncodeInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pEncodeInfo = reinterpret_cast<const VkBaseInStructure*>(pEncodeInfo->pNext);
+        while (pnext_header_pEncodeInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pEncodeInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
                 {
-                    auto pnext_value = reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(pnext_header_pEncodeInfo);
                     if(pnext_value->quantizationMap != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->quantizationMap));
                     break;
                 }
                 case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
                 {
-                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header_pEncodeInfo);
                     if(pnext_value->queryPool != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::QueryPoolHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::QueryPoolWrapper>(pnext_value->queryPool));
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pEncodeInfo = pnext_header_pEncodeInfo->pNext;
         }
         if(pEncodeInfo->dstBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pEncodeInfo->dstBuffer));
         if(pEncodeInfo->srcPictureResource.imageViewBinding != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pEncodeInfo->srcPictureResource.imageViewBinding));
@@ -1287,16 +1287,16 @@ void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper
 
     if (pBindDescriptorSetsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pBindDescriptorSetsInfo = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo->pNext);
+        while (pnext_header_pBindDescriptorSetsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pBindDescriptorSetsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pBindDescriptorSetsInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1307,7 +1307,7 @@ void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pBindDescriptorSetsInfo = pnext_header_pBindDescriptorSetsInfo->pNext;
         }
         if(pBindDescriptorSetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pBindDescriptorSetsInfo->layout));
 
@@ -1327,16 +1327,16 @@ void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
 
     if (pPushConstantsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pPushConstantsInfo = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo->pNext);
+        while (pnext_header_pPushConstantsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pPushConstantsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pPushConstantsInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1347,7 +1347,7 @@ void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pPushConstantsInfo = pnext_header_pPushConstantsInfo->pNext;
         }
         if(pPushConstantsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushConstantsInfo->layout));
     }
@@ -1359,16 +1359,16 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
 
     if (pPushDescriptorSetInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pPushDescriptorSetInfo = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pNext);
+        while (pnext_header_pPushDescriptorSetInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pPushDescriptorSetInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pPushDescriptorSetInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1379,7 +1379,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pPushDescriptorSetInfo = pnext_header_pPushDescriptorSetInfo->pNext;
         }
         if(pPushDescriptorSetInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushDescriptorSetInfo->layout));
 
@@ -1387,16 +1387,16 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
         {
             for (uint32_t pDescriptorWrites_index = 0; pDescriptorWrites_index < pPushDescriptorSetInfo->descriptorWriteCount; ++pDescriptorWrites_index)
             {
-                auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
-                while (pnext_header)
+                auto pnext_header_pDescriptorWrites = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo->pDescriptorWrites->pNext);
+                while (pnext_header_pDescriptorWrites)
                 {
-                    switch (pnext_header->sType)
+                    switch (pnext_header_pDescriptorWrites->sType)
                     {
                         default:
                             break;
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                         {
-                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header_pDescriptorWrites);
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -1408,7 +1408,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                         }
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
                         {
-                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header_pDescriptorWrites);
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -1419,7 +1419,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                             break;
                         }
                     }
-                    pnext_header = pnext_header->pNext;
+                    pnext_header_pDescriptorWrites = pnext_header_pDescriptorWrites->pNext;
                 }
                 if(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetWrapper>(pPushDescriptorSetInfo->pDescriptorWrites[pDescriptorWrites_index].dstSet));
 
@@ -1458,16 +1458,16 @@ void TrackCmdSetDescriptorBufferOffsets2EXTHandles(vulkan_wrappers::CommandBuffe
 
     if (pSetDescriptorBufferOffsetsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pSetDescriptorBufferOffsetsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pSetDescriptorBufferOffsetsInfo = reinterpret_cast<const VkBaseInStructure*>(pSetDescriptorBufferOffsetsInfo->pNext);
+        while (pnext_header_pSetDescriptorBufferOffsetsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pSetDescriptorBufferOffsetsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pSetDescriptorBufferOffsetsInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1478,7 +1478,7 @@ void TrackCmdSetDescriptorBufferOffsets2EXTHandles(vulkan_wrappers::CommandBuffe
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pSetDescriptorBufferOffsetsInfo = pnext_header_pSetDescriptorBufferOffsetsInfo->pNext;
         }
         if(pSetDescriptorBufferOffsetsInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pSetDescriptorBufferOffsetsInfo->layout));
     }
@@ -1490,16 +1490,16 @@ void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(vulkan_wrappers::Co
 
     if (pBindDescriptorBufferEmbeddedSamplersInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorBufferEmbeddedSamplersInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorBufferEmbeddedSamplersInfo->pNext);
+        while (pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo);
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1510,7 +1510,7 @@ void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(vulkan_wrappers::Co
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo = pnext_header_pBindDescriptorBufferEmbeddedSamplersInfo->pNext;
         }
         if(pBindDescriptorBufferEmbeddedSamplersInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pBindDescriptorBufferEmbeddedSamplersInfo->layout));
     }
@@ -1882,22 +1882,22 @@ void TrackCmdPreprocessGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBuffe
 
     if (pGeneratedCommandsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pGeneratedCommandsInfo = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
+        while (pnext_header_pGeneratedCommandsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pGeneratedCommandsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header_pGeneratedCommandsInfo);
                     if(pnext_value->pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pnext_value->pipeline));
                     break;
                 }
                 case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header_pGeneratedCommandsInfo);
                     if (pnext_value->pShaders != nullptr)
                     {
                         for (uint32_t pShaders_index = 0; pShaders_index < pnext_value->shaderCount; ++pShaders_index)
@@ -1908,7 +1908,7 @@ void TrackCmdPreprocessGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBuffe
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pGeneratedCommandsInfo = pnext_header_pGeneratedCommandsInfo->pNext;
         }
         if(pGeneratedCommandsInfo->indirectExecutionSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectExecutionSetEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(pGeneratedCommandsInfo->indirectExecutionSet));
         if(pGeneratedCommandsInfo->indirectCommandsLayout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectCommandsLayoutEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(pGeneratedCommandsInfo->indirectCommandsLayout));
@@ -1922,22 +1922,22 @@ void TrackCmdExecuteGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWr
 
     if (pGeneratedCommandsInfo != nullptr)
     {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
-        while (pnext_header)
+        auto pnext_header_pGeneratedCommandsInfo = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
+        while (pnext_header_pGeneratedCommandsInfo)
         {
-            switch (pnext_header->sType)
+            switch (pnext_header_pGeneratedCommandsInfo->sType)
             {
                 default:
                     break;
                 case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header_pGeneratedCommandsInfo);
                     if(pnext_value->pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pnext_value->pipeline));
                     break;
                 }
                 case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
                 {
-                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header_pGeneratedCommandsInfo);
                     if (pnext_value->pShaders != nullptr)
                     {
                         for (uint32_t pShaders_index = 0; pShaders_index < pnext_value->shaderCount; ++pShaders_index)
@@ -1948,7 +1948,7 @@ void TrackCmdExecuteGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWr
                     break;
                 }
             }
-            pnext_header = pnext_header->pNext;
+            pnext_header_pGeneratedCommandsInfo = pnext_header_pGeneratedCommandsInfo->pNext;
         }
         if(pGeneratedCommandsInfo->indirectExecutionSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectExecutionSetEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(pGeneratedCommandsInfo->indirectExecutionSet));
         if(pGeneratedCommandsInfo->indirectCommandsLayout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectCommandsLayoutEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(pGeneratedCommandsInfo->indirectCommandsLayout));

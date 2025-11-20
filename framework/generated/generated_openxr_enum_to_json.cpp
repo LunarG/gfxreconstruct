@@ -4242,16 +4242,16 @@ void FieldToJson(XrAndroidSurfaceSwapchainFlagsFB_t, nlohmann::ordered_json& jda
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB:
                 return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB");
             case XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB:
                 return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4262,9 +4262,9 @@ void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT:
                 return std::string("XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT");
@@ -4275,7 +4275,7 @@ void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const
             case XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT:
                 return std::string("XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4286,14 +4286,14 @@ void FieldToJson(XrCompositionLayerImageLayoutFlagsFB_t, nlohmann::ordered_json&
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB:
                 return std::string("XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4304,16 +4304,16 @@ void FieldToJson(XrCompositionLayerSecureContentFlagsFB_t, nlohmann::ordered_jso
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB:
                 return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB");
             case XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB:
                 return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4324,9 +4324,9 @@ void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jd
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB:
                 return std::string("XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB");
@@ -4339,7 +4339,7 @@ void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jd
             case XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META:
                 return std::string("XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4350,14 +4350,14 @@ void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_jso
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB:
                 return std::string("XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4368,9 +4368,9 @@ void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
                 return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT");
@@ -4381,7 +4381,7 @@ void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
             case XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
                 return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4392,9 +4392,9 @@ void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
                 return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT");
@@ -4405,7 +4405,7 @@ void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
             case XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT:
                 return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4416,14 +4416,14 @@ void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& j
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE:
                 return std::string("XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4444,9 +4444,9 @@ void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jd
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS:
                 return std::string("XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS");
@@ -4459,7 +4459,7 @@ void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jd
             case XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS:
                 return std::string("XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4470,9 +4470,9 @@ void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, co
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC:
                 return std::string("XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC");
@@ -4481,7 +4481,7 @@ void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, co
             case XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC:
                 return std::string("XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4497,14 +4497,14 @@ void FieldToJson(XrFoveationEyeTrackedStateFlagsMETA_t, nlohmann::ordered_json& 
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META:
                 return std::string("XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4515,16 +4515,16 @@ void FieldToJson(XrFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const X
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_FRAME_END_INFO_PROTECTED_BIT_ML:
                 return std::string("XR_FRAME_END_INFO_PROTECTED_BIT_ML");
             case XR_FRAME_END_INFO_VIGNETTE_BIT_ML:
                 return std::string("XR_FRAME_END_INFO_VIGNETTE_BIT_ML");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4535,14 +4535,14 @@ void FieldToJson(XrGlobalDimmerFrameEndInfoFlagsML_t, nlohmann::ordered_json& jd
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML:
                 return std::string("XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4553,9 +4553,9 @@ void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, cons
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB:
                 return std::string("XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB");
@@ -4576,7 +4576,7 @@ void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, cons
             case XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB:
                 return std::string("XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4587,9 +4587,9 @@ void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdat
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT:
                 return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT");
@@ -4598,7 +4598,7 @@ void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdat
             case XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT:
                 return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4614,9 +4614,9 @@ void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, con
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_KEYBOARD_TRACKING_EXISTS_BIT_FB:
                 return std::string("XR_KEYBOARD_TRACKING_EXISTS_BIT_FB");
@@ -4627,7 +4627,7 @@ void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, con
             case XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB:
                 return std::string("XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4638,16 +4638,16 @@ void FieldToJson(XrKeyboardTrackingQueryFlagsFB_t, nlohmann::ordered_json& jdata
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB:
                 return std::string("XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB");
             case XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB:
                 return std::string("XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4658,9 +4658,9 @@ void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata,
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML:
                 return std::string("XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML");
@@ -4675,7 +4675,7 @@ void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata,
             case XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML:
                 return std::string("XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4686,14 +4686,14 @@ void FieldToJson(XrOverlayMainSessionFlagsEXTX_t, nlohmann::ordered_json& jdata,
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX:
                 return std::string("XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4709,9 +4709,9 @@ void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PASSTHROUGH_CAPABILITY_BIT_FB:
                 return std::string("XR_PASSTHROUGH_CAPABILITY_BIT_FB");
@@ -4720,7 +4720,7 @@ void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata
             case XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB:
                 return std::string("XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4731,16 +4731,16 @@ void FieldToJson(XrPassthroughFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB:
                 return std::string("XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB");
             case XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB:
                 return std::string("XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4751,14 +4751,14 @@ void FieldToJson(XrPassthroughPreferenceFlagsMETA_t, nlohmann::ordered_json& jda
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META:
                 return std::string("XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4769,9 +4769,9 @@ void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jda
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB:
                 return std::string("XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB");
@@ -4782,7 +4782,7 @@ void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jda
             case XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB:
                 return std::string("XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4793,9 +4793,9 @@ void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json&
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META:
                 return std::string("XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META");
@@ -4804,7 +4804,7 @@ void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json&
             case XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META:
                 return std::string("XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4815,9 +4815,9 @@ void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& j
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT:
                 return std::string("XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT");
@@ -4834,7 +4834,7 @@ void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& j
             case XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT:
                 return std::string("XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4845,14 +4845,14 @@ void FieldToJson(XrPlaneDetectorFlagsEXT_t, nlohmann::ordered_json& jdata, const
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT:
                 return std::string("XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4863,16 +4863,16 @@ void FieldToJson(XrRenderModelFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB:
                 return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB");
             case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB:
                 return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4883,9 +4883,9 @@ void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB:
                 return std::string("XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB");
@@ -4894,7 +4894,7 @@ void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata
             case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB:
                 return std::string("XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4910,9 +4910,9 @@ void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const Xr
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SPACE_LOCATION_ORIENTATION_VALID_BIT:
                 return std::string("XR_SPACE_LOCATION_ORIENTATION_VALID_BIT");
@@ -4923,7 +4923,7 @@ void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const Xr
             case XR_SPACE_LOCATION_POSITION_TRACKED_BIT:
                 return std::string("XR_SPACE_LOCATION_POSITION_TRACKED_BIT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4934,16 +4934,16 @@ void FieldToJson(XrSpaceVelocityFlags_t, nlohmann::ordered_json& jdata, const Xr
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SPACE_VELOCITY_LINEAR_VALID_BIT:
                 return std::string("XR_SPACE_VELOCITY_LINEAR_VALID_BIT");
             case XR_SPACE_VELOCITY_ANGULAR_VALID_BIT:
                 return std::string("XR_SPACE_VELOCITY_ANGULAR_VALID_BIT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4954,16 +4954,16 @@ void FieldToJson(XrSwapchainCreateFlags_t, nlohmann::ordered_json& jdata, const 
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT:
                 return std::string("XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT");
             case XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT:
                 return std::string("XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4974,16 +4974,16 @@ void FieldToJson(XrSwapchainCreateFoveationFlagsFB_t, nlohmann::ordered_json& jd
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB:
                 return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB");
             case XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB:
                 return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -4999,9 +4999,9 @@ void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const X
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT:
                 return std::string("XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT");
@@ -5020,7 +5020,7 @@ void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const X
             case XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND:
                 return std::string("XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -5031,14 +5031,14 @@ void FieldToJson(XrTriangleMeshFlagsFB_t, nlohmann::ordered_json& jdata, const X
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_TRIANGLE_MESH_MUTABLE_BIT_FB:
                 return std::string("XR_TRIANGLE_MESH_MUTABLE_BIT_FB");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -5049,9 +5049,9 @@ void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlag
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_VIEW_STATE_ORIENTATION_VALID_BIT:
                 return std::string("XR_VIEW_STATE_ORIENTATION_VALID_BIT");
@@ -5062,7 +5062,7 @@ void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlag
             case XR_VIEW_STATE_POSITION_TRACKED_BIT:
                 return std::string("XR_VIEW_STATE_POSITION_TRACKED_BIT");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 
@@ -5073,14 +5073,14 @@ void FieldToJson(XrVirtualKeyboardInputStateFlagsMETA_t, nlohmann::ordered_json&
         jdata = to_hex_fixed_width(flags);
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(flags, [](XrFlags64 flags_input)
     {
-        switch (flags)
+        switch (flags_input)
         {
             case XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META:
                 return std::string("XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META");
         }
-        return to_hex_fixed_width(flags);
+        return to_hex_fixed_width(flags_input);
     });
 }
 

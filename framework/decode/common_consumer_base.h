@@ -96,7 +96,7 @@ class PointerPairContainer
     {
         T1 t1;
         T2 t2;
-        PointerPair(T1 t1, T2 t2) : t1(t1), t2(t2) {}
+        PointerPair(T1 in_t1, T2 in_t2) : t1(in_t1), t2(in_t2) {}
     };
 
     class PointerPairIterator
@@ -108,7 +108,7 @@ class PointerPairContainer
         using pointer           = PointerPair*;
         using reference         = PointerPair&;
 
-        PointerPairIterator(T1 t1, T2 t2) : t1(t1), t2(t2) {}
+        PointerPairIterator(T1 p_t1, T2 p_t2) : t1(p_t1), t2(p_t2) {}
 
         PointerPairIterator& operator++()
         {

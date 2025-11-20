@@ -341,13 +341,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 {
                     copy_cmd_data.command_buffers.resize(capture_image_count);
 
-                    uint32_t                    new_count     = capture_image_count - command_buffer_count;
+                    uint32_t                    image_count   = capture_image_count - command_buffer_count;
                     VkCommandBufferAllocateInfo allocate_info = {
                         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
                         nullptr,                                        // pNext
                         copy_cmd_data.command_pool,                     // commandPool
                         VK_COMMAND_BUFFER_LEVEL_PRIMARY,                // level
-                        new_count                                       // commandBufferCount
+                        image_count                                     // commandBufferCount
                     };
 
                     result = device_table_->AllocateCommandBuffers(

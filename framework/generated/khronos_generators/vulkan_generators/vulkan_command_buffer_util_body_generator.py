@@ -186,13 +186,13 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
                         if ext_struct in self.structs_with_handles
                     ]
                     if ext_structs_with_handles:
-                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(
-                            value_prefix, value.name
+                        body += indent + 'auto pnext_header_{} = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(
+                            value.name, value_prefix, value.name
                         )
-                        body += indent + 'while (pnext_header)\n'
+                        body += indent + 'while (pnext_header_{})\n'.format(value.name)
                         body += indent + '{\n'
                         indent += ' ' * self.INDENT_SIZE
-                        body += indent + 'switch (pnext_header->sType)\n'
+                        body += indent + 'switch (pnext_header_{}->sType)\n'.format(value.name)
                         body += indent + '{\n'
                         indent += ' ' * self.INDENT_SIZE
                         body += indent + 'default:\n'
@@ -205,8 +205,8 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
                             )
                             body += indent + '{\n'
                             indent += ' ' * self.INDENT_SIZE
-                            body += indent + 'auto pnext_value = reinterpret_cast<const {}*>(pnext_header);\n'.format(
-                                ext_struct
+                            body += indent + 'auto pnext_value = reinterpret_cast<const {}*>(pnext_header_{});\n'.format(
+                                ext_struct, value.name
                             )
                             body += self.insert_command_handle(
                                 index,
@@ -222,7 +222,7 @@ class VulkanCommandBufferUtilBodyGenerator(VulkanBaseGenerator):
                             body += indent + '}\n'
                         indent = indent[:-self.INDENT_SIZE]
                         body += indent + '}\n'
-                        body += indent + 'pnext_header = pnext_header->pNext;\n'
+                        body += indent + 'pnext_header_{0} = pnext_header_{0}->pNext;\n'.format(value.name)
                         indent = indent[:-self.INDENT_SIZE]
                         body += indent + '}\n'
                 else:

@@ -167,12 +167,11 @@ class KhronosStructDecodersHeaderGenerator():
         body += '    {} *AllocateOutputData(size_t len)\n'.format(struct)
         body += '    {\n'
         body += '        assert(decoded_value);\n'
-        body += '        {} struct_type = decoded_value->{};\n'.format(
-            api_data.struct_type_enum, api_data.struct_type_variable
-        )
         body += '        {} *output_data = nullptr;\n'.format(struct)
         body += '\n'
-        body += '        switch (struct_type)\n'
+        body += '        switch (decoded_value->{})\n'.format(
+            api_data.struct_type_variable
+        )
         body += '        {\n'
         body += '            default:\n'
         body += '                output_data = DecodeAllocator::Allocate<{}>(len);\n'.format(

@@ -127,9 +127,9 @@ class KhronosEnumToJsonBodyGenerator():
                 body += "        jdata = to_hex_fixed_width(flags);\n"
                 body += "        return;\n"
                 body += "    }}\n"
-                body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
+                body += "    jdata = ExpandFlags(flags, []({1} flags_input)\n"
                 body += "    {{\n"
-                body += '        switch (flags)\n'
+                body += '        switch (flags_input)\n'
                 body += '        {{\n'
                 for enumerant in self.enumEnumerants[bittype]:
                     body += textwrap.indent(
@@ -142,7 +142,7 @@ class KhronosEnumToJsonBodyGenerator():
                         )
                     )
                 body += '        }}\n'
-                body += '        return to_hex_fixed_width(flags);\n'
+                body += '        return to_hex_fixed_width(flags_input);\n'
                 body += '    }});\n'
             else:
                 body += '    jdata = to_hex_fixed_width(flags);\n'

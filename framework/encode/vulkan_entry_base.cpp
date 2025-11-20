@@ -225,10 +225,10 @@ PFN_vkVoidFunction VulkanEntryBase::GetPhysicalDeviceProcAddr(VkInstance ourInst
 
     if (ourInstanceWrapper != VK_NULL_HANDLE)
     {
-        PFN_GetPhysicalDeviceProcAddr vulkan_next_gpdpa = GetNextGPDPA(ourInstanceWrapper);
-        if (vulkan_next_gpdpa != nullptr)
+        PFN_GetPhysicalDeviceProcAddr vulkan_next_gpdpa_ptr = GetNextGPDPA(ourInstanceWrapper);
+        if (vulkan_next_gpdpa_ptr != nullptr)
         {
-            result = vulkan_next_gpdpa(ourInstanceWrapper, pName);
+            result = vulkan_next_gpdpa_ptr(ourInstanceWrapper, pName);
         }
     }
 

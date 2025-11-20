@@ -4308,10 +4308,9 @@ struct Decoded_XrSwapchainImageBaseHeader
     XrSwapchainImageBaseHeader *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrSwapchainImageBaseHeader *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrSwapchainImageBaseHeader>(len);
@@ -4504,10 +4503,9 @@ struct Decoded_XrCompositionLayerBaseHeader
     XrCompositionLayerBaseHeader *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrCompositionLayerBaseHeader *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrCompositionLayerBaseHeader>(len);
@@ -4681,10 +4679,9 @@ struct Decoded_XrHapticBaseHeader
     XrHapticBaseHeader *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrHapticBaseHeader *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrHapticBaseHeader>(len);
@@ -4997,10 +4994,9 @@ struct Decoded_XrEventDataBaseHeader
     XrEventDataBaseHeader *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrEventDataBaseHeader *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrEventDataBaseHeader>(len);
@@ -5293,10 +5289,9 @@ struct Decoded_XrLoaderInitInfoBaseHeaderKHR
     XrLoaderInitInfoBaseHeaderKHR *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrLoaderInitInfoBaseHeaderKHR *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrLoaderInitInfoBaseHeaderKHR>(len);
@@ -5389,10 +5384,9 @@ struct Decoded_XrBindingModificationBaseHeaderKHR
     XrBindingModificationBaseHeaderKHR *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrBindingModificationBaseHeaderKHR *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrBindingModificationBaseHeaderKHR>(len);
@@ -5515,10 +5509,9 @@ struct Decoded_XrSwapchainStateBaseHeaderFB
     XrSwapchainStateBaseHeaderFB *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrSwapchainStateBaseHeaderFB *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrSwapchainStateBaseHeaderFB>(len);
@@ -5631,10 +5624,9 @@ struct Decoded_XrSpaceQueryInfoBaseHeaderFB
     XrSpaceQueryInfoBaseHeaderFB *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrSpaceQueryInfoBaseHeaderFB *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrSpaceQueryInfoBaseHeaderFB>(len);
@@ -5727,10 +5719,9 @@ struct Decoded_XrSpaceFilterInfoBaseHeaderFB
     XrSpaceFilterInfoBaseHeaderFB *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrSpaceFilterInfoBaseHeaderFB *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrSpaceFilterInfoBaseHeaderFB>(len);
@@ -5823,10 +5814,9 @@ struct Decoded_XrFutureCompletionBaseHeaderEXT
     XrFutureCompletionBaseHeaderEXT *AllocateOutputData(size_t len)
     {
         assert(decoded_value);
-        XrStructureType struct_type = decoded_value->type;
         XrFutureCompletionBaseHeaderEXT *output_data = nullptr;
 
-        switch (struct_type)
+        switch (decoded_value->type)
         {
             default:
                 output_data = DecodeAllocator::Allocate<XrFutureCompletionBaseHeaderEXT>(len);

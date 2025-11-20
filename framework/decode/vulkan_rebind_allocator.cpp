@@ -1136,16 +1136,16 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
             VmaMemoryInfo* vma_mem_info = nullptr;
 
-            auto result = VmaAllocateMemory(*memory_alloc_info,
-                                            bind_info.memoryOffset,
-                                            capture_req,
-                                            replay_req,
-                                            false,
-                                            false,
-                                            VK_NULL_HANDLE,
-                                            VK_NULL_HANDLE,
-                                            usage,
-                                            &vma_mem_info);
+            result = VmaAllocateMemory(*memory_alloc_info,
+                                       bind_info.memoryOffset,
+                                       capture_req,
+                                       replay_req,
+                                       false,
+                                       false,
+                                       VK_NULL_HANDLE,
+                                       VK_NULL_HANDLE,
+                                       usage,
+                                       &vma_mem_info);
             if (result >= 0)
             {
                 GFXRECON_ASSERT(vma_mem_info);

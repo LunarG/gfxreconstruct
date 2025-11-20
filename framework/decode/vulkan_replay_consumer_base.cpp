@@ -7300,15 +7300,15 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
                                             func,
                                             info_copy = std::move(info_copy),
                                             original_result]() mutable {
-            auto* info = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
+            auto* info_data = reinterpret_cast<VkDebugUtilsObjectNameInfoEXT*>(info_copy.data());
 
             // correct referenced handle in info. this would sync, but task is already done
             VkPipeline pipeline = handle_mapping::MapHandle<VulkanPipelineInfo>(
                 pipeline_id, GetObjectInfoTable(), &CommonObjectInfoTable::GetVkPipelineInfo);
             GFXRECON_ASSERT(pipeline != VK_NULL_HANDLE);
-            info->objectHandle = (uint64_t)pipeline;
+            info_data->objectHandle = (uint64_t)pipeline;
 
-            VkResult result = func(device, info);
+            VkResult result = func(device, info_data);
 
             if (result != original_result)
             {

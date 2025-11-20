@@ -321,12 +321,11 @@ class DrawCallsDumpingContext
         {
             BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0) {}
 
-            BufferPerBinding(const VulkanBufferInfo* buffer_info,
-                             VkDeviceSize            offset,
-                             VkDeviceSize            size   = 0,
-                             VkDeviceSize            stride = 0) :
-                buffer_info(buffer_info),
-                offset(offset), size(size), stride(stride)
+            BufferPerBinding(const VulkanBufferInfo* in_buffer_info,
+                             VkDeviceSize            in_offset,
+                             VkDeviceSize            in_size   = 0,
+                             VkDeviceSize            in_stride = 0) :
+                buffer_info(in_buffer_info), offset(in_offset), size(in_size), stride(in_stride)
             {}
 
             const VulkanBufferInfo* buffer_info;
@@ -350,12 +349,11 @@ class DrawCallsDumpingContext
     {
         BoundIndexBuffer() : buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0) {}
 
-        BoundIndexBuffer(const VulkanBufferInfo* buffer_info,
-                         VkDeviceSize            offset,
-                         VkIndexType             index_type,
-                         VkDeviceSize            size) :
-            buffer_info(buffer_info),
-            offset(offset), index_type(index_type), size(size)
+        BoundIndexBuffer(const VulkanBufferInfo* in_buffer_info,
+                         VkDeviceSize            in_offset,
+                         VkIndexType             in_index_type,
+                         VkDeviceSize            in_size) :
+            buffer_info(in_buffer_info), offset(in_offset), index_type(in_index_type), size(in_size)
         {}
 
         const VulkanBufferInfo* buffer_info;
@@ -587,47 +585,47 @@ class DrawCallsDumpingContext
         } dc_params_union;
 
         // Constructor for vkCmdDraw
-        DrawCallParams(DrawCallType type,
+        DrawCallParams(DrawCallType in_type,
                        uint32_t     vertex_count,
                        uint32_t     instance_count,
                        uint32_t     first_vertex,
                        uint32_t     first_instance) :
-            dc_params_union(vertex_count, instance_count, first_vertex, first_instance), type(type),
+            dc_params_union(vertex_count, instance_count, first_vertex, first_instance), type(in_type),
             updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
             updated_referenced_descriptors(false)
         {
-            assert(type == DrawCallType::kDraw);
+            assert(in_type == DrawCallType::kDraw);
         }
 
         // Constructor for vkCmdDrawIndexed*
-        DrawCallParams(DrawCallType type,
+        DrawCallParams(DrawCallType in_type,
                        uint32_t     index_count,
                        uint32_t     instance_count,
                        uint32_t     first_index,
                        int32_t      vertex_offset,
                        uint32_t     first_instance) :
-            dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance), type(type),
+            dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance), type(in_type),
             updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
             updated_referenced_descriptors(false)
         {
-            assert(type == DrawCallType::kDrawIndexed);
+            assert(in_type == DrawCallType::kDrawIndexed);
         }
 
         // Constructor for vkCmdDraw*Indirect
-        DrawCallParams(DrawCallType            type,
+        DrawCallParams(DrawCallType            in_type,
                        const VulkanBufferInfo* params_buffer_info,
                        VkDeviceSize            offset,
                        uint32_t                draw_count,
                        uint32_t                stride) :
-            dc_params_union(params_buffer_info, offset, draw_count, stride), type(type),
+            dc_params_union(params_buffer_info, offset, draw_count, stride), type(in_type),
             updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
             updated_referenced_descriptors(false)
         {
-            assert(type == DrawCallType::kDrawIndirect || type == DrawCallType::kDrawIndexedIndirect);
+            assert(in_type == DrawCallType::kDrawIndirect || in_type == DrawCallType::kDrawIndexedIndirect);
         }
 
         // Constructor for vkCmdDraw*IndirectCount*
-        DrawCallParams(DrawCallType            type,
+        DrawCallParams(DrawCallType            in_type,
                        const VulkanBufferInfo* buffer_info,
                        VkDeviceSize            offset,
                        const VulkanBufferInfo* count_buffer_info,
@@ -635,13 +633,15 @@ class DrawCallsDumpingContext
                        uint32_t                max_draw_count,
                        uint32_t                stride) :
             dc_params_union(buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride),
-            type(type), updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
+            type(in_type), updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
             updated_referenced_descriptors(false)
         {
-            GFXRECON_ASSERT(
-                type == DrawCallType::kDrawIndirectCount || type == DrawCallType::kDrawIndexedIndirectCount ||
-                type == DrawCallType::kDrawIndirectCountKHR || type == DrawCallType::kDrawIndexedIndirectCountKHR ||
-                type == DrawCallType::kDrawIndirectCountAMD || type == DrawCallType::kDrawIndexedIndirectCountAMD);
+            GFXRECON_ASSERT(in_type == DrawCallType::kDrawIndirectCount ||
+                            in_type == DrawCallType::kDrawIndexedIndirectCount ||
+                            in_type == DrawCallType::kDrawIndirectCountKHR ||
+                            in_type == DrawCallType::kDrawIndexedIndirectCountKHR ||
+                            in_type == DrawCallType::kDrawIndirectCountAMD ||
+                            in_type == DrawCallType::kDrawIndexedIndirectCountAMD);
         }
 
         DrawCallType type;

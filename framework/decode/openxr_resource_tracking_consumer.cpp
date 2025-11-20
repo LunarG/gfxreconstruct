@@ -1906,10 +1906,10 @@ void OpenXrResourceTrackingConsumer::Process_xrCreateSpaceUserFB(
 
     if ((replay_outhandle != nullptr) && (result == XR_SUCCESS))
     {
-        TrackedXrSpaceUserFBInfo info;
-        info.SetCaptureId(*(user->GetPointer()));
-        info.SetHandleId(*replay_outhandle);
-        GetTrackedObjectInfoTable()->AddTrackedXrSpaceUserFBInfo(std::move(info));
+        TrackedXrSpaceUserFBInfo tracked_info;
+        tracked_info.SetCaptureId(*(user->GetPointer()));
+        tracked_info.SetHandleId(*replay_outhandle);
+        GetTrackedObjectInfoTable()->AddTrackedXrSpaceUserFBInfo(std::move(tracked_info));
 
         spaceuserFB_to_instance_[*replay_outhandle] = replay_instance;
     }

@@ -1530,9 +1530,10 @@ bool VulkanAddressReplacer::init_pipeline()
     pipeline_layout_info.pushConstantRangeCount     = 1;
     pipeline_layout_info.pPushConstantRanges        = &push_constant_range;
 
-    VkResult result = device_table_->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &pipeline_layout_);
+    VkResult create_pipeline_layout_result =
+        device_table_->CreatePipelineLayout(device_, &pipeline_layout_info, nullptr, &pipeline_layout_);
 
-    if (result != VK_SUCCESS)
+    if (create_pipeline_layout_result != VK_SUCCESS)
     {
         GFXRECON_LOG_FATAL("VulkanAddressReplacer: failed in vkCreatePipelineLayout");
     }
@@ -2173,10 +2174,10 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
                              "GFXR VulkanAddressReplacer hashmap_storage_bda_binary_");
     };
 
-    auto init_storage = [this, hashmap_elem_size = hashmap_elem_size](VkCommandBuffer command_buffer) {
+    auto init_storage = [this, hashmap_elem_size = hashmap_elem_size](VkCommandBuffer local_command_buffer) {
         device_table_->CmdFillBuffer(
-            command_buffer, hashmap_storage_bda_binary_.buffer, 0, hashmap_storage_bda_binary_.num_bytes, 0);
-        barrier(command_buffer,
+            local_command_buffer, hashmap_storage_bda_binary_.buffer, 0, hashmap_storage_bda_binary_.num_bytes, 0);
+        barrier(local_command_buffer,
                 hashmap_storage_bda_binary_.buffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_ACCESS_TRANSFER_WRITE_BIT,

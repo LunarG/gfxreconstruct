@@ -1722,12 +1722,11 @@ VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure& 
                 if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR)
                 {
                     GFXRECON_ASSERT(triangles->index_buffer != VK_NULL_HANDLE);
-                    VkResult res =
-                        resource_util.ReadFromBufferResource(triangles->index_buffer,
-                                                             static_cast<uint64_t>(triangles->index_buffer_size),
-                                                             0,
-                                                             transfer_queue_index,
-                                                             new_dumped_triangles_data.index_buffer);
+                    res = resource_util.ReadFromBufferResource(triangles->index_buffer,
+                                                               static_cast<uint64_t>(triangles->index_buffer_size),
+                                                               0,
+                                                               transfer_queue_index,
+                                                               new_dumped_triangles_data.index_buffer);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_WARNING("Error dumping input index buffer for BLAS %" PRIu64 " (%s)",
@@ -1739,12 +1738,11 @@ VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure& 
 
                 if (triangles->transform_buffer != VK_NULL_HANDLE)
                 {
-                    VkResult res =
-                        resource_util.ReadFromBufferResource(triangles->transform_buffer,
-                                                             static_cast<uint64_t>(sizeof(VkTransformMatrixKHR)),
-                                                             0,
-                                                             transfer_queue_index,
-                                                             new_dumped_triangles_data.transform_buffer);
+                    res = resource_util.ReadFromBufferResource(triangles->transform_buffer,
+                                                               static_cast<uint64_t>(sizeof(VkTransformMatrixKHR)),
+                                                               0,
+                                                               transfer_queue_index,
+                                                               new_dumped_triangles_data.transform_buffer);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_WARNING("Error dumping transform buffer for BLAS %" PRIu64 " (%s)",
@@ -1801,11 +1799,11 @@ VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure& 
     if (tlas_context->serialized_data.buffer != VK_NULL_HANDLE)
     {
         dumped_tlas.serialized_data.size = tlas_context->serialized_data.size;
-        VkResult res                     = resource_util.ReadFromBufferResource(tlas_context->serialized_data.buffer,
-                                                            static_cast<uint64_t>(tlas_context->serialized_data.size),
-                                                            0,
-                                                            transfer_queue_index,
-                                                            dumped_tlas_data.serialized_data);
+        res                              = resource_util.ReadFromBufferResource(tlas_context->serialized_data.buffer,
+                                                   static_cast<uint64_t>(tlas_context->serialized_data.size),
+                                                   0,
+                                                   transfer_queue_index,
+                                                   dumped_tlas_data.serialized_data);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_WARNING("Error dumping fetching serialized data for TLAS %" PRIu64 " (%s)",
@@ -1822,12 +1820,11 @@ VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure& 
 
         if (referenced_ases[i]->serialized_data.buffer != VK_NULL_HANDLE)
         {
-            VkResult res =
-                resource_util.ReadFromBufferResource(referenced_ases[i]->serialized_data.buffer,
-                                                     static_cast<uint64_t>(referenced_ases[i]->serialized_data.size),
-                                                     0,
-                                                     transfer_queue_index,
-                                                     dumped_tlas_data.blass_dumped_data[i].serialized_data);
+            res = resource_util.ReadFromBufferResource(referenced_ases[i]->serialized_data.buffer,
+                                                       static_cast<uint64_t>(referenced_ases[i]->serialized_data.size),
+                                                       0,
+                                                       transfer_queue_index,
+                                                       dumped_tlas_data.blass_dumped_data[i].serialized_data);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_WARNING("Error dumping fetching serialized data from BLAS %" PRIu64 " (%s)",

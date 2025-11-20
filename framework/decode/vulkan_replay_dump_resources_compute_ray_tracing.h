@@ -293,20 +293,20 @@ class DispatchTraceRaysDumpingContext
             {}
         } dispatch_params_union;
 
-        DispatchParams(DispatchTypes type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
-            dispatch_params_union{ groupCountX, groupCountY, groupCountZ }, type(type),
+        DispatchParams(DispatchTypes in_type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
+            dispatch_params_union{ groupCountX, groupCountY, groupCountZ }, type(in_type),
             updated_referenced_descriptors(false)
         {
             assert(type == kDispatch);
         }
 
-        DispatchParams(DispatchTypes type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
-            dispatch_params_union{ params_buffer_info, offset }, type(type), updated_referenced_descriptors(false)
+        DispatchParams(DispatchTypes in_type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
+            dispatch_params_union{ params_buffer_info, offset }, type(in_type), updated_referenced_descriptors(false)
         {
             assert(type == kDispatchIndirect);
         }
 
-        DispatchParams(DispatchTypes type,
+        DispatchParams(DispatchTypes in_type,
                        uint32_t      baseGroupX,
                        uint32_t      baseGroupY,
                        uint32_t      baseGroupZ,
@@ -314,7 +314,7 @@ class DispatchTraceRaysDumpingContext
                        uint32_t      groupCountY,
                        uint32_t      groupCountZ) :
             dispatch_params_union{ baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ },
-            type(type), updated_referenced_descriptors(false)
+            type(in_type), updated_referenced_descriptors(false)
         {
             assert(type == kDispatchBase);
         }
@@ -419,14 +419,14 @@ class DispatchTraceRaysDumpingContext
             {}
         } trace_rays_params_union;
 
-        TraceRaysParams(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
-            trace_rays_params_union(width, height, depth), type(type), updated_referenced_descriptors(false)
+        TraceRaysParams(TraceRaysTypes in_type, uint32_t width, uint32_t height, uint32_t depth) :
+            trace_rays_params_union(width, height, depth), type(in_type), updated_referenced_descriptors(false)
         {
             assert(type == kTraceRays);
         }
 
-        TraceRaysParams(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
-            trace_rays_params_union(indirectDeviceAddress), type(type), updated_referenced_descriptors(false)
+        TraceRaysParams(TraceRaysTypes in_type, VkDeviceAddress indirectDeviceAddress) :
+            trace_rays_params_union(indirectDeviceAddress), type(in_type), updated_referenced_descriptors(false)
 
         {
             assert(type == kTraceRaysIndirect);
