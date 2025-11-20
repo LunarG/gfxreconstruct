@@ -779,6 +779,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetFenceStatus(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
 {
     template <typename... Args>

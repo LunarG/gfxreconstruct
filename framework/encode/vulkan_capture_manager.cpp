@@ -3426,6 +3426,21 @@ void VulkanCaptureManager::PostProcess_vkWaitForFences(
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkGetFenceStatus(VkResult result, VkDevice device, VkFence fence)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if (IsCaptureModeTrack() && result == VK_SUCCESS)
+    {
+        auto* fence_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence);
+        if (fence_wrapper != nullptr)
+        {
+            // fence was already signaled, so clear 'in_flight' flag
+            fence_wrapper->in_flight = false;
+        }
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkBeginCommandBuffer(VkCommandBuffer                 commandBuffer,
                                                            const VkCommandBufferBeginInfo* pBeginInfo)
 {

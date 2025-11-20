@@ -1425,6 +1425,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                      const VkFence* pFences,
                                      VkBool32       waitAll,
                                      uint64_t       timeout);
+    void PostProcess_vkGetFenceStatus(VkResult result, VkDevice device, VkFence fence);
 
     void PostProcess_vkSetPrivateData(VkResult          result,
                                       VkDevice          device,
