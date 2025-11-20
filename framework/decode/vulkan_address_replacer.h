@@ -476,8 +476,9 @@ class VulkanAddressReplacer
     std::vector<bda_element_t> storage_bda_binary_;
 
     // storage- and control-buffers for a global hashmap acting as address-filter
-    buffer_context_t hashmap_storage_bda_binary_       = {};
-    buffer_context_t hashmap_control_block_bda_binary_ = {}, hashmap_control_block_bda_binary_prev_ = {};
+    buffer_context_t hashmap_storage_bda_binary_            = {};
+    buffer_context_t hashmap_control_block_bda_binary_      = {};
+    buffer_context_t hashmap_control_block_bda_binary_prev_ = {};
 
     // pipeline-contexts per command-buffer
     std::unordered_map<VkCommandBuffer, std::vector<pipeline_context_t>> pipeline_context_map_;
