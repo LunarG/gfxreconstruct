@@ -403,8 +403,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkDeviceSize             size,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size), stages(ss), desc_type(dt), set(s),
+        binding(b), array_index(ai), resource_type(rt)
     {}
 
     // Inline uniform buffers for graphics
@@ -419,9 +419,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 s,
                      uint32_t                 b,
                      DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp), dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt)
     {}
 
     // Graphics image descriptors
@@ -439,9 +438,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      const VulkanImageInfo*   img_info,
                      ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt)
     {}
 
     // Dispatch ray tracing image descriptors
@@ -457,9 +455,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      const VulkanImageInfo*   img_info,
                      ImageDumpResult          cd,
                      DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        DumpedResourceBase(t, bcb, cmd, qs), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd), stages(ss),
+        desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt)
     {}
 
     // Dispatch ray tracing buffer descriptors
@@ -477,8 +474,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkDeviceSize             size,
                      DumpResourcesCommandType rt) :
         DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size), stages(ss), desc_type(dt), set(s),
+        binding(b), array_index(ai), resource_type(rt)
     {}
 
     // Dispatch ray tracing inline uniform buffers
@@ -491,9 +488,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                 s,
                      uint32_t                 b,
                      DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+        DumpedResourceBase(t, bcb, cmd, qs), dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt)
     {}
 
     // Acceleration structure for TraceRays
@@ -510,8 +506,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      bool                                      dbib,
                      DumpResourcesCommandType                  rt) :
         DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedTopLevelAccelerationStructure>, as_info, dbib)
+        dumped_resource(std::in_place_type<DumpedTopLevelAccelerationStructure>, as_info, dbib), stages(ss),
+        desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt)
     {}
 
     // The dumped resource
@@ -549,8 +545,7 @@ struct DumpedRenderTarget : DumpedResourceBase
                        bool                   before,
                        const VulkanImageInfo* img_info,
                        ImageDumpResult        cd) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        location(l), dumped_image(img_info, cd)
+        DumpedResourceBase(t, bcb, cmd, qs, rp, sp), dumped_image(img_info, cd), location(l)
     {
         if (before)
         {

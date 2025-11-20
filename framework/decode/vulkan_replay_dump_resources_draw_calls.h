@@ -592,9 +592,9 @@ class DrawCallsDumpingContext
                        uint32_t     instance_count,
                        uint32_t     first_vertex,
                        uint32_t     first_instance) :
-            dc_params_union(vertex_count, instance_count, first_vertex, first_instance),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            dc_params_union(vertex_count, instance_count, first_vertex, first_instance), type(type),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
+            updated_referenced_descriptors(false)
         {
             assert(type == DrawCallType::kDraw);
         }
@@ -606,9 +606,9 @@ class DrawCallsDumpingContext
                        uint32_t     first_index,
                        int32_t      vertex_offset,
                        uint32_t     first_instance) :
-            dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance), type(type),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
+            updated_referenced_descriptors(false)
         {
             assert(type == DrawCallType::kDrawIndexed);
         }
@@ -619,9 +619,9 @@ class DrawCallsDumpingContext
                        VkDeviceSize            offset,
                        uint32_t                draw_count,
                        uint32_t                stride) :
-            dc_params_union(params_buffer_info, offset, draw_count, stride),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            dc_params_union(params_buffer_info, offset, draw_count, stride), type(type),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
+            updated_referenced_descriptors(false)
         {
             assert(type == DrawCallType::kDrawIndirect || type == DrawCallType::kDrawIndexedIndirect);
         }
@@ -635,8 +635,8 @@ class DrawCallsDumpingContext
                        uint32_t                max_draw_count,
                        uint32_t                stride) :
             dc_params_union(buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            type(type), updated_bound_vertex_buffers(false), updated_bound_index_buffer(false),
+            updated_referenced_descriptors(false)
         {
             GFXRECON_ASSERT(
                 type == DrawCallType::kDrawIndirectCount || type == DrawCallType::kDrawIndexedIndirectCount ||

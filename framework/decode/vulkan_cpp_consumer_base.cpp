@@ -44,7 +44,7 @@ GfxToCppPlatform GetGfxToCppPlatform(const std::string& format_str);
 std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
-    frame_file_(nullptr), global_file_(nullptr), main_file_(nullptr), pfn_loader_()
+    pfn_loader_(), frame_file_(nullptr), global_file_(nullptr), main_file_(nullptr)
 {
     counters_[VK_OBJECT_TYPE_UNKNOWN] = 0;
 }

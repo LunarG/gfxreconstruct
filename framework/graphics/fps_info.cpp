@@ -47,13 +47,12 @@ FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
     start_time_(0),
     replay_start_time_(0), replay_end_time_(0), measurement_start_time_(0), measurement_end_time_(0),
     measurement_start_boot_time_(0), measurement_end_boot_time_(0), measurement_start_process_time_(0),
-    measurement_end_process_time_(0), has_measurement_range_(has_measurement_range), replay_start_frame_(0),
-    measurement_start_frame_(measurement_start_frame), measurement_end_frame_(measurement_end_frame),
+    measurement_end_process_time_(0), replay_start_frame_(0), measurement_start_frame_(measurement_start_frame),
+    measurement_end_frame_(measurement_end_frame), has_measurement_range_(has_measurement_range),
     quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
     flush_inside_measurement_range_(flush_inside_measurement_range), started_measurement_(false),
-    ended_measurement_(false), preload_measurement_range_(preload_measurement_range),
-    measurement_file_name_(measurement_file_name), frame_start_time_(0), frame_durations_(),
-    quit_after_frame_(quit_after_frame), quit_frame_(quit_frame)
+    ended_measurement_(false), frame_start_time_(0), frame_durations_(), measurement_file_name_(measurement_file_name),
+    preload_measurement_range_(preload_measurement_range), quit_after_frame_(quit_after_frame), quit_frame_(quit_frame)
 {
     if (has_measurement_range_)
     {

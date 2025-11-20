@@ -56,8 +56,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const OpenXrReplayOptions&                options) :
-    application_(application),
-    options_(options), get_instance_proc_addr_(nullptr), fps_info_(nullptr)
+    options_(options), get_instance_proc_addr_(nullptr), application_(application), fps_info_(nullptr)
 {
     assert(application_ != nullptr);
     object_info_table_ = CommonObjectInfoTable::GetSingleton();

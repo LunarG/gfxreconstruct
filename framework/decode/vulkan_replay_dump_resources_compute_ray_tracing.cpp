@@ -58,14 +58,14 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     const util::Compressor*                     compressor,
     DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&       address_trackers) :
-    original_command_buffer_info_(nullptr),
-    DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
-    delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
-    bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
+    original_command_buffer_info_(nullptr), DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources),
+    tr_subresources_(tr_subresources), delegate_(delegate), options_(options), compressor_(compressor),
+    bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
     device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), reached_end_command_buffer_(false),
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
+    current_trace_rays_index_(0), reached_end_command_buffer_(false)
 {
     if (dispatch_indices != nullptr)
     {

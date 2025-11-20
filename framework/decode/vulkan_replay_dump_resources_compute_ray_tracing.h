@@ -420,13 +420,13 @@ class DispatchTraceRaysDumpingContext
         } trace_rays_params_union;
 
         TraceRaysParams(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
-            type(type), trace_rays_params_union(width, height, depth), updated_referenced_descriptors(false)
+            trace_rays_params_union(width, height, depth), type(type), updated_referenced_descriptors(false)
         {
             assert(type == kTraceRays);
         }
 
         TraceRaysParams(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
-            type(type), trace_rays_params_union(indirectDeviceAddress), updated_referenced_descriptors(false)
+            trace_rays_params_union(indirectDeviceAddress), type(type), updated_referenced_descriptors(false)
 
         {
             assert(type == kTraceRaysIndirect);

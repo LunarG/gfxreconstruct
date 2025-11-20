@@ -32,9 +32,10 @@ GFXRECON_BEGIN_NAMESPACE(openxr)
 
 VulkanGraphicsBinding::VulkanGraphicsBinding(VulkanReplayConsumerBase&                 vulkan_consumer,
                                              const Decoded_XrGraphicsBindingVulkanKHR& xr_binding) :
-    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value),
-    vulkan_consumer(&vulkan_consumer), instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
-    device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance), device_id(xr_binding.device)
+    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value), vulkan_consumer(&vulkan_consumer),
+    instance_table(vulkan_consumer->GetInstanceTable(physicalDevice)),
+    device_table(vulkan_consumer->GetDeviceTable(device)), instance_id(xr_binding.instance),
+    device_id(xr_binding.device)
 {
     next = nullptr; // We don't have a safe (deep) copy of the original so stub out the copies downchain pointer
 

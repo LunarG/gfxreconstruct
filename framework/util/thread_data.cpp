@@ -30,7 +30,7 @@ format::ThreadId                               ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, format::ThreadId> ThreadData::id_map_;
 
 ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown)
+    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown), object_id_(format::kNullHandleId)
 {
     parameter_buffer_  = std::make_unique<encode::ParameterBuffer>();
     parameter_encoder_ = std::make_unique<encode::ParameterEncoder>(parameter_buffer_.get());
