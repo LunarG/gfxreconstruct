@@ -38,14 +38,16 @@ void decode::VulkanDeviceAddressTracker::TrackBuffer(const decode::VulkanBufferI
         if (buffer_info->capture_address != 0)
         {
             buffer_capture_addresses_[buffer_info->capture_address] = buffer_info->capture_id;
+
+            // if a capture-address is known, we also know the replay-address
+            address_lookup_helper_map_[buffer_info->capture_address] = { buffer_info->replay_address,
+                                                                         buffer_info->size };
         }
 
         // track replay device address
         if (buffer_info->replay_address != 0)
         {
-            buffer_replay_addresses_[buffer_info->replay_address]    = buffer_info->capture_id;
-            address_lookup_helper_map_[buffer_info->capture_address] = { buffer_info->replay_address,
-                                                                         buffer_info->size };
+            buffer_replay_addresses_[buffer_info->replay_address] = buffer_info->capture_id;
         }
 
         // track vulkan-handle
@@ -77,20 +79,34 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
 {
     if (acceleration_structure_info != nullptr)
     {
+        auto* buffer_info = GetBufferByHandle(acceleration_structure_info->buffer);
+
         // track capture device address
         if (acceleration_structure_info->capture_address != 0)
         {
+            // if a capture-address is known, we also know the replay-address
             acceleration_structure_addresses_[acceleration_structure_info->capture_address] =
                 acceleration_structure_info->replay_address;
 
-            auto* buffer_info = GetBufferByHandle(acceleration_structure_info->buffer);
+            // we can derive the buffer-device address from AS device-address, if necessary
+            if (buffer_info != nullptr)
+            {
+                buffer_info->capture_address =
+                    acceleration_structure_info->capture_address - acceleration_structure_info->offset;
+            }
+        }
 
-            // associated buffer has already queried a device-address, meaning we also got the AS device-address
-            if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        if (acceleration_structure_info->replay_address != 0)
+        {
+            // we can derive the buffer-device address from AS device-address, if necessary
+            if (buffer_info != nullptr)
             {
                 // if not already present, keep track of AS<->VkBuffer association
-                buffer_info->acceleration_structures[acceleration_structure_info->capture_address].insert(
-                    acceleration_structure_info);
+                buffer_info->acceleration_structures[acceleration_structure_info->replay_address].insert(
+                    object_info_table_.GetVkAccelerationStructureKHRInfo(acceleration_structure_info->capture_id));
+
+                buffer_info->replay_address =
+                    acceleration_structure_info->replay_address - acceleration_structure_info->offset;
             }
         }
 
@@ -100,6 +116,9 @@ void VulkanDeviceAddressTracker::TrackAccelerationStructure(
             acceleration_structure_handles_[acceleration_structure_info->handle] =
                 acceleration_structure_info->capture_id;
         }
+
+        // potentially update tracked address-information for linked buffer
+        TrackBuffer(buffer_info);
     }
 }
 
@@ -113,7 +132,7 @@ void VulkanDeviceAddressTracker::RemoveAccelerationStructure(
 
         if (buffer_info != nullptr)
         {
-            buffer_info->acceleration_structures[acceleration_structure_info->capture_address].erase(
+            buffer_info->acceleration_structures[acceleration_structure_info->replay_address].erase(
                 acceleration_structure_info);
         }
     }

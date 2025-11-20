@@ -415,7 +415,7 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
 
-    // map acceleration-structure capture-addresses to existing (alias) AS-handles
+    // map acceleration-structure replay-addresses to existing (alias) AS-handles
     std::unordered_map<VkDeviceAddress, std::unordered_set<const VulkanAccelerationStructureKHRInfo*>>
         acceleration_structures;
 };
