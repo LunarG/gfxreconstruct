@@ -41,16 +41,6 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN "YES")
 
 option(USE_STRICT_COMPILER_WARNINGS "Use a stricter compiler-warning level" OFF)
 
-if (USE_STRICT_COMPILER_WARNINGS)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wconversion -Wextra -Werror -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers")
-    else ()
-        message(WARNING "option 'USE_STRICT_COMPILER_WARNINGS' is set, but not implemented for this platform")
-    endif ()
-endif (USE_STRICT_COMPILER_WARNINGS)
-
 # Version info
 set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 1)
 set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 0)
@@ -386,10 +376,18 @@ target_link_libraries(platform_specific INTERFACE
         $<$<NOT:$<OR:$<BOOL:${WIN32}>,$<BOOL:${APPLE}>>>:linux_specific>)
 
 if (BUILD_WERROR)
-    if (MSVC)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
         target_compile_options(platform_specific INTERFACE /WX)
     else ()
         target_compile_options(platform_specific INTERFACE -Werror)
+    endif ()
+endif ()
+
+if (USE_STRICT_COMPILER_WARNINGS)
+    if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
+        target_compile_options(platform_specific INTERFACE /W4)
+    else ()
+        target_compile_options(platform_specific INTERFACE -pedantic -Wall -Wconversion -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers)
     endif ()
 endif ()
 
