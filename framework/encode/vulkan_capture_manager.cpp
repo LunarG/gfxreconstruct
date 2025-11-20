@@ -3408,12 +3408,11 @@ void VulkanCaptureManager::PostProcess_vkResetFences(VkResult       result,
 void VulkanCaptureManager::PostProcess_vkWaitForFences(
     VkResult result, VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(result);
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(waitAll);
     GFXRECON_UNREFERENCED_PARAMETER(timeout);
 
-    if (IsCaptureModeTrack())
+    if (IsCaptureModeTrack() && result == VK_SUCCESS)
     {
         for (uint32_t i = 0; i < fenceCount; ++i)
         {
