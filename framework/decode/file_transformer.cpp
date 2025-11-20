@@ -265,8 +265,7 @@ bool FileTransformer::ProcessNextBlock()
         }
         else if (block_header.type == format::BlockType::kStateMarkerBlock)
         {
-            format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-            uint64_t           frame_number = 0;
+            format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
             success = ReadBytes(&marker_type, sizeof(marker_type));
 

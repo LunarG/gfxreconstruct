@@ -187,7 +187,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(XrInstance        in
         if (format::kNullHandleId ==
             vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(*vkPhysicalDevice))
         {
-            auto instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
             vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
                                                  vulkan_wrappers::NoParentWrapper,
                                                  vulkan_wrappers::PhysicalDeviceWrapper>(
@@ -601,8 +600,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
 
-    bool omit_output_data = false;
-
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB>::PreLockReentrant(
         manager, mesh, outIndexBuffer);
     CommonCaptureManager::CaptureMode save_capture_mode;
@@ -619,11 +616,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB);
     if (encoder)

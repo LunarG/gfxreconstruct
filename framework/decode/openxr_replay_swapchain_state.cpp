@@ -293,8 +293,6 @@ XrResult SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t r
 
 XrResult SwapchainData::ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
 {
-    XrResult xr_result = XR_SUCCESS;
-
     if (graphics_binding_->IsVulkan())
     {
         return ReleaseSwapchainImage(releaseInfo, *swapchain_graphics_info_.vulkan_info);
@@ -349,7 +347,6 @@ XrResult SwapchainData::AcquireSwapchainImage(uint32_t capture_index, uint32_t r
     XrResult xr_result = XR_SUCCESS; // WIP: Determine if there is a better code for this
 
     const VulkanGraphicsBinding& vk_binding   = graphics_binding_->GetVulkanBinding();
-    const VkDevice               vk_device    = vk_binding.device;
     auto*                        device_table = vk_binding.device_table;
 
     VulkanSwapchainInfo::ProxyImage& proxy = swap.proxy_images[capture_index];
@@ -412,12 +409,8 @@ XrResult SwapchainData::ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwa
 
     XrResult xr_result = XR_SUCCESS; // WIP: Determine if there is a better code for this
 
-    const VulkanGraphicsBinding& vk_binding     = graphics_binding_->GetVulkanBinding();
-    const VkDevice               vk_device      = vk_binding.device;
-    const format::HandleId       device_id      = vk_binding.device_id;
-    const VkPhysicalDevice       vk_physical    = vk_binding.physicalDevice;
-    auto*                        device_table   = vk_binding.device_table;
-    auto*                        instance_table = vk_binding.instance_table;
+    const VulkanGraphicsBinding& vk_binding   = graphics_binding_->GetVulkanBinding();
+    auto*                        device_table = vk_binding.device_table;
 
     // Copy the head of the AcquireRelease FIFO from the proxy image to the replay image
     assert(!acquire_release_fifo_.empty());
@@ -480,11 +473,6 @@ XrResult SwapchainData::ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwa
         vk_swap.whole_range.aspectMask, 0, vk_swap.whole_range.baseArrayLayer, vk_swap.whole_range.layerCount
     };
     VkOffset3D zero_offset = { 0, 0, 0 };
-    VkExtent3D mip_extent  = vk_swap.image_create_info.extent;
-
-    VkImageCopy copy_region = {
-        subres_layers, zero_offset, subres_layers, zero_offset, vk_swap.image_create_info.extent
-    };
 
     uint32_t                 mip_count = vk_swap.image_create_info.mipLevels;
     std::vector<VkImageCopy> copy_regions;

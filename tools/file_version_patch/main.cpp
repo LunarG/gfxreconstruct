@@ -38,14 +38,14 @@
 
 #include <nlohmann/json.hpp>
 
-const char kHelpShortOption[] = "-h";
-const char kHelpLongOption[]  = "--help";
-const char kVersionOption[]   = "--version";
-const char kNoDebugPopup[]    = "--no-debug-popup";
+const char                  kHelpShortOption[] = "-h";
+const char                  kHelpLongOption[]  = "--help";
+const char                  kVersionOption[]   = "--version";
+[[maybe_unused]] const char kNoDebugPopup[]    = "--no-debug-popup";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
-const char kUnrecognizedFormatString[] = "<unrecognized-format>";
+[[maybe_unused]] const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 static void PrintUsage(const char* exe_name)
 {

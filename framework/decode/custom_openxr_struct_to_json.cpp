@@ -93,8 +93,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data, co
 {
     if (data && data->decoded_value)
     {
-        const timespec&         decoded_value = *data->decoded_value;
-        const Decoded_timespec& meta_struct   = *data;
+        const timespec& decoded_value = *data->decoded_value;
 
         FieldToJson(jdata["tv_sec"], decoded_value.tv_sec, options);
         FieldToJson(jdata["tv_nsec"], decoded_value.tv_nsec, options);

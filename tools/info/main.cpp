@@ -70,14 +70,14 @@
 
 #include <nlohmann/json.hpp>
 
-const char kHelpShortOption[]   = "-h";
-const char kHelpLongOption[]    = "--help";
-const char kVersionOption[]     = "--version";
-const char kNoDebugPopup[]      = "--no-debug-popup";
-const char kExeInfoOnlyOption[] = "--exe-info-only";
-const char kEnvVarsOnlyOption[] = "--env-vars-only";
-const char kFileFormatOnlyOption[] = "--file-format-only";
-const char kEnumGpuIndices[]    = "--enum-gpu-indices";
+const char                  kHelpShortOption[]      = "-h";
+const char                  kHelpLongOption[]       = "--help";
+const char                  kVersionOption[]        = "--version";
+[[maybe_unused]] const char kNoDebugPopup[]         = "--no-debug-popup";
+const char                  kExeInfoOnlyOption[]    = "--exe-info-only";
+const char                  kEnvVarsOnlyOption[]    = "--env-vars-only";
+const char                  kFileFormatOnlyOption[] = "--file-format-only";
+[[maybe_unused]] const char kEnumGpuIndices[]       = "--enum-gpu-indices";
 
 const char kOptions[] =
     "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--enum-gpu-indices";

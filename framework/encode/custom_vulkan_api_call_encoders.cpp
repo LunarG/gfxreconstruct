@@ -366,8 +366,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2(
     }
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(
-        info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
+    UnwrapDescriptorUpdateTemplateInfoHandles(info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
 
     vulkan_wrappers::GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplate2(commandBuffer, pPushDescriptorSetWithTemplateInfo);
@@ -406,8 +405,7 @@ VKAPI_ATTR void VKAPI_CALL vkCmdPushDescriptorSetWithTemplate2KHR(
     }
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    auto pData_unwrapped      = UnwrapDescriptorUpdateTemplateInfoHandles(
-        info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
+    UnwrapDescriptorUpdateTemplateInfoHandles(info, pPushDescriptorSetWithTemplateInfo->pData, handle_unwrap_memory);
 
     vulkan_wrappers::GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplate2KHR(commandBuffer, pPushDescriptorSetWithTemplateInfo);
@@ -838,7 +836,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesKHR(VkDevice          
         omit_output_data = true;
     }
 
-    auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     if (result != VK_OPERATION_DEFERRED_KHR)
     {
         // If the operation is not deferred by driver. or the system doesn't support

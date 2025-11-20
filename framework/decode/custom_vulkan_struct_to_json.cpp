@@ -94,7 +94,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearColorValue*
     if (data && data->decoded_value)
     {
         const auto& decoded_value = *data->decoded_value;
-        const auto& meta_struct   = *data;
         FieldToJson(jdata["float32"], decoded_value.float32, 4, options);
         FieldToJson(jdata["int32"], decoded_value.int32, 4, options);
         FieldToJson(jdata["uint32"], decoded_value.uint32, 4, options);

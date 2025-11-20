@@ -269,7 +269,6 @@ VkResult LayerVulkanEntry::dispatch_CreateInstance(const VkInstanceCreateInfo*  
             if (fpCreateInstance)
             {
                 // Advance the link info for the next element on the chain
-                auto pLayerInfo          = chain_info->u.pLayerInfo;
                 chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
                 result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);

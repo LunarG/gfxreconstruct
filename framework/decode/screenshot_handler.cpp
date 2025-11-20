@@ -36,9 +36,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 static constexpr uint32_t kDefaultQueueFamilyIndex = 0;
 static constexpr uint32_t kDefaultQueueIndex       = 0;
 
-static constexpr size_t kUnormIndex = 0;
-static constexpr size_t kSrgbIndex  = 1;
-
 inline void WriteImageFile(const std::string&     filename,
                            util::ScreenshotFormat file_format,
                            uint32_t               width,

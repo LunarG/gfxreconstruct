@@ -286,8 +286,7 @@ class MetadataJsonConsumer : public Base
     virtual void ProcessSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
                                                        const char* env_string) override
     {
-        const JsonOptions& json_options = GetJsonOptions();
-        auto&              json_data    = WriteMetaCommandStart("SetEnvironmentVariablesCommand");
+        auto& json_data = WriteMetaCommandStart("SetEnvironmentVariablesCommand");
 
         std::vector<std::string> env_vars =
             util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);

@@ -36,7 +36,6 @@ std::string GenerateStruct_VkMemoryAllocateInfo(std::ostream&                 ou
 {
 
     std::string memory_reqs = "";
-    bool        new_size    = consumer.GetResourceMemoryRequirements(memoryHandleId, memory_reqs);
 
     std::stringstream struct_body;
     // sType
@@ -782,10 +781,10 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
         descriptor_update_entries_array_string = "pDescriptorUpdateEntries_" + std::to_string(consumer.GetNextId());
 
         // Recalculate the offset and stride for each template entry.
-        uint32_t image_info_count             = 0;
-        uint32_t buffer_info_count            = 0;
-        uint32_t texel_buffer_view_info_count = 0;
-        uint32_t acceleration_info_count      = 0;
+        uint32_t                  image_info_count             = 0;
+        uint32_t                  buffer_info_count            = 0;
+        uint32_t                  texel_buffer_view_info_count = 0;
+        [[maybe_unused]] uint32_t acceleration_info_count      = 0;
 
         const VkDescriptorUpdateTemplateEntry* entries = structInfo->pDescriptorUpdateEntries;
 

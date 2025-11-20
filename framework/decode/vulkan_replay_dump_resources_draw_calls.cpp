@@ -3040,16 +3040,10 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
-        const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
-        const uint64_t              rp       = RP_index.first;
-
         device_table_->CmdNextSubpass(*it, contents);
     }
 
-    VulkanImageInfo*    depth_img_info;
-    VkAttachmentStoreOp depth_att_storeOp;
-    VkImageLayout       depth_final_layout;
+    VulkanImageInfo* depth_img_info;
 
     if (active_renderpass_->func_version == VulkanRenderPassInfo::kCreateRenderPass)
     {
@@ -3118,7 +3112,6 @@ void DrawCallsDumpingContext::EndRenderPass()
         const uint64_t              dc_index = dc_indices_[CmdBufToDCVectorIndex(cmd_buf_idx)];
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
         const uint64_t              rp       = RP_index.first;
-        const uint64_t              sp       = RP_index.second;
 
         if (dc_index < RP_indices_[rp][0])
         {

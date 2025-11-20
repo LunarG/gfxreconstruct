@@ -102,9 +102,6 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         const bool          has_draw  = i < options.Draw_Indices.size() && options.Draw_Indices[i].size();
         const bool has_dispatch       = (i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||
                                   (i < options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size());
-        const bool has_secondaries =
-            ((i < options.ExecuteCommands_Indices.size()) && !options.ExecuteCommands_Indices[i].empty());
-
         if (has_draw)
         {
             draw_call_contexts_.emplace(std::piecewise_construct,
@@ -166,18 +163,17 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 {
                     if (primary_dc_contexts.empty())
                     {
-                        auto new_primary =
-                            draw_call_contexts_.emplace(std::piecewise_construct,
-                                                        std::forward_as_tuple(bcb_index, qs_index),
-                                                        std::forward_as_tuple(nullptr,
-                                                                              &options.RenderPass_Indices[i],
-                                                                              options.DrawSubresources,
-                                                                              *object_info_table,
-                                                                              options,
-                                                                              *active_delegate_,
-                                                                              compressor_.get(),
-                                                                              acceleration_structures_context_,
-                                                                              address_trackers));
+                        draw_call_contexts_.emplace(std::piecewise_construct,
+                                                    std::forward_as_tuple(bcb_index, qs_index),
+                                                    std::forward_as_tuple(nullptr,
+                                                                          &options.RenderPass_Indices[i],
+                                                                          options.DrawSubresources,
+                                                                          *object_info_table,
+                                                                          options,
+                                                                          *active_delegate_,
+                                                                          compressor_.get(),
+                                                                          acceleration_structures_context_,
+                                                                          address_trackers));
 
                         primary_dc_contexts = FindDrawCallCommandBufferContext(bcb_index);
                     }
@@ -1328,8 +1324,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
 
     std::vector<VkPipelineBindPoint> bind_points =
         ShaderStageFlagsToPipelineBindPoints(bind_meta->decoded_value->stageFlags);
-
-    const auto layout_info = object_info_table_->GetVkPipelineLayoutInfo(bind_meta->layout);
 
     std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(bind_meta->decoded_value->descriptorSetCount, nullptr);
 
@@ -2650,7 +2644,6 @@ void VulkanReplayDumpResourcesBase::HandleCmdBuildAccelerationStructures(
         AccelerationStructureDumpResourcesContext* as_context = new_entry.first->second.get();
 
         GFXRECON_ASSERT(p_infos_meta[i].pGeometries != nullptr);
-        const auto* p_geometries_meta = p_infos_meta[i].pGeometries->GetMetaStructPointer();
 
         const VulkanPhysicalDeviceInfo* phys_dev_info =
             object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);

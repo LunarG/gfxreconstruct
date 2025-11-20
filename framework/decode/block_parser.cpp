@@ -121,11 +121,11 @@ ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::Bl
 {
     if (!compressed_span.empty())
     {
-        auto   uncompressed_buffer = pool_->Acquire(expanded_size);
-        size_t uncompressed_size   = compressor_->Decompress(compressed_span.size(),
-                                                           reinterpret_cast<const uint8_t*>(compressed_span.data()),
-                                                           expanded_size,
-                                                           uncompressed_buffer.GetAs<uint8_t>());
+        auto uncompressed_buffer = pool_->Acquire(expanded_size);
+        compressor_->Decompress(compressed_span.size(),
+                                reinterpret_cast<const uint8_t*>(compressed_span.data()),
+                                expanded_size,
+                                uncompressed_buffer.GetAs<uint8_t>());
         return uncompressed_buffer;
     }
     return ParsedBlock::UncompressedStore();
@@ -282,9 +282,8 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
-    const format::BlockHeader& block_header = block_buffer.Header();
-    format::ApiCallId          call_id      = format::ApiCallId::ApiCall_Unknown;
-    bool                       success      = block_buffer.Read(call_id);
+    format::ApiCallId call_id = format::ApiCallId::ApiCall_Unknown;
+    bool              success = block_buffer.Read(call_id);
 
     format::HandleId object_id = 0;
     ApiCallInfo      call_info{ GetBlockIndex() };
@@ -320,7 +319,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
     const format::BlockHeader& block_header = block_buffer.Header();
-    format::ApiCallId          call_id      = format::ApiCallId::ApiCall_Unknown;
     format::MetaDataId         meta_data_id;
     bool                       success = block_buffer.Read(meta_data_id);
 
@@ -1207,7 +1205,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             }
         }
 
-        BlockBuffer::BlockSpan parameter_data;
         if (success)
         {
             const char*         label       = "init DX12 acceleration structure meta-data block";
@@ -1261,8 +1258,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kDx12RuntimeInfoCommand)
     {
-        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header;
-        memset(&dx12_runtime_info_header, 0, sizeof(dx12_runtime_info_header));
+        format::Dx12RuntimeInfoCommandHeader dx12_runtime_info_header{};
 
         success = block_buffer.Read(dx12_runtime_info_header.thread_id);
         success = success && block_buffer.Read(dx12_runtime_info_header.runtime_info.version);
@@ -1361,7 +1357,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kVulkanBuildAccelerationStructuresCommand)
     {
-        format::VulkanMetaBuildAccelerationStructuresHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
         BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
@@ -1382,7 +1377,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kVulkanCopyAccelerationStructuresCommand)
     {
-        format::VulkanCopyAccelerationStructuresCommandHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
         BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
@@ -1398,7 +1392,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kVulkanWriteAccelerationStructuresPropertiesCommand)
     {
-        format::VulkanCopyAccelerationStructuresCommandHeader header{};
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
         const size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_data_id);
         BlockBuffer::BlockSpan parameter_data        = block_buffer.ReadSpan(parameter_buffer_size);
@@ -1449,8 +1442,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         // This command does not support compression.
         assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
-        format::ViewRelativeLocation Location;
-        format::ThreadId             thread_id;
+        format::ThreadId thread_id;
         success = block_buffer.Read(thread_id);
 
         format::ViewRelativeLocation location;
@@ -1525,8 +1517,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
-    const format::BlockHeader& block_header = block_buffer.Header();
-    format::MarkerType         marker_type  = format::MarkerType::kUnknownMarker;
+    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
     bool success = block_buffer.Read(marker_type);
     if (!success)
@@ -1565,8 +1556,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
-    const format::BlockHeader& block_header = block_buffer.Header();
-    format::MarkerType         marker_type  = format::MarkerType::kUnknownMarker;
+    format::MarkerType marker_type = format::MarkerType::kUnknownMarker;
 
     bool success = block_buffer.Read(marker_type);
     if (!success)
@@ -1608,8 +1598,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
-    const format::BlockHeader& block_header    = block_buffer.Header();
-    format::AnnotationType     annotation_type = format::AnnotationType::kUnknown;
+    format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
 
     bool success = block_buffer.Read(annotation_type);
     if (!success)

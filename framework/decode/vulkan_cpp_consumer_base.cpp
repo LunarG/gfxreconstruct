@@ -2029,11 +2029,11 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
         auto template_handle_id = *pDescriptorUpdateTemplate->GetPointer();
 
         // Count the number of values of each type.
-        size_t image_info_count             = 0;
-        size_t buffer_info_count            = 0;
-        size_t texel_buffer_view_count      = 0;
-        size_t acceleration_structure_count = 0;
-        size_t inline_uniform_block_count   = 0;
+        size_t                  image_info_count             = 0;
+        size_t                  buffer_info_count            = 0;
+        size_t                  texel_buffer_view_count      = 0;
+        size_t                  acceleration_structure_count = 0;
+        [[maybe_unused]] size_t inline_uniform_block_count   = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -2227,11 +2227,10 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
     std::vector<std::string>    accel_desc_info_variables;
     std::vector<std::string>    inline_uniform_block_info_variables;
 
-    uint32_t image_info_count           = static_cast<uint32_t>(decoder->GetImageInfoCount());
-    uint32_t buffer_info_count          = static_cast<uint32_t>(decoder->GetBufferInfoCount());
-    uint32_t texel_buffer_view_count    = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
-    uint32_t accel_struct_count         = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
-    uint32_t inline_uniform_block_count = static_cast<uint32_t>(decoder->GetInlineUniformBlockCount());
+    uint32_t image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    uint32_t buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    uint32_t texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+    uint32_t accel_struct_count      = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
 
     assert(descriptor_update_template_entry_map_.find(descriptor_update_template) !=
            descriptor_update_template_entry_map_.end());

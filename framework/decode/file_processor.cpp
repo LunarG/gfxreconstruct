@@ -296,7 +296,7 @@ bool FileProcessor::ProcessBlocks()
 
             if (success)
             {
-                const format::BlockType base_type = format::RemoveCompressedBlockBit(block_buffer.Header().type);
+                format::RemoveCompressedBlockBit(block_buffer.Header().type);
                 if (SkipBlockProcessing())
                 {
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);

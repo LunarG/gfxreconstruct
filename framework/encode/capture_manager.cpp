@@ -1041,11 +1041,10 @@ void CommonCaptureManager::WriteFrameMarker(format::MarkerType marker_type)
     if (IsCaptureModeWrite())
     {
         format::Marker marker_cmd;
-        uint64_t       header_size = sizeof(format::Marker);
-        marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
-        marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
-        marker_cmd.marker_type     = marker_type;
-        marker_cmd.frame_number    = current_frame_;
+        marker_cmd.header.size  = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
+        marker_cmd.header.type  = format::BlockType::kFrameMarkerBlock;
+        marker_cmd.marker_type  = marker_type;
+        marker_cmd.frame_number = current_frame_;
         WriteToFile(&marker_cmd, sizeof(marker_cmd));
     }
 }
@@ -1433,7 +1432,6 @@ void CommonCaptureManager::WriteExeFileInfo(format::ApiFamilyId                 
                                             const gfxrecon::util::filepath::FileInfo& info)
 {
     auto                     thread_data     = GetThreadData();
-    size_t                   info_length     = sizeof(format::ExeFileInfoBlock);
     format::ExeFileInfoBlock exe_info_header = {};
     exe_info_header.info_record              = info;
 
@@ -1448,7 +1446,6 @@ void CommonCaptureManager::WriteExeFileInfo(format::ApiFamilyId                 
 
 void CommonCaptureManager::ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data)
 {
-    auto       thread_data  = GetThreadData();
     const auto label_length = util::platform::StringLength(label);
     const auto data_length  = util::platform::StringLength(data);
 

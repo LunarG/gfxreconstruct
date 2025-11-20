@@ -819,16 +819,6 @@ static const char* sAndroidOutputDrawFunctionEnd = R"(
 }
 )";
 
-static const char* sAndroidOutputOverrideMethod = R"(
-void OverrideVkAndroidSurfaceCreateInfoKHR(VkAndroidSurfaceCreateInfoKHR* createInfo,
-                                           struct android_app* appdata) {
-    createInfo->sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
-    createInfo->pNext = nullptr;
-    createInfo->flags = 0;
-    createInfo->window = appdata->window;
-}
-)";
-
 static const char* sAndroidOutputHeader = R"(
 #include "ScreenOrientation.hpp"
 

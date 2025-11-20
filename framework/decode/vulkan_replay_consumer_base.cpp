@@ -998,10 +998,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
     {
         GFXRECON_ASSERT(device_info->handle != VK_NULL_HANDLE);
 
-        VkResult       result = VK_SUCCESS;
-        VkDevice       device = device_info->handle;
-        VkBuffer       buffer = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
+        VkDevice device = device_info->handle;
 
         auto allocator = device_info->allocator.get();
         GFXRECON_ASSERT(allocator != nullptr);
@@ -2398,8 +2395,6 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
     const Decoded_VkMemoryAllocateInfo* meta_allocate_info = pAllocateInfo->GetMetaStructPointer();
     const VkMemoryAllocateInfo*         allocate_info      = pAllocateInfo->GetPointer();
 
-    VkBaseOutStructure* previous_struct =
-        const_cast<VkBaseOutStructure*>(reinterpret_cast<const VkBaseOutStructure*>(allocate_info));
     VkBaseOutStructure* current_struct = reinterpret_cast<const VkBaseOutStructure*>(allocate_info)->pNext;
 
     const PNextNode* meta_pnext = meta_allocate_info->pNext;
@@ -2439,9 +2434,8 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
             break;
         }
 
-        previous_struct = current_struct;
-        current_struct  = current_struct->pNext;
-        meta_pnext      = meta_header->pNext;
+        current_struct = current_struct->pNext;
+        meta_pnext     = meta_header->pNext;
     }
 }
 
@@ -3074,7 +3068,6 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 
     const auto                    decoded_capture_create_info = pCreateInfo->GetMetaStructPointer();
     std::vector<format::HandleId> capture_device_group;
-    const auto*                   capture_next = decoded_capture_create_info->pNext;
 
     const auto* decoded_capture_device_group_create_info =
         GetPNextMetaStruct<Decoded_VkDeviceGroupDeviceCreateInfo>(decoded_capture_create_info->pNext);
@@ -4207,7 +4200,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     {
         decode::BeginInjectedCommands();
 
-        VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -4446,7 +4438,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     {
         decode::BeginInjectedCommands();
 
-        bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
         {
             if (submit_info_data != nullptr)
@@ -4522,8 +4513,6 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
 
     for (uint32_t i = 0; i < bindInfoCount; ++i)
     {
-        const auto* meta_bind_info = &meta_bind_infos[i];
-
         const auto  buf_len   = meta_bind_infos->pBufferBinds->GetLength();
         const auto* meta_bufs = meta_bind_infos->pBufferBinds->GetMetaStructPointer();
 
@@ -6543,8 +6532,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
 
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        const VkRenderPassCreateInfo* create_info = pCreateInfo->GetPointer();
-        uint32_t                      num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = VulkanRenderPassInfo::kCreateRenderPass;
         render_pass_info->create_info.resize(num_bytes);
@@ -6596,8 +6584,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        const VkRenderPassCreateInfo2* create_info = pCreateInfo->GetPointer();
-        uint32_t                       num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = (func == GetDeviceTable(device_info->handle)->CreateRenderPass2)
                                              ? VulkanRenderPassInfo::kCreateRenderPass2
@@ -6705,11 +6692,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
             (override_create_info.pDescriptorUpdateEntries + override_create_info.descriptorUpdateEntryCount));
 
         // Count the number of values of each type.
-        size_t image_info_count             = 0;
-        size_t buffer_info_count            = 0;
-        size_t texel_buffer_view_count      = 0;
-        size_t acceleration_structure_count = 0;
-        size_t inline_uniform_block_count   = 0;
+        size_t                  image_info_count             = 0;
+        size_t                  buffer_info_count            = 0;
+        size_t                  texel_buffer_view_count      = 0;
+        size_t                  acceleration_structure_count = 0;
+        [[maybe_unused]] size_t inline_uniform_block_count   = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -9046,8 +9033,7 @@ void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VkAccelerationStructureKHR            acceleration_structure = VK_NULL_HANDLE;
-    VulkanResourceAllocator::ResourceData allocator_data         = 0;
+    VkAccelerationStructureKHR acceleration_structure = VK_NULL_HANDLE;
 
     if (acceleration_structure_info != nullptr)
     {
@@ -11112,9 +11098,6 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
 
         MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
-        VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
-        VkAccelerationStructureBuildRangeInfoKHR**   range_infos          = ppRangeInfos->GetPointer();
-
         // Dump resources handler for CmdBuildAccelerationStructuresKHR is expecting the device addresses unchanged so
         // it needs to be called before the address replacer
         if (options_.dumping_resources)
@@ -11310,8 +11293,6 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                 if (base->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
                 {
                     auto*       create_info = reinterpret_cast<VkShaderModuleCreateInfo*>(base);
-                    const void* orig_code   = create_info->pCode;
-                    size_t      orig_size   = create_info->codeSize;
                     uint64_t    handle_id   = pipelines[i];
                     std::string file_name =
                         "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
@@ -11717,7 +11698,6 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     }
     const VkGraphicsPipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*        in_pAllocator   = GetAllocationCallbacks(pAllocator);
-    VkDevice                            device_handle   = device_info->handle;
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
     // If there is no pipeline cache and we want to create a new one
@@ -11829,7 +11809,6 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
 
     const VkComputePipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*       in_pAllocator   = GetAllocationCallbacks(pAllocator);
-    VkDevice                           device_handle   = device_info->handle;
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
     // If there is no pipeline cache and we want to create a new one
@@ -12379,14 +12358,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetMemoryRemoteAddressNV(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VulkanResourceAllocator::MemoryData allocator_data = 0;
-
     auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_mem_get_remote_address_info->memory);
-
-    if (memory_info != nullptr)
-    {
-        allocator_data = memory_info->allocator_data;
-    }
 
     return allocator->GetMemoryRemoteAddressNV(mem_get_remote_address_info, pAddress, memory_info->allocator_data);
 }
@@ -12554,14 +12526,7 @@ VulkanReplayConsumerBase::OverrideGetMemoryFdKHR(PFN_vkGetMemoryFdKHR           
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
 
-    VulkanResourceAllocator::MemoryData allocator_data = 0;
-
     auto memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_get_fd_info->memory);
-
-    if (memory_info != nullptr)
-    {
-        allocator_data = memory_info->allocator_data;
-    }
 
     return allocator->GetMemoryFd(get_fd_info, fd, memory_info->allocator_data);
 }

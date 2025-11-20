@@ -42,9 +42,8 @@ const char kStateFullscreenName[]  = "_NET_WM_STATE_FULLSCREEN";
 const char kBypassCompositorName[] = "_NET_WM_BYPASS_COMPOSITOR";
 
 // Masks for window geometry configuration.
-const uint16_t kConfigurePositionMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
-const uint16_t kConfigureSizeMask         = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-const uint16_t kConfigurePositionSizeMask = kConfigurePositionMask | kConfigureSizeMask;
+const uint16_t kConfigurePositionMask = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
+const uint16_t kConfigureSizeMask     = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
 
 XcbWindow::XcbWindow(XcbContext* xcb_context) :
     xcb_context_(xcb_context), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),

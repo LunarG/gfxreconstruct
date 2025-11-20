@@ -575,9 +575,6 @@ void VulkanStateTracker::TrackWriteAccelerationStructuresPropertiesCommand(
     VkQueryPool                       queryPool,
     uint32_t                          firstQuery)
 {
-    auto* cmd_buf_wrapper    = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-    auto* query_pool_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(queryPool);
-
     for (uint32_t i = 0; i < accelerationStructureCount; ++i)
     {
         auto* wrapper =
@@ -1653,7 +1650,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings.
             uint32_t current_count         = entry.count;
-            uint32_t current_binding       = entry.binding;
             uint32_t current_array_element = entry.array_element;
             size_t   current_offset        = entry.offset;
 
@@ -1680,7 +1676,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 else
                 {
                     current_count -= current_num_bytes;
-                    current_binding += 1;
                     current_array_element = 0;
                     current_offset += (current_num_bytes * entry.stride);
                 }

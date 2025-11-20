@@ -2160,7 +2160,6 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
 
     for (const auto& [start_idx, end_idx] : batch_ranges)
     {
-        auto                                          start_time = std::chrono::high_resolution_clock::now();
         std::unordered_map<uint32_t, VkCommandBuffer> command_buffer_map;
 
         // iterate over current batch
@@ -2308,8 +2307,6 @@ void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& spars
     auto         iterator   = sparse_memory_bind_map.lower_bound(search_key);
     bool         is_intersected_with_any_existing_bind = false;
 
-    bool ignored = false;
-
     if ((sparse_memory_bind_map.size() != 0) && (iterator != sparse_memory_bind_map.begin()))
     {
         for (auto item = sparse_memory_bind_map.begin(); item != iterator; item++)
@@ -2359,8 +2356,6 @@ void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& spars
         {
             sparse_memory_bind_map.erase(delete_item.resourceOffset);
         }
-
-        size_t index = 0, remaining_range_base = 0;
 
         for (auto add_item : all_remaining_existing_bind_ranges)
         {

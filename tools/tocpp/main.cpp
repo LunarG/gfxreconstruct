@@ -479,9 +479,6 @@ int main(int argc, const char** argv)
     std::string output_filename;
     if (target_platform == gfxrecon::decode::GfxToCppPlatform::PLATFORM_ANDROID)
     {
-        // The maximum number of directories that nftw() will hold open simultaneously.
-        const int max_open_fd = 20;
-
         if (!gfxrecon::util::filepath::Exists(output_dirname))
         {
             GFXRECON_LOG_ERROR("Android template target directory was not found: %s", output_dirname.c_str());

@@ -662,7 +662,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                             for (uint32_t bind_memory_range_index = 0; bind_memory_range_index < image_bind.bindCount;
                                  bind_memory_range_index++)
                             {
-                                auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
+                                // auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
                                 // TODO: Implement handling for tracking binding information of sparse image
                                 // subresources.
                                 GFXRECON_LOG_ERROR_ONCE("Binding of sparse image blocks is not supported!");

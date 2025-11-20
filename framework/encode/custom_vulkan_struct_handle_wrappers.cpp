@@ -40,9 +40,6 @@ static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(
 
     if ((values != nullptr) && (len > 0))
     {
-        const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);
-        size_t         num_bytes = len * sizeof(values[0]);
-
         // Copy and transform handles.
         VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
 
