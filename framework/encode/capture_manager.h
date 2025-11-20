@@ -86,8 +86,8 @@ class CommonCaptureManager
 
     using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
     using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
-    static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
-    static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
+    static auto AcquireSharedApiCallLock() { return ApiSharedLockT(api_call_mutex_); }
+    static auto AcquireExclusiveApiCallLock() { return ApiExclusiveLockT(api_call_mutex_); }
     class ApiCallLock
     {
       public:

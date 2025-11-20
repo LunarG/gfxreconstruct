@@ -438,12 +438,7 @@ void VulkanRebindAllocator::GetImageSubresourceLayout(VkImage                   
 
         if (std::find_if(layouts.begin(), layouts.end(), comparison_func) == layouts.end())
         {
-            SubresourceLayouts layouts;
-            layouts.subresource = *subresource;
-            layouts.original    = *original_layout;
-            layouts.rebind      = *layout;
-
-            resource_alloc_info->layouts.emplace_back(std::move(layouts));
+            resource_alloc_info->layouts.emplace_back(*subresource, *original_layout, *layout);
         }
     }
 }

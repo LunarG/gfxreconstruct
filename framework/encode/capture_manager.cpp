@@ -1203,7 +1203,7 @@ std::unique_ptr<util::FileOutputStream> CommonCaptureManager::CreateAssetFile()
         WriteFileHeader(asset_file_stream.get());
     }
 
-    return std::move(asset_file_stream);
+    return asset_file_stream;
 }
 
 std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const

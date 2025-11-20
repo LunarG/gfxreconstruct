@@ -38,9 +38,9 @@ class ApiCaptureManager
 
     // Forwarded Statics
     static format::HandleId GetUniqueId() { return CommonCaptureManager::GetUniqueId(); }
-    static auto AcquireSharedApiCallLock() { return std::move(CommonCaptureManager::AcquireSharedApiCallLock()); }
+    static auto             AcquireSharedApiCallLock() { return CommonCaptureManager::AcquireSharedApiCallLock(); }
 
-    static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
+    static auto AcquireExclusiveApiCallLock() { return CommonCaptureManager::AcquireExclusiveApiCallLock(); }
 
     // Virtual interface
     virtual void CreateStateTracker()                                                                  = 0;
