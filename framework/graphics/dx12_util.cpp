@@ -913,7 +913,7 @@ bool VerifyAgilitySDKRuntime()
     {
         std::string tool_working_dir = "";
         size_t      dir_location     = tool_executable_path.find_last_of(util::filepath::kAltPathLastSepStr);
-        if (dir_location >= 0)
+        if (dir_location != std::string::npos)
         {
             tool_working_dir = tool_executable_path.substr(0, dir_location);
         }
