@@ -40,8 +40,8 @@ struct GfxToCppPlatformMap
     std::string      platform_str;
 };
 
-const GfxToCppPlatform GetGfxToCppPlatform(const std::string& format_str);
-const std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
+GfxToCppPlatform GetGfxToCppPlatform(const std::string& format_str);
+std::string      GfxToCppPlatformToString(GfxToCppPlatform platform);
 
 VulkanCppConsumerBase::VulkanCppConsumerBase() :
     frame_file_(nullptr), global_file_(nullptr), main_file_(nullptr), pfn_loader_()
@@ -2991,12 +2991,12 @@ std::string VulkanCppConsumerBase::BuildValue(const StdVideoAV1FrameRestorationT
     return output.str();
 }
 
-const GfxToCppPlatform getGfxToCppPlatform(const std::string& format_str)
+GfxToCppPlatform getGfxToCppPlatform(const std::string& format_str)
 {
     return kTargetPlatformByName.at(format_str);
 }
 
-const std::string GfxToCppPlatformToString(GfxToCppPlatform platform)
+std::string GfxToCppPlatformToString(GfxToCppPlatform platform)
 {
     return kTargetPlatforms.at(platform).platformName;
 }

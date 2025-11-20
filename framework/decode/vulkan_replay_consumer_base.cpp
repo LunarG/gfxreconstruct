@@ -1992,7 +1992,7 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
     }
 }
 
-const uint64_t VulkanReplayConsumerBase::GetFrameNumber()
+uint64_t VulkanReplayConsumerBase::GetFrameNumber()
 {
     return this->frame_number_ + 1; // Add 1 because of one-based indexing of frames
 }
@@ -6925,8 +6925,9 @@ VkResult VulkanReplayConsumerBase::OverrideGetPipelineCacheData(PFN_vkGetPipelin
 {
     if ((options_.omit_pipeline_cache_data) || (original_result != VK_SUCCESS) || pData->GetPointer() == nullptr)
     {
-        // If original result is not VK_SUCCESS, it means target title cannot get valid pipeline cache data, also means
-        // there's no need to map the capture time pipeline cache data to playback time, so we can skip the call.
+        // If original result is not VK_SUCCESS, it means target title cannot get valid pipeline cache data, also
+        // means there's no need to map the capture time pipeline cache data to playback time, so we can skip the
+        // call.
         //
         // If user set omit_pipeline_cache_data, it will be different for using pipeline cache data between capture and
         // playback time, we don't need to track pipeline cache data, so we also skip the call.

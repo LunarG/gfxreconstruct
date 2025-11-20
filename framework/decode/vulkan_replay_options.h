@@ -61,12 +61,12 @@ using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
 
 struct DescriptorLocation
 {
-    bool const operator==(const DescriptorLocation& other) const
+    bool operator==(const DescriptorLocation& other) const
     {
         return set == other.set && binding == other.binding && array_index == other.array_index;
     }
 
-    bool const operator<(const DescriptorLocation& other) const
+    bool operator<(const DescriptorLocation& other) const
     {
         if (set == other.set)
         {

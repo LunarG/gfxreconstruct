@@ -310,7 +310,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void InitializeReplayDumpResources();
 
-    const uint64_t GetFrameNumber();
+    uint64_t GetFrameNumber();
 
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
