@@ -39,7 +39,7 @@ class KhronosStructToJsonHeaderGenerator():
         body += 'void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())\n'
         body += '{\n'
         body += '    // First read in the type to know which child we need to handle\n'
-        body += f'    {struct_type} struct_type;\n'
+        body += f'    {struct_type} struct_type{{}};\n'
         body += '    FieldToJson(jdata["type"], struct_type, options);\n'
         body += '\n'
         body += '    switch (struct_type)\n'

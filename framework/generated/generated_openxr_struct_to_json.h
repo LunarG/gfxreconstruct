@@ -478,7 +478,7 @@ template <typename T>
 void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())
 {
     // First read in the type to know which child we need to handle
-    XrStructureType struct_type;
+    XrStructureType struct_type{};
     FieldToJson(jdata["type"], struct_type, options);
 
     switch (struct_type)
