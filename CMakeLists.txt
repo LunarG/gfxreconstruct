@@ -387,7 +387,11 @@ if (USE_STRICT_COMPILER_WARNINGS)
     if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
         target_compile_options(platform_specific INTERFACE /W4)
     else ()
-        target_compile_options(platform_specific INTERFACE -pedantic -Wall -Wconversion -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers)
+        target_compile_options(platform_specific INTERFACE -pedantic -Wall -Wconversion -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers -Wno-sign-conversion -Wno-nested-anon-types)
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # -Wno-gnu-zero-variadic-macro-arguments is only needed with C++17, as C++20 adds the previously GNU only extension that fixes stray commas in macro expansions
+            target_compile_options(platform_specific INTERFACE -Wno-gnu-zero-variadic-macro-arguments -Wno-sign-conversion -Wno-nested-anon-types)
+        endif()
     endif ()
 endif ()
 
