@@ -34,7 +34,7 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                             decode::HandlePointerDecoder<VkPipeline>* pPipelines,
                             const decode::CommonObjectInfoTable&      object_info_table)
 {
-    uint32_t pipeline_count = pPipelines->GetLength();
+    uint32_t pipeline_count = static_cast<uint32_t>(pPipelines->GetLength());
 
     for (uint32_t i = 0; i < pipeline_count; ++i)
     {
@@ -93,7 +93,7 @@ void populate_shader_stages(
     decode::HandlePointerDecoder<VkPipeline>*                                        pPipelines,
     const decode::CommonObjectInfoTable&                                             object_info_table)
 {
-    uint32_t pipeline_count = pPipelines->GetLength();
+    uint32_t pipeline_count = static_cast<uint32_t>(pPipelines->GetLength());
 
     for (uint32_t i = 0; i < pipeline_count; ++i)
     {

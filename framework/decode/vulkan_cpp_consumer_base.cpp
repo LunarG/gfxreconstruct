@@ -697,7 +697,9 @@ void VulkanCppConsumerBase::Generate_vkGetSwapchainImagesKHR(VkResult           
         AddKnownVariables("VkImage*", swapchain_images_var_name);
         if (returnValue == VK_SUCCESS)
         {
-            AddHandles(swapchain_images_var_name, pSwapchainImages->GetPointer(), pSwapchainImages->GetLength());
+            AddHandles(swapchain_images_var_name,
+                       pSwapchainImages->GetPointer(),
+                       static_cast<uint32_t>(pSwapchainImages->GetLength()));
         }
     }
 
@@ -2387,8 +2389,9 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
     }
 
     // Check if the number of descriptors in pData equal the number of descriptors in the template
-    uint32_t expected_data_count = decoder->GetImageInfoCount() + decoder->GetBufferInfoCount() +
-                                   decoder->GetTexelBufferViewCount() + decoder->GetAccelerationStructureKHRCount();
+    uint32_t expected_data_count =
+        static_cast<uint32_t>(decoder->GetImageInfoCount() + decoder->GetBufferInfoCount() +
+                              decoder->GetTexelBufferViewCount() + decoder->GetAccelerationStructureKHRCount());
     assert(template_descriptor_count == expected_data_count);
 
     // Sort the variables based on the offset

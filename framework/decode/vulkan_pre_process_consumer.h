@@ -256,11 +256,11 @@ class VulkanPreProcessConsumer : public VulkanConsumer
     {
         std::vector<format::HandleId> cmd_bufs;
         auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        for (uint32_t i = 0; i < submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBuffers.GetLength();
             const auto cmd_buf_ids   = submit_info_data[i].pCommandBuffers.GetPointer();
-            for (auto j = 0; j < cmd_buf_count; ++j)
+            for (uint32_t j = 0; j < cmd_buf_count; ++j)
             {
                 cmd_bufs.emplace_back(cmd_buf_ids[j]);
             }
@@ -277,11 +277,11 @@ class VulkanPreProcessConsumer : public VulkanConsumer
     {
         std::vector<format::HandleId> cmd_bufs;
         auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        for (uint32_t i = 0; i < submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBufferInfos->GetLength();
             const auto cmd_buf_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
-            for (auto j = 0; j < cmd_buf_count; ++j)
+            for (uint32_t j = 0; j < cmd_buf_count; ++j)
             {
                 cmd_bufs.emplace_back(cmd_buf_infos[j].commandBuffer);
             }
@@ -298,11 +298,11 @@ class VulkanPreProcessConsumer : public VulkanConsumer
     {
         std::vector<format::HandleId> cmd_bufs;
         auto                          submit_info_data = pSubmits->GetMetaStructPointer();
-        for (auto i = 0; i < submitCount; ++i)
+        for (uint32_t i = 0; i < submitCount; ++i)
         {
             const auto cmd_buf_count = submit_info_data[i].pCommandBufferInfos->GetLength();
             const auto cmd_buf_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
-            for (auto j = 0; j < cmd_buf_count; ++j)
+            for (uint32_t j = 0; j < cmd_buf_count; ++j)
             {
                 cmd_bufs.emplace_back(cmd_buf_infos[j].commandBuffer);
             }

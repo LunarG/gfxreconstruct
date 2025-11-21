@@ -214,7 +214,7 @@ static void AddHandleArrayAsync(format::HandleId        parent_id,
             initial_info.capture_id          = ids[i];
             initial_info.parent_id           = parent_id;
             initial_info.future              = future;
-            initial_info.future_handle_index = i;
+            initial_info.future_handle_index = static_cast<uint32_t>(i);
             (object_info_table->*AddFunc)(std::move(initial_info));
         }
     }

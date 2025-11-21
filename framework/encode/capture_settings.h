@@ -234,7 +234,7 @@ class CaptureSettings
         RuntimeTriggerState          runtime_capture_trigger{ kNotUsed };
         std::string                  capture_process_name{ "" };
         bool                         runtime_write_assets{ false };
-        int                          page_guard_signal_handler_watcher_max_restores{ 1 };
+        uint32_t                     page_guard_signal_handler_watcher_max_restores{ 1 };
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                         page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                         page_guard_persistent_memory{ false };

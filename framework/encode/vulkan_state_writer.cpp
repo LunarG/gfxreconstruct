@@ -244,7 +244,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     ++blocks_written_;
 
     auto done = std::chrono::high_resolution_clock::now();
-    uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    uint32_t time = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count());
     GFXRECON_LOG_INFO("%s() saved in %u ms", __func__, time);
 
     return blocks_written_;
@@ -1302,7 +1302,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
             encoder_.EncodeUInt32Ptr(&image_count, false);
             auto handle_array = std::vector<format::HandleId>(wrapper->child_images.size());
-            for (int i = 0; i < wrapper->child_images.size(); ++i)
+            for (size_t i = 0; i < wrapper->child_images.size(); ++i)
             {
                 handle_array[i] = wrapper->child_images[i]->handle_id;
             }
@@ -2861,7 +2861,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                         }
 
                         buffer_memory_bind_info.buffer    = wrapper->handle;
-                        buffer_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        buffer_memory_bind_info.bindCount = static_cast<uint32_t>(sparse_memory_binds.size());
                         buffer_memory_bind_info.pBinds    = sparse_memory_binds.data();
 
                         VkBindSparseInfo bind_sparse_info{};
@@ -3020,7 +3020,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                         }
 
                         image_opaque_memory_bind_info.image     = wrapper->handle;
-                        image_opaque_memory_bind_info.bindCount = sparse_memory_binds.size();
+                        image_opaque_memory_bind_info.bindCount = static_cast<uint32_t>(sparse_memory_binds.size());
                         image_opaque_memory_bind_info.pBinds =
                             (sparse_memory_binds.empty()) ? nullptr : sparse_memory_binds.data();
 
@@ -3037,7 +3037,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                         }
 
                         image_memory_bind_info.image     = wrapper->handle;
-                        image_memory_bind_info.bindCount = sparse_image_memory_binds.size();
+                        image_memory_bind_info.bindCount = static_cast<uint32_t>(sparse_image_memory_binds.size());
                         image_memory_bind_info.pBinds =
                             (sparse_image_memory_binds.empty()) ? nullptr : sparse_image_memory_binds.data();
 
@@ -3312,7 +3312,8 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     }
 
     auto     done = std::chrono::high_resolution_clock::now();
-    uint32_t time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    uint32_t time =
+        static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count());
 
     GFXRECON_LOG_INFO("%s()  saved in %u ms", __func__, time)
 }
@@ -3528,7 +3529,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
                                                              const VulkanStateTable&                state_table)
 {
     const VkResult result       = VK_SUCCESS;
-    const uint32_t format_count = formats.surface_formats.size();
+    const uint32_t format_count = static_cast<uint32_t>(formats.surface_formats.size());
 
     // First write the call to retrieve the size.
     encoder_.EncodeHandleIdValue(physical_device_id);
@@ -4769,7 +4770,7 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     execute_from_file.thread_id       = thread_data_->thread_id_;
     execute_from_file.n_blocks        = n_blocks;
     execute_from_file.offset          = offset;
-    execute_from_file.filename_length = filename_length;
+    execute_from_file.filename_length = static_cast<uint32_t>(filename_length);
 
     output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
     output_stream_->Write(relative_file.c_str(), filename_length);

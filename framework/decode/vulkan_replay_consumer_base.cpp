@@ -3005,7 +3005,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                          ext, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
                                                  }),
                                   modified_extensions.end());
-        create_state.modified_create_info.enabledExtensionCount = modified_extensions.size();
+        create_state.modified_create_info.enabledExtensionCount = static_cast<uint32_t>(modified_extensions.size());
 
         // Try to create instance again
         result = create_instance_proc_(
@@ -4036,7 +4036,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         {
             std::vector<VkDeviceAddress> addresses_to_replace;
 
-            uint32_t num_command_buffers  = submit_info_data[i].pCommandBuffers.GetLength();
+            uint32_t num_command_buffers  = static_cast<uint32_t>(submit_info_data[i].pCommandBuffers.GetLength());
             auto*    cmd_buf_handles      = submit_info_data[i].pCommandBuffers.GetPointer();
             bool     sync_wait_semaphores = false;
 
@@ -4063,11 +4063,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
 
                 auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphores[i]          = address_replacer.UpdateBufferAddresses(cmd_buf_info,
-                                                                       addresses_to_replace.data(),
-                                                                       addresses_to_replace.size(),
-                                                                       GetDeviceAddressTracker(device_info),
-                                                                       wait_semaphores);
+                semaphores[i] =
+                    address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                                                           addresses_to_replace.data(),
+                                                           static_cast<uint32_t>(addresses_to_replace.size()),
+                                                           GetDeviceAddressTracker(device_info),
+                                                           wait_semaphores);
                 GFXRECON_ASSERT(semaphores[i] != VK_NULL_HANDLE);
 
                 // inject wait-semaphore into submit-info
@@ -4277,7 +4278,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         {
             std::vector<VkDeviceAddress> addresses_to_replace;
 
-            uint32_t num_command_buffers  = submit_info_data[i].pCommandBufferInfos->GetLength();
+            uint32_t num_command_buffers  = static_cast<uint32_t>(submit_info_data[i].pCommandBufferInfos->GetLength());
             auto*    cmd_buf_info_metas   = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
             bool     sync_wait_semaphores = false;
 
@@ -4309,12 +4310,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.value                  = 1;
 
                 // runs replacer, sync via semaphore
-                auto& address_replacer   = GetDeviceAddressReplacer(device_info);
-                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
-                                                                                  addresses_to_replace.data(),
-                                                                                  addresses_to_replace.size(),
-                                                                                  GetDeviceAddressTracker(device_info),
-                                                                                  wait_semaphores);
+                auto& address_replacer = GetDeviceAddressReplacer(device_info);
+                semaphore_info.semaphore =
+                    address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                                                           addresses_to_replace.data(),
+                                                           static_cast<uint32_t>(addresses_to_replace.size()),
+                                                           GetDeviceAddressTracker(device_info),
+                                                           wait_semaphores);
                 GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
@@ -6534,7 +6536,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
 
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        size_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = VulkanRenderPassInfo::kCreateRenderPass;
         render_pass_info->create_info.resize(num_bytes);
@@ -6586,7 +6588,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
 
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        size_t num_bytes = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = (func == GetDeviceTable(device_info->handle)->CreateRenderPass2)
                                              ? VulkanRenderPassInfo::kCreateRenderPass2
@@ -7049,7 +7051,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         // following process, we'll try to find corresponding replay time pipeline cache data.
         auto capture_pipeline_cache_data_hash = gfxrecon::util::hash::GenerateCheckSum<uint32_t>(
             reinterpret_cast<const uint8_t*>(override_create_info.pInitialData), override_create_info.initialDataSize);
-        uint32_t capture_pipeline_cache_data_size = override_create_info.initialDataSize;
+        size_t capture_pipeline_cache_data_size = override_create_info.initialDataSize;
 
         object_info_table_->VisitVkPipelineCacheInfo([&](const VulkanPipelineCacheInfo* pipeline_cache_info) {
             GFXRECON_ASSERT(pipeline_cache_info != nullptr);
@@ -9607,7 +9609,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
             physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
 
         // make a map of capture-time group handles to handles we just got back in replay
-        for (int group = 0; group < groupCount; group++)
+        for (uint32_t group = 0; group < groupCount; group++)
         {
             auto                            captured_handle_begin = captured_data + group * capture_handle_size;
             graphics::shader_group_handle_t capture_handle        = { captured_handle_begin, capture_handle_size };
@@ -11082,7 +11084,7 @@ void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaComman
             const auto& address_tracker  = GetDeviceAddressTracker(device_info);
             auto&       address_replacer = GetDeviceAddressReplacer(device_info);
             address_replacer.ProcessCopyVulkanAccelerationStructuresMetaCommand(
-                copy_infos->GetLength(), copy_infos->GetPointer(), address_tracker);
+                static_cast<uint32_t>(copy_infos->GetLength()), copy_infos->GetPointer(), address_tracker);
         }
     }
 }
@@ -11357,7 +11359,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
 
     if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        size_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
         graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
         auto* replaced_create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
@@ -11505,7 +11507,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
 
     if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        size_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
         graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
         auto* replaced_create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
@@ -11720,7 +11722,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     }
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    size_t               num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> pipeline_ids(createInfoCount);
@@ -11831,7 +11833,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    size_t               num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> pipeline_ids(createInfoCount);
@@ -11911,7 +11913,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
     VkDevice                     device_handle   = device_info->handle;
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    size_t               num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> shaders(createInfoCount);
@@ -12220,10 +12222,10 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
                                                      format::HandleId        id,
                                                      VkPipelineCache         pipelineCache,
                                                      VkPipeline*             pipelines,
-                                                     uint32_t                pipelineCount)
+                                                     uint64_t                pipelineCount)
 {
     tracked_pipeline_caches_.emplace(id, std::make_pair(device_info, pipelineCache));
-    for (uint32_t i = 0; i < pipelineCount; ++i)
+    for (uint64_t i = 0; i < pipelineCount; ++i)
     {
         pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }

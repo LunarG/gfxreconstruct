@@ -808,8 +808,8 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
 
         uint32_t image_info_offset        = 0;
         uint32_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
-        uint32_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
-        uint32_t acceleration_info_offset =
+        size_t   texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
+        size_t   acceleration_info_offset =
             texel_buffer_view_offset + (texel_buffer_view_info_count * sizeof(VkBufferView));
 
         std::string descriptor_update_entries_names;
@@ -828,28 +828,29 @@ GenerateStruct_VkDescriptorUpdateTemplateCreateInfoKHR(std::ostream&            
                 {
                     override_stride = sizeof(VkDescriptorImageInfo);
                     override_offset = image_info_offset;
-                    image_info_offset += entry.descriptorCount * sizeof(VkDescriptorImageInfo);
+                    image_info_offset += static_cast<uint32_t>(entry.descriptorCount * sizeof(VkDescriptorImageInfo));
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_BUFFER:
                 {
                     override_stride = sizeof(VkDescriptorBufferInfo);
                     override_offset = buffer_info_offset;
-                    buffer_info_offset += entry.descriptorCount * sizeof(VkDescriptorBufferInfo);
+                    buffer_info_offset += static_cast<uint32_t>(entry.descriptorCount * sizeof(VkDescriptorBufferInfo));
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_TEXEL:
                 {
                     override_stride = sizeof(VkBufferView);
                     override_offset = texel_buffer_view_offset;
-                    texel_buffer_view_offset += entry.descriptorCount * sizeof(VkBufferView);
+                    texel_buffer_view_offset += static_cast<uint32_t>(entry.descriptorCount * sizeof(VkBufferView));
                     break;
                 }
                 case DESCRIPTOR_BASE_TYPE_ACCELERATION_STRUCTURE:
                 {
                     override_stride = sizeof(VkBufferView);
                     override_offset = acceleration_info_offset;
-                    acceleration_info_offset += entry.descriptorCount * sizeof(VkAccelerationStructureKHR);
+                    acceleration_info_offset +=
+                        static_cast<uint32_t>(entry.descriptorCount * sizeof(VkAccelerationStructureKHR));
                     break;
                 }
                 default:

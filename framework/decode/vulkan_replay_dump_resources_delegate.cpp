@@ -611,7 +611,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
     const VulkanImageInfo*    image_info =
         !before_command ? rt_resource_info.dumped_image.image_info : rt_resource_info.dumped_image_before.image_info;
     std::string aspect_str     = ImageAspectToStr(aspect);
-    std::string attachment_str = rt_resource_info.location != DEPTH_ATTACHMENT
+    std::string attachment_str = rt_resource_info.location != static_cast<uint32_t>(DEPTH_ATTACHMENT)
                                      ? "_att_" + std::to_string(rt_resource_info.location)
                                      : "_depth_att";
 
@@ -943,7 +943,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     size_t rt_json_entries = 0;
     for (const auto& rt : dumped_resources.dumped_render_targets)
     {
-        const bool is_depth_attachment = rt.location == DEPTH_ATTACHMENT;
+        const bool is_depth_attachment = rt.location == static_cast<uint32_t>(DEPTH_ATTACHMENT);
         auto&      rt_entries =
             !is_depth_attachment ? draw_call_entry["colorAttachments"] : draw_call_entry["depthAttachment"];
         auto& rt_entry = !is_depth_attachment ? rt_entries[rt_json_entries++] : rt_entries;

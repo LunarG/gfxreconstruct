@@ -130,7 +130,7 @@ bool FileTransformer::Process()
         annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
         annotation.block_header.type = format::BlockType::kAnnotation;
         annotation.annotation_type   = format::kJson;
-        annotation.label_length      = label_length;
+        annotation.label_length      = static_cast<uint32_t>(label_length);
         annotation.data_length       = data_length;
         if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
             !WriteBytes(data.c_str(), data_length))
@@ -412,7 +412,8 @@ bool FileTransformer::WriteBytes(const void* buffer, size_t buffer_size)
 
 bool FileTransformer::SkipBytes(uint64_t skip_size)
 {
-    bool success = util::platform::FileSeek(input_file_, skip_size, util::platform::FileSeekCurrent);
+    bool success =
+        util::platform::FileSeek(input_file_, static_cast<int64_t>(skip_size), util::platform::FileSeekCurrent);
 
     if (success)
     {

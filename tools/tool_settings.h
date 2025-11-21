@@ -690,7 +690,8 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
     const std::string& value = arg_parser.GetArgumentValue(kQuitAfterFrameArgument);
     if (!value.empty())
     {
-        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        if (std::count_if(value.begin(), value.end(), ::isdigit) !=
+            static_cast<std::string::difference_type>(value.length()))
         {
             GFXRECON_LOG_WARNING("Ignoring invalid quit after frame \"%s\", which contains non-numeric values",
                                  value.c_str());

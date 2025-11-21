@@ -1755,7 +1755,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         }
     };
     std::vector<image_resource_tmp_data_t> tmp_data(image_resources.size());
-    uint32_t                               current_batch_size = 0;
+    uint64_t                               current_batch_size = 0;
 
     // start with entire range
     std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(image_resources.size()) } };
@@ -1822,7 +1822,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             auto& current_batch  = batch_ranges.back();
             current_batch.second = i;
 
-            auto& next_batch   = batch_ranges.emplace_back(i, static_cast<uint32_t>(image_resources.size()));
+            batch_ranges.emplace_back(i, static_cast<uint32_t>(image_resources.size()));
             current_batch_size = 0;
         }
 
@@ -2016,9 +2016,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         // guarantees that all device writes are now visible to host
         InvalidateStagingBuffer();
 
-        gpu_micros += std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() -
-                                                                            start_time)
-                          .count();
+        gpu_micros += static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+                                                std::chrono::high_resolution_clock::now() - start_time)
+                                                .count());
 
         // consume staging-buffer, cleanup temporary resources
         for (uint32_t i = start_idx; i < end_idx; ++i)
@@ -2039,9 +2039,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
         UnmapStagingBuffer();
 
-        auto batch_micros = std::chrono::duration_cast<std::chrono::microseconds>(
-                                std::chrono::high_resolution_clock::now() - start_time)
-                                .count();
+        auto batch_micros = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+                                                      std::chrono::high_resolution_clock::now() - start_time)
+                                                      .count());
         cpu_micros += batch_micros - gpu_micros;
     } // batch_ranges
     GFXRECON_LOG_DEBUG("gpu: %d ms - cpu: %d ms", gpu_micros / 1000, cpu_micros / 1000);
@@ -2121,7 +2121,7 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
     }
     std::vector<VkDeviceSize> staging_offsets(buffer_resources.size());
 
-    uint32_t current_batch_size = 0;
+    uint64_t current_batch_size = 0;
 
     // start with entire range
     std::vector<std::pair<uint32_t, uint32_t>> batch_ranges = { { 0, static_cast<uint32_t>(buffer_resources.size()) } };
@@ -2315,16 +2315,17 @@ void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& spars
             std::vector<uint32_t> remaining_resource_offsets, remaining_resource_sizes;
             bool new_bind_range_include_existing_bind_tange, existing_bind_range_include_new_bind_tange;
 
-            bool is_intersected = GetIntersectForSparseMemoryBind(new_sparse_memory_bind.resourceOffset,
-                                                                  new_sparse_memory_bind.size,
-                                                                  item->second.resourceOffset,
-                                                                  item->second.size,
-                                                                  intersection_resource_offset,
-                                                                  intersection_resource_size,
-                                                                  remaining_resource_offsets,
-                                                                  remaining_resource_sizes,
-                                                                  new_bind_range_include_existing_bind_tange,
-                                                                  existing_bind_range_include_new_bind_tange);
+            bool is_intersected =
+                GetIntersectForSparseMemoryBind(static_cast<uint32_t>(new_sparse_memory_bind.resourceOffset),
+                                                static_cast<uint32_t>(new_sparse_memory_bind.size),
+                                                static_cast<uint32_t>(item->second.resourceOffset),
+                                                static_cast<uint32_t>(item->second.size),
+                                                intersection_resource_offset,
+                                                intersection_resource_size,
+                                                remaining_resource_offsets,
+                                                remaining_resource_sizes,
+                                                new_bind_range_include_existing_bind_tange,
+                                                existing_bind_range_include_new_bind_tange);
 
             if (is_intersected)
             {

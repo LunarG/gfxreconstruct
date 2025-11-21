@@ -1849,7 +1849,7 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         compute_submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         compute_submit_info.commandBufferCount   = 1;
         compute_submit_info.pCommandBuffers      = &staging_resources.cmd_buffer;
-        compute_submit_info.waitSemaphoreCount   = waiting_semaphores.size();
+        compute_submit_info.waitSemaphoreCount   = static_cast<uint32_t>(waiting_semaphores.size());
         compute_submit_info.pWaitSemaphores      = waiting_semaphores.data();
         compute_submit_info.pWaitDstStageMask    = waiting_semaphores_dst_stage_mask.data();
         compute_submit_info.signalSemaphoreCount = 1;
@@ -3030,11 +3030,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
             ++alc_img_i;
         }
 
-        modified_bind_info.bufferBindCount      = modified_buffer_bind_infos[i].size();
+        modified_bind_info.bufferBindCount      = static_cast<uint32_t>(modified_buffer_bind_infos[i].size());
         modified_bind_info.pBufferBinds         = modified_buffer_bind_infos[i].data();
-        modified_bind_info.imageOpaqueBindCount = modified_image_opaque_bind_infos[i].size();
+        modified_bind_info.imageOpaqueBindCount = static_cast<uint32_t>(modified_image_opaque_bind_infos[i].size());
         modified_bind_info.pImageOpaqueBinds    = modified_image_opaque_bind_infos[i].data();
-        modified_bind_info.imageBindCount       = modified_image_bind_infos[i].size();
+        modified_bind_info.imageBindCount       = static_cast<uint32_t>(modified_image_bind_infos[i].size());
         modified_bind_info.pImageBinds          = modified_image_bind_infos[i].data();
     }
 
@@ -3043,7 +3043,8 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
         block->m_MapAndBindMutex.Lock();
     }
 
-    result = functions_.queue_bind_sparse(queue, modified_bind_infos.size(), modified_bind_infos.data(), fence);
+    result = functions_.queue_bind_sparse(
+        queue, static_cast<uint32_t>(modified_bind_infos.size()), modified_bind_infos.data(), fence);
 
     for (VmaDeviceMemoryBlock* block : vma_mem_blocks)
     {
@@ -3195,9 +3196,9 @@ void VulkanRebindAllocator::ClearStagingResources()
     {
         return;
     }
-    const uint64_t       num_fences = staging_resources_.size();
+    const uint32_t       num_fences = static_cast<uint32_t>(staging_resources_.size());
     std::vector<VkFence> fences(num_fences);
-    for (uint64_t i = 0; i < num_fences; i++)
+    for (uint32_t i = 0; i < num_fences; i++)
     {
         fences[i] = staging_resources_[i].staging_fence;
     }
@@ -3211,7 +3212,8 @@ void VulkanRebindAllocator::ClearStagingResources()
         functions_.destroy_semaphore(device_, staging_resource.staging_semaphore, nullptr);
         vmaDestroyBuffer(allocator_, staging_resource.staging_buf, staging_resource.staging_alloc);
     }
-    functions_.free_command_buffers(device_, cmd_pool_, cmd_buffers_to_delete.size(), cmd_buffers_to_delete.data());
+    functions_.free_command_buffers(
+        device_, cmd_pool_, static_cast<uint32_t>(cmd_buffers_to_delete.size()), cmd_buffers_to_delete.data());
     staging_resources_.clear();
 }
 

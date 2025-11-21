@@ -1537,7 +1537,7 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
     if ((deferred_operation_wrapper != nullptr) && (deferred_operation_wrapper->pending_state))
     {
         deferred_operation_wrapper->pending_state = false;
-        uint32_t create_info_count                = deferred_operation_wrapper->create_infos.size();
+        uint32_t create_info_count = static_cast<uint32_t>(deferred_operation_wrapper->create_infos.size());
         std::memcpy(deferred_operation_wrapper->pPipelines,
                     deferred_operation_wrapper->pipelines.data(),
                     sizeof(VkPipeline) * deferred_operation_wrapper->create_infos.size());
@@ -2076,7 +2076,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.external_format      = image_wrapper->external_format;
         image_resource.all_layers_per_level = true;
 
-        num_staging_bytes += image_wrapper->size;
+        num_staging_bytes += static_cast<uint32_t>(image_wrapper->size);
     }
 
     // batch process image-downloads requiring staging, use <32MB staging-mem
@@ -2313,10 +2313,10 @@ void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult            
         auto old_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(pCreateInfo->oldSwapchain);
         old_wrapper->retired = true;
 
-        for (int i = old_wrapper->child_images.size() - 1; i >= 0; --i)
+        for (int i = static_cast<int>(old_wrapper->child_images.size()) - 1; i >= 0; --i)
         {
             bool is_acquired = false;
-            if (i < old_wrapper->image_acquired_info.size())
+            if (i < static_cast<int>(old_wrapper->image_acquired_info.size()))
                 is_acquired = old_wrapper->image_acquired_info[i].is_acquired;
 
             if (!is_acquired)
@@ -2325,7 +2325,7 @@ void VulkanCaptureManager::PostProcess_vkCreateSwapchainKHR(VkResult            
 
                 // Remove from swapchain info struct
                 old_wrapper->child_images.erase(old_wrapper->child_images.begin() + i);
-                if (i < old_wrapper->image_acquired_info.size())
+                if (i < static_cast<int>(old_wrapper->image_acquired_info.size()))
                     old_wrapper->image_acquired_info.erase(old_wrapper->image_acquired_info.begin() + i);
 
                 // Destroy handle wrapper
@@ -2953,7 +2953,8 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
                 }
             }
 
-            state_tracker_->TrackCommandBuffersSubmision(command_buffs.size(), command_buffs.data());
+            state_tracker_->TrackCommandBuffersSubmision(static_cast<uint32_t>(command_buffs.size()),
+                                                         command_buffs.data());
         }
     }
 }

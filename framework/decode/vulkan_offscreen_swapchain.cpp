@@ -253,7 +253,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                             ->virtual_swapchain_images[present_info->pImageIndices[i]]
                             .image;
         }
-        frame_boundary_.imageCount = images.size();
+        frame_boundary_.imageCount = static_cast<uint32_t>(images.size());
         frame_boundary_.pImages    = images.data();
         ++frame_boundary_.frameID;
 

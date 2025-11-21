@@ -592,7 +592,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
     for (auto consumer : consumers_)
     {
         consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
-            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
+            device_id, static_cast<uint32_t>(pInfos.GetLength()), &pInfos, &ppRangeInfos);
     }
 }
 

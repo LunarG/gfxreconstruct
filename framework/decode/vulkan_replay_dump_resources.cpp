@@ -943,7 +943,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
                     pRenderPassBegin->GetMetaStructPointer()->pNext);
                 GFXRECON_ASSERT(attachment_begin_info);
 
-                uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+                uint32_t num_attachments = static_cast<uint32_t>(attachment_begin_info->pAttachments.GetLength());
                 const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
@@ -1013,7 +1013,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
                     pRenderPassBegin->GetMetaStructPointer()->pNext);
                 GFXRECON_ASSERT(attachment_begin_info);
 
-                uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+                uint32_t num_attachments = static_cast<uint32_t>(attachment_begin_info->pAttachments.GetLength());
                 const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
@@ -2103,8 +2103,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
         if (modified_command_buffer_handles[s].size())
         {
-            modified_submit_infos[s].commandBufferCount = modified_command_buffer_handles[s].size();
-            modified_submit_infos[s].pCommandBuffers    = modified_command_buffer_handles[s].data();
+            modified_submit_infos[s].commandBufferCount =
+                static_cast<uint32_t>(modified_command_buffer_handles[s].size());
+            modified_submit_infos[s].pCommandBuffers = modified_command_buffer_handles[s].data();
         }
         else
         {
@@ -2115,8 +2116,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
     if (pre_submit)
     {
-        res =
-            device_table.QueueSubmit(queue, modified_submit_infos.size(), modified_submit_infos.data(), VK_NULL_HANDLE);
+        res = device_table.QueueSubmit(
+            queue, static_cast<uint32_t>(modified_submit_infos.size()), modified_submit_infos.data(), VK_NULL_HANDLE);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -2203,7 +2204,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     // without further modifications
     if (!submitted)
     {
-        res = device_table.QueueSubmit(queue, submit_infos.size(), submit_infos.data(), fence);
+        res = device_table.QueueSubmit(queue, static_cast<uint32_t>(submit_infos.size()), submit_infos.data(), fence);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -2383,8 +2384,8 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
             GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
         if (pipeline_library_info != nullptr)
         {
-            const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
-            const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+            const uint32_t library_count    = static_cast<uint32_t>(pipeline_library_info->pLibraries.GetLength());
+            const format::HandleId* ppl_ids = pipeline_library_info->pLibraries.GetPointer();
 
             for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
             {
@@ -2975,8 +2976,11 @@ void VulkanReplayDumpResourcesBase::HandleCmdBuildAccelerationStructures(
                             }
                         }
 
-                        device_table.CmdCopyBuffer(
-                            command_buffer, aabb_buffer_info->handle, new_aabbs.buffer, region_count, regions.data());
+                        device_table.CmdCopyBuffer(command_buffer,
+                                                   aabb_buffer_info->handle,
+                                                   new_aabbs.buffer,
+                                                   static_cast<uint32_t>(region_count),
+                                                   regions.data());
 
                         const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                                     nullptr,
@@ -3016,7 +3020,7 @@ void VulkanReplayDumpResourcesBase::HandleCmdBuildAccelerationStructures(
                     const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
                     const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
                     new_instances.instance_count        = range.primitiveCount;
-                    new_instances.instance_buffer_size  = instance_buffer_size;
+                    new_instances.instance_buffer_size  = static_cast<uint32_t>(instance_buffer_size);
 
                     size_t                  buffer_device_address_offset;
                     const VulkanBufferInfo* instances_buffer_info =

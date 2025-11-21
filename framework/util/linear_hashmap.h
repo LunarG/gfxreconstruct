@@ -216,9 +216,9 @@ class linear_hashmap
 
     inline void check_load_factor()
     {
-        if (m_num_elements >= m_capacity * m_max_load_factor)
+        if (static_cast<float>(m_num_elements) >= static_cast<float>(m_capacity) * m_max_load_factor)
         {
-            reserve(std::max<size_t>(32, static_cast<size_t>(m_grow_factor * m_capacity)));
+            reserve(std::max<size_t>(32, static_cast<size_t>(m_grow_factor * static_cast<float>(m_capacity))));
         }
     }
 

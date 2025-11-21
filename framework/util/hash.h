@@ -56,11 +56,11 @@ Type ClosestLowerPrime(void)
 template <class Type>
 Type GenerateCheckSum(const uint8_t* code, size_t code_size)
 {
-    Type current_sum   = code_size;
+    Type current_sum   = static_cast<Type>(code_size);
     Type closest_prime = ClosestLowerPrime<Type>();
     for (Type i = 0; i < code_size; ++i)
     {
-        current_sum = (current_sum * closest_prime) + std::hash<uint8_t>{}(code[i]);
+        current_sum = (current_sum * closest_prime) + static_cast<Type>(std::hash<uint8_t>{}(code[i]));
     }
     return current_sum;
 }

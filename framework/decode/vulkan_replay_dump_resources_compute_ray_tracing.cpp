@@ -201,7 +201,7 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
     }
 
     uint32_t dynamic_offset_index = 0;
-    for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
+    for (uint32_t i = 0; i < static_cast<uint32_t>(descriptor_sets_infos.size()); ++i)
     {
         uint32_t set_index = first_set + i;
 
@@ -432,7 +432,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                 dst_image,
                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                copies.size(),
+                                static_cast<uint32_t>(copies.size()),
                                 copies.data());
 
     // Wait for transfer and transition source image back to previous layout

@@ -431,12 +431,12 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
 
                 VkTimelineSemaphoreSubmitInfo timeline_info = {};
                 timeline_info.sType                         = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
-                timeline_info.waitSemaphoreValueCount       = wait_semaphores->size();
+                timeline_info.waitSemaphoreValueCount       = static_cast<uint32_t>(wait_semaphores->size());
                 timeline_info.pWaitSemaphoreValues = wait_semaphores->empty() ? nullptr : semaphore_values.data();
 
                 VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
                 submit_info.pNext                = &timeline_info;
-                submit_info.waitSemaphoreCount   = wait_semaphores->size();
+                submit_info.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores->size());
                 submit_info.pWaitSemaphores      = wait_semaphores->empty() ? nullptr : semaphore_handles.data();
                 submit_info.pWaitDstStageMask    = wait_semaphores->empty() ? nullptr : wait_dst_stages.data();
                 submit_info.commandBufferCount   = 1;
@@ -621,9 +621,10 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 // batch descriptor-updates
                 auto& write_inline_uniform_block =
                     sets_requiring_update[{ descriptor_set_info->handle, buffer_ref_info.binding }];
-                write_inline_uniform_block.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
-                write_inline_uniform_block.dataSize = descriptor_set_binding_info.inline_uniform_block.size();
-                write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
+                write_inline_uniform_block.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
+                write_inline_uniform_block.dataSize =
+                    static_cast<uint32_t>(descriptor_set_binding_info.inline_uniform_block.size());
+                write_inline_uniform_block.pData = descriptor_set_binding_info.inline_uniform_block.data();
             }
         }
     } // pipeline_info->buffer_reference_infos
@@ -649,15 +650,18 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
     {
         // mark injected commands
         MarkInjectedCommandsHelper mark_injected_commands_helper;
-        device_table_->UpdateDescriptorSets(device_, descriptor_updates.size(), descriptor_updates.data(), 0, nullptr);
+        device_table_->UpdateDescriptorSets(
+            device_, static_cast<uint32_t>(descriptor_updates.size()), descriptor_updates.data(), 0, nullptr);
     }
 
     if (!command_buffer_info->inside_renderpass)
     {
         std::vector<VkDeviceAddress> addresses_to_replace(command_buffer_info->addresses_to_replace.begin(),
                                                           command_buffer_info->addresses_to_replace.end());
-        UpdateBufferAddresses(
-            command_buffer_info, addresses_to_replace.data(), addresses_to_replace.size(), address_tracker);
+        UpdateBufferAddresses(command_buffer_info,
+                              addresses_to_replace.data(),
+                              static_cast<uint32_t>(addresses_to_replace.size()),
+                              address_tracker);
         command_buffer_info->addresses_to_replace.clear();
     }
 }
@@ -809,8 +813,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
 
         replacer_params_sbt_t replacer_params = {};
         replacer_params.hashmap.storage       = pipeline_context_sbt.storage_array.device_address;
-        replacer_params.hashmap.size          = hashmap_sbt_.size();
-        replacer_params.hashmap.capacity      = hashmap_sbt_.capacity();
+        replacer_params.hashmap.size          = static_cast<uint32_t>(hashmap_sbt_.size());
+        replacer_params.hashmap.capacity      = static_cast<uint32_t>(hashmap_sbt_.capacity());
 
         replacer_params.input_handles = pipeline_context_sbt.input_handle_buffer.device_address;
         replacer_params.num_handles   = num_addresses;
@@ -961,7 +965,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
                                             command_buffer_info->push_constant_pipeline_layout,
                                             command_buffer_info->push_constant_stage_flags,
                                             0,
-                                            command_buffer_info->push_constant_data.size(),
+                                            static_cast<uint32_t>(command_buffer_info->push_constant_data.size()),
                                             command_buffer_info->push_constant_data.data());
         }
     } // !valid_sbt_alignment_ || !valid_group_handles
@@ -1088,7 +1092,8 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;
 
             // scratch-buffer: check usage-flags
-            auto scratch_usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+            VkBufferUsageFlags scratch_usage_flags =
+                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
             scratch_buffer_usable =
                 scratch_buffer_usable && (scratch_buffer_info->usage & scratch_usage_flags) == scratch_usage_flags;
 
@@ -1252,7 +1257,7 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
 
         run_compute_replace(command_buffer_info,
                             addresses_to_replace.data(),
-                            addresses_to_replace.size(),
+                            static_cast<uint32_t>(addresses_to_replace.size()),
                             address_tracker,
                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR);
     }
@@ -1666,8 +1671,8 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     GFXRECON_ASSERT(util::is_pow_2(min_alignment));
 
     // 4kB min-size
-    constexpr uint32_t min_buffer_size = 1 << 12;
-    num_bytes = std::max<uint32_t>(util::aligned_value(num_bytes + min_alignment, min_alignment), min_buffer_size);
+    constexpr uint64_t min_buffer_size = 1 << 12;
+    num_bytes = std::max<uint64_t>(util::aligned_value(num_bytes + min_alignment, min_alignment), min_buffer_size);
 
     // nothing to do
     if (num_bytes <= buffer_context.num_bytes)
@@ -1678,7 +1683,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
     // free previous resources
     buffer_context                    = {};
     buffer_context.resource_allocator = resource_allocator_;
-    buffer_context.num_bytes          = num_bytes;
+    buffer_context.num_bytes          = static_cast<uint32_t>(num_bytes);
     buffer_context.name               = name;
 
     VkBufferCreateInfo buffer_create_info = {};
@@ -2045,7 +2050,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
     // a sorted array of bda_element_t
     replacer_params_bda_t replacer_params = {};
     replacer_params.address_array.storage = pipeline_context_bda.storage_array.device_address;
-    replacer_params.address_array.size    = storage_bda_binary_.size();
+    replacer_params.address_array.size    = static_cast<uint32_t>(storage_bda_binary_.size());
 
     // blacklist hashmap
     replacer_params.address_blacklist = hashmap_control_block_bda_binary_.device_address;
@@ -2120,7 +2125,7 @@ void VulkanAddressReplacer::run_compute_replace(const VulkanCommandBufferInfo*  
                                         command_buffer_info->push_constant_pipeline_layout,
                                         command_buffer_info->push_constant_stage_flags,
                                         0,
-                                        command_buffer_info->push_constant_data.size(),
+                                        static_cast<uint32_t>(command_buffer_info->push_constant_data.size()),
                                         command_buffer_info->push_constant_data.data());
     }
 }
@@ -2223,7 +2228,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
                 __func__,
                 hashmap_control_block.size,
                 hashmap_control_block.capacity,
-                hashmap_control_block.size / static_cast<float>(hashmap_control_block.capacity),
+                static_cast<float>(hashmap_control_block.size) / static_cast<float>(hashmap_control_block.capacity),
                 grow_factor);
         }
     }

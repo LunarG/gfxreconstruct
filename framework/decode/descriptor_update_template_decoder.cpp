@@ -133,8 +133,8 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                         break;
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     {
-                        cur_type.offset    = total_size;
-                        uint32_t num_bytes = cur_type.count;
+                        cur_type.offset  = total_size;
+                        size_t num_bytes = cur_type.count;
 
                         // We will read/write raw bytes in the allocated memory block, they should be the same
                         required_read_memory_size  = num_bytes;

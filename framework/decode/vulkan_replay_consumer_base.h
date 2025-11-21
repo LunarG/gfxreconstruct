@@ -1809,7 +1809,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           format::HandleId        id,
                                           VkPipelineCache         pipelineCache,
                                           VkPipeline*             pipelines,
-                                          uint32_t                pipelineCount);
+                                          uint64_t                pipelineCount);
 
     bool IsExtensionBeingFaked(const char* extension);
 

@@ -476,8 +476,8 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
 
-    const uint32_t total_subresources =
-        aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
+    const uint32_t total_subresources = static_cast<uint32_t>(aspects.size()) *
+                                        (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
 
     data.resize(total_subresources);
 

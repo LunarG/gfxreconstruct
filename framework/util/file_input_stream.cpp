@@ -69,7 +69,7 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
         {
             // The file read pos is peek_bytes_ further, than the caller thinks it is so the relative offset must be
             // adjusted
-            if (offset > 0 && (peek_bytes_ >= offset))
+            if (offset > 0 && (peek_bytes_ >= static_cast<size_t>(offset)))
             {
                 // This is a forward seek, so we shouldn't assume the file can be rewound, therefore adjust the seek
                 // Offset is positive and in size_t range

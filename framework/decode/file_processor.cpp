@@ -162,7 +162,7 @@ bool FileProcessor::ContinueDecoding()
     }
     else
     {
-        int completed_decoders = 0;
+        size_t completed_decoders = 0;
 
         for (auto& decoder : decoders_)
         {
@@ -183,8 +183,8 @@ bool FileProcessor::ContinueDecoding()
 
 bool FileProcessor::ProcessFileHeader()
 {
-    bool               success = false;
-    file_header_               = format::FileHeader();
+    bool success = false;
+    file_header_ = format::FileHeader();
 
     assert(file_stack_.front().active_file);
 
@@ -269,8 +269,8 @@ void FileProcessor::DecrementRemainingCommands()
 
 bool FileProcessor::ProcessBlocks()
 {
-    BlockBuffer         block_buffer;
-    bool                success = true;
+    BlockBuffer block_buffer;
+    bool        success = true;
 
     auto        err_handler = [this](BlockReadError err, const char* message) { HandleBlockReadError(err, message); };
     BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_);
@@ -654,8 +654,9 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 
 void FileProcessor::PrintBlockInfo() const
 {
-    if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
-                                     (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
+    if (enable_print_block_info_ &&
+        ((block_index_from_ < 0 || block_index_to_ < 0) || (block_index_from_ <= static_cast<int64_t>(block_index_) &&
+                                                            block_index_to_ >= static_cast<int64_t>(block_index_))))
     {
         GFXRECON_LOG_INFO(
             "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);

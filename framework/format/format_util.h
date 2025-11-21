@@ -78,7 +78,7 @@ inline BlockType RemoveCompressedBlockBit(BlockType type)
 template <typename T>
 uint64_t GetMetaDataBlockBaseSize(const T& block)
 {
-    return (sizeof(block) - sizeof(block.meta_header.block_header));
+    return static_cast<uint64_t>(sizeof(block) - sizeof(block.meta_header.block_header));
 }
 
 /// @return The size of an annotation block header minus the size of the header
