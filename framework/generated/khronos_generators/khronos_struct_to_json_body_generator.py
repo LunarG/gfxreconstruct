@@ -53,10 +53,7 @@ class KhronosStructToJsonBodyGenerator():
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
                         if (data && data->decoded_value)
-                        {{
-                            const {0}& decoded_value = *data->decoded_value;
-                            const Decoded_{0}& meta_struct = *data;
-                    '''.format(struct))
+                        {{'''.format(struct))
 
                 if struct in self.children_structs:
                     body += self.make_base_struct_body(struct)
@@ -76,7 +73,7 @@ class KhronosStructToJsonBodyGenerator():
         extended_node_prefix = self.get_extended_struct_node_prefix()
         stype_auto = self.get_local_type_var_name()
         base_in_struct = self.get_base_input_structure_name()
-        
+
         body = '''
             void FieldToJson(nlohmann::ordered_json& jdata, const {}Node* data, const JsonOptions& options)
             {{
@@ -96,18 +93,14 @@ class KhronosStructToJsonBodyGenerator():
     def make_base_struct_body(
             self,
             base_struct_type,
-            indent = '    ',
-            decoded_value='decoded_value',
-            data='data',
-            json_data='jdata',
-            json_options='options'):
+            indent = '    '):
         # Otherwise, we need to go through and actually decode the appropriate
         # type of the struct pointed at by the base header struct pointer.
         body = ''
         indent1 = indent + '    '
         indent2 = indent1 + '    '
 
-        body += f'{indent1}switch ({decoded_value}.type)\n'
+        body += f'{indent1}switch (data->decoded_value->type)\n'
         body += f'{indent1}{{\n'
         body += f'{indent2}default:\n'
         body += f'{indent2}    // Handle as base-type below\n'
@@ -116,9 +109,9 @@ class KhronosStructToJsonBodyGenerator():
         for child in self.children_structs[base_struct_type]:
             struct_type = self.struct_type_names[child]
             body += f'{indent2}case {struct_type}:\n'
-            body += f'{indent2}    FieldToJson({json_data},\n'
-            body += f'{indent2}                reinterpret_cast<const Decoded_{child}*>({data}),\n'
-            body += f'{indent2}                {json_options});\n'
+            body += f'{indent2}    FieldToJson(jdata,\n'
+            body += f'{indent2}                reinterpret_cast<const Decoded_{child}*>(data),\n'
+            body += f'{indent2}                options);\n'
             body += f'{indent2}    // Return here because we processed the appropriate data in\n'
             body += f'{indent2}    // the correct structure type\n'
             body += f'{indent2}    return;\n'
@@ -149,55 +142,55 @@ class KhronosStructToJsonBodyGenerator():
                 continue
 
             # Default to getting the data from the native Vulkan struct:
-            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+            to_json = 'FieldToJson(jdata["{0}"], data->decoded_value->{0}, options)'
 
             if (
                 self.is_function_ptr(value_type)
                 or ('pUserData' == value.name or 'userData' == value.name)
             ):
-                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
+                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(data->{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
-                    to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                    to_json = 'FieldToJson(jdata["{0}"], &data->{0}, options)'
                 elif self.is_handle_like(value_type):
-                    to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                    to_json = 'HandleToJson(jdata["{0}"], &data->{0}, options)'
                 else:
-                    to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                    to_json = 'FieldToJson(jdata["{0}"], data->{0}, options)'
             else:
                 if value.is_array:
                     if 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(data->decoded_value->{0}), data->decoded_value->{0}), options)'
                     elif 'String' in type_name:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], &data->{0}, options)'
                     elif self.is_handle_like(value_type):
-                        to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'HandleToJson(jdata["{0}"], &data->{0}, options)'
                     elif self.is_struct(value_type):
                         # If this is a parent class, generate the parent->child conversion info
                         # appropriately
                         if value_type in self.children_structs.keys():
                             to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
                         else:
-                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                            to_json = 'FieldToJson(jdata["{0}"], data->{0}, options)'
                     elif not value.is_dynamic:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], &data->{0}, options)'
                     else:
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], data->{0}, options)'
                 else:
                     if self.decode_as_handle(name, value):
-                        to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'HandleToJson(jdata["{0}"], data->{0}, options)'
                     elif value_type in self.formatAsHex:
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(data->decoded_value->{0}), options)'
                     elif self.is_struct(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], data->{0}, options)'
                     elif self.is_flags(value_type):
                         if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
                                 value_type]
-                        to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
+                        to_json = 'FieldToJson({2}_t(),jdata["{0}"], data->decoded_value->{0}, options)'
                     elif self.is_enum(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], data->decoded_value->{0}, options)'
                     elif self.is_boolean_type(value_type):
-                        to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
+                        to_json = 'jdata["{0}"] = static_cast<bool>(data->decoded_value->{0})'
 
             to_json = to_json.format(
                 value.name, value_type, flagsEnumType
@@ -206,7 +199,7 @@ class KhronosStructToJsonBodyGenerator():
 
         # Handle the extended struct last
         if has_extended_struct:
-            body += '        FieldToJson(jdata["{0}"], meta_struct.{0}, options);\n'.format(
+            body += '        FieldToJson(jdata["{0}"], data->{0}, options);\n'.format(
                 extended_struct_var_name
             )
 
