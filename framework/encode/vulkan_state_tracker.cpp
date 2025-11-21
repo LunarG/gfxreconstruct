@@ -1861,6 +1861,23 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
     }
 }
 
+void VulkanStateTracker::TrackPresentFences(const VkPresentInfoKHR* present_info)
+{
+    if (auto* fence_present_info = graphics::vulkan_struct_get_pnext<VkSwapchainPresentFenceInfoKHR>(present_info))
+    {
+        for (uint32_t i = 0; i < fence_present_info->swapchainCount; ++i)
+        {
+            auto* fence_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::FenceWrapper>(fence_present_info->pFences[i]);
+            GFXRECON_ASSERT(fence_wrapper != nullptr);
+            if (fence_wrapper != nullptr)
+            {
+                fence_wrapper->in_flight = true;
+            }
+        }
+    }
+}
+
 void VulkanStateTracker::TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
                                                                     VkAccelerationStructureKHR accel_struct,
                                                                     VkDeviceAddress            address)
