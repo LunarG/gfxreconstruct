@@ -116,7 +116,7 @@ bool StringToU32(const std::string& value_string, uint32_t& value)
     bool success = true;
     try
     {
-        value = std::stoul(value_string);
+        value = static_cast<uint32_t>(std::stoul(value_string));
     }
     catch (std::exception&)
     {

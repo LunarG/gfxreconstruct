@@ -680,7 +680,7 @@ uint16_t CaptureSettings::ParseUnsignedInteger16String(const std::string& value_
     uint32_t value = 0;
     if (is_hex_integer == true)
     {
-        value = strtoul(value_string.c_str(), nullptr, 16);
+        value = static_cast<uint32_t>(strtoul(value_string.c_str(), nullptr, 16));
 
         if (value > (~static_cast<uint32_t>(0x0) >> (32 - RvAnnotationUtil::kMaskSizeOfBits)))
         {

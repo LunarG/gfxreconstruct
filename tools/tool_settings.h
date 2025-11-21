@@ -608,8 +608,8 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
         {
             try
             {
-                width  = std::stoul(value.substr(0, x));
-                height = std::stoul(value.substr(x + 1));
+                width  = static_cast<uint32_t>(std::stoul(value.substr(0, x)));
+                height = static_cast<uint32_t>(std::stoul(value.substr(x + 1)));
             }
             catch (std::exception&)
             {
