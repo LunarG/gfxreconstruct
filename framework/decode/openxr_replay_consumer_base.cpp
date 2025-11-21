@@ -1554,7 +1554,7 @@ void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
     {
         // TODO: Return jobject
     }
-    else if (format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT)
+    else if (call_id == format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT)
     {
         // TODO: Return perceptionAnchor
     }
