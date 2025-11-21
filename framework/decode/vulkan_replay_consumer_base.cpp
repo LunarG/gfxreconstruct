@@ -2352,10 +2352,10 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
 {
     assert(swapchain_info != nullptr);
 
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
     if (auto full_screen_info =
             graphics::vulkan_struct_get_pnext<VkSurfaceFullScreenExclusiveWin32InfoEXT>(swapchain_info->decoded_value))
     {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
         // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
         HMONITOR   hmonitor     = nullptr;
         const auto surface_info = object_info_table_->GetVkSurfaceKHRInfo(swapchain_info->surface);
@@ -2380,11 +2380,11 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
                 "Failed to obtain a valid HMONITOR handle for the VkSurfaceFullScreenExclusiveWin32InfoEXT "
                 "extension structure provided to vkCreateSwapchainKHR")
         }
-#else
-        GFXRECON_LOG_WARNING("vkCreateSwapchainKHR called with the VkSurfaceFullScreenExclusiveWin32InfoEXT "
-                             "extension structure, which is not supported by this platform")
-#endif
     }
+#else
+    GFXRECON_LOG_WARNING("vkCreateSwapchainKHR called with the VkSurfaceFullScreenExclusiveWin32InfoEXT "
+                         "extension structure, which is not supported by this platform")
+#endif
 }
 
 void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(
