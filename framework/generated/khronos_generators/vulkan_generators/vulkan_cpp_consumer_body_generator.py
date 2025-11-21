@@ -956,7 +956,7 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
                     newArray, callArg, callTemplate = self.buildInputArray(arg, valueSuffix=valueSuffix, indent=4)
                     body += newArray
                 elif arg.base_type != 'void':
-                    callArg = f'{arg.name}->GetPointer()'
+                    callArg = f'static_cast<void*>({arg.name}->GetPointer())'
                     callTemplate = "%p"
                 else:
                     # encoding void* inputs is tricky at the moment, hope for the best

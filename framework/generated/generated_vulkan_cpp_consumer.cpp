@@ -9619,8 +9619,8 @@ void VulkanCppConsumer::Process_vkDebugReportMessageEXT(
             object,
             util::platform::SizeTtoUint64(location),
             messageCode,
-            pLayerPrefix->GetPointer(),
-            pMessage->GetPointer());
+            static_cast<void*>(pLayerPrefix->GetPointer()),
+            static_cast<void*>(pMessage->GetPointer()));
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkDebugReportMessageEXT);
 }
@@ -13894,7 +13894,7 @@ void VulkanCppConsumer::Process_vkCmdDrawMultiIndexedEXT(
             instanceCount,
             firstInstance,
             stride,
-            pVertexOffset->GetPointer());
+            static_cast<void*>(pVertexOffset->GetPointer()));
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdDrawMultiIndexedEXT);
 }
