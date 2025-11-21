@@ -448,7 +448,11 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
             var_suffix = ''
             for count, cur_length in enumerate(lengths):
                 space = (' ' * indent)
-                structBuild += f'{space}for (uint32_t idx{count} = 0; idx{count} < {cur_length}; ++idx{count}) {{\n'
+                # Special case the type of the loop var for pSampleMask, as the length is (rasterizationSamples + 31) / 32 which turns into an int
+                loop_var_type = 'uint32_t'
+                if arg.name == 'pSampleMask':
+                    loop_var_type = 'int'
+                structBuild += f'{space}for ({loop_var_type} idx{count} = 0; idx{count} < {cur_length}; ++idx{count}) {{\n'
                 var_suffix = var_suffix + f'[idx{count}]'
                 indent = indent + 4
                 if count < num_lengths - 1:

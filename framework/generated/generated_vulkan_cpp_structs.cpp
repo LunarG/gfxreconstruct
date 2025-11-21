@@ -3223,7 +3223,7 @@ std::string GenerateStruct_VkPipelineMultisampleStateCreateInfo(std::ostream &ou
     std::string psample_mask_array = "NULL";
     if (structInfo->pSampleMask != NULL) {
         std::string psample_mask_values;
-        for (uint32_t idx0 = 0; idx0 < (structInfo->rasterizationSamples + 31) / 32; ++idx0) {
+        for (int idx0 = 0; idx0 < (structInfo->rasterizationSamples + 31) / 32; ++idx0) {
             psample_mask_values += std::to_string(structInfo->pSampleMask[idx0]) + ", ";
         }
         psample_mask_array = "pSampleMask_" + std::to_string(consumer.GetNextId());
