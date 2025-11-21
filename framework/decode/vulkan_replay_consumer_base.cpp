@@ -2792,7 +2792,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     // extension without having VK_KHR_surface. Check for that and fix that.
     if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
     {
-        for (const std::string& current_extension : modified_extensions)
+        for (const char* const& current_extension : modified_extensions)
         {
             if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
             {
