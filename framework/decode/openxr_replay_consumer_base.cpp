@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "util/logging.h"
 #if ENABLE_OPENXR_SUPPORT
 #include <array>
 #include <iterator>
@@ -1468,6 +1469,10 @@ void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
 
     SwapchainData& swapchain_data = GetSwapchainData(swapchain);
     replay_result                 = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+    if (replay_result != XR_SUCCESS)
+    {
+        GFXRECON_LOG_INFO("xrAcquireSwapchainImage returned error code %d", replay_result);
+    }
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrDestroySwapchain(const ApiCallInfo& call_info,
