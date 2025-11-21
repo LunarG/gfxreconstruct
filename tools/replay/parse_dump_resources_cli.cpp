@@ -47,7 +47,7 @@ static std::string to_lower(std::string s)
 {
     for (char& c : s)
     {
-        c = tolower(c);
+        c = static_cast<char>(tolower(c));
     }
     return s;
 }
