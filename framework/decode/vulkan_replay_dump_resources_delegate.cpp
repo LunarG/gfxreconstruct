@@ -121,7 +121,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDu
     DumpedResourceBase* dumped_resource = static_cast<DumpedResourceBase*>(delegate_context.dumped_resource);
     GFXRECON_ASSERT(dumped_resource != nullptr);
 
-    DumpedBuffer*           dumped_buffer;
+    DumpedBuffer*           dumped_buffer = nullptr;
     BufferFilenameGenerator filename_generator;
 
     switch (dumped_resource->type)
@@ -291,7 +291,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
     DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
     GFXRECON_ASSERT(dumped_resource != nullptr);
 
-    DumpedImage*           dumped_image;
+    DumpedImage*           dumped_image = nullptr;
     ImageFilenameGenerator filename_generator;
 
     switch (dumped_resource->type)
