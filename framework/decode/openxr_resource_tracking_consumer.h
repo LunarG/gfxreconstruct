@@ -92,7 +92,8 @@ class OpenXrResourceTrackingConsumer : public OpenXrConsumer
                                   XrResult                                            returnValue,
                                   StructPointerDecoder<Decoded_XrInstanceCreateInfo>* pCreateInfo,
                                   HandlePointerDecoder<XrInstance>*                   pInstance);
-    void Process_xrDestroyInstance(const ApiCallInfo& call_info, format::HandleId instance);
+    void
+    Process_xrDestroyInstance(const ApiCallInfo& call_info, XrResult returnValue, format::HandleId instance) override;
     void Process_xrCreateSession(const ApiCallInfo&                                 call_info,
                                  XrResult                                           returnValue,
                                  format::HandleId                                   instance,

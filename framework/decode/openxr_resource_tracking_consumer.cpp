@@ -336,7 +336,9 @@ void OpenXrResourceTrackingConsumer::Process_xrCreateInstance(
     }
 }
 
-void OpenXrResourceTrackingConsumer::Process_xrDestroyInstance(const ApiCallInfo& call_info, format::HandleId instance)
+void OpenXrResourceTrackingConsumer::Process_xrDestroyInstance(const ApiCallInfo& call_info,
+                                                               XrResult           returnValue,
+                                                               format::HandleId   instance)
 {
     auto       instance_info = GetTrackedObjectInfoTable()->GetTrackedXrInstanceInfo(instance);
     XrInstance in_instance   = instance_info->GetHandleId();
