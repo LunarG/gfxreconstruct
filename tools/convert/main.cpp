@@ -436,11 +436,11 @@ int main(int argc, const char** argv)
                         json_writer.EndStream();
                         gfxrecon::util::platform::FileClose(out_file_handle);
 
-                        json_filename = (frame_range_option)
-                                            ? json_filename
-                                            : gfxrecon::util::filepath::InsertFilenamePostfix(
-                                                  output_filename,
-                                                  +"_" + FormatFrameNumber(file_processor.GetCurrentFrameNumber()));
+                        json_filename = (frame_range_option) ? json_filename
+                                                             : gfxrecon::util::filepath::InsertFilenamePostfix(
+                                                                   output_filename,
+                                                                   +"_" + FormatFrameNumber(static_cast<uint32_t>(
+                                                                              file_processor.GetCurrentFrameNumber())));
 
                         gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
                         success = out_file_handle != nullptr;

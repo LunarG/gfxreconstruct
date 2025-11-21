@@ -234,7 +234,7 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     }
     api_agnostic_stats.compression_type   = compression_type;
     api_agnostic_stats.trim_start_frame   = stat_consumer.GetTrimmedStartFrame();
-    api_agnostic_stats.frame_count        = file_processor.GetCurrentFrameNumber();
+    api_agnostic_stats.frame_count        = static_cast<uint32_t>(file_processor.GetCurrentFrameNumber());
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
 }
 
@@ -489,7 +489,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
 
         // Frame counts.
         uint32_t trim_start_frame = vulkan_stats_consumer.GetTrimmedStartFrame();
-        uint32_t frame_count      = file_processor.GetCurrentFrameNumber();
+        uint32_t frame_count      = static_cast<uint32_t>(file_processor.GetCurrentFrameNumber());
 
         if (trim_start_frame == 0)
         {

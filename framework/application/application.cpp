@@ -138,7 +138,7 @@ void Application::Run()
         if (running_ && !paused_)
         {
             // Add one to match "trim frame range semantic"
-            uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
+            uint64_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
             if (fps_info_ != nullptr)
             {
@@ -184,7 +184,7 @@ void Application::SetPaused(bool paused)
 {
     if (file_processor_ != nullptr && paused_ != paused)
     {
-        uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
+        uint64_t current_frame = file_processor_->GetCurrentFrameNumber();
         if (paused)
         {
             GFXRECON_LOG_INFO("Paused at frame %u", current_frame);
