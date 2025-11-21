@@ -72,7 +72,7 @@ bool XlibWindow::Create(const std::string& title,
     int32_t y             = ypos;
     bool    go_fullscreen = false;
 
-    if ((root_attributes.height <= height) || (root_attributes.width <= width))
+    if ((root_attributes.height <= static_cast<int>(height)) || (root_attributes.width <= static_cast<int>(width)))
     {
         if ((screen_height_ == height) || (screen_width_ == width))
         {

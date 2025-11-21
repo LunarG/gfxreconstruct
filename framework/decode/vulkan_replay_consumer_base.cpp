@@ -2553,12 +2553,12 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 // If both copy_scale and copy_width are provided, use copy_scale.
                 const uint32_t screenshot_width =
                     options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->width)
+                        ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(swapchain_info->width))
                         : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
 
                 const uint32_t screenshot_height =
                     options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->height)
+                        ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(swapchain_info->height))
                         : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
 
                 screenshot_handler_->WriteImage(filename_prefix,
@@ -2632,12 +2632,14 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                     // If both copy_scale and copy_width are provided, use copy_scale.
                     const uint32_t screenshot_width =
                         options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
+                            ? static_cast<uint32_t>(options_.screenshot_scale *
+                                                    static_cast<float>(image_info->extent.width))
                             : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
 
                     const uint32_t screenshot_height =
                         options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
+                            ? static_cast<uint32_t>(options_.screenshot_scale *
+                                                    static_cast<float>(image_info->extent.height))
                             : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
                     screenshot_handler_->WriteImage(filename_prefix,
@@ -2689,12 +2691,12 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
 
             const uint32_t screenshot_width =
                 options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
+                    ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(image_info->extent.width))
                     : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
 
             const uint32_t screenshot_height =
                 options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
+                    ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(image_info->extent.height))
                     : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
             screenshot_handler_->WriteImage(filename_prefix,
@@ -10169,12 +10171,12 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
             const uint32_t screenshot_width =
                 options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
+                    ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(image_info->extent.width))
                     : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
 
             const uint32_t screenshot_height =
                 options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
+                    ? static_cast<uint32_t>(options_.screenshot_scale * static_cast<float>(image_info->extent.height))
                     : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
             auto instance_table = GetInstanceTable(device_info->parent);

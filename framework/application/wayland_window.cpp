@@ -299,7 +299,7 @@ void WaylandWindow::UpdateWindowSize()
             scale_ = output_info.scale;
         }
 
-        if (output_info.width == width_ && output_info.height == height_)
+        if (output_info.width == static_cast<int32_t>(width_) && output_info.height == static_cast<int32_t>(height_))
         {
             if (xdg_toplevel_ != nullptr)
             {
