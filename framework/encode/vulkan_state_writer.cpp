@@ -2548,7 +2548,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
     image_resources.reserve(image_snapshot_infos.size());
 
     auto write_init_image_cmd = [this, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
-        format::InitImageCommandHeader upload_cmd;
+        format::InitImageCommandHeader upload_cmd{};
 
         // Packet size without the resource data.
         upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);

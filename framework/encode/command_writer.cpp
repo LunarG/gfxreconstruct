@@ -103,7 +103,7 @@ void CommandWriter::WriteInitImageCmd(format::ApiFamilyId          api_family,
                                       const void*                  data)
 {
 
-    format::InitImageCommandHeader upload_cmd;
+    format::InitImageCommandHeader upload_cmd{};
 
     // Packet size without the resource data.
     upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
