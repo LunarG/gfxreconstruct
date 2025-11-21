@@ -60,8 +60,8 @@ struct OpenXrObjectInfo
 };
 
 GFXRECON_BEGIN_NAMESPACE(openxr)
-struct SessionData;
-struct SwapchainData;
+class SessionData;
+class SwapchainData;
 GFXRECON_END_NAMESPACE(openxr)
 
 template <typename HandleType, typename ReplayData>
