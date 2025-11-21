@@ -122,7 +122,7 @@ struct ApiAgnosticStats
     gfxrecon::format::CompressionType compression_type;
     uint32_t                          trim_start_frame;
     uint32_t                          frame_count;
-    gfxrecon::decode::BlockReadError  error_state;
+    gfxrecon::decode::BlockIOError    error_state;
     bool                              uses_frame_markers;
 };
 
@@ -467,7 +467,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
                       const ApiAgnosticStats&                      api_agnostic_stats,
                       const AnnotationRecorder&                    annotation_recoder)
 {
-    if (api_agnostic_stats.error_state == gfxrecon::decode::BlockReadError::kErrorNone)
+    if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
@@ -606,7 +606,7 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
             GFXRECON_WRITE_CONSOLE("\nFile did not contain any frames");
         }
     }
-    else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockReadError::kErrorNone)
+    else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
         gfxrecon::util::Log::Release();
@@ -757,7 +757,7 @@ void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
                      gfxrecon::decode::InfoConsumer&      info_consumer,
                      const AnnotationRecorder&            annotation_recoder)
 {
-    if (api_agnostic_stats.error_state == gfxrecon::decode::BlockReadError::kErrorNone)
+    if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
@@ -808,7 +808,7 @@ void PrintD3D12Stats(gfxrecon::decode::FileProcessor&     file_processor,
 
         PrintDxrEiInfo(dx12_consumer);
     }
-    else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockReadError::kErrorNone)
+    else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
     {
         GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
         gfxrecon::util::Log::Release();
@@ -885,7 +885,7 @@ void GatherAndPrintEnvVars(const std::string& input_filename)
         info_decoder.AddConsumer(&info_consumer);
         file_processor.AddDecoder(&info_decoder);
         file_processor.ProcessAllFrames();
-        if (file_processor.GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone)
+        if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             PrintEnvironmentVariableInfo(info_consumer);
         }
@@ -942,7 +942,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 #endif
 
         file_processor.ProcessAllFrames();
-        if (file_processor.GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone)
+        if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);

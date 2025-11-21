@@ -323,7 +323,7 @@ int main(int argc, const char** argv)
             fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
             if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                (file_processor->GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
+                (file_processor->GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
             {
                 if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                 {
@@ -351,7 +351,7 @@ int main(int argc, const char** argv)
                     fps_info.LogMeasurements();
                 }
             }
-            else if (file_processor->GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
+            else if (file_processor->GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
             {
                 GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 return_code = -1;

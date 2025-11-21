@@ -32,11 +32,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Parse the block header and load the whole block into a block buffer
-BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
+BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     using BlockSizeType = decltype(format::BlockHeader::size);
-    BlockSizeType  block_size;
-    BlockReadError status = kErrorNone;
+    BlockSizeType block_size;
+    BlockIOError  status = kErrorNone;
 
     if (!input_stream->PeekBytes(&block_size, 1))
     {
@@ -96,7 +96,7 @@ BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bl
     return status;
 }
 
-void BlockParser::HandleBlockReadError(BlockReadError error_code, const char* error_message)
+void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
     err_handler_(error_code, error_message);
 }
@@ -137,7 +137,7 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
     const format::BlockHeader& block_header = block_buffer.Header();
     format::BlockType          base_type    = format::RemoveCompressedBlockBit(block_header.type);
-    ParsedBlock parsed_block = ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kUnknown);
+    ParsedBlock                parsed_block = ParsedBlock(ParsedBlock::InvalidBlockTag());
     switch (base_type)
     {
         case format::kFunctionCallBlock:
@@ -159,8 +159,8 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
             parsed_block = ParseAnnotation(block_buffer);
             break;
         case format::kUnknownBlock:
-            break;
         default:
+            parsed_block = ParsedBlock{ ParsedBlock::RawBlockTag(), block_buffer.ReleaseData() };
             break;
     }
 
@@ -235,7 +235,7 @@ BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, u
 
         if (!result.success)
         {
-            const BlockReadError error_code =
+            const BlockIOError error_code =
                 result.is_compressed ? kErrorReadingCompressedBlockData : kErrorReadingBlockData;
             HandleBlockReadError(error_code, error_string("data").str().c_str());
         }
@@ -275,7 +275,7 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
@@ -312,7 +312,7 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
@@ -327,7 +327,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     // Optional backing store for the various uncompressed metadata contents
@@ -1340,7 +1340,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+            return ParsedBlock(ParsedBlock::InvalidBlockTag());
         }
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
@@ -1351,7 +1351,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+            return ParsedBlock(ParsedBlock::InvalidBlockTag());
         }
 
         const char* env_string = parameter_data.GetDataAs<char>();
@@ -1518,7 +1518,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = true;
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
@@ -1532,7 +1532,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
@@ -1550,7 +1550,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         else
         {
             GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kSkip);
+            return ParsedBlock(ParsedBlock::RawBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1558,7 +1558,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
@@ -1572,7 +1572,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     uint64_t frame_number = 0;
@@ -1593,7 +1593,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         else
         {
             GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kSkip);
+            return ParsedBlock(ParsedBlock::RawBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1601,7 +1601,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
@@ -1615,7 +1615,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     decltype(format::AnnotationHeader::label_length) label_length = 0;
@@ -1666,7 +1666,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 GFXRECON_END_NAMESPACE(decode)
