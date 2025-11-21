@@ -93,6 +93,7 @@ struct DescriptorLocation
 using CommandImageSubresource =
     std::unordered_map<decode::Index, std::map<DescriptorLocation, VkImageSubresourceRange>>;
 using CommandImageSubresourceIterator = CommandImageSubresource::const_iterator;
+using BeginCmdBufQueueSubmitPair      = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -121,8 +122,7 @@ struct VulkanReplayOptions : public ReplayOptions
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options
-    std::vector<decode::Index> BeginCommandBuffer_Indices;
-    std::vector<decode::Index> QueueSubmit_Indices;
+    std::vector<BeginCmdBufQueueSubmitPair> BeginCommandBufferQueueSubmit_Indices;
 
     std::vector<RenderPassIndices> RenderPass_Indices;
     std::vector<CommandIndices>    Draw_Indices;
