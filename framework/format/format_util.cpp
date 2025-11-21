@@ -198,7 +198,7 @@ GfxrVersion ParseVersionFromOperations(const char* operations)
 bool GfxrVersion::SupportsFrameMarkers() const
 {
     // Supported from 1.0.1 and later builds
-    return valid && ((major > 1)) || ((major == 1) && ((minor > 0) || (patch > 0)));
+    return valid && ((major > 1) || ((major == 1) && ((minor > 0) || (patch > 0))));
 }
 
 GFXRECON_END_NAMESPACE(format)
