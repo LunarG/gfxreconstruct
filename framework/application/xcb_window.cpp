@@ -442,7 +442,7 @@ xcb_intern_atom_cookie_t
 XcbWindow::SendAtomRequest(xcb_connection_t* connection, const char* name, uint8_t only_if_exists) const
 {
     auto& xcb = xcb_context_->GetXcbFunctionTable();
-    return xcb.intern_atom(connection, only_if_exists, strlen(name), name);
+    return xcb.intern_atom(connection, only_if_exists, static_cast<uint16_t>(strlen(name)), name);
 }
 
 xcb_atom_t
