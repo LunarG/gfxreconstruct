@@ -74,7 +74,7 @@ void OpenXrResourceTrackingConsumer::InitializeLoader()
     {
         XrResult result = get_instance_proc_addr_(
             XR_NULL_HANDLE, "xrCreateInstance", reinterpret_cast<PFN_xrVoidFunction*>(create_instance_function_));
-        if (create_instance_function_ == nullptr)
+        if (result != XR_SUCCESS || create_instance_function_ == nullptr)
         {
             GFXRECON_LOG_FATAL("Failed to load OpenXr runtime library; please ensure that the path to the OpenXr "
                                "loader (eg. %s) has been added to the appropriate system path",
