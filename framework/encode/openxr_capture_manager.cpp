@@ -22,6 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "openxr/openxr.h"
 #if ENABLE_OPENXR_SUPPORT
 
 #include PROJECT_VERSION_HEADER_FILE
@@ -234,6 +235,10 @@ void OpenXrCaptureManager::WriteViewRelativeLocationMetadata(const XrSession    
         XrSpaceLocation space_location = { XR_TYPE_SPACE_LOCATION, nullptr };
         XrResult        locate_result  = openxr_wrappers::GetInstanceTable(session)->LocateSpace(
             space, session_data.view_ref_space, frameEndInfo.displayTime, &space_location);
+        if (locate_result != XR_SUCCESS)
+        {
+            GFXRECON_LOG_WARNING("Failed call to xrLocateSpace in WriteViewRelativeLocationMetadata");
+        }
 
         location.space_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SpaceWrapper>(space);
 
