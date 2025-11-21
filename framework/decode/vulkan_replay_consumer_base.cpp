@@ -6331,7 +6331,7 @@ void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
     GFXRECON_ASSERT(allocator != nullptr);
 
     VkVideoSessionKHR                     session = VK_NULL_HANDLE;
-    VulkanResourceAllocator::ResourceData allocator_data;
+    VulkanResourceAllocator::ResourceData allocator_data{};
 
     if (video_session_info != nullptr)
     {
