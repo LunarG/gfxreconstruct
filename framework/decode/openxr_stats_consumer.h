@@ -67,7 +67,7 @@ class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
             app_version_     = create_info->applicationInfo.applicationVersion;
             engine_name_     = create_info->applicationInfo.engineName;
             engine_version_  = create_info->applicationInfo.engineVersion;
-            api_version_     = create_info->applicationInfo.apiVersion;
+            api_version_     = static_cast<uint32_t>(create_info->applicationInfo.apiVersion);
         }
     }
 

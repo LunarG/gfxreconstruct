@@ -606,10 +606,10 @@ extern "C"
         }
 
         const uint32_t layer_cur_interface_version = 1;
-        const uint8_t  loader_min_major_version    = XR_VERSION_MAJOR(loaderInfo->minApiVersion);
-        const uint8_t  loader_min_minor_version    = XR_VERSION_MINOR(loaderInfo->minApiVersion);
-        const uint8_t  loader_max_major_version    = XR_VERSION_MAJOR(loaderInfo->maxApiVersion);
-        const uint8_t  loader_max_minor_version    = XR_VERSION_MINOR(loaderInfo->maxApiVersion);
+        const uint8_t  loader_min_major_version    = static_cast<uint8_t>(XR_VERSION_MAJOR(loaderInfo->minApiVersion));
+        const uint8_t  loader_min_minor_version    = static_cast<uint8_t>(XR_VERSION_MINOR(loaderInfo->minApiVersion));
+        const uint8_t  loader_max_major_version    = static_cast<uint8_t>(XR_VERSION_MAJOR(loaderInfo->maxApiVersion));
+        const uint8_t  loader_max_minor_version    = static_cast<uint8_t>(XR_VERSION_MINOR(loaderInfo->maxApiVersion));
         const uint8_t  layer_cur_major_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
         const uint8_t  layer_cur_minor_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
 
