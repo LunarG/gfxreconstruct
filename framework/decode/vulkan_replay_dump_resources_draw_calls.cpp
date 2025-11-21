@@ -878,7 +878,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
         // Some things need to be dumped once. It shouldn't matter if this is for the "before" or "after" command buffer
         // but we need to distinguish between the two in order to make sure we make each thing once.
-        const bool is_before_command = !options_.dump_resources_before || options_.dump_resources_before && !(cb % 2);
+        const bool is_before_command = !options_.dump_resources_before || (options_.dump_resources_before && !(cb % 2));
 
         // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers into the DrawCallParams.
         if (is_before_command)
@@ -922,7 +922,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             }
         }
 
-        if (!options_.dump_resources_before || options_.dump_resources_before && (cb % 2))
+        if (!options_.dump_resources_before || (options_.dump_resources_before && (cb % 2)))
         {
             const auto& dc_param_entry = draw_call_params_.find(dc_index);
             GFXRECON_ASSERT(dc_param_entry != draw_call_params_.end());
