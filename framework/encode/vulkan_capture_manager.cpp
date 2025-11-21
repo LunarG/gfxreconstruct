@@ -1295,8 +1295,8 @@ VkResult VulkanCaptureManager::OverrideGetPhysicalDeviceToolPropertiesEXT(
 
         util::platform::StringCopy(pToolProperties->version,
                                    VK_MAX_EXTENSION_NAME_SIZE,
-                                   GFXRECON_PROJECT_VERSION_STRING,
-                                   util::platform::StringLength(GFXRECON_PROJECT_VERSION_STRING));
+                                   GetProjectVersionString(),
+                                   util::platform::StringLength(GetProjectVersionString()));
 
         util::platform::StringCopy(pToolProperties->description,
                                    VK_MAX_DESCRIPTION_SIZE,
