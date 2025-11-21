@@ -277,8 +277,8 @@ class KhronosStructDecodersBodyGenerator():
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, temp_param_name
                 )
-                main_body += '    value->{} = {};\n'.format(
-                    value.name, temp_param_name
+                main_body += '    value->{} = (1>>{}) & {};\n'.format(
+                    value.name, int(value.bitfield_width.split(':')[1]), temp_param_name
                 )
             elif is_enum:
                 main_body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(

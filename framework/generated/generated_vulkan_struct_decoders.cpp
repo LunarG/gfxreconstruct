@@ -47,40 +47,40 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
 
     uint32_t temp_aspect_ratio_info_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_aspect_ratio_info_present_flag);
-    value->aspect_ratio_info_present_flag = temp_aspect_ratio_info_present_flag;
+    value->aspect_ratio_info_present_flag = (1>>1) & temp_aspect_ratio_info_present_flag;
     uint32_t temp_overscan_info_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_overscan_info_present_flag);
-    value->overscan_info_present_flag = temp_overscan_info_present_flag;
+    value->overscan_info_present_flag = (1>>1) & temp_overscan_info_present_flag;
     uint32_t temp_overscan_appropriate_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_overscan_appropriate_flag);
-    value->overscan_appropriate_flag = temp_overscan_appropriate_flag;
+    value->overscan_appropriate_flag = (1>>1) & temp_overscan_appropriate_flag;
     uint32_t temp_video_signal_type_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_video_signal_type_present_flag);
-    value->video_signal_type_present_flag = temp_video_signal_type_present_flag;
+    value->video_signal_type_present_flag = (1>>1) & temp_video_signal_type_present_flag;
     uint32_t temp_video_full_range_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_video_full_range_flag);
-    value->video_full_range_flag = temp_video_full_range_flag;
+    value->video_full_range_flag = (1>>1) & temp_video_full_range_flag;
     uint32_t temp_color_description_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_color_description_present_flag);
-    value->color_description_present_flag = temp_color_description_present_flag;
+    value->color_description_present_flag = (1>>1) & temp_color_description_present_flag;
     uint32_t temp_chroma_loc_info_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_chroma_loc_info_present_flag);
-    value->chroma_loc_info_present_flag = temp_chroma_loc_info_present_flag;
+    value->chroma_loc_info_present_flag = (1>>1) & temp_chroma_loc_info_present_flag;
     uint32_t temp_timing_info_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_timing_info_present_flag);
-    value->timing_info_present_flag = temp_timing_info_present_flag;
+    value->timing_info_present_flag = (1>>1) & temp_timing_info_present_flag;
     uint32_t temp_fixed_frame_rate_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_fixed_frame_rate_flag);
-    value->fixed_frame_rate_flag = temp_fixed_frame_rate_flag;
+    value->fixed_frame_rate_flag = (1>>1) & temp_fixed_frame_rate_flag;
     uint32_t temp_bitstream_restriction_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_bitstream_restriction_flag);
-    value->bitstream_restriction_flag = temp_bitstream_restriction_flag;
+    value->bitstream_restriction_flag = (1>>1) & temp_bitstream_restriction_flag;
     uint32_t temp_nal_hrd_parameters_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_nal_hrd_parameters_present_flag);
-    value->nal_hrd_parameters_present_flag = temp_nal_hrd_parameters_present_flag;
+    value->nal_hrd_parameters_present_flag = (1>>1) & temp_nal_hrd_parameters_present_flag;
     uint32_t temp_vcl_hrd_parameters_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_vcl_hrd_parameters_present_flag);
-    value->vcl_hrd_parameters_present_flag = temp_vcl_hrd_parameters_present_flag;
+    value->vcl_hrd_parameters_present_flag = (1>>1) & temp_vcl_hrd_parameters_present_flag;
 
     return bytes_read;
 }
@@ -150,52 +150,52 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
 
     uint32_t temp_constraint_set0_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set0_flag);
-    value->constraint_set0_flag = temp_constraint_set0_flag;
+    value->constraint_set0_flag = (1>>1) & temp_constraint_set0_flag;
     uint32_t temp_constraint_set1_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set1_flag);
-    value->constraint_set1_flag = temp_constraint_set1_flag;
+    value->constraint_set1_flag = (1>>1) & temp_constraint_set1_flag;
     uint32_t temp_constraint_set2_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set2_flag);
-    value->constraint_set2_flag = temp_constraint_set2_flag;
+    value->constraint_set2_flag = (1>>1) & temp_constraint_set2_flag;
     uint32_t temp_constraint_set3_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set3_flag);
-    value->constraint_set3_flag = temp_constraint_set3_flag;
+    value->constraint_set3_flag = (1>>1) & temp_constraint_set3_flag;
     uint32_t temp_constraint_set4_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set4_flag);
-    value->constraint_set4_flag = temp_constraint_set4_flag;
+    value->constraint_set4_flag = (1>>1) & temp_constraint_set4_flag;
     uint32_t temp_constraint_set5_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constraint_set5_flag);
-    value->constraint_set5_flag = temp_constraint_set5_flag;
+    value->constraint_set5_flag = (1>>1) & temp_constraint_set5_flag;
     uint32_t temp_direct_8x8_inference_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_direct_8x8_inference_flag);
-    value->direct_8x8_inference_flag = temp_direct_8x8_inference_flag;
+    value->direct_8x8_inference_flag = (1>>1) & temp_direct_8x8_inference_flag;
     uint32_t temp_mb_adaptive_frame_field_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_mb_adaptive_frame_field_flag);
-    value->mb_adaptive_frame_field_flag = temp_mb_adaptive_frame_field_flag;
+    value->mb_adaptive_frame_field_flag = (1>>1) & temp_mb_adaptive_frame_field_flag;
     uint32_t temp_frame_mbs_only_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_mbs_only_flag);
-    value->frame_mbs_only_flag = temp_frame_mbs_only_flag;
+    value->frame_mbs_only_flag = (1>>1) & temp_frame_mbs_only_flag;
     uint32_t temp_delta_pic_order_always_zero_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_pic_order_always_zero_flag);
-    value->delta_pic_order_always_zero_flag = temp_delta_pic_order_always_zero_flag;
+    value->delta_pic_order_always_zero_flag = (1>>1) & temp_delta_pic_order_always_zero_flag;
     uint32_t temp_separate_colour_plane_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_separate_colour_plane_flag);
-    value->separate_colour_plane_flag = temp_separate_colour_plane_flag;
+    value->separate_colour_plane_flag = (1>>1) & temp_separate_colour_plane_flag;
     uint32_t temp_gaps_in_frame_num_value_allowed_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_gaps_in_frame_num_value_allowed_flag);
-    value->gaps_in_frame_num_value_allowed_flag = temp_gaps_in_frame_num_value_allowed_flag;
+    value->gaps_in_frame_num_value_allowed_flag = (1>>1) & temp_gaps_in_frame_num_value_allowed_flag;
     uint32_t temp_qpprime_y_zero_transform_bypass_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_qpprime_y_zero_transform_bypass_flag);
-    value->qpprime_y_zero_transform_bypass_flag = temp_qpprime_y_zero_transform_bypass_flag;
+    value->qpprime_y_zero_transform_bypass_flag = (1>>1) & temp_qpprime_y_zero_transform_bypass_flag;
     uint32_t temp_frame_cropping_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_cropping_flag);
-    value->frame_cropping_flag = temp_frame_cropping_flag;
+    value->frame_cropping_flag = (1>>1) & temp_frame_cropping_flag;
     uint32_t temp_seq_scaling_matrix_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_seq_scaling_matrix_present_flag);
-    value->seq_scaling_matrix_present_flag = temp_seq_scaling_matrix_present_flag;
+    value->seq_scaling_matrix_present_flag = (1>>1) & temp_seq_scaling_matrix_present_flag;
     uint32_t temp_vui_parameters_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_vui_parameters_present_flag);
-    value->vui_parameters_present_flag = temp_vui_parameters_present_flag;
+    value->vui_parameters_present_flag = (1>>1) & temp_vui_parameters_present_flag;
 
     return bytes_read;
 }
@@ -269,28 +269,28 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoH
 
     uint32_t temp_transform_8x8_mode_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_transform_8x8_mode_flag);
-    value->transform_8x8_mode_flag = temp_transform_8x8_mode_flag;
+    value->transform_8x8_mode_flag = (1>>1) & temp_transform_8x8_mode_flag;
     uint32_t temp_redundant_pic_cnt_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_redundant_pic_cnt_present_flag);
-    value->redundant_pic_cnt_present_flag = temp_redundant_pic_cnt_present_flag;
+    value->redundant_pic_cnt_present_flag = (1>>1) & temp_redundant_pic_cnt_present_flag;
     uint32_t temp_constrained_intra_pred_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_constrained_intra_pred_flag);
-    value->constrained_intra_pred_flag = temp_constrained_intra_pred_flag;
+    value->constrained_intra_pred_flag = (1>>1) & temp_constrained_intra_pred_flag;
     uint32_t temp_deblocking_filter_control_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_deblocking_filter_control_present_flag);
-    value->deblocking_filter_control_present_flag = temp_deblocking_filter_control_present_flag;
+    value->deblocking_filter_control_present_flag = (1>>1) & temp_deblocking_filter_control_present_flag;
     uint32_t temp_weighted_pred_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_weighted_pred_flag);
-    value->weighted_pred_flag = temp_weighted_pred_flag;
+    value->weighted_pred_flag = (1>>1) & temp_weighted_pred_flag;
     uint32_t temp_bottom_field_pic_order_in_frame_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_bottom_field_pic_order_in_frame_present_flag);
-    value->bottom_field_pic_order_in_frame_present_flag = temp_bottom_field_pic_order_in_frame_present_flag;
+    value->bottom_field_pic_order_in_frame_present_flag = (1>>1) & temp_bottom_field_pic_order_in_frame_present_flag;
     uint32_t temp_entropy_coding_mode_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_entropy_coding_mode_flag);
-    value->entropy_coding_mode_flag = temp_entropy_coding_mode_flag;
+    value->entropy_coding_mode_flag = (1>>1) & temp_entropy_coding_mode_flag;
     uint32_t temp_pic_scaling_matrix_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_pic_scaling_matrix_present_flag);
-    value->pic_scaling_matrix_present_flag = temp_pic_scaling_matrix_present_flag;
+    value->pic_scaling_matrix_present_flag = (1>>1) & temp_pic_scaling_matrix_present_flag;
 
     return bytes_read;
 }
@@ -330,22 +330,22 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoD
 
     uint32_t temp_field_pic_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_field_pic_flag);
-    value->field_pic_flag = temp_field_pic_flag;
+    value->field_pic_flag = (1>>1) & temp_field_pic_flag;
     uint32_t temp_is_intra;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_intra);
-    value->is_intra = temp_is_intra;
+    value->is_intra = (1>>1) & temp_is_intra;
     uint32_t temp_IdrPicFlag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_IdrPicFlag);
-    value->IdrPicFlag = temp_IdrPicFlag;
+    value->IdrPicFlag = (1>>1) & temp_IdrPicFlag;
     uint32_t temp_bottom_field_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_bottom_field_flag);
-    value->bottom_field_flag = temp_bottom_field_flag;
+    value->bottom_field_flag = (1>>1) & temp_bottom_field_flag;
     uint32_t temp_is_reference;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_reference);
-    value->is_reference = temp_is_reference;
+    value->is_reference = (1>>1) & temp_is_reference;
     uint32_t temp_complementary_field_pair;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_complementary_field_pair);
-    value->complementary_field_pair = temp_complementary_field_pair;
+    value->complementary_field_pair = (1>>1) & temp_complementary_field_pair;
 
     return bytes_read;
 }
@@ -381,16 +381,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoD
 
     uint32_t temp_top_field_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_top_field_flag);
-    value->top_field_flag = temp_top_field_flag;
+    value->top_field_flag = (1>>1) & temp_top_field_flag;
     uint32_t temp_bottom_field_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_bottom_field_flag);
-    value->bottom_field_flag = temp_bottom_field_flag;
+    value->bottom_field_flag = (1>>1) & temp_bottom_field_flag;
     uint32_t temp_used_for_long_term_reference;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_used_for_long_term_reference);
-    value->used_for_long_term_reference = temp_used_for_long_term_reference;
+    value->used_for_long_term_reference = (1>>1) & temp_used_for_long_term_reference;
     uint32_t temp_is_non_existing;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_non_existing);
-    value->is_non_existing = temp_is_non_existing;
+    value->is_non_existing = (1>>1) & temp_is_non_existing;
 
     return bytes_read;
 }
@@ -469,13 +469,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_direct_spatial_mv_pred_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_direct_spatial_mv_pred_flag);
-    value->direct_spatial_mv_pred_flag = temp_direct_spatial_mv_pred_flag;
+    value->direct_spatial_mv_pred_flag = (1>>1) & temp_direct_spatial_mv_pred_flag;
     uint32_t temp_num_ref_idx_active_override_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_num_ref_idx_active_override_flag);
-    value->num_ref_idx_active_override_flag = temp_num_ref_idx_active_override_flag;
+    value->num_ref_idx_active_override_flag = (1>>1) & temp_num_ref_idx_active_override_flag;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -489,22 +489,22 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_IdrPicFlag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_IdrPicFlag);
-    value->IdrPicFlag = temp_IdrPicFlag;
+    value->IdrPicFlag = (1>>1) & temp_IdrPicFlag;
     uint32_t temp_is_reference;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_reference);
-    value->is_reference = temp_is_reference;
+    value->is_reference = (1>>1) & temp_is_reference;
     uint32_t temp_no_output_of_prior_pics_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_no_output_of_prior_pics_flag);
-    value->no_output_of_prior_pics_flag = temp_no_output_of_prior_pics_flag;
+    value->no_output_of_prior_pics_flag = (1>>1) & temp_no_output_of_prior_pics_flag;
     uint32_t temp_long_term_reference_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_long_term_reference_flag);
-    value->long_term_reference_flag = temp_long_term_reference_flag;
+    value->long_term_reference_flag = (1>>1) & temp_long_term_reference_flag;
     uint32_t temp_adaptive_ref_pic_marking_mode_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_adaptive_ref_pic_marking_mode_flag);
-    value->adaptive_ref_pic_marking_mode_flag = temp_adaptive_ref_pic_marking_mode_flag;
+    value->adaptive_ref_pic_marking_mode_flag = (1>>1) & temp_adaptive_ref_pic_marking_mode_flag;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>27) & temp_reserved;
 
     return bytes_read;
 }
@@ -518,10 +518,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_used_for_long_term_reference;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_used_for_long_term_reference);
-    value->used_for_long_term_reference = temp_used_for_long_term_reference;
+    value->used_for_long_term_reference = (1>>1) & temp_used_for_long_term_reference;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>31) & temp_reserved;
 
     return bytes_read;
 }
@@ -535,13 +535,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_ref_pic_list_modification_flag_l0;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_ref_pic_list_modification_flag_l0);
-    value->ref_pic_list_modification_flag_l0 = temp_ref_pic_list_modification_flag_l0;
+    value->ref_pic_list_modification_flag_l0 = (1>>1) & temp_ref_pic_list_modification_flag_l0;
     uint32_t temp_ref_pic_list_modification_flag_l1;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_ref_pic_list_modification_flag_l1);
-    value->ref_pic_list_modification_flag_l1 = temp_ref_pic_list_modification_flag_l1;
+    value->ref_pic_list_modification_flag_l1 = (1>>1) & temp_ref_pic_list_modification_flag_l1;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -690,10 +690,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoV
 
     uint32_t temp_color_range;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_color_range);
-    value->color_range = temp_color_range;
+    value->color_range = (1>>1) & temp_color_range;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>31) & temp_reserved;
 
     return bytes_read;
 }
@@ -726,13 +726,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoV
 
     uint32_t temp_loop_filter_delta_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_loop_filter_delta_enabled);
-    value->loop_filter_delta_enabled = temp_loop_filter_delta_enabled;
+    value->loop_filter_delta_enabled = (1>>1) & temp_loop_filter_delta_enabled;
     uint32_t temp_loop_filter_delta_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_loop_filter_delta_update);
-    value->loop_filter_delta_update = temp_loop_filter_delta_update;
+    value->loop_filter_delta_update = (1>>1) & temp_loop_filter_delta_update;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -768,19 +768,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoV
 
     uint32_t temp_segmentation_update_map;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_map);
-    value->segmentation_update_map = temp_segmentation_update_map;
+    value->segmentation_update_map = (1>>1) & temp_segmentation_update_map;
     uint32_t temp_segmentation_temporal_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_temporal_update);
-    value->segmentation_temporal_update = temp_segmentation_temporal_update;
+    value->segmentation_temporal_update = (1>>1) & temp_segmentation_temporal_update;
     uint32_t temp_segmentation_update_data;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_data);
-    value->segmentation_update_data = temp_segmentation_update_data;
+    value->segmentation_update_data = (1>>1) & temp_segmentation_update_data;
     uint32_t temp_segmentation_abs_or_delta_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_abs_or_delta_update);
-    value->segmentation_abs_or_delta_update = temp_segmentation_abs_or_delta_update;
+    value->segmentation_abs_or_delta_update = (1>>1) & temp_segmentation_abs_or_delta_update;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>28) & temp_reserved;
 
     return bytes_read;
 }
@@ -816,31 +816,31 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoD
 
     uint32_t temp_error_resilient_mode;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_error_resilient_mode);
-    value->error_resilient_mode = temp_error_resilient_mode;
+    value->error_resilient_mode = (1>>1) & temp_error_resilient_mode;
     uint32_t temp_intra_only;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_intra_only);
-    value->intra_only = temp_intra_only;
+    value->intra_only = (1>>1) & temp_intra_only;
     uint32_t temp_allow_high_precision_mv;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_high_precision_mv);
-    value->allow_high_precision_mv = temp_allow_high_precision_mv;
+    value->allow_high_precision_mv = (1>>1) & temp_allow_high_precision_mv;
     uint32_t temp_refresh_frame_context;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_refresh_frame_context);
-    value->refresh_frame_context = temp_refresh_frame_context;
+    value->refresh_frame_context = (1>>1) & temp_refresh_frame_context;
     uint32_t temp_frame_parallel_decoding_mode;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_parallel_decoding_mode);
-    value->frame_parallel_decoding_mode = temp_frame_parallel_decoding_mode;
+    value->frame_parallel_decoding_mode = (1>>1) & temp_frame_parallel_decoding_mode;
     uint32_t temp_segmentation_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_enabled);
-    value->segmentation_enabled = temp_segmentation_enabled;
+    value->segmentation_enabled = (1>>1) & temp_segmentation_enabled;
     uint32_t temp_show_frame;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_show_frame);
-    value->show_frame = temp_show_frame;
+    value->show_frame = (1>>1) & temp_show_frame;
     uint32_t temp_UsePrevFrameMvs;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_UsePrevFrameMvs);
-    value->UsePrevFrameMvs = temp_UsePrevFrameMvs;
+    value->UsePrevFrameMvs = (1>>1) & temp_UsePrevFrameMvs;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>24) & temp_reserved;
 
     return bytes_read;
 }
@@ -892,19 +892,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_mono_chrome;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_mono_chrome);
-    value->mono_chrome = temp_mono_chrome;
+    value->mono_chrome = (1>>1) & temp_mono_chrome;
     uint32_t temp_color_range;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_color_range);
-    value->color_range = temp_color_range;
+    value->color_range = (1>>1) & temp_color_range;
     uint32_t temp_separate_uv_delta_q;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_separate_uv_delta_q);
-    value->separate_uv_delta_q = temp_separate_uv_delta_q;
+    value->separate_uv_delta_q = (1>>1) & temp_separate_uv_delta_q;
     uint32_t temp_color_description_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_color_description_present_flag);
-    value->color_description_present_flag = temp_color_description_present_flag;
+    value->color_description_present_flag = (1>>1) & temp_color_description_present_flag;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>28) & temp_reserved;
 
     return bytes_read;
 }
@@ -940,10 +940,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_equal_picture_interval;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_equal_picture_interval);
-    value->equal_picture_interval = temp_equal_picture_interval;
+    value->equal_picture_interval = (1>>1) & temp_equal_picture_interval;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>31) & temp_reserved;
 
     return bytes_read;
 }
@@ -974,64 +974,64 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_still_picture;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_still_picture);
-    value->still_picture = temp_still_picture;
+    value->still_picture = (1>>1) & temp_still_picture;
     uint32_t temp_reduced_still_picture_header;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reduced_still_picture_header);
-    value->reduced_still_picture_header = temp_reduced_still_picture_header;
+    value->reduced_still_picture_header = (1>>1) & temp_reduced_still_picture_header;
     uint32_t temp_use_128x128_superblock;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_use_128x128_superblock);
-    value->use_128x128_superblock = temp_use_128x128_superblock;
+    value->use_128x128_superblock = (1>>1) & temp_use_128x128_superblock;
     uint32_t temp_enable_filter_intra;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_filter_intra);
-    value->enable_filter_intra = temp_enable_filter_intra;
+    value->enable_filter_intra = (1>>1) & temp_enable_filter_intra;
     uint32_t temp_enable_intra_edge_filter;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_intra_edge_filter);
-    value->enable_intra_edge_filter = temp_enable_intra_edge_filter;
+    value->enable_intra_edge_filter = (1>>1) & temp_enable_intra_edge_filter;
     uint32_t temp_enable_interintra_compound;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_interintra_compound);
-    value->enable_interintra_compound = temp_enable_interintra_compound;
+    value->enable_interintra_compound = (1>>1) & temp_enable_interintra_compound;
     uint32_t temp_enable_masked_compound;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_masked_compound);
-    value->enable_masked_compound = temp_enable_masked_compound;
+    value->enable_masked_compound = (1>>1) & temp_enable_masked_compound;
     uint32_t temp_enable_warped_motion;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_warped_motion);
-    value->enable_warped_motion = temp_enable_warped_motion;
+    value->enable_warped_motion = (1>>1) & temp_enable_warped_motion;
     uint32_t temp_enable_dual_filter;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_dual_filter);
-    value->enable_dual_filter = temp_enable_dual_filter;
+    value->enable_dual_filter = (1>>1) & temp_enable_dual_filter;
     uint32_t temp_enable_order_hint;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_order_hint);
-    value->enable_order_hint = temp_enable_order_hint;
+    value->enable_order_hint = (1>>1) & temp_enable_order_hint;
     uint32_t temp_enable_jnt_comp;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_jnt_comp);
-    value->enable_jnt_comp = temp_enable_jnt_comp;
+    value->enable_jnt_comp = (1>>1) & temp_enable_jnt_comp;
     uint32_t temp_enable_ref_frame_mvs;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_ref_frame_mvs);
-    value->enable_ref_frame_mvs = temp_enable_ref_frame_mvs;
+    value->enable_ref_frame_mvs = (1>>1) & temp_enable_ref_frame_mvs;
     uint32_t temp_frame_id_numbers_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_id_numbers_present_flag);
-    value->frame_id_numbers_present_flag = temp_frame_id_numbers_present_flag;
+    value->frame_id_numbers_present_flag = (1>>1) & temp_frame_id_numbers_present_flag;
     uint32_t temp_enable_superres;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_superres);
-    value->enable_superres = temp_enable_superres;
+    value->enable_superres = (1>>1) & temp_enable_superres;
     uint32_t temp_enable_cdef;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_cdef);
-    value->enable_cdef = temp_enable_cdef;
+    value->enable_cdef = (1>>1) & temp_enable_cdef;
     uint32_t temp_enable_restoration;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_enable_restoration);
-    value->enable_restoration = temp_enable_restoration;
+    value->enable_restoration = (1>>1) & temp_enable_restoration;
     uint32_t temp_film_grain_params_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_film_grain_params_present);
-    value->film_grain_params_present = temp_film_grain_params_present;
+    value->film_grain_params_present = (1>>1) & temp_film_grain_params_present;
     uint32_t temp_timing_info_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_timing_info_present_flag);
-    value->timing_info_present_flag = temp_timing_info_present_flag;
+    value->timing_info_present_flag = (1>>1) & temp_timing_info_present_flag;
     uint32_t temp_initial_display_delay_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_initial_display_delay_present_flag);
-    value->initial_display_delay_present_flag = temp_initial_display_delay_present_flag;
+    value->initial_display_delay_present_flag = (1>>1) & temp_initial_display_delay_present_flag;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>13) & temp_reserved;
 
     return bytes_read;
 }
@@ -1077,13 +1077,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_loop_filter_delta_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_loop_filter_delta_enabled);
-    value->loop_filter_delta_enabled = temp_loop_filter_delta_enabled;
+    value->loop_filter_delta_enabled = (1>>1) & temp_loop_filter_delta_enabled;
     uint32_t temp_loop_filter_delta_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_loop_filter_delta_update);
-    value->loop_filter_delta_update = temp_loop_filter_delta_update;
+    value->loop_filter_delta_update = (1>>1) & temp_loop_filter_delta_update;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -1120,13 +1120,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_using_qmatrix;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_using_qmatrix);
-    value->using_qmatrix = temp_using_qmatrix;
+    value->using_qmatrix = (1>>1) & temp_using_qmatrix;
     uint32_t temp_diff_uv_delta;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_diff_uv_delta);
-    value->diff_uv_delta = temp_diff_uv_delta;
+    value->diff_uv_delta = (1>>1) & temp_diff_uv_delta;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -1178,10 +1178,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_uniform_tile_spacing_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_uniform_tile_spacing_flag);
-    value->uniform_tile_spacing_flag = temp_uniform_tile_spacing_flag;
+    value->uniform_tile_spacing_flag = (1>>1) & temp_uniform_tile_spacing_flag;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>31) & temp_reserved;
 
     return bytes_read;
 }
@@ -1274,19 +1274,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoA
 
     uint32_t temp_chroma_scaling_from_luma;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_chroma_scaling_from_luma);
-    value->chroma_scaling_from_luma = temp_chroma_scaling_from_luma;
+    value->chroma_scaling_from_luma = (1>>1) & temp_chroma_scaling_from_luma;
     uint32_t temp_overlap_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_overlap_flag);
-    value->overlap_flag = temp_overlap_flag;
+    value->overlap_flag = (1>>1) & temp_overlap_flag;
     uint32_t temp_clip_to_restricted_range;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_clip_to_restricted_range);
-    value->clip_to_restricted_range = temp_clip_to_restricted_range;
+    value->clip_to_restricted_range = (1>>1) & temp_clip_to_restricted_range;
     uint32_t temp_update_grain;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_update_grain);
-    value->update_grain = temp_update_grain;
+    value->update_grain = (1>>1) & temp_update_grain;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>28) & temp_reserved;
 
     return bytes_read;
 }
@@ -1347,94 +1347,94 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoD
 
     uint32_t temp_error_resilient_mode;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_error_resilient_mode);
-    value->error_resilient_mode = temp_error_resilient_mode;
+    value->error_resilient_mode = (1>>1) & temp_error_resilient_mode;
     uint32_t temp_disable_cdf_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_cdf_update);
-    value->disable_cdf_update = temp_disable_cdf_update;
+    value->disable_cdf_update = (1>>1) & temp_disable_cdf_update;
     uint32_t temp_use_superres;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_use_superres);
-    value->use_superres = temp_use_superres;
+    value->use_superres = (1>>1) & temp_use_superres;
     uint32_t temp_render_and_frame_size_different;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_render_and_frame_size_different);
-    value->render_and_frame_size_different = temp_render_and_frame_size_different;
+    value->render_and_frame_size_different = (1>>1) & temp_render_and_frame_size_different;
     uint32_t temp_allow_screen_content_tools;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_screen_content_tools);
-    value->allow_screen_content_tools = temp_allow_screen_content_tools;
+    value->allow_screen_content_tools = (1>>1) & temp_allow_screen_content_tools;
     uint32_t temp_is_filter_switchable;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_filter_switchable);
-    value->is_filter_switchable = temp_is_filter_switchable;
+    value->is_filter_switchable = (1>>1) & temp_is_filter_switchable;
     uint32_t temp_force_integer_mv;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_force_integer_mv);
-    value->force_integer_mv = temp_force_integer_mv;
+    value->force_integer_mv = (1>>1) & temp_force_integer_mv;
     uint32_t temp_frame_size_override_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_size_override_flag);
-    value->frame_size_override_flag = temp_frame_size_override_flag;
+    value->frame_size_override_flag = (1>>1) & temp_frame_size_override_flag;
     uint32_t temp_buffer_removal_time_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_buffer_removal_time_present_flag);
-    value->buffer_removal_time_present_flag = temp_buffer_removal_time_present_flag;
+    value->buffer_removal_time_present_flag = (1>>1) & temp_buffer_removal_time_present_flag;
     uint32_t temp_allow_intrabc;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_intrabc);
-    value->allow_intrabc = temp_allow_intrabc;
+    value->allow_intrabc = (1>>1) & temp_allow_intrabc;
     uint32_t temp_frame_refs_short_signaling;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_refs_short_signaling);
-    value->frame_refs_short_signaling = temp_frame_refs_short_signaling;
+    value->frame_refs_short_signaling = (1>>1) & temp_frame_refs_short_signaling;
     uint32_t temp_allow_high_precision_mv;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_high_precision_mv);
-    value->allow_high_precision_mv = temp_allow_high_precision_mv;
+    value->allow_high_precision_mv = (1>>1) & temp_allow_high_precision_mv;
     uint32_t temp_is_motion_mode_switchable;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_motion_mode_switchable);
-    value->is_motion_mode_switchable = temp_is_motion_mode_switchable;
+    value->is_motion_mode_switchable = (1>>1) & temp_is_motion_mode_switchable;
     uint32_t temp_use_ref_frame_mvs;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_use_ref_frame_mvs);
-    value->use_ref_frame_mvs = temp_use_ref_frame_mvs;
+    value->use_ref_frame_mvs = (1>>1) & temp_use_ref_frame_mvs;
     uint32_t temp_disable_frame_end_update_cdf;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_frame_end_update_cdf);
-    value->disable_frame_end_update_cdf = temp_disable_frame_end_update_cdf;
+    value->disable_frame_end_update_cdf = (1>>1) & temp_disable_frame_end_update_cdf;
     uint32_t temp_allow_warped_motion;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_warped_motion);
-    value->allow_warped_motion = temp_allow_warped_motion;
+    value->allow_warped_motion = (1>>1) & temp_allow_warped_motion;
     uint32_t temp_reduced_tx_set;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reduced_tx_set);
-    value->reduced_tx_set = temp_reduced_tx_set;
+    value->reduced_tx_set = (1>>1) & temp_reduced_tx_set;
     uint32_t temp_reference_select;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reference_select);
-    value->reference_select = temp_reference_select;
+    value->reference_select = (1>>1) & temp_reference_select;
     uint32_t temp_skip_mode_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_skip_mode_present);
-    value->skip_mode_present = temp_skip_mode_present;
+    value->skip_mode_present = (1>>1) & temp_skip_mode_present;
     uint32_t temp_delta_q_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_q_present);
-    value->delta_q_present = temp_delta_q_present;
+    value->delta_q_present = (1>>1) & temp_delta_q_present;
     uint32_t temp_delta_lf_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_lf_present);
-    value->delta_lf_present = temp_delta_lf_present;
+    value->delta_lf_present = (1>>1) & temp_delta_lf_present;
     uint32_t temp_delta_lf_multi;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_lf_multi);
-    value->delta_lf_multi = temp_delta_lf_multi;
+    value->delta_lf_multi = (1>>1) & temp_delta_lf_multi;
     uint32_t temp_segmentation_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_enabled);
-    value->segmentation_enabled = temp_segmentation_enabled;
+    value->segmentation_enabled = (1>>1) & temp_segmentation_enabled;
     uint32_t temp_segmentation_update_map;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_map);
-    value->segmentation_update_map = temp_segmentation_update_map;
+    value->segmentation_update_map = (1>>1) & temp_segmentation_update_map;
     uint32_t temp_segmentation_temporal_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_temporal_update);
-    value->segmentation_temporal_update = temp_segmentation_temporal_update;
+    value->segmentation_temporal_update = (1>>1) & temp_segmentation_temporal_update;
     uint32_t temp_segmentation_update_data;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_data);
-    value->segmentation_update_data = temp_segmentation_update_data;
+    value->segmentation_update_data = (1>>1) & temp_segmentation_update_data;
     uint32_t temp_UsesLr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_UsesLr);
-    value->UsesLr = temp_UsesLr;
+    value->UsesLr = (1>>1) & temp_UsesLr;
     uint32_t temp_usesChromaLr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_usesChromaLr);
-    value->usesChromaLr = temp_usesChromaLr;
+    value->usesChromaLr = (1>>1) & temp_usesChromaLr;
     uint32_t temp_apply_grain;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_apply_grain);
-    value->apply_grain = temp_apply_grain;
+    value->apply_grain = (1>>1) & temp_apply_grain;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>3) & temp_reserved;
 
     return bytes_read;
 }
@@ -1505,13 +1505,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoD
 
     uint32_t temp_disable_frame_end_update_cdf;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_frame_end_update_cdf);
-    value->disable_frame_end_update_cdf = temp_disable_frame_end_update_cdf;
+    value->disable_frame_end_update_cdf = (1>>1) & temp_disable_frame_end_update_cdf;
     uint32_t temp_segmentation_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_enabled);
-    value->segmentation_enabled = temp_segmentation_enabled;
+    value->segmentation_enabled = (1>>1) & temp_segmentation_enabled;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -1573,16 +1573,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_decoder_model_present_for_this_op;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_decoder_model_present_for_this_op);
-    value->decoder_model_present_for_this_op = temp_decoder_model_present_for_this_op;
+    value->decoder_model_present_for_this_op = (1>>1) & temp_decoder_model_present_for_this_op;
     uint32_t temp_low_delay_mode_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_low_delay_mode_flag);
-    value->low_delay_mode_flag = temp_low_delay_mode_flag;
+    value->low_delay_mode_flag = (1>>1) & temp_low_delay_mode_flag;
     uint32_t temp_initial_display_delay_present_for_this_op;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_initial_display_delay_present_for_this_op);
-    value->initial_display_delay_present_for_this_op = temp_initial_display_delay_present_for_this_op;
+    value->initial_display_delay_present_for_this_op = (1>>1) & temp_initial_display_delay_present_for_this_op;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>29) & temp_reserved;
 
     return bytes_read;
 }
@@ -1616,94 +1616,94 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_error_resilient_mode;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_error_resilient_mode);
-    value->error_resilient_mode = temp_error_resilient_mode;
+    value->error_resilient_mode = (1>>1) & temp_error_resilient_mode;
     uint32_t temp_disable_cdf_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_cdf_update);
-    value->disable_cdf_update = temp_disable_cdf_update;
+    value->disable_cdf_update = (1>>1) & temp_disable_cdf_update;
     uint32_t temp_use_superres;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_use_superres);
-    value->use_superres = temp_use_superres;
+    value->use_superres = (1>>1) & temp_use_superres;
     uint32_t temp_render_and_frame_size_different;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_render_and_frame_size_different);
-    value->render_and_frame_size_different = temp_render_and_frame_size_different;
+    value->render_and_frame_size_different = (1>>1) & temp_render_and_frame_size_different;
     uint32_t temp_allow_screen_content_tools;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_screen_content_tools);
-    value->allow_screen_content_tools = temp_allow_screen_content_tools;
+    value->allow_screen_content_tools = (1>>1) & temp_allow_screen_content_tools;
     uint32_t temp_is_filter_switchable;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_filter_switchable);
-    value->is_filter_switchable = temp_is_filter_switchable;
+    value->is_filter_switchable = (1>>1) & temp_is_filter_switchable;
     uint32_t temp_force_integer_mv;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_force_integer_mv);
-    value->force_integer_mv = temp_force_integer_mv;
+    value->force_integer_mv = (1>>1) & temp_force_integer_mv;
     uint32_t temp_frame_size_override_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_size_override_flag);
-    value->frame_size_override_flag = temp_frame_size_override_flag;
+    value->frame_size_override_flag = (1>>1) & temp_frame_size_override_flag;
     uint32_t temp_buffer_removal_time_present_flag;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_buffer_removal_time_present_flag);
-    value->buffer_removal_time_present_flag = temp_buffer_removal_time_present_flag;
+    value->buffer_removal_time_present_flag = (1>>1) & temp_buffer_removal_time_present_flag;
     uint32_t temp_allow_intrabc;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_intrabc);
-    value->allow_intrabc = temp_allow_intrabc;
+    value->allow_intrabc = (1>>1) & temp_allow_intrabc;
     uint32_t temp_frame_refs_short_signaling;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_frame_refs_short_signaling);
-    value->frame_refs_short_signaling = temp_frame_refs_short_signaling;
+    value->frame_refs_short_signaling = (1>>1) & temp_frame_refs_short_signaling;
     uint32_t temp_allow_high_precision_mv;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_high_precision_mv);
-    value->allow_high_precision_mv = temp_allow_high_precision_mv;
+    value->allow_high_precision_mv = (1>>1) & temp_allow_high_precision_mv;
     uint32_t temp_is_motion_mode_switchable;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_is_motion_mode_switchable);
-    value->is_motion_mode_switchable = temp_is_motion_mode_switchable;
+    value->is_motion_mode_switchable = (1>>1) & temp_is_motion_mode_switchable;
     uint32_t temp_use_ref_frame_mvs;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_use_ref_frame_mvs);
-    value->use_ref_frame_mvs = temp_use_ref_frame_mvs;
+    value->use_ref_frame_mvs = (1>>1) & temp_use_ref_frame_mvs;
     uint32_t temp_disable_frame_end_update_cdf;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_frame_end_update_cdf);
-    value->disable_frame_end_update_cdf = temp_disable_frame_end_update_cdf;
+    value->disable_frame_end_update_cdf = (1>>1) & temp_disable_frame_end_update_cdf;
     uint32_t temp_allow_warped_motion;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_allow_warped_motion);
-    value->allow_warped_motion = temp_allow_warped_motion;
+    value->allow_warped_motion = (1>>1) & temp_allow_warped_motion;
     uint32_t temp_reduced_tx_set;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reduced_tx_set);
-    value->reduced_tx_set = temp_reduced_tx_set;
+    value->reduced_tx_set = (1>>1) & temp_reduced_tx_set;
     uint32_t temp_skip_mode_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_skip_mode_present);
-    value->skip_mode_present = temp_skip_mode_present;
+    value->skip_mode_present = (1>>1) & temp_skip_mode_present;
     uint32_t temp_delta_q_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_q_present);
-    value->delta_q_present = temp_delta_q_present;
+    value->delta_q_present = (1>>1) & temp_delta_q_present;
     uint32_t temp_delta_lf_present;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_lf_present);
-    value->delta_lf_present = temp_delta_lf_present;
+    value->delta_lf_present = (1>>1) & temp_delta_lf_present;
     uint32_t temp_delta_lf_multi;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_delta_lf_multi);
-    value->delta_lf_multi = temp_delta_lf_multi;
+    value->delta_lf_multi = (1>>1) & temp_delta_lf_multi;
     uint32_t temp_segmentation_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_enabled);
-    value->segmentation_enabled = temp_segmentation_enabled;
+    value->segmentation_enabled = (1>>1) & temp_segmentation_enabled;
     uint32_t temp_segmentation_update_map;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_map);
-    value->segmentation_update_map = temp_segmentation_update_map;
+    value->segmentation_update_map = (1>>1) & temp_segmentation_update_map;
     uint32_t temp_segmentation_temporal_update;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_temporal_update);
-    value->segmentation_temporal_update = temp_segmentation_temporal_update;
+    value->segmentation_temporal_update = (1>>1) & temp_segmentation_temporal_update;
     uint32_t temp_segmentation_update_data;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_update_data);
-    value->segmentation_update_data = temp_segmentation_update_data;
+    value->segmentation_update_data = (1>>1) & temp_segmentation_update_data;
     uint32_t temp_UsesLr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_UsesLr);
-    value->UsesLr = temp_UsesLr;
+    value->UsesLr = (1>>1) & temp_UsesLr;
     uint32_t temp_usesChromaLr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_usesChromaLr);
-    value->usesChromaLr = temp_usesChromaLr;
+    value->usesChromaLr = (1>>1) & temp_usesChromaLr;
     uint32_t temp_show_frame;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_show_frame);
-    value->show_frame = temp_show_frame;
+    value->show_frame = (1>>1) & temp_show_frame;
     uint32_t temp_showable_frame;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_showable_frame);
-    value->showable_frame = temp_showable_frame;
+    value->showable_frame = (1>>1) & temp_showable_frame;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>3) & temp_reserved;
 
     return bytes_read;
 }
@@ -1778,13 +1778,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_StdVideoE
 
     uint32_t temp_disable_frame_end_update_cdf;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_disable_frame_end_update_cdf);
-    value->disable_frame_end_update_cdf = temp_disable_frame_end_update_cdf;
+    value->disable_frame_end_update_cdf = (1>>1) & temp_disable_frame_end_update_cdf;
     uint32_t temp_segmentation_enabled;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_segmentation_enabled);
-    value->segmentation_enabled = temp_segmentation_enabled;
+    value->segmentation_enabled = (1>>1) & temp_segmentation_enabled;
     uint32_t temp_reserved;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_reserved);
-    value->reserved = temp_reserved;
+    value->reserved = (1>>30) & temp_reserved;
 
     return bytes_read;
 }
@@ -14717,16 +14717,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->transform);
     uint32_t temp_instanceCustomIndex;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceCustomIndex);
-    value->instanceCustomIndex = temp_instanceCustomIndex;
+    value->instanceCustomIndex = (1>>24) & temp_instanceCustomIndex;
     uint32_t temp_mask;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_mask);
-    value->mask = temp_mask;
+    value->mask = (1>>8) & temp_mask;
     uint32_t temp_instanceShaderBindingTableRecordOffset;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceShaderBindingTableRecordOffset);
-    value->instanceShaderBindingTableRecordOffset = temp_instanceShaderBindingTableRecordOffset;
+    value->instanceShaderBindingTableRecordOffset = (1>>24) & temp_instanceShaderBindingTableRecordOffset;
     VkGeometryInstanceFlagsKHR temp_flags;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &temp_flags);
-    value->flags = temp_flags;
+    value->flags = (1>>8) & temp_flags;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->accelerationStructureReference));
 
     return bytes_read;
@@ -16731,16 +16731,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->transformT1);
     uint32_t temp_instanceCustomIndex;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceCustomIndex);
-    value->instanceCustomIndex = temp_instanceCustomIndex;
+    value->instanceCustomIndex = (1>>24) & temp_instanceCustomIndex;
     uint32_t temp_mask;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_mask);
-    value->mask = temp_mask;
+    value->mask = (1>>8) & temp_mask;
     uint32_t temp_instanceShaderBindingTableRecordOffset;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceShaderBindingTableRecordOffset);
-    value->instanceShaderBindingTableRecordOffset = temp_instanceShaderBindingTableRecordOffset;
+    value->instanceShaderBindingTableRecordOffset = (1>>24) & temp_instanceShaderBindingTableRecordOffset;
     VkGeometryInstanceFlagsKHR temp_flags;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &temp_flags);
-    value->flags = temp_flags;
+    value->flags = (1>>8) & temp_flags;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->accelerationStructureReference));
 
     return bytes_read;
@@ -16788,16 +16788,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->transformT1);
     uint32_t temp_instanceCustomIndex;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceCustomIndex);
-    value->instanceCustomIndex = temp_instanceCustomIndex;
+    value->instanceCustomIndex = (1>>24) & temp_instanceCustomIndex;
     uint32_t temp_mask;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_mask);
-    value->mask = temp_mask;
+    value->mask = (1>>8) & temp_mask;
     uint32_t temp_instanceShaderBindingTableRecordOffset;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &temp_instanceShaderBindingTableRecordOffset);
-    value->instanceShaderBindingTableRecordOffset = temp_instanceShaderBindingTableRecordOffset;
+    value->instanceShaderBindingTableRecordOffset = (1>>24) & temp_instanceShaderBindingTableRecordOffset;
     VkGeometryInstanceFlagsKHR temp_flags;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &temp_flags);
-    value->flags = temp_flags;
+    value->flags = (1>>8) & temp_flags;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->accelerationStructureReference));
 
     return bytes_read;
