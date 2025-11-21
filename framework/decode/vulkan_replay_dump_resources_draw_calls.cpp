@@ -276,7 +276,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
-        const uint32_t     param_buffer_stride = max_draw_count > 1 ? ic_params.stride : draw_call_params_size;
+        const VkDeviceSize param_buffer_stride = max_draw_count > 1 ? ic_params.stride : draw_call_params_size;
         const VkDeviceSize param_buffer_offset = ic_params.params_buffer_offset;
         const VkDeviceSize copy_buffer_size    = draw_call_params_size * max_draw_count;
 
@@ -419,8 +419,8 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
-        const uint32_t     param_buffer_stride = draw_count > 1 ? i_params.stride : draw_call_params_size;
-        const uint32_t     param_buffer_offset = i_params.params_buffer_offset;
+        const VkDeviceSize param_buffer_stride = draw_count > 1 ? i_params.stride : draw_call_params_size;
+        const VkDeviceSize param_buffer_offset = i_params.params_buffer_offset;
         const VkDeviceSize copy_buffer_size    = draw_call_params_size * draw_count;
 
         i_params.new_params_buffer_size = copy_buffer_size;

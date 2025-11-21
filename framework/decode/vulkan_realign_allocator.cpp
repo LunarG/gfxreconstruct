@@ -346,7 +346,7 @@ VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedVkD
         if ((offset > entry->GetTraceBindOffset()) &&
             (offset <= (entry->GetTraceBindOffset() + entry->GetReplayResourceSize())))
         {
-            int64_t offset_diff = entry->GetReplayBindOffset() - entry->GetTraceBindOffset();
+            VkDeviceSize offset_diff = entry->GetReplayBindOffset() - entry->GetTraceBindOffset();
             offset += offset_diff;
         }
     }

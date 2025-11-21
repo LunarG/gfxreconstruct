@@ -495,8 +495,8 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                     {
                         GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdPushConstants(): Replay is adjusting "
                                                "buffer-device-addresses in push-constants");
-                        uint32_t address_offset = *address - buffer_info->capture_address;
-                        *address                = buffer_info->replay_address + address_offset;
+                        VkDeviceAddress address_offset = *address - buffer_info->capture_address;
+                        *address                       = buffer_info->replay_address + address_offset;
                     }
                 }
             }
@@ -612,8 +612,8 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             {
                 GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets(): Replay is adjusting "
                                        "buffer-device-addresses in inline-uniform-block");
-                uint32_t address_offset = *address - buffer_info->capture_address;
-                *address                = buffer_info->replay_address + address_offset;
+                VkDeviceAddress address_offset = *address - buffer_info->capture_address;
+                *address                       = buffer_info->replay_address + address_offset;
 
                 // TODO: come back for this. we don't treat arrays in push-constants and here, but probably should
                 GFXRECON_ASSERT(buffer_ref_info.array_stride == 0);
@@ -784,8 +784,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
         }
         auto input_addresses = reinterpret_cast<VkDeviceAddress*>(pipeline_context_sbt.input_handle_buffer.mapped_data);
 
-        std::unordered_map<const VkStridedDeviceAddressRegionKHR*, uint32_t> num_addresses_map;
-        uint32_t                                                             num_addresses = 0;
+        std::unordered_map<const VkStridedDeviceAddressRegionKHR*, VkDeviceSize> num_addresses_map;
+        uint32_t                                                                 num_addresses = 0;
 
         {
             const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
@@ -854,8 +854,8 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             replacer_params.output_handles = pipeline_context_sbt.output_handle_buffer.device_address;
 
             // find/create shadow-SBT-buffer
-            uint32_t sbt_offset         = 0;
-            auto&    shadow_buf_context = shadow_sbt_map_[command_buffer_info->handle];
+            VkDeviceSize sbt_offset         = 0;
+            auto&        shadow_buf_context = shadow_sbt_map_[command_buffer_info->handle];
 
             const auto handle_size_aligned = static_cast<uint32_t>(util::aligned_value(
                 replay_ray_properties_->shaderGroupHandleSize, replay_ray_properties_->shaderGroupHandleAlignment));
@@ -864,9 +864,9 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    uint32_t num_handles = num_addresses_map[region];
-                    auto     group_size  = static_cast<uint32_t>(util::aligned_value(
-                        num_handles * handle_size_aligned, replay_ray_properties_->shaderGroupBaseAlignment));
+                    VkDeviceSize num_handles = num_addresses_map[region];
+                    auto         group_size  = util::aligned_value(num_handles * handle_size_aligned,
+                                                          replay_ray_properties_->shaderGroupBaseAlignment);
 
                     // increase group-size/stride, if required
                     region->size   = std::max<VkDeviceSize>(group_size, region->size);
@@ -898,7 +898,7 @@ void VulkanAddressReplacer::ProcessCmdTraceRays(
             {
                 if (region != nullptr && region->size != 0 && region->stride != 0)
                 {
-                    uint32_t num_handles = num_addresses_map[region];
+                    VkDeviceSize num_handles = num_addresses_map[region];
 
                     // assign shadow-sbt-address
                     region->deviceAddress = shadow_buf_context.device_address + sbt_offset;
@@ -1080,9 +1080,9 @@ void VulkanAddressReplacer::ProcessCmdBuildAccelerationStructuresKHR(
             GFXRECON_ASSERT(as_replay_address);
 
             // determine required size of scratch-buffer
-            uint32_t scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
-                                        ? build_size_info.buildScratchSize
-                                        : build_size_info.updateScratchSize;
+            VkDeviceSize scratch_size = build_geometry_info.mode == VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR
+                                            ? build_size_info.buildScratchSize
+                                            : build_size_info.updateScratchSize;
 
             // scratch-buffer: check for nullptr and size
             bool scratch_buffer_usable = scratch_buffer_info != nullptr && scratch_buffer_info->size >= scratch_size;

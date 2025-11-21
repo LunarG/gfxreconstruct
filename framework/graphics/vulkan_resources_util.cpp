@@ -1336,7 +1336,7 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
 void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_buffer,
                                           VkImage                      image,
                                           VkBuffer                     buffer,
-                                          uint32_t                     buffer_offset,
+                                          VkDeviceSize                 buffer_offset,
                                           const VkExtent3D&            extent,
                                           uint32_t                     mip_levels,
                                           uint32_t                     array_layers,
