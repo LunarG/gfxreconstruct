@@ -84,7 +84,7 @@ class PointerDecoder : public PointerDecoderBase
 
         size_t capacity = n * m;
 
-        if ((data != nullptr) && (capacity > 0))
+        if (capacity > 0)
         {
             data_               = reinterpret_cast<T*>(data);
             capacity_           = capacity;

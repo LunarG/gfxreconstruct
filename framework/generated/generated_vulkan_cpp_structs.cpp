@@ -1114,12 +1114,10 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
         std::string pref_list0_mod_operations_names;
         for (uint32_t idx = 0; idx < structInfo->refList0ModOpCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRefList0ModOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                 structInfo->pRefList0ModOperations + idx,
-                                                                                 metaInfo->pRefList0ModOperations->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                             structInfo->pRefList0ModOperations + idx,
+                                                                             metaInfo->pRefList0ModOperations->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pref_list0_mod_operations_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list0_mod_operations_array << "[] = {" << pref_list0_mod_operations_names << "};" << std::endl;
@@ -1130,12 +1128,10 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
         std::string pref_list1_mod_operations_names;
         for (uint32_t idx = 0; idx < structInfo->refList1ModOpCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRefList1ModOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
-                                                                                 structInfo->pRefList1ModOperations + idx,
-                                                                                 metaInfo->pRefList1ModOperations->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_StdVideoEncodeH264RefListModEntry(out,
+                                                                             structInfo->pRefList1ModOperations + idx,
+                                                                             metaInfo->pRefList1ModOperations->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pref_list1_mod_operations_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoEncodeH264RefListModEntry " << pref_list1_mod_operations_array << "[] = {" << pref_list1_mod_operations_names << "};" << std::endl;
@@ -1146,12 +1142,10 @@ std::string GenerateStruct_StdVideoEncodeH264ReferenceListsInfo(std::ostream &ou
         std::string pref_pic_marking_operations_names;
         for (uint32_t idx = 0; idx < structInfo->refPicMarkingOpCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRefPicMarkingOperations + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
-                                                                                    structInfo->pRefPicMarkingOperations + idx,
-                                                                                    metaInfo->pRefPicMarkingOperations->GetMetaStructPointer() + idx,
-                                                                                    consumer);
-            }
+            variable_name = GenerateStruct_StdVideoEncodeH264RefPicMarkingEntry(out,
+                                                                                structInfo->pRefPicMarkingOperations + idx,
+                                                                                metaInfo->pRefPicMarkingOperations->GetMetaStructPointer() + idx,
+                                                                                consumer);
             pref_pic_marking_operations_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoEncodeH264RefPicMarkingEntry " << pref_pic_marking_operations_array << "[] = {" << pref_pic_marking_operations_names << "};" << std::endl;
@@ -1966,12 +1960,10 @@ std::string GenerateStruct_VkDescriptorPoolCreateInfo(std::ostream &out, const V
         std::string ppool_sizes_names;
         for (uint32_t idx = 0; idx < structInfo->poolSizeCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPoolSizes + idx != NULL) {
-                variable_name = GenerateStruct_VkDescriptorPoolSize(out,
-                                                                    structInfo->pPoolSizes + idx,
-                                                                    metaInfo->pPoolSizes->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkDescriptorPoolSize(out,
+                                                                structInfo->pPoolSizes + idx,
+                                                                metaInfo->pPoolSizes->GetMetaStructPointer() + idx,
+                                                                consumer);
             ppool_sizes_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDescriptorPoolSize " << ppool_sizes_array << "[] = {" << ppool_sizes_names << "};" << std::endl;
@@ -2068,12 +2060,10 @@ std::string GenerateStruct_VkDescriptorSetLayoutCreateInfo(std::ostream &out, co
         std::string pbindings_names;
         for (uint32_t idx = 0; idx < structInfo->bindingCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pBindings + idx != NULL) {
-                variable_name = GenerateStruct_VkDescriptorSetLayoutBinding(out,
-                                                                            structInfo->pBindings + idx,
-                                                                            metaInfo->pBindings->GetMetaStructPointer() + idx,
-                                                                            consumer);
-            }
+            variable_name = GenerateStruct_VkDescriptorSetLayoutBinding(out,
+                                                                        structInfo->pBindings + idx,
+                                                                        metaInfo->pBindings->GetMetaStructPointer() + idx,
+                                                                        consumer);
             pbindings_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDescriptorSetLayoutBinding " << pbindings_array << "[] = {" << pbindings_names << "};" << std::endl;
@@ -2100,12 +2090,10 @@ std::string GenerateStruct_VkDeviceCreateInfo(std::ostream &out, const VkDeviceC
         std::string pqueue_create_infos_names;
         for (uint32_t idx = 0; idx < structInfo->queueCreateInfoCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pQueueCreateInfos + idx != NULL) {
-                variable_name = GenerateStruct_VkDeviceQueueCreateInfo(out,
-                                                                       structInfo->pQueueCreateInfos + idx,
-                                                                       metaInfo->pQueueCreateInfos->GetMetaStructPointer() + idx,
-                                                                       consumer);
-            }
+            variable_name = GenerateStruct_VkDeviceQueueCreateInfo(out,
+                                                                   structInfo->pQueueCreateInfos + idx,
+                                                                   metaInfo->pQueueCreateInfos->GetMetaStructPointer() + idx,
+                                                                   consumer);
             pqueue_create_infos_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDeviceQueueCreateInfo " << pqueue_create_infos_array << "[] = {" << pqueue_create_infos_names << "};" << std::endl;
@@ -2330,12 +2318,10 @@ std::string GenerateStruct_VkGraphicsPipelineCreateInfo(std::ostream &out, const
         std::string pstages_names;
         for (uint32_t idx = 0; idx < structInfo->stageCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStages + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
-                                                                               structInfo->pStages + idx,
-                                                                               metaInfo->pStages->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
+                                                                           structInfo->pStages + idx,
+                                                                           metaInfo->pStages->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstages_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineShaderStageCreateInfo " << pstages_array << "[] = {" << pstages_names << "};" << std::endl;
@@ -3090,12 +3076,10 @@ std::string GenerateStruct_VkPipelineColorBlendStateCreateInfo(std::ostream &out
         std::string pattachments_names;
         for (uint32_t idx = 0; idx < structInfo->attachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineColorBlendAttachmentState(out,
-                                                                                   structInfo->pAttachments + idx,
-                                                                                   metaInfo->pAttachments->GetMetaStructPointer() + idx,
-                                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineColorBlendAttachmentState(out,
+                                                                               structInfo->pAttachments + idx,
+                                                                               metaInfo->pAttachments->GetMetaStructPointer() + idx,
+                                                                               consumer);
             pattachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineColorBlendAttachmentState " << pattachments_array << "[] = {" << pattachments_names << "};" << std::endl;
@@ -3210,12 +3194,10 @@ std::string GenerateStruct_VkPipelineLayoutCreateInfo(std::ostream &out, const V
         std::string ppush_constant_ranges_names;
         for (uint32_t idx = 0; idx < structInfo->pushConstantRangeCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPushConstantRanges + idx != NULL) {
-                variable_name = GenerateStruct_VkPushConstantRange(out,
-                                                                   structInfo->pPushConstantRanges + idx,
-                                                                   metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkPushConstantRange(out,
+                                                               structInfo->pPushConstantRanges + idx,
+                                                               metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
+                                                               consumer);
             ppush_constant_ranges_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPushConstantRange " << ppush_constant_ranges_array << "[] = {" << ppush_constant_ranges_names << "};" << std::endl;
@@ -3338,12 +3320,10 @@ std::string GenerateStruct_VkPipelineVertexInputStateCreateInfo(std::ostream &ou
         std::string pvertex_binding_descriptions_names;
         for (uint32_t idx = 0; idx < structInfo->vertexBindingDescriptionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pVertexBindingDescriptions + idx != NULL) {
-                variable_name = GenerateStruct_VkVertexInputBindingDescription(out,
-                                                                               structInfo->pVertexBindingDescriptions + idx,
-                                                                               metaInfo->pVertexBindingDescriptions->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkVertexInputBindingDescription(out,
+                                                                           structInfo->pVertexBindingDescriptions + idx,
+                                                                           metaInfo->pVertexBindingDescriptions->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pvertex_binding_descriptions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVertexInputBindingDescription " << pvertex_binding_descriptions_array << "[] = {" << pvertex_binding_descriptions_names << "};" << std::endl;
@@ -3354,12 +3334,10 @@ std::string GenerateStruct_VkPipelineVertexInputStateCreateInfo(std::ostream &ou
         std::string pvertex_attribute_descriptions_names;
         for (uint32_t idx = 0; idx < structInfo->vertexAttributeDescriptionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pVertexAttributeDescriptions + idx != NULL) {
-                variable_name = GenerateStruct_VkVertexInputAttributeDescription(out,
-                                                                                 structInfo->pVertexAttributeDescriptions + idx,
-                                                                                 metaInfo->pVertexAttributeDescriptions->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_VkVertexInputAttributeDescription(out,
+                                                                             structInfo->pVertexAttributeDescriptions + idx,
+                                                                             metaInfo->pVertexAttributeDescriptions->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pvertex_attribute_descriptions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVertexInputAttributeDescription " << pvertex_attribute_descriptions_array << "[] = {" << pvertex_attribute_descriptions_names << "};" << std::endl;
@@ -3388,12 +3366,10 @@ std::string GenerateStruct_VkPipelineViewportStateCreateInfo(std::ostream &out, 
         std::string pviewports_names;
         for (uint32_t idx = 0; idx < structInfo->viewportCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pViewports + idx != NULL) {
-                variable_name = GenerateStruct_VkViewport(out,
-                                                          structInfo->pViewports + idx,
-                                                          metaInfo->pViewports->GetMetaStructPointer() + idx,
-                                                          consumer);
-            }
+            variable_name = GenerateStruct_VkViewport(out,
+                                                      structInfo->pViewports + idx,
+                                                      metaInfo->pViewports->GetMetaStructPointer() + idx,
+                                                      consumer);
             pviewports_names += variable_name + ", ";
         }
         out << "\t\t" << "VkViewport " << pviewports_array << "[] = {" << pviewports_names << "};" << std::endl;
@@ -3522,12 +3498,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo(std::ostream &out, const VkRen
         std::string pattachments_names;
         for (uint32_t idx = 0; idx < structInfo->attachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentDescription(out,
-                                                                       structInfo->pAttachments + idx,
-                                                                       metaInfo->pAttachments->GetMetaStructPointer() + idx,
-                                                                       consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentDescription(out,
+                                                                   structInfo->pAttachments + idx,
+                                                                   metaInfo->pAttachments->GetMetaStructPointer() + idx,
+                                                                   consumer);
             pattachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentDescription " << pattachments_array << "[] = {" << pattachments_names << "};" << std::endl;
@@ -3538,12 +3512,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo(std::ostream &out, const VkRen
         std::string psubpasses_names;
         for (uint32_t idx = 0; idx < structInfo->subpassCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSubpasses + idx != NULL) {
-                variable_name = GenerateStruct_VkSubpassDescription(out,
-                                                                    structInfo->pSubpasses + idx,
-                                                                    metaInfo->pSubpasses->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkSubpassDescription(out,
+                                                                structInfo->pSubpasses + idx,
+                                                                metaInfo->pSubpasses->GetMetaStructPointer() + idx,
+                                                                consumer);
             psubpasses_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubpassDescription " << psubpasses_array << "[] = {" << psubpasses_names << "};" << std::endl;
@@ -3554,12 +3526,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo(std::ostream &out, const VkRen
         std::string pdependencies_names;
         for (uint32_t idx = 0; idx < structInfo->dependencyCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDependencies + idx != NULL) {
-                variable_name = GenerateStruct_VkSubpassDependency(out,
-                                                                   structInfo->pDependencies + idx,
-                                                                   metaInfo->pDependencies->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkSubpassDependency(out,
+                                                               structInfo->pDependencies + idx,
+                                                               metaInfo->pDependencies->GetMetaStructPointer() + idx,
+                                                               consumer);
             pdependencies_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubpassDependency " << pdependencies_array << "[] = {" << pdependencies_names << "};" << std::endl;
@@ -3653,12 +3623,10 @@ std::string GenerateStruct_VkSparseBufferMemoryBindInfo(std::ostream &out, const
         std::string pbinds_names;
         for (uint32_t idx = 0; idx < structInfo->bindCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pBinds + idx != NULL) {
-                variable_name = GenerateStruct_VkSparseMemoryBind(out,
-                                                                  structInfo->pBinds + idx,
-                                                                  metaInfo->pBinds->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkSparseMemoryBind(out,
+                                                              structInfo->pBinds + idx,
+                                                              metaInfo->pBinds->GetMetaStructPointer() + idx,
+                                                              consumer);
             pbinds_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSparseMemoryBind " << pbinds_array << "[] = {" << pbinds_names << "};" << std::endl;
@@ -3727,12 +3695,10 @@ std::string GenerateStruct_VkSparseImageMemoryBindInfo(std::ostream &out, const 
         std::string pbinds_names;
         for (uint32_t idx = 0; idx < structInfo->bindCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pBinds + idx != NULL) {
-                variable_name = GenerateStruct_VkSparseImageMemoryBind(out,
-                                                                       structInfo->pBinds + idx,
-                                                                       metaInfo->pBinds->GetMetaStructPointer() + idx,
-                                                                       consumer);
-            }
+            variable_name = GenerateStruct_VkSparseImageMemoryBind(out,
+                                                                   structInfo->pBinds + idx,
+                                                                   metaInfo->pBinds->GetMetaStructPointer() + idx,
+                                                                   consumer);
             pbinds_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSparseImageMemoryBind " << pbinds_array << "[] = {" << pbinds_names << "};" << std::endl;
@@ -3775,12 +3741,10 @@ std::string GenerateStruct_VkSparseImageOpaqueMemoryBindInfo(std::ostream &out, 
         std::string pbinds_names;
         for (uint32_t idx = 0; idx < structInfo->bindCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pBinds + idx != NULL) {
-                variable_name = GenerateStruct_VkSparseMemoryBind(out,
-                                                                  structInfo->pBinds + idx,
-                                                                  metaInfo->pBinds->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkSparseMemoryBind(out,
+                                                              structInfo->pBinds + idx,
+                                                              metaInfo->pBinds->GetMetaStructPointer() + idx,
+                                                              consumer);
             pbinds_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSparseMemoryBind " << pbinds_array << "[] = {" << pbinds_names << "};" << std::endl;
@@ -3819,12 +3783,10 @@ std::string GenerateStruct_VkSpecializationInfo(std::ostream &out, const VkSpeci
         std::string pmap_entries_names;
         for (uint32_t idx = 0; idx < structInfo->mapEntryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pMapEntries + idx != NULL) {
-                variable_name = GenerateStruct_VkSpecializationMapEntry(out,
-                                                                        structInfo->pMapEntries + idx,
-                                                                        metaInfo->pMapEntries->GetMetaStructPointer() + idx,
-                                                                        consumer);
-            }
+            variable_name = GenerateStruct_VkSpecializationMapEntry(out,
+                                                                    structInfo->pMapEntries + idx,
+                                                                    metaInfo->pMapEntries->GetMetaStructPointer() + idx,
+                                                                    consumer);
             pmap_entries_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSpecializationMapEntry " << pmap_entries_array << "[] = {" << pmap_entries_names << "};" << std::endl;
@@ -3905,12 +3867,10 @@ std::string GenerateStruct_VkSubpassDescription(std::ostream &out, const VkSubpa
         std::string pinput_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->inputAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pInputAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference(out,
-                                                                     structInfo->pInputAttachments + idx,
-                                                                     metaInfo->pInputAttachments->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference(out,
+                                                                 structInfo->pInputAttachments + idx,
+                                                                 metaInfo->pInputAttachments->GetMetaStructPointer() + idx,
+                                                                 consumer);
             pinput_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference " << pinput_attachments_array << "[] = {" << pinput_attachments_names << "};" << std::endl;
@@ -3921,12 +3881,10 @@ std::string GenerateStruct_VkSubpassDescription(std::ostream &out, const VkSubpa
         std::string pcolor_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->colorAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pColorAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference(out,
-                                                                     structInfo->pColorAttachments + idx,
-                                                                     metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference(out,
+                                                                 structInfo->pColorAttachments + idx,
+                                                                 metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
+                                                                 consumer);
             pcolor_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference " << pcolor_attachments_array << "[] = {" << pcolor_attachments_names << "};" << std::endl;
@@ -3937,12 +3895,10 @@ std::string GenerateStruct_VkSubpassDescription(std::ostream &out, const VkSubpa
         std::string presolve_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->colorAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pResolveAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference(out,
-                                                                     structInfo->pResolveAttachments + idx,
-                                                                     metaInfo->pResolveAttachments->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference(out,
+                                                                 structInfo->pResolveAttachments + idx,
+                                                                 metaInfo->pResolveAttachments->GetMetaStructPointer() + idx,
+                                                                 consumer);
             presolve_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference " << presolve_attachments_array << "[] = {" << presolve_attachments_names << "};" << std::endl;
@@ -4166,12 +4122,10 @@ std::string GenerateStruct_VkDescriptorUpdateTemplateCreateInfo(std::ostream &ou
         std::string pdescriptor_update_entries_names;
         for (uint32_t idx = 0; idx < structInfo->descriptorUpdateEntryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDescriptorUpdateEntries + idx != NULL) {
-                variable_name = GenerateStruct_VkDescriptorUpdateTemplateEntry(out,
-                                                                               structInfo->pDescriptorUpdateEntries + idx,
-                                                                               metaInfo->pDescriptorUpdateEntries->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkDescriptorUpdateTemplateEntry(out,
+                                                                           structInfo->pDescriptorUpdateEntries + idx,
+                                                                           metaInfo->pDescriptorUpdateEntries->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pdescriptor_update_entries_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDescriptorUpdateTemplateEntry " << pdescriptor_update_entries_array << "[] = {" << pdescriptor_update_entries_names << "};" << std::endl;
@@ -5028,12 +4982,10 @@ std::string GenerateStruct_VkRenderPassInputAttachmentAspectCreateInfo(std::ostr
         std::string paspect_references_names;
         for (uint32_t idx = 0; idx < structInfo->aspectReferenceCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAspectReferences + idx != NULL) {
-                variable_name = GenerateStruct_VkInputAttachmentAspectReference(out,
-                                                                                structInfo->pAspectReferences + idx,
-                                                                                metaInfo->pAspectReferences->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_VkInputAttachmentAspectReference(out,
+                                                                            structInfo->pAspectReferences + idx,
+                                                                            metaInfo->pAspectReferences->GetMetaStructPointer() + idx,
+                                                                            consumer);
             paspect_references_names += variable_name + ", ";
         }
         out << "\t\t" << "VkInputAttachmentAspectReference " << paspect_references_array << "[] = {" << paspect_references_names << "};" << std::endl;
@@ -5392,12 +5344,10 @@ std::string GenerateStruct_VkFramebufferAttachmentsCreateInfo(std::ostream &out,
         std::string pattachment_image_infos_names;
         for (uint32_t idx = 0; idx < structInfo->attachmentImageInfoCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAttachmentImageInfos + idx != NULL) {
-                variable_name = GenerateStruct_VkFramebufferAttachmentImageInfo(out,
-                                                                                structInfo->pAttachmentImageInfos + idx,
-                                                                                metaInfo->pAttachmentImageInfos->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_VkFramebufferAttachmentImageInfo(out,
+                                                                            structInfo->pAttachmentImageInfos + idx,
+                                                                            metaInfo->pAttachmentImageInfos->GetMetaStructPointer() + idx,
+                                                                            consumer);
             pattachment_image_infos_names += variable_name + ", ";
         }
         out << "\t\t" << "VkFramebufferAttachmentImageInfo " << pattachment_image_infos_array << "[] = {" << pattachment_image_infos_names << "};" << std::endl;
@@ -6027,12 +5977,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo2(std::ostream &out, const VkRe
         std::string pattachments_names;
         for (uint32_t idx = 0; idx < structInfo->attachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentDescription2(out,
-                                                                        structInfo->pAttachments + idx,
-                                                                        metaInfo->pAttachments->GetMetaStructPointer() + idx,
-                                                                        consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentDescription2(out,
+                                                                    structInfo->pAttachments + idx,
+                                                                    metaInfo->pAttachments->GetMetaStructPointer() + idx,
+                                                                    consumer);
             pattachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentDescription2 " << pattachments_array << "[] = {" << pattachments_names << "};" << std::endl;
@@ -6043,12 +5991,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo2(std::ostream &out, const VkRe
         std::string psubpasses_names;
         for (uint32_t idx = 0; idx < structInfo->subpassCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSubpasses + idx != NULL) {
-                variable_name = GenerateStruct_VkSubpassDescription2(out,
-                                                                     structInfo->pSubpasses + idx,
-                                                                     metaInfo->pSubpasses->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkSubpassDescription2(out,
+                                                                 structInfo->pSubpasses + idx,
+                                                                 metaInfo->pSubpasses->GetMetaStructPointer() + idx,
+                                                                 consumer);
             psubpasses_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubpassDescription2 " << psubpasses_array << "[] = {" << psubpasses_names << "};" << std::endl;
@@ -6059,12 +6005,10 @@ std::string GenerateStruct_VkRenderPassCreateInfo2(std::ostream &out, const VkRe
         std::string pdependencies_names;
         for (uint32_t idx = 0; idx < structInfo->dependencyCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDependencies + idx != NULL) {
-                variable_name = GenerateStruct_VkSubpassDependency2(out,
-                                                                    structInfo->pDependencies + idx,
-                                                                    metaInfo->pDependencies->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkSubpassDependency2(out,
+                                                                structInfo->pDependencies + idx,
+                                                                metaInfo->pDependencies->GetMetaStructPointer() + idx,
+                                                                consumer);
             pdependencies_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubpassDependency2 " << pdependencies_array << "[] = {" << pdependencies_names << "};" << std::endl;
@@ -6223,12 +6167,10 @@ std::string GenerateStruct_VkSubpassDescription2(std::ostream &out, const VkSubp
         std::string pinput_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->inputAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pInputAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference2(out,
-                                                                      structInfo->pInputAttachments + idx,
-                                                                      metaInfo->pInputAttachments->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference2(out,
+                                                                  structInfo->pInputAttachments + idx,
+                                                                  metaInfo->pInputAttachments->GetMetaStructPointer() + idx,
+                                                                  consumer);
             pinput_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference2 " << pinput_attachments_array << "[] = {" << pinput_attachments_names << "};" << std::endl;
@@ -6239,12 +6181,10 @@ std::string GenerateStruct_VkSubpassDescription2(std::ostream &out, const VkSubp
         std::string pcolor_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->colorAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pColorAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference2(out,
-                                                                      structInfo->pColorAttachments + idx,
-                                                                      metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference2(out,
+                                                                  structInfo->pColorAttachments + idx,
+                                                                  metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
+                                                                  consumer);
             pcolor_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference2 " << pcolor_attachments_array << "[] = {" << pcolor_attachments_names << "};" << std::endl;
@@ -6255,12 +6195,10 @@ std::string GenerateStruct_VkSubpassDescription2(std::ostream &out, const VkSubp
         std::string presolve_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->colorAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pResolveAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentReference2(out,
-                                                                      structInfo->pResolveAttachments + idx,
-                                                                      metaInfo->pResolveAttachments->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentReference2(out,
+                                                                  structInfo->pResolveAttachments + idx,
+                                                                  metaInfo->pResolveAttachments->GetMetaStructPointer() + idx,
+                                                                  consumer);
             presolve_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentReference2 " << presolve_attachments_array << "[] = {" << presolve_attachments_names << "};" << std::endl;
@@ -6386,12 +6324,10 @@ std::string GenerateStruct_VkBlitImageInfo2(std::ostream &out, const VkBlitImage
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkImageBlit2(out,
-                                                            structInfo->pRegions + idx,
-                                                            metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                            consumer);
-            }
+            variable_name = GenerateStruct_VkImageBlit2(out,
+                                                        structInfo->pRegions + idx,
+                                                        metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                        consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageBlit2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -6535,12 +6471,10 @@ std::string GenerateStruct_VkCopyBufferInfo2(std::ostream &out, const VkCopyBuff
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkBufferCopy2(out,
-                                                             structInfo->pRegions + idx,
-                                                             metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                             consumer);
-            }
+            variable_name = GenerateStruct_VkBufferCopy2(out,
+                                                         structInfo->pRegions + idx,
+                                                         metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                         consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkBufferCopy2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -6568,12 +6502,10 @@ std::string GenerateStruct_VkCopyBufferToImageInfo2(std::ostream &out, const VkC
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkBufferImageCopy2(out,
-                                                                  structInfo->pRegions + idx,
-                                                                  metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkBufferImageCopy2(out,
+                                                              structInfo->pRegions + idx,
+                                                              metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                              consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkBufferImageCopy2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -6602,12 +6534,10 @@ std::string GenerateStruct_VkCopyImageInfo2(std::ostream &out, const VkCopyImage
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkImageCopy2(out,
-                                                            structInfo->pRegions + idx,
-                                                            metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                            consumer);
-            }
+            variable_name = GenerateStruct_VkImageCopy2(out,
+                                                        structInfo->pRegions + idx,
+                                                        metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                        consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageCopy2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -6637,12 +6567,10 @@ std::string GenerateStruct_VkCopyImageToBufferInfo2(std::ostream &out, const VkC
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkBufferImageCopy2(out,
-                                                                  structInfo->pRegions + idx,
-                                                                  metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkBufferImageCopy2(out,
+                                                              structInfo->pRegions + idx,
+                                                              metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                              consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkBufferImageCopy2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -6671,12 +6599,10 @@ std::string GenerateStruct_VkDependencyInfo(std::ostream &out, const VkDependenc
         std::string pmemory_barriers_names;
         for (uint32_t idx = 0; idx < structInfo->memoryBarrierCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pMemoryBarriers + idx != NULL) {
-                variable_name = GenerateStruct_VkMemoryBarrier2(out,
-                                                                structInfo->pMemoryBarriers + idx,
-                                                                metaInfo->pMemoryBarriers->GetMetaStructPointer() + idx,
-                                                                consumer);
-            }
+            variable_name = GenerateStruct_VkMemoryBarrier2(out,
+                                                            structInfo->pMemoryBarriers + idx,
+                                                            metaInfo->pMemoryBarriers->GetMetaStructPointer() + idx,
+                                                            consumer);
             pmemory_barriers_names += variable_name + ", ";
         }
         out << "\t\t" << "VkMemoryBarrier2 " << pmemory_barriers_array << "[] = {" << pmemory_barriers_names << "};" << std::endl;
@@ -6687,12 +6613,10 @@ std::string GenerateStruct_VkDependencyInfo(std::ostream &out, const VkDependenc
         std::string pbuffer_memory_barriers_names;
         for (uint32_t idx = 0; idx < structInfo->bufferMemoryBarrierCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pBufferMemoryBarriers + idx != NULL) {
-                variable_name = GenerateStruct_VkBufferMemoryBarrier2(out,
-                                                                      structInfo->pBufferMemoryBarriers + idx,
-                                                                      metaInfo->pBufferMemoryBarriers->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkBufferMemoryBarrier2(out,
+                                                                  structInfo->pBufferMemoryBarriers + idx,
+                                                                  metaInfo->pBufferMemoryBarriers->GetMetaStructPointer() + idx,
+                                                                  consumer);
             pbuffer_memory_barriers_names += variable_name + ", ";
         }
         out << "\t\t" << "VkBufferMemoryBarrier2 " << pbuffer_memory_barriers_array << "[] = {" << pbuffer_memory_barriers_names << "};" << std::endl;
@@ -6703,12 +6627,10 @@ std::string GenerateStruct_VkDependencyInfo(std::ostream &out, const VkDependenc
         std::string pimage_memory_barriers_names;
         for (uint32_t idx = 0; idx < structInfo->imageMemoryBarrierCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pImageMemoryBarriers + idx != NULL) {
-                variable_name = GenerateStruct_VkImageMemoryBarrier2(out,
-                                                                     structInfo->pImageMemoryBarriers + idx,
-                                                                     metaInfo->pImageMemoryBarriers->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkImageMemoryBarrier2(out,
+                                                                 structInfo->pImageMemoryBarriers + idx,
+                                                                 metaInfo->pImageMemoryBarriers->GetMetaStructPointer() + idx,
+                                                                 consumer);
             pimage_memory_barriers_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageMemoryBarrier2 " << pimage_memory_barriers_array << "[] = {" << pimage_memory_barriers_names << "};" << std::endl;
@@ -7390,12 +7312,10 @@ std::string GenerateStruct_VkPipelineCreationFeedbackCreateInfo(std::ostream &ou
         std::string ppipeline_stage_creation_feedbacks_names;
         for (uint32_t idx = 0; idx < structInfo->pipelineStageCreationFeedbackCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPipelineStageCreationFeedbacks + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineCreationFeedback(out,
-                                                                          structInfo->pPipelineStageCreationFeedbacks + idx,
-                                                                          metaInfo->pPipelineStageCreationFeedbacks->GetMetaStructPointer() + idx,
-                                                                          consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineCreationFeedback(out,
+                                                                      structInfo->pPipelineStageCreationFeedbacks + idx,
+                                                                      metaInfo->pPipelineStageCreationFeedbacks->GetMetaStructPointer() + idx,
+                                                                      consumer);
             ppipeline_stage_creation_feedbacks_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineCreationFeedback " << ppipeline_stage_creation_feedbacks_array << "[] = {" << ppipeline_stage_creation_feedbacks_names << "};" << std::endl;
@@ -7502,12 +7422,10 @@ std::string GenerateStruct_VkRenderingInfo(std::ostream &out, const VkRenderingI
         std::string pcolor_attachments_names;
         for (uint32_t idx = 0; idx < structInfo->colorAttachmentCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pColorAttachments + idx != NULL) {
-                variable_name = GenerateStruct_VkRenderingAttachmentInfo(out,
-                                                                         structInfo->pColorAttachments + idx,
-                                                                         metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
-                                                                         consumer);
-            }
+            variable_name = GenerateStruct_VkRenderingAttachmentInfo(out,
+                                                                     structInfo->pColorAttachments + idx,
+                                                                     metaInfo->pColorAttachments->GetMetaStructPointer() + idx,
+                                                                     consumer);
             pcolor_attachments_names += variable_name + ", ";
         }
         out << "\t\t" << "VkRenderingAttachmentInfo " << pcolor_attachments_array << "[] = {" << pcolor_attachments_names << "};" << std::endl;
@@ -7555,12 +7473,10 @@ std::string GenerateStruct_VkResolveImageInfo2(std::ostream &out, const VkResolv
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkImageResolve2(out,
-                                                               structInfo->pRegions + idx,
-                                                               metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkImageResolve2(out,
+                                                           structInfo->pRegions + idx,
+                                                           metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                           consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageResolve2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -7697,12 +7613,10 @@ std::string GenerateStruct_VkCopyImageToImageInfo(std::ostream &out, const VkCop
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkImageCopy2(out,
-                                                            structInfo->pRegions + idx,
-                                                            metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                            consumer);
-            }
+            variable_name = GenerateStruct_VkImageCopy2(out,
+                                                        structInfo->pRegions + idx,
+                                                        metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                        consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageCopy2 " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -8323,12 +8237,10 @@ std::string GenerateStruct_VkPipelineVertexInputDivisorStateCreateInfo(std::ostr
         std::string pvertex_binding_divisors_names;
         for (uint32_t idx = 0; idx < structInfo->vertexBindingDivisorCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pVertexBindingDivisors + idx != NULL) {
-                variable_name = GenerateStruct_VkVertexInputBindingDivisorDescription(out,
-                                                                                      structInfo->pVertexBindingDivisors + idx,
-                                                                                      metaInfo->pVertexBindingDivisors->GetMetaStructPointer() + idx,
-                                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkVertexInputBindingDivisorDescription(out,
+                                                                                  structInfo->pVertexBindingDivisors + idx,
+                                                                                  metaInfo->pVertexBindingDivisors->GetMetaStructPointer() + idx,
+                                                                                  consumer);
             pvertex_binding_divisors_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVertexInputBindingDivisorDescription " << pvertex_binding_divisors_array << "[] = {" << pvertex_binding_divisors_names << "};" << std::endl;
@@ -8381,12 +8293,10 @@ std::string GenerateStruct_VkPushDescriptorSetInfo(std::ostream &out, const VkPu
         std::string pdescriptor_writes_names;
         for (uint32_t idx = 0; idx < structInfo->descriptorWriteCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDescriptorWrites + idx != NULL) {
-                variable_name = GenerateStruct_VkWriteDescriptorSet(out,
-                                                                    structInfo->pDescriptorWrites + idx,
-                                                                    metaInfo->pDescriptorWrites->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkWriteDescriptorSet(out,
+                                                                structInfo->pDescriptorWrites + idx,
+                                                                metaInfo->pDescriptorWrites->GetMetaStructPointer() + idx,
+                                                                consumer);
             pdescriptor_writes_names += variable_name + ", ";
         }
         out << "\t\t" << "VkWriteDescriptorSet " << pdescriptor_writes_array << "[] = {" << pdescriptor_writes_names << "};" << std::endl;
@@ -9013,12 +8923,10 @@ std::string GenerateStruct_VkVideoBeginCodingInfoKHR(std::ostream &out, const Vk
         std::string preference_slots_names;
         for (uint32_t idx = 0; idx < structInfo->referenceSlotCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pReferenceSlots + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
-                                                                           structInfo->pReferenceSlots + idx,
-                                                                           metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
+                                                                       structInfo->pReferenceSlots + idx,
+                                                                       metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
+                                                                       consumer);
             preference_slots_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoReferenceSlotInfoKHR " << preference_slots_array << "[] = {" << preference_slots_names << "};" << std::endl;
@@ -9178,12 +9086,10 @@ std::string GenerateStruct_VkVideoProfileListInfoKHR(std::ostream &out, const Vk
         std::string pprofiles_names;
         for (uint32_t idx = 0; idx < structInfo->profileCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pProfiles + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoProfileInfoKHR(out,
-                                                                     structInfo->pProfiles + idx,
-                                                                     metaInfo->pProfiles->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkVideoProfileInfoKHR(out,
+                                                                 structInfo->pProfiles + idx,
+                                                                 metaInfo->pProfiles->GetMetaStructPointer() + idx,
+                                                                 consumer);
             pprofiles_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoProfileInfoKHR " << pprofiles_array << "[] = {" << pprofiles_names << "};" << std::endl;
@@ -9349,12 +9255,10 @@ std::string GenerateStruct_VkVideoDecodeInfoKHR(std::ostream &out, const VkVideo
         std::string preference_slots_names;
         for (uint32_t idx = 0; idx < structInfo->referenceSlotCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pReferenceSlots + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
-                                                                           structInfo->pReferenceSlots + idx,
-                                                                           metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
+                                                                       structInfo->pReferenceSlots + idx,
+                                                                       metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
+                                                                       consumer);
             preference_slots_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoReferenceSlotInfoKHR " << preference_slots_array << "[] = {" << preference_slots_names << "};" << std::endl;
@@ -9501,12 +9405,10 @@ std::string GenerateStruct_VkVideoEncodeH264PictureInfoKHR(std::ostream &out, co
         std::string pnalu_slice_entries_names;
         for (uint32_t idx = 0; idx < structInfo->naluSliceEntryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pNaluSliceEntries + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoEncodeH264NaluSliceInfoKHR(out,
-                                                                                 structInfo->pNaluSliceEntries + idx,
-                                                                                 metaInfo->pNaluSliceEntries->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_VkVideoEncodeH264NaluSliceInfoKHR(out,
+                                                                             structInfo->pNaluSliceEntries + idx,
+                                                                             metaInfo->pNaluSliceEntries->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pnalu_slice_entries_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoEncodeH264NaluSliceInfoKHR " << pnalu_slice_entries_array << "[] = {" << pnalu_slice_entries_names << "};" << std::endl;
@@ -9659,12 +9561,10 @@ std::string GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoKHR(std::ost
         std::string pstd_s_pss_names;
         for (uint32_t idx = 0; idx < structInfo->stdSPSCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStdSPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH264SequenceParameterSet(out,
-                                                                                structInfo->pStdSPSs + idx,
-                                                                                metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_StdVideoH264SequenceParameterSet(out,
+                                                                            structInfo->pStdSPSs + idx,
+                                                                            metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
+                                                                            consumer);
             pstd_s_pss_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoH264SequenceParameterSet " << pstd_s_pss_array << "[] = {" << pstd_s_pss_names << "};" << std::endl;
@@ -9675,12 +9575,10 @@ std::string GenerateStruct_VkVideoEncodeH264SessionParametersAddInfoKHR(std::ost
         std::string pstd_pp_ss_names;
         for (uint32_t idx = 0; idx < structInfo->stdPPSCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStdPPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH264PictureParameterSet(out,
-                                                                               structInfo->pStdPPSs + idx,
-                                                                               metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_StdVideoH264PictureParameterSet(out,
+                                                                           structInfo->pStdPPSs + idx,
+                                                                           metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstd_pp_ss_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoH264PictureParameterSet " << pstd_pp_ss_array << "[] = {" << pstd_pp_ss_names << "};" << std::endl;
@@ -9849,12 +9747,10 @@ std::string GenerateStruct_VkVideoDecodeH264SessionParametersAddInfoKHR(std::ost
         std::string pstd_s_pss_names;
         for (uint32_t idx = 0; idx < structInfo->stdSPSCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStdSPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH264SequenceParameterSet(out,
-                                                                                structInfo->pStdSPSs + idx,
-                                                                                metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_StdVideoH264SequenceParameterSet(out,
+                                                                            structInfo->pStdSPSs + idx,
+                                                                            metaInfo->pStdSPSs->GetMetaStructPointer() + idx,
+                                                                            consumer);
             pstd_s_pss_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoH264SequenceParameterSet " << pstd_s_pss_array << "[] = {" << pstd_s_pss_names << "};" << std::endl;
@@ -9865,12 +9761,10 @@ std::string GenerateStruct_VkVideoDecodeH264SessionParametersAddInfoKHR(std::ost
         std::string pstd_pp_ss_names;
         for (uint32_t idx = 0; idx < structInfo->stdPPSCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStdPPSs + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoH264PictureParameterSet(out,
-                                                                               structInfo->pStdPPSs + idx,
-                                                                               metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_StdVideoH264PictureParameterSet(out,
+                                                                           structInfo->pStdPPSs + idx,
+                                                                           metaInfo->pStdPPSs->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstd_pp_ss_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoH264PictureParameterSet " << pstd_pp_ss_array << "[] = {" << pstd_pp_ss_names << "};" << std::endl;
@@ -10223,12 +10117,10 @@ std::string GenerateStruct_VkPresentRegionKHR(std::ostream &out, const VkPresent
         std::string prectangles_names;
         for (uint32_t idx = 0; idx < structInfo->rectangleCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRectangles + idx != NULL) {
-                variable_name = GenerateStruct_VkRectLayerKHR(out,
-                                                              structInfo->pRectangles + idx,
-                                                              metaInfo->pRectangles->GetMetaStructPointer() + idx,
-                                                              consumer);
-            }
+            variable_name = GenerateStruct_VkRectLayerKHR(out,
+                                                          structInfo->pRectangles + idx,
+                                                          metaInfo->pRectangles->GetMetaStructPointer() + idx,
+                                                          consumer);
             prectangles_names += variable_name + ", ";
         }
         out << "\t\t" << "VkRectLayerKHR " << prectangles_array << "[] = {" << prectangles_names << "};" << std::endl;
@@ -10252,12 +10144,10 @@ std::string GenerateStruct_VkPresentRegionsKHR(std::ostream &out, const VkPresen
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->swapchainCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkPresentRegionKHR(out,
-                                                                  structInfo->pRegions + idx,
-                                                                  metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkPresentRegionKHR(out,
+                                                              structInfo->pRegions + idx,
+                                                              metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                              consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPresentRegionKHR " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -11144,12 +11034,10 @@ std::string GenerateStruct_VkVideoEncodeInfoKHR(std::ostream &out, const VkVideo
         std::string preference_slots_names;
         for (uint32_t idx = 0; idx < structInfo->referenceSlotCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pReferenceSlots + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
-                                                                           structInfo->pReferenceSlots + idx,
-                                                                           metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkVideoReferenceSlotInfoKHR(out,
+                                                                       structInfo->pReferenceSlots + idx,
+                                                                       metaInfo->pReferenceSlots->GetMetaStructPointer() + idx,
+                                                                       consumer);
             preference_slots_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoReferenceSlotInfoKHR " << preference_slots_array << "[] = {" << preference_slots_names << "};" << std::endl;
@@ -11211,12 +11099,10 @@ std::string GenerateStruct_VkVideoEncodeRateControlInfoKHR(std::ostream &out, co
         std::string players_names;
         for (uint32_t idx = 0; idx < structInfo->layerCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pLayers + idx != NULL) {
-                variable_name = GenerateStruct_VkVideoEncodeRateControlLayerInfoKHR(out,
-                                                                                    structInfo->pLayers + idx,
-                                                                                    metaInfo->pLayers->GetMetaStructPointer() + idx,
-                                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkVideoEncodeRateControlLayerInfoKHR(out,
+                                                                                structInfo->pLayers + idx,
+                                                                                metaInfo->pLayers->GetMetaStructPointer() + idx,
+                                                                                consumer);
             players_names += variable_name + ", ";
         }
         out << "\t\t" << "VkVideoEncodeRateControlLayerInfoKHR " << players_array << "[] = {" << players_names << "};" << std::endl;
@@ -11706,12 +11592,10 @@ std::string GenerateStruct_VkPipelineBinaryKeysAndDataKHR(std::ostream &out, con
         std::string ppipeline_binary_keys_names;
         for (uint32_t idx = 0; idx < structInfo->binaryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPipelineBinaryKeys + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineBinaryKeyKHR(out,
-                                                                      structInfo->pPipelineBinaryKeys + idx,
-                                                                      metaInfo->pPipelineBinaryKeys->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineBinaryKeyKHR(out,
+                                                                  structInfo->pPipelineBinaryKeys + idx,
+                                                                  metaInfo->pPipelineBinaryKeys->GetMetaStructPointer() + idx,
+                                                                  consumer);
             ppipeline_binary_keys_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineBinaryKeyKHR " << ppipeline_binary_keys_array << "[] = {" << ppipeline_binary_keys_names << "};" << std::endl;
@@ -11722,12 +11606,10 @@ std::string GenerateStruct_VkPipelineBinaryKeysAndDataKHR(std::ostream &out, con
         std::string ppipeline_binary_data_names;
         for (uint32_t idx = 0; idx < structInfo->binaryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPipelineBinaryData + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineBinaryDataKHR(out,
-                                                                       structInfo->pPipelineBinaryData + idx,
-                                                                       metaInfo->pPipelineBinaryData->GetMetaStructPointer() + idx,
-                                                                       consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineBinaryDataKHR(out,
+                                                                   structInfo->pPipelineBinaryData + idx,
+                                                                   metaInfo->pPipelineBinaryData->GetMetaStructPointer() + idx,
+                                                                   consumer);
             ppipeline_binary_data_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineBinaryDataKHR " << ppipeline_binary_data_array << "[] = {" << ppipeline_binary_data_names << "};" << std::endl;
@@ -12446,12 +12328,10 @@ std::string GenerateStruct_VkVideoEncodeAV1SessionParametersCreateInfoKHR(std::o
         std::string pstd_operating_points_names;
         for (uint32_t idx = 0; idx < structInfo->stdOperatingPointCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStdOperatingPoints + idx != NULL) {
-                variable_name = GenerateStruct_StdVideoEncodeAV1OperatingPointInfo(out,
-                                                                                   structInfo->pStdOperatingPoints + idx,
-                                                                                   metaInfo->pStdOperatingPoints->GetMetaStructPointer() + idx,
-                                                                                   consumer);
-            }
+            variable_name = GenerateStruct_StdVideoEncodeAV1OperatingPointInfo(out,
+                                                                               structInfo->pStdOperatingPoints + idx,
+                                                                               metaInfo->pStdOperatingPoints->GetMetaStructPointer() + idx,
+                                                                               consumer);
             pstd_operating_points_names += variable_name + ", ";
         }
         out << "\t\t" << "StdVideoEncodeAV1OperatingPointInfo " << pstd_operating_points_array << "[] = {" << pstd_operating_points_names << "};" << std::endl;
@@ -12738,12 +12618,10 @@ std::string GenerateStruct_VkCopyMemoryToImageIndirectInfoKHR(std::ostream &out,
         std::string pimage_subresources_names;
         for (uint32_t idx = 0; idx < structInfo->copyCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pImageSubresources + idx != NULL) {
-                variable_name = GenerateStruct_VkImageSubresourceLayers(out,
-                                                                        structInfo->pImageSubresources + idx,
-                                                                        metaInfo->pImageSubresources->GetMetaStructPointer() + idx,
-                                                                        consumer);
-            }
+            variable_name = GenerateStruct_VkImageSubresourceLayers(out,
+                                                                    structInfo->pImageSubresources + idx,
+                                                                    metaInfo->pImageSubresources->GetMetaStructPointer() + idx,
+                                                                    consumer);
             pimage_subresources_names += variable_name + ", ";
         }
         out << "\t\t" << "VkImageSubresourceLayers " << pimage_subresources_array << "[] = {" << pimage_subresources_names << "};" << std::endl;
@@ -13081,12 +12959,10 @@ std::string GenerateStruct_VkPhysicalDeviceLayeredApiPropertiesListKHR(std::ostr
         std::string playered_apis_names;
         for (uint32_t idx = 0; idx < structInfo->layeredApiCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pLayeredApis + idx != NULL) {
-                variable_name = GenerateStruct_VkPhysicalDeviceLayeredApiPropertiesKHR(out,
-                                                                                       structInfo->pLayeredApis + idx,
-                                                                                       metaInfo->pLayeredApis->GetMetaStructPointer() + idx,
-                                                                                       consumer);
-            }
+            variable_name = GenerateStruct_VkPhysicalDeviceLayeredApiPropertiesKHR(out,
+                                                                                   structInfo->pLayeredApis + idx,
+                                                                                   metaInfo->pLayeredApis->GetMetaStructPointer() + idx,
+                                                                                   consumer);
             playered_apis_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPhysicalDeviceLayeredApiPropertiesKHR " << playered_apis_array << "[] = {" << playered_apis_names << "};" << std::endl;
@@ -13942,12 +13818,10 @@ std::string GenerateStruct_VkPipelineViewportWScalingStateCreateInfoNV(std::ostr
         std::string pviewport_w_scalings_names;
         for (uint32_t idx = 0; idx < structInfo->viewportCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pViewportWScalings + idx != NULL) {
-                variable_name = GenerateStruct_VkViewportWScalingNV(out,
-                                                                    structInfo->pViewportWScalings + idx,
-                                                                    metaInfo->pViewportWScalings->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkViewportWScalingNV(out,
+                                                                structInfo->pViewportWScalings + idx,
+                                                                metaInfo->pViewportWScalings->GetMetaStructPointer() + idx,
+                                                                consumer);
             pviewport_w_scalings_names += variable_name + ", ";
         }
         out << "\t\t" << "VkViewportWScalingNV " << pviewport_w_scalings_array << "[] = {" << pviewport_w_scalings_names << "};" << std::endl;
@@ -14105,12 +13979,10 @@ std::string GenerateStruct_VkPresentTimesInfoGOOGLE(std::ostream &out, const VkP
         std::string ptimes_names;
         for (uint32_t idx = 0; idx < structInfo->swapchainCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pTimes + idx != NULL) {
-                variable_name = GenerateStruct_VkPresentTimeGOOGLE(out,
-                                                                   structInfo->pTimes + idx,
-                                                                   metaInfo->pTimes->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkPresentTimeGOOGLE(out,
+                                                               structInfo->pTimes + idx,
+                                                               metaInfo->pTimes->GetMetaStructPointer() + idx,
+                                                               consumer);
             ptimes_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPresentTimeGOOGLE " << ptimes_array << "[] = {" << ptimes_names << "};" << std::endl;
@@ -14176,12 +14048,10 @@ std::string GenerateStruct_VkPipelineViewportSwizzleStateCreateInfoNV(std::ostre
         std::string pviewport_swizzles_names;
         for (uint32_t idx = 0; idx < structInfo->viewportCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pViewportSwizzles + idx != NULL) {
-                variable_name = GenerateStruct_VkViewportSwizzleNV(out,
-                                                                   structInfo->pViewportSwizzles + idx,
-                                                                   metaInfo->pViewportSwizzles->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkViewportSwizzleNV(out,
+                                                               structInfo->pViewportSwizzles + idx,
+                                                               metaInfo->pViewportSwizzles->GetMetaStructPointer() + idx,
+                                                               consumer);
             pviewport_swizzles_names += variable_name + ", ";
         }
         out << "\t\t" << "VkViewportSwizzleNV " << pviewport_swizzles_array << "[] = {" << pviewport_swizzles_names << "};" << std::endl;
@@ -14433,12 +14303,10 @@ std::string GenerateStruct_VkDebugUtilsMessengerCallbackDataEXT(std::ostream &ou
         std::string pqueue_labels_names;
         for (uint32_t idx = 0; idx < structInfo->queueLabelCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pQueueLabels + idx != NULL) {
-                variable_name = GenerateStruct_VkDebugUtilsLabelEXT(out,
-                                                                    structInfo->pQueueLabels + idx,
-                                                                    metaInfo->pQueueLabels->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkDebugUtilsLabelEXT(out,
+                                                                structInfo->pQueueLabels + idx,
+                                                                metaInfo->pQueueLabels->GetMetaStructPointer() + idx,
+                                                                consumer);
             pqueue_labels_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDebugUtilsLabelEXT " << pqueue_labels_array << "[] = {" << pqueue_labels_names << "};" << std::endl;
@@ -14449,12 +14317,10 @@ std::string GenerateStruct_VkDebugUtilsMessengerCallbackDataEXT(std::ostream &ou
         std::string pcmd_buf_labels_names;
         for (uint32_t idx = 0; idx < structInfo->cmdBufLabelCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pCmdBufLabels + idx != NULL) {
-                variable_name = GenerateStruct_VkDebugUtilsLabelEXT(out,
-                                                                    structInfo->pCmdBufLabels + idx,
-                                                                    metaInfo->pCmdBufLabels->GetMetaStructPointer() + idx,
-                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkDebugUtilsLabelEXT(out,
+                                                                structInfo->pCmdBufLabels + idx,
+                                                                metaInfo->pCmdBufLabels->GetMetaStructPointer() + idx,
+                                                                consumer);
             pcmd_buf_labels_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDebugUtilsLabelEXT " << pcmd_buf_labels_array << "[] = {" << pcmd_buf_labels_names << "};" << std::endl;
@@ -14465,12 +14331,10 @@ std::string GenerateStruct_VkDebugUtilsMessengerCallbackDataEXT(std::ostream &ou
         std::string pobjects_names;
         for (uint32_t idx = 0; idx < structInfo->objectCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pObjects + idx != NULL) {
-                variable_name = GenerateStruct_VkDebugUtilsObjectNameInfoEXT(out,
-                                                                             structInfo->pObjects + idx,
-                                                                             metaInfo->pObjects->GetMetaStructPointer() + idx,
-                                                                             consumer);
-            }
+            variable_name = GenerateStruct_VkDebugUtilsObjectNameInfoEXT(out,
+                                                                         structInfo->pObjects + idx,
+                                                                         metaInfo->pObjects->GetMetaStructPointer() + idx,
+                                                                         consumer);
             pobjects_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDebugUtilsObjectNameInfoEXT " << pobjects_array << "[] = {" << pobjects_names << "};" << std::endl;
@@ -14754,12 +14618,10 @@ std::string GenerateStruct_VkRenderPassSampleLocationsBeginInfoEXT(std::ostream 
         std::string pattachment_initial_sample_locations_names;
         for (uint32_t idx = 0; idx < structInfo->attachmentInitialSampleLocationsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pAttachmentInitialSampleLocations + idx != NULL) {
-                variable_name = GenerateStruct_VkAttachmentSampleLocationsEXT(out,
-                                                                              structInfo->pAttachmentInitialSampleLocations + idx,
-                                                                              metaInfo->pAttachmentInitialSampleLocations->GetMetaStructPointer() + idx,
-                                                                              consumer);
-            }
+            variable_name = GenerateStruct_VkAttachmentSampleLocationsEXT(out,
+                                                                          structInfo->pAttachmentInitialSampleLocations + idx,
+                                                                          metaInfo->pAttachmentInitialSampleLocations->GetMetaStructPointer() + idx,
+                                                                          consumer);
             pattachment_initial_sample_locations_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAttachmentSampleLocationsEXT " << pattachment_initial_sample_locations_array << "[] = {" << pattachment_initial_sample_locations_names << "};" << std::endl;
@@ -14770,12 +14632,10 @@ std::string GenerateStruct_VkRenderPassSampleLocationsBeginInfoEXT(std::ostream 
         std::string ppost_subpass_sample_locations_names;
         for (uint32_t idx = 0; idx < structInfo->postSubpassSampleLocationsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPostSubpassSampleLocations + idx != NULL) {
-                variable_name = GenerateStruct_VkSubpassSampleLocationsEXT(out,
-                                                                           structInfo->pPostSubpassSampleLocations + idx,
-                                                                           metaInfo->pPostSubpassSampleLocations->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkSubpassSampleLocationsEXT(out,
+                                                                       structInfo->pPostSubpassSampleLocations + idx,
+                                                                       metaInfo->pPostSubpassSampleLocations->GetMetaStructPointer() + idx,
+                                                                       consumer);
             ppost_subpass_sample_locations_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubpassSampleLocationsEXT " << ppost_subpass_sample_locations_array << "[] = {" << ppost_subpass_sample_locations_names << "};" << std::endl;
@@ -14819,12 +14679,10 @@ std::string GenerateStruct_VkSampleLocationsInfoEXT(std::ostream &out, const VkS
         std::string psample_locations_names;
         for (uint32_t idx = 0; idx < structInfo->sampleLocationsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSampleLocations + idx != NULL) {
-                variable_name = GenerateStruct_VkSampleLocationEXT(out,
-                                                                   structInfo->pSampleLocations + idx,
-                                                                   metaInfo->pSampleLocations->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkSampleLocationEXT(out,
+                                                               structInfo->pSampleLocations + idx,
+                                                               metaInfo->pSampleLocations->GetMetaStructPointer() + idx,
+                                                               consumer);
             psample_locations_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSampleLocationEXT " << psample_locations_array << "[] = {" << psample_locations_names << "};" << std::endl;
@@ -15011,12 +14869,10 @@ std::string GenerateStruct_VkDrmFormatModifierPropertiesList2EXT(std::ostream &o
         std::string pdrm_format_modifier_properties_names;
         for (uint32_t idx = 0; idx < structInfo->drmFormatModifierCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDrmFormatModifierProperties + idx != NULL) {
-                variable_name = GenerateStruct_VkDrmFormatModifierProperties2EXT(out,
-                                                                                 structInfo->pDrmFormatModifierProperties + idx,
-                                                                                 metaInfo->pDrmFormatModifierProperties->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_VkDrmFormatModifierProperties2EXT(out,
+                                                                             structInfo->pDrmFormatModifierProperties + idx,
+                                                                             metaInfo->pDrmFormatModifierProperties->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pdrm_format_modifier_properties_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDrmFormatModifierProperties2EXT " << pdrm_format_modifier_properties_array << "[] = {" << pdrm_format_modifier_properties_names << "};" << std::endl;
@@ -15042,12 +14898,10 @@ std::string GenerateStruct_VkDrmFormatModifierPropertiesListEXT(std::ostream &ou
         std::string pdrm_format_modifier_properties_names;
         for (uint32_t idx = 0; idx < structInfo->drmFormatModifierCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDrmFormatModifierProperties + idx != NULL) {
-                variable_name = GenerateStruct_VkDrmFormatModifierPropertiesEXT(out,
-                                                                                structInfo->pDrmFormatModifierProperties + idx,
-                                                                                metaInfo->pDrmFormatModifierProperties->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_VkDrmFormatModifierPropertiesEXT(out,
+                                                                            structInfo->pDrmFormatModifierProperties + idx,
+                                                                            metaInfo->pDrmFormatModifierProperties->GetMetaStructPointer() + idx,
+                                                                            consumer);
             pdrm_format_modifier_properties_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDrmFormatModifierPropertiesEXT " << pdrm_format_modifier_properties_array << "[] = {" << pdrm_format_modifier_properties_names << "};" << std::endl;
@@ -15073,12 +14927,10 @@ std::string GenerateStruct_VkImageDrmFormatModifierExplicitCreateInfoEXT(std::os
         std::string pplane_layouts_names;
         for (uint32_t idx = 0; idx < structInfo->drmFormatModifierPlaneCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPlaneLayouts + idx != NULL) {
-                variable_name = GenerateStruct_VkSubresourceLayout(out,
-                                                                   structInfo->pPlaneLayouts + idx,
-                                                                   metaInfo->pPlaneLayouts->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkSubresourceLayout(out,
+                                                               structInfo->pPlaneLayouts + idx,
+                                                               metaInfo->pPlaneLayouts->GetMetaStructPointer() + idx,
+                                                               consumer);
             pplane_layouts_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSubresourceLayout " << pplane_layouts_array << "[] = {" << pplane_layouts_names << "};" << std::endl;
@@ -15219,12 +15071,10 @@ std::string GenerateStruct_VkCoarseSampleOrderCustomNV(std::ostream &out, const 
         std::string psample_locations_names;
         for (uint32_t idx = 0; idx < structInfo->sampleLocationCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSampleLocations + idx != NULL) {
-                variable_name = GenerateStruct_VkCoarseSampleLocationNV(out,
-                                                                        structInfo->pSampleLocations + idx,
-                                                                        metaInfo->pSampleLocations->GetMetaStructPointer() + idx,
-                                                                        consumer);
-            }
+            variable_name = GenerateStruct_VkCoarseSampleLocationNV(out,
+                                                                    structInfo->pSampleLocations + idx,
+                                                                    metaInfo->pSampleLocations->GetMetaStructPointer() + idx,
+                                                                    consumer);
             psample_locations_names += variable_name + ", ";
         }
         out << "\t\t" << "VkCoarseSampleLocationNV " << psample_locations_array << "[] = {" << psample_locations_names << "};" << std::endl;
@@ -15285,12 +15135,10 @@ std::string GenerateStruct_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV(
         std::string pcustom_sample_orders_names;
         for (uint32_t idx = 0; idx < structInfo->customSampleOrderCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pCustomSampleOrders + idx != NULL) {
-                variable_name = GenerateStruct_VkCoarseSampleOrderCustomNV(out,
-                                                                           structInfo->pCustomSampleOrders + idx,
-                                                                           metaInfo->pCustomSampleOrders->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkCoarseSampleOrderCustomNV(out,
+                                                                       structInfo->pCustomSampleOrders + idx,
+                                                                       metaInfo->pCustomSampleOrders->GetMetaStructPointer() + idx,
+                                                                       consumer);
             pcustom_sample_orders_names += variable_name + ", ";
         }
         out << "\t\t" << "VkCoarseSampleOrderCustomNV " << pcustom_sample_orders_array << "[] = {" << pcustom_sample_orders_names << "};" << std::endl;
@@ -15317,12 +15165,10 @@ std::string GenerateStruct_VkPipelineViewportShadingRateImageStateCreateInfoNV(s
         std::string pshading_rate_palettes_names;
         for (uint32_t idx = 0; idx < structInfo->viewportCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pShadingRatePalettes + idx != NULL) {
-                variable_name = GenerateStruct_VkShadingRatePaletteNV(out,
-                                                                      structInfo->pShadingRatePalettes + idx,
-                                                                      metaInfo->pShadingRatePalettes->GetMetaStructPointer() + idx,
-                                                                      consumer);
-            }
+            variable_name = GenerateStruct_VkShadingRatePaletteNV(out,
+                                                                  structInfo->pShadingRatePalettes + idx,
+                                                                  metaInfo->pShadingRatePalettes->GetMetaStructPointer() + idx,
+                                                                  consumer);
             pshading_rate_palettes_names += variable_name + ", ";
         }
         out << "\t\t" << "VkShadingRatePaletteNV " << pshading_rate_palettes_array << "[] = {" << pshading_rate_palettes_names << "};" << std::endl;
@@ -15405,12 +15251,10 @@ std::string GenerateStruct_VkAccelerationStructureInfoNV(std::ostream &out, cons
         std::string pgeometries_names;
         for (uint32_t idx = 0; idx < structInfo->geometryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pGeometries + idx != NULL) {
-                variable_name = GenerateStruct_VkGeometryNV(out,
-                                                            structInfo->pGeometries + idx,
-                                                            metaInfo->pGeometries->GetMetaStructPointer() + idx,
-                                                            consumer);
-            }
+            variable_name = GenerateStruct_VkGeometryNV(out,
+                                                        structInfo->pGeometries + idx,
+                                                        metaInfo->pGeometries->GetMetaStructPointer() + idx,
+                                                        consumer);
             pgeometries_names += variable_name + ", ";
         }
         out << "\t\t" << "VkGeometryNV " << pgeometries_array << "[] = {" << pgeometries_names << "};" << std::endl;
@@ -15599,12 +15443,10 @@ std::string GenerateStruct_VkRayTracingPipelineCreateInfoNV(std::ostream &out, c
         std::string pstages_names;
         for (uint32_t idx = 0; idx < structInfo->stageCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStages + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
-                                                                               structInfo->pStages + idx,
-                                                                               metaInfo->pStages->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
+                                                                           structInfo->pStages + idx,
+                                                                           metaInfo->pStages->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstages_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineShaderStageCreateInfo " << pstages_array << "[] = {" << pstages_names << "};" << std::endl;
@@ -15615,12 +15457,10 @@ std::string GenerateStruct_VkRayTracingPipelineCreateInfoNV(std::ostream &out, c
         std::string pgroups_names;
         for (uint32_t idx = 0; idx < structInfo->groupCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pGroups + idx != NULL) {
-                variable_name = GenerateStruct_VkRayTracingShaderGroupCreateInfoNV(out,
-                                                                                   structInfo->pGroups + idx,
-                                                                                   metaInfo->pGroups->GetMetaStructPointer() + idx,
-                                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkRayTracingShaderGroupCreateInfoNV(out,
+                                                                               structInfo->pGroups + idx,
+                                                                               metaInfo->pGroups->GetMetaStructPointer() + idx,
+                                                                               consumer);
             pgroups_names += variable_name + ", ";
         }
         out << "\t\t" << "VkRayTracingShaderGroupCreateInfoNV " << pgroups_array << "[] = {" << pgroups_names << "};" << std::endl;
@@ -16847,12 +16687,10 @@ std::string GenerateStruct_VkGeneratedCommandsInfoNV(std::ostream &out, const Vk
         std::string pstreams_names;
         for (uint32_t idx = 0; idx < structInfo->streamCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStreams + idx != NULL) {
-                variable_name = GenerateStruct_VkIndirectCommandsStreamNV(out,
-                                                                          structInfo->pStreams + idx,
-                                                                          metaInfo->pStreams->GetMetaStructPointer() + idx,
-                                                                          consumer);
-            }
+            variable_name = GenerateStruct_VkIndirectCommandsStreamNV(out,
+                                                                      structInfo->pStreams + idx,
+                                                                      metaInfo->pStreams->GetMetaStructPointer() + idx,
+                                                                      consumer);
             pstreams_names += variable_name + ", ";
         }
         out << "\t\t" << "VkIndirectCommandsStreamNV " << pstreams_array << "[] = {" << pstreams_names << "};" << std::endl;
@@ -16906,12 +16744,10 @@ std::string GenerateStruct_VkGraphicsPipelineShaderGroupsCreateInfoNV(std::ostre
         std::string pgroups_names;
         for (uint32_t idx = 0; idx < structInfo->groupCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pGroups + idx != NULL) {
-                variable_name = GenerateStruct_VkGraphicsShaderGroupCreateInfoNV(out,
-                                                                                 structInfo->pGroups + idx,
-                                                                                 metaInfo->pGroups->GetMetaStructPointer() + idx,
-                                                                                 consumer);
-            }
+            variable_name = GenerateStruct_VkGraphicsShaderGroupCreateInfoNV(out,
+                                                                             structInfo->pGroups + idx,
+                                                                             metaInfo->pGroups->GetMetaStructPointer() + idx,
+                                                                             consumer);
             pgroups_names += variable_name + ", ";
         }
         out << "\t\t" << "VkGraphicsShaderGroupCreateInfoNV " << pgroups_array << "[] = {" << pgroups_names << "};" << std::endl;
@@ -16952,12 +16788,10 @@ std::string GenerateStruct_VkGraphicsShaderGroupCreateInfoNV(std::ostream &out, 
         std::string pstages_names;
         for (uint32_t idx = 0; idx < structInfo->stageCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStages + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
-                                                                               structInfo->pStages + idx,
-                                                                               metaInfo->pStages->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
+                                                                           structInfo->pStages + idx,
+                                                                           metaInfo->pStages->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstages_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineShaderStageCreateInfo " << pstages_array << "[] = {" << pstages_names << "};" << std::endl;
@@ -17001,12 +16835,10 @@ std::string GenerateStruct_VkIndirectCommandsLayoutCreateInfoNV(std::ostream &ou
         std::string ptokens_names;
         for (uint32_t idx = 0; idx < structInfo->tokenCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pTokens + idx != NULL) {
-                variable_name = GenerateStruct_VkIndirectCommandsLayoutTokenNV(out,
-                                                                               structInfo->pTokens + idx,
-                                                                               metaInfo->pTokens->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkIndirectCommandsLayoutTokenNV(out,
+                                                                           structInfo->pTokens + idx,
+                                                                           metaInfo->pTokens->GetMetaStructPointer() + idx,
+                                                                           consumer);
             ptokens_names += variable_name + ", ";
         }
         out << "\t\t" << "VkIndirectCommandsLayoutTokenNV " << ptokens_array << "[] = {" << ptokens_names << "};" << std::endl;
@@ -18083,12 +17915,10 @@ std::string GenerateStruct_VkMutableDescriptorTypeCreateInfoEXT(std::ostream &ou
         std::string pmutable_descriptor_type_lists_names;
         for (uint32_t idx = 0; idx < structInfo->mutableDescriptorTypeListCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pMutableDescriptorTypeLists + idx != NULL) {
-                variable_name = GenerateStruct_VkMutableDescriptorTypeListEXT(out,
-                                                                              structInfo->pMutableDescriptorTypeLists + idx,
-                                                                              metaInfo->pMutableDescriptorTypeLists->GetMetaStructPointer() + idx,
-                                                                              consumer);
-            }
+            variable_name = GenerateStruct_VkMutableDescriptorTypeListEXT(out,
+                                                                          structInfo->pMutableDescriptorTypeLists + idx,
+                                                                          metaInfo->pMutableDescriptorTypeLists->GetMetaStructPointer() + idx,
+                                                                          consumer);
             pmutable_descriptor_type_lists_names += variable_name + ", ";
         }
         out << "\t\t" << "VkMutableDescriptorTypeListEXT " << pmutable_descriptor_type_lists_array << "[] = {" << pmutable_descriptor_type_lists_names << "};" << std::endl;
@@ -18799,12 +18629,10 @@ std::string GenerateStruct_VkAccelerationStructureTrianglesOpacityMicromapEXT(st
         std::string pusage_counts_names;
         for (uint32_t idx = 0; idx < structInfo->usageCountsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pUsageCounts + idx != NULL) {
-                variable_name = GenerateStruct_VkMicromapUsageEXT(out,
-                                                                  structInfo->pUsageCounts + idx,
-                                                                  metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkMicromapUsageEXT(out,
+                                                              structInfo->pUsageCounts + idx,
+                                                              metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
+                                                              consumer);
             pusage_counts_names += variable_name + ", ";
         }
         out << "\t\t" << "VkMicromapUsageEXT " << pusage_counts_array << "[] = {" << pusage_counts_names << "};" << std::endl;
@@ -18899,12 +18727,10 @@ std::string GenerateStruct_VkMicromapBuildInfoEXT(std::ostream &out, const VkMic
         std::string pusage_counts_names;
         for (uint32_t idx = 0; idx < structInfo->usageCountsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pUsageCounts + idx != NULL) {
-                variable_name = GenerateStruct_VkMicromapUsageEXT(out,
-                                                                  structInfo->pUsageCounts + idx,
-                                                                  metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkMicromapUsageEXT(out,
+                                                              structInfo->pUsageCounts + idx,
+                                                              metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
+                                                              consumer);
             pusage_counts_names += variable_name + ", ";
         }
         out << "\t\t" << "VkMicromapUsageEXT " << pusage_counts_array << "[] = {" << pusage_counts_names << "};" << std::endl;
@@ -19067,12 +18893,10 @@ std::string GenerateStruct_VkAccelerationStructureTrianglesDisplacementMicromapN
         std::string pusage_counts_names;
         for (uint32_t idx = 0; idx < structInfo->usageCountsCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pUsageCounts + idx != NULL) {
-                variable_name = GenerateStruct_VkMicromapUsageEXT(out,
-                                                                  structInfo->pUsageCounts + idx,
-                                                                  metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
-                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkMicromapUsageEXT(out,
+                                                              structInfo->pUsageCounts + idx,
+                                                              metaInfo->pUsageCounts->GetMetaStructPointer() + idx,
+                                                              consumer);
             pusage_counts_names += variable_name + ", ";
         }
         out << "\t\t" << "VkMicromapUsageEXT " << pusage_counts_array << "[] = {" << pusage_counts_names << "};" << std::endl;
@@ -19427,12 +19251,10 @@ std::string GenerateStruct_VkRenderPassStripeBeginInfoARM(std::ostream &out, con
         std::string pstripe_infos_names;
         for (uint32_t idx = 0; idx < structInfo->stripeInfoCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStripeInfos + idx != NULL) {
-                variable_name = GenerateStruct_VkRenderPassStripeInfoARM(out,
-                                                                         structInfo->pStripeInfos + idx,
-                                                                         metaInfo->pStripeInfos->GetMetaStructPointer() + idx,
-                                                                         consumer);
-            }
+            variable_name = GenerateStruct_VkRenderPassStripeInfoARM(out,
+                                                                     structInfo->pStripeInfos + idx,
+                                                                     metaInfo->pStripeInfos->GetMetaStructPointer() + idx,
+                                                                     consumer);
             pstripe_infos_names += variable_name + ", ";
         }
         out << "\t\t" << "VkRenderPassStripeInfoARM " << pstripe_infos_array << "[] = {" << pstripe_infos_names << "};" << std::endl;
@@ -19476,12 +19298,10 @@ std::string GenerateStruct_VkRenderPassStripeSubmitInfoARM(std::ostream &out, co
         std::string pstripe_semaphore_infos_names;
         for (uint32_t idx = 0; idx < structInfo->stripeSemaphoreInfoCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStripeSemaphoreInfos + idx != NULL) {
-                variable_name = GenerateStruct_VkSemaphoreSubmitInfo(out,
-                                                                     structInfo->pStripeSemaphoreInfos + idx,
-                                                                     metaInfo->pStripeSemaphoreInfos->GetMetaStructPointer() + idx,
-                                                                     consumer);
-            }
+            variable_name = GenerateStruct_VkSemaphoreSubmitInfo(out,
+                                                                 structInfo->pStripeSemaphoreInfos + idx,
+                                                                 metaInfo->pStripeSemaphoreInfos->GetMetaStructPointer() + idx,
+                                                                 consumer);
             pstripe_semaphore_infos_names += variable_name + ", ";
         }
         out << "\t\t" << "VkSemaphoreSubmitInfo " << pstripe_semaphore_infos_array << "[] = {" << pstripe_semaphore_infos_names << "};" << std::endl;
@@ -19539,12 +19359,10 @@ std::string GenerateStruct_VkRenderPassFragmentDensityMapOffsetEndInfoEXT(std::o
         std::string pfragment_density_offsets_names;
         for (uint32_t idx = 0; idx < structInfo->fragmentDensityOffsetCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pFragmentDensityOffsets + idx != NULL) {
-                variable_name = GenerateStruct_VkOffset2D(out,
-                                                          structInfo->pFragmentDensityOffsets + idx,
-                                                          metaInfo->pFragmentDensityOffsets->GetMetaStructPointer() + idx,
-                                                          consumer);
-            }
+            variable_name = GenerateStruct_VkOffset2D(out,
+                                                      structInfo->pFragmentDensityOffsets + idx,
+                                                      metaInfo->pFragmentDensityOffsets->GetMetaStructPointer() + idx,
+                                                      consumer);
             pfragment_density_offsets_names += variable_name + ", ";
         }
         out << "\t\t" << "VkOffset2D " << pfragment_density_offsets_array << "[] = {" << pfragment_density_offsets_names << "};" << std::endl;
@@ -20030,12 +19848,10 @@ std::string GenerateStruct_VkDirectDriverLoadingListLUNARG(std::ostream &out, co
         std::string pdrivers_names;
         for (uint32_t idx = 0; idx < structInfo->driverCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pDrivers + idx != NULL) {
-                variable_name = GenerateStruct_VkDirectDriverLoadingInfoLUNARG(out,
-                                                                               structInfo->pDrivers + idx,
-                                                                               metaInfo->pDrivers->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkDirectDriverLoadingInfoLUNARG(out,
+                                                                           structInfo->pDrivers + idx,
+                                                                           metaInfo->pDrivers->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pdrivers_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDirectDriverLoadingInfoLUNARG " << pdrivers_array << "[] = {" << pdrivers_names << "};" << std::endl;
@@ -20428,12 +20244,10 @@ std::string GenerateStruct_VkShaderCreateInfoEXT(std::ostream &out, const VkShad
         std::string ppush_constant_ranges_names;
         for (uint32_t idx = 0; idx < structInfo->pushConstantRangeCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPushConstantRanges + idx != NULL) {
-                variable_name = GenerateStruct_VkPushConstantRange(out,
-                                                                   structInfo->pPushConstantRanges + idx,
-                                                                   metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkPushConstantRange(out,
+                                                               structInfo->pPushConstantRanges + idx,
+                                                               metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
+                                                               consumer);
             ppush_constant_ranges_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPushConstantRange " << ppush_constant_ranges_array << "[] = {" << ppush_constant_ranges_names << "};" << std::endl;
@@ -20748,12 +20562,10 @@ std::string GenerateStruct_VkLayerSettingsCreateInfoEXT(std::ostream &out, const
         std::string psettings_names;
         for (uint32_t idx = 0; idx < structInfo->settingCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSettings + idx != NULL) {
-                variable_name = GenerateStruct_VkLayerSettingEXT(out,
-                                                                 structInfo->pSettings + idx,
-                                                                 metaInfo->pSettings->GetMetaStructPointer() + idx,
-                                                                 consumer);
-            }
+            variable_name = GenerateStruct_VkLayerSettingEXT(out,
+                                                             structInfo->pSettings + idx,
+                                                             metaInfo->pSettings->GetMetaStructPointer() + idx,
+                                                             consumer);
             psettings_names += variable_name + ", ";
         }
         out << "\t\t" << "VkLayerSettingEXT " << psettings_array << "[] = {" << psettings_names << "};" << std::endl;
@@ -20837,12 +20649,10 @@ std::string GenerateStruct_VkGetLatencyMarkerInfoNV(std::ostream &out, const VkG
         std::string ptimings_names;
         for (uint32_t idx = 0; idx < structInfo->timingCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pTimings + idx != NULL) {
-                variable_name = GenerateStruct_VkLatencyTimingsFrameReportNV(out,
-                                                                             structInfo->pTimings + idx,
-                                                                             metaInfo->pTimings->GetMetaStructPointer() + idx,
-                                                                             consumer);
-            }
+            variable_name = GenerateStruct_VkLatencyTimingsFrameReportNV(out,
+                                                                         structInfo->pTimings + idx,
+                                                                         metaInfo->pTimings->GetMetaStructPointer() + idx,
+                                                                         consumer);
             ptimings_names += variable_name + ", ";
         }
         out << "\t\t" << "VkLatencyTimingsFrameReportNV " << ptimings_array << "[] = {" << ptimings_names << "};" << std::endl;
@@ -21306,12 +21116,10 @@ std::string GenerateStruct_VkDecompressMemoryInfoEXT(std::ostream &out, const Vk
         std::string pregions_names;
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL) {
-                variable_name = GenerateStruct_VkDecompressMemoryRegionEXT(out,
-                                                                           structInfo->pRegions + idx,
-                                                                           metaInfo->pRegions->GetMetaStructPointer() + idx,
-                                                                           consumer);
-            }
+            variable_name = GenerateStruct_VkDecompressMemoryRegionEXT(out,
+                                                                       structInfo->pRegions + idx,
+                                                                       metaInfo->pRegions->GetMetaStructPointer() + idx,
+                                                                       consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t" << "VkDecompressMemoryRegionEXT " << pregions_array << "[] = {" << pregions_names << "};" << std::endl;
@@ -21841,12 +21649,10 @@ std::string GenerateStruct_VkIndirectCommandsLayoutCreateInfoEXT(std::ostream &o
         std::string ptokens_names;
         for (uint32_t idx = 0; idx < structInfo->tokenCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pTokens + idx != NULL) {
-                variable_name = GenerateStruct_VkIndirectCommandsLayoutTokenEXT(out,
-                                                                                structInfo->pTokens + idx,
-                                                                                metaInfo->pTokens->GetMetaStructPointer() + idx,
-                                                                                consumer);
-            }
+            variable_name = GenerateStruct_VkIndirectCommandsLayoutTokenEXT(out,
+                                                                            structInfo->pTokens + idx,
+                                                                            metaInfo->pTokens->GetMetaStructPointer() + idx,
+                                                                            consumer);
             ptokens_names += variable_name + ", ";
         }
         out << "\t\t" << "VkIndirectCommandsLayoutTokenEXT " << ptokens_array << "[] = {" << ptokens_names << "};" << std::endl;
@@ -21930,12 +21736,10 @@ std::string GenerateStruct_VkIndirectExecutionSetShaderInfoEXT(std::ostream &out
         std::string pset_layout_infos_names;
         for (uint32_t idx = 0; idx < structInfo->shaderCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pSetLayoutInfos + idx != NULL) {
-                variable_name = GenerateStruct_VkIndirectExecutionSetShaderLayoutInfoEXT(out,
-                                                                                         structInfo->pSetLayoutInfos + idx,
-                                                                                         metaInfo->pSetLayoutInfos->GetMetaStructPointer() + idx,
-                                                                                         consumer);
-            }
+            variable_name = GenerateStruct_VkIndirectExecutionSetShaderLayoutInfoEXT(out,
+                                                                                     structInfo->pSetLayoutInfos + idx,
+                                                                                     metaInfo->pSetLayoutInfos->GetMetaStructPointer() + idx,
+                                                                                     consumer);
             pset_layout_infos_names += variable_name + ", ";
         }
         out << "\t\t" << "VkIndirectExecutionSetShaderLayoutInfoEXT " << pset_layout_infos_array << "[] = {" << pset_layout_infos_names << "};" << std::endl;
@@ -21946,12 +21750,10 @@ std::string GenerateStruct_VkIndirectExecutionSetShaderInfoEXT(std::ostream &out
         std::string ppush_constant_ranges_names;
         for (uint32_t idx = 0; idx < structInfo->pushConstantRangeCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pPushConstantRanges + idx != NULL) {
-                variable_name = GenerateStruct_VkPushConstantRange(out,
-                                                                   structInfo->pPushConstantRanges + idx,
-                                                                   metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
-                                                                   consumer);
-            }
+            variable_name = GenerateStruct_VkPushConstantRange(out,
+                                                               structInfo->pPushConstantRanges + idx,
+                                                               metaInfo->pPushConstantRanges->GetMetaStructPointer() + idx,
+                                                               consumer);
             ppush_constant_ranges_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPushConstantRange " << ppush_constant_ranges_array << "[] = {" << ppush_constant_ranges_names << "};" << std::endl;
@@ -22683,12 +22485,10 @@ std::string GenerateStruct_VkAccelerationStructureBuildGeometryInfoKHR(std::ostr
         std::string pgeometries_names;
         for (uint32_t idx = 0; idx < structInfo->geometryCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pGeometries + idx != NULL) {
-                variable_name = GenerateStruct_VkAccelerationStructureGeometryKHR(out,
-                                                                                  structInfo->pGeometries + idx,
-                                                                                  metaInfo->pGeometries->GetMetaStructPointer() + idx,
-                                                                                  consumer);
-            }
+            variable_name = GenerateStruct_VkAccelerationStructureGeometryKHR(out,
+                                                                              structInfo->pGeometries + idx,
+                                                                              metaInfo->pGeometries->GetMetaStructPointer() + idx,
+                                                                              consumer);
             pgeometries_names += variable_name + ", ";
         }
         out << "\t\t" << "VkAccelerationStructureGeometryKHR " << pgeometries_array << "[] = {" << pgeometries_names << "};" << std::endl;
@@ -23008,12 +22808,10 @@ std::string GenerateStruct_VkRayTracingPipelineCreateInfoKHR(std::ostream &out, 
         std::string pstages_names;
         for (uint32_t idx = 0; idx < structInfo->stageCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pStages + idx != NULL) {
-                variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
-                                                                               structInfo->pStages + idx,
-                                                                               metaInfo->pStages->GetMetaStructPointer() + idx,
-                                                                               consumer);
-            }
+            variable_name = GenerateStruct_VkPipelineShaderStageCreateInfo(out,
+                                                                           structInfo->pStages + idx,
+                                                                           metaInfo->pStages->GetMetaStructPointer() + idx,
+                                                                           consumer);
             pstages_names += variable_name + ", ";
         }
         out << "\t\t" << "VkPipelineShaderStageCreateInfo " << pstages_array << "[] = {" << pstages_names << "};" << std::endl;
@@ -23024,12 +22822,10 @@ std::string GenerateStruct_VkRayTracingPipelineCreateInfoKHR(std::ostream &out, 
         std::string pgroups_names;
         for (uint32_t idx = 0; idx < structInfo->groupCount; idx++) {
             std::string variable_name = "NULL";
-            if (structInfo->pGroups + idx != NULL) {
-                variable_name = GenerateStruct_VkRayTracingShaderGroupCreateInfoKHR(out,
-                                                                                    structInfo->pGroups + idx,
-                                                                                    metaInfo->pGroups->GetMetaStructPointer() + idx,
-                                                                                    consumer);
-            }
+            variable_name = GenerateStruct_VkRayTracingShaderGroupCreateInfoKHR(out,
+                                                                                structInfo->pGroups + idx,
+                                                                                metaInfo->pGroups->GetMetaStructPointer() + idx,
+                                                                                consumer);
             pgroups_names += variable_name + ", ";
         }
         out << "\t\t" << "VkRayTracingShaderGroupCreateInfoKHR " << pgroups_array << "[] = {" << pgroups_names << "};" << std::endl;

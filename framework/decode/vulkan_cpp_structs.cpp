@@ -427,14 +427,11 @@ std::string GenerateStruct_VkSubmitInfo2(std::ostream&                        ou
         for (uint32_t idx = 0; idx < structInfo->commandBufferInfoCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pCommandBufferInfos + idx != NULL)
-            {
-                variable_name = GenerateStruct_VkCommandBufferSubmitInfo(
-                    out,
-                    structInfo->pCommandBufferInfos + idx,
-                    metaInfo->pCommandBufferInfos->GetMetaStructPointer() + idx,
-                    consumer);
-            }
+            variable_name =
+                GenerateStruct_VkCommandBufferSubmitInfo(out,
+                                                         structInfo->pCommandBufferInfos + idx,
+                                                         metaInfo->pCommandBufferInfos->GetMetaStructPointer() + idx,
+                                                         consumer);
             command_buffer_infos_names += variable_name + ", ";
         }
         out << "\t\t"
@@ -517,14 +514,8 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream&                       
         for (uint32_t idx = 0; idx < structInfo->bufferBindCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pBufferBinds + idx != NULL)
-            {
-                variable_name =
-                    GenerateStruct_VkSparseBufferMemoryBindInfo(out,
-                                                                structInfo->pBufferBinds + idx,
-                                                                metaInfo->pBufferBinds->GetMetaStructPointer() + idx,
-                                                                consumer);
-            }
+            variable_name             = GenerateStruct_VkSparseBufferMemoryBindInfo(
+                out, structInfo->pBufferBinds + idx, metaInfo->pBufferBinds->GetMetaStructPointer() + idx, consumer);
             buffer_binds_names += variable_name + ", ";
         }
         out << "\t\t"
@@ -539,14 +530,11 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream&                       
         for (uint32_t idx = 0; idx < structInfo->imageOpaqueBindCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pImageOpaqueBinds + idx != NULL)
-            {
-                variable_name = GenerateStruct_VkSparseImageOpaqueMemoryBindInfo(
-                    out,
-                    structInfo->pImageOpaqueBinds + idx,
-                    metaInfo->pImageOpaqueBinds->GetMetaStructPointer() + idx,
-                    consumer);
-            }
+            variable_name             = GenerateStruct_VkSparseImageOpaqueMemoryBindInfo(
+                out,
+                structInfo->pImageOpaqueBinds + idx,
+                metaInfo->pImageOpaqueBinds->GetMetaStructPointer() + idx,
+                consumer);
             image_opaque_binds_names += variable_name + ", ";
         }
         out << "\t\t"
@@ -561,11 +549,8 @@ std::string GenerateStruct_VkBindSparseInfo(std::ostream&                       
         for (uint32_t idx = 0; idx < structInfo->imageBindCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pImageBinds + idx != NULL)
-            {
-                variable_name = GenerateStruct_VkSparseImageMemoryBindInfo(
-                    out, structInfo->pImageBinds + idx, metaInfo->pImageBinds->GetMetaStructPointer() + idx, consumer);
-            }
+            variable_name             = GenerateStruct_VkSparseImageMemoryBindInfo(
+                out, structInfo->pImageBinds + idx, metaInfo->pImageBinds->GetMetaStructPointer() + idx, consumer);
             image_binds_names += variable_name + ", ";
         }
         out << "\t\t"
@@ -1324,11 +1309,8 @@ std::string GenerateStruct_VkCopyMemoryToImageInfo(std::ostream&                
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL)
-            {
-                variable_name = GenerateStruct_VkMemoryToImageCopy(
-                    out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
-            }
+            variable_name             = GenerateStruct_VkMemoryToImageCopy(
+                out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t"
@@ -1415,11 +1397,8 @@ std::string GenerateStruct_VkCopyImageToMemoryInfo(std::ostream&                
         for (uint32_t idx = 0; idx < structInfo->regionCount; idx++)
         {
             std::string variable_name = "NULL";
-            if (structInfo->pRegions + idx != NULL)
-            {
-                variable_name = GenerateStruct_VkImageToMemoryCopy(
-                    out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
-            }
+            variable_name             = GenerateStruct_VkImageToMemoryCopy(
+                out, structInfo->pRegions + idx, metaInfo->pRegions->GetMetaStructPointer() + idx, consumer);
             pregions_names += variable_name + ", ";
         }
         out << "\t\t"
