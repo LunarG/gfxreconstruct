@@ -260,8 +260,7 @@ std::string GetJsonValue(const nlohmann::json& json_obj, const std::string& key)
     return out;
 }
 
-void PrintAnnotations(uint32_t                          annotation_count,
-                      const std::vector<std::string>&   operation_annotation_datas,
+void PrintAnnotations(const std::vector<std::string>&   operation_annotation_datas,
                       const std::vector<AnnotationInfo> target_annotations)
 {
     std::vector<AnnotationInfo> all_annotation_infos;
@@ -271,29 +270,23 @@ void PrintAnnotations(uint32_t                          annotation_count,
     {
         std::vector<std::string> annotations;
 
-        if (annotation_count > 0)
+        // Inspect annotations spotted in the capture file
+        for (const auto& operation : operation_annotation_datas)
         {
-            if (operation_annotation_datas.size() > 0)
+            nlohmann::json json_obj = nlohmann::json::parse(operation);
+
+            if (json_obj.is_discarded())
             {
-                // Inspect annotations spotted in the capture file
-                for (const auto& operation : operation_annotation_datas)
-                {
-                    nlohmann::json json_obj = nlohmann::json::parse(operation);
+                GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", operation.c_str());
+                continue;
+            }
 
-                    if (json_obj.is_discarded())
-                    {
-                        GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", operation.c_str());
-                        continue;
-                    }
+            // If a target annotation, cache it
+            std::string annotation = GetJsonValue(json_obj, target_annotation.data);
 
-                    // If a target annotation, cache it
-                    std::string annotation = GetJsonValue(json_obj, target_annotation.data);
-
-                    if (!annotation.empty())
-                    {
-                        annotations.push_back(annotation);
-                    }
-                }
+            if (!annotation.empty())
+            {
+                annotations.push_back(annotation);
             }
         }
 
@@ -991,9 +984,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
             }
 #endif
 
-            PrintAnnotations(annotation_recorder.GetAnnotationCount(),
-                             annotation_recorder.GetOperationAnnotationDatas(),
-                             target_annotations);
+            PrintAnnotations(annotation_recorder.GetOperationAnnotationDatas(), target_annotations);
         }
         else
         {
