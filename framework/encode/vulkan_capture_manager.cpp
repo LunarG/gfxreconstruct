@@ -1084,7 +1084,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
 
     bool                   uses_address         = false;
     VkMemoryAllocateFlags* modified_alloc_flags = nullptr;
-    VkMemoryAllocateFlags  incoming_alloc_flags;
+    VkMemoryAllocateFlags  incoming_alloc_flags{};
     if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
         if (auto alloc_flags_info =

@@ -77,7 +77,7 @@ class KhronosDecoderBodyGenerator():
                 has_base_header_to_peak = True
                 is_base_header_value    = True
                 decode_type = self.make_decoded_param_type(value)
-                main_body += '    {}* {};\n'.format(decode_type, value.name)
+                main_body += '    {}* {} = nullptr;\n'.format(decode_type, value.name)
                 main_body += '    {} {};\n'.format(decode_type, self.make_simple_var_name(value.base_type))
                 for child in self.children_structs[value.base_type]:
                     new_value = deepcopy(value)

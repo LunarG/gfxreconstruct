@@ -1247,7 +1247,7 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         eventData->IsNull() ? nullptr : eventData->AllocateOutputData(1, { XR_TYPE_EVENT_DATA_BUFFER, nullptr });
     InitializeOutputStructNext(eventData);
 
-    XrResult               replay_result;
+    XrResult               replay_result{};
     bool                   assert_on_difference = true;
     EventBehaviorTracking& behavior_tracking    = event_behavior_tracking_[capture_event->type];
 

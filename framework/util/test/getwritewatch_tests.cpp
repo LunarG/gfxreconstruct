@@ -272,7 +272,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource D3D12_HEAP_TYPE_DEFAULT flag", "[
                                                    reinterpret_cast<void**>(&dx12_buffer));
         REQUIRE(result == S_OK);
 
-        UINT8*      data_begin;
+        UINT8*      data_begin = nullptr;
         D3D12_RANGE read_range{ 0, 0 };
         result = dx12_buffer->Map(0, &read_range, reinterpret_cast<void**>(&data_begin));
         REQUIRE(result == S_OK);

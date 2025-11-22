@@ -1123,7 +1123,7 @@ size_t OpenXrDecoder::Decode_xrApplyHapticFeedback(const ApiCallInfo& call_info,
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrHapticActionInfo> hapticActionInfo;
-    StructPointerDecoder<Decoded_XrHapticBaseHeader>* hapticFeedback;
+    StructPointerDecoder<Decoded_XrHapticBaseHeader>* hapticFeedback = nullptr;
     StructPointerDecoder<Decoded_XrHapticBaseHeader> haptic_base_header;
     StructPointerDecoder<Decoded_XrHapticVibration> haptic_vibration;
     StructPointerDecoder<Decoded_XrHapticAmplitudeEnvelopeVibrationFB> haptic_amplitude_envelope_vibration_fb;
@@ -1632,7 +1632,7 @@ size_t OpenXrDecoder::Decode_xrInitializeLoaderKHR(const ApiCallInfo& call_info,
 {
     size_t bytes_read = 0;
 
-    StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo;
+    StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo = nullptr;
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR> loader_init_info_base_header_khr;
     StructPointerDecoder<Decoded_XrLoaderInitInfoAndroidKHR> loader_init_info_android_khr;
     XrResult return_value;
@@ -2524,7 +2524,7 @@ size_t OpenXrDecoder::Decode_xrUpdateSwapchainFB(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId swapchain;
-    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state = nullptr;
     StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> swapchain_state_base_header_fb;
     StructPointerDecoder<Decoded_XrSwapchainStateFoveationFB> swapchain_state_foveation_fb;
     StructPointerDecoder<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB> swapchain_state_android_surface_dimensions_fb;
@@ -2586,7 +2586,7 @@ size_t OpenXrDecoder::Decode_xrGetSwapchainStateFB(const ApiCallInfo& call_info,
     size_t bytes_read = 0;
 
     format::HandleId swapchain;
-    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state = nullptr;
     StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> swapchain_state_base_header_fb;
     StructPointerDecoder<Decoded_XrSwapchainStateFoveationFB> swapchain_state_foveation_fb;
     StructPointerDecoder<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB> swapchain_state_android_surface_dimensions_fb;
@@ -4536,7 +4536,7 @@ size_t OpenXrDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const
     size_t bytes_read = 0;
 
     format::HandleId session;
-    StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB>* info;
+    StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB>* info = nullptr;
     StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB> space_query_info_base_header_fb;
     StructPointerDecoder<Decoded_XrSpaceQueryInfoFB> space_query_info_fb;
     HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
@@ -5821,7 +5821,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateEnvironmentDepthSwapchainImagesMETA(cons
     format::HandleId swapchain;
     uint32_t imageCapacityInput;
     PointerDecoder<uint32_t> imageCountOutput;
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images = nullptr;
     StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader> swapchain_image_base_header;
     StructPointerDecoder<Decoded_XrSwapchainImageOpenGLKHR> swapchain_image_open_glkhr;
     StructPointerDecoder<Decoded_XrSwapchainImageOpenGLESKHR> swapchain_image_open_gleskhr;

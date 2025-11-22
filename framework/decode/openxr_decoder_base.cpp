@@ -105,7 +105,7 @@ size_t OpenXrDecoderBase::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& c
     StructPointerDecoder<Decoded_XrSwapchainImageD3D11KHR>    d3d11_images;
     StructPointerDecoder<Decoded_XrSwapchainImageD3D12KHR>    d3d12_images;
     StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>  base_images;
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* image_ptr;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* image_ptr = nullptr;
     XrResult                                                  return_value;
 
     bytes_read +=
