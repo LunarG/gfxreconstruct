@@ -79,7 +79,10 @@ static bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
     {
         return decoder.SupportsMetaDataId(args.meta_data_id);
     }
-    return true;
+    else
+    {
+        return true;
+    }
 }
 
 template <typename Args>

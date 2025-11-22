@@ -628,13 +628,13 @@ HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList(ID3D12CommandQueue* q
     return dx12::WaitForQueue(command_queue, command_fence_, ++fence_value_);
 
     // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident.
-    for (auto resource : resident_resources)
-    {
-        if (!SUCCEEDED(device_->Evict(1, &resource)))
-        {
-            GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
-        }
-    }
+    // for (auto resource : resident_resources)
+    // {
+    //     if (!SUCCEEDED(device_->Evict(1, &resource)))
+    //     {
+    //         GFXRECON_LOG_WARNING("Failed to evict resource after copying resource data.");
+    //     }
+    // }
 }
 
 HRESULT Dx12ResourceDataUtil::CloseCommandList()

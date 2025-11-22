@@ -263,7 +263,6 @@ bool MakeDirectory(const std::string& path)
 #else
     return mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX) == 0;
 #endif
-    return false;
 }
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt)

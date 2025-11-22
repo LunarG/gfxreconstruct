@@ -619,8 +619,9 @@ bool CommonCaptureManager::IsCaptureSkippingCurrentThread() const
 {
 #if ENABLE_OPENXR_SUPPORT
     return GetSkipThreadsWithInvalidData() && thread_data_ && thread_data_->SkipCurrentThread();
-#endif
+#else
     return false;
+#endif
 }
 
 bool CommonCaptureManager::IsCaptureModeTrack() const

@@ -43,7 +43,10 @@ BlockBuffer::BlockSpan ParsedBlock::GetCompressedSpan(Args& args)
         GFXRECON_ASSERT(offset <= block_data_.size());
         return block_data_.AsSpan(offset);
     }
-    return BlockBuffer::BlockSpan();
+    else
+    {
+        return BlockBuffer::BlockSpan();
+    }
 }
 
 template <typename Args>
@@ -57,7 +60,10 @@ BlockBuffer::BlockSpan::size_type ParsedBlock::GetUncompressedSize(Args& args)
     {
         return args.command_header.data_size;
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
 }
 
 void ParsedBlock::Decompress(BlockParser& parser)
