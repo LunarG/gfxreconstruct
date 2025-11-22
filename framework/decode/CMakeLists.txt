@@ -351,8 +351,11 @@ target_include_directories(gfxrecon_decode
                                PUBLIC
                                    ${CMAKE_BINARY_DIR}
                                    ${PROJECT_SOURCE_DIR}/framework
-                                   ${PROJECT_SOURCE_DIR}/external
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                                   ${PROJECT_SOURCE_DIR}/external)
+
+if (D3D12_SUPPORT)
+    target_include_directories(gfxrecon_decode SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 
 if (WIN32)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)

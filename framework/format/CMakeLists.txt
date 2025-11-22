@@ -42,8 +42,10 @@ target_sources(gfxrecon_format
 
 target_include_directories(gfxrecon_format
                            PUBLIC
-                               ${PROJECT_SOURCE_DIR}/framework
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                               ${PROJECT_SOURCE_DIR}/framework)
+if (D3D12_SUPPORT)
+    target_include_directories(gfxrecon_format SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 
 target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 

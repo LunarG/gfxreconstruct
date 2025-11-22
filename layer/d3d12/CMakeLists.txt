@@ -38,8 +38,10 @@ target_sources(d3d12 PRIVATE
 target_include_directories(d3d12
                            PUBLIC
                                 ${CMAKE_BINARY_DIR}
-                                ${PROJECT_SOURCE_DIR}
-                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                                ${PROJECT_SOURCE_DIR})
+if (D3D12_SUPPORT)
+    target_include_directories(d3d12 SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 
 target_link_libraries(d3d12 gfxrecon_encode gfxrecon_util ${LINK_D3D12_OUTPUT})
 common_build_directives(d3d12)

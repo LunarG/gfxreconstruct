@@ -178,8 +178,10 @@ endif()
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_BINARY_DIR}
-                               ${PROJECT_SOURCE_DIR}/framework
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                               ${PROJECT_SOURCE_DIR}/framework)
+if (D3D12_SUPPORT)
+    target_include_directories(gfxrecon_encode SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 
 target_link_libraries(gfxrecon_encode
                       gfxrecon_graphics

@@ -132,8 +132,10 @@ target_sources(gfxrecon_util
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               ${PROJECT_SOURCE_DIR}/framework
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                               ${PROJECT_SOURCE_DIR}/framework)
+if (D3D12_SUPPORT)
+    target_include_directories(gfxrecon_util SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 

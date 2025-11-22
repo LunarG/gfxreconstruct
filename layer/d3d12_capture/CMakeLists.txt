@@ -32,11 +32,13 @@ target_sources(d3d12_capture PRIVATE
                 ${CMAKE_CURRENT_LIST_DIR}/d3d12_capture.def
                 $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>)
 
-target_include_directories(d3d12_capture 
-                           PUBLIC 
-                               ${CMAKE_BINARY_DIR} 
-                               ${PROJECT_SOURCE_DIR}
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+target_include_directories(d3d12_capture
+                           PUBLIC
+                               ${CMAKE_BINARY_DIR}
+                               ${PROJECT_SOURCE_DIR})
+if (D3D12_SUPPORT)
+    target_include_directories(d3d12_capture SYSTEM PUBLIC ${D3D12_INCLUDE_DIRECTORIES})
+endif()
 
 target_link_libraries(d3d12_capture gfxrecon_encode gfxrecon_format gfxrecon_util platform_specific)
 common_build_directives(d3d12_capture)
