@@ -54,8 +54,9 @@ target_link_libraries(gfxrecon-replay
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
-
-target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
+if (NOT MSVC)
+    target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
+endif()
 
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
