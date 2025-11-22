@@ -47,7 +47,7 @@ static const char* kVDROptionBinaryFileCompressionType = "BinaryFileCompressionT
 static const char* kVDROptionDumpBuildAccelerationStructuresInputBuffers =
     "DumpBuildAccelerationStructuresInputBuffers";
 
-static const char* ImageFormatToString(gfxrecon::util::ScreenshotFormat format)
+inline const char* ImageFormatToString(gfxrecon::util::ScreenshotFormat format)
 {
     switch (format)
     {

@@ -140,7 +140,7 @@ struct GUID
     UINT8  Data4[8];
 };
 
-static bool operator==(GUID guid1, GUID guid2)
+inline bool operator==(GUID guid1, GUID guid2)
 {
     return !memcmp(&guid1, &guid2, sizeof(GUID));
 }
@@ -336,7 +336,7 @@ extern "C"
     typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(
         VkDevice device, const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo, struct AHardwareBuffer** pBuffer);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance,
                                                                     const VkAndroidSurfaceCreateInfoKHR*,
                                                                     const VkAllocationCallbacks*,
                                                                     VkSurfaceKHR*)
@@ -345,7 +345,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
         VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*)
     {
         GFXRECON_LOG_ERROR(
@@ -353,7 +353,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
         VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
@@ -439,7 +439,7 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetSemaphoreZirconHandleFUCHSIA)(
 
 extern "C"
 {
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
                                                                           const VkImagePipeSurfaceCreateInfoFUCHSIA*,
                                                                           const VkAllocationCallbacks*,
                                                                           VkSurfaceKHR*)
@@ -448,14 +448,14 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryZirconHandleFUCHSIA(
         VkDevice device, const VkMemoryGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryZirconHandleFUCHSIA");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL
+    inline VKAPI_ATTR VkResult VKAPI_CALL
     vkGetMemoryZirconHandlePropertiesFUCHSIA(VkDevice                               device,
                                              VkExternalMemoryHandleTypeFlagBits     handleType,
                                              zx_handle_t                            zirconHandle,
@@ -465,14 +465,14 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreZirconHandleFUCHSIA(
         VkDevice device, const VkImportSemaphoreZirconHandleInfoFUCHSIA* pImportSemaphoreZirconHandleInfo)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreZirconHandleFUCHSIA");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreZirconHandleFUCHSIA(
         VkDevice device, const VkSemaphoreGetZirconHandleInfoFUCHSIA* pGetZirconHandleInfo, zx_handle_t* pZirconHandle)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreZirconHandleFUCHSIA");
@@ -501,7 +501,7 @@ extern "C"
                                                            const VkAllocationCallbacks*     pAllocator,
                                                            VkSurfaceKHR*                    pSurface);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance,
                                                                 const VkIOSSurfaceCreateInfoMVK*,
                                                                 const VkAllocationCallbacks*,
                                                                 VkSurfaceKHR*)
@@ -532,7 +532,7 @@ extern "C"
                                                              const VkAllocationCallbacks*       pAllocator,
                                                              VkSurfaceKHR*                      pSurface);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
                                                                   const VkMacOSSurfaceCreateInfoMVK*,
                                                                   const VkAllocationCallbacks*,
                                                                   VkSurfaceKHR*)
@@ -597,7 +597,7 @@ extern "C"
         const void*                        pHandle,
         VkMemoryMetalHandlePropertiesEXT*  pMemoryMetalHandleProperties);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
                                                                   const VkMetalSurfaceCreateInfoEXT*,
                                                                   const VkAllocationCallbacks*,
                                                                   VkSurfaceKHR*)
@@ -635,7 +635,7 @@ extern "C"
                                                                                   uint32_t         queueFamilyIndex,
                                                                                   MirConnection*   connection);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMirSurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateMirSurfaceKHR(VkInstance,
                                                                 const VkMirSurfaceCreateInfoKHR*,
                                                                 const VkAllocationCallbacks*,
                                                                 VkSurfaceKHR*)
@@ -644,7 +644,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice,
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice,
                                                                                        uint32_t,
                                                                                        MirConnection*)
     {
@@ -675,7 +675,7 @@ extern "C"
                                                          const VkAllocationCallbacks*   pAllocator,
                                                          VkSurfaceKHR*                  pSurface);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance,
                                                               const VkViSurfaceCreateInfoNN*,
                                                               const VkAllocationCallbacks*,
                                                               VkSurfaceKHR*)
@@ -712,7 +712,7 @@ extern "C"
     typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
                                                                                       uint32_t         queueFamilyIndex,
                                                                                       struct wl_display* display);
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance,
                                                                     const VkWaylandSurfaceCreateInfoKHR*,
                                                                     const VkAllocationCallbacks*,
                                                                     VkSurfaceKHR*)
@@ -721,7 +721,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice,
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice,
                                                                                            uint32_t,
                                                                                            struct wl_display*)
     {
@@ -964,7 +964,7 @@ extern "C"
                                                          uint32_t         deviceRelativeId,
                                                          VkDisplayKHR*    pDisplay);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
                                                                   const VkWin32SurfaceCreateInfoKHR*,
                                                                   const VkAllocationCallbacks*,
                                                                   VkSurfaceKHR*)
@@ -973,14 +973,14 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
     {
         GFXRECON_LOG_ERROR(
             "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
         return VK_FALSE;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(
         VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*)
     {
         GFXRECON_LOG_ERROR(
@@ -988,28 +988,28 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
     {
         // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
         GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkAcquireFullScreenExclusiveModeEXT");
         return VK_SUCCESS;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
     {
         // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
         GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkReleaseFullScreenExclusiveModeEXT");
         return VK_SUCCESS;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(
         VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetDeviceGroupSurfacePresentModes2EXT");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice,
                                                                     const VkMemoryGetWin32HandleInfoKHR*,
                                                                     HANDLE*)
     {
@@ -1017,7 +1017,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice,
                                                                               VkExternalMemoryHandleTypeFlagBits,
                                                                               HANDLE,
                                                                               VkMemoryWin32HandlePropertiesKHR*)
@@ -1026,14 +1026,14 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice,
                                                                           const VkImportSemaphoreWin32HandleInfoKHR*)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice,
                                                                        const VkSemaphoreGetWin32HandleInfoKHR*,
                                                                        HANDLE*)
     {
@@ -1041,13 +1041,13 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice,
                                                                    const VkFenceGetWin32HandleInfoKHR*,
                                                                    HANDLE*)
     {
@@ -1055,7 +1055,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice,
                                                                    VkDeviceMemory,
                                                                    VkExternalMemoryHandleTypeFlagsNV,
                                                                    HANDLE*)
@@ -1064,13 +1064,13 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(VkPhysicalDevice physicalDevice, VkDisplayKHR display)
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkAcquireWinrtDisplayNV(VkPhysicalDevice physicalDevice, VkDisplayKHR display)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireWinrtDisplayNV");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(VkPhysicalDevice physicalDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetWinrtDisplayNV(VkPhysicalDevice physicalDevice,
                                                               uint32_t         deviceRelativeId,
                                                               VkDisplayKHR*    pDisplay)
     {
@@ -1105,7 +1105,7 @@ extern "C"
                                                                                   xcb_connection_t* connection,
                                                                                   xcb_visualid_t    visual_id);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance,
                                                                 const VkXcbSurfaceCreateInfoKHR*,
                                                                 const VkAllocationCallbacks*,
                                                                 VkSurfaceKHR*)
@@ -1114,7 +1114,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice,
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice,
                                                                                        uint32_t,
                                                                                        xcb_connection_t*,
                                                                                        xcb_visualid_t)
@@ -1160,7 +1160,7 @@ extern "C"
                                                                                    Display*         dpy,
                                                                                    VisualID         visualID);
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance,
                                                                  const VkXlibSurfaceCreateInfoKHR*,
                                                                  const VkAllocationCallbacks*,
                                                                  VkSurfaceKHR*)
@@ -1169,7 +1169,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice,
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice,
                                                                                         uint32_t,
                                                                                         Display*,
                                                                                         VisualID)
@@ -1194,13 +1194,13 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetRandROutputDisplayEXT)(VkPhysicalDevice phy
 
 extern "C"
 {
-    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
     {
         GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice,
                                                                      Display*,
                                                                      RROutput,
                                                                      VkDisplayKHR*)
@@ -1243,7 +1243,7 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateStreamDescriptorSurfaceGGP)(
 
 extern "C"
 {
-    static VKAPI_ATTR VkResult VKAPI_CALL
+    inline VKAPI_ATTR VkResult VKAPI_CALL
     vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
                                        const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
                                        const VkAllocationCallbacks*                  pAllocator,
@@ -1284,7 +1284,7 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEX
 
 extern "C"
 {
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance,
                                                                      const VkDirectFBSurfaceCreateInfoEXT*,
                                                                      const VkAllocationCallbacks*,
                                                                      VkSurfaceKHR*)
@@ -1293,7 +1293,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice,
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice,
                                                                                             uint32_t,
                                                                                             IDirectFB*)
     {
@@ -1331,7 +1331,7 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX)
 
 extern "C"
 {
-    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance                          instance,
+    inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateScreenSurfaceQNX(VkInstance                          instance,
                                                                    const VkScreenSurfaceCreateInfoQNX* pCreateInfo,
                                                                    const VkAllocationCallbacks*        pAllocator,
                                                                    VkSurfaceKHR*                       pSurface)
@@ -1340,7 +1340,7 @@ extern "C"
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
+    inline VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
         VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct _screen_window* window)
     {
         GFXRECON_LOG_ERROR(

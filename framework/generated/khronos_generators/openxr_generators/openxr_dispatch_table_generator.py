@@ -26,7 +26,7 @@ from openxr_base_generator import OpenXrBaseGenerator, OpenXrBaseGeneratorOption
 from khronos_dispatch_table_generator import KhronosDispatchTableGenerator
 
 openxr_load_function="""template <typename GetProcAddr, typename Handle, typename FuncP>
-static void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
+inline void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
 {
     XrResult result = gpa(handle, name, reinterpret_cast<PFN_xrVoidFunction*>(funcp));
     if (result != XR_SUCCESS)

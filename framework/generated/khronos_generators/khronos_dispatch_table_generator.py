@@ -47,7 +47,7 @@ class KhronosDispatchTableGenerator():
         """ Assumes gpa matches Vulkan Get.*ProcAddr signature, override as needed """
         lines =[]
         lines.append('template <typename GetProcAddr, typename Handle, typename FuncP>')
-        lines.append('static void Load{}Function(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)'
+        lines.append('inline void Load{}Function(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)'
             .format(api_data.api_class_prefix))
         lines.append('{')
         lines.append('    FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));')
@@ -107,7 +107,7 @@ class KhronosDispatchTableGenerator():
                 file=self.outFile
             )
             write(
-                'static {0}DispatchKey Get{0}DispatchKey(const void* handle)'.
+                'inline {0}DispatchKey Get{0}DispatchKey(const void* handle)'.
                 format(api_data.api_class_prefix),
                 file=self.outFile
             )
@@ -193,7 +193,7 @@ class KhronosDispatchTableGenerator():
     def generate_load_instance_table_func(self, api_data):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write(
-            'static void Load{0}InstanceTable(PFN_{1} gpa, {2} instance, {0}InstanceTable* table)'
+            'inline void Load{0}InstanceTable(PFN_{1} gpa, {2} instance, {0}InstanceTable* table)'
             .format(
                 api_data.api_class_prefix, api_data.get_instance_proc_addr,
                 api_data.instance_type
@@ -225,7 +225,7 @@ class KhronosDispatchTableGenerator():
     def generate_load_device_table_func(self, api_data):
         """Generate function to set the device table's functions with a getprocaddress routine."""
         write(
-            'static void Load{0}DeviceTable(PFN_{1} gpa, {2} device, {0}DeviceTable* table)'
+            'inline void Load{0}DeviceTable(PFN_{1} gpa, {2} device, {0}DeviceTable* table)'
             .format(
                 api_data.api_class_prefix, api_data.get_device_proc_addr,
                 api_data.device_type

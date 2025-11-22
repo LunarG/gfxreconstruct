@@ -30,13 +30,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-static void CommonWriteCreateHardwareBufferCmd(format::ThreadId                                    thread_id,
-                                               format::HandleId                                    device_id,
-                                               format::HandleId                                    memory_id,
-                                               AHardwareBuffer*                                    hardware_buffer,
-                                               const std::vector<format::HardwareBufferPlaneInfo>& plane_info,
-                                               VulkanCaptureManager* vulkan_capture_manager,
-                                               VulkanStateWriter*    vulkan_state_writer)
+void CommonWriteCreateHardwareBufferCmd(format::ThreadId                                    thread_id,
+                                        format::HandleId                                    device_id,
+                                        format::HandleId                                    memory_id,
+                                        AHardwareBuffer*                                    hardware_buffer,
+                                        const std::vector<format::HardwareBufferPlaneInfo>& plane_info,
+                                        VulkanCaptureManager*                               vulkan_capture_manager,
+                                        VulkanStateWriter*                                  vulkan_state_writer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     if (vulkan_capture_manager && !vulkan_capture_manager->IsCaptureModeWrite())
@@ -114,11 +114,11 @@ static void CommonWriteCreateHardwareBufferCmd(format::ThreadId                 
 #endif
 }
 
-static void CommonWriteFillMemoryCmd(format::HandleId      memory_id,
-                                     uint64_t              size,
-                                     const void*           data,
-                                     VulkanCaptureManager* vulkan_capture_manager,
-                                     VulkanStateWriter*    vulkan_state_writer)
+void CommonWriteFillMemoryCmd(format::HandleId      memory_id,
+                              uint64_t              size,
+                              const void*           data,
+                              VulkanCaptureManager* vulkan_capture_manager,
+                              VulkanStateWriter*    vulkan_state_writer)
 {
     if (vulkan_capture_manager)
     {
@@ -132,7 +132,7 @@ static void CommonWriteFillMemoryCmd(format::HandleId      memory_id,
 
 // Wrap vkuFormatRequiresYcbcrConversion so that we handle VK_FORMAT_UNDEFINED as a YCbCr format which applies for AHB
 // external formats
-static bool ExternalFormatRequiresYcbcrConversion(VkFormat format)
+inline bool ExternalFormatRequiresYcbcrConversion(VkFormat format)
 {
     if (format == VK_FORMAT_UNDEFINED)
     {

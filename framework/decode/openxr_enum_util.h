@@ -43,7 +43,7 @@ GFXRECON_BEGIN_NAMESPACE(enumutil)
  * @param value VkResult code to process.
  * @return String describing the specified VkResult code.
  */
-static const char* GetResultDescription(XrResult result)
+inline const char* GetResultDescription(XrResult result)
 {
     switch (result)
     {

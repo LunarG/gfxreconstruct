@@ -207,7 +207,7 @@ const char kDefaultDumpResourcesDir[]               = "";
 const bool kDefaultDumpResourcesModifiableStateOnly = false;
 #endif
 
-static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
+inline void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
 {
 #if defined(WIN32) && defined(_DEBUG)
     if (arg_parser.IsOptionSet(kNoDebugPopup))
@@ -217,7 +217,7 @@ static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_p
 #endif
 }
 
-static void CheckActiveLayers(const std::string& list)
+inline void CheckActiveLayers(const std::string& list)
 {
     if (!list.empty())
     {
@@ -252,24 +252,24 @@ static void CheckActiveLayers(const std::string& list)
     }
 }
 
-static gfxrecon::decode::VulkanResourceAllocator* CreateDefaultAllocator()
+inline gfxrecon::decode::VulkanResourceAllocator* CreateDefaultAllocator()
 {
     return new gfxrecon::decode::VulkanDefaultAllocator(
         "Try replay with the '-m remap' or '-m rebind' options to enable memory translation.");
 }
 
-static gfxrecon::decode::VulkanResourceAllocator* CreateRemapAllocator()
+inline gfxrecon::decode::VulkanResourceAllocator* CreateRemapAllocator()
 {
     return new gfxrecon::decode::VulkanRemapAllocator(
         "Try replay with the '-m rebind' option to enable advanced memory translation.");
 }
 
-static gfxrecon::decode::VulkanResourceAllocator* CreateRebindAllocator()
+inline gfxrecon::decode::VulkanResourceAllocator* CreateRebindAllocator()
 {
     return new gfxrecon::decode::VulkanRebindAllocator();
 }
 
-static gfxrecon::decode::CreateResourceAllocator
+inline gfxrecon::decode::CreateResourceAllocator
 InitRealignAllocatorCreateFunc(const std::string&                              filename,
                                const gfxrecon::decode::VulkanReplayOptions&    replay_options,
                                gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
@@ -307,7 +307,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
     };
 }
 
-static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
+inline uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     uint32_t    pause_frame = 0;
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
@@ -324,7 +324,7 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     return pause_frame;
 }
 
-static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
+inline WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     WsiPlatform wsi_platform = WsiPlatform::kAuto;
     const auto& value        = arg_parser.GetArgumentValue(kWsiArgument);
@@ -404,7 +404,7 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
 /// @param wsi_platform The WSI platform to select the extension name for.
 /// @return If WsiPlatform::kAuto, returns the first available WSI extension name.
 ///         Otherwise, returns the WSI extension name for the specified platform.
-static std::string GetFirstWsiExtensionName(WsiPlatform wsi_platform)
+inline std::string GetFirstWsiExtensionName(WsiPlatform wsi_platform)
 {
     switch (wsi_platform)
     {
@@ -464,7 +464,7 @@ static std::string GetFirstWsiExtensionName(WsiPlatform wsi_platform)
 /// @param wsi_platform The WSI platform to select the extension name for.
 /// @return If WsiPlatform::kAuto, returns an empty string.
 ///         Otherwise, returns the WSI extension name for the specified platform.
-static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
+inline std::string GetWsiExtensionName(WsiPlatform wsi_platform)
 {
     switch (wsi_platform)
     {
@@ -479,7 +479,7 @@ static std::string GetWsiExtensionName(WsiPlatform wsi_platform)
     }
 }
 
-static std::string GetWsiArgString()
+inline std::string GetWsiArgString()
 {
     std::string wsi_args = kWsiPlatformAuto;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -514,7 +514,7 @@ static std::string GetWsiArgString()
 }
 
 // Modifies settings parameter with values set via command line
-static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
+inline void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
@@ -536,7 +536,7 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
 }
 
-static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
+inline void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
 {
     file_name = arg_parser.GetArgumentValue(kMeasurementFileArgument);
     if (file_name.empty())
@@ -549,7 +549,7 @@ static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_par
     }
 }
 
-static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
+inline gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
     const auto&                      value  = arg_parser.GetArgumentValue(kScreenshotFormatArgument);
@@ -573,7 +573,7 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
     return format;
 }
 
-static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
+inline std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotDirArgument);
 
@@ -585,7 +585,7 @@ static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_pa
     return kDefaultScreenshotDir;
 }
 
-static std::string GetDumpResourcesDir(const gfxrecon::util::ArgumentParser& arg_parser)
+inline std::string GetDumpResourcesDir(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kDumpResourcesDirArgument);
 
@@ -597,7 +597,7 @@ static std::string GetDumpResourcesDir(const gfxrecon::util::ArgumentParser& arg
     return kDefaultDumpResourcesDir;
 }
 
-static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
+inline void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotSizeArgument);
 
@@ -629,7 +629,7 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
     }
 }
 
-static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+inline float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
 
@@ -651,7 +651,7 @@ static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser
     return scale;
 }
 
-static std::vector<gfxrecon::decode::ScreenshotRange>
+inline std::vector<gfxrecon::decode::ScreenshotRange>
 GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     std::vector<gfxrecon::decode::ScreenshotRange> ranges;
@@ -685,7 +685,7 @@ GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
     return ranges;
 }
 
-static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& quit_frame)
+inline bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& quit_frame)
 {
     const std::string& value = arg_parser.GetArgumentValue(kQuitAfterFrameArgument);
     if (!value.empty())
@@ -705,7 +705,7 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
     return false;
 }
 
-static bool
+inline bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
     start_frame = 1;
@@ -763,7 +763,7 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
 
     return false;
 }
-static gfxrecon::decode::CreateResourceAllocator
+inline gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
                                const std::string&                              filename,
                                const gfxrecon::decode::VulkanReplayOptions&    replay_options,
@@ -795,7 +795,7 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
     return func;
 }
 
-static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+inline void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     auto value = arg_parser.GetArgumentValue(kForceWindowedShortArgument);
 
@@ -818,7 +818,7 @@ static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxr
     }
 }
 
-static void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+inline void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     auto value = arg_parser.GetArgumentValue(kForceWindowWithOriginShortArgument);
 
@@ -841,7 +841,7 @@ static void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxr
     }
 }
 
-static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
+inline std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
                                             const char*                           filter_messages)
 {
     const auto&          value = arg_parser.GetArgumentValue(filter_messages);
@@ -870,7 +870,7 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
     return msgs;
 }
 
-static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
+inline void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
 {
@@ -969,7 +969,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     SetWindowOrigin(options, arg_parser);
 }
 
-static gfxrecon::decode::VulkanReplayOptions
+inline gfxrecon::decode::VulkanReplayOptions
 GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                        const std::string&                              filename,
                        gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
@@ -1221,7 +1221,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 }
 
 #if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+inline gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
                                                             const std::string&                    filename)
 {
     gfxrecon::decode::DxReplayOptions replay_options;
@@ -1310,7 +1310,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 }
 #endif
 
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+inline bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
     {

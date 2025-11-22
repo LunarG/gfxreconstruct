@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(enumutil)
 
-static std::string GetResultValueString(HRESULT result)
+inline std::string GetResultValueString(HRESULT result)
 {
     // clang-format off
     switch (result)
@@ -90,7 +90,7 @@ static std::string GetResultValueString(HRESULT result)
  * @param value HRESULT code to process.
  * @return String describing the specified HRESULT code.
  */
-static const char* GetResultDescription(HRESULT result)
+inline const char* GetResultDescription(HRESULT result)
 {
     // clang-format off
     switch (result)

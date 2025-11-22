@@ -619,7 +619,7 @@ struct OpenXrInstanceTable
 };
 
 template <typename GetProcAddr, typename Handle, typename FuncP>
-static void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
+inline void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
 {
     XrResult result = gpa(handle, name, reinterpret_cast<PFN_xrVoidFunction*>(funcp));
     if (result != XR_SUCCESS)
@@ -628,7 +628,7 @@ static void LoadOpenXrFunction(GetProcAddr gpa, Handle handle, const char* name,
     }
 }
 
-static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, OpenXrInstanceTable* table)
+inline void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance instance, OpenXrInstanceTable* table)
 {
     assert(table != nullptr);
 

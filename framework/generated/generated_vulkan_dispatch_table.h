@@ -60,7 +60,7 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 typedef const void* VulkanDispatchKey;
 
 // Retrieve a dispatch key from a dispatchable handle
-static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)
+inline VulkanDispatchKey GetVulkanDispatchKey(const void* handle)
 {
     const VulkanDispatchKey* dispatch_key = reinterpret_cast<const VulkanDispatchKey*>(handle);
     return (*dispatch_key);
@@ -1468,7 +1468,7 @@ struct VulkanDeviceTable
 };
 
 template <typename GetProcAddr, typename Handle, typename FuncP>
-static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
+inline void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)
 {
     FuncP result = reinterpret_cast<FuncP>(gpa(handle, name));
     if (result != nullptr)
@@ -1477,7 +1477,7 @@ static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name,
     }
 }
 
-static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
+inline void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)
 {
     assert(table != nullptr);
 
@@ -1592,7 +1592,7 @@ static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance in
     LoadVulkanFunction(gpa, instance, "vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM", &table->EnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM);
 }
 
-static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
+inline void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)
 {
     assert(table != nullptr);
 
