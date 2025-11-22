@@ -1342,17 +1342,4 @@ inline bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
     return false;
 }
 
-static void PrintUsage(const char* exe_name);
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
 #endif // GFXRECON_PLATFORM_SETTINGS_H

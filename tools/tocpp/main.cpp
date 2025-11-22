@@ -191,7 +191,7 @@ static void PrintUsage(const char* exe_name)
     }
 }
 
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     // We can just check for the short option because the argument parser will assign even
     // the long option to either one for easier detecting.

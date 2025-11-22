@@ -67,7 +67,7 @@ const char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
 const char kDx12OptimizeDxr[]             = "--dxr";
 const char kDx12OptimizeDxrExperimental[] = "--dxr-experimental";
 
-static void PrintUsage(const char* exe_name)
+void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
     size_t      dir_location = app_name.find_last_of("/\\");
@@ -210,6 +210,17 @@ void RunDx12Optimizations(const std::string&                        input_filena
         exit(-1);
     }
 #endif
+}
+
+bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
 }
 
 int main(int argc, const char** argv)

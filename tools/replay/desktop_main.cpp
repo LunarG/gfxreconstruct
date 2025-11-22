@@ -99,6 +99,17 @@ void WaitForExit()
 void WaitForExit() {}
 #endif
 
+bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
+}
+
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)

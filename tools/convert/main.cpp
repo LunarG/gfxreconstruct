@@ -61,7 +61,7 @@ const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,-
 
 const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
-static void PrintUsage(const char* exe_name)
+void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
     size_t      dir_location = app_name.find_last_of("/\\");
@@ -199,6 +199,17 @@ std::string FormatFrameNumber(uint32_t frame_number)
     std::ostringstream stream;
     stream << std::setfill('0') << std::setw(5) << frame_number;
     return stream.str();
+}
+
+bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
 }
 
 int main(int argc, const char** argv)
