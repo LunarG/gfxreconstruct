@@ -347,44 +347,31 @@ if (TARGET ZLIB::ZLIB)
                                    GFXRECON_ENABLE_PNG_SCREENSHOT)
 endif()
 
+target_include_directories(gfxrecon_decode
+                               PUBLIC
+                                   ${CMAKE_BINARY_DIR}
+                                   ${PROJECT_SOURCE_DIR}/framework
+                                   ${PROJECT_SOURCE_DIR}/external
+                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+
 if (WIN32)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         target_include_directories(gfxrecon_decode
                                PUBLIC
-                                   ${CMAKE_BINARY_DIR}
-                                   ${PROJECT_SOURCE_DIR}/framework
-                                   ${PROJECT_SOURCE_DIR}/external
-                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win64/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win64/include/)
     else()
         target_include_directories(gfxrecon_decode
                                PUBLIC
-                                   ${CMAKE_BINARY_DIR}
-                                   ${PROJECT_SOURCE_DIR}/framework
-                                   ${PROJECT_SOURCE_DIR}/external
-                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win32/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win32/include/)
     endif()
 elseif(APPLE)
     target_include_directories(gfxrecon_decode
-                           PRIVATE
-                               ${CMAKE_BINARY_DIR}
                            PUBLIC
-                               ${CMAKE_BINARY_DIR}
-                               ${PROJECT_SOURCE_DIR}/framework
-                               ${PROJECT_SOURCE_DIR}/external
-                               ${PROJECT_SOURCE_DIR}/external/precompiled/macos/include/
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                               ${PROJECT_SOURCE_DIR}/external/precompiled/macos/include/)
 else()
     target_include_directories(gfxrecon_decode
-                           PRIVATE
-                               ${CMAKE_BINARY_DIR}
                            PUBLIC
-                               ${CMAKE_BINARY_DIR}
-                               ${PROJECT_SOURCE_DIR}/framework
-                               ${PROJECT_SOURCE_DIR}/external
-                               ${PROJECT_SOURCE_DIR}/external/precompiled/linux/include/
-                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
+                               ${PROJECT_SOURCE_DIR}/external/precompiled/linux/include/)
 endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
