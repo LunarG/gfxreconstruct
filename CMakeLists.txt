@@ -385,7 +385,13 @@ endif ()
 
 if (USE_STRICT_COMPILER_WARNINGS)
     if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT MATCHES "MSVC"))
-        target_compile_options(platform_specific INTERFACE /W4)
+        target_compile_options(platform_specific INTERFACE /W4
+            /wd4100 # Disables warning about unreferenced parameters
+            /wd4996 # Disables deprecation warnings
+            /wd4324 # Disables warning about struct padding due to alignment specifier
+            /wd4127 # Disables warnings of conditional expressions that are constant
+        )
+
     else ()
         target_compile_options(platform_specific INTERFACE -pedantic -Wall -Wconversion -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers -Wno-sign-conversion -Wno-nested-anon-types)
         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
