@@ -1449,13 +1449,17 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (success)
         {
             success = block_buffer.Read(location);
-        }
 
-        if (success)
-        {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               ViewRelativeLocationArgs{ meta_data_id, thread_id, location },
-                               std::move(uncompressed_store));
+            if (success)
+            {
+                return ParsedBlock(block_buffer.ReleaseData(),
+                                   ViewRelativeLocationArgs{ meta_data_id, thread_id, location },
+                                   std::move(uncompressed_store));
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockHeader, "Failed to ViewRelativeLocation meta-data block");
+            }
         }
         else
         {
