@@ -76,14 +76,14 @@ bool AMD_GetAGSInfo(std::string& driver_info)
                       &ags_gpu_info) == AGS_SUCCESS)
     {
         // Read Radeon Software version
-        if (ags_gpu_info.radeonSoftwareVersion != "")
+        if (ags_gpu_info.radeonSoftwareVersion)
         {
             driver_info +=
                 "AMD Radeon software version: " + static_cast<std::string>(ags_gpu_info.radeonSoftwareVersion) + "\n\t";
         }
 
         // Read driver version
-        if (ags_gpu_info.driverVersion != "")
+        if (ags_gpu_info.driverVersion)
         {
             driver_info += "AMD driver version: " + static_cast<std::string>(ags_gpu_info.driverVersion) + "\n\t";
         }
