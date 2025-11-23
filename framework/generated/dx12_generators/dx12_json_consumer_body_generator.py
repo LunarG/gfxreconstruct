@@ -122,11 +122,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         ret_line = self.make_return("function", return_value)
 
         code = '''
-            nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
-            const JsonOptions& options = writer_->GetOptions();
+            [[maybe_unused]] nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
+            [[maybe_unused]] const JsonOptions& options = writer_->GetOptions();
         '''
         code += ret_line
-        code += '''nlohmann::ordered_json& args = function[format::kNameArgs];
+        code += '''[[maybe_unused]] nlohmann::ordered_json& args = function[format::kNameArgs];
             {{
         '''
         # Generate a correct FieldToJson for each argument:
@@ -143,8 +143,8 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
     def make_consumer_method_body(self, class_name, method_info, return_type, return_value):
         code = '''
-            nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
-            const JsonOptions& options = writer_->GetOptions();
+            [[maybe_unused]] nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
+            [[maybe_unused]] const JsonOptions& options = writer_->GetOptions();
         '''
 
         # Deal with the function's returned value:

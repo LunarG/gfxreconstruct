@@ -149,10 +149,6 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
     std::vector<Dx12ResourcePtr> dx12_buffer_list = GenerateDx12OverlappingBufferList(kListsize, kBufferSize);
     for (const auto& dx12_buffer : dx12_buffer_list)
     {
-        const D3D12_RESOURCE_DESC       buffer_desc  = dx12_buffer->GetDesc();
-        const D3D12_GPU_VIRTUAL_ADDRESS gpu_va_start = dx12_buffer->GetGPUVirtualAddress();
-        const D3D12_GPU_VIRTUAL_ADDRESS gpu_va_end   = dx12_buffer->GetGPUVirtualAddress() + buffer_desc.Width;
-
         REQUIRE(true == gpu_va_map.Add((ID3D12Resource*)dx12_buffer));
     }
     for (const auto& dx12_buffer : dx12_buffer_list)
@@ -183,10 +179,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
                                                                          15, 12, 14, 13, 3, 0,  4, 9 };
     for (int i : kShuffledListIndices)
     {
-        Dx12ResourcePtr                 dx12_buffer  = dx12_buffer_list[i];
-        const D3D12_RESOURCE_DESC       buffer_desc  = dx12_buffer->GetDesc();
-        const D3D12_GPU_VIRTUAL_ADDRESS gpu_va_start = dx12_buffer->GetGPUVirtualAddress();
-        const D3D12_GPU_VIRTUAL_ADDRESS gpu_va_end   = dx12_buffer->GetGPUVirtualAddress() + buffer_desc.Width;
+        Dx12ResourcePtr dx12_buffer = dx12_buffer_list[i];
         REQUIRE(true == gpu_va_map.Add((ID3D12Resource*)dx12_buffer));
     }
     gfxrecon::util::Log::Release();

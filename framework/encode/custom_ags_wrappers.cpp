@@ -402,8 +402,6 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_PushMarker(AGSContext*        
         CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_PushMarker_6_0_1>::Dispatch(
             manager, context, commandList, data);
 
-        ID3D12GraphicsCommandList* object = encode::GetWrappedObject<ID3D12GraphicsCommandList>(commandList);
-
         result = manager->GetAgsDispatchTable().agsDriverExtensionsDX12_PushMarker(context, commandList, data);
 
         Encode_agsDriverExtensionsDX12_PushMarker(result, context, commandList, data);
@@ -444,8 +442,6 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_PopMarker(AGSContext* context,
 
         CustomWrapperPreCall<format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_PopMarker_6_0_1>::Dispatch(
             manager, context, commandList);
-
-        ID3D12GraphicsCommandList* object = encode::GetWrappedObject<ID3D12GraphicsCommandList>(commandList);
 
         result = manager->GetAgsDispatchTable().agsDriverExtensionsDX12_PopMarker(context, commandList);
 

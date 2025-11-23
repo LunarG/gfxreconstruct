@@ -106,7 +106,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
     return false;
 }
 
-static std::string GetVersionString(uint32_t api_version)
+[[maybe_unused]] std::string GetVersionString(uint32_t api_version)
 {
     uint32_t major = api_version >> 22;
     uint32_t minor = (api_version >> 12) & 0x3ff;

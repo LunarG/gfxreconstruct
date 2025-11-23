@@ -253,9 +253,8 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
 
                     if (capture_result == S_OK)
                     {
-                        bool convert_to_bgra  = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
-                        auto buffer_byte_size = pitch * fb_desc.Height;
-                        capture_result        = image_renderer->RetrieveImageData(&captured_image,
+                        bool convert_to_bgra = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
+                        capture_result       = image_renderer->RetrieveImageData(&captured_image,
                                                                            static_cast<unsigned int>(fb_desc.Width),
                                                                            fb_desc.Height,
                                                                            static_cast<unsigned int>(pitch),

@@ -760,7 +760,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += '\n'
 
             if need_unwrap_memory:
-                expr += indent + 'auto unwrap_memory = '\
+                expr += indent + '[[maybe_unused]] auto unwrap_memory = '\
                     'manager->GetHandleUnwrapMemory();\n'
                 expr += '\n'
 

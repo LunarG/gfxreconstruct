@@ -585,9 +585,6 @@ void Dx12ReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId devi
 void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                            const uint8_t*                              data)
 {
-    HRESULT result = E_FAIL;
-
-    auto device            = MapObject<ID3D12Device>(command_header.device_id);
     auto device_info       = GetObjectInfo(command_header.device_id);
     auto extra_device_info = GetExtraInfo<D3D12DeviceInfo>(device_info);
     auto resource_info     = GetObjectInfo(command_header.resource_id);
@@ -3625,7 +3622,7 @@ void Dx12ReplayConsumerBase::ReadDebugMessages()
         }
         auto message = reinterpret_cast<DXGI_INFO_QUEUE_MESSAGE*>(debug_message_.get());
         auto hr      = info_queue_->GetMessage(DXGI_DEBUG_ALL, i, message, &message_length);
-
+        GFXRECON_ASSERT(hr == S_OK);
         switch (message->Severity)
         {
             case DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION:
@@ -4411,7 +4408,6 @@ HRESULT Dx12ReplayConsumerBase::OverrideOpenSharedHandle(DxObjectInfo*          
     auto  in_NTHandle   = static_cast<HANDLE>(PreProcessExternalObject(
         NTHandle, format::ApiCallId::ApiCall_ID3D12Device_OpenSharedHandle, "ID3D12Device_OpenSharedHandle"));
     auto& riid_value    = *riid.decoded_value;
-    auto  out_p_ppvObj  = ppvObj->GetPointer();
     auto  out_hp_ppvObj = ppvObj->GetHandlePointer();
     auto  replay_result = device->OpenSharedHandle(in_NTHandle, riid_value, out_hp_ppvObj);
 
@@ -4920,7 +4916,7 @@ void Dx12ReplayConsumerBase::OverrideInitializeMetaCommand(DxObjectInfo*        
             command_list4_object_info,
             GetCurrentBlockIndex(),
             format::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand);
-        for (auto& command_set : dump_command_sets)
+        for ([[maybe_unused]] auto& command_set : dump_command_sets)
         {
             command_list4_obj->InitializeMetaCommand(meta_command_obj, data_ptr, parameters_data_sizeinbytes);
         }
@@ -4966,7 +4962,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteMetaCommand(DxObjectInfo*           
             command_list4_object_info,
             GetCurrentBlockIndex(),
             format::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand);
-        for (auto& command_set : dump_command_sets)
+        for ([[maybe_unused]] auto& command_set : dump_command_sets)
         {
             command_list4_obj->ExecuteMetaCommand(meta_command_obj, data_ptr, parameters_data_sizeinbytes);
         }

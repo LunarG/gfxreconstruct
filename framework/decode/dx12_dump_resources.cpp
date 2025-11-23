@@ -1478,8 +1478,7 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
     }
 
     // root parameters
-    const std::vector<format::HandleId>*                    descriptor_heap_ids = nullptr;
-    const std::unordered_map<uint32_t, TrackRootParameter>* root_parameters     = nullptr;
+    const std::vector<format::HandleId>* descriptor_heap_ids = nullptr;
 
     if (bundle_target_draw_call)
     {
@@ -2095,7 +2094,6 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     }
 
     auto source_resource_object_info = get_object_info_func_(copy_resource_data->source_resource_id);
-    auto source_resource             = reinterpret_cast<ID3D12Resource*>(source_resource_object_info->object);
     auto source_resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(source_resource_object_info);
     std::vector<graphics::dx12::ResourceStateInfo> res_infos = source_resource_extra_info->resource_state_infos;
 
@@ -2105,7 +2103,6 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     // so we can't just check for its bit being set
     std::vector<bool> modifiableResources;
     bool              resourceIsModifiable = false;
-    uint32_t          subResource          = 0;
     for (auto it = res_infos.begin(); it != res_infos.end(); it++)
     {
         modifiableResources.push_back((modifiableTransitionStates & it->states) ||

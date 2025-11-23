@@ -3042,7 +3042,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
             pSrc,
             pSrcBox);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->CopyTextureRegion(
             UnwrapStructPtrObjects(pDst, unwrap_memory),
@@ -3745,7 +3745,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
             NumBarriers,
             pBarriers);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ResourceBarrier(
             NumBarriers,
@@ -3860,7 +3860,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
             NumDescriptorHeaps,
             ppDescriptorHeaps);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->SetDescriptorHeaps(
             NumDescriptorHeaps,
@@ -5126,7 +5126,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
             RTsSingleHandleToDescriptorRange,
             pDepthStencilDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->OMSetRenderTargets(
             NumRenderTargetDescriptors,
@@ -5212,7 +5212,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
             NumRects,
             pRects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearDepthStencilView(
             *UnwrapStructPtrObjects(&DepthStencilView, unwrap_memory),
@@ -5304,7 +5304,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
             NumRects,
             pRects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearRenderTargetView(
             *UnwrapStructPtrObjects(&RenderTargetView, unwrap_memory),
@@ -5392,7 +5392,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             NumRects,
             pRects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewUint(
             ViewGPUHandleInCurrentHeap,
@@ -5490,7 +5490,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             NumRects,
             pRects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList>()->ClearUnorderedAccessViewFloat(
             ViewGPUHandleInCurrentHeap,
@@ -6263,7 +6263,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
             ppDependentResources,
             pDependentSubresourceRanges);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList1>()->AtomicCopyBufferUINT(
             encode::GetWrappedObject<ID3D12Resource>(pDstBuffer),
@@ -6368,7 +6368,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
             ppDependentResources,
             pDependentSubresourceRanges);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList1>()->AtomicCopyBufferUINT64(
             encode::GetWrappedObject<ID3D12Resource>(pDstBuffer),
@@ -7067,7 +7067,7 @@ void STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::ExecuteCommandLists(
             NumCommandLists,
             ppCommandLists);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         D3D12CaptureManager::Get()->OverrideID3D12CommandQueue_ExecuteCommandLists(
             shared_api_call_lock,
@@ -7760,7 +7760,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateGraphicsPipelineState(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device>()->CreateGraphicsPipelineState(
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
@@ -7831,7 +7831,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateComputePipelineState(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device>()->CreateComputePipelineState(
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
@@ -8259,7 +8259,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateConstantBufferView(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateConstantBufferView(
             pDesc,
@@ -8322,7 +8322,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateShaderResourceView(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateShaderResourceView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
@@ -8384,7 +8384,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateUnorderedAccessView(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
@@ -8448,7 +8448,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateRenderTargetView(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateRenderTargetView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
@@ -8508,7 +8508,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateDepthStencilView(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateDepthStencilView(
             encode::GetWrappedObject<ID3D12Resource>(pResource),
@@ -8566,7 +8566,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CreateSampler(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CreateSampler(
             pDesc,
@@ -8630,7 +8630,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptors(
             pSrcDescriptorRangeSizes,
             DescriptorHeapsType);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CopyDescriptors(
             NumDestDescriptorRanges,
@@ -8708,7 +8708,7 @@ void STDMETHODCALLTYPE ID3D12Device_Wrapper::CopyDescriptorsSimple(
             SrcDescriptorRangeStart,
             DescriptorHeapsType);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device>()->CopyDescriptorsSimple(
             NumDescriptors,
@@ -9441,7 +9441,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::MakeResident(
             NumObjects,
             ppObjects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device>()->MakeResident(
             NumObjects,
@@ -9501,7 +9501,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device_Wrapper::Evict(
             NumObjects,
             ppObjects);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device>()->Evict(
             NumObjects,
@@ -10176,7 +10176,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(
             this,
@@ -10254,7 +10254,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadComputePipeline(
             this,
@@ -10440,7 +10440,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary1_LoadPipeline(
             this,
@@ -10600,7 +10600,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetEventOnMultipleFenceCompleti
             Flags,
             hEvent);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device1>()->SetEventOnMultipleFenceCompletion(
             UnwrapObjects<ID3D12Fence>(ppFences, NumFences, unwrap_memory),
@@ -10674,7 +10674,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device1_Wrapper::SetResidencyPriority(
             ppObjects,
             pPriorities);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device1>()->SetResidencyPriority(
             NumObjects,
@@ -10744,7 +10744,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device2_Wrapper::CreatePipelineState(
             riid,
             ppPipelineState);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device2>()->CreatePipelineState(
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
@@ -10961,7 +10961,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device3_Wrapper::EnqueueMakeResident(
             pFenceToSignal,
             FenceValueToSignal);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device3>()->EnqueueMakeResident(
             Flags,
@@ -13450,7 +13450,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device5_Wrapper::CreateStateObject(
             riid,
             ppStateObject);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device5>()->CreateStateObject(
             UnwrapStructPtrObjects(pDesc, unwrap_memory),
@@ -14382,7 +14382,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device7_Wrapper::AddToStateObject(
             riid,
             ppNewStateObject);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<ID3D12Device7>()->AddToStateObject(
             UnwrapStructPtrObjects(pAddition, unwrap_memory),
@@ -14791,7 +14791,7 @@ void STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateSamplerFeedbackUnorderedAcce
             pFeedbackResource,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device8>()->CreateSamplerFeedbackUnorderedAccessView(
             encode::GetWrappedObject<ID3D12Resource>(pTargetedResource),
@@ -15272,7 +15272,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BeginRenderPass(
             pDepthStencil,
             Flags);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         D3D12CaptureManager::Get()->OverrideID3D12GraphicsCommandList4_BeginRenderPass(
             this,
@@ -16702,7 +16702,7 @@ void STDMETHODCALLTYPE ID3D12Device11_Wrapper::CreateSampler2(
             pDesc,
             DestDescriptor);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12Device11>()->CreateSampler2(
             pDesc,
@@ -18868,7 +18868,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
             NumBarrierGroups,
             pBarrierGroups);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         GetWrappedObjectAs<ID3D12GraphicsCommandList7>()->Barrier(
             NumBarrierGroups,
@@ -27103,7 +27103,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice_Wrapper::QueryResourceResidency(
             pResidencyStatus,
             NumResources);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGIDevice>()->QueryResourceResidency(
             UnwrapObjects<IUnknown>(ppResources, NumResources, unwrap_memory),
@@ -28359,7 +28359,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::OfferResources(
             ppResources,
             Priority);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGIDevice2>()->OfferResources(
             NumResources,
@@ -28425,7 +28425,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice2_Wrapper::ReclaimResources(
             ppResources,
             pDiscarded);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGIDevice2>()->ReclaimResources(
             NumResources,
@@ -31921,7 +31921,7 @@ HRESULT STDMETHODCALLTYPE IDXGISwapChain3_Wrapper::ResizeBuffers1(
             pCreationNodeMask,
             ppPresentQueue);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGISwapChain3>()->ResizeBuffers1(
             BufferCount,
@@ -32718,7 +32718,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::OfferResources1(
             Priority,
             Flags);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGIDevice4>()->OfferResources1(
             NumResources,
@@ -32788,7 +32788,7 @@ HRESULT STDMETHODCALLTYPE IDXGIDevice4_Wrapper::ReclaimResources1(
             ppResources,
             pResults);
 
-        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+        [[maybe_unused]] auto unwrap_memory = manager->GetHandleUnwrapMemory();
 
         result = GetWrappedObjectAs<IDXGIDevice4>()->ReclaimResources1(
             NumResources,

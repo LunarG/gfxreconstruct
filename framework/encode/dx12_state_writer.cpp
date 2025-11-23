@@ -623,8 +623,6 @@ void Dx12StateWriter::WriteResourceCreationState(
     std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& resource_snapshots,
     std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes)
 {
-    HRESULT result = E_FAIL;
-
     struct MappedSubresourceInfo
     {
         ID3D12Resource_Wrapper* resource_wrapper;
@@ -907,8 +905,6 @@ void Dx12StateWriter::WriteResourceSnapshot(graphics::Dx12ResourceDataUtil* reso
     auto resource_info    = resource_wrapper->GetObjectInfo();
     auto resource         = resource_wrapper->GetWrappedObjectAs<ID3D12Resource>();
 
-    uint64_t subresource_count      = 0;
-    uint64_t total_subresource_size = 0;
     temp_subresource_data_.clear();
     temp_subresource_sizes_.clear();
     temp_subresource_offsets_.clear();
@@ -1028,8 +1024,6 @@ void Dx12StateWriter::WriteTileMappings(const Dx12StateTable& state_table, ID3D1
 
 void Dx12StateWriter::WaitForCommandQueues(const Dx12StateTable& state_table)
 {
-    const UINT64 kSignalValue = 1;
-
     state_table.VisitWrappers([&](ID3D12CommandQueue_Wrapper* queue_wrapper) {
         assert(queue_wrapper != nullptr);
         assert(queue_wrapper->GetWrappedObject() != nullptr);

@@ -74,7 +74,6 @@ void Dx12StateTracker::TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence
     assert(fence_wrapper->GetWrappedObject() != nullptr);
     assert(fence_wrapper->GetObjectInfo() != nullptr);
 
-    auto fence      = fence_wrapper->GetWrappedObjectAs<ID3D12Fence>();
     auto fence_info = fence_wrapper->GetObjectInfo();
 
     auto lock = std::unique_lock<std::mutex>(fence_info->pending_events_mutex);
@@ -87,7 +86,6 @@ void Dx12StateTracker::TrackFenceSignal(ID3D12Fence_Wrapper* fence_wrapper, UINT
     assert(fence_wrapper->GetWrappedObject() != nullptr);
     assert(fence_wrapper->GetObjectInfo() != nullptr);
 
-    auto fence      = fence_wrapper->GetWrappedObjectAs<ID3D12Fence>();
     auto fence_info = fence_wrapper->GetObjectInfo();
 
     // Remove any events that were waiting for a signal value <= the signaled value.
@@ -373,12 +371,10 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
             }
 
             GFXRECON_ASSERT(queue_wrapper->GetWrappedObject() != nullptr);
-            auto queue = queue_wrapper->GetWrappedObjectAs<ID3D12CommandQueue>();
 
             // Create the fence that will be signaled by the queue to indicate that builds are complete.
             if (queue_info->acceleration_structure_build_tracking_fence == nullptr)
             {
-                auto device = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(queue);
                 GFXRECON_ASSERT(device != nullptr);
 
                 auto hr = device->CreateFence(
@@ -846,7 +842,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
             GFXRECON_ASSERT(list_info);
             list_info->acceleration_structure_builds.push_back(build_info);
 
-            bool is_direct_command_list = (list_info->command_list_type == D3D12_COMMAND_LIST_TYPE_DIRECT);
+            [[maybe_unused]] bool is_direct_command_list =
+                (list_info->command_list_type == D3D12_COMMAND_LIST_TYPE_DIRECT);
 
             // Add CopyBufferRegion(s) and ResourceBarrier(s) to command list to save the build input resource data.
             auto curr_entry_iter = inputs_buffer_entries.begin();

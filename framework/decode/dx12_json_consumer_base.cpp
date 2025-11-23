@@ -159,7 +159,6 @@ void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
 {
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("DriverInfo");
-    char                     driver_record[gfxrecon::util::filepath::kMaxDriverInfoSize + 1];
 
     FieldToJson(jdata[format::kNameDebug], "thread_id field not exposed.", json_options);
     FieldToJson(jdata["driver_record"],

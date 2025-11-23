@@ -194,7 +194,6 @@ size_t AgsDecoder::Decode_agsDriverExtensionsDX12_DestroyDevice(const ApiCallInf
 
     AGSContext*          context          = nullptr;
     format::HandleId     pDevice          = 0;
-    unsigned int         deviceReferences = 0;
     PointerDecoder<UINT> pDeviceReferences;
     AGSReturnCode        result = AGS_SUCCESS;
 

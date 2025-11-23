@@ -236,9 +236,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource D3D12_HEAP_TYPE_DEFAULT flag", "[
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
-    D3D12_RANGE              read_range{ 0, 0 };
     Dx12HeapPtr              dx12_heap;
-    UINT8*                   data_begin     = nullptr;
     ULONG_PTR                modified_count = kBufferSize;
     MEMORY_BASIC_INFORMATION memory_info    = { 0 };
     Dx12DevicePtr            dx12_device    = CreateDx12Device();

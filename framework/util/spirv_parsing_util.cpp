@@ -644,7 +644,7 @@ std::vector<SpirVParsingUtil::BufferReferenceInfo> SpirVParsingUtil::GetBufferRe
     return ret;
 }
 
-static VkDescriptorType SpvReflectToVkDescriptorType(SpvReflectDescriptorType type)
+[[maybe_unused]] VkDescriptorType SpvReflectToVkDescriptorType(SpvReflectDescriptorType type)
 {
     switch (type)
     {

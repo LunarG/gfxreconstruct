@@ -40,7 +40,6 @@ const char kDx12RedistRuntime[] = "D3D12Core.dll";
 bool FoundRenamedCaptureModule(const std::string& renamed_module)
 {
     char        module_name[MAX_PATH] = {};
-    int         path_size             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
     size_t      separator_pos         = std::string(module_name).find_last_of(util::filepath::kPathSep);
     std::string exe_root              = std::string(module_name).substr(0, separator_pos);
     std::string legacy_path           = exe_root + util::filepath::kPathSep + renamed_module;

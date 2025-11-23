@@ -3557,7 +3557,6 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
         return cmd_sets;
     }
 
-    auto                               trim_boundary   = GetTrimBoundary();
     CaptureSettings::TrimDrawCalls     trim_draw_calls = GetTrimDrawCalls();
     graphics::dx12::ID3D12DeviceComPtr device          = nullptr;
     HRESULT                            ret             = wrapper->GetDevice(IID_PPV_ARGS(&device));

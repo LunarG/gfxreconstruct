@@ -408,8 +408,6 @@ int main(int argc, const char** argv)
 
             dx12_decoder.AddConsumer(&dx12_json_consumer);
             file_processor.AddDecoder(&dx12_decoder);
-            auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
-                                                                     : gfxrecon::util::kToString_Unformatted;
             dx12_json_consumer.Initialize(&json_writer);
 #endif
 
