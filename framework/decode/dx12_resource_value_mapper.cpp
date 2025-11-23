@@ -1461,25 +1461,27 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
         D3D12_HEAP_PROPERTIES heap_properties;
         D3D12_HEAP_FLAGS      heap_flags;
         HRESULT               result = resource->GetHeapProperties(&heap_properties, &heap_flags);
-        temp_resource_states.clear();
-        if (heap_properties.Type == D3D12_HEAP_TYPE_UPLOAD)
+        if (SUCCEEDED(result))
         {
-            // If the resource is on an upload heap, it cannot be transitioned away from
-            // D3D12_RESOURCE_STATE_GENERIC_READ.
-            temp_resource_states.push_back({ D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE });
+            temp_resource_states.clear();
+            if (heap_properties.Type == D3D12_HEAP_TYPE_UPLOAD)
+            {
+                // If the resource is on an upload heap, it cannot be transitioned away from
+                // D3D12_RESOURCE_STATE_GENERIC_READ.
+                temp_resource_states.push_back({ D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE });
+            }
+            else if (heap_properties.Type == D3D12_HEAP_TYPE_READBACK)
+            {
+                // If the resource is on an readback heap, it cannot be transitioned away from
+                // D3D12_RESOURCE_STATE_COPY_DEST.
+                temp_resource_states.push_back({ D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE });
+            }
+            else
+            {
+                // TODO: Track resource state transitions for resources on other heap types.
+                temp_resource_states.push_back({ D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE });
+            }
         }
-        else if (heap_properties.Type == D3D12_HEAP_TYPE_READBACK)
-        {
-            // If the resource is on an readback heap, it cannot be transitioned away from
-            // D3D12_RESOURCE_STATE_COPY_DEST.
-            temp_resource_states.push_back({ D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE });
-        }
-        else
-        {
-            // TODO: Track resource state transitions for resources on other heap types.
-            temp_resource_states.push_back({ D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE });
-        }
-
         temp_resource_data.clear();
         temp_resource_sizes.clear();
         temp_resource_offsets.clear();
