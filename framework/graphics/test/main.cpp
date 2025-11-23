@@ -48,10 +48,10 @@ TEST_CASE("vulkan_shader_group_handle - create handles", "[]")
 {
     std::vector<uint8_t> data(32);
     std::iota(data.begin(), data.end(), 0);
-    gfxrecon::graphics::shader_group_handle_t one(data.data(), data.size());
+    gfxrecon::graphics::shader_group_handle_t one(data.data(), static_cast<uint32_t>(data.size()));
 
     data[31] = 99;
-    gfxrecon::graphics::shader_group_handle_t two(data.data(), data.size());
+    gfxrecon::graphics::shader_group_handle_t two(data.data(), static_cast<uint32_t>(data.size()));
     REQUIRE(one != two);
 
     // check hashing via std::hash

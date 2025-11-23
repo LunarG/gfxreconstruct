@@ -91,7 +91,7 @@ void Dx12ResourceValueAnnotator::AddDescriptorHandleStart(ID3D12DescriptorHeap_W
     D3D12_DESCRIPTOR_HEAP_DESC         desc           = wrapper->GetDesc();
     if (SUCCEEDED(wrapper->GetDevice(IID_PPV_ARGS(&device))))
     {
-        increment_size = device->GetDescriptorHandleIncrementSize(desc.Type);
+        increment_size = static_cast<uint8_t>(device->GetDescriptorHandleIncrementSize(desc.Type));
         if (result.ptr != 0)
         {
             if (low_handle == 0 || low_handle > result.ptr)

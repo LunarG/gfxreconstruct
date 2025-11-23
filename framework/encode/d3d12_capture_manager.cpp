@@ -2582,7 +2582,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_GetDescriptorHandleIncrementS
 {
     if (RvAnnotationActive() == true)
     {
-        resource_value_annotator_->SetDescriptorHandleIncrementSize(heap_type, result);
+        resource_value_annotator_->SetDescriptorHandleIncrementSize(heap_type, static_cast<uint8_t>(result));
     }
 }
 
@@ -3472,7 +3472,7 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
 
         // Here has to use the wrapped queue since this ExecuteCommandLists needs to be tracked.
         DecrementCallScope();
-        wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
+        wrapper->ExecuteCommandLists(static_cast<UINT>(cmdlists.size()), cmdlists.data());
         IncrementCallScope();
 
         auto queue = reinterpret_cast<ID3D12CommandQueue*>(wrapper->GetWrappedObject());
@@ -3488,10 +3488,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12, current_lock);
 
         auto unwrap_memory = GetHandleUnwrapMemory();
-        queue->ExecuteCommandLists(cmdlists.size(),
-                                   UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
+        queue->ExecuteCommandLists(
+            static_cast<UINT>(cmdlists.size()),
+            UnwrapObjects<ID3D12CommandList>(cmdlists.data(), static_cast<uint32_t>(cmdlists.size()), unwrap_memory));
 
-        Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
+        Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, static_cast<UINT>(cmdlists.size()), cmdlists.data());
         cmdlists.clear();
 
         common_manager_->DeactivateTrimmingDrawCalls(current_lock);
@@ -3506,8 +3507,9 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
             cmdlists.emplace_back(lists[i]);
         }
 
-        queue->ExecuteCommandLists(cmdlists.size(),
-                                   UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
+        queue->ExecuteCommandLists(
+            static_cast<UINT>(cmdlists.size()),
+            UnwrapObjects<ID3D12CommandList>(cmdlists.data(), static_cast<uint32_t>(cmdlists.size()), unwrap_memory));
         return true;
     }
     return false;

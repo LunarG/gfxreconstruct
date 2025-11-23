@@ -213,7 +213,7 @@ void Dx12ResourceDataUtil::GetResourceCopyInfo(ID3D12Resource*                  
                                                    resource,
                                                    &resource_desc,
                                                    0,
-                                                   subresource_count,
+                                                   static_cast<UINT>(subresource_count),
                                                    0,
                                                    layouts.data(),
                                                    subresource_row_counts.data(),

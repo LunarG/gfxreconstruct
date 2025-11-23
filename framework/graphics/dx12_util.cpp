@@ -192,8 +192,8 @@ uint32_t Dx12DumpResourcePosToArrayIndex(Dx12DumpResourcePos pos)
 
 UINT GetTexturePitch(UINT64 width)
 {
-    return (width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
-           D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+    return static_cast<UINT>((width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
+                             D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 }
 
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,

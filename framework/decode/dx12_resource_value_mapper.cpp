@@ -498,7 +498,7 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
                 command_signature_extra_info->resource_value_infos,
                 max_command_count,
                 argument_buffer_offset,
-                command_signature_extra_info->byte_stride,
+                static_cast<uint8_t>(command_signature_extra_info->byte_stride),
                 state_object_extra_info);
         }
         SourceCopyResources(command_list_extra_info->resource_copies, command_list_extra_info->resource_value_info_map);
@@ -1363,7 +1363,7 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
                 command_count,
                 value_info.arg_buffer_extra_info.argument_buffer_offset,
-                value_info.arg_buffer_extra_info.command_signature_info->byte_stride,
+                static_cast<uint8_t>(value_info.arg_buffer_extra_info.command_signature_info->byte_stride),
                 value_info.state_object);
         }
         return false;
@@ -1781,7 +1781,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
                         graphics::dx12::IDxcBlobEncodingComPtr dxc_blob_encoding;
                         hr = dxc_utils->CreateBlobFromPinned(
                             dxil_lib_desc_decoder->GetPointer()->DXILLibrary.pShaderBytecode,
-                            dxil_lib_desc_decoder->GetPointer()->DXILLibrary.BytecodeLength,
+                            static_cast<uint32_t>(dxil_lib_desc_decoder->GetPointer()->DXILLibrary.BytecodeLength),
                             DXC_CP_ACP,
                             &dxc_blob_encoding);
                         if (SUCCEEDED(hr))

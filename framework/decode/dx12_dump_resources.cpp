@@ -116,7 +116,10 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
     // prepare for copy resources
     auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
                                              IID_PPV_ARGS(&track_dump_resources_.copy_cmd_allocator));
-
+    if (hr != S_OK)
+    {
+        GFXRECON_LOG_WARNING("CreateCommandAllocator failed with error %d", hr);
+    }
     const UINT64 initial_fence_value = 1;
     device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
     track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
@@ -198,7 +201,7 @@ bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                       
                     is_complete = true;
                     modified_command_lists.emplace_back(track_dump_resources_.split_command_sets[0].list);
 
-                    auto modified_num_command_lists = modified_command_lists.size();
+                    auto modified_num_command_lists = static_cast<UINT>(modified_command_lists.size());
                     replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
                     modified_command_lists.clear();
 
@@ -235,7 +238,7 @@ bool Dx12DumpResources::ExecuteCommandLists(DxObjectInfo*                       
             }
             if (is_complete && !modified_command_lists.empty())
             {
-                auto modified_num_command_lists = modified_command_lists.size();
+                auto modified_num_command_lists = static_cast<UINT>(modified_command_lists.size());
                 replay_object->ExecuteCommandLists(modified_num_command_lists, modified_command_lists.data());
             }
         }
@@ -315,7 +318,10 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
         graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr root_sig_deserializer{ nullptr };
         HRESULT result = D3D12CreateVersionedRootSignatureDeserializer(
             blob_with_root_signature_decoder->GetPointer(), blob_length_in_bytes, IID_PPV_ARGS(&root_sig_deserializer));
-
+        if (result != S_OK)
+        {
+            GFXRECON_LOG_WARNING("D3D12CreateVersionedRootSignatureDeserializer failed with error %d", result);
+        }
         const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* versioned_root_sig = nullptr;
         root_sig_deserializer->GetRootSignatureDescAtVersion(D3D_ROOT_SIGNATURE_VERSION_1_2, &versioned_root_sig);
         auto modified_root_sig = *versioned_root_sig;
@@ -633,8 +639,8 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             else
             {
                 mip_size -= view.MostDetailedMip;
-                info.subresource_indices =
-                    GetDescSubIndices(view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                info.subresource_indices = GetDescSubIndices(
+                    static_cast<uint32_t>(view.ResourceMinLODClamp), mip_size, mip_count, 0, 1, array_count, 0);
             }
             break;
         }
@@ -663,8 +669,13 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             else
             {
                 mip_size -= view.MostDetailedMip;
-                info.subresource_indices = GetDescSubIndices(
-                    view.ResourceMinLODClamp, mip_size, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                info.subresource_indices = GetDescSubIndices(static_cast<uint32_t>(view.ResourceMinLODClamp),
+                                                             mip_size,
+                                                             mip_count,
+                                                             view.FirstArraySlice,
+                                                             array_size,
+                                                             array_count,
+                                                             0);
             }
             break;
         }
@@ -688,8 +699,13 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             else
             {
                 mip_size -= view.MostDetailedMip;
-                info.subresource_indices = GetDescSubIndices(
-                    view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, view.PlaneSlice);
+                info.subresource_indices = GetDescSubIndices(static_cast<uint32_t>(view.ResourceMinLODClamp),
+                                                             mip_size,
+                                                             mip_count,
+                                                             0,
+                                                             1,
+                                                             array_count,
+                                                             view.PlaneSlice);
             }
             break;
         }
@@ -723,7 +739,7 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             else
             {
                 mip_size -= view.MostDetailedMip;
-                info.subresource_indices = GetDescSubIndices(view.ResourceMinLODClamp,
+                info.subresource_indices = GetDescSubIndices(static_cast<uint32_t>(view.ResourceMinLODClamp),
                                                              mip_size,
                                                              mip_count,
                                                              view.FirstArraySlice,
@@ -770,8 +786,8 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             else
             {
-                info.subresource_indices =
-                    GetDescSubIndices(view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                info.subresource_indices = GetDescSubIndices(
+                    static_cast<uint32_t>(view.ResourceMinLODClamp), mip_size, mip_count, 0, 1, array_count, 0);
             }
             break;
         }
@@ -794,8 +810,8 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             else
             {
-                info.subresource_indices =
-                    GetDescSubIndices(view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                info.subresource_indices = GetDescSubIndices(
+                    static_cast<uint32_t>(view.ResourceMinLODClamp), mip_size, mip_count, 0, 1, array_count, 0);
             }
             break;
         }
@@ -823,8 +839,13 @@ void Dx12DumpResources::GetDescriptorSubresourceIndices(DHShaderResourceViewInfo
             }
             else
             {
-                info.subresource_indices = GetDescSubIndices(
-                    view.ResourceMinLODClamp, mip_size, mip_count, view.First2DArrayFace, array_size, array_count, 0);
+                info.subresource_indices = GetDescSubIndices(static_cast<uint32_t>(view.ResourceMinLODClamp),
+                                                             mip_size,
+                                                             mip_count,
+                                                             view.First2DArrayFace,
+                                                             array_size,
+                                                             array_count,
+                                                             0);
             }
             break;
         }
@@ -1053,7 +1074,7 @@ bool CaptureGPUAddrMatchDescriptorHeap(const D3D12_GPU_DESCRIPTOR_HANDLE capture
         }
         else
         {
-            out_heap_index = (capture_gpu_addr.ptr - heap_info.capture_gpu_addr_begin) / increment;
+            out_heap_index = static_cast<uint32_t>(capture_gpu_addr.ptr - heap_info.capture_gpu_addr_begin) / increment;
         }
     }
     return is_match;
@@ -1076,7 +1097,7 @@ bool ReplayCPUAddrMatchDescriptorHeap(const D3D12_CPU_DESCRIPTOR_HANDLE replay_c
         }
         else
         {
-            out_heap_index = (replay_cpu_addr.ptr - heap_info.replay_cpu_addr_begin) / increment;
+            out_heap_index = static_cast<uint32_t>(replay_cpu_addr.ptr - heap_info.replay_cpu_addr_begin) / increment;
         }
     }
     return is_match;
@@ -2649,7 +2670,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteFloatResource(const std::string&
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
         auto        data_begin_sub = reinterpret_cast<const float*>(resource_data->datas[sub_index].data() + offset);
-        uint32_t    size           = data_size / (sizeof(float));
+        uint32_t    size           = static_cast<uint32_t>(data_size / (sizeof(float)));
         std::string data           = "";
         for (uint32_t i = 0; i < size; ++i)
         {

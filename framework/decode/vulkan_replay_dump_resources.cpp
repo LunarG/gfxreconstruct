@@ -2459,7 +2459,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             dc_secondary_context->GetCommandBuffers();
 
                         GFXRECON_ASSERT(secondarys_command_buffers.size() <=
-                                        primary_last - (primary_first + finalized_primaries));
+                                        static_cast<size_t>(primary_last - (primary_first + finalized_primaries)));
                         for (size_t scb = 0; scb < secondarys_command_buffers.size(); ++scb)
                         {
                             func(*(primary_first + finalized_primaries), 1, &secondarys_command_buffers[scb]);

@@ -50,7 +50,7 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle)
 
 bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit)
 {
-    return (usage_flags & bit) == bit;
+    return (usage_flags & bit) == static_cast<VkFlags>(bit);
 }
 
 template <typename T>

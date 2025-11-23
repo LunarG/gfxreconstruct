@@ -100,7 +100,7 @@ bool Win32Window::Create(const std::string& title,
     fullscreen_           = false;
     force_windowed_       = force_windowed;
 
-    if ((screen_height_ <= ypos) || (screen_width_ <= xpos))
+    if ((screen_height_ <= static_cast<uint32_t>(ypos)) || (screen_width_ <= static_cast<uint32_t>(xpos)))
     {
         GFXRECON_LOG_WARNING("Requested window location (%u, %u) exceeds current screen size (%ux%u).",
                              xpos,

@@ -800,7 +800,8 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
                 init_meta_command.thread_id  = thread_id_;
                 init_meta_command.capture_id = wrapper->GetCaptureId();
                 init_meta_command.data_size  = wrapper_info->initialize_parameters->GetDataSize();
-                init_meta_command.total_number_of_initializemetacommand = metacommand_wrappers.size();
+                init_meta_command.total_number_of_initializemetacommand =
+                    static_cast<uint32_t>(metacommand_wrappers.size());
                 init_meta_command.block_index                           = ++block_index;
 
                 output_stream_->Write(&init_meta_command, sizeof(init_meta_command));

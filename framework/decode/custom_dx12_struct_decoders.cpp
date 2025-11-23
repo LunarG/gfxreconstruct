@@ -1082,7 +1082,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
                 // type and log a warning.
                 offset = value->SizeInBytes;
 
-                if (type == format::kInvalidSubobjectType)
+                if (type == static_cast<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE>(format::kInvalidSubobjectType))
                 {
                     GFXRECON_LOG_FATAL(
                         "A pipeline state subobject encoding indicates that the stream contained an unrecognized "

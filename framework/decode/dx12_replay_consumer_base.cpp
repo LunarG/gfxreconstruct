@@ -494,7 +494,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                 {
                     GFXRECON_LOG_WARNING(
                         "Initializing Swapchain Buffers. The before state supposed to be COMMON|PRESENT, but it's %s",
-                        util::ToString(state.states));
+                        util::ToString(state.states).c_str());
                 }
             }
 
@@ -689,7 +689,7 @@ void Dx12ReplayConsumerBase::ProcessInitializeMetaCommand(const format::Initiali
                                          meta_command_guids_[meta_command_obj],
                                          D3D12_META_COMMAND_PARAMETER_STAGE_INITIALIZATION,
                                          const_cast<uint8_t*>(parameters_data),
-                                         command_header.data_size);
+                                         static_cast<uint8_t>(command_header.data_size));
             }
             else
             {
@@ -4860,7 +4860,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateMetaCommand(DxObjectInfo*         
                                  *command_Id.decoded_value,
                                  D3D12_META_COMMAND_PARAMETER_STAGE_CREATION,
                                  parameters_data->GetPointer(),
-                                 parameters_data_sizeinbytes);
+                                 static_cast<uint8_t>(parameters_data_sizeinbytes));
     }
 
     auto replay_result = device5_obj->CreateMetaCommand(*command_Id.decoded_value,
@@ -4900,7 +4900,7 @@ void Dx12ReplayConsumerBase::OverrideInitializeMetaCommand(DxObjectInfo*        
                                      meta_command_guids_[meta_command_obj],
                                      D3D12_META_COMMAND_PARAMETER_STAGE_INITIALIZATION,
                                      data_ptr,
-                                     parameters_data_sizeinbytes);
+                                     static_cast<uint8_t>(parameters_data_sizeinbytes));
         }
         else
         {
@@ -4946,7 +4946,7 @@ void Dx12ReplayConsumerBase::OverrideExecuteMetaCommand(DxObjectInfo*           
                                      meta_command_guids_[meta_command_obj],
                                      D3D12_META_COMMAND_PARAMETER_STAGE_EXECUTION,
                                      data_ptr,
-                                     parameters_data_sizeinbytes);
+                                     static_cast<uint8_t>(parameters_data_sizeinbytes));
         }
         else
         {
