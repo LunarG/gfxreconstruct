@@ -4289,9 +4289,9 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
             format::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure);
         for (auto& command_set : dump_command_sets)
         {
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->BuildRaytracingAccelerationStructure(
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr inner_command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&inner_command_list4));
+            inner_command_list4->BuildRaytracingAccelerationStructure(
                 desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
         }
     }
@@ -4512,9 +4512,9 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
             command_list4_object_info, GetCurrentBlockIndex(), format::ApiCall_ID3D12GraphicsCommandList4_DispatchRays);
         for (auto& command_set : dump_command_sets)
         {
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->DispatchRays(desc_decoder->GetPointer());
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr inner_command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&inner_command_list4));
+            inner_command_list4->DispatchRays(desc_decoder->GetPointer());
         }
     }
 
@@ -4545,9 +4545,9 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
             format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1);
         for (auto& command_set : dump_command_sets)
         {
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->SetPipelineState1(state_object);
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr inner_command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&inner_command_list4));
+            inner_command_list4->SetPipelineState1(state_object);
         }
     }
 

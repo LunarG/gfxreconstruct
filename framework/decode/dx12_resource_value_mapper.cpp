@@ -1803,13 +1803,13 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
                                         hr = library_reflection->GetDesc(&library_desc);
                                         if (SUCCEEDED(hr))
                                         {
-                                            for (UINT i = 0; i < library_desc.FunctionCount; i++)
+                                            for (UINT j = 0; j < library_desc.FunctionCount; j++)
                                             {
                                                 // The pointer returned by GetFunctionByIndex is owned by the
                                                 // ID3D12LibraryReflection object and does not need to be memory managed
                                                 // in this scope.
                                                 ID3D12FunctionReflection* function_reflection =
-                                                    library_reflection->GetFunctionByIndex(i);
+                                                    library_reflection->GetFunctionByIndex(j);
 
                                                 D3D12_FUNCTION_DESC function_desc;
                                                 hr = function_reflection->GetDesc(&function_desc);

@@ -58,8 +58,8 @@ struct GUID_Hash
         uint64_t data4   = 0;
         for (uint8_t i = 0; i < 8; ++i)
         {
-            uint64_t data4 = k.Data4[i];
-            data4 ^= (data4 << (i * 8));
+            uint64_t data5 = k.Data4[i];
+            data4 ^= (data5 << (i * 8));
         }
         return std::hash<uint64_t>()(data123) ^ (std::hash<uint64_t>()(data4) << 1);
     }

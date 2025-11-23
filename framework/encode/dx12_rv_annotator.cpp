@@ -186,8 +186,8 @@ void Dx12ResourceValueAnnotator::PostProcessGetGPUVirtualAddress(ID3D12Resource_
     if (bCheckedGPUVABits == false)
     {
         ID3D12Device* device = nullptr;
-        HRESULT       result = wrapper->GetDevice(IID_PPV_ARGS(&device));
-        if (result == S_OK)
+        HRESULT       hresult = wrapper->GetDevice(IID_PPV_ARGS(&device));
+        if (hresult == S_OK)
         {
             D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT feature_data{};
             device->CheckFeatureSupport(D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT,

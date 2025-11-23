@@ -1154,13 +1154,14 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                 {
                     case D3D12_SRV_DIMENSION_BUFFER:
                     {
-                        auto size = desc.Buffer.StructureByteStride;
-                        if (size == 0)
+                        auto byte_stride = desc.Buffer.StructureByteStride;
+                        if (byte_stride == 0)
                         {
-                            size = graphics::dx12::GetSubresourcePixelByteSize(desc.Format);
+                            byte_stride =
+                                static_cast<uint32_t>(graphics::dx12::GetSubresourcePixelByteSize(desc.Format));
                         }
-                        offset = desc.Buffer.FirstElement * size;
-                        size   = desc.Buffer.NumElements * size;
+                        offset = desc.Buffer.FirstElement * byte_stride;
+                        size   = desc.Buffer.NumElements * byte_stride;
                         break;
                     }
                     default:
@@ -1194,13 +1195,14 @@ void Dx12DumpResources::WriteDescripotTable(DxObjectInfo*                       
                 {
                     case D3D12_UAV_DIMENSION_BUFFER:
                     {
-                        auto size = desc.Buffer.StructureByteStride;
-                        if (size == 0)
+                        auto byte_stride = desc.Buffer.StructureByteStride;
+                        if (byte_stride == 0)
                         {
-                            size = graphics::dx12::GetSubresourcePixelByteSize(desc.Format);
+                            byte_stride =
+                                static_cast<uint32_t>(graphics::dx12::GetSubresourcePixelByteSize(desc.Format));
                         }
-                        offset = desc.Buffer.FirstElement * size;
-                        size   = desc.Buffer.NumElements * size;
+                        offset = desc.Buffer.FirstElement * byte_stride;
+                        size   = desc.Buffer.NumElements * byte_stride;
                         break;
                     }
                     default:
@@ -1659,9 +1661,9 @@ void Dx12DumpResources::CopyDrawCallResources(DxObjectInfo*                     
                 {
                     case D3D12_RTV_DIMENSION_BUFFER:
                     {
-                        auto size = graphics::dx12::GetSubresourcePixelByteSize(info.desc.Format);
-                        offset    = info.desc.Buffer.FirstElement * size;
-                        size      = info.desc.Buffer.NumElements * size;
+                        auto byte_size = graphics::dx12::GetSubresourcePixelByteSize(info.desc.Format);
+                        offset         = info.desc.Buffer.FirstElement * byte_size;
+                        size           = info.desc.Buffer.NumElements * byte_size;
                         break;
                     }
                     default:

@@ -286,9 +286,9 @@ int main(int argc, const char** argv)
                 if (dx_replay_options.enable_d3d12_two_pass_replay)
                 {
                     gfxrecon::decode::FileProcessor              file_processor_tracking;
-                    gfxrecon::decode::Dx12TrackedObjectInfoTable tracked_object_info_table;
+                    gfxrecon::decode::Dx12TrackedObjectInfoTable dx12_tracked_object_info_table;
                     auto                                         tracking_consumer =
-                        new gfxrecon::decode::DX12TrackingConsumer(dx_replay_options, &tracked_object_info_table);
+                        new gfxrecon::decode::DX12TrackingConsumer(dx_replay_options, &dx12_tracked_object_info_table);
                     if (file_processor_tracking.Initialize(filename))
                     {
                         dx12_decoder.AddConsumer(tracking_consumer);

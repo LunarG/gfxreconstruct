@@ -246,9 +246,9 @@ void Dx12StateTracker::TrackExecuteCommandLists(ID3D12CommandQueue_Wrapper* queu
 
             if (transition_barrier.subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
             {
-                for (UINT i = 0; i < resource_info->num_subresources; ++i)
+                for (UINT j = 0; j < resource_info->num_subresources; ++j)
                 {
-                    TrackSubresourceTransitionBarrier(resource_info.get(), transition_barrier, i);
+                    TrackSubresourceTransitionBarrier(resource_info.get(), transition_barrier, j);
                 }
             }
             else

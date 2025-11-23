@@ -814,10 +814,10 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
 }
 
 void Dx12StateWriter::WriteResourceSnapshots(
-    const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots,
+    const std::unordered_map<format::HandleId, std::vector<ResourceSnapshotInfo>>& snapshots_map,
     const std::unordered_map<format::HandleId, uint64_t>&                          max_resource_sizes)
 {
-    for (auto kvp : snapshots)
+    for (auto kvp : snapshots_map)
     {
         auto device_id = kvp.first;
         auto snapshots = kvp.second;

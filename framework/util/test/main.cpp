@@ -206,25 +206,25 @@ TEST_CASE("RemoveWhitespace", "[strings]")
     REQUIRE(s2 == "left");
 
     {
-        string s{ "right      " };
-        gfxrecon::util::strings::RemoveWhitespace(s);
-        REQUIRE(s == "right");
+        string s3{ "right      " };
+        gfxrecon::util::strings::RemoveWhitespace(s3);
+        REQUIRE(s3 == "right");
     }
     {
-        string s{ " \t\n\n\n\t   £$%Keep_Me+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
-        gfxrecon::util::strings::RemoveWhitespace(s);
-        REQUIRE(s == "£$%Keep_Me+*&");
+        string s3{ " \t\n\n\n\t   £$%Keep_Me+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
+        gfxrecon::util::strings::RemoveWhitespace(s3);
+        REQUIRE(s3 == "£$%Keep_Me+*&");
         // Check that repeated applications don't change an already-shrunk string:
         for (int i = 0; i < 100; ++i)
         {
-            gfxrecon::util::strings::RemoveWhitespace(s);
-            REQUIRE(s == "£$%Keep_Me+*&");
+            gfxrecon::util::strings::RemoveWhitespace(s3);
+            REQUIRE(s3 == "£$%Keep_Me+*&");
         }
     }
     {
-        string s{ " \t\n\n\n\t   £$%\t\tK  e\n\n\n\n\re \f\rp_\nM\t e+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
-        gfxrecon::util::strings::RemoveWhitespace(s);
-        REQUIRE(s == "£$%Keep_Me+*&");
+        string s3{ " \t\n\n\n\t   £$%\t\tK  e\n\n\n\n\re \f\rp_\nM\t e+*&  \r\f\t\f\t \f\r\t\n\n\n\n " };
+        gfxrecon::util::strings::RemoveWhitespace(s3);
+        REQUIRE(s3 == "£$%Keep_Me+*&");
     }
 
     gfxrecon::util::Log::Release();
