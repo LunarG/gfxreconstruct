@@ -107,6 +107,9 @@ When you go to Start Debugging, the `adb shell pidof` command will run, and pres
 option whose content is the PID of the target process. Selecting this will launch lldb, and will
 begin the process of automatically attaching to the remote debugger.
 
+Please note that the ability to allow shell output to be the input to VScode tasks
+is provided by the [Tasks Shell Input](https://marketplace.visualstudio.com/items?itemName=augustocdias.tasks-shell-input) extension.
+
 ### CLI
 
 If you prefer CLI-based debugging, then create an `lldbinit` file at the root of the repo with the following contents:
@@ -117,7 +120,7 @@ process handle -p true -s false -n false SIGSEGV
 process handle -p true -s false -n false SIGPWR
 process handle -p true -s false -n false SIGXCPU
 process handle -p true -s false -n false SIGBUS
-settings append target.exec-search-paths $PWD/android/layer/build/intermediates/cxx/Debug/<some numbers such as '3m4on72q'>/obj/<target device architecture e.g. arm64-v8a>/
+settings append target.exec-search-paths android/layer/build/intermediates/cxx/Debug/<some numbers such as '3m4on72q'>/obj/<target device architecture e.g. arm64-v8a>/
 attach $(adb shell pidof <apk name e.g. com.example.VkCube>)
 ```
 
