@@ -63,6 +63,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct VulkanDeviceTracker
 {
+    VulkanDeviceTracker() {}
+    VulkanDeviceTracker(const uint32_t ext_count, const char* const* exts)
+    {
+        enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
+    }
     std::vector<std::string> enabled_extensions;
 
     // Total pipeline counts by type.
@@ -78,10 +83,6 @@ struct VulkanDeviceTracker
     uint64_t allocation_count{ 0 };
     uint64_t min_allocation_size{ std::numeric_limits<uint64_t>::max() };
     uint64_t max_allocation_size{ 0 };
-
-    // Annotation info.
-    std::vector<std::string> operation_annotation_datas;
-    uint64_t                 annotation_count{ 0 };
 };
 
 struct VulkanPhysicalDeviceTracker
@@ -91,6 +92,20 @@ struct VulkanPhysicalDeviceTracker
 
 struct VulkanInstanceAppInfo
 {
+    VulkanInstanceAppInfo() {}
+    VulkanInstanceAppInfo(const VkApplicationInfo& app_info) :
+        app_version(app_info.applicationVersion), engine_version(app_info.engineVersion),
+        api_version(app_info.apiVersion)
+    {
+        if (app_info.pApplicationName)
+        {
+            app_name = app_info.pApplicationName;
+        }
+        if (app_info.pEngineName)
+        {
+            engine_name = app_info.pEngineName;
+        }
+    }
     std::string app_name;
     uint32_t    app_version{ 0 };
     std::string engine_name;
@@ -100,6 +115,19 @@ struct VulkanInstanceAppInfo
 
 struct VulkanInstanceTracker
 {
+    VulkanInstanceTracker() {}
+    VulkanInstanceTracker(const VkApplicationInfo* ai,
+                          const uint32_t           ext_count,
+                          const char* const*       exts,
+                          VkInstance               inst)
+    {
+        if (ai)
+        {
+            app_info = std::move(VulkanInstanceAppInfo(*ai));
+        }
+        enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
+        instance_id        = inst;
+    }
     VulkanInstanceAppInfo            app_info;
     std::vector<std::string>         enabled_extensions;
     std::vector<VkPhysicalDevice>    physical_devices;
@@ -123,17 +151,15 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     const std::unordered_map<VkDevice, VulkanDeviceTracker>& GetDeviceInfo() const { return device_info_; }
 
     // Old stuff
-    uint32_t                        GetTrimmedStartFrame() const { return trimmed_frame_; }
-    uint64_t                        GetTotalGraphicsPipelineCount() const { return total_graphics_pipelines_; }
-    uint64_t                        GetTotalComputePipelineCount() const { return total_compute_pipelines_; }
-    uint64_t                        GetTotalRayTracingPipelineCount() const { return total_raytracing_pipelines_; }
-    uint64_t                        GetTotalDrawCount() const { return total_draw_count_; }
-    uint64_t                        GetTotalDispatchCount() const { return total_dispatch_count_; }
-    uint64_t                        GetTotalAllocationCount() const { return total_allocation_count_; }
-    uint64_t                        GetTotalMinAllocationSize() const { return total_min_allocation_size_; }
-    uint64_t                        GetTotalMaxAllocationSize() const { return total_max_allocation_size_; }
-    uint64_t                        GetAnnotationCount() const { return annotation_count_; }
-    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
+    uint32_t GetTrimmedStartFrame() const { return trimmed_frame_; }
+    uint64_t GetTotalGraphicsPipelineCount() const { return total_graphics_pipelines_; }
+    uint64_t GetTotalComputePipelineCount() const { return total_compute_pipelines_; }
+    uint64_t GetTotalRayTracingPipelineCount() const { return total_raytracing_pipelines_; }
+    uint64_t GetTotalDrawCount() const { return total_draw_count_; }
+    uint64_t GetTotalDispatchCount() const { return total_dispatch_count_; }
+    uint64_t GetTotalAllocationCount() const { return total_allocation_count_; }
+    uint64_t GetTotalMinAllocationSize() const { return total_min_allocation_size_; }
+    uint64_t GetTotalMaxAllocationSize() const { return total_max_allocation_size_; }
 
     using PhysicalDeviceProperties = std::unordered_map<gfxrecon::format::HandleId, VkPhysicalDeviceProperties>;
     const PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return physical_device_properties_; }
@@ -163,35 +189,18 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
         gfxrecon::decode::HandlePointerDecoder<VkInstance>*                                      pInstance) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(allocCb);
         if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
             auto create_info = pCreateInfo->GetPointer();
             auto app_info    = create_info->pApplicationInfo;
             if (app_info != nullptr)
             {
-                VulkanInstanceTracker instance_tracker{};
-                if (app_info->pApplicationName != nullptr)
-                {
-                    instance_tracker.app_info.app_name = app_info->pApplicationName;
-                }
-
-                if (app_info->pEngineName != nullptr)
-                {
-                    instance_tracker.app_info.engine_name = app_info->pEngineName;
-                }
-
-                instance_tracker.app_info.app_version    = app_info->applicationVersion;
-                instance_tracker.app_info.engine_version = app_info->engineVersion;
-                instance_tracker.app_info.api_version    = app_info->apiVersion;
-
-                for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
-                {
-                    instance_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
-                }
-                VkInstance inst = const_cast<VkInstance>(*reinterpret_cast<const VkInstance*>(pInstance->GetPointer()));
-                instance_tracker.instance_id = inst;
-                instance_info_[inst]         = std::move(instance_tracker);
-                last_created_instance_       = inst;
+                const VkInstance      inst = reinterpret_cast<const VkInstance>(*pInstance->GetPointer());
+                VulkanInstanceTracker instance_tracker(
+                    app_info, create_info->enabledExtensionCount, create_info->ppEnabledExtensionNames, inst);
+                instance_info_[inst]   = std::move(instance_tracker);
+                last_created_instance_ = inst;
             }
         }
     }
@@ -293,13 +302,14 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     }
 
     virtual void Process_vkCreateDevice(
-        const gfxrecon::decode::ApiCallInfo&                                                  call_info,
-        VkResult                                                                              returnValue,
-        gfxrecon::format::HandleId                                                            physicalDevice,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>* pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
-        gfxrecon::decode::HandlePointerDecoder<VkDevice>* pDevice) override
+        const gfxrecon::decode::ApiCallInfo&                                                     call_info,
+        VkResult                                                                                 returnValue,
+        gfxrecon::format::HandleId                                                               physicalDevice,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
+        gfxrecon::decode::HandlePointerDecoder<VkDevice>*                                        pDevice) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(allocCb);
         if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
             auto create_info = pCreateInfo->GetPointer();
@@ -315,13 +325,12 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                 instance_info_[instance].used_physical_devices.push_back(phys_dev);
             }
 
-            VkDevice device = const_cast<VkDevice>(*reinterpret_cast<const VkDevice*>(pDevice->GetPointer()));
+            const VkDevice device           = reinterpret_cast<const VkDevice>(*pDevice->GetPointer());
             device_to_instance_map_[device] = instance;
 
             if (physical_device_info_.find(phys_dev) == physical_device_info_.end())
             {
-                VulkanPhysicalDeviceTracker phs_dev_tracker{};
-                physical_device_info_[phys_dev] = std::move(phs_dev_tracker);
+                physical_device_info_[phys_dev] = std::move(VulkanPhysicalDeviceTracker());
             }
 
             if (std::find(physical_device_info_[phys_dev].devices.begin(),
@@ -331,12 +340,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                 physical_device_info_[phys_dev].devices.push_back(device);
             }
 
-            VulkanDeviceTracker dev_tracker{};
-            for (uint32_t ext = 0; ext < create_info->enabledExtensionCount; ++ext)
-            {
-                dev_tracker.enabled_extensions.push_back(create_info->ppEnabledExtensionNames[ext]);
-            }
-            device_info_[device] = std::move(dev_tracker);
+            device_info_[device] = std::move(
+                VulkanDeviceTracker(create_info->enabledExtensionCount, create_info->ppEnabledExtensionNames));
         }
     }
 
@@ -699,10 +704,6 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     uint64_t total_allocation_count_{ 0 };
     uint64_t total_min_allocation_size_{ std::numeric_limits<uint64_t>::max() };
     uint64_t total_max_allocation_size_{ 0 };
-
-    // Annotation info.
-    std::vector<std::string> operation_annotation_datas_;
-    uint64_t                 annotation_count_{ 0 };
 
     VkInstance                                                        last_created_instance_;
     std::unordered_map<VkInstance, VulkanInstanceTracker>             instance_info_;
