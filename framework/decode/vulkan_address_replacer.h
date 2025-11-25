@@ -441,9 +441,9 @@ class VulkanAddressReplacer
     bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
                                             const decode::VulkanDeviceAddressTracker& address_tracker);
 
-    const graphics::VulkanDeviceTable*                             device_table_      = nullptr;
-    decode::CommonObjectInfoTable*                                 object_table_      = nullptr;
-    VkPhysicalDeviceMemoryProperties                               memory_properties_ = {};
+    const graphics::VulkanDeviceTable*                             device_table_              = nullptr;
+    decode::CommonObjectInfoTable*                                 object_table_              = nullptr;
+    VkPhysicalDeviceMemoryProperties                               capture_memory_properties_ = {};
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_ray_properties_{}, replay_ray_properties_{};
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> replay_acceleration_structure_properties_{};
     bool                                                              valid_sbt_alignment_ = true;
