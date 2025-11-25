@@ -121,7 +121,7 @@ process handle -p true -s false -n false SIGPWR
 process handle -p true -s false -n false SIGXCPU
 process handle -p true -s false -n false SIGBUS
 settings append target.exec-search-paths android/layer/build/intermediates/cxx/Debug/<some numbers such as '3m4on72q'>/obj/<target device architecture e.g. arm64-v8a>/
-attach $(adb shell pidof <apk name e.g. com.example.VkCube>)
+attach <pid of running app>
 ```
 
 Then (assuming `lldb` is in $PATH) launch `lldb` with `lldb -s ./lldbinit`
