@@ -121,7 +121,7 @@ void DispatchTraceRaysDumpingContext::Release()
     trace_rays_params_.clear();
 }
 
-VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
+VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
                                                              const graphics::VulkanDeviceTable*   dev_table,
                                                              const graphics::VulkanInstanceTable* inst_table,
                                                              const VkCommandBufferBeginInfo*      begin_info)
@@ -1136,7 +1136,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
             return res;
         }
 
-        if (options_.dump_resources_dump_immutable_resources)
+        if (options_.dump_all_descriptors)
         {
             res = DumpDescriptors(qs_index, bcb_index, disp_index, true);
             if (res != VK_SUCCESS)
@@ -1163,7 +1163,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
             return res;
         }
 
-        if (options_.dump_resources_dump_immutable_resources)
+        if (options_.dump_all_descriptors)
         {
             res = DumpDescriptors(qs_index, bcb_index, tr_index, false);
             if (res != VK_SUCCESS)

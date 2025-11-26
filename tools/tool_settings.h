@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -151,30 +151,16 @@ const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
 #if defined(WIN32)
-const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
-const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
-const char kDxAgsMarkRenderPasses[]       = "--dx12-ags-inject-markers";
-const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
+const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
+const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
+const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
+const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
+const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
+const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 #endif
 
-const char kDumpResourcesArgument[]                    = "--dump-resources";
-const char kDumpResourcesBeforeDrawOption[]            = "--dump-resources-before-draw";
-const char kDumpResourcesImageFormat[]                 = "--dump-resources-image-format";
-const char kDumpResourcesScaleArgument[]               = "--dump-resources-scale";
-const char kDumpResourcesDepth[]                       = "--dump-resources-dump-depth-attachment";
-const char kDumpResourcesDirArgument[]                 = "--dump-resources-dir";
-const char kDumpResourcesModifiableStateOnly[]         = "--dump-resources-modifiable-state-only";
-const char kDumpResourcesColorAttIdxArg[]              = "--dump-resources-dump-color-attachment-index";
-const char kDumpResourcesDumpVertexIndexBuffers[]      = "--dump-resources-dump-vertex-index-buffers";
-const char kDumpResourcesJsonPerCommand[]              = "--dump-resources-json-output-per-command";
-const char kDumpResourcesDumpImmutableResources[]      = "--dump-resources-dump-immutable-resources";
-const char kDumpResourcesDumpImageSubresources[]       = "--dump-resources-dump-all-image-subresources";
-const char kDumpResourcesDumpRawImages[]               = "--dump-resources-dump-raw-images";
-const char kDumpResourcesDumpSeparateAlpha[]           = "--dump-resources-dump-separate-alpha";
-const char kDumpResourcesDumpUnusedVertexBindings[]    = "--dump-resources-dump-unused-vertex-bindigs";
-const char kDumpResourcesBinaryFileCompressionMethod[] = "--dump-resources-binary-file-compression-type";
-const char kDumpResourcesDumpBuildASInputBuffers[] =
-    "--dump-resources-dump-build-acceleration-structures-input-buffers";
+const char kDumpResourcesArgument[]    = "--dump-resources";
+const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
 
 enum class WsiPlatform
 {
@@ -211,14 +197,6 @@ const char kPresentModeImmediate[]   = "immediate";
 const char kPresentModeMailbox[]     = "mailbox";
 const char kPresentModeFifo[]        = "fifo";
 const char kPresentModeFifoRelaxed[] = "fifo_relaxed";
-
-const char kScreenshotFormatBmp[] = "bmp";
-const char kScreenshotFormatPng[] = "png";
-
-const char kCompressionTypeNone[] = "none";
-const char kCompressionTypeLz4[]  = "lz4";
-const char kCompressionTypeZlib[] = "zlib";
-const char kCompressionTypeZstd[] = "zstd";
 
 #if defined(__ANDROID__)
 const char kDefaultScreenshotDir[]    = "/sdcard";
@@ -578,11 +556,11 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
 
     if (!value.empty())
     {
-        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
+        if (!gfxrecon::util::platform::StringCompareNoCase(gfxrecon::util::kScreenshotFormatBmp, value.c_str()))
         {
             format = gfxrecon::util::ScreenshotFormat::kBmp;
         }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
+        else if (!gfxrecon::util::platform::StringCompareNoCase(gfxrecon::util::kScreenshotFormatPng, value.c_str()))
         {
             format = gfxrecon::util::ScreenshotFormat::kPng;
         }
@@ -593,63 +571,6 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
     }
 
     return format;
-}
-
-static gfxrecon::util::ScreenshotFormat GetDumpresourcesImageFormat(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
-    const auto&                      value  = arg_parser.GetArgumentValue(kDumpResourcesImageFormat);
-
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
-        {
-            format = gfxrecon::util::ScreenshotFormat::kBmp;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
-        {
-            format = gfxrecon::util::ScreenshotFormat::kPng;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized dump resources image format option \"%s\"", value.c_str());
-        }
-    }
-
-    return format;
-}
-
-static gfxrecon::format::CompressionType
-GetDumpResourcesCompressionType(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesBinaryFileCompressionMethod);
-
-    gfxrecon::format::CompressionType type = gfxrecon::format::CompressionType::kNone;
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeNone, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kNone;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeLz4, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kLz4;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeZlib, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kZlib;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeZstd, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kZstd;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Unrecognized compression method \"%s\"", value.c_str());
-        }
-    }
-
-    return type;
 }
 
 static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -724,36 +645,6 @@ static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
-        }
-    }
-
-    return scale;
-}
-
-static float GetDumpResourcesScale(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesScaleArgument);
-
-    float scale = 1.0f;
-
-    if (!value.empty())
-    {
-        try
-        {
-            scale = std::stof(value);
-        }
-        catch (std::exception&)
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option.");
-        }
-        if (scale <= 0.0f)
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option. Value must > 0.0.");
-            scale = 1.0f;
-        }
-        if (scale >= 10.0f)
-        {
-            scale = 10.0f;
         }
     }
 
@@ -1318,32 +1209,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
     }
 
-    replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
-    replay_options.dump_resources_dump_depth   = arg_parser.IsOptionSet(kDumpResourcesDepth);
-    replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
-    replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
-    replay_options.dump_resources_output_dir   = GetDumpResourcesDir(arg_parser);
-    replay_options.dumping_resources           = !replay_options.dump_resources_block_indices.empty();
-    replay_options.dump_resources_dump_vertex_index_buffer =
-        arg_parser.IsOptionSet(kDumpResourcesDumpVertexIndexBuffers);
-    replay_options.dump_resources_json_per_command = arg_parser.IsOptionSet(kDumpResourcesJsonPerCommand);
-    replay_options.dump_resources_dump_immutable_resources =
-        arg_parser.IsOptionSet(kDumpResourcesDumpImmutableResources);
-    replay_options.dump_resources_dump_all_image_subresources =
-        arg_parser.IsOptionSet(kDumpResourcesDumpImageSubresources);
-    replay_options.dump_resources_dump_raw_images     = arg_parser.IsOptionSet(kDumpResourcesDumpRawImages);
-    replay_options.dump_resources_dump_separate_alpha = arg_parser.IsOptionSet(kDumpResourcesDumpSeparateAlpha);
-    replay_options.dump_resources_dump_unused_vertex_bindings =
-        arg_parser.IsOptionSet(kDumpResourcesDumpUnusedVertexBindings);
-    replay_options.dump_resources_dump_build_AS_input_buffers =
-        arg_parser.IsOptionSet(kDumpResourcesDumpBuildASInputBuffers);
-    replay_options.dump_resources_binary_file_compression_type = GetDumpResourcesCompressionType(arg_parser);
-
-    std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);
-    if (!dr_color_att_idx.empty())
-    {
-        replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
-    }
+    replay_options.dump_resources_output_dir = GetDumpResourcesDir(arg_parser);
 
     replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
     replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
@@ -1456,7 +1322,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
         }
 
         GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
         GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
                                VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
                                VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),

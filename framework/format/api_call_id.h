@@ -805,7 +805,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT                              = MakeApiCallId(ApiFamily_Vulkan, 0x1340),
     ApiCall_vkCmdCopyMemoryIndirectKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1341),
     ApiCall_vkCmdCopyMemoryToImageIndirectKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1342),
-    ApiCall_Reserved_0x1343                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1343),
+    ApiCall_vkCmdEndRendering2KHR                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1343),
+    ApiCall_vkCmdDecompressMemoryEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1344),
+    ApiCall_vkCmdDecompressMemoryIndirectCountEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1345),
+    ApiCall_vkCmdBeginCustomResolveEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1346),
+    ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM                    = MakeApiCallId(ApiFamily_Vulkan, 0x1347),
+    ApiCall_Reserved_0x1348                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1348),
 
     ApiCall_VulkanLast,
 

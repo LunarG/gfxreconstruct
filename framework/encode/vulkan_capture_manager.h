@@ -1405,6 +1405,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
+    void PreProcess_vkQueueBindSparse(VkQueue                 queue,
+                                      uint32_t                bindInfoCount,
+                                      const VkBindSparseInfo* pBindInfo,
+                                      VkFence                 fence);
+
 #if ENABLE_OPENXR_SUPPORT
     void PreProcess_vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
     void PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
@@ -1412,6 +1417,15 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PreProcess_vkWaitForFences(
         VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
 #endif
+
+    void PostProcess_vkResetFences(VkResult result, VkDevice device, uint32_t fenceCount, const VkFence* pFences);
+    void PostProcess_vkWaitForFences(VkResult       result,
+                                     VkDevice       device,
+                                     uint32_t       fenceCount,
+                                     const VkFence* pFences,
+                                     VkBool32       waitAll,
+                                     uint64_t       timeout);
+    void PostProcess_vkGetFenceStatus(VkResult result, VkDevice device, VkFence fence);
 
     void PostProcess_vkSetPrivateData(VkResult          result,
                                       VkDevice          device,

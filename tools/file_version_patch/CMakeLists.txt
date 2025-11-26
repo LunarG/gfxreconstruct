@@ -54,6 +54,7 @@ target_link_libraries(gfxrecon-file-version-patch
                       gfxrecon_format
                       gfxrecon_util
                       platform_specific
+                      project_version
                       $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
 
 common_build_directives(gfxrecon-file-version-patch)

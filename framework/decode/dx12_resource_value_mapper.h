@@ -174,6 +174,8 @@ class Dx12ResourceValueMapper
 
     void ProcessResourceMappings(ProcessResourceMappingsArgs args);
 
+    void SourceCopyResources(std::vector<ResourceCopyInfo>& copy_infos, ResourceValueInfoMap& resource_value_info_map);
+
     bool MapValue(const ResourceValueInfo& value_info,
                   std::vector<uint8_t>&    result_data,
                   format::HandleId         resource_id,

@@ -422,6 +422,7 @@ void VulkanStateWriter::WriteFenceState(const VulkanStateTable& state_table)
         bool                                  signaled       = wrapper->created_signaled;
 
         GetFenceStatus(device_wrapper, wrapper->handle, &signaled);
+        signaled = signaled || wrapper->in_flight;
 
         if (signaled == wrapper->created_signaled)
         {

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -29,13 +29,13 @@
 #include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
 #include "decode/api_payload.h"
+#include "decode/block_parser.h"
 #include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "decode/decode_allocator.h"
 #include "util/logging.h"
 #include "util/file_input_stream.h"
-#include "util/type_traits_extras.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -91,281 +91,9 @@ static void SetDecoderApiCallId(ApiDecoder& decoder, const Args& args)
     }
 }
 
-using FileInputStream    = util::FStreamFileInputStream;
-using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
-
-class FileProcessor;
-
-enum BlockReadError : int32_t
-{
-    kErrorNone                         = 0,
-    kErrorInvalidFileDescriptor        = -1,
-    kErrorOpeningFile                  = -2,
-    kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
-    kErrorReadingFileHeader            = -4,
-    kErrorReadingBlockHeader           = -5,
-    kErrorReadingCompressedBlockHeader = -6,
-    kErrorReadingBlockData             = -7,
-    kErrorReadingCompressedBlockData   = -8,
-    kErrorInvalidFourCC                = -9,
-    kErrorUnsupportedCompressionType   = -10
-};
-
-class BlockBuffer
-{
-  public:
-    using BlockSpan = util::DataSpan::OutputSpan;
-    // Validity means that it has a payload and the payload size is consistent with the block header
-    bool IsValid() const
-    {
-        return (block_span_.data() != nullptr) && (block_span_.Size() == (header_.size + sizeof(format::BlockHeader)));
-    }
-    bool IsEof() const { return read_pos_ >= block_span_.size(); }
-
-    template <typename T>
-    bool Read(T& value)
-    {
-        bool success = ReadAt<T>(value, read_pos_);
-        if (success)
-        {
-            read_pos_ += sizeof(T);
-        }
-        return success;
-    }
-
-    template <typename T>
-    bool ReadAt(T& value, size_t at) const
-    {
-        // Ensure that this isn't being misused.
-        static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
-        if (IsAvailableAt(sizeof(value), at))
-        {
-            memcpy(&value, block_span_.data() + at, sizeof(value));
-            return true;
-        }
-        return false;
-    }
-
-    bool ReadBytes(void* buffer, size_t buffer_size);
-    bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
-
-    BlockSpan ReadSpan(size_t buffer_size);
-    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
-
-    size_t                     Size() const { return block_span_.size(); }
-    const format::BlockHeader& Header() const { return header_; }
-
-    size_t ReadPos() const { return read_pos_; }
-    size_t Remainder() const
-    {
-        GFXRECON_ASSERT(Size() >= read_pos_);
-        return Size() - read_pos_;
-    }
-
-    BlockBuffer() = default;
-    BlockBuffer(util::DataSpan&& block_span);
-
-    bool IsFrameDelimiter(const FileProcessor& file_processor) const;
-
-    void Reset(util::DataSpan&& block_span);
-    void Reset()
-    {
-        read_pos_ = 0;
-        block_span_.Reset();
-    };
-
-    util::DataSpan&& ReleaseData() { return std::move(block_span_); }
-    bool             SeekForward(size_t size);
-    bool             SeekTo(size_t size);
-
-    bool IsAvailable(size_t size) const { return IsAvailableAt(size, read_pos_); }
-    bool IsAvailableAt(size_t size, size_t at) const { return Size() >= (at + size); }
-
-  private:
-    void                InitBlockHeaderFromSpan();
-    size_t              read_pos_{ 0 };
-    uint64_t            block_index_{ 0U };
-    util::DataSpan      block_span_;
-    format::BlockHeader header_;
-};
-
-class BlockParser;
-
-// -----------------------------------------------------------------------------
-// ParsedBlock
-//
-// Purpose:
-//   ParsedBlock owns a captured block (mapped or heap), plus optional
-//   uncompressed data and decoded arguments.
-//
-//   The current form is intentionally verbose for prototype and implementation
-//   of Parser/Processor logic but can be significantly reduced.
-//
-// Current status:
-//   sizeof(ParsedBlock) ~ 136 B
-//
-// Oversized elements:
-//   Uses util::DataSpan for ownership/view coupling (48 B).
-//   UncompressedStore holds HeapBufferPool::Entry
-//       (Entry = 24 B, includes embedded pool* 8 B).
-//
-// Improvement plan (target size ~ 104-112 B):
-//   * Rewrite util::DataSpan as util::DataBuffer:
-//       - DataBuffer wraps valid storage variants (mapped or heap).
-//       - Removes data_/size_ shortcuts from DataSpan.
-//       - data()/size() provided via visitor (slow path).
-//       - Use make_span(buffer, off, len) for fast, non-owning access.
-//       - Expected savings: ~16 B (on 64-bit).
-//
-//   * Refactor UncompressedStore:
-//       - Perhap refactor Entry to hide pool as prefix to the allocation
-//       - Perhaps hide HeapBuffer size as hidden prefix
-//       - Expected saving: 8-16 B
-//
-//   * Keep DispatchArgs (56 B) for now:
-//       - Size matches ~95% of blocks.
-//       - 8-byte variant overhead simplifies anonymized usage.
-// -----------------------------------------------------------------------------
-class ParsedBlock
-{
-  public:
-    enum BlockState
-    {
-        kInvalid = 0,       // Set on read error (typically block size doesn't match expected parsed size)
-        kUnknown,           // Set when block is of an unknown type (no parsing done beyond header)
-        kReady,             // Set when block is decompressed, or doesn't need to be
-        kDelayedDecompress, // Set when block type is compressed, but decompression was suppressed
-        kSkip,              // Set when block should be skipped
-    };
-    using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
-    using UncompressedStore = PoolEntry;
-
-    bool                  IsValid() const { return state_ != BlockState::kInvalid; }
-    bool                  IsReady() const { return state_ == BlockState::kReady; }
-    bool                  IsUnknown() const { return state_ == BlockState::kUnknown; }
-    bool                  IsSkip() const { return state_ == BlockState::kSkip; }
-    bool                  NeedsDecompression() const { return state_ == BlockState::kDelayedDecompress; }
-    BlockState            GetState() const { return state_; }
-    const util::DataSpan& GetBlockData() const { return block_data_; }
-    const DispatchArgs&   GetArgs() const { return dispatch_args_; }
-    explicit              operator bool() const { return IsValid(); }
-
-    // Move only (has owning data)
-    ParsedBlock(ParsedBlock&&) noexcept            = default;
-    ParsedBlock& operator=(ParsedBlock&&) noexcept = default;
-
-    // Copy verboten
-    ParsedBlock(const ParsedBlock&)            = delete;
-    ParsedBlock& operator=(const ParsedBlock&) = delete;
-
-    // the EmptyBlockTag tag isn't really needed, we could just overload on BlockState, but I want to make this more
-    // obvious.
-    struct EmptyBlockTag
-    {};
-    ParsedBlock(const EmptyBlockTag&, BlockState reason) : block_data_(), uncompressed_store_(), state_(reason) {}
-
-    // NOTE: need to ensure correct state is state vis-a-vis uncompressed store
-    // This is called for compressed blocks to provide the backing store for the uncompress parameter block views
-    // Needs update when deferred decompression is added
-    template <typename ArgPayload>
-    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, UncompressedStore&& uncompressed_store) :
-        block_data_(std::move(block_data)), uncompressed_store_(std::move(uncompressed_store)),
-        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(BlockState::kReady)
-    {}
-
-    void Decompress(BlockParser& parser); // Modify in place by reparsing
-
-    template <typename Visitor>
-    void Visit(Visitor& visitor) const
-    {
-        if (state_ != BlockState::kSkip)
-        {
-            GFXRECON_ASSERT((state_ == BlockState::kReady) || (state_ == BlockState::kDelayedDecompress));
-            auto visit_call = [this, &visitor](auto&& args) { visitor.Visit(*this, *args); };
-            std::visit(visit_call, dispatch_args_);
-        }
-    }
-
-  private:
-    template <typename ArgPayload>
-    DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
-    {
-        using Args     = util::RemoveCvRef_t<ArgPayload>;
-        using ArgStore = DispatchStore<Args>;
-
-        static_assert(util::IsVariantAlternative_v<ArgStore, DispatchArgs>,
-                      "Invalid ArgPayload type, not storable in DispatchArgs");
-        static_assert(std::is_constructible_v<Args, ArgPayload&&>,
-                      "DispatchArgs alternative not constructible from supplied payload");
-
-        return DispatchArgs(std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload));
-    }
-
-    // The original contents of the read block (also backing store for uncompressed parameter views)
-    util::DataSpan block_data_;
-
-    // Backing store for the uncompressed parameter buffer, if needed.
-    UncompressedStore uncompressed_store_;
-
-    // Variant of all parsed results
-    DispatchArgs dispatch_args_; // Variant with a type decoded block
-    BlockState   state_ = BlockState::kInvalid;
-};
-
-class FileProcessor;
-// TODO: Find a better allocator (or improve this one), and share with FileInputStream
-using BufferPool = util::HeapBufferPool::PoolPtr;
-
-class BlockParser
-{
-  public:
-    using UncompressedStore = ParsedBlock::UncompressedStore;
-
-    void SetFrameNumber(uint64_t frame_number) noexcept { frame_number_ = frame_number; }
-    void SetBlockIndex(uint64_t block_index) noexcept { block_index_ = block_index; }
-
-    [[nodiscard]] uint64_t GetFrameNumber() const noexcept { return frame_number_; }
-    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
-
-    // Parse the block header and load a block buffer
-    bool ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
-
-    // Define parsers for every block and sub-block type
-    ParsedBlock ParseBlock(BlockBuffer& block_buffer);
-    ParsedBlock ParseFunctionCall(BlockBuffer& block_buffer);
-    ParsedBlock ParseMethodCall(BlockBuffer& block_buffer);
-    ParsedBlock ParseMetaData(BlockBuffer& block_buffer);
-    ParsedBlock ParseFrameMarker(BlockBuffer& block_buffer);
-    ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
-    ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
-
-    void                   HandleBlockReadError(BlockReadError error_code, const char* error_message);
-    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer&       block_buffer,
-                                                         size_t             compressed_size,
-                                                         size_t             expanded_size,
-                                                         UncompressedStore& out_store);
-    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
-
-    // TODO: Replace with actual ErrorHandler s.t. FileTransformer can use the BlockParser
-    using ErrorHandler = FileProcessor;
-    BlockParser(ErrorHandler& err, BufferPool& pool, util::Compressor* compressor) :
-        pool_(pool), err_handler_(err), compressor_(compressor)
-    {}
-
-  private:
-    BufferPool        pool_; // TODO: Get a better pool, and share with FileInputStream
-    ErrorHandler&     err_handler_;
-    util::Compressor* compressor_;
-
-    uint64_t frame_number_ = 0;
-    uint64_t block_index_  = 0;
-};
-
 class FileProcessor
 {
   public:
-    using Error = BlockReadError;
-
     enum BlockProcessReturn : int32_t
     {
         kSuccess = 0,
@@ -410,7 +138,7 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
-    Error GetErrorState() const { return error_state_; }
+    BlockReadError GetErrorState() const { return error_state_; }
 
     bool EntireFileWasProcessed() const
     {
@@ -436,7 +164,7 @@ class FileProcessor
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
-    void HandleBlockReadError(Error error_code, const char* error_message);
+    void HandleBlockReadError(BlockReadError error_code, const char* error_message);
 
     bool ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& execute_blocks_info);
     void ProcessStateBeginMarker(const StateBeginMarkerArgs& state_begin);
@@ -475,14 +203,14 @@ class FileProcessor
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
-    Error                    error_state_;
+    BlockReadError           error_state_;
     uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
 
   protected:
-    Error CheckFileStatus() const
+    BlockReadError CheckFileStatus() const
     {
         if (file_stack_.empty())
         {
@@ -516,7 +244,7 @@ class FileProcessor
     {
       public:
         template <typename Args>
-        void Visit(const ParsedBlock& parsed_block, const Args& args)
+        void operator()(const Args& args)
         {
             constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
             for (auto decoder : decoders_)
@@ -532,7 +260,7 @@ class FileProcessor
                 }
             }
         }
-        void Visit(const ParsedBlock& parsed_block, const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs& annotation)
         {
             if (annotation_handler_)
             {
@@ -542,6 +270,14 @@ class FileProcessor
                 std::apply(annotation_call, annotation.GetTuple());
             }
         }
+
+        // Avoid unpacking the Arg from it's store in the Arg specific overloads
+        template <typename Args>
+        void operator()(const DispatchStore<Args>& store)
+        {
+            this->operator()(*store);
+        }
+
         DispatchVisitor(const std::vector<ApiDecoder*>& decoders, AnnotationHandler* annotation_handler) :
             decoders_(decoders), annotation_handler_(annotation_handler)
         {}
@@ -554,23 +290,23 @@ class FileProcessor
     class ProcessVisitor
     {
       public:
-        // NOTE: All Visit overloads should set all state, as there's no way to prevent
-        //       the caller from *reusing* a Visitor object across any number of Visit calls
+        // NOTE: All overloads should set all state, as the caller is *reusing* the Visitor object across a number of
+        //       std::visit calls
 
         // Frame boundary control
-        void Visit(const ParsedBlock& parsed_block, const FunctionCallArgs& function_call)
+        void operator()(const FunctionCallArgs& function_call)
         {
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call.call_id);
             success            = true;
         }
 
-        void Visit(const ParsedBlock& parsed_block, const MethodCallArgs& method_call)
+        void operator()(const MethodCallArgs& method_call)
         {
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call.call_id);
             success            = true;
         }
 
-        void Visit(const ParsedBlock& parsed_block, const FrameEndMarkerArgs& end_frame)
+        void operator()(const FrameEndMarkerArgs& end_frame)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = file_processor_.ProcessFrameDelimiter(end_frame);
@@ -578,7 +314,7 @@ class FileProcessor
         }
 
         // I/O Control
-        void Visit(const ParsedBlock& parsed_block, const ExecuteBlocksFromFileArgs& execute_blocks)
+        void operator()(const ExecuteBlocksFromFileArgs& execute_blocks)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -586,7 +322,7 @@ class FileProcessor
         }
 
         // State Marker control
-        void Visit(const ParsedBlock& parsed_block, const StateBeginMarkerArgs& state_begin)
+        void operator()(const StateBeginMarkerArgs& state_begin)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -594,7 +330,7 @@ class FileProcessor
             file_processor_.ProcessStateBeginMarker(state_begin);
         }
 
-        void Visit(const ParsedBlock& parsed_block, const StateEndMarkerArgs& state_end)
+        void operator()(const StateEndMarkerArgs& state_end)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
@@ -602,7 +338,7 @@ class FileProcessor
             file_processor_.ProcessStateEndMarker(state_end);
         }
 
-        void Visit(const ParsedBlock& parsed_block, const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs& annotation)
         {
             // The block and marker type are implied by the Command type
             is_frame_delimiter = false;
@@ -611,11 +347,18 @@ class FileProcessor
         }
 
         template <typename Args>
-        void Visit(const ParsedBlock& parsed_block, const Args&)
+        void operator()(const Args&)
         {
             // The default behavior for a Visit is a successful, non-frame-delimiter
             is_frame_delimiter = false;
             success            = true;
+        }
+
+        // Avoid unpacking the Arg from it's store in the Arg specific overloads
+        template <typename Args>
+        void operator()(const DispatchStore<Args>& store)
+        {
+            this->operator()(*store);
         }
 
         bool IsSuccess() const { return success; }
@@ -633,12 +376,6 @@ class FileProcessor
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
-
-    BlockBuffer::BlockSpan ReadParameterBuffer(BlockBuffer& block_buffer, size_t buffer_size);
-
-    BlockBuffer::BlockSpan ReadCompressedParameterBuffer(BlockBuffer& block_buffer,
-                                                         size_t       compressed_buffer_size,
-                                                         size_t       expected_uncompressed_size);
 
     bool IsFileValid() const
     {
