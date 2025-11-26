@@ -84,7 +84,7 @@ bool PreloadFileProcessor::PreloadBlocksOneFrame()
             else
             {
                 // We can succeed at EOF, if there are more files on the stack.
-                success = HandleBlockEof("preload", false /* no frame or block info */);
+                success = ContinueProcessing(HandleBlockEof("preload", false /* no frame or block info */));
             }
         }
     }

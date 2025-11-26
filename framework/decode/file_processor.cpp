@@ -105,7 +105,12 @@ bool FileProcessor::ProcessBlocksOneFrame()
     {
         decoder->SetCurrentFrameNumber(current_frame_number_);
     }
-    return ProcessBlocks();
+    ProcessBlockState process_result = ProcessBlocks();
+    if (process_result == ProcessBlockState::kFrameBoundary)
+    {
+        UpdateEndFrameState();
+    }
+    return ContinueProcessing(process_result);
 }
 
 bool FileProcessor::DoProcessNextFrame(const std::function<bool()>& block_processor)
@@ -261,10 +266,10 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
-bool FileProcessor::ProcessBlocks()
+FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks()
 {
-    BlockBuffer         block_buffer;
-    bool                success = true;
+    BlockBuffer       block_buffer;
+    ProcessBlockState process_state = ProcessBlockState::kRunning;
 
     auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
     BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
@@ -274,10 +279,10 @@ bool FileProcessor::ProcessBlocks()
     ProcessVisitor  process_visitor(*this);
     DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
 
-    while (success)
+    while (process_state == ProcessBlockState::kRunning)
     {
         PrintBlockInfo();
-        success = ContinueDecoding();
+        bool success = ContinueDecoding();
 
         if (success)
         {
@@ -317,6 +322,11 @@ bool FileProcessor::ProcessBlocks()
                                 std::visit(dispatch_visitor, parsed_block.GetArgs());
                             }
                         }
+
+                        if (process_visitor.IsFrameDelimiter())
+                        {
+                            process_state = ProcessBlockState::kFrameBoundary;
+                        }
                     }
                     else if (parsed_block.IsUnknown())
                     {
@@ -327,30 +337,23 @@ bool FileProcessor::ProcessBlocks()
                                              current_frame_number_,
                                              block_index_);
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
-                        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
-                        success = true;
-                    }
-
-                    if (process_visitor.IsFrameDelimiter())
-                    {
-                        // The ProcessVisitor (pre-dispatch) is not the right place to update the frame state, so do it
-                        // here
-                        UpdateEndFrameState();
-                        break;
                     }
                 }
+                ++block_index_;
+                DecrementRemainingCommands();
             }
-            else
+            else // GetBlockBuffer failed
             {
-                success = HandleBlockEof("read", true);
+                process_state = HandleBlockEof("read", true);
             }
         }
-        ++block_index_;
-        DecrementRemainingCommands();
+        else // ContinueDecoding returned false
+        {
+            process_state = ProcessBlockState::kEndProcessing;
+        }
     }
 
-    DecrementRemainingCommands();
-    return success;
+    return process_state;
 }
 
 // While ReadBlockBuffer both reads the block header and the block body, checks for
@@ -549,7 +552,6 @@ void FileProcessor::UpdateEndFrameState()
 
     // Make sure to increment the frame number on the way out.
     ++current_frame_number_;
-    ++block_index_;
 }
 
 bool FileProcessor::ProcessFrameDelimiter(gfxrecon::format::ApiCallId call_id)
@@ -659,10 +661,10 @@ void FileProcessor::PrintBlockInfo() const
     }
 }
 
-bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
+FileProcessor::ProcessBlockState FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
 {
 
-    bool success = false;
+    ProcessBlockState state = ProcessBlockState::kEndProcessing;
     if (!AtEof())
     {
         // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
@@ -683,6 +685,7 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         }
 
         error_state_ = kErrorReadingBlockHeader;
+        state        = ProcessBlockState::kError;
     }
     else
     {
@@ -692,10 +695,13 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         if (current_file.execute_till_eof)
         {
             file_stack_.pop_back();
-            success = !file_stack_.empty();
+            if (!file_stack_.empty())
+            {
+                state = ProcessBlockState::kRunning;
+            }
         }
     }
-    return success;
+    return state;
 }
 
 GFXRECON_END_NAMESPACE(decode)

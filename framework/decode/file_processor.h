@@ -197,7 +197,19 @@ class FileProcessor
 
     void PrintBlockInfo() const;
 
-    bool HandleBlockEof(const char* operation, bool report_frame_and_block);
+    enum class ProcessBlockState : int32_t
+    {
+        // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
+        //
+        // Returned when ProcessBlocks ...
+        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
+        kFrameBoundary = 1,  // encountered a frame boundary
+        kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
+        kError         = -2, // encountered an error
+    };
+    static inline bool ContinueProcessing(ProcessBlockState state) { return static_cast<int32_t>(state) >= 0; }
+
+    ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
     uint64_t                 current_frame_number_;
@@ -349,9 +361,7 @@ class FileProcessor
         template <typename Args>
         void operator()(const Args&)
         {
-            // The default behavior for a Visit is a successful, non-frame-delimiter
-            is_frame_delimiter = false;
-            success            = true;
+            Reset();
         }
 
         // Avoid unpacking the Arg from it's store in the Arg specific overloads
@@ -364,6 +374,11 @@ class FileProcessor
         bool IsSuccess() const { return success; }
         bool IsFrameDelimiter() const { return is_frame_delimiter; }
         ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
+        void Reset()
+        {
+            is_frame_delimiter = false;
+            success            = true;
+        }
 
       private:
         bool           is_frame_delimiter = false;
@@ -372,7 +387,7 @@ class FileProcessor
     };
 
     bool ProcessFileHeader();
-    bool ProcessBlocks();
+    ProcessBlockState ProcessBlocks();
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
