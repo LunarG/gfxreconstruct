@@ -810,6 +810,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdDecompressMemoryIndirectCountEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1345),
     ApiCall_vkCmdBeginCustomResolveEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1346),
     ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM                    = MakeApiCallId(ApiFamily_Vulkan, 0x1347),
+    ApiCall_Reserved_0x1348                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1348),
 
     ApiCall_VulkanLast,
 
