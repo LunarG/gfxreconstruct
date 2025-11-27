@@ -47,6 +47,9 @@ struct Dx12OptimizationInfo
     std::unordered_set<uint64_t>         unreferenced_blocks;
     decode::UnreferencedPsoCreationCalls calls_info{};
 
+    // Resource removal
+    std::unordered_set<format::HandleId> unreferenced_resources;
+
     // DXR optimization
     decode::Dx12FillCommandResourceValueMap  fill_command_resource_values;
     decode::Dx12UnassociatedResourceValueMap unassociated_resource_values;
@@ -88,11 +91,6 @@ void CreateResourceValueTrackingConsumer(
 
 bool FileProcessorSucceeded(const decode::FileProcessor& processor)
 {
-    if ((processor.GetCurrentFrameNumber() > 0) == false)
-    {
-        GFXRECON_WRITE_CONSOLE("Did not detect any frames in the capture.");
-    }
-
     if ((processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone) == false)
     {
         GFXRECON_WRITE_CONSOLE("Encountered error while reading the capture.");
@@ -103,8 +101,7 @@ bool FileProcessorSucceeded(const decode::FileProcessor& processor)
         GFXRECON_WRITE_CONSOLE("Did not reach the end of the capture.");
     }
 
-    return (processor.GetCurrentFrameNumber() > 0) &&
-           (processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone) &&
+    return (processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone) &&
            processor.EntireFileWasProcessed();
 }
 
@@ -141,16 +138,21 @@ bool GetUnreferencedObjectOptimizationInfo(const std::string&               inpu
     decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::Dx12Decoder                decoder;
-        gfxrecon::decode::Dx12ObjectScanningConsumer pso_consumer;
+        gfxrecon::decode::Dx12Decoder                    decoder;
+        gfxrecon::decode::Dx12ObjectScanningConsumer     pso_consumer;
+        gfxrecon::decode::Dx12ReferencedResourceConsumer resource_consumer;
 
         GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for unreferenced objects.", input_filename.c_str());
-        decoder.AddConsumer(&pso_consumer);
+        if (options.remove_redundant_psos)
+            decoder.AddConsumer(&pso_consumer);
+        if (options.remove_redundant_resources)
+            decoder.AddConsumer(&resource_consumer);
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
         if (FileProcessorSucceeded(file_processor))
         {
             pso_consumer.GetUnreferencedObjectCreationBlocks(&info.unreferenced_blocks, &info.calls_info);
+            resource_consumer.GetReferencedResourceIds(nullptr, &info.unreferenced_resources);
             GFXRECON_WRITE_CONSOLE("Finished scanning capture file for unreferenced objects.");
 
             ref_scan_result = true;
@@ -287,7 +289,7 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
     bool ref_scan_result = true;
     bool dxr_scan_result = true;
 
-    if (options.remove_redundant_psos)
+    if (options.remove_redundant_psos || options.remove_redundant_resources)
     {
         ref_scan_result = GetUnreferencedObjectOptimizationInfo(input_filename, options, info);
     }
@@ -350,8 +352,21 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("No redundant PSOs detected. Skipping PSO removal optimization.",
-                                   input_filename.c_str());
+            GFXRECON_WRITE_CONSOLE("No redundant PSOs detected. Skipping PSO removal optimization.");
+        }
+    }
+
+    if (options.remove_redundant_resources)
+    {
+        if (!info.unreferenced_resources.empty())
+        {
+            found_optimization_data = true;
+            GFXRECON_WRITE_CONSOLE("Removing initialization data for %" PRIu64 " unused resources.",
+                                   info.unreferenced_resources.size());
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("No redundant resources detected. Skipping resource removal optimization.");
         }
     }
 
@@ -391,6 +406,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         if (file_optimizer.Initialize(input_filename, output_filename, "optimize"))
         {
             file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
+            file_optimizer.SetUnreferencedIds(info.unreferenced_resources);
             file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values,
                                                         info.inject_noop_resource_value_optimization);
 
@@ -444,7 +460,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
 bool Dx12OptimizeFile(std::string input_filename, std::string output_filename, decode::Dx12OptimizationOptions& options)
 {
     // Return early if no DX12 optimizations were enabled.
-    if (!options.remove_redundant_psos && !options.optimize_resource_values)
+    if (!(options.remove_redundant_psos || options.remove_redundant_resources || options.optimize_resource_values))
     {
         return true;
     }

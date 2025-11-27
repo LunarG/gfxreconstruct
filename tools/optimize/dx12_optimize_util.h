@@ -24,6 +24,7 @@
 #define GFXRECON_DX12_OPTIMIZE_UTIL_H
 
 #include "decode/dx12_object_scanning_consumer.h"
+#include "decode/dx12_referenced_resource_consumer.h"
 #include "decode/dx12_optimize_options.h"
 #include "generated/generated_dx12_decoder.h"
 #include "util/defines.h"
