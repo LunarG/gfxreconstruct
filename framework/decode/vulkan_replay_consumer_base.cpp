@@ -73,8 +73,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries      = 16;
-const size_t kMaxQueryPoolResultsRetries = 16;
+const size_t kMaxEventStatusRetries = 16;
 
 const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
@@ -3966,10 +3965,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
     do
     {
         result = func(device, event);
-    } while ((((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET)) ||
-              ((original_result == VK_EVENT_RESET) && (result == VK_EVENT_SET))) &&
-             (++retries <= kMaxEventStatusRetries));
-
+    } while (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && ++retries <= kMaxEventStatusRetries);
     return result;
 }
 
@@ -3984,23 +3980,27 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    assert((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
-           (pData->GetOutputPointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
+                    (pData->GetOutputPointer() != nullptr));
 
-    VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
-    size_t      retries    = 0;
 
-    do
+    if (original_result == VK_SUCCESS)
     {
-        result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while (((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) &&
-             (++retries <= kMaxQueryPoolResultsRetries));
+        // instead of polling (busy-waiting) vkGetQueryPoolResults, we just wait
+        flags |= VK_QUERY_RESULT_WAIT_BIT;
+    }
 
-    auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    address_replacer.ProcessGetQueryPoolResults(
-        device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    VkResult result =
+        func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+
+    if (result == VK_SUCCESS)
+    {
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGetQueryPoolResults(
+            device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    }
     return result;
 }
 
