@@ -60,10 +60,12 @@ extern "C"
 }
 #endif
 
-const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
+const char kOptions[] =
+    "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--d3d12-resource-removal,--dxr,--dxr-experimental";
 const char kArguments[] = "--gpu";
 
 const char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
+const char kD3d12ResourceRemoval[]        = "--d3d12-resource-removal";
 const char kDx12OptimizeDxr[]             = "--dxr";
 const char kDx12OptimizeDxrExperimental[] = "--dxr-experimental";
 
@@ -254,6 +256,7 @@ int main(int argc, const char** argv)
         dx12_options.optimize_resource_values              = arg_parser.IsOptionSet(kDx12OptimizeDxr);
         dx12_options.optimize_resource_values_experimental = arg_parser.IsOptionSet(kDx12OptimizeDxrExperimental);
         dx12_options.remove_redundant_psos                 = arg_parser.IsOptionSet(kD3d12PsoRemoval);
+        dx12_options.remove_redundant_resources            = arg_parser.IsOptionSet(kD3d12ResourceRemoval);
         const auto& override_gpu                           = arg_parser.GetArgumentValue(kOverrideGpuArgument);
         if (!override_gpu.empty())
         {
@@ -268,7 +271,8 @@ int main(int argc, const char** argv)
         }
 
         // Automatic mode. User specified no options.
-        if ((dx12_options.optimize_resource_values == false) && (dx12_options.remove_redundant_psos == false))
+        if (!(dx12_options.optimize_resource_values || dx12_options.remove_redundant_psos ||
+              dx12_options.remove_redundant_resources))
         {
             bool detected_d3d12  = false;
             bool detected_vulkan = false;
@@ -285,6 +289,8 @@ int main(int argc, const char** argv)
             {
                 dx12_options.optimize_resource_values = true;
                 dx12_options.remove_redundant_psos    = true;
+                // Redundant resource removal is experimental and disabled by default.
+                dx12_options.remove_redundant_resources = false;
                 RunDx12Optimizations(input_filename, output_filename, dx12_options);
             }
             else if (detected_vulkan)

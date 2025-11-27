@@ -137,6 +137,17 @@ decode::FileTransformer::VisitResult Dx12FileOptimizer::VisitMetaData([[maybe_un
         GFXRECON_ASSERT(!kIsInitSubresourceCommand ||
                         (format::MetaDataType::kInitSubresourceCommand == format::GetMetaDataType(args.meta_data_id)));
 
+        if constexpr (kIsInitSubresourceCommand)
+        {
+            if (unreferenced_ids_.find(args.command_header.resource_id) != unreferenced_ids_.end())
+            {
+                return AddRemovedResourceAnnotation("Removed subresource from resource " +
+                                                    std::to_string(args.command_header.resource_id))
+                           ? kSuccess
+                           : kError;
+            }
+        }
+
         if ((fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()))
         {
             if ((resource_values_iter_ != fill_command_resource_values_->end()) &&
