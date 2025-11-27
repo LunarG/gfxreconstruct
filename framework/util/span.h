@@ -91,9 +91,10 @@ class Span
     size_type size_;
 };
 
-// A type anonymous union that can represent a data span from one of two sources:
+// A type anonymous union that can represent a data span from one of three sources:
 // 1) A heap allocated buffer owned by this object
 // 2) An entry from a heap buffer pool
+// 3) A shared pointer to externally owned data
 //
 // NOTE: Access is designed to be read-only
 // NOTE: Only one of the available sources will be active at any time.
@@ -119,8 +120,13 @@ class DataSpan
     static constexpr size_type kRemainder = static_cast<size_type>(-1);
 
     using PoolEntry = HeapBufferPool::Entry;
+    using SharedBuffer = std::shared_ptr<DataType>;
 
-    using Storage = std::variant<std::monostate, HeapBuffer, PoolEntry>;
+    // NOTE: we use SharedBuffer instead std::monostate, as
+    //       1) it's a safe "empty" state
+    //       2) it avoids issues with variant's triviality when using monostate (MSVC 17.14 specific)
+    using Storage      = std::variant<SharedBuffer, HeapBuffer, PoolEntry>;
+    using FirstVariant = std::variant_alternative_t<0, Storage>;
     // NOTE: When adding supported types
     //     * they must be move-assignable
     //     * they noexcept move-constructible
@@ -155,7 +161,7 @@ class DataSpan
     [[nodiscard]] bool          has_value() const { return IsValid(); }
     [[nodiscard]] bool          empty() const { return !IsValid(); }
 
-    DataSpan() : size_(0), data_(nullptr), store_(std::monostate()) {}
+    DataSpan() : size_(0), data_(nullptr) {}
     DataSpan(const DataSpan&) = delete;
 
     DataSpan(DataSpan&& other) noexcept : size_(other.size_), data_(other.data_), store_(std::move(other.store_))
@@ -177,6 +183,11 @@ class DataSpan
         return *this;
     }
 
+    DataSpan(const SharedBuffer& shared, size_type size) : size_(size), data_(shared.get()), store_(shared) {}
+    DataSpan(SharedBuffer&& from_shared, size_type size) :
+        size_(size), data_(from_shared.get()), store_(std::move(from_shared))
+    {}
+
     DataSpan(HeapBuffer&& from_heap, size_type size) : size_(size)
     {
         store_.emplace<HeapBuffer>(std::move(from_heap));
@@ -194,7 +205,7 @@ class DataSpan
     {
         data_ = nullptr;
         size_ = 0;
-        store_.emplace<std::monostate>();
+        store_.emplace<FirstVariant>();
     }
     void reset() noexcept { Reset(); }
 
