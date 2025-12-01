@@ -818,6 +818,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
                                             'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
@@ -842,6 +844,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
                                             'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
@@ -995,6 +999,8 @@ class KhronosReplayConsumerBodyGenerator():
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructHandleIds({}->GetMetaStructPointer(), this);\n".format(value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if need_temp_value:
                                         if value.base_type in self.structs_with_handle_ptrs:
                                             preexpr.append(

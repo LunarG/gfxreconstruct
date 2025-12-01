@@ -141,8 +141,10 @@ void OpenXrReplayConsumer::Process_xrGetSystemProperties(
     XrSystemProperties* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_SYSTEM_PROPERTIES, nullptr });
     InitializeOutputStructNext(properties);
 
+    PushRecaptureStructHandleIds(properties->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_instance)->GetSystemProperties(in_instance, in_systemId, out_properties);
     CheckResult("xrGetSystemProperties", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(instance, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetSystemProperties>::UpdateState(this, call_info, returnValue, instance, systemId, properties, replay_result);
@@ -676,8 +678,10 @@ void OpenXrReplayConsumer::Process_xrGetCurrentInteractionProfile(
     XrInteractionProfileState* out_interactionProfile = interactionProfile->IsNull() ? nullptr : interactionProfile->AllocateOutputData(1, { XR_TYPE_INTERACTION_PROFILE_STATE, nullptr });
     InitializeOutputStructNext(interactionProfile);
 
+    PushRecaptureStructHandleIds(interactionProfile->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetCurrentInteractionProfile(in_session, in_topLevelUserPath, out_interactionProfile);
     CheckResult("xrGetCurrentInteractionProfile", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, interactionProfile->GetMetaStructPointer(), out_interactionProfile, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>::UpdateState(this, call_info, returnValue, session, topLevelUserPath, interactionProfile, replay_result);
@@ -1615,8 +1619,10 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelKeyMSFT(
     XrControllerModelKeyStateMSFT* out_controllerModelKeyState = controllerModelKeyState->IsNull() ? nullptr : controllerModelKeyState->AllocateOutputData(1, { XR_TYPE_CONTROLLER_MODEL_KEY_STATE_MSFT, nullptr });
     InitializeOutputStructNext(controllerModelKeyState);
 
+    PushRecaptureStructHandleIds(controllerModelKeyState->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelKeyMSFT(in_session, in_topLevelUserPath, out_controllerModelKeyState);
     CheckResult("xrGetControllerModelKeyMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, controllerModelKeyState->GetMetaStructPointer(), out_controllerModelKeyState, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>::UpdateState(this, call_info, returnValue, session, topLevelUserPath, controllerModelKeyState, replay_result);
@@ -2059,8 +2065,10 @@ void OpenXrReplayConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
     uint32_t* out_pathCountOutput = pathCountOutput->IsNull() ? nullptr : pathCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrViveTrackerPathsHTCX* out_paths = paths->IsNull() ? nullptr : paths->AllocateOutputData(pathCapacityInput, XrViveTrackerPathsHTCX{ XR_TYPE_VIVE_TRACKER_PATHS_HTCX, nullptr });
 
+    PushRecaptureStructArrayHandleIds(paths->GetMetaStructPointer(), paths->GetLength(), this);
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateViveTrackerPathsHTCX(in_instance, pathCapacityInput, out_pathCountOutput, out_paths);
     CheckResult("xrEnumerateViveTrackerPathsHTCX", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructArrayHandles<Decoded_XrViveTrackerPathsHTCX>(instance, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>::UpdateState(this, call_info, returnValue, instance, pathCapacityInput, pathCountOutput, paths, replay_result);
@@ -2564,8 +2572,10 @@ void OpenXrReplayConsumer::Process_xrEnumerateRenderModelPathsFB(
     uint32_t* out_pathCountOutput = pathCountOutput->IsNull() ? nullptr : pathCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrRenderModelPathInfoFB* out_paths = paths->IsNull() ? nullptr : paths->AllocateOutputData(pathCapacityInput, XrRenderModelPathInfoFB{ XR_TYPE_RENDER_MODEL_PATH_INFO_FB, nullptr });
 
+    PushRecaptureStructArrayHandleIds(paths->GetMetaStructPointer(), paths->GetLength(), this);
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateRenderModelPathsFB(in_session, pathCapacityInput, out_pathCountOutput, out_paths);
     CheckResult("xrEnumerateRenderModelPathsFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructArrayHandles<Decoded_XrRenderModelPathInfoFB>(session, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>::UpdateState(this, call_info, returnValue, session, pathCapacityInput, pathCountOutput, paths, replay_result);
@@ -2583,8 +2593,10 @@ void OpenXrReplayConsumer::Process_xrGetRenderModelPropertiesFB(
     XrRenderModelPropertiesFB* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_RENDER_MODEL_PROPERTIES_FB, nullptr });
     InitializeOutputStructNext(properties);
 
+    PushRecaptureStructHandleIds(properties->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetRenderModelPropertiesFB(in_session, in_path, out_properties);
     CheckResult("xrGetRenderModelPropertiesFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>::UpdateState(this, call_info, returnValue, session, path, properties, replay_result);
@@ -3218,8 +3230,10 @@ void OpenXrReplayConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     XrSpaceQueryResultsFB* out_results = results->IsNull() ? nullptr : results->AllocateOutputData(1, { XR_TYPE_SPACE_QUERY_RESULTS_FB, nullptr });
     InitializeOutputStructNext(results);
 
+    PushRecaptureStructHandleIds(results->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->RetrieveSpaceQueryResultsFB(in_session, in_requestId, out_results);
     CheckResult("xrRetrieveSpaceQueryResultsFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, results->GetMetaStructPointer(), out_results, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>::UpdateState(this, call_info, returnValue, session, requestId, results, replay_result);

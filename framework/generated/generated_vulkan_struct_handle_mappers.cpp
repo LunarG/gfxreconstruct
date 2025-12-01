@@ -2314,6 +2314,78 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkPipelineBinary
     }
 }
 
+void PushRecaptureStructHandleIds(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleIds(id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength());
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPropertiesKHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->display);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->currentDisplay);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->displayMode);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayProperties2KHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        PushRecaptureStructHandleIds(id_wrapper->displayProperties, consumer);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        PushRecaptureStructHandleIds(id_wrapper->displayPlaneProperties, consumer);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        PushRecaptureStructHandleIds(id_wrapper->displayModeProperties, consumer);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_VkPipelineBinaryHandlesInfoKHR* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleIds(id_wrapper->pPipelineBinaries.GetPointer(), id_wrapper->pPipelineBinaries.GetLength());
+    }
+}
+
 void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper)
 {
     if (wrapper != nullptr)

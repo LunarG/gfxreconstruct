@@ -1492,6 +1492,79 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceQueryResu
     }
 }
 
+void PushRecaptureStructHandleIds(const Decoded_XrSystemProperties* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->systemId);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrInteractionProfileState* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->interactionProfile);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrControllerModelKeyStateMSFT* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->modelKey);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrViveTrackerPathsHTCX* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->persistentPath);
+        consumer->PushRecaptureHandleId(&id_wrapper->rolePath);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrRenderModelPathInfoFB* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->path);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrRenderModelPropertiesFB* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->modelKey);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceQueryResultsFB* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        PushRecaptureStructArrayHandleIds<Decoded_XrSpaceQueryResultFB>(id_wrapper->results->GetMetaStructPointer(), id_wrapper->results->GetLength(), consumer);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceQueryResultFB* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        consumer->PushRecaptureHandleId(&id_wrapper->space);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

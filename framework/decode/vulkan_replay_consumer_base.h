@@ -1628,6 +1628,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void PushRecaptureHandleId(const format::HandleId* id) override;
     virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
     virtual void ClearRecaptureHandleIds() override;
+    virtual bool IsRecapture() override { return options_.capture; }
 
     //// End recapture members
 
