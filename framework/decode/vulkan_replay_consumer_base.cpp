@@ -1490,16 +1490,16 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
     if (original != replay)
     {
         // check allow-listed functions
-        bool return_code_valid = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
+        bool accept_return_code = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
         // check allow-listed capture/replay VkResult-values
         if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
             it != kResultValuesAllowedDifferentCodeThanCapture.end())
         {
-            return_code_valid = return_code_valid || replay == it->second;
+            accept_return_code = accept_return_code || replay == it->second;
         }
 
-        if (!return_code_valid)
+        if (!accept_return_code)
         {
             if (replay < 0 && replay != VK_ERROR_FORMAT_NOT_SUPPORTED)
             {
