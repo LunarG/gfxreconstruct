@@ -131,35 +131,92 @@ void WriteOutput(const char* format_string, ...)
     }
 }
 
-struct AnnotationInfo
+std::string ParseJsonForAnnotationData(const nlohmann::json& json_obj, const std::string& key)
 {
-    std::string desc;
-    std::string data;
-};
+    std::string out                    = "";
+    auto        search_result_iterator = json_obj.find(key);
+    if (search_result_iterator != json_obj.end())
+    {
+        const nlohmann::json& value = *search_result_iterator;
+        if (value.is_object())
+        {
+            out += "\n\t" + value.dump(kDefaultIndent);
+            out.pop_back();
+            out += "\t}";
+        }
+        else
+        {
+            out = value;
+        }
+    }
+
+    return out;
+}
 
 class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
 {
   public:
+    struct AnnotationInfo
+    {
+        std::string desc;
+        std::string key;
+        std::string data;
+    };
+
+    AnnotationRecorder()
+    {
+        // Define all possible Annotation fields and let them record the info as encountered
+        AnnotationRecorder::AnnotationInfo expected_annotations[] = {
+            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion, "" },
+            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp, "" },
+            { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion, "" },
+            { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions, "" },
+            { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters, "" }
+        };
+        expected_annotations_.assign(expected_annotations, expected_annotations + 5);
+    }
+
     virtual void ProcessAnnotation(uint64_t                         block_index,
                                    gfxrecon::format::AnnotationType type,
                                    const std::string&               label,
                                    const std::string&               data) override
     {
-        ++annotation_count_;
         if (type == gfxrecon::format::AnnotationType::kJson &&
             label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
         {
-            operation_annotation_datas_.push_back(data);
+            if (data.size() > 0)
+            {
+                // Inspect annotations spotted in the capture file
+                nlohmann::json json_obj = nlohmann::json::parse(data);
+                if (json_obj.is_discarded())
+                {
+                    GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
+                }
+                else
+                {
+                    // Loop through all possible annotations and see if their key is found in
+                    // the JSON content of this annotation
+                    for (auto& expected_annotation : expected_annotations_)
+                    {
+                        // If a target annotation, cache it
+                        std::string annotation = ParseJsonForAnnotationData(json_obj, expected_annotation.key);
+                        if (!annotation.empty())
+                        {
+                            expected_annotation.data = annotation;
+                            num_valid_annotations_++;
+                        }
+                    }
+                }
+            }
         }
     }
 
-    uint64_t GetAnnotationCount() const { return annotation_count_; }
-
-    const std::vector<std::string>& GetOperationAnnotationDatas() const { return operation_annotation_datas_; }
+    const uint32_t                     GetNumValidAnnotations() const { return num_valid_annotations_; }
+    const std::vector<AnnotationInfo>& GetAnnotationData() const { return expected_annotations_; }
 
   private:
-    std::vector<std::string> operation_annotation_datas_;
-    uint64_t                 annotation_count_{ 0 };
+    uint32_t                    num_valid_annotations_{ 0 };
+    std::vector<AnnotationInfo> expected_annotations_;
 };
 
 struct ApiAgnosticStats
@@ -298,79 +355,15 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
 
-std::string GetJsonValue(const nlohmann::json& json_obj, const std::string& key)
-{
-    std::string out                    = "";
-    auto        search_result_iterator = json_obj.find(key);
-    if (search_result_iterator != json_obj.end())
-    {
-        const nlohmann::json& value = *search_result_iterator;
-        if (value.is_object())
-        {
-            out += "\n\t" + value.dump(kDefaultIndent);
-            out.pop_back();
-            out += "\t}";
-        }
-        else
-        {
-            out = value;
-        }
-    }
-
-    return out;
-}
-
 bool WriteJsonFile(nlohmann::json* json_content)
 {
     WriteOutput(json_content->dump(4, ' ', true).c_str());
     return true;
 }
 
-void PrintAnnotations(uint32_t                          annotation_count,
-                      const std::vector<std::string>&   operation_annotation_datas,
-                      const std::vector<AnnotationInfo> target_annotations,
-                      nlohmann::json*                   json_output)
+void PrintAnnotations(const std::vector<AnnotationRecorder::AnnotationInfo> all_annotation_infos,
+                      nlohmann::json*                                       json_output)
 {
-    std::vector<AnnotationInfo> all_annotation_infos;
-
-    // Loop through array of target annotations
-    for (const auto& target_annotation : target_annotations)
-    {
-        std::vector<std::string> annotations;
-
-        if (annotation_count > 0)
-        {
-            if (operation_annotation_datas.size() > 0)
-            {
-                // Inspect annotations spotted in the capture file
-                for (const auto& operation : operation_annotation_datas)
-                {
-                    nlohmann::json json_obj = nlohmann::json::parse(operation);
-
-                    if (json_obj.is_discarded())
-                    {
-                        GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", operation.c_str());
-                        continue;
-                    }
-
-                    // If a target annotation, cache it
-                    std::string annotation = GetJsonValue(json_obj, target_annotation.data);
-
-                    if (!annotation.empty())
-                    {
-                        annotations.push_back(annotation);
-                    }
-                }
-            }
-        }
-
-        // Accumulate all found target annotations
-        for (const auto& annotation : annotations)
-        {
-            all_annotation_infos.push_back({ target_annotation.desc.c_str(), annotation.c_str() });
-        }
-    }
-
     // If the capture file had target annotations, display them in an info block
     if (!all_annotation_infos.empty())
     {
@@ -379,10 +372,13 @@ void PrintAnnotations(uint32_t                          annotation_count,
             (*json_output)["annotations"] = nlohmann::json::array();
             for (const auto& annotation_info : all_annotation_infos)
             {
-                nlohmann::json annotation;
-                annotation["description"] = annotation_info.desc;
-                annotation["data"]        = annotation_info.data;
-                (*json_output)["annotations"].push_back(annotation);
+                if (annotation_info.data.size() > 0)
+                {
+                    nlohmann::json annotation;
+                    annotation["description"] = annotation_info.desc;
+                    annotation["data"]        = annotation_info.data;
+                    (*json_output)["annotations"].push_back(annotation);
+                }
             }
         }
         else
@@ -392,7 +388,10 @@ void PrintAnnotations(uint32_t                          annotation_count,
 
             for (const auto& annotation_info : all_annotation_infos)
             {
-                WriteOutput("\t%s: %s", annotation_info.desc.c_str(), annotation_info.data.c_str());
+                if (annotation_info.data.size() > 0)
+                {
+                    WriteOutput("\t%s: %s", annotation_info.desc.c_str(), annotation_info.data.c_str());
+                }
             }
         }
     }
@@ -565,8 +564,6 @@ bool GatherAndPrintFileFormatInfo(const std::string& input_filename, nlohmann::j
 #if ENABLE_OPENXR_SUPPORT
 void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
-                      const ApiAgnosticStats&                      api_agnostic_stats,
-                      const AnnotationRecorder&                    annotation_recoder,
                       nlohmann::json*                              json_output)
 {
     auto instance_info = openxr_stats_consumer.GetInstanceInfo();
@@ -776,7 +773,6 @@ bool PrintApiAgnosticStats(const ApiAgnosticStats& api_agnostic_stats,
 
 void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
-                      const AnnotationRecorder&                    annotation_recoder,
                       nlohmann::json*                              json_output)
 {
 
@@ -786,9 +782,10 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
     auto     dev_info      = vulkan_stats_consumer.GetDeviceInfo();
     if (json_output != nullptr)
     {
-        (*json_output)["vulkan"]["header-version"] = std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
-                                                     std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
-                                                     std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+        (*json_output)["vulkan"]["header-version"] =
+            std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+            std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
         (*json_output)["vulkan"]["instances"] = nlohmann::json::array();
 
         uint32_t       inst_index = 0;
@@ -1386,11 +1383,6 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, nlohmann::json* js
                 api_agnostic_stats.trim_start_frame = vulkan_stats_consumer.GetTrimmedStartFrame();
             }
 
-            std::vector<AnnotationInfo> target_annotations = {
-                { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
-                { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
-            };
-
             // If no APIs were detected, print stats for all APIs.
             bool print_all_apis = !vulkan_present;
 #if defined(D3D12_SUPPORT)
@@ -1419,15 +1411,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, nlohmann::json* js
             {
                 if (vulkan_present || print_all_apis)
                 {
-                    PrintVulkanStats(file_processor, vulkan_stats_consumer, annotation_recorder, json_output);
-
-                    // Add annotations relevant to Vulkan
-                    target_annotations.push_back(
-                        { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
-                    target_annotations.push_back(
-                        { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions });
-                    target_annotations.push_back(
-                        { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters });
+                    PrintVulkanStats(file_processor, vulkan_stats_consumer, json_output);
                 }
 
 #if defined(D3D12_SUPPORT)
@@ -1444,15 +1428,14 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, nlohmann::json* js
 #if ENABLE_OPENXR_SUPPORT
                 if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
                 {
-                    PrintOpenXrStats(
-                        file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder, json_output);
+                    PrintOpenXrStats(file_processor, openxr_stats_consumer, json_output);
                 }
 #endif
 
-                PrintAnnotations(annotation_recorder.GetAnnotationCount(),
-                                 annotation_recorder.GetOperationAnnotationDatas(),
-                                 target_annotations,
-                                 json_output);
+                if (annotation_recorder.GetNumValidAnnotations())
+                {
+                    PrintAnnotations(annotation_recorder.GetAnnotationData(), json_output);
+                }
             }
         }
         else
