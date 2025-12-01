@@ -12147,6 +12147,173 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointData2N
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePresentTimingFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDevicePresentTimingFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDevicePresentTimingFeaturesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["presentTiming"] = static_cast<bool>(decoded_value.presentTiming);
+        jdata["presentAtAbsoluteTime"] = static_cast<bool>(decoded_value.presentAtAbsoluteTime);
+        jdata["presentAtRelativeTime"] = static_cast<bool>(decoded_value.presentAtRelativeTime);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimingSurfaceCapabilitiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPresentTimingSurfaceCapabilitiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPresentTimingSurfaceCapabilitiesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["presentTimingSupported"] = static_cast<bool>(decoded_value.presentTimingSupported);
+        jdata["presentAtAbsoluteTimeSupported"] = static_cast<bool>(decoded_value.presentAtAbsoluteTimeSupported);
+        jdata["presentAtRelativeTimeSupported"] = static_cast<bool>(decoded_value.presentAtRelativeTimeSupported);
+        FieldToJson(VkPresentStageFlagsEXT_t(),jdata["presentStageQueries"], decoded_value.presentStageQueries, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainCalibratedTimestampInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSwapchainCalibratedTimestampInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkSwapchainCalibratedTimestampInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        HandleToJson(jdata["swapchain"], meta_struct.swapchain, options);
+        FieldToJson(VkPresentStageFlagsEXT_t(),jdata["presentStage"], decoded_value.presentStage, options);
+        FieldToJson(jdata["timeDomainId"], decoded_value.timeDomainId, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainTimingPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSwapchainTimingPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkSwapchainTimingPropertiesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["refreshDuration"], decoded_value.refreshDuration, options);
+        FieldToJson(jdata["refreshInterval"], decoded_value.refreshInterval, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainTimeDomainPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSwapchainTimeDomainPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkSwapchainTimeDomainPropertiesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["timeDomainCount"], decoded_value.timeDomainCount, options);
+        FieldToJson(jdata["pTimeDomains"], meta_struct.pTimeDomains, options);
+        FieldToJson(jdata["pTimeDomainIds"], meta_struct.pTimeDomainIds, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPastPresentationTimingInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPastPresentationTimingInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPastPresentationTimingInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPastPresentationTimingFlagsEXT_t(),jdata["flags"], decoded_value.flags, options);
+        HandleToJson(jdata["swapchain"], meta_struct.swapchain, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentStageTimeEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPresentStageTimeEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPresentStageTimeEXT& meta_struct = *data;
+
+        FieldToJson(VkPresentStageFlagsEXT_t(),jdata["stage"], decoded_value.stage, options);
+        FieldToJson(jdata["time"], decoded_value.time, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPastPresentationTimingEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPastPresentationTimingEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPastPresentationTimingEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["presentId"], decoded_value.presentId, options);
+        FieldToJson(jdata["targetTime"], decoded_value.targetTime, options);
+        FieldToJson(jdata["presentStageCount"], decoded_value.presentStageCount, options);
+        FieldToJson(jdata["pPresentStages"], meta_struct.pPresentStages, options);
+        FieldToJson(jdata["timeDomain"], decoded_value.timeDomain, options);
+        FieldToJson(jdata["timeDomainId"], decoded_value.timeDomainId, options);
+        jdata["reportComplete"] = static_cast<bool>(decoded_value.reportComplete);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPastPresentationTimingPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPastPresentationTimingPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPastPresentationTimingPropertiesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["timingPropertiesCounter"], decoded_value.timingPropertiesCounter, options);
+        FieldToJson(jdata["timeDomainsCounter"], decoded_value.timeDomainsCounter, options);
+        FieldToJson(jdata["presentationTimingCount"], decoded_value.presentationTimingCount, options);
+        FieldToJson(jdata["pPresentationTimings"], meta_struct.pPresentationTimings, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimingInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPresentTimingInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPresentTimingInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPresentTimingInfoFlagsEXT_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["targetTime"], decoded_value.targetTime, options);
+        FieldToJson(jdata["timeDomainId"], decoded_value.timeDomainId, options);
+        FieldToJson(VkPresentStageFlagsEXT_t(),jdata["presentStageQueries"], decoded_value.presentStageQueries, options);
+        FieldToJson(VkPresentStageFlagsEXT_t(),jdata["targetTimeDomainPresentStage"], decoded_value.targetTimeDomainPresentStage, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimingsInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPresentTimingsInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPresentTimingsInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["swapchainCount"], decoded_value.swapchainCount, options);
+        FieldToJson(jdata["pTimingInfos"], meta_struct.pTimingInfos, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15857,12 +16024,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& meta_struct = *data;
+        const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& meta_struct = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["rayTracingInvocationReorder"] = static_cast<bool>(decoded_value.rayTracingInvocationReorder);
@@ -17142,6 +17309,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["rayTracingInvocationReorderReorderingHint"], decoded_value.rayTracingInvocationReorderReorderingHint, options);
         FieldToJson(jdata["maxShaderBindingTableRecordIndex"], decoded_value.maxShaderBindingTableRecordIndex, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["rayTracingInvocationReorder"] = static_cast<bool>(decoded_value.rayTracingInvocationReorder);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -20407,6 +20587,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentTimingFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_2_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePresentWait2FeaturesKHR*>(data->GetMetaStructPointer());
@@ -20508,6 +20695,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -21604,6 +21798,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentTimingSurfaceCapabilitiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPresentTimingsInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkProtectedSubmitInfo*>(data->GetMetaStructPointer());
@@ -22006,6 +22214,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkSurfaceProtectedCapabilitiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkSwapchainCalibratedTimestampInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

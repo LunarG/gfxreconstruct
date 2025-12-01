@@ -7521,6 +7521,110 @@ struct Decoded_VkCheckpointData2NV
     uint64_t pCheckpointMarker{ 0 };
 };
 
+struct Decoded_VkPhysicalDevicePresentTimingFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePresentTimingFeaturesEXT;
+
+    VkPhysicalDevicePresentTimingFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentTimingSurfaceCapabilitiesEXT
+{
+    using struct_type = VkPresentTimingSurfaceCapabilitiesEXT;
+
+    VkPresentTimingSurfaceCapabilitiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainCalibratedTimestampInfoEXT
+{
+    using struct_type = VkSwapchainCalibratedTimestampInfoEXT;
+
+    VkSwapchainCalibratedTimestampInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+};
+
+struct Decoded_VkSwapchainTimingPropertiesEXT
+{
+    using struct_type = VkSwapchainTimingPropertiesEXT;
+
+    VkSwapchainTimingPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainTimeDomainPropertiesEXT
+{
+    using struct_type = VkSwapchainTimeDomainPropertiesEXT;
+
+    VkSwapchainTimeDomainPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkTimeDomainKHR> pTimeDomains;
+    PointerDecoder<uint64_t> pTimeDomainIds;
+};
+
+struct Decoded_VkPastPresentationTimingInfoEXT
+{
+    using struct_type = VkPastPresentationTimingInfoEXT;
+
+    VkPastPresentationTimingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+};
+
+struct Decoded_VkPresentStageTimeEXT
+{
+    using struct_type = VkPresentStageTimeEXT;
+
+    VkPresentStageTimeEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPastPresentationTimingEXT
+{
+    using struct_type = VkPastPresentationTimingEXT;
+
+    VkPastPresentationTimingEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPresentStageTimeEXT>* pPresentStages{ nullptr };
+};
+
+struct Decoded_VkPastPresentationTimingPropertiesEXT
+{
+    using struct_type = VkPastPresentationTimingPropertiesEXT;
+
+    VkPastPresentationTimingPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPastPresentationTimingEXT>* pPresentationTimings{ nullptr };
+};
+
+struct Decoded_VkPresentTimingInfoEXT
+{
+    using struct_type = VkPresentTimingInfoEXT;
+
+    VkPresentTimingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentTimingsInfoEXT
+{
+    using struct_type = VkPresentTimingsInfoEXT;
+
+    VkPresentTimingsInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPresentTimingInfoEXT>* pTimingInfos{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL
 {
     using struct_type = VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL;
@@ -9904,11 +10008,11 @@ struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV
 {
-    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT;
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
 
-    VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* decoded_value{ nullptr };
+    VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -10733,6 +10837,15 @@ struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT
     using struct_type = VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT;
 
     VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT;
+
+    VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -11813,8 +11926,6 @@ typedef Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT Decoded_VkSubpass
 typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 
 typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
 
 typedef Decoded_VkRenderingEndInfoKHR Decoded_VkRenderingEndInfoEXT;
 

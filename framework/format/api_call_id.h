@@ -811,6 +811,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdBeginCustomResolveEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1346),
     ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM                    = MakeApiCallId(ApiFamily_Vulkan, 0x1347),
     ApiCall_Reserved_0x1348                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1348),
+    ApiCall_vkGetPastPresentationTimingEXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1349),
+    ApiCall_vkGetSwapchainTimeDomainPropertiesEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x134a),
+    ApiCall_vkGetSwapchainTimingPropertiesEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x134b),
+    ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134c),
 
     ApiCall_VulkanLast,
 

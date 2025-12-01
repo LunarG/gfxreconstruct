@@ -8204,6 +8204,78 @@ void VulkanExportJsonConsumer::Process_vkGetQueueCheckpointData2NV(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    uint32_t                                    size)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkSetSwapchainPresentTimingQueueSizeEXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        HandleToJson(args["swapchain"], swapchain, json_options);
+        FieldToJson(args["size"], size, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetSwapchainTimingPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimingPropertiesEXT>* pSwapchainTimingProperties,
+    PointerDecoder<uint64_t>*                   pSwapchainTimingPropertiesCounter)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetSwapchainTimingPropertiesEXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        HandleToJson(args["swapchain"], swapchain, json_options);
+        FieldToJson(args["pSwapchainTimingProperties"], pSwapchainTimingProperties, json_options);
+        FieldToJson(args["pSwapchainTimingPropertiesCounter"], pSwapchainTimingPropertiesCounter, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetSwapchainTimeDomainPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimeDomainPropertiesEXT>* pSwapchainTimeDomainProperties,
+    PointerDecoder<uint64_t>*                   pTimeDomainsCounter)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetSwapchainTimeDomainPropertiesEXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        HandleToJson(args["swapchain"], swapchain, json_options);
+        FieldToJson(args["pSwapchainTimeDomainProperties"], pSwapchainTimeDomainProperties, json_options);
+        FieldToJson(args["pTimeDomainsCounter"], pTimeDomainsCounter, json_options);
+    WriteBlockEnd();
+}
+
+void VulkanExportJsonConsumer::Process_vkGetPastPresentationTimingEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>* pPastPresentationTimingInfo,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPastPresentationTimingEXT");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        FieldToJson(args["pPastPresentationTimingInfo"], pPastPresentationTimingInfo, json_options);
+        FieldToJson(args["pPastPresentationTimingProperties"], pPastPresentationTimingProperties, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkInitializePerformanceApiINTEL(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

@@ -661,6 +661,16 @@ template <> constexpr VkStructureType GetSType<VkQueueFamilyCheckpointProperties
 template <> constexpr VkStructureType GetSType<VkCheckpointDataNV>(){ return VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV; }
 template <> constexpr VkStructureType GetSType<VkQueueFamilyCheckpointProperties2NV>(){ return VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV; }
 template <> constexpr VkStructureType GetSType<VkCheckpointData2NV>(){ return VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDevicePresentTimingFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPresentTimingSurfaceCapabilitiesEXT>(){ return VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkSwapchainCalibratedTimestampInfoEXT>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT; }
+template <> constexpr VkStructureType GetSType<VkSwapchainTimingPropertiesEXT>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkSwapchainTimeDomainPropertiesEXT>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPastPresentationTimingInfoEXT>(){ return VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT; }
+template <> constexpr VkStructureType GetSType<VkPastPresentationTimingEXT>(){ return VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT; }
+template <> constexpr VkStructureType GetSType<VkPastPresentationTimingPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPresentTimingInfoEXT>(){ return VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT; }
+template <> constexpr VkStructureType GetSType<VkPresentTimingsInfoEXT>(){ return VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL; }
 template <> constexpr VkStructureType GetSType<VkInitializePerformanceApiInfoINTEL>(){ return VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL; }
 template <> constexpr VkStructureType GetSType<VkQueryPoolPerformanceQueryCreateInfoINTEL>(){ return VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL; }
@@ -893,7 +903,7 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceAmigoProfilingFea
 template <> constexpr VkStructureType GetSType<VkAmigoProfilingSubmitInfoSEC>(){ return VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV; }
-template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCooperativeVectorPropertiesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCooperativeVectorFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkCooperativeVectorPropertiesNV>(){ return VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV; }
@@ -972,6 +982,7 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentCon
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA; }
 template <> constexpr VkStructureType GetSType<VkImageAlignmentControlCreateInfoMESA>(){ return VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDepthClampControlFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPipelineViewportDepthClampControlCreateInfoEXT>(){ return VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceHdrVividFeaturesHUAWEI>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI; }

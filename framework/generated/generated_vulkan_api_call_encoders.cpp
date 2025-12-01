@@ -15693,7 +15693,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsKHR(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsKHR>::Dispatch(manager, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetCalibratedTimestampsKHR(device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkCalibratedTimestampInfoKHR* pTimestampInfos_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pTimestampInfos, timestampCount, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetCalibratedTimestampsKHR(device, timestampCount, pTimestampInfos_unwrapped, pTimestamps, pMaxDeviation);
     if (result < 0)
     {
         omit_output_data = true;
@@ -19549,7 +19552,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(manager, device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetCalibratedTimestampsEXT(device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkCalibratedTimestampInfoKHR* pTimestampInfos_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pTimestampInfos, timestampCount, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetCalibratedTimestampsEXT(device, timestampCount, pTimestampInfos_unwrapped, pTimestamps, pMaxDeviation);
     if (result < 0)
     {
         omit_output_data = true;
@@ -19872,6 +19878,187 @@ VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV>::Dispatch(manager, queue, pCheckpointDataCount, pCheckpointData);
+
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkSetSwapchainPresentTimingQueueSizeEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint32_t                                    size)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT>::Dispatch(manager, device, swapchain, size);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->SetSwapchainPresentTimingQueueSizeEXT(device, swapchain, size);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+        encoder->EncodeUInt32Value(size);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT>::Dispatch(manager, result, device, swapchain, size);
+
+    return result;
+
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimingPropertiesEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    VkSwapchainTimingPropertiesEXT*             pSwapchainTimingProperties,
+    uint64_t*                                   pSwapchainTimingPropertiesCounter)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainTimingPropertiesEXT>::Dispatch(manager, device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetSwapchainTimingPropertiesEXT(device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetSwapchainTimingPropertiesEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pSwapchainTimingProperties, omit_output_data);
+        encoder->EncodeUInt64Ptr(pSwapchainTimingPropertiesCounter, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainTimingPropertiesEXT>::Dispatch(manager, result, device, swapchain, pSwapchainTimingProperties, pSwapchainTimingPropertiesCounter);
+
+    return result;
+
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimeDomainPropertiesEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    VkSwapchainTimeDomainPropertiesEXT*         pSwapchainTimeDomainProperties,
+    uint64_t*                                   pTimeDomainsCounter)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainTimeDomainPropertiesEXT>::Dispatch(manager, device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetSwapchainTimeDomainPropertiesEXT(device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetSwapchainTimeDomainPropertiesEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(swapchain);
+        EncodeStructPtr(encoder, pSwapchainTimeDomainProperties, omit_output_data);
+        encoder->EncodeUInt64Ptr(pTimeDomainsCounter, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainTimeDomainPropertiesEXT>::Dispatch(manager, result, device, swapchain, pSwapchainTimeDomainProperties, pTimeDomainsCounter);
+
+    return result;
+
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingEXT(
+    VkDevice                                    device,
+    const VkPastPresentationTimingInfoEXT*      pPastPresentationTimingInfo,
+    VkPastPresentationTimingPropertiesEXT*      pPastPresentationTimingProperties)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingEXT>::Dispatch(manager, device, pPastPresentationTimingInfo, pPastPresentationTimingProperties);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkPastPresentationTimingInfoEXT* pPastPresentationTimingInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pPastPresentationTimingInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->GetPastPresentationTimingEXT(device, pPastPresentationTimingInfo_unwrapped, pPastPresentationTimingProperties);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPastPresentationTimingEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        EncodeStructPtr(encoder, pPastPresentationTimingInfo);
+        EncodeStructPtr(encoder, pPastPresentationTimingProperties, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingEXT>::Dispatch(manager, result, device, pPastPresentationTimingInfo, pPastPresentationTimingProperties);
+
+    return result;
 
 }
 

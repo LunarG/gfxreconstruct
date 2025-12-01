@@ -6761,6 +6761,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationS
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT:
+            jdata = "VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT";
+            break;
+        case VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT:
+            jdata = "VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
@@ -7792,6 +7807,42 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentScalingFlagBitsKH
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentStageFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT:
+            jdata = "VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT";
+            break;
+        case VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT:
+            jdata = "VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT";
+            break;
+        case VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT:
+            jdata = "VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT";
+            break;
+        case VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_VISIBLE_BIT_EXT:
+            jdata = "VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_VISIBLE_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagBitsEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT:
+            jdata = "VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT";
+            break;
+        case VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT:
+            jdata = "VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPrimitiveTopology& value, const JsonOptions& options)
 {
     switch (value) {
@@ -8409,6 +8460,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkResult& value, const Jso
             break;
         case VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT:
             jdata = "VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT";
+            break;
+        case VK_ERROR_PRESENT_TIMING_QUEUE_FULL_EXT:
+            jdata = "VK_ERROR_PRESENT_TIMING_QUEUE_FULL_EXT";
             break;
         case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
             jdata = "VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT";
@@ -10566,6 +10620,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV:
             jdata = "VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT:
+            jdata = "VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL";
             break;
@@ -11670,6 +11754,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_VIEWPORTS_FEATURES_QCOM";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_NV";
             break;
@@ -12594,6 +12681,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagBitsK
         case VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR:
             jdata = "VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR";
             break;
+        case VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT:
+            jdata = "VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT";
+            break;
         case VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR:
             jdata = "VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR";
             break;
@@ -12677,6 +12767,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkTimeDomainKHR& value, co
             break;
         case VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR:
             jdata = "VK_TIME_DOMAIN_QUERY_PERFORMANCE_COUNTER_KHR";
+            break;
+        case VK_TIME_DOMAIN_PRESENT_STAGE_LOCAL_EXT:
+            jdata = "VK_TIME_DOMAIN_PRESENT_STAGE_LOCAL_EXT";
+            break;
+        case VK_TIME_DOMAIN_SWAPCHAIN_LOCAL_EXT:
+            jdata = "VK_TIME_DOMAIN_SWAPCHAIN_LOCAL_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -15903,6 +15999,26 @@ void FieldToJson(VkPartitionedAccelerationStructureInstanceFlagsNV_t, nlohmann::
     });
 }
 
+void FieldToJson(VkPastPresentationTimingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT:
+                return std::string("VK_PAST_PRESENTATION_TIMING_ALLOW_PARTIAL_RESULTS_BIT_EXT");
+            case VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT:
+                return std::string("VK_PAST_PRESENTATION_TIMING_ALLOW_OUT_OF_ORDER_RESULTS_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
 void FieldToJson(VkPeerMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
 {
     if (!options.expand_flags)
@@ -16557,6 +16673,50 @@ void FieldToJson(VkPresentScalingFlagsKHR_t, nlohmann::ordered_json& jdata, cons
                 return std::string("VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR");
             case VK_PRESENT_SCALING_STRETCH_BIT_KHR:
                 return std::string("VK_PRESENT_SCALING_STRETCH_BIT_KHR");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkPresentStageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT:
+                return std::string("VK_PRESENT_STAGE_QUEUE_OPERATIONS_END_BIT_EXT");
+            case VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT:
+                return std::string("VK_PRESENT_STAGE_REQUEST_DEQUEUED_BIT_EXT");
+            case VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT:
+                return std::string("VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_OUT_BIT_EXT");
+            case VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_VISIBLE_BIT_EXT:
+                return std::string("VK_PRESENT_STAGE_IMAGE_FIRST_PIXEL_VISIBLE_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void FieldToJson(VkPresentTimingInfoFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags, const JsonOptions& options)
+{
+    if (!options.expand_flags)
+    {
+        jdata = to_hex_fixed_width(flags);
+        return;
+    }
+    jdata = ExpandFlags(flags, [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT:
+                return std::string("VK_PRESENT_TIMING_INFO_PRESENT_AT_RELATIVE_TIME_BIT_EXT");
+            case VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT:
+                return std::string("VK_PRESENT_TIMING_INFO_PRESENT_AT_NEAREST_REFRESH_CYCLE_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -17257,6 +17417,8 @@ void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, con
                 return std::string("VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR");
             case VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR:
                 return std::string("VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR");
+            case VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT:
+                return std::string("VK_SWAPCHAIN_CREATE_PRESENT_TIMING_BIT_EXT");
             case VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR:
                 return std::string("VK_SWAPCHAIN_CREATE_PRESENT_ID_2_BIT_KHR");
             case VK_SWAPCHAIN_CREATE_PRESENT_WAIT_2_BIT_KHR:
