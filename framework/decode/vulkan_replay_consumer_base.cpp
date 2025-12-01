@@ -1489,17 +1489,17 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
-        // allow-listed functions
-        bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
+        // check allow-listed functions
+        bool return_code_valid = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
-        // allow-listed capture/replay VkResult-values
+        // check allow-listed capture/replay VkResult-values
         if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
             it != kResultValuesAllowedDifferentCodeThanCapture.end())
         {
-            is_func_allowed_to_differ = is_func_allowed_to_differ || replay == it->second;
+            return_code_valid = return_code_valid || replay == it->second;
         }
 
-        if (!is_func_allowed_to_differ)
+        if (!return_code_valid)
         {
             if (replay < 0 && replay != VK_ERROR_FORMAT_NOT_SUPPORTED)
             {
