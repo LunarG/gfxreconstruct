@@ -94,6 +94,20 @@ const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThan
     "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
 };
 
+// LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeThanCapture = {
+
+    { VK_TIMEOUT, VK_SUCCESS },
+    { VK_NOT_READY, VK_SUCCESS },
+    { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+
+    // silences: [gfxrecon] WARNING - API call vkGetEventStatus returned value VK_EVENT_SET that does not match return
+    // value from capture file: VK_EVENT_RESET.
+    // -> considered harmless and 'can' create a lot of noise.
+    { VK_EVENT_RESET, VK_EVENT_SET },
+};
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
                                                           VkDebugReportObjectTypeEXT objectType,
                                                           uint64_t                   object,
@@ -1475,36 +1489,46 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
-        const bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.count(func_name);
+        // allow-listed functions
+        bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
-        if (!is_func_allowed_to_differ && (replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        // allow-listed capture/replay VkResult-values
+        if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
+            it != kResultValuesAllowedDifferentCodeThanCapture.end())
         {
-            // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
-            // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
-            // to continue for the case where an application may have queried for formats that it did not use.
-            GFXRECON_LOG_FATAL(
-                "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
-                "capture file: %s. Replay cannot continue.",
-                call_info.index,
-                call_info.thread_id,
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
-
-            RaiseFatalError(enumutil::GetResultDescription(replay));
+            is_func_allowed_to_differ = is_func_allowed_to_differ || replay == it->second;
         }
-        else if (!((replay == VK_SUCCESS) &&
-                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR) ||
-                    (original == VK_SUBOPTIMAL_KHR))) ||
-                 is_func_allowed_to_differ)
+
+        if (!is_func_allowed_to_differ)
         {
-            // Report differences between replay result and capture result, unless the replay results indicates
-            // that a wait operation completed before the original or a WSI function succeeded when the original failed.
-            GFXRECON_LOG_WARNING(
-                "API call %s returned value %s that does not match return value from capture file: %s.",
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
+            if (replay < 0 && replay != VK_ERROR_FORMAT_NOT_SUPPORTED)
+            {
+                // Raise a fatal error if replay produced an error that did not occur during capture.  Format not
+                // supported errors are not treated as fatal, but will be reported as warnings below, allowing the
+                // replay to attempt to continue for the case where an application may have queried for formats that it
+                // did not use.
+                GFXRECON_LOG_FATAL("API call at index: %d thread: %d %s returned error value %s that does not match "
+                                   "the result from the "
+                                   "capture file: %s. Replay cannot continue.",
+                                   call_info.index,
+                                   call_info.thread_id,
+                                   func_name,
+                                   util::ToString<VkResult>(replay).c_str(),
+                                   util::ToString<VkResult>(original).c_str());
+
+                RaiseFatalError(enumutil::GetResultDescription(replay));
+            }
+            else
+            {
+                // Report differences between replay result and capture result, unless the replay results indicates
+                // that a wait operation completed before the original or a WSI function succeeded when the original
+                // failed.
+                GFXRECON_LOG_WARNING(
+                    "API call %s returned value %s that does not match return value from capture file: %s.",
+                    func_name,
+                    util::ToString<VkResult>(replay).c_str(),
+                    util::ToString<VkResult>(original).c_str());
+            }
         }
     }
 }
