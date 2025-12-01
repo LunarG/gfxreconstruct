@@ -5992,7 +5992,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentFeedbackLoopInfoE
 void EncodeStruct(ParameterEncoder* encoder, const VkCalibratedTimestampInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.timeDomain);
 }
 
@@ -7567,6 +7567,107 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value)
     EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.stage);
     encoder->EncodeVoidPtr(value.pCheckpointMarker);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentTimingFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentTiming);
+    encoder->EncodeUInt32Value(value.presentAtAbsoluteTime);
+    encoder->EncodeUInt32Value(value.presentAtRelativeTime);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingSurfaceCapabilitiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.presentTimingSupported);
+    encoder->EncodeUInt32Value(value.presentAtAbsoluteTimeSupported);
+    encoder->EncodeUInt32Value(value.presentAtRelativeTimeSupported);
+    encoder->EncodeFlagsValue(value.presentStageQueries);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainCalibratedTimestampInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(value.swapchain);
+    encoder->EncodeFlagsValue(value.presentStage);
+    encoder->EncodeUInt64Value(value.timeDomainId);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainTimingPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.refreshDuration);
+    encoder->EncodeUInt64Value(value.refreshInterval);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainTimeDomainPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.timeDomainCount);
+    encoder->EncodeEnumArray(value.pTimeDomains, value.timeDomainCount);
+    encoder->EncodeUInt64Array(value.pTimeDomainIds, value.timeDomainCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SwapchainKHRWrapper>(value.swapchain);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentStageTimeEXT& value)
+{
+    encoder->EncodeFlagsValue(value.stage);
+    encoder->EncodeUInt64Value(value.time);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.presentId);
+    encoder->EncodeUInt64Value(value.targetTime);
+    encoder->EncodeUInt32Value(value.presentStageCount);
+    EncodeStructArray(encoder, value.pPresentStages, value.presentStageCount);
+    encoder->EncodeEnumValue(value.timeDomain);
+    encoder->EncodeUInt64Value(value.timeDomainId);
+    encoder->EncodeUInt32Value(value.reportComplete);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.timingPropertiesCounter);
+    encoder->EncodeUInt64Value(value.timeDomainsCounter);
+    encoder->EncodeUInt32Value(value.presentationTimingCount);
+    EncodeStructArray(encoder, value.pPresentationTimings, value.presentationTimingCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.targetTime);
+    encoder->EncodeUInt64Value(value.timeDomainId);
+    encoder->EncodeFlagsValue(value.presentStageQueries);
+    encoder->EncodeFlagsValue(value.targetTimeDomainPresentStage);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingsInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.swapchainCount);
+    EncodeStructArray(encoder, value.pTimingInfos, value.swapchainCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& value)
@@ -9755,7 +9856,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInv
     encoder->EncodeEnumValue(value.rayTracingInvocationReorderReorderingHint);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
@@ -10496,6 +10597,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInv
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.rayTracingInvocationReorderReorderingHint);
     encoder->EncodeUInt32Value(value.maxShaderBindingTableRecordIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.rayTracingInvocationReorder);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthClampControlFeaturesEXT& value)

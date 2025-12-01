@@ -576,6 +576,10 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdSetExclusiveScissorNV(VkCommandBuffer, ui
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetCheckpointNV(VkCommandBuffer, const void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetCheckpointNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueCheckpointDataNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkGetQueueCheckpointData2NV(VkQueue, uint32_t*, VkCheckpointData2NV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetQueueCheckpointData2NV was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkSetSwapchainPresentTimingQueueSizeEXT(VkDevice, VkSwapchainKHR, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkSetSwapchainPresentTimingQueueSizeEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimingPropertiesEXT(VkDevice, VkSwapchainKHR, VkSwapchainTimingPropertiesEXT*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetSwapchainTimingPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetSwapchainTimeDomainPropertiesEXT(VkDevice, VkSwapchainKHR, VkSwapchainTimeDomainPropertiesEXT*, uint64_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetSwapchainTimeDomainPropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR VkResult VKAPI_CALL vkGetPastPresentationTimingEXT(VkDevice, const VkPastPresentationTimingInfoEXT*, VkPastPresentationTimingPropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetPastPresentationTimingEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkInitializePerformanceApiINTEL(VkDevice, const VkInitializePerformanceApiInfoINTEL*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkInitializePerformanceApiINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkUninitializePerformanceApiINTEL(VkDevice) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkUninitializePerformanceApiINTEL was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCmdSetPerformanceMarkerINTEL(VkCommandBuffer, const VkPerformanceMarkerInfoINTEL*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPerformanceMarkerINTEL was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -1282,6 +1286,10 @@ struct VulkanDeviceTable
     PFN_vkCmdSetCheckpointNV CmdSetCheckpointNV{ noop::vkCmdSetCheckpointNV };
     PFN_vkGetQueueCheckpointDataNV GetQueueCheckpointDataNV{ noop::vkGetQueueCheckpointDataNV };
     PFN_vkGetQueueCheckpointData2NV GetQueueCheckpointData2NV{ noop::vkGetQueueCheckpointData2NV };
+    PFN_vkSetSwapchainPresentTimingQueueSizeEXT SetSwapchainPresentTimingQueueSizeEXT{ noop::vkSetSwapchainPresentTimingQueueSizeEXT };
+    PFN_vkGetSwapchainTimingPropertiesEXT GetSwapchainTimingPropertiesEXT{ noop::vkGetSwapchainTimingPropertiesEXT };
+    PFN_vkGetSwapchainTimeDomainPropertiesEXT GetSwapchainTimeDomainPropertiesEXT{ noop::vkGetSwapchainTimeDomainPropertiesEXT };
+    PFN_vkGetPastPresentationTimingEXT GetPastPresentationTimingEXT{ noop::vkGetPastPresentationTimingEXT };
     PFN_vkInitializePerformanceApiINTEL InitializePerformanceApiINTEL{ noop::vkInitializePerformanceApiINTEL };
     PFN_vkUninitializePerformanceApiINTEL UninitializePerformanceApiINTEL{ noop::vkUninitializePerformanceApiINTEL };
     PFN_vkCmdSetPerformanceMarkerINTEL CmdSetPerformanceMarkerINTEL{ noop::vkCmdSetPerformanceMarkerINTEL };
@@ -1995,6 +2003,10 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdSetCheckpointNV", &table->CmdSetCheckpointNV);
     LoadVulkanFunction(gpa, device, "vkGetQueueCheckpointDataNV", &table->GetQueueCheckpointDataNV);
     LoadVulkanFunction(gpa, device, "vkGetQueueCheckpointData2NV", &table->GetQueueCheckpointData2NV);
+    LoadVulkanFunction(gpa, device, "vkSetSwapchainPresentTimingQueueSizeEXT", &table->SetSwapchainPresentTimingQueueSizeEXT);
+    LoadVulkanFunction(gpa, device, "vkGetSwapchainTimingPropertiesEXT", &table->GetSwapchainTimingPropertiesEXT);
+    LoadVulkanFunction(gpa, device, "vkGetSwapchainTimeDomainPropertiesEXT", &table->GetSwapchainTimeDomainPropertiesEXT);
+    LoadVulkanFunction(gpa, device, "vkGetPastPresentationTimingEXT", &table->GetPastPresentationTimingEXT);
     LoadVulkanFunction(gpa, device, "vkInitializePerformanceApiINTEL", &table->InitializePerformanceApiINTEL);
     LoadVulkanFunction(gpa, device, "vkUninitializePerformanceApiINTEL", &table->UninitializePerformanceApiINTEL);
     LoadVulkanFunction(gpa, device, "vkCmdSetPerformanceMarkerINTEL", &table->CmdSetPerformanceMarkerINTEL);

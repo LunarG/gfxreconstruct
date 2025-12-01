@@ -820,6 +820,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProper
 void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointDataNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointProperties2NV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCheckpointData2NV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentTimingFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingSurfaceCapabilitiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainCalibratedTimestampInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainTimingPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainTimeDomainPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentStageTimeEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPastPresentationTimingPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPresentTimingsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkInitializePerformanceApiInfoINTEL& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolPerformanceQueryCreateInfoINTEL& value);
@@ -1074,7 +1085,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceAmigoProfilin
 void EncodeStruct(ParameterEncoder* encoder, const VkAmigoProfilingSubmitInfoSEC& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeVectorPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeVectorFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeVectorPropertiesNV& value);
@@ -1165,6 +1176,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageAlignmen
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageAlignmentControlPropertiesMESA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageAlignmentControlCreateInfoMESA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthClampControlFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineViewportDepthClampControlCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHdrVividFeaturesHUAWEI& value);

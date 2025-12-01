@@ -10508,6 +10508,98 @@ size_t VulkanDecoder::Decode_vkGetQueueCheckpointData2NV(const ApiCallInfo& call
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkSetSwapchainPresentTimingQueueSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    uint32_t size;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &size);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSetSwapchainPresentTimingQueueSizeEXT(call_info, return_value, device, swapchain, size);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetSwapchainTimingPropertiesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    StructPointerDecoder<Decoded_VkSwapchainTimingPropertiesEXT> pSwapchainTimingProperties;
+    PointerDecoder<uint64_t> pSwapchainTimingPropertiesCounter;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += pSwapchainTimingProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSwapchainTimingPropertiesCounter.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetSwapchainTimingPropertiesEXT(call_info, return_value, device, swapchain, &pSwapchainTimingProperties, &pSwapchainTimingPropertiesCounter);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetSwapchainTimeDomainPropertiesEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    StructPointerDecoder<Decoded_VkSwapchainTimeDomainPropertiesEXT> pSwapchainTimeDomainProperties;
+    PointerDecoder<uint64_t> pTimeDomainsCounter;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += pSwapchainTimeDomainProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pTimeDomainsCounter.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetSwapchainTimeDomainPropertiesEXT(call_info, return_value, device, swapchain, &pSwapchainTimeDomainProperties, &pTimeDomainsCounter);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetPastPresentationTimingEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT> pPastPresentationTimingInfo;
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT> pPastPresentationTimingProperties;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pPastPresentationTimingInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPastPresentationTimingProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPastPresentationTimingEXT(call_info, return_value, device, &pPastPresentationTimingInfo, &pPastPresentationTimingProperties);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkInitializePerformanceApiINTEL(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -16130,6 +16222,18 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetQueueCheckpointData2NV:
         Decode_vkGetQueueCheckpointData2NV(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT:
+        Decode_vkSetSwapchainPresentTimingQueueSizeEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetSwapchainTimingPropertiesEXT:
+        Decode_vkGetSwapchainTimingPropertiesEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetSwapchainTimeDomainPropertiesEXT:
+        Decode_vkGetSwapchainTimeDomainPropertiesEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPastPresentationTimingEXT:
+        Decode_vkGetPastPresentationTimingEXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkInitializePerformanceApiINTEL:
         Decode_vkInitializePerformanceApiINTEL(call_info, parameter_buffer, buffer_size);

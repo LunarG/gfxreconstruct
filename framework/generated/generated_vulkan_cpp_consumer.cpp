@@ -11905,6 +11905,125 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointDataNV(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV);
 }
+void VulkanCppConsumer::Process_vkGetPastPresentationTimingEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>* pPastPresentationTimingInfo,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppast_presentation_timing_info;
+    std::string ppast_presentation_timing_info_struct = GenerateStruct_VkPastPresentationTimingInfoEXT(stream_ppast_presentation_timing_info,
+                                                                                                       pPastPresentationTimingInfo->GetPointer(),
+                                                                                                       pPastPresentationTimingInfo->GetMetaStructPointer(),
+                                                                                                       *this);
+    fprintf(file, "%s", stream_ppast_presentation_timing_info.str().c_str());
+    std::string ppast_presentation_timing_properties_name = "NULL";
+    if (!pPastPresentationTimingProperties->IsNull()) {
+        ppast_presentation_timing_properties_name = "pPastPresentationTimingProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPastPresentationTimingPropertiesEXT %s = {};\n", ppast_presentation_timing_properties_name.c_str());
+        ppast_presentation_timing_properties_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetPastPresentationTimingEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPastPresentationTimingEXT(%s, &%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            ppast_presentation_timing_info_struct.c_str(),
+            ppast_presentation_timing_properties_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPastPresentationTimingEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetSwapchainTimeDomainPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimeDomainPropertiesEXT>* pSwapchainTimeDomainProperties,
+    PointerDecoder<uint64_t>*                   pTimeDomainsCounter)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pswapchain_time_domain_properties_name = "NULL";
+    if (!pSwapchainTimeDomainProperties->IsNull()) {
+        pswapchain_time_domain_properties_name = "pSwapchainTimeDomainProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSwapchainTimeDomainPropertiesEXT %s = {};\n", pswapchain_time_domain_properties_name.c_str());
+        pswapchain_time_domain_properties_name.insert(0, "&");
+    }
+    std::string ptime_domains_counter_name = "NULL";
+    if (!pTimeDomainsCounter->IsNull()) {
+        ptime_domains_counter_name = "pTimeDomainsCounter_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", ptime_domains_counter_name.c_str(), util::ToString(*pTimeDomainsCounter->GetPointer()).c_str());
+        ptime_domains_counter_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetSwapchainTimeDomainPropertiesEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainTimeDomainPropertiesEXT(%s, %s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            pswapchain_time_domain_properties_name.c_str(),
+            ptime_domains_counter_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetSwapchainTimeDomainPropertiesEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetSwapchainTimingPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimingPropertiesEXT>* pSwapchainTimingProperties,
+    PointerDecoder<uint64_t>*                   pSwapchainTimingPropertiesCounter)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pswapchain_timing_properties_name = "NULL";
+    if (!pSwapchainTimingProperties->IsNull()) {
+        pswapchain_timing_properties_name = "pSwapchainTimingProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSwapchainTimingPropertiesEXT %s = {};\n", pswapchain_timing_properties_name.c_str());
+        pswapchain_timing_properties_name.insert(0, "&");
+    }
+    std::string pswapchain_timing_properties_counter_name = "NULL";
+    if (!pSwapchainTimingPropertiesCounter->IsNull()) {
+        pswapchain_timing_properties_counter_name = "pSwapchainTimingPropertiesCounter_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pswapchain_timing_properties_counter_name.c_str(), util::ToString(*pSwapchainTimingPropertiesCounter->GetPointer()).c_str());
+        pswapchain_timing_properties_counter_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetSwapchainTimingPropertiesEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainTimingPropertiesEXT(%s, %s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            pswapchain_timing_properties_name.c_str(),
+            pswapchain_timing_properties_counter_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetSwapchainTimingPropertiesEXT);
+}
+
+void VulkanCppConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    uint32_t                                    size)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkSetSwapchainPresentTimingQueueSizeEXT");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkSetSwapchainPresentTimingQueueSizeEXT(%s, %s, %u), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(swapchain).c_str(),
+            size,
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT);
+}
 void VulkanCppConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

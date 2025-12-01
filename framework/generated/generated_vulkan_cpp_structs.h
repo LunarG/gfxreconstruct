@@ -1564,6 +1564,28 @@ std::string GenerateStruct_VkQueueFamilyCheckpointProperties2NV(std::ostream &ou
 
 std::string GenerateStruct_VkQueueFamilyCheckpointPropertiesNV(std::ostream &out, const VkQueueFamilyCheckpointPropertiesNV* structInfo, Decoded_VkQueueFamilyCheckpointPropertiesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPastPresentationTimingEXT(std::ostream &out, const VkPastPresentationTimingEXT* structInfo, Decoded_VkPastPresentationTimingEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPastPresentationTimingInfoEXT(std::ostream &out, const VkPastPresentationTimingInfoEXT* structInfo, Decoded_VkPastPresentationTimingInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPastPresentationTimingPropertiesEXT(std::ostream &out, const VkPastPresentationTimingPropertiesEXT* structInfo, Decoded_VkPastPresentationTimingPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDevicePresentTimingFeaturesEXT(std::ostream &out, const VkPhysicalDevicePresentTimingFeaturesEXT* structInfo, Decoded_VkPhysicalDevicePresentTimingFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPresentStageTimeEXT(std::ostream &out, const VkPresentStageTimeEXT* structInfo, Decoded_VkPresentStageTimeEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPresentTimingInfoEXT(std::ostream &out, const VkPresentTimingInfoEXT* structInfo, Decoded_VkPresentTimingInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPresentTimingSurfaceCapabilitiesEXT(std::ostream &out, const VkPresentTimingSurfaceCapabilitiesEXT* structInfo, Decoded_VkPresentTimingSurfaceCapabilitiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPresentTimingsInfoEXT(std::ostream &out, const VkPresentTimingsInfoEXT* structInfo, Decoded_VkPresentTimingsInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSwapchainCalibratedTimestampInfoEXT(std::ostream &out, const VkSwapchainCalibratedTimestampInfoEXT* structInfo, Decoded_VkSwapchainCalibratedTimestampInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSwapchainTimeDomainPropertiesEXT(std::ostream &out, const VkSwapchainTimeDomainPropertiesEXT* structInfo, Decoded_VkSwapchainTimeDomainPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSwapchainTimingPropertiesEXT(std::ostream &out, const VkSwapchainTimingPropertiesEXT* structInfo, Decoded_VkSwapchainTimingPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL(std::ostream &out, const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL* structInfo, Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkInitializePerformanceApiInfoINTEL(std::ostream &out, const VkInitializePerformanceApiInfoINTEL* structInfo, Decoded_VkInitializePerformanceApiInfoINTEL* metaInfo, VulkanCppConsumerBase &consumer);
@@ -2070,7 +2092,7 @@ std::string GenerateStruct_VkPhysicalDeviceAmigoProfilingFeaturesSEC(std::ostrea
 
 std::string GenerateStruct_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT(std::ostream &out, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+std::string GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV(std::ostream &out, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* structInfo, Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV(std::ostream &out, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* structInfo, Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
@@ -2251,6 +2273,8 @@ std::string GenerateStruct_VkImageAlignmentControlCreateInfoMESA(std::ostream &o
 std::string GenerateStruct_VkPhysicalDeviceImageAlignmentControlFeaturesMESA(std::ostream &out, const VkPhysicalDeviceImageAlignmentControlFeaturesMESA* structInfo, Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceImageAlignmentControlPropertiesMESA(std::ostream &out, const VkPhysicalDeviceImageAlignmentControlPropertiesMESA* structInfo, Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT(std::ostream &out, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT(std::ostream &out, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 

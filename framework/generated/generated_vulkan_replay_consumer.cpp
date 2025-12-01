@@ -6539,6 +6539,7 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsKHR(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = pTimestampInfos->GetPointer();
+    MapStructArrayHandles(pTimestampInfos->GetMetaStructPointer(), pTimestampInfos->GetLength(), GetObjectInfoTable());
     uint64_t* out_pTimestamps = pTimestamps->IsNull() ? nullptr : pTimestamps->AllocateOutputData(timestampCount);
     uint64_t* out_pMaxDeviation = pMaxDeviation->IsNull() ? nullptr : pMaxDeviation->AllocateOutputData(1, static_cast<uint64_t>(0));
 
@@ -8186,6 +8187,7 @@ void VulkanReplayConsumer::Process_vkGetCalibratedTimestampsEXT(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCalibratedTimestampInfoKHR* in_pTimestampInfos = pTimestampInfos->GetPointer();
+    MapStructArrayHandles(pTimestampInfos->GetMetaStructPointer(), pTimestampInfos->GetLength(), GetObjectInfoTable());
     uint64_t* out_pTimestamps = pTimestamps->IsNull() ? nullptr : pTimestamps->AllocateOutputData(timestampCount);
     uint64_t* out_pMaxDeviation = pMaxDeviation->IsNull() ? nullptr : pMaxDeviation->AllocateOutputData(1, static_cast<uint64_t>(0));
 
@@ -8330,6 +8332,96 @@ void VulkanReplayConsumer::Process_vkGetQueueCheckpointData2NV(
     GetDeviceTable(in_queue)->GetQueueCheckpointData2NV(in_queue, out_pCheckpointDataCount, out_pCheckpointData);
 
     if (pCheckpointData->IsNull()) { SetOutputArrayCount<VulkanQueueInfo>(queue, kQueueArrayGetQueueCheckpointData2NV, *out_pCheckpointDataCount, &CommonObjectInfoTable::GetVkQueueInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkSetSwapchainPresentTimingQueueSizeEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    uint32_t                                    size)
+{
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkSetSwapchainPresentTimingQueueSizeEXT for offscreen.");
+        return;
+    }
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
+    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
+
+    VkResult replay_result = GetDeviceTable(in_device)->SetSwapchainPresentTimingQueueSizeEXT(in_device, in_swapchain, size);
+    CheckResult("vkSetSwapchainPresentTimingQueueSizeEXT", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetSwapchainTimingPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimingPropertiesEXT>* pSwapchainTimingProperties,
+    PointerDecoder<uint64_t>*                   pSwapchainTimingPropertiesCounter)
+{
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetSwapchainTimingPropertiesEXT for offscreen.");
+        return;
+    }
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
+    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
+    VkSwapchainTimingPropertiesEXT* out_pSwapchainTimingProperties = pSwapchainTimingProperties->IsNull() ? nullptr : pSwapchainTimingProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT, nullptr });
+    InitializeOutputStructPNext(pSwapchainTimingProperties);
+    uint64_t* out_pSwapchainTimingPropertiesCounter = pSwapchainTimingPropertiesCounter->IsNull() ? nullptr : pSwapchainTimingPropertiesCounter->AllocateOutputData(1, static_cast<uint64_t>(0));
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetSwapchainTimingPropertiesEXT(in_device, in_swapchain, out_pSwapchainTimingProperties, out_pSwapchainTimingPropertiesCounter);
+    CheckResult("vkGetSwapchainTimingPropertiesEXT", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetSwapchainTimeDomainPropertiesEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_VkSwapchainTimeDomainPropertiesEXT>* pSwapchainTimeDomainProperties,
+    PointerDecoder<uint64_t>*                   pTimeDomainsCounter)
+{
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetSwapchainTimeDomainPropertiesEXT for offscreen.");
+        return;
+    }
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
+    if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
+    VkSwapchainTimeDomainPropertiesEXT* out_pSwapchainTimeDomainProperties = pSwapchainTimeDomainProperties->IsNull() ? nullptr : pSwapchainTimeDomainProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT, nullptr });
+    InitializeOutputStructPNext(pSwapchainTimeDomainProperties);
+    uint64_t* out_pTimeDomainsCounter = pTimeDomainsCounter->IsNull() ? nullptr : pTimeDomainsCounter->AllocateOutputData(1, static_cast<uint64_t>(0));
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetSwapchainTimeDomainPropertiesEXT(in_device, in_swapchain, out_pSwapchainTimeDomainProperties, out_pTimeDomainsCounter);
+    CheckResult("vkGetSwapchainTimeDomainPropertiesEXT", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetPastPresentationTimingEXT(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingInfoEXT>* pPastPresentationTimingInfo,
+    StructPointerDecoder<Decoded_VkPastPresentationTimingPropertiesEXT>* pPastPresentationTimingProperties)
+{
+    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)
+    {
+        GFXRECON_LOG_DEBUG("Skip vkGetPastPresentationTimingEXT for offscreen.");
+        return;
+    }
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkPastPresentationTimingInfoEXT* in_pPastPresentationTimingInfo = pPastPresentationTimingInfo->GetPointer();
+    MapStructHandles(pPastPresentationTimingInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    VkPastPresentationTimingPropertiesEXT* out_pPastPresentationTimingProperties = pPastPresentationTimingProperties->IsNull() ? nullptr : pPastPresentationTimingProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT, nullptr });
+    InitializeOutputStructPNext(pPastPresentationTimingProperties);
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetPastPresentationTimingEXT(in_device, in_pPastPresentationTimingInfo, out_pPastPresentationTimingProperties);
+    CheckResult("vkGetPastPresentationTimingEXT", returnValue, replay_result, call_info);
 }
 
 void VulkanReplayConsumer::Process_vkInitializePerformanceApiINTEL(
@@ -14743,6 +14835,56 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCheckpointData2NV>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_TIMING_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePresentTimingFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPresentTimingSurfaceCapabilitiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSwapchainCalibratedTimestampInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSwapchainTimingPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSwapchainTimeDomainPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPastPresentationTimingInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPastPresentationTimingEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPastPresentationTimingPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPresentTimingInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPresentTimingsInfoEXT>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>());
@@ -15903,9 +16045,9 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV:
             {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>());
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_VECTOR_PROPERTIES_NV:
@@ -16296,6 +16438,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
