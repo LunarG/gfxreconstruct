@@ -103,6 +103,7 @@ struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
     bool                         capture{ false };
+    bool                         capture_copy_data{ false };
     bool                         omit_pipeline_cache_data{ false };
     bool                         use_colorspace_fallback{ false };
     bool                         offscreen_swapchain_frame_boundary{ false };
