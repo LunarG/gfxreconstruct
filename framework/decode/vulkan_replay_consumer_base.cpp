@@ -367,6 +367,13 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
     }
+
+    if (options_.capture_copy_data)
+    {
+        auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+        vulkan_capture_manager->SetRecaptureTrimStartFrame(frame_number);
+    }
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -12157,6 +12164,13 @@ void VulkanReplayConsumerBase::EndProcessBlock()
 void VulkanReplayConsumerBase::SetCurrentFrameNumber(uint64_t frame_number)
 {
     VulkanConsumer::SetCurrentFrameNumber(frame_number);
+
+    if (options_.capture_copy_data && frame_number > 0)
+    {
+        auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+        vulkan_capture_manager->EndFrameForRecapture();
+    }
 }
 
 bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*          device_info,
