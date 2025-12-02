@@ -614,7 +614,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--screenshot-scale SCALE] [--screenshot-size WIDTHxHEIGHT]
                         [--screenshot-interval <N>]
-                        [--capture]
+                        [--capture][--capture-copy-data]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
@@ -720,6 +720,18 @@ Optional arguments:
                         capture functionality is included in the `gfxrecon-replay`
                         executable--no GFXR capture layer is added to the Vulkan layer
                         chain.
+  --capture-copy-data
+                        An extended version of `--capture` that can be used with
+                        trimming. The capture data within the trim range is
+                        copied directly from the source capture file into the
+                        new trimmed file. Note that replay must still run in
+                        order to generate the trim state block. Portable replay
+                        features are not supported. For example, replay
+                        should be done on the same device as capture, memory
+                        translation options are not supported, and if ray
+                        tracing is used, the device must support Vulkan's opaque
+                        capture and replay features. This option also forces on
+                        the option `swapchain --captured`.
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
