@@ -367,10 +367,17 @@ void WaylandContext::HandlePointerButton(
 
     if (entry != wayland_context->wayland_windows_.end())
     {
-        WaylandWindow* window = entry->second;
         if ((button == BTN_LEFT) && (state == WL_POINTER_BUTTON_STATE_PRESSED))
         {
-            wl.shell_surface_move(window->GetShellSurface(), wayland_context->seat_, serial);
+            WaylandWindow* window = entry->second;
+            if (window->GetXdgToplevel() != nullptr)
+            {
+                wl.xdg->xdg_toplevel_move(window->GetXdgToplevel(), wayland_context->seat_, serial);
+            }
+            else if (window->GetShellSurface() != nullptr)
+            {
+                wl.shell_surface_move(window->GetShellSurface(), wayland_context->seat_, serial);
+            }
         }
     }
 }
