@@ -309,11 +309,6 @@ bool FileProcessor::ProcessBlocks()
                     // parsed_block, though the block header is still valid.
                     ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
 
-                    if (block_handler_callback_ != nullptr)
-                    {
-                        block_handler_callback_(parsed_block);
-                    }
-
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
                     if (parsed_block.IsVisitable())
@@ -337,6 +332,16 @@ bool FileProcessor::ProcessBlocks()
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
                         // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
                         success = true;
+                    }
+
+                    if (block_handler_callback_ != nullptr)
+                    {
+                        // block_handler_callback_ is used to copy block data from source to capture file when using
+                        // --capture-copy-data with replay. It is called after block processing so that if the recapture
+                        // frame range starts at frame 1 then the call to vkCreateInstance is completed, the capture
+                        // manager is created, the destination capture file is created, and then the associated block
+                        // for the vkCreateInstance call can be written to the destination capture file in the callback.
+                        block_handler_callback_(parsed_block);
                     }
 
                     if (process_visitor.IsFrameDelimiter())
