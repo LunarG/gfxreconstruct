@@ -133,12 +133,13 @@ CommonCaptureManager::CommonCaptureManager() :
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
-    queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
-    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false), skip_threads_with_invalid_data_(false)
+    recapture_trim_start_frame_(kFirstFrame), queue_submit_count_(0), capture_mode_(kModeWrite),
+    previous_hotkey_state_(false), previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed),
+    debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
+    queue_zero_only_(false), allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false),
+    use_asset_file_(false), block_index_(0), write_assets_(false), previous_write_assets_(false),
+    skip_threads_with_invalid_data_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()

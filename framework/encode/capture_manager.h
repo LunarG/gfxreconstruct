@@ -381,6 +381,16 @@ class CommonCaptureManager
     {
         return current_frame_;
     }
+    uint32_t GetRecaptureTrimStartFrame() const
+    {
+        GFXRECON_ASSERT(recapture_trim_start_frame_ > 0);
+        return recapture_trim_start_frame_;
+    }
+    void SetRecaptureTrimStartFrame(uint32_t frame_number)
+    {
+        GFXRECON_ASSERT(frame_number > 0);
+        recapture_trim_start_frame_ = frame_number;
+    }
     CaptureMode GetCaptureMode() const
     {
         return capture_mode_;
@@ -593,6 +603,7 @@ class CommonCaptureManager
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
     uint32_t                                current_frame_;
+    uint32_t                                recapture_trim_start_frame_;
     uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
