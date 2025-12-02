@@ -1415,15 +1415,18 @@ void VulkanVirtualSwapchain::CreateSubmitSemaphores(const VulkanDeviceInfo*     
     decode::EndInjectedCommands();
 }
 
-format::HandleId VulkanVirtualSwapchain::FindExtFrameBoundaryImage(const void* decoded_struct)
+template <typename T>
+format::HandleId FindExtFrameBoundaryImageHelper(const T* decoded_struct)
 {
-    const Decoded_VkBaseInStructure* current = reinterpret_cast<const Decoded_VkBaseInStructure*>(decoded_struct);
+    static_assert(std::is_same_v<T, Decoded_VkSubmitInfo> || std::is_same_v<T, Decoded_VkSubmitInfo2>);
+
+    const auto* current = reinterpret_cast<const Decoded_VkBaseInStructure*>(decoded_struct);
 
     while (current != nullptr && current->decoded_value->sType != VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT)
     {
         if (current->pNext != nullptr)
         {
-            current = reinterpret_cast<const Decoded_VkBaseInStructure*>(current->pNext->GetMetaStructPointer());
+            current = static_cast<const Decoded_VkBaseInStructure*>(current->pNext->GetMetaStructPointer());
         }
         else
         {
@@ -1433,16 +1436,25 @@ format::HandleId VulkanVirtualSwapchain::FindExtFrameBoundaryImage(const void* d
 
     if (current != nullptr)
     {
-        const Decoded_VkFrameBoundaryEXT* frame_boundary = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(current);
+        const auto* frame_boundary = reinterpret_cast<const Decoded_VkFrameBoundaryEXT*>(current);
 
-        const format::HandleId* images_ptr = frame_boundary->pImages.GetPointer();
-        if (images_ptr != nullptr && *images_ptr != format::kNullHandleId)
+        if (const format::HandleId* images_ptr = frame_boundary->pImages.GetPointer();
+            images_ptr != nullptr && *images_ptr != format::kNullHandleId)
         {
             return *images_ptr;
         }
     }
-
     return format::kNullHandleId;
+}
+
+format::HandleId VulkanVirtualSwapchain::FindExtFrameBoundaryImage(const Decoded_VkSubmitInfo* decoded_submit_info)
+{
+    return FindExtFrameBoundaryImageHelper(decoded_submit_info);
+}
+
+format::HandleId VulkanVirtualSwapchain::FindExtFrameBoundaryImage(const Decoded_VkSubmitInfo2* decoded_submit_info)
+{
+    return FindExtFrameBoundaryImageHelper(decoded_submit_info);
 }
 
 format::HandleId

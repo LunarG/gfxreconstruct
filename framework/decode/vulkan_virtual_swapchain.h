@@ -208,7 +208,15 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     void CreateSubmitSemaphores(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* device_table);
 
-    format::HandleId FindExtFrameBoundaryImage(const void* decoded_struct);
+    /**
+     * @brief   FindExtFrameBoundaryImage searches the pNext-chain of provided @param decoded_submit_info
+     *          for occurrences of VkFrameBoundaryEXT. It will return the first found VkImage-HandleId.
+     *
+     * @param   decoded_submit_info     a (meta-) Decoded_VkSubmitInfo(2) struct
+     * @return  a format::HandleId for the first found image or format::kNullHandleId
+     */
+    static format::HandleId FindExtFrameBoundaryImage(const Decoded_VkSubmitInfo* decoded_submit_info);
+    static format::HandleId FindExtFrameBoundaryImage(const Decoded_VkSubmitInfo2* decoded_submit_info);
 
     format::HandleId FindCommandBufferFrameBoundaryImage(const CommonObjectInfoTable& object_info_table,
                                                          format::HandleId             command_buffer_id);
