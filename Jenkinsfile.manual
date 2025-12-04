@@ -67,7 +67,9 @@ pipeline {
                         def selectedNodes = params.NODES?.split(',')?.collect { it.trim() }?.findAll { it }
 
                         if (!selectedNodes) {
-                            error 'No nodes selected. Please select at least one node.'
+                            currentBuild.result = 'NOT_BUILT'
+                            echo 'No nodes selected. Run again with Build with Parameters.'
+                            return
                         }
 
                         selectedNodes.each { nodeName ->
