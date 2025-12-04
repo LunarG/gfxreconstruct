@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
 
     options {
         disableConcurrentBuilds(abortPrevious: true)
@@ -7,6 +7,7 @@ pipeline {
 
     stages {
         stage('Per Commit Tests') {
+            agent none
             steps {
                 script {
                     checkout scm
