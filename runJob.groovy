@@ -5,9 +5,12 @@ def gfxrTestWindows(
     String bits,
     String testSuite
 ) {
+    echo "Creating closure for ${name} with label: ${label}"
     return {
         stage(name) {
+            echo "About to allocate node with label: ${label}"
             node(label) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
