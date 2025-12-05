@@ -67,6 +67,11 @@ void HeapBuffer::Reset()
 
 HeapBufferPool::Entry::~Entry() noexcept
 {
+    Reset();
+}
+
+void HeapBufferPool::Entry::Reset() noexcept
+{
     // Return to pool_ if not reset
     if (pool_)
     {

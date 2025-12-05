@@ -79,17 +79,27 @@ class BlockParser
     {
         kAlways = 0,     // Always decompress parameter data when parsing blocks
         kNever,          // Never decompress parameter data when parsing blocks
-        kQueueOptimized, // Decompress only "small" blocks deferring large block to JIT decompression, suitable for
+        kQueueOptimized, // Decompress only "small" blocks, deferring large blocks to JIT decompression, suitable for
                          // block preload/preparsed content
     };
 
-    // The threshold is based on a trade off, maximize the number blocks with no decompression at replay
-    // but minimizing the memory overhead of the non-deferred compressions.
+    // Threshold data came from a histogram of numerous large traces and is chosen to
+    // reduce the number of deferred decompressions at a reasonable marginal memory cost.
+    // Memory "Penalty" or "Savings" below are based on the size of enqueued ParsedBlocks for replay.
     //
-    // Threshhold data came from a histogram of numerous large traces and is chosen as a trade-off
-    // that allows the majority of blocks to be decompressed when parsed and enqueued (for preloaded replay), while
-    // the 3/4 of the *bytes* are not decompressed when enqueued, limiting the memory impact
-    static constexpr size_t kSmallThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
+    // For a threshold of 512 bytes:
+    // - Penalty of 74% memory vs. kNever (all deferred), performing > 99% of decompression operations at parse time.
+    // - Savings of 42% memory vs. kAlways (none deferred), requiring only < 1% decompressions at replay time.
+    //
+    // Another choice would be 256: offers 2% lower memory penalty, but doubles replay decompressions vs. 512.
+    // - Penalty of 72% memory vs. kNever, performing > 98% of decompression operations at parse time.
+    // - Savings of 43% memory vs. kAlways, requiring < 2% decompressions at replay time
+
+    // NOTE: The threshold computation was based on assumptions of compression ratios that need to validated with
+    //       additional instrumentation.
+
+    // Minimizes decompression and allocator activity during replay from queue
+    static constexpr size_t kDeferThreshold = 512 + sizeof(format::BlockHeader); // 99% of blocks, 37% of bytes
 
     using UncompressedStore = ParsedBlock::UncompressedStore;
 
@@ -127,6 +137,8 @@ class BlockParser
 
     void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
     DecompressionPolicy GetDecompressionPolicy() const { return decompression_policy_; }
+    size_t              GetDeferThreshold() const { return kDeferThreshold; }
+    bool                ShouldTrim(ParsedBlock& parsed_block);
 
   private:
     struct ParameterReadResult
@@ -139,7 +151,9 @@ class BlockParser
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
-    bool                DecompressWhenParsed(const ParsedBlock& parsed_block);
+    static bool ShouldDefer(size_t block_size);
+    bool        DecompressWhenParsed(const ParsedBlock& parsed_block);
+
     BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
     const ErrorHandler& err_handler_;
     util::Compressor*   compressor_           = nullptr;

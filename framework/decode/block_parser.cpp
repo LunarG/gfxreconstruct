@@ -101,6 +101,11 @@ void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* erro
     err_handler_(error_code, error_message);
 }
 
+bool BlockParser::ShouldDefer(size_t block_size)
+{
+    return block_size > kDeferThreshold;
+}
+
 bool BlockParser::DecompressWhenParsed(const ParsedBlock& parsed_block)
 {
     switch (decompression_policy_)
@@ -112,8 +117,29 @@ bool BlockParser::DecompressWhenParsed(const ParsedBlock& parsed_block)
         case kNever:
             return false;
         case kQueueOptimized:
-            return parsed_block.NeedsDecompression() && parsed_block.GetBlockData().size() <= kSmallThreshold;
+            return parsed_block.NeedsDecompression() && !ShouldDefer(parsed_block.GetBlockData().size());
     }
+}
+
+bool BlockParser::ShouldTrim(ParsedBlock& parsed_block)
+{
+    bool should_trim = false;
+    switch (GetDecompressionPolicy())
+    {
+        case DecompressionPolicy::kAlways:
+            should_trim = false;
+            break;
+        case DecompressionPolicy::kNever:
+            should_trim = true;
+            break;
+        case DecompressionPolicy::kQueueOptimized:
+            should_trim = ShouldDefer(parsed_block.GetBlockData().size());
+            break;
+        default:
+            GFXRECON_ASSERT(false && "Unknown DecompressionPolicy");
+            break;
+    }
+    return should_trim;
 }
 
 BlockParser::DecompressionResult BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,

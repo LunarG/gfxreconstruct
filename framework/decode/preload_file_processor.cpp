@@ -31,88 +31,131 @@ PreloadFileProcessor::PreloadFileProcessor() {}
 
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
-    while (--count != 0U)
+    // Block processing will update current_frame_number_, so save and restore it,
+    // as callers rely on it remaining unchanged by preload.
+    const uint64_t save_current_frame = current_frame_number_;
+    uint64_t       preload_frame      = save_current_frame;
+    bool           success            = true;
+    while (--count != 0U && success)
     {
-        DoProcessNextFrame([this]() { return this->PreloadBlocksOneFrame(); });
-    }
-    preload_block_data_ = std::move(pending_block_data_);
-}
-
-bool PreloadFileProcessor::PreloadBlocksOneFrame()
-{
-    BlockBuffer         block_buffer;
-    bool                success = true;
-
-    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
-    while (success)
-    {
-        PrintBlockInfo();
-        success = ContinueDecoding();
-
+        uint64_t preload_frame = current_frame_number_;
+        success                = DoProcessNextFrame([this]() { return this->PreloadBlocksOneFrame(); });
         if (success)
         {
-            success = ReadBlockBuffer(block_parser, block_buffer);
-            if (success)
+            if (current_frame_number_ == preload_frame)
             {
-                // Valid checks for the presence and size of the data span matching the header
-                success = block_buffer.IsValid();
-
-                if (success)
-                {
-                    // Note: in order to support kExecuteBlocksFromFile in preload, we need to add special case logic
-                    //       to look for the meta data block here, and allow it to push itself on the stack, and then
-                    //       add command counting here as well.
-                    const bool end_of_frame = block_buffer.IsFrameDelimiter(*this);
-                    // Record the block data for replay, Moves DataSpan out of BlockBuffer, so don't use after this.
-                    // NOTE: It is intentional to only store only the data span to make preload lightweight a possible
-                    pending_block_data_.emplace_back(std::move(block_buffer.ReleaseData()));
-                    if (end_of_frame)
-                    {
-                        // GFXRECON_LOG_INFO("Frame delimiter encountered during preload, ending frame preload.");
-                        break;
-                    }
-                }
-                else
-                {
-                    std::string msg = "Failed to preload block data of size " +
-                                      std::to_string(block_buffer.Header().size) + " for block type " +
-                                      format::ToString(block_buffer.Header().type);
-                    HandleBlockReadError(kErrorReadingBlockData, msg.c_str());
-                }
+                // Deal with the frame marker after implied frame kFunctionCallBlock frame boundary case
+                // Append the blocks leading up to the frame marker to the previous frame
+                GFXRECON_ASSERT(current_frame_number_ == (kFirstFrame + 1));
+                GFXRECON_ASSERT(!preload_frames_.empty());
+                auto& prev_frame = preload_frames_.back().blocks;
+                prev_frame.insert(prev_frame.end(),
+                                  std::make_move_iterator(pending_parsed_blocks_.begin()),
+                                  std::make_move_iterator(pending_parsed_blocks_.end()));
             }
             else
             {
-                // We can succeed at EOF, if there are more files on the stack.
-                success = ContinueProcessing(HandleBlockEof("preload", false /* no frame or block info */));
+                preload_frames_.emplace_back(preload_frame, std::move(pending_parsed_blocks_));
+                preload_frame++;
             }
         }
     }
 
-    return success;
+    // Set up the garbage frames for cleanup after replay
+    replayed_preload_frames_.clear();
+    replayed_preload_frames_.reserve(preload_frames_.size());
+
+    // Restore saved frame number callers expect it to be unchanged by preload
+    current_frame_number_ = save_current_frame;
 }
 
-// Grab the block data off the front of the
-bool PreloadFileProcessor::GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer)
+bool PreloadFileProcessor::PreloadBlocksOneFrame()
 {
-    // Quick escape
-    if (preload_block_data_.empty())
+    // Use queue-optimized to set early decompression for "small" parsed blocks
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
+    DispatchFunction dispatch = [this](uint64_t block_index, ParsedBlock& block) {
+        pending_parsed_blocks_.emplace_back(block_index, std::move(block));
+        return ProcessBlockState::kRunning;
+    };
+
+    ProcessBlockState process_result = ProcessBlocks(dispatch, false /* check decoder completion */);
+    return ContinueProcessing(process_result);
+}
+
+void PreloadFileProcessor::CleanupReplay()
+{
+    // Clear out preloaded frames that have been replayed
+    replayed_preload_frames_.clear();
+    replayed_preload_frames_.shrink_to_fit();
+}
+
+bool PreloadFileProcessor::ProcessBlocksOneFrame()
+{
+    // Passthrough if no preloaded frame.
+    if (preload_frames_.empty())
     {
-        return Base::GetBlockBuffer(block_parser, block_buffer);
+        CleanupReplay();
+        return FileProcessor::ProcessBlocksOneFrame();
     }
 
-    block_buffer = BlockBuffer(std::move(preload_block_data_.front()));
-    preload_block_data_.pop_front();
+    PreloadedFrame&   frame          = preload_frames_.front();
+    ProcessBlockState process_result = ReplayOneFrame(frame);
 
-    // Caller expects read position just past header
-    // Again the pattern is to validate the header presense, not span consistency
-    bool success = block_buffer.SeekTo(sizeof(format::BlockHeader));
+    // Defer cleanup of preloaded frames to avoid contaminating performance measurements during replay
+    replayed_preload_frames_.emplace_back(std::move(frame));
+    preload_frames_.pop_front();
 
-    // However, preload should never add data the doesn't result in a valid block_buffer.
-    // Should have failed in preload.
-    GFXRECON_ASSERT(block_buffer.IsValid());
+    if (process_result == ProcessBlockState::kFrameBoundary)
+    {
+        current_frame_number_++;
+    }
 
-    return success;
+    return ContinueProcessing(process_result);
+}
+
+FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame(PreloadedFrame& frame)
+{
+    BlockParser&    block_parser = GetBlockParser();
+    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
+    SetDecoderFrameNumber(frame.frame_number);
+
+    ProcessBlockState process_state = ProcessBlockState::kFrameBoundary;
+    for (auto& queued_block : frame.blocks)
+    {
+        uint64_t block_index = queued_block.block_index;
+        if (!ContinueDecoding(block_index, true /* check decoder completion */))
+        {
+            process_state = ProcessBlockState::kEndProcessing;
+            break;
+        }
+
+        // We assume that only known, vistable blocks were preloaded
+        ParsedBlock& parsed_block = queued_block.block;
+        GFXRECON_ASSERT(parsed_block.IsVisitable());
+
+        bool decompressed = false;
+        if (parsed_block.NeedsDecompression())
+        {
+            if (!parsed_block.Decompress(block_parser))
+            {
+                process_state = ProcessBlockState::kError;
+                break;
+            }
+            decompressed = true;
+        }
+
+        SetDecoderBlockIndex(block_index);
+        std::visit(dispatch_visitor, parsed_block.GetArgs());
+        block_index++;
+
+        // Cleanup large decompressed blocks after processing to reduce memory usage during replay
+        if (decompressed)
+        {
+            parsed_block.TrimBlock(block_parser);
+        }
+    }
+
+    return process_state;
 }
 
 GFXRECON_END_NAMESPACE(decode)

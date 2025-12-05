@@ -40,17 +40,47 @@ class PreloadFileProcessor : public FileProcessor
 
     // Preloads *count* frames to continuous, expandable memory buffer
     void PreloadNextFrames(size_t count);
-    // Replaces ProcessBlocksOneFrame() to just read blocks into memory buffer
+
+  protected:
     bool PreloadBlocksOneFrame();
+    bool ProcessBlocksOneFrame() override;
 
   private:
-    bool GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer) override;
+    // Read and parse all blocks for one frame
+    struct QueuedBlock
+    {
+        uint64_t    block_index;
+        ParsedBlock block;
+        QueuedBlock()                              = delete;
+        QueuedBlock(QueuedBlock&&) noexcept        = default;
+        QueuedBlock& operator=(QueuedBlock&&)      = default;
+        QueuedBlock(const QueuedBlock&)            = delete;
+        QueuedBlock& operator=(const QueuedBlock&) = delete;
+        QueuedBlock(uint64_t block_index_, ParsedBlock&& block_) : block_index(block_index_), block(std::move(block_))
+        {}
+    };
 
-    // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
-    //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
-    //       the compact choice
-    std::deque<util::DataSpan> pending_block_data_;
-    std::deque<util::DataSpan> preload_block_data_;
+    using ParsedBlockQueue = std::deque<QueuedBlock>;
+    ParsedBlockQueue pending_parsed_blocks_;
+    struct PreloadedFrame
+    {
+        uint64_t         frame_number;
+        ParsedBlockQueue blocks;
+
+        PreloadedFrame()                                 = default;
+        PreloadedFrame(PreloadedFrame&&) noexcept        = default;
+        PreloadedFrame(const PreloadedFrame&)            = delete;
+        PreloadedFrame& operator=(const PreloadedFrame&) = delete;
+        PreloadedFrame(uint64_t frame_number_, ParsedBlockQueue&& blocks_) :
+            frame_number(frame_number_), blocks(std::move(blocks_))
+        {}
+    };
+
+    ProcessBlockState ReplayOneFrame(PreloadedFrame& frame);
+    void              CleanupReplay();
+
+    std::deque<PreloadedFrame>  preload_frames_;
+    std::vector<PreloadedFrame> replayed_preload_frames_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

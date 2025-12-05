@@ -102,6 +102,9 @@ class FileProcessor
     };
 
   public:
+    // TODO GH #1195: frame numbering should be 1-based.
+    const static uint32_t kFirstFrame = 0;
+
     FileProcessor();
 
     FileProcessor(uint64_t block_limit);
@@ -173,9 +176,9 @@ class FileProcessor
 
   protected:
     bool DoProcessNextFrame(const std::function<bool()>& block_processor);
-    bool ProcessBlocksOneFrame();
+    virtual bool ProcessBlocksOneFrame();
 
-    bool ContinueDecoding();
+    bool ContinueDecoding(uint64_t block_index, bool check_decoders);
 
     util::DataSpan ReadSpan(size_t buffer_size);
     bool           ReadBytes(void* buffer, size_t buffer_size);
@@ -185,9 +188,6 @@ class FileProcessor
 
     // Reads block header, from input stream.
     bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
-
-    // Gets the block buffer from input stream or preloaded data if available
-    virtual bool GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer);
 
     void UpdateEndFrameState();
 
@@ -202,8 +202,8 @@ class FileProcessor
         // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
         //
         // Returned when ProcessBlocks ...
-        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
         kFrameBoundary = 1,  // encountered a frame boundary
+        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
         kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
         kError         = -2, // encountered an error
     };
@@ -251,7 +251,20 @@ class FileProcessor
         return file_stack_.back().active_file->IsEof();
     }
 
-  private:
+    // Dispatch function is allowed to modify the ParsedBlock as needed before processing
+    // including decompression, or even stealing the contents for deferred processing.
+    using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
+    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completeness);
+
+    void SetDecoderBlockIndex(uint64_t block_index);
+    void SetDecoderFrameNumber(uint64_t frame_number);
+
+    BlockParser& GetBlockParser()
+    {
+        GFXRECON_ASSERT(block_parser_.get() != nullptr);
+        return *block_parser_;
+    }
+
     class DispatchVisitor
     {
       public:
@@ -299,6 +312,7 @@ class FileProcessor
         AnnotationHandler*              annotation_handler_;
     };
 
+  private:
     class ProcessVisitor
     {
       public:
@@ -387,7 +401,6 @@ class FileProcessor
     };
 
     bool ProcessFileHeader();
-    ProcessBlockState ProcessBlocks();
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
@@ -417,8 +430,6 @@ class FileProcessor
 
     void DecrementRemainingCommands();
 
-    std::string ApplyAbsolutePath(const std::string& file);
-
   private:
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
@@ -433,12 +444,13 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    std::string absolute_path_;
+    std::string        absolute_path_;
     format::FileHeader file_header_;
 
   protected:
-    BufferPool        pool_;
+    BufferPool                        pool_;
     std::unique_ptr<util::Compressor> compressor_;
+    std::unique_ptr<BlockParser>      block_parser_;
 
     struct ActiveFileContext
     {
