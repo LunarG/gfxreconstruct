@@ -231,15 +231,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
         if (returnValue >= 0 && *pPhysicalDeviceGroupCount->GetPointer() > 0 &&
             pPhysicalDeviceGroupProperties->GetPointer())
         {
-            uint32_t   pdg_count   = *pPhysicalDeviceGroupCount->GetPointer();
-            VkInstance actual_inst = reinterpret_cast<VkInstance>(instance);
+            const Decoded_VkPhysicalDeviceGroupProperties* meta_info =
+                pPhysicalDeviceGroupProperties->GetMetaStructPointer();
+            size_t     physdev_group_count = pPhysicalDeviceGroupProperties->GetLength();
+            VkInstance actual_inst         = reinterpret_cast<VkInstance>(instance);
             GFXRECON_ASSERT(instance_info_.find(actual_inst) != instance_info_.end());
-            for (uint32_t pdg = 0; pdg < pdg_count; ++pdg)
+
+            for (size_t pdg = 0; pdg < physdev_group_count; ++pdg)
             {
-                auto phys_dev_group_prop = pPhysicalDeviceGroupProperties->GetPointer()[pdg];
-                for (uint32_t pd = 0; pd < phys_dev_group_prop.physicalDeviceCount; ++pd)
+                size_t                  physical_device_count = meta_info[pdg].physicalDevices.GetLength();
+                const format::HandleId* physical_devices      = meta_info[pdg].physicalDevices.GetPointer();
+                for (size_t pd = 0; pd < physical_device_count; ++pd)
                 {
-                    VkPhysicalDevice phys_dev = phys_dev_group_prop.physicalDevices[pd];
+                    VkPhysicalDevice phys_dev = reinterpret_cast<VkPhysicalDevice>(physical_devices[pd]);
                     if (std::find(instance_info_[actual_inst].physical_devices.begin(),
                                   instance_info_[actual_inst].physical_devices.end(),
                                   phys_dev) == instance_info_[actual_inst].physical_devices.end())
@@ -854,7 +858,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer, public gfxr
                                                        std::to_string(resolution.height));
             }
 
-            instance_json["physical-devices"] = nlohmann::json::array();
+            instance_json["used-physical-device-groups"] = value.uses_physical_device_groups;
+            instance_json["physical-devices"]            = nlohmann::json::array();
             GeneratePhysicalDeviceJsonData(instance_json["physical-devices"], value.used_physical_devices);
 
             inst_json_array.push_back(instance_json);
