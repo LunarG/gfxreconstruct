@@ -47,10 +47,6 @@ pipeline {
     stages {
 
         stage('Extended Tests') {
-            when {
-                branch 'dev'
-            }
-
             steps {
                 script {
                     def tests
