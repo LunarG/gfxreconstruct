@@ -14,7 +14,8 @@ def getNodeType(String nodeName) {
 }
 
 def gfxrTestWindowsManual(
-    String nodeName,
+    String stageName,
+    String nodeLabel,
     String buildMode,
     String bits,
     String testSuite,
@@ -26,8 +27,8 @@ def gfxrTestWindowsManual(
     String testSuiteBranch
 ) {
     return {
-        stage(nodeName) {
-            node(nodeName) {
+        stage(stageName) {
+            node(nodeLabel) {
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)

@@ -83,6 +83,7 @@ pipeline {
                                 case 'android':
                                     closure = runJob.gfxrTestAndroidManual(
                                         nodeName,
+                                        nodeName,
                                         params.BUILD_MODE,
                                         params.BITS,
                                         params.TEST_SUITE,
@@ -97,6 +98,7 @@ pipeline {
                                 case 'linux':
                                     closure = runJob.gfxrTestLinuxManual(
                                         nodeName,
+                                        nodeName,
                                         params.BUILD_MODE,
                                         params.BITS,
                                         params.TEST_SUITE,
@@ -110,6 +112,7 @@ pipeline {
                                     break
                                 case 'windows':
                                     closure = runJob.gfxrTestWindowsManual(
+                                        nodeName,
                                         nodeName,
                                         params.BUILD_MODE,
                                         params.BITS,
