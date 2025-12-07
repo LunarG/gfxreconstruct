@@ -74,7 +74,8 @@ def gfxrTestWindowsManual(
 }
 
 def gfxrTestLinuxManual(
-    String nodeName,
+    String stageName,
+    String nodeLabel,
     String buildMode,
     String bits,
     String testSuite,
@@ -86,8 +87,8 @@ def gfxrTestLinuxManual(
     String testSuiteBranch
 ) {
     return {
-        stage(nodeName) {
-            node(nodeName) {
+        stage(stageName) {
+            node(nodeLabel) {
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -133,7 +134,8 @@ def gfxrTestLinuxManual(
 }
 
 def gfxrTestAndroidManual(
-    String nodeName,
+    String stageName,
+    String nodeLabel,
     String buildMode,
     String bits,
     String testSuite,
@@ -145,8 +147,8 @@ def gfxrTestAndroidManual(
     String testSuiteBranch
 ) {
     return {
-        stage(nodeName) {
-            node(nodeName) {
+        stage(stageName) {
+            node(nodeLabel) {
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
