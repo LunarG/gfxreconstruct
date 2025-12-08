@@ -40,7 +40,7 @@ def gfxrTestWindows(
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                    allowEmptyArchive: true,
+                    allowEmptyArchive: false,
                     onlyIfSuccessful: false
                 )
             }
@@ -87,7 +87,7 @@ def gfxrTestLinux(
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                    allowEmptyArchive: true,
+                    allowEmptyArchive: false,
                     onlyIfSuccessful: false
                 )
             }
@@ -135,7 +135,7 @@ def gfxrTestAndroid(
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                    allowEmptyArchive: true,
+                    allowEmptyArchive: false,
                     onlyIfSuccessful: false
                 )
 
