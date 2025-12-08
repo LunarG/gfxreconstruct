@@ -208,7 +208,7 @@ return [
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
     Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
-    WinAmdExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
+    WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2800-stable-exclusive',
 
     getNodeType: this.&getNodeType,
