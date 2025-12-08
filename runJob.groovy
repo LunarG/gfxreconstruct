@@ -84,21 +84,12 @@ def gfxrTestLinux(
                     }
                 }
 
-                // artifact directories are merged for the whole job, so if the artifact folder names are the same, the last one wins
-                // we create a unique tag for this stage, and symlink the artifact folder to it so that it doesn't get squashed
-                // and we can easily find it in the list of artifacts
-                def tag = "vulkantest-results-${name}" 
-                // remove symlink, just in case there is a name collision and it wasn't removed properly last time
-                sh """rm -f ${tag}""" 
-                sh """ln -s vulkantest-results '${tag}'"""
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
-                    followSymlinks: true,
                 )
-                sh """rm -f ${tag}""" // remove symlink to keep file system clean
             }
         }
     }
@@ -141,21 +132,12 @@ def gfxrTestAndroid(
                     }
                 }
 
-                // artifact directories are merged for the whole job, so if the artifact folder names are the same, the last one wins
-                // we create a unique tag for this stage, and symlink the artifact folder to it so that it doesn't get squashed
-                // and we can easily find it in the list of artifacts
-                def tag = "vulkantest-results-${name}" 
-                // remove symlink, just in case there is a name collision and it wasn't removed properly last time
-                sh """rm -f ${tag}""" 
-                sh """ln -s vulkantest-results '${tag}'"""
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
-                    followSymlinks: true,
                 )
-                sh """rm -f ${tag}""" // remove symlink to keep file system clean
 
             }
         }
