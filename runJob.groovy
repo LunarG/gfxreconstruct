@@ -11,6 +11,7 @@ def gfxrTestWindows(
             echo "About to allocate node with label: ${label}"
             node(label) {
                 echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -19,6 +20,8 @@ def gfxrTestWindows(
                         throw e
                     }
                 }
+
+                bat 'if exists vulkantest-results rmdir /s /q vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout scm
@@ -31,7 +34,7 @@ def gfxrTestWindows(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         bat 'runJob.bat'
                     }
@@ -58,6 +61,8 @@ def gfxrTestLinux(
     return {
         stage(name) {
             node(label) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -66,6 +71,8 @@ def gfxrTestLinux(
                         throw e
                     }
                 }
+
+                sh 'rm -rf vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout scm
@@ -78,7 +85,7 @@ def gfxrTestLinux(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         sh './runJob.sh'
                     }
@@ -105,6 +112,8 @@ def gfxrTestAndroid(
     return {
         stage(name) {
             node(label) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -113,6 +122,8 @@ def gfxrTestAndroid(
                         throw e
                     }
                 }
+
+                sh 'rm -rf vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout scm
@@ -125,7 +136,7 @@ def gfxrTestAndroid(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         sh './runJobAndroid.sh'
 
