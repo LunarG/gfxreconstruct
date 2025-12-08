@@ -21,7 +21,7 @@ def gfxrTestWindows(
                     }
                 }
 
-                bat 'if exists vulkantest-results rmdir /s /q vulkantest-results'
+                bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout scm
