@@ -73,8 +73,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries      = 16;
-const size_t kMaxQueryPoolResultsRetries = 16;
+const size_t kMaxEventStatusRetries = 16;
 
 const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
@@ -93,6 +92,20 @@ const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT
 
 const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
     "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
+};
+
+// LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeThanCapture = {
+
+    { VK_TIMEOUT, VK_SUCCESS },
+    { VK_NOT_READY, VK_SUCCESS },
+    { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+
+    // silences: [gfxrecon] WARNING - API call vkGetEventStatus returned value VK_EVENT_SET that does not match return
+    // value from capture file: VK_EVENT_RESET.
+    // -> considered harmless and 'can' create a lot of noise.
+    { VK_EVENT_RESET, VK_EVENT_SET },
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -1476,36 +1489,46 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
-        const bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.count(func_name);
+        // check allow-listed functions
+        bool accept_return_code = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
-        if (!is_func_allowed_to_differ && (replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        // check allow-listed capture/replay VkResult-values
+        if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
+            it != kResultValuesAllowedDifferentCodeThanCapture.end())
         {
-            // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
-            // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
-            // to continue for the case where an application may have queried for formats that it did not use.
-            GFXRECON_LOG_FATAL(
-                "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
-                "capture file: %s. Replay cannot continue.",
-                call_info.index,
-                call_info.thread_id,
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
-
-            RaiseFatalError(enumutil::GetResultDescription(replay));
+            accept_return_code = accept_return_code || replay == it->second;
         }
-        else if (!((replay == VK_SUCCESS) &&
-                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR) ||
-                    (original == VK_SUBOPTIMAL_KHR))) ||
-                 is_func_allowed_to_differ)
+
+        if (!accept_return_code)
         {
-            // Report differences between replay result and capture result, unless the replay results indicates
-            // that a wait operation completed before the original or a WSI function succeeded when the original failed.
-            GFXRECON_LOG_WARNING(
-                "API call %s returned value %s that does not match return value from capture file: %s.",
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
+            if (replay < 0 && replay != VK_ERROR_FORMAT_NOT_SUPPORTED)
+            {
+                // Raise a fatal error if replay produced an error that did not occur during capture.  Format not
+                // supported errors are not treated as fatal, but will be reported as warnings below, allowing the
+                // replay to attempt to continue for the case where an application may have queried for formats that it
+                // did not use.
+                GFXRECON_LOG_FATAL("API call at index: %d thread: %d %s returned error value %s that does not match "
+                                   "the result from the "
+                                   "capture file: %s. Replay cannot continue.",
+                                   call_info.index,
+                                   call_info.thread_id,
+                                   func_name,
+                                   util::ToString<VkResult>(replay).c_str(),
+                                   util::ToString<VkResult>(original).c_str());
+
+                RaiseFatalError(enumutil::GetResultDescription(replay));
+            }
+            else
+            {
+                // Report differences between replay result and capture result, unless the replay results indicates
+                // that a wait operation completed before the original or a WSI function succeeded when the original
+                // failed.
+                GFXRECON_LOG_WARNING(
+                    "API call %s returned value %s that does not match return value from capture file: %s.",
+                    func_name,
+                    util::ToString<VkResult>(replay).c_str(),
+                    util::ToString<VkResult>(original).c_str());
+            }
         }
     }
 }
@@ -3966,10 +3989,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
     do
     {
         result = func(device, event);
-    } while ((((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET)) ||
-              ((original_result == VK_EVENT_RESET) && (result == VK_EVENT_SET))) &&
-             (++retries <= kMaxEventStatusRetries));
-
+    } while (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && ++retries <= kMaxEventStatusRetries);
     return result;
 }
 
@@ -3984,23 +4004,27 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    assert((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
-           (pData->GetOutputPointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
+                    (pData->GetOutputPointer() != nullptr));
 
-    VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
-    size_t      retries    = 0;
 
-    do
+    if (original_result == VK_SUCCESS)
     {
-        result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while (((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) &&
-             (++retries <= kMaxQueryPoolResultsRetries));
+        // instead of polling (busy-waiting) vkGetQueryPoolResults, we just wait
+        flags |= VK_QUERY_RESULT_WAIT_BIT;
+    }
 
-    auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    address_replacer.ProcessGetQueryPoolResults(
-        device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    VkResult result =
+        func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+
+    if (result == VK_SUCCESS)
+    {
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGetQueryPoolResults(
+            device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    }
     return result;
 }
 

@@ -321,7 +321,7 @@ int main(int argc, const char** argv)
         file_processor.AddDecoder(&decoder);
         file_processor.ProcessAllFrames();
 
-        if (file_processor.GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
+        if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
