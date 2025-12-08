@@ -36,6 +36,7 @@ def gfxrTestWindows(
                     }
                 }
 
+                bat "echo %cd% & dir /s"
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
@@ -82,6 +83,7 @@ def gfxrTestLinux(
                     }
                 }
 
+                sh 'pwd; ls -R'
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
@@ -128,6 +130,8 @@ def gfxrTestAndroid(
 
                     }
                 }
+
+                sh 'pwd; ls -R'
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
