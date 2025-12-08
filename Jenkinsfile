@@ -54,11 +54,11 @@ pipeline {
                         def runJob = load 'runJob.groovy'
 
                         tests = [
-                            'Android Rel64': runJob.gfxrTestAndroid('Android R64', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json"),
-                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json"),
-                            'Linux Nnvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json"),
-                            'Windows AMD Rel64': runJob.gfxrTestWindows('Windows AMD Rel64', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json"),
-                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Windows Nvidia Rel64', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json"),
+                            'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json"),
+                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json"),
+                            'Linux Nnvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json"),
+                            'Windows AMD Rel64': runJob.gfxrTestWindows('Windows AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json"),
+                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Windows Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json"),
                         ]
                     }
                     parallel tests
