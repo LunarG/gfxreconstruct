@@ -59,15 +59,15 @@ def gfxrTestWindowsManual(
                         "BUILD_MODE=${buildMode}",
                     ]) {
                         bat 'runJob.bat'
-
-                        archiveArtifacts(
-                            artifacts: 'vulkantest-results/**',
-                            excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                            allowEmptyArchive: true,
-                            onlyIfSuccessful: false
-                        )
                     }
                 }
+
+                archiveArtifacts(
+                    artifacts: 'vulkantest-results/**',
+                    excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                )
             }
         }
     }
@@ -119,14 +119,14 @@ def gfxrTestLinuxManual(
                         "BUILD_MODE=${buildMode}",
                     ]) {
                         sh './runJob.sh'
-
-                        archiveArtifacts(
-                            artifacts: 'vulkantest-results/**',
-                            excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                            allowEmptyArchive: true,
-                            onlyIfSuccessful: false
-                        )
                     }
+
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                        allowEmptyArchive: true,
+                        onlyIfSuccessful: false
+                    )
                 }
             }
         }
@@ -179,14 +179,14 @@ def gfxrTestAndroidManual(
                         "BUILD_MODE=${buildMode}",
                     ]) {
                         sh './runJobAndroid.sh'
-
-                        archiveArtifacts(
-                            artifacts: 'vulkantest-results/**',
-                            excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
-                            allowEmptyArchive: true,
-                            onlyIfSuccessful: false
-                        )
                     }
+
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                        allowEmptyArchive: true,
+                        onlyIfSuccessful: false
+                    )
                 }
             }
         }
