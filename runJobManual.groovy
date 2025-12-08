@@ -29,6 +29,8 @@ def gfxrTestWindowsManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -37,6 +39,8 @@ def gfxrTestWindowsManual(
                         throw e
                     }
                 }
+
+                bat 'if exists vulkantest-results rmdir /s /q vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout([
@@ -57,7 +61,7 @@ def gfxrTestWindowsManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         bat 'runJob.bat'
                     }
@@ -90,6 +94,8 @@ def gfxrTestLinuxManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -98,6 +104,8 @@ def gfxrTestLinuxManual(
                         throw e
                     }
                 }
+
+                sh 'rm -rf vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout([
@@ -118,7 +126,7 @@ def gfxrTestLinuxManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         sh './runJob.sh'
                     }
@@ -151,6 +159,8 @@ def gfxrTestAndroidManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
+                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+
                 retry(3) {
                     try {
                         cleanWs(deleteDirs: true, disableDeferredWipeout: true)
@@ -159,6 +169,8 @@ def gfxrTestAndroidManual(
                         throw e
                     }
                 }
+
+                sh 'rm -rf vulkantest-results'
 
                 dir('gfxreconstruct') {
                     checkout([
@@ -179,7 +191,7 @@ def gfxrTestAndroidManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=vulkantest-results/${name}"
+                        "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
                         sh './runJobAndroid.sh'
                     }
