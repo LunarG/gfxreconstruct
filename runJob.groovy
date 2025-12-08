@@ -31,26 +31,18 @@ def gfxrTestWindows(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         bat 'runJob.bat'
                     }
                 }
 
-                // artifact directories are merged for the whole job, so if the artifact folder names are the same, the last one wins
-                // we create a unique tag for this stage, and symlink the artifact folder to it so that it doesn't get squashed
-                // and we can easily find it in the list of artifacts
-                def tag = "vulkantest-results-${name}"
-                // remove symlink, just in case there is a name collision and it wasn't removed properly last time
-                bat """if exist "${tag}" rmdir "${tag}" """
-                bat """mklink /D '"${tag}"' "vulkantest-results" """
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
-                    followSymlinks: true,
                 )
-                bat """if exist "${tag}" rmdir "${tag}" """ // remove symlink to keep file system clean
             }
         }
     }
@@ -86,6 +78,7 @@ def gfxrTestLinux(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         sh './runJob.sh'
                     }
@@ -141,6 +134,7 @@ def gfxrTestAndroid(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         sh './runJobAndroid.sh'
 

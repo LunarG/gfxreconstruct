@@ -57,6 +57,7 @@ def gfxrTestWindowsManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         bat 'runJob.bat'
                     }
@@ -117,6 +118,7 @@ def gfxrTestLinuxManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         sh './runJob.sh'
                     }
@@ -177,6 +179,7 @@ def gfxrTestAndroidManual(
                         "TEST_SUITE=${testSuite}",
                         "BITS=${bits}",
                         "BUILD_MODE=${buildMode}",
+                        "RESULTS_DIR=vulkantest-results/${name}"
                     ]) {
                         sh './runJobAndroid.sh'
                     }
