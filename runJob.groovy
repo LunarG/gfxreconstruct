@@ -42,7 +42,7 @@ def gfxrTestWindows(
                 def tag = "vulkantest-results-${name}"
                 // remove symlink, just in case there is a name collision and it wasn't removed properly last time
                 bat """if exist "${tag}" rmdir "${tag}" """
-                bat """mklink /D "${tag}" "vulkantest-results" """
+                bat """mklink /D '"${tag}"' "vulkantest-results" """
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
@@ -97,7 +97,7 @@ def gfxrTestLinux(
                 def tag = "vulkantest-results-${name}" 
                 // remove symlink, just in case there is a name collision and it wasn't removed properly last time
                 sh """rm -f ${tag}""" 
-                sh """ln -s vulkantest-results ${tag}"""
+                sh """ln -s vulkantest-results '${tag}'"""
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
@@ -153,7 +153,7 @@ def gfxrTestAndroid(
                 def tag = "vulkantest-results-${name}" 
                 // remove symlink, just in case there is a name collision and it wasn't removed properly last time
                 sh """rm -f ${tag}""" 
-                sh """ln -s vulkantest-results ${tag}"""
+                sh """ln -s vulkantest-results '${tag}'"""
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
