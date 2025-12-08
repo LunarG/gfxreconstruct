@@ -170,6 +170,8 @@ return [
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
     Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
+    WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
+    WinNvidiaExtendedLabel: 'Windows-NVIDIA-2800-stable-exclusive',
 
     gfxrTestWindows: this.&gfxrTestWindows,
     gfxrTestLinux: this.&gfxrTestLinux,
