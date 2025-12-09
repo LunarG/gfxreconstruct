@@ -1886,6 +1886,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<uint64_t, HardwareBufferInfo>               HardwareBufferMap;
     typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
+    template <typename PipelineHandle>
+    static bool ShouldSkipPipelineCreationForCompileRequired(VkResult                              original_result,
+                                                             uint32_t                              create_info_count,
+                                                             HandlePointerDecoder<PipelineHandle>* pipelines,
+                                                             const char*                           pipeline_type);
+
+    template <typename CreateInfo>
+    static void
+    RemoveFailOnCompileRequiredFlags(uint32_t create_info_count, CreateInfo* create_infos, const char* pipeline_type);
+
   private:
     util::platform::LibraryHandle                                            loader_handle_;
     PFN_vkGetInstanceProcAddr                                                get_instance_proc_addr_;
