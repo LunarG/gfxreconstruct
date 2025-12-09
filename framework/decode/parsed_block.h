@@ -76,6 +76,10 @@ class ParsedBlock
         kUnknown,            // Set when block is of an unknown type (no parsing done beyond header)
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
+        kSkip,               // Set when block should be skipped
+        kTrimmed,            // Set when block has had the decompressed data trimmed away
+                             // NOTE: Must not be dispatched as backing store for compressed
+                             // block parmeter data is gone, and the data pointers are invalid.
     };
 
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
@@ -145,6 +149,7 @@ class ParsedBlock
     {}
 
     [[nodiscard]] bool Decompress(BlockParser& parser);
+    void               TrimBlock(BlockParser& parser);
 
   private:
     template <typename Args>

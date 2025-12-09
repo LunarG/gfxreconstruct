@@ -90,6 +90,16 @@ bool ParsedBlock::Decompress(BlockParser& parser)
     return IsReady();
 }
 
+void ParsedBlock::TrimBlock(BlockParser& parser)
+{
+    if (parser.ShouldTrim(*this))
+    {
+        // Release the uncompressed store to save memory
+        uncompressed_store_.Reset();
+        state_ = kTrimmed;
+    }
+}
+
 void ParsedBlock::UpdateUncompressedStore(UncompressedStore&& from_store)
 {
     GFXRECON_ASSERT(state_ == kDeferredDecompress);

@@ -32,9 +32,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO GH #1195: frame numbering should be 1-based.
-const uint32_t kFirstFrame = 0;
-
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
     annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
@@ -74,23 +71,23 @@ bool FileProcessor::Initialize(const std::string& filename)
         error_state_ = kErrorOpeningFile;
     }
 
-    // Find absolute path of capture file
     if (success)
     {
+        // Find absolute path of capture file
         absolute_path_ = util::filepath::GetBasedir(filename);
+
+        // Initialize block parser, with the compressor created during file header processing.
+        auto err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
+        block_parser_ =
+            std::make_unique<BlockParser>(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+        success = block_parser_.get() != nullptr;
+        if (!success)
+        {
+            error_state_ = kErrorOpeningFile;
+        }
     }
 
     return success;
-}
-
-std::string FileProcessor::ApplyAbsolutePath(const std::string& file)
-{
-    if (absolute_path_.empty())
-    {
-        return file;
-    }
-
-    return absolute_path_ + file;
 }
 
 bool FileProcessor::ProcessNextFrame()
@@ -101,11 +98,19 @@ bool FileProcessor::ProcessNextFrame()
 
 bool FileProcessor::ProcessBlocksOneFrame()
 {
-    for (ApiDecoder* decoder : decoders_)
-    {
-        decoder->SetCurrentFrameNumber(current_frame_number_);
-    }
-    return ProcessBlocks();
+    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
+    // No need to decompress within the dispatch function, given kAlways policy.
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
+    DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
+        SetDecoderBlockIndex(block_index);
+        std::visit(dispatch_visitor, block.GetArgs());
+        return ProcessBlockState::kRunning;
+    };
+
+    SetDecoderFrameNumber(current_frame_number_);
+    ProcessBlockState process_result = ProcessBlocks(dispatch, true /* check decoder completion */);
+
+    return ContinueProcessing(process_result);
 }
 
 bool FileProcessor::DoProcessNextFrame(const std::function<bool()>& block_processor)
@@ -142,25 +147,25 @@ bool FileProcessor::ProcessAllFrames()
     return (error_state_ == kErrorNone);
 }
 
-bool FileProcessor::ContinueDecoding()
+bool FileProcessor::ContinueDecoding(uint64_t block_index, bool check_decoders)
 {
     bool early_exit = false;
     // If a block limit was specified, obey it.
     // If not (block_limit_ = 0),  then the consumer may determine early exit
     if (block_limit_ > 0)
     {
-        if (block_index_ > block_limit_)
+        if (block_index > block_limit_)
         {
             early_exit = true;
         }
     }
-    else
+    else if (check_decoders)
     {
         int completed_decoders = 0;
 
         for (auto& decoder : decoders_)
         {
-            if (decoder->IsComplete(block_index_) == true)
+            if (decoder->IsComplete(block_index) == true)
             {
                 completed_decoders++;
             }
@@ -261,32 +266,21 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
-bool FileProcessor::ProcessBlocks()
+FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completion)
 {
-    BlockBuffer         block_buffer;
-    bool                success = true;
+    BlockBuffer       block_buffer;
+    ProcessBlockState process_state = ProcessBlockState::kRunning;
+    BlockParser&      block_parser  = *block_parser_.get();
+    ProcessVisitor    process_visitor(*this);
 
-    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
-    // NOTE: To test deferred decompression operation uncomment next line
-    // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
-
-    ProcessVisitor  process_visitor(*this);
-    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
-
-    while (success)
+    while (process_state == ProcessBlockState::kRunning)
     {
         PrintBlockInfo();
-        success = ContinueDecoding();
+        bool success = ContinueDecoding(block_index_, check_decoder_completion);
 
         if (success)
         {
-            success = GetBlockBuffer(block_parser, block_buffer);
-
-            for (auto decoder : decoders_)
-            {
-                decoder->SetCurrentBlockIndex(block_index_);
-            }
+            success = ReadBlockBuffer(block_parser, block_buffer);
 
             if (success)
             {
@@ -314,8 +308,22 @@ bool FileProcessor::ProcessBlocks()
                             success = process_visitor.IsSuccess();
                             if (success)
                             {
-                                std::visit(dispatch_visitor, parsed_block.GetArgs());
+                                process_state = dispatch(block_index_, parsed_block);
+                                if ((ProcessBlockState::kRunning == process_state) &&
+                                    process_visitor.IsFrameDelimiter())
+                                {
+                                    process_state = ProcessBlockState::kFrameBoundary;
+                                }
                             }
+                            else
+                            {
+                                process_state = ProcessBlockState::kError;
+                            }
+                        }
+                        else
+                        {
+                            // Decompression failed. Decompress logs error.
+                            process_state = ProcessBlockState::kError;
                         }
                     }
                     else if (parsed_block.IsUnknown())
@@ -327,30 +335,34 @@ bool FileProcessor::ProcessBlocks()
                                              current_frame_number_,
                                              block_index_);
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
-                        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
-                        success = true;
                     }
-
-                    if (process_visitor.IsFrameDelimiter())
+                    else if (!parsed_block.IsValid())
                     {
-                        // The ProcessVisitor (pre-dispatch) is not the right place to update the frame state, so do it
-                        // here
-                        UpdateEndFrameState();
-                        break;
+                        // Invalid block. Error already logged in ParseBlock.
+                        process_state = ProcessBlockState::kError;
                     }
                 }
+                ++block_index_;
+                DecrementRemainingCommands();
             }
-            else
+            else // GetBlockBuffer failed
             {
-                success = HandleBlockEof("read", true);
+                process_state = HandleBlockEof("read", true);
             }
         }
-        ++block_index_;
-        DecrementRemainingCommands();
+        else // ContinueDecoding returned false
+        {
+            process_state = ProcessBlockState::kEndProcessing;
+        }
     }
 
-    DecrementRemainingCommands();
-    return success;
+    // Update the frame number etc.
+    if (process_state == ProcessBlockState::kFrameBoundary)
+    {
+        UpdateEndFrameState();
+    }
+
+    return process_state;
 }
 
 // While ReadBlockBuffer both reads the block header and the block body, checks for
@@ -373,12 +385,6 @@ bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buff
         success = false;
     }
     return success;
-}
-
-// Preloading overloads this to get preloaded blocks
-bool FileProcessor::GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
-{
-    return ReadBlockBuffer(parser, block_buffer);
 }
 
 bool FileProcessor::PeekBytes(void* buffer, size_t buffer_size)
@@ -549,7 +555,6 @@ void FileProcessor::UpdateEndFrameState()
 
     // Make sure to increment the frame number on the way out.
     ++current_frame_number_;
-    ++block_index_;
 }
 
 bool FileProcessor::ProcessFrameDelimiter(gfxrecon::format::ApiCallId call_id)
@@ -659,10 +664,10 @@ void FileProcessor::PrintBlockInfo() const
     }
 }
 
-bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
+FileProcessor::ProcessBlockState FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
 {
 
-    bool success = false;
+    ProcessBlockState state = ProcessBlockState::kEndProcessing;
     if (!AtEof())
     {
         // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
@@ -683,6 +688,7 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         }
 
         error_state_ = kErrorReadingBlockHeader;
+        state        = ProcessBlockState::kError;
     }
     else
     {
@@ -692,10 +698,29 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         if (current_file.execute_till_eof)
         {
             file_stack_.pop_back();
-            success = !file_stack_.empty();
+            if (!file_stack_.empty())
+            {
+                state = ProcessBlockState::kRunning;
+            }
         }
     }
-    return success;
+    return state;
+}
+
+void FileProcessor::SetDecoderFrameNumber(uint64_t frame_number)
+{
+    for (auto* decoder : decoders_)
+    {
+        decoder->SetCurrentFrameNumber(frame_number);
+    }
+}
+
+void FileProcessor::SetDecoderBlockIndex(uint64_t block_index)
+{
+    for (auto decoder : decoders_)
+    {
+        decoder->SetCurrentBlockIndex(block_index);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

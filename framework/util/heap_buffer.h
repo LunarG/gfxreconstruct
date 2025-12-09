@@ -116,6 +116,8 @@ class HeapBufferPool : public std::enable_shared_from_this<HeapBufferPool>
         Entry& operator=(Entry&& other) noexcept;
         Entry() = default;
 
+        void Reset() noexcept;
+
       private:
         Entry(Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
         void DisavowPool() { pool_ = nullptr; }
