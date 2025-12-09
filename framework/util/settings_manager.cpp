@@ -35,46 +35,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(settings)
 
-SettingsManager* SettingsManager::singleton_          = nullptr;
-uint32_t         SettingsManager::singleton_refcount_ = 0;
+std::unique_ptr<SettingsManager> SettingsManager::singleton_;
+std::once_flag                   SettingsManager::singleton_flag_;
 
-SettingsManager* SettingsManager::InitSingleton(format::ApiFamilyId api_family)
+SettingsManager& SettingsManager::InitSingleton(format::ApiFamilyId api_family)
 {
-    GFXRECON_ASSERT(singleton_ == nullptr);
-    GFXRECON_ASSERT(singleton_refcount_ == 0);
-    singleton_          = new SettingsManager(api_family);
-    singleton_refcount_ = 1;
-
-    return singleton_;
-}
-
-SettingsManager* SettingsManager::GetSingleton()
-{
-    GFXRECON_ASSERT(singleton_ != nullptr);
-    GFXRECON_ASSERT(singleton_refcount_ != 0);
-    singleton_refcount_++;
-    return singleton_;
-}
-
-void SettingsManager::ReleaseSingleton(bool final_time)
-{
-    if (singleton_)
-    {
-        singleton_refcount_--;
-        if (singleton_refcount_ == 0)
-        {
-            delete singleton_;
-            singleton_ = nullptr;
-        }
-        else if (final_time)
-        {
-            GFXRECON_ASSERT(false && "SettingsManager singleton should have 0 ref count for final release.");
-        }
-    }
-    else
-    {
-        GFXRECON_ASSERT(singleton_refcount_ == 0);
-    }
+    std::call_once(singleton_flag_, [&]() { singleton_.reset(new SettingsManager(api_family)); });
+    return *singleton_;
 }
 
 SettingsManager::SettingsManager(format::ApiFamilyId api_family)
