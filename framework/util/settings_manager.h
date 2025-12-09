@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -44,9 +45,9 @@ GFXRECON_BEGIN_NAMESPACE(settings)
 class SettingsManager
 {
   public:
-    static SettingsManager* InitSingleton(format::ApiFamilyId api_family);
-    static SettingsManager* GetSingleton();
-    static void             ReleaseSingleton(bool final_time = false);
+    static SettingsManager& InitSingleton(format::ApiFamilyId api_family);
+    static SettingsManager& GetSingleton() { return *singleton_; }
+    ~SettingsManager();
 
     void UpdateDynamicEnvironmentVariables();
 
@@ -77,7 +78,6 @@ class SettingsManager
 
   private:
     SettingsManager(format::ApiFamilyId api_family);
-    ~SettingsManager();
 
     void AdjustSettingFromFile(const std::string& key, const std::string& value);
 
@@ -134,8 +134,8 @@ class SettingsManager
     }
 
     // Singleton items
-    static SettingsManager* singleton_;
-    static uint32_t         singleton_refcount_;
+    static std::unique_ptr<SettingsManager> singleton_;
+    static std::once_flag                   singleton_flag_;
 
     // General members
     GfxrSettingsStruct settings_struct_;

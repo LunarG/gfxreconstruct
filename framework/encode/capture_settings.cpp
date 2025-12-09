@@ -49,16 +49,13 @@ const format::CompressionType kDefaultCompressionType = format::CompressionType:
 
 CaptureSettings::CaptureSettings(format::ApiFamilyId api_family)
 {
-    util::settings::SettingsManager* settings_mgr = util::settings::SettingsManager::InitSingleton(api_family);
+    auto& settings_mgr = util::settings::SettingsManager::InitSingleton(api_family);
 
     trace_settings_ = {};
     log_settings_   = {};
 }
 
-CaptureSettings::~CaptureSettings()
-{
-    util::settings::SettingsManager::ReleaseSingleton(true);
-}
+CaptureSettings::~CaptureSettings() {}
 
 void CaptureSettings::LoadAllSettings(CaptureSettings* settings, bool load_log_settings)
 {
@@ -73,13 +70,13 @@ void CaptureSettings::LoadDynamicSettings(CaptureSettings* settings, bool initia
 {
     if (settings != nullptr)
     {
-        util::settings::SettingsManager* settings_mgr = util::settings::SettingsManager::GetSingleton();
+        util::settings::SettingsManager& settings_mgr = util::settings::SettingsManager::GetSingleton();
 
         // Update the values for the dynamic environment variables based on any environment
         // settings changes
-        settings_mgr->UpdateDynamicEnvironmentVariables();
+        settings_mgr.UpdateDynamicEnvironmentVariables();
 
-        const GfxrSettingsStruct* settings_struct = settings_mgr->GetSettingsStruct();
+        const GfxrSettingsStruct* settings_struct = settings_mgr.GetSettingsStruct();
         bool                      trigger_defined = false;
 
         // Always try the non-platform specific trigger first to see if it exists.
@@ -121,8 +118,6 @@ void CaptureSettings::LoadDynamicSettings(CaptureSettings* settings, bool initia
 #endif
         }
         settings->trace_settings_.runtime_write_assets = trigger_defined;
-
-        util::settings::SettingsManager::ReleaseSingleton();
     }
 }
 
@@ -137,12 +132,12 @@ void CaptureSettings::LoadLogSettings(CaptureSettings* settings)
 void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool process_log_settings)
 {
     GFXRECON_ASSERT(settings != nullptr);
-    util::settings::SettingsManager* settings_mgr = util::settings::SettingsManager::GetSingleton();
+    util::settings::SettingsManager& settings_mgr = util::settings::SettingsManager::GetSingleton();
     std::string                      temp_string;
     bool                             temp_bool;
     int32_t                          temp_int;
 
-    const GfxrSettingsStruct* settings_struct = settings_mgr->GetSettingsStruct();
+    const GfxrSettingsStruct* settings_struct = settings_mgr.GetSettingsStruct();
 
     // Capture file options
     if (!settings_struct->capture_settings.capture_compression_type.empty())
@@ -371,17 +366,15 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
     settings->trace_settings_.queue_zero_only = settings_struct->capture_settings.queue_zero_only;
     settings->trace_settings_.skip_threads_with_invalid_data =
         settings_struct->capture_settings.skip_threads_with_invalid_data;
-
-    util::settings::SettingsManager::ReleaseSingleton();
 }
 
 void CaptureSettings::ProcessLogOptions(CaptureSettings* settings)
 {
-    util::settings::SettingsManager* settings_mgr = util::settings::SettingsManager::GetSingleton();
+    util::settings::SettingsManager& settings_mgr = util::settings::SettingsManager::GetSingleton();
     std::string                      temp_string;
     bool                             temp_bool;
 
-    const GfxrSettingsStruct* settings_struct = settings_mgr->GetSettingsStruct();
+    const GfxrSettingsStruct* settings_struct = settings_mgr.GetSettingsStruct();
 
     // Log options
     settings->log_settings_.use_indent               = settings_struct->capture_settings.log_allow_indents;
@@ -408,8 +401,6 @@ void CaptureSettings::ProcessLogOptions(CaptureSettings* settings)
 #endif // WIN32
 
     settings->log_settings_.output_timestamps = settings_struct->capture_settings.log_timestamps;
-
-    util::settings::SettingsManager::ReleaseSingleton();
 }
 
 uint16_t CaptureSettings::ParseUnsignedInteger16String(const std::string& value_string, uint16_t default_value)
