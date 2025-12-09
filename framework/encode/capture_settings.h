@@ -249,7 +249,7 @@ class CaptureSettings
         uint32_t                     accel_struct_padding{ 0 };
         bool                         force_command_serialization{ false };
         bool                         queue_zero_only{ false };
-        bool                         allow_pipeline_compile_required{ false };
+        bool                         allow_pipeline_compile_required{ true };
         bool                         quit_after_frame_ranges{ false };
         bool                         force_fifo_present_mode{ true };
         bool                         use_asset_file{ false };
