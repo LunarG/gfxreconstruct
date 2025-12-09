@@ -1262,7 +1262,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                           const Decoded_GUID&                      riid,
                           HandlePointerDecoder<void*>*             device,
                           graphics::dx12::ResourceVaRangesPtr&     device_ranges,
-                          graphics::dx12::ID3D12DeviceToolsComPtr& device_tools) const;
+                          graphics::dx12::ID3D12DeviceToolsComPtr& device_tools);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected state, and then call queue present.

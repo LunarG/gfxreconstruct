@@ -760,7 +760,7 @@ Dx12ReplayConsumerBase::ApplyRecreateAtRanges(HRESULT                           
                                               const Decoded_GUID&                      riid,
                                               HandlePointerDecoder<void*>*             device,
                                               graphics::dx12::ResourceVaRangesPtr&     device_ranges,
-                                              graphics::dx12::ID3D12DeviceToolsComPtr& device_tools) const
+                                              graphics::dx12::ID3D12DeviceToolsComPtr& device_tools)
 {
     GFXRECON_ASSERT(device != nullptr);
 
@@ -819,6 +819,13 @@ Dx12ReplayConsumerBase::ApplyRecreateAtRanges(HRESULT                           
                     {
                         reinterpret_cast<ID3D12Device*>(*device_ptr)->QueryInterface(IID_PPV_ARGS(&device_tools));
                         device_ranges = va_ranges;
+
+                        // If GPU VA ranges are successfully reserved, the file contains VA Recreate At data and the
+                        // resource_value_mapper_ is not needed.
+                        if (resource_value_mapper_ != nullptr)
+                        {
+                            resource_value_mapper_ = nullptr;
+                        }
                     }
                     else
                     {
