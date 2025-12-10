@@ -303,9 +303,12 @@ void android_main(struct android_app* app)
         app->userData = nullptr;
     }
 
+    GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
+
     gfxrecon::util::Log::Release();
 
     gfxrecon::util::DestroyActivity(app);
+
     raise(SIGTERM);
 }
 
