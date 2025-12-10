@@ -112,6 +112,8 @@ class BlockParser
     ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
 
     void HandleBlockReadError(BlockIOError error_code, const char* error_message);
+    void
+    WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
 
     struct DecompressionResult
     {
