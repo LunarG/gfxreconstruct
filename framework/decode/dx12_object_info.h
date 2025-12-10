@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -173,6 +173,15 @@ struct ResourceValueInfo
     }
 
     bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
+
+    bool operator==(const ResourceValueInfo& other) const
+    {
+        return (offset == other.offset) && (type == other.type) && (size == other.size) &&
+               (state_object == other.state_object) &&
+               (arg_buffer_extra_info.argument_buffer == other.arg_buffer_extra_info.argument_buffer) &&
+               (arg_buffer_extra_info.argument_buffer_offset == other.arg_buffer_extra_info.argument_buffer_offset) &&
+               (max_command_count == other.max_command_count);
+    }
 };
 
 typedef std::map<DxObjectInfo*, std::set<ResourceValueInfo>> ResourceValueInfoMap;
@@ -239,7 +248,7 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    }; ///< The command queue that was used to create the swapchain.
+    };                           ///< The command queue that was used to create the swapchain.
     bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 
