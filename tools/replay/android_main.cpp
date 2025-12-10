@@ -306,6 +306,9 @@ void android_main(struct android_app* app)
     gfxrecon::util::Log::Release();
 
     gfxrecon::util::DestroyActivity(app);
+
+    GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
+
     raise(SIGTERM);
 }
 
