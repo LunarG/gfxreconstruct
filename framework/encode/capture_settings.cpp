@@ -89,19 +89,22 @@ void CaptureSettings::LoadDynamicSettings(CaptureSettings* settings, bool initia
 #endif
         }
 
-        CaptureSettings::RuntimeTriggerState new_result =
-            trigger_defined ? RuntimeTriggerState::kEnabled : RuntimeTriggerState::kDisabled;
-        if (new_result != settings->trace_settings_.runtime_capture_trigger)
+        if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed || trigger_defined)
         {
-            GFXRECON_LOG_INFO("Runtime settings: Dynamic trigger was set to %s",
-                              new_result == RuntimeTriggerState::kEnabled ? "enabled" : "disabled");
+            CaptureSettings::RuntimeTriggerState new_result =
+                trigger_defined ? RuntimeTriggerState::kEnabled : RuntimeTriggerState::kDisabled;
+            if (new_result != settings->trace_settings_.runtime_capture_trigger)
+            {
+                GFXRECON_LOG_INFO("Runtime settings: Dynamic trigger was set to %s",
+                                  new_result == RuntimeTriggerState::kEnabled ? "enabled" : "disabled");
 
-            settings->trace_settings_.runtime_capture_trigger = new_result;
-        }
+                settings->trace_settings_.runtime_capture_trigger = new_result;
+            }
 
-        if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
-        {
-            settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
+            if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
+            {
+                settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
+            }
         }
         else
         {
