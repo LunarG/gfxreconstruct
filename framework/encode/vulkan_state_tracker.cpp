@@ -641,8 +641,7 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
                                            void*            mapped_data,
                                            VkDeviceSize     mapped_offset,
                                            VkDeviceSize     mapped_size,
-                                           VkMemoryMapFlags mapped_flags,
-                                           bool             track_assets)
+                                           VkMemoryMapFlags mapped_flags)
 {
     assert((device != VK_NULL_HANDLE) && (memory != VK_NULL_HANDLE));
 
@@ -651,12 +650,6 @@ void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
     wrapper->mapped_offset = mapped_offset;
     wrapper->mapped_size   = mapped_size;
     wrapper->mapped_flags  = mapped_flags;
-
-    // Scan assets on unmap
-    if (track_assets && mapped_data == nullptr)
-    {
-        TrackMappedAssetsWrites(wrapper->handle_id);
-    }
 }
 
 void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info)
@@ -3329,6 +3322,11 @@ void VulkanStateTracker::TrackAssetsInSubmission(uint32_t submitCount, const VkS
 
         TrackMappedAssetsWrites(format::kNullHandleId);
     }
+}
+
+void VulkanStateTracker::TrackAssetsInMemory(format::HandleId memory_id)
+{
+    TrackMappedAssetsWrites(memory_id);
 }
 
 void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
