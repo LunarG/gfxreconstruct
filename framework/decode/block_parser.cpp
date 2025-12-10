@@ -1545,20 +1545,20 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         format::SetGpuVirtualAddressRangeCommand header;
 
         success = block_buffer.Read(header.thread_id);
-        success = success && block_buffer.Read(header.device_id);
-        success = success && block_buffer.Read(header.pageable_id);
-        success = success && block_buffer.Read(header.start_address);
-        success = success && block_buffer.Read(header.size);
+        success = success && block_buffer.Read(header.range.device_id);
+        success = success && block_buffer.Read(header.range.pageable_id);
+        success = success && block_buffer.Read(header.range.start_address);
+        success = success && block_buffer.Read(header.range.size);
 
         if (success)
         {
             return ParsedBlock(std::move(block_buffer.ReleaseData()),
                                SetGpuVirtualAddressRangeArgs{ meta_data_id,
                                                               header.thread_id,
-                                                              header.device_id,
-                                                              header.pageable_id,
-                                                              header.start_address,
-                                                              header.size },
+                                                              header.range.device_id,
+                                                              header.range.pageable_id,
+                                                              header.range.start_address,
+                                                              header.range.size },
                                std::move(uncompressed_store));
         }
         else

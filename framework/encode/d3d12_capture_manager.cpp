@@ -3235,11 +3235,11 @@ void D3D12CaptureManager::WriteSetGpuVirtualAddressRangeCommand(format::HandleId
             gpu_va_range_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(gpu_va_range_cmd);
             gpu_va_range_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kSetGpuVirtualAddressRangeCommand);
-            gpu_va_range_cmd.thread_id     = thread_data->thread_id_;
-            gpu_va_range_cmd.device_id     = device_id;
-            gpu_va_range_cmd.pageable_id   = pageable_id;
-            gpu_va_range_cmd.start_address = allocation.StartAddress;
-            gpu_va_range_cmd.size          = allocation.SizeInBytes;
+            gpu_va_range_cmd.thread_id           = thread_data->thread_id_;
+            gpu_va_range_cmd.range.device_id     = device_id;
+            gpu_va_range_cmd.range.pageable_id   = pageable_id;
+            gpu_va_range_cmd.range.start_address = allocation.StartAddress;
+            gpu_va_range_cmd.range.size          = allocation.SizeInBytes;
 
             WriteToFile(&gpu_va_range_cmd, sizeof(gpu_va_range_cmd));
         }
