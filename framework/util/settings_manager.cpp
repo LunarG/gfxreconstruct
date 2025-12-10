@@ -65,7 +65,7 @@ SettingsManager::~SettingsManager() {}
 void SettingsManager::EnableD3D12SettingsDefaults()
 {
 #ifdef WIN32
-    settings_struct_->capture_settings.page_guard_external_memory = true;
+    settings_struct_.capture_settings.page_guard_external_memory = true;
 #endif
 }
 
