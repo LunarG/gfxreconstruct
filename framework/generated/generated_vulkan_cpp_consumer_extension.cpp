@@ -5823,6 +5823,66 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineCompilerControlCreateInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineCompilerControlCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineCompilerControlCreateInfoARM(out,
+                                                                casted_struct,
+                                                                decoded_struct,
+                                                                consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM(out,
+                                                                               casted_struct,
+                                                                               decoded_struct,
+                                                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineIdentifierCreateInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineIdentifierCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineIdentifierCreateInfoARM(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineShaderModuleCreateInfoARM(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphProcessingEngineCreateInfoARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphProcessingEngineCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphProcessingEngineCreateInfoARM(out,
+                                                         casted_struct,
+                                                         decoded_struct,
+                                                         consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDataGraphFeaturesARM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDataGraphFeaturesARM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDataGraphFeaturesARM(out,
+                                                     casted_struct,
+                                                     decoded_struct,
+                                                     consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM: {
                 auto casted_struct = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
@@ -6470,6 +6530,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                          casted_struct,
                                                          decoded_struct,
                                                          consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineBuiltinModelCreateInfoQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineBuiltinModelCreateInfoQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineBuiltinModelCreateInfoQCOM(out,
+                                                              casted_struct,
+                                                              decoded_struct,
+                                                              consumer);
 
                 break;
             }
