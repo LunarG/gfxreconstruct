@@ -11236,7 +11236,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                 continue;
             }
 
-            for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
+            for (uint32_t i = 0; i < write->descriptorCount; ++i)
             {
                 const uint32_t arr_idx = write->dstArrayElement + i;
 
@@ -11248,7 +11248,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     {
                         auto& desc_image_info           = descriptor_set_binding_info.image_info[arr_idx];
-                        desc_image_info.image_layout    = in_pDescriptorWrites[s].pImageInfo[i].imageLayout;
+                        desc_image_info.image_layout    = write->pImageInfo[i].imageLayout;
                         desc_image_info.image_view_info = object_info_table_->GetVkImageViewInfo(
                             writes_meta[s].pImageInfo->GetMetaStructPointer()[i].imageView);
                     }
@@ -11262,8 +11262,8 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         auto& desc_buffer_info       = descriptor_set_binding_info.buffer_info[arr_idx];
                         desc_buffer_info.buffer_info = object_info_table_->GetVkBufferInfo(
                             writes_meta[s].pBufferInfo->GetMetaStructPointer()[i].buffer);
-                        desc_buffer_info.offset = in_pDescriptorWrites[s].pBufferInfo[i].offset;
-                        desc_buffer_info.range  = in_pDescriptorWrites[s].pBufferInfo[i].range;
+                        desc_buffer_info.offset = write->pBufferInfo[i].offset;
+                        desc_buffer_info.range  = write->pBufferInfo[i].range;
                     }
                     break;
 
