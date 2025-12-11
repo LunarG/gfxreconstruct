@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022-2024 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -181,8 +181,8 @@ Dx12ResourceValueMapper::Dx12ResourceValueMapper(std::function<DxObjectInfo*(for
                                                  const graphics::Dx12ShaderIdMap&                  shader_id_map,
                                                  const graphics::Dx12GpuVaMap&                     gpu_va_map,
                                                  const decode::Dx12DescriptorMap&                  descriptor_map) :
-    get_object_info_func_(get_object_info_func), shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map),
-    descriptor_map_(descriptor_map), do_value_mapping_(true)
+    get_object_info_func_(get_object_info_func),
+    shader_id_map_(shader_id_map), gpu_va_map_(gpu_va_map), descriptor_map_(descriptor_map), do_value_mapping_(true)
 {}
 
 void Dx12ResourceValueMapper::EnableResourceValueTracker(std::function<uint64_t(void)> get_current_block_index_func,
@@ -645,7 +645,7 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
 void Dx12ResourceValueMapper::PostProcessCreateStateObject(
     HandlePointerDecoder<void*>*                           state_object_decoder,
     StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
-    const std::map<std::wstring, format::HandleId>&        in_lrs_associations_map)
+    const D3D12StateObjectInfo*                            grow_from_state_object)
 {
     auto                                           state_object_id = *state_object_decoder->GetPointer();
     std::set<std::wstring>                         export_names;
@@ -653,7 +653,18 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
     format::HandleId                               explicit_default_local_root_signature_id = format::kNullHandleId;
     std::map<std::wstring, format::HandleId>       explicit_local_root_signature_associations;
     std::map<std::wstring, std::set<std::wstring>> hit_group_imports;
-    std::map<std::wstring, format::HandleId>       lrs_associations_map = in_lrs_associations_map;
+    std::map<std::wstring, format::HandleId>       lrs_associations_map;
+    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> existing_shader_id_lrs_map;
+
+    auto state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(state_object_decoder);
+    if (grow_from_state_object != nullptr)
+    {
+        lrs_associations_map = grow_from_state_object->export_name_lrs_map;
+        /*
+        state_object_extra_info->shader_id_lrs_map.insert(grow_from_state_object->shader_id_lrs_map.begin(),
+                                                          grow_from_state_object->shader_id_lrs_map.end());
+                                                          */
+    }
 
     GetStateObjectLrsAssociationInfo(state_object_id,
                                      desc_decoder,
@@ -662,7 +673,8 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                                      explicit_default_local_root_signature_id,
                                      explicit_local_root_signature_associations,
                                      hit_group_imports,
-                                     lrs_associations_map);
+                                     lrs_associations_map,
+                                     existing_shader_id_lrs_map);
 
     if (!export_names.empty())
     {
@@ -742,8 +754,8 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
 
         // Store the shader ID LRS map with the state object extra info, to be referenced if this state object is used
         // as a dependency in the creation of another SO.
-        auto state_object_extra_info                 = GetExtraInfo<D3D12StateObjectInfo>(state_object_decoder);
         state_object_extra_info->export_name_lrs_map = lrs_associations_map;
+        // state_object_extra_info->shader_id_lrs_map.merge(existing_shader_id_lrs_map);
 
         // Populate the state object's shader_id_lrs_map for shaders that were exported.
         graphics::dx12::ID3D12StateObjectPropertiesComPtr props;
@@ -767,8 +779,29 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                     auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
                     GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
 
-                    state_object_extra_info->shader_id_lrs_map[replay_shader_id] =
-                        local_root_sig_extra_info->resource_value_infos;
+                    auto lrs_map = state_object_extra_info->shader_id_lrs_map.find(replay_shader_id);
+                    if (lrs_map == state_object_extra_info->shader_id_lrs_map.end())
+                    {
+                        state_object_extra_info->shader_id_lrs_map[replay_shader_id] =
+                            local_root_sig_extra_info->resource_value_infos;
+                    }
+                    else
+                    {
+                        if (!((lrs_map->second.size() == local_root_sig_extra_info->resource_value_infos.size()) &&
+                              (std::equal(lrs_map->second.begin(),
+                                          lrs_map->second.end(),
+                                          local_root_sig_extra_info->resource_value_infos.begin()))))
+                        {
+                            // Given a ShaderID to the StateObject, if it already assocated LRS but different from
+                            // defined in the current StateObject, GFXR could not determind which LRS is right to the
+                            // ShaderID.
+                            GFXRECON_LOG_ERROR_ONCE(
+                                "CreateStateObject: Duplicate shader identifier found for export '%ls' in "
+                                "state object (id=%" PRIu64 "). Shader ID to LRS associations may be incorrect.",
+                                export_name.c_str(),
+                                state_object_id);
+                        }
+                    }
                 }
             }
         }
@@ -1691,14 +1724,15 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
 }
 
 void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
-    format::HandleId                                       state_object_id,
-    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
-    std::set<std::wstring>&                                export_names,
-    std::vector<format::HandleId>&                         local_root_signature_ids,
-    format::HandleId&                                      explicit_default_local_root_signature_id,
-    std::map<std::wstring, format::HandleId>&              explicit_local_root_signature_associations,
-    std::map<std::wstring, std::set<std::wstring>>&        hit_group_imports,
-    std::map<std::wstring, format::HandleId>&              lrs_associations_map)
+    format::HandleId                                                       state_object_id,
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>*                 desc_decoder,
+    std::set<std::wstring>&                                                export_names,
+    std::vector<format::HandleId>&                                         local_root_signature_ids,
+    format::HandleId&                                                      explicit_default_local_root_signature_id,
+    std::map<std::wstring, format::HandleId>&                              explicit_local_root_signature_associations,
+    std::map<std::wstring, std::set<std::wstring>>&                        hit_group_imports,
+    std::map<std::wstring, format::HandleId>&                              lrs_associations_map,
+    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map)
 {
     const auto* desc               = desc_decoder->GetPointer();
     const auto* subobject_decoders = desc_decoder->GetMetaStructPointer()->pSubobjects;
@@ -1863,6 +1897,7 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
                 get_object_info_func_(existing_collection_desc_decoder->GetMetaStructPointer()->pExistingCollection);
             GFXRECON_ASSERT(existing_collection_object_info != nullptr);
             auto existing_collection_extra_info = GetExtraInfo<D3D12StateObjectInfo>(existing_collection_object_info);
+            existing_shader_id_lrs_map          = existing_collection_extra_info->shader_id_lrs_map;
 
             // Include LRS associations from the existing collection.
             for (auto& assocation : existing_collection_extra_info->export_name_lrs_map)

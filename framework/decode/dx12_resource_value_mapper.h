@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -103,7 +103,7 @@ class Dx12ResourceValueMapper
 
     void PostProcessCreateStateObject(HandlePointerDecoder<void*>*                           state_object_decoder,
                                       StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* desc_decoder,
-                                      const std::map<std::wstring, format::HandleId>&        in_lrs_associations_map);
+                                      const D3D12StateObjectInfo*                            grow_from_state_object);
 
     void PostProcessDispatchRays(DxObjectInfo*                                           command_list4_object_info,
                                  StructPointerDecoder<Decoded_D3D12_DISPATCH_RAYS_DESC>* desc_decoder);
@@ -217,7 +217,8 @@ class Dx12ResourceValueMapper
         format::HandleId&                                      explicit_default_local_root_signature_id,
         std::map<std::wstring, format::HandleId>&              explicit_local_root_signature_associations,
         std::map<std::wstring, std::set<std::wstring>>&        hit_group_imports,
-        std::map<std::wstring, format::HandleId>&              lrs_associations_map);
+        std::map<std::wstring, format::HandleId>&              lrs_associations_map,
+        std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>>& existing_shader_id_lrs_map);
 
     QueueSyncEventInfo CreateProcessProcessResourceMappingsSyncEvent(ProcessResourceMappingsArgs args);
 
