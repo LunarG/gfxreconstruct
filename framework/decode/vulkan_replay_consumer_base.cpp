@@ -11209,11 +11209,11 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
 
         for (uint32_t s = 0; s < descriptor_write_count; ++s)
         {
-            VulkanDescriptorSetInfo* dst_desc_set_info =
-                GetObjectInfoTable().GetVkDescriptorSetInfo(writes_meta[s].dstSet);
+            const auto&              write_meta        = writes_meta[s];
+            VulkanDescriptorSetInfo* dst_desc_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(write_meta.dstSet);
             GFXRECON_ASSERT(dst_desc_set_info != nullptr);
 
-            const VkWriteDescriptorSet* write = writes_meta[s].decoded_value;
+            const VkWriteDescriptorSet* write = write_meta.decoded_value;
             GFXRECON_ASSERT(write != nullptr);
 
             const uint32_t binding = write->dstBinding;
@@ -11252,7 +11252,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         auto& desc_image_info           = descriptor_set_binding_info.image_info[arr_idx];
                         desc_image_info.image_layout    = write->pImageInfo[i].imageLayout;
                         desc_image_info.image_view_info = object_info_table_->GetVkImageViewInfo(
-                            writes_meta[s].pImageInfo->GetMetaStructPointer()[i].imageView);
+                            write_meta.pImageInfo->GetMetaStructPointer()[i].imageView);
                     }
                     break;
 
@@ -11263,7 +11263,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     {
                         auto& desc_buffer_info       = descriptor_set_binding_info.buffer_info[arr_idx];
                         desc_buffer_info.buffer_info = object_info_table_->GetVkBufferInfo(
-                            writes_meta[s].pBufferInfo->GetMetaStructPointer()[i].buffer);
+                            write_meta.pBufferInfo->GetMetaStructPointer()[i].buffer);
                         desc_buffer_info.offset = write->pBufferInfo[i].offset;
                         desc_buffer_info.range  = write->pBufferInfo[i].range;
                     }
@@ -11280,8 +11280,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     {
                         const auto* as_descriptors_meta =
-                            GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(
-                                writes_meta[s].pNext);
+                            GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(write_meta.pNext);
                         if (as_descriptors_meta != nullptr)
                         {
                             const auto* as_ids = as_descriptors_meta->pAccelerationStructures.GetPointer();
