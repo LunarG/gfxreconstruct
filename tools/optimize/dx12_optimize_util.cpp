@@ -132,51 +132,50 @@ bool BypassResourceValueOptimization(const gfxrecon::decode::Dx12Consumer&  dx12
     return info.found_opt_fill_mem;
 }
 
-bool GetPsoOptimizationInfo(const std::string&               input_filename,
-                            decode::Dx12OptimizationOptions& options,
-                            Dx12OptimizationInfo&            info)
+bool GetUnreferencedObjectOptimizationInfo(const std::string&               input_filename,
+                                           decode::Dx12OptimizationOptions& options,
+                                           Dx12OptimizationInfo&            info)
 {
-    bool pso_scan_result = false;
+    bool ref_scan_result = false;
 
-    decode::FileProcessor pso_pass_file_processor;
-    if (pso_pass_file_processor.Initialize(input_filename))
+    decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::Dx12Decoder                pso_pass_decoder;
-        gfxrecon::decode::Dx12ObjectScanningConsumer resref_consumer;
+        gfxrecon::decode::Dx12Decoder                decoder;
+        gfxrecon::decode::Dx12ObjectScanningConsumer pso_consumer;
 
-        GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for unreferenced PSOs.", input_filename.c_str());
-        pso_pass_decoder.AddConsumer(&resref_consumer);
-        pso_pass_file_processor.AddDecoder(&pso_pass_decoder);
-        pso_pass_file_processor.ProcessAllFrames();
-        if (FileProcessorSucceeded(pso_pass_file_processor))
+        GFXRECON_WRITE_CONSOLE("Scanning D3D12 capture %s for unreferenced objects.", input_filename.c_str());
+        decoder.AddConsumer(&pso_consumer);
+        file_processor.AddDecoder(&decoder);
+        file_processor.ProcessAllFrames();
+        if (FileProcessorSucceeded(file_processor))
         {
-            resref_consumer.GetUnreferencedObjectCreationBlocks(&info.unreferenced_blocks, &info.calls_info);
-            GFXRECON_WRITE_CONSOLE("Finished scanning capture file for unreferenced PSOs.");
+            pso_consumer.GetUnreferencedObjectCreationBlocks(&info.unreferenced_blocks, &info.calls_info);
+            GFXRECON_WRITE_CONSOLE("Finished scanning capture file for unreferenced objects.");
 
-            pso_scan_result = true;
+            ref_scan_result = true;
 
-            if (BypassResourceValueOptimization(resref_consumer, options, info) == true)
+            if (BypassResourceValueOptimization(pso_consumer, options, info) == true)
             {
                 options.optimize_resource_values = false;
             }
         }
-        else if (pso_pass_file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
+        else if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
-            GFXRECON_WRITE_CONSOLE("A failure has occurred during scanning capture file for unreferenced PSOs");
+            GFXRECON_WRITE_CONSOLE("A failure has occurred during scanning capture file for unreferenced objects.");
         }
-        else if (!pso_pass_file_processor.EntireFileWasProcessed())
+        else if (!file_processor.EntireFileWasProcessed())
         {
-            GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for unreferenced PSOs.");
+            GFXRECON_WRITE_CONSOLE("Failed to process the entire capture file for unreferenced objects.");
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("PSO removal optimization detected invalid capture. Please ensure that traces "
-                                   "input to the optimizer "
-                                   "already replay on their own.");
+            GFXRECON_WRITE_CONSOLE("Unreferenced object removal optimization detected invalid capture. Please ensure "
+                                   "that traces input to the optimizer already replay on their own.");
         }
     }
 
-    return pso_scan_result;
+    return ref_scan_result;
 }
 
 bool GetDxrOptimizationInfo(const std::string&               input_filename,
@@ -285,12 +284,12 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
                              decode::Dx12OptimizationOptions& options,
                              Dx12OptimizationInfo&            info)
 {
-    bool pso_scan_result = true;
+    bool ref_scan_result = true;
     bool dxr_scan_result = true;
 
     if (options.remove_redundant_psos)
     {
-        pso_scan_result = GetPsoOptimizationInfo(input_filename, options, info);
+        ref_scan_result = GetUnreferencedObjectOptimizationInfo(input_filename, options, info);
     }
 
     if (gfxrecon::graphics::dx12::VerifyAgilitySDKRuntime() == false)
@@ -313,7 +312,7 @@ bool GetDx12OptimizationInfo(const std::string&               input_filename,
         }
     }
 
-    return pso_scan_result || dxr_scan_result;
+    return ref_scan_result || dxr_scan_result;
 }
 
 bool ApplyDx12OptimizationInfo(const std::string&                     input_filename,
