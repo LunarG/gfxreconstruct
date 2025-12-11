@@ -2484,7 +2484,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
             if (IsCaptureModeTrack())
             {
                 assert(state_tracker_ != nullptr);
-                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags, GetUseAssetFile());
+                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
             }
             else
             {
@@ -2658,20 +2658,12 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
     if (wrapper->mapped_data != nullptr)
     {
-        // Make sure state tracker's TrackMappedMemory is called before ProcessMemoryEntry is called which resets
-        // pages status
-        if (IsCaptureModeTrack())
+        // Make sure to call state tracker's TrackAssetsInMemory is called before ProcessMemoryEntry
+        // which resets pages' status
+        if (IsCaptureModeTrack() && GetUseAssetFile())
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0, GetUseAssetFile());
-        }
-        else
-        {
-            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
-            // values needed for non-tracking capture.
-            wrapper->mapped_data   = nullptr;
-            wrapper->mapped_offset = 0;
-            wrapper->mapped_size   = 0;
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+            state_tracker_->TrackAssetsInMemory(wrapper->handle_id);
         }
 
         if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
@@ -2704,6 +2696,20 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
                 std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_memory_.erase(wrapper);
             }
+        }
+
+        if (IsCaptureModeTrack())
+        {
+            GFXRECON_ASSERT(state_tracker_ != nullptr);
+            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
+        }
+        else
+        {
+            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+            // values needed for non-tracking capture.
+            wrapper->mapped_data   = nullptr;
+            wrapper->mapped_offset = 0;
+            wrapper->mapped_size   = 0;
         }
     }
     else
