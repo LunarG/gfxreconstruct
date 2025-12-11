@@ -588,6 +588,9 @@ class KhronosReplayConsumerBodyGenerator():
                     # instead of the PointerDecoder object.
                     need_temp_value = False
 
+                if name in self.NEED_TEMP_VALUE_OVERRIDES:
+                    need_temp_value = self.NEED_TEMP_VALUE_OVERRIDES[name]
+
                 # Determine name of variable specifying the length of an array.  An override may be required to
                 # replace the original length value with a temporary pointer variable.
                 length_name = value.array_length
@@ -818,6 +821,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
                                             'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
@@ -842,6 +847,8 @@ class KhronosReplayConsumerBodyGenerator():
                                 )
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructArrayHandleIds({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), this);\n".format(paramname=value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if value.base_type in self.structs_with_handle_ptrs:
                                         preexpr.append(
                                             'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
@@ -995,6 +1002,8 @@ class KhronosReplayConsumerBodyGenerator():
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.base_type in self.structs_with_handles:
+                                    push_handleid_expr[0] = "    PushRecaptureStructHandleIds({}->GetMetaStructPointer(), this);\n".format(value.name)
+                                    push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
                                     if need_temp_value:
                                         if value.base_type in self.structs_with_handle_ptrs:
                                             preexpr.append(

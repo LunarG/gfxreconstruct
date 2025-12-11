@@ -37,9 +37,9 @@ const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
-    annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
-    pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
-    loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
+    annotation_handler_(nullptr), compressor_(nullptr), block_handler_callback_(nullptr), block_index_(0),
+    block_limit_(0), pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false),
+    first_frame_(kFirstFrame + 1), loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -320,6 +320,16 @@ bool FileProcessor::ProcessBlocks()
                     }
 
                     // NOTE: Warnings for unknown/invalid blocks are handled in the BlockParser
+
+                    if (block_handler_callback_ != nullptr)
+                    {
+                        // block_handler_callback_ is used to copy block data from source to capture file when using
+                        // --capture-copy-data with replay. It is called after block processing so that if the recapture
+                        // frame range starts at frame 1 then the call to vkCreateInstance is completed, the capture
+                        // manager is created, the destination capture file is created, and then the associated block
+                        // for the vkCreateInstance call can be written to the destination capture file in the callback.
+                        block_handler_callback_(parsed_block);
+                    }
 
                     if (process_visitor.IsFrameDelimiter())
                     {

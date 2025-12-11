@@ -772,7 +772,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-prefix PREFIX]
                           [--screenshot-interval INTERVAL]
                           [--screenshot-size SIZE] [--screenshot-scale SCALE]
-                          [--capture]
+                          [--capture][--capture-copy-data]
                           [--sfa] [--opcd] [--surface-index N] [--sync]
                           [--remove-unsupported] [--validate] [--onhb]
                           [--use-colorspace-fallback]
@@ -872,6 +872,18 @@ options:
                         capture functionality is included in the `gfxrecon-replay`
                         executable--no GFXR capture layer is added to the Vulkan layer
                         chain.
+  --capture-copy-data
+                        An extended version of `--capture` that can be used with
+                        trimming. The capture data within the trim range is
+                        copied directly from the source capture file into the
+                        new trimmed file. Note that replay must still run in
+                        order to generate the trim state block. Portable replay
+                        features are not supported. For example, replay
+                        should be done on the same device as capture, memory
+                        translation options are not supported, and if ray
+                        tracing is used, the device must support Vulkan's opaque
+                        capture and replay features. This option also forces on
+                        the option `swapchain --captured`.
   --sfa, --skip-failed-allocations
                         Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
