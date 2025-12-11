@@ -318,7 +318,7 @@ VulkanReplayDumpResourcesBase::FindDrawCallCommandBufferContext(VkCommandBuffer 
 
     for (auto it = draw_call_contexts_.begin(); it != draw_call_contexts_.end(); ++it)
     {
-        if (it->first.second == qs_index)
+        if (it->first.first == bcb_index && it->first.second == qs_index)
         {
             return &it->second;
         }
@@ -448,7 +448,7 @@ VulkanReplayDumpResourcesBase::FindDispatchRaysCommandBufferContext(VkCommandBuf
 
     for (auto it = dispatch_ray_contexts_.begin(); it != dispatch_ray_contexts_.end(); ++it)
     {
-        if (it->first.second == qs_index)
+        if (it->first.first == bcb_index && it->first.second == qs_index)
         {
             return &it->second;
         }
