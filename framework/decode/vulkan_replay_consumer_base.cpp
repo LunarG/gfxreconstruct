@@ -11222,7 +11222,9 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
             GFXRECON_ASSERT(descriptor_set_binding_info.desc_type == write->descriptorType);
 
             if (auto* inline_uniform_block_write =
-                    graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write))
+                    graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
+                inline_uniform_block_write != nullptr &&
+                write->descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
             {
                 const uint32_t offset = write->dstArrayElement;
                 const uint32_t size   = write->descriptorCount;
