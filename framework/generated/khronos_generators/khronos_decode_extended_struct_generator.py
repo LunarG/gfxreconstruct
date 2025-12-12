@@ -181,6 +181,9 @@ class KhronosDecodeExtendedStructGenerator():
         current_api_data = self.get_api_data()
 
         extended_list = []
+        if self.ADD_AS_CHAINABLE_STRUCTS:
+            extended_list = self.ADD_AS_CHAINABLE_STRUCTS
+
         for struct in self.all_extended_structs:
             for ext_struct in self.all_extended_structs[struct]:
                 if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:

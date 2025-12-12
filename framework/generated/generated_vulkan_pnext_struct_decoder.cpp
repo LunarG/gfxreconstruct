@@ -2320,6 +2320,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size, PN
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkSubresourceHostMemcpySize>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR:
+                (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkSurfaceCapabilities2KHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
                 (*pNext) = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
