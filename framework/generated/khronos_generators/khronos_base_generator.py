@@ -477,6 +477,10 @@ class KhronosBaseGenerator(OutputGenerator):
         self.DUMP_RESOURCES_OVERRIDES = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
 
+        # Add these structs as chainable even though they aren't chainable in the
+        # spec, in order to handle captures created by some customized versions
+        # of GFXR
+        self.ADD_AS_CHAINABLE_STRUCTS = []
 
         # The list of supported subsets
         self.SUPPORTED_SUBSETS = []

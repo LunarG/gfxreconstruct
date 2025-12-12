@@ -289,6 +289,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
+        self.ADD_AS_CHAINABLE_STRUCTS = [
+            "VkSurfaceCapabilities2KHR",
+        ]
+
         self.VIDEO_TREE = None
 
         self.generate_video = False
