@@ -283,8 +283,13 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     std::shared_ptr<DescriptorIncrements> capture_increments{ std::make_shared<DescriptorIncrements>() };
     std::shared_ptr<DescriptorIncrements> replay_increments{ std::make_shared<DescriptorIncrements>() };
 
+    // GPU VA Recreate At values.
+    graphics::dx12::ID3D12DeviceToolsComPtr device_tools;
+    graphics::dx12::ResourceVaRangesPtr     va_ranges;
+
     // Cache features of the device to avoid repeated queries
     bool is_uma{ false };
+    bool supports_recreate_at{ false };
 };
 
 // Constant Buffer View, Shader Resource View and Unordered Access View could overrride each other.

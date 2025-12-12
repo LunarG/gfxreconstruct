@@ -147,6 +147,7 @@ const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
+const char kScanRecreateAtOption[]                = "--scan-recreate-at";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -1248,6 +1249,11 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
     {
         replay_options.override_object_names = true;
+    }
+
+    if (arg_parser.IsOptionSet(kScanRecreateAtOption))
+    {
+        replay_options.scan_recreate_at = true;
     }
 
     if (arg_parser.IsOptionSet(kDxAgsMarkRenderPasses))

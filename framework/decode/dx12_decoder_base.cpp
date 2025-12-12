@@ -340,6 +340,18 @@ void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEn
     }
 }
 
+void Dx12DecoderBase::DispatchSetGpuVirtualAddressRangeCommand(format::ThreadId thread_id,
+                                                               format::HandleId device_id,
+                                                               format::HandleId pageable_id,
+                                                               uint64_t         start_address,
+                                                               uint64_t         size)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetGpuVirtualAddressRangeCommand(device_id, pageable_id, start_address, size);
+    }
+}
+
 void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)

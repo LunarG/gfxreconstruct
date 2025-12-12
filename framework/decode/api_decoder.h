@@ -224,6 +224,13 @@ class ApiDecoder
 
     virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
                                                const uint8_t*                       initialization_parameters_data){};
+
+    virtual void DispatchSetGpuVirtualAddressRangeCommand(format::ThreadId thread_id,
+                                                          format::HandleId device_id,
+                                                          format::HandleId pageable_id,
+                                                          uint64_t         start_address,
+                                                          uint64_t         size)
+    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

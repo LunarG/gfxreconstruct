@@ -117,6 +117,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data) override;
 
+    virtual void ProcessSetGpuVirtualAddressRangeCommand(format::HandleId device_id,
+                                                         format::HandleId pageable_id,
+                                                         uint64_t         start_address,
+                                                         uint64_t         size) override;
+
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
                                                           D3D12_FEATURE    feature,
@@ -295,6 +300,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     IDXGIAdapter* GetAdapter();
 
     graphics::dx12::ActiveAdapterMap& GetAdaptersMap() { return adapters_; }
+
+    void SetGpuVirtualAddressRanges(const graphics::dx12::DeviceVaRanges& ranges);
 
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
@@ -1178,7 +1185,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IUnknown* GetCreateDeviceAdapter(DxObjectInfo* adapter_info);
 
-    void InitializeD3D12Device(HandlePointerDecoder<void*>* device);
+    void InitializeD3D12Device(HandlePointerDecoder<void*>*                   device,
+                               const graphics::dx12::ResourceVaRangesPtr&     device_ranges,
+                               const graphics::dx12::ID3D12DeviceToolsComPtr& device_tools);
 
     void DetectAdapters();
 
@@ -1245,6 +1254,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void SetDebugMsgFilter(std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> denied_msgs,
                            std::vector<DXGI_INFO_QUEUE_MESSAGE_ID> allowed_msgs);
+
+    HRESULT
+    ApplyRecreateAtRanges(HRESULT                                  replay_result,
+                          IUnknown*                                adapter,
+                          D3D_FEATURE_LEVEL                        minimum_feature_level,
+                          const Decoded_GUID&                      riid,
+                          HandlePointerDecoder<void*>*             device,
+                          graphics::dx12::ResourceVaRangesPtr&     device_ranges,
+                          graphics::dx12::ID3D12DeviceToolsComPtr& device_tools);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
     // the expected state, and then call queue present.
@@ -1316,6 +1334,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
+    graphics::dx12::DeviceVaRanges                        recreate_at_ranges_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

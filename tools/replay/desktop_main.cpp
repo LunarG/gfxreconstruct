@@ -47,6 +47,7 @@
 #include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_replay_consumer.h"
 #include "decode/dx12_pre_process_consumer.h"
+#include "decode/dx12_scan_recreate_at_consumer.h"
 #ifdef GFXRECON_AGS_SUPPORT
 #include "decode/custom_ags_consumer_base.h"
 #include "decode/custom_ags_decoder.h"
@@ -70,7 +71,7 @@
 
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 616;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
 }
 extern "C"
 {
@@ -287,6 +288,22 @@ int main(int argc, const char** argv)
                         dx12_decoder.RemoveConsumer(tracking_consumer);
                     }
                 }
+
+                if (dx_replay_options.scan_recreate_at)
+                {
+                    gfxrecon::decode::FileProcessor         file_processor_scanning;
+                    gfxrecon::decode::Dx12RecreateAtScanner recreate_at_scanner;
+                    if (file_processor_scanning.Initialize(filename))
+                    {
+                        dx12_decoder.AddConsumer(&recreate_at_scanner);
+                        file_processor_scanning.AddDecoder(&dx12_decoder);
+                        file_processor_scanning.ProcessAllFrames();
+                        file_processor_scanning.RemoveDecoder(&dx12_decoder);
+                        dx12_decoder.RemoveConsumer(&recreate_at_scanner);
+                        dx12_replay_consumer.SetGpuVirtualAddressRanges(recreate_at_scanner.GetDeviceVaRanges());
+                    }
+                }
+
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor->AddDecoder(&dx12_decoder);
 

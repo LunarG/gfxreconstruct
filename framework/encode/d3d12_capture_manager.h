@@ -798,6 +798,10 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeInfo& runtime_info);
 
+    void WriteSetGpuVirtualAddressRangeCommand(format::HandleId device_id,
+                                               format::HandleId pageable_id,
+                                               ID3D12Pageable*  pageable);
+
     void PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory);
 
     void PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory);
