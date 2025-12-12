@@ -171,7 +171,7 @@ class StructPointerDecoder : public PointerDecoderBase
                     decoded_structs_[i].decoded_value = &struct_memory_[i];
 
                     // Note: We only expect this class to be used with structs that have a decode_struct function.
-                    //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                    //       If an error is encountered here due to a new struct type, the struct decoders need to be
                     //       updated to support the new type.
                     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
                 }
@@ -232,7 +232,7 @@ class StructPointerDecoder : public PointerDecoderBase
                     decoded_structs_[i].decoded_value = &struct_memory_[i];
 
                     // Note: We only expect this class to be used with structs that have a decode_struct function.
-                    //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                    //       If an error is encountered here due to a new struct type, the struct decoders need to be
                     //       updated to support the new type.
                     bytes_read +=
                         T::DecodeAppropriate((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
@@ -319,8 +319,8 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
                     {
                         inner_decoded_structs[j].decoded_value = &inner_struct_memory[j];
                         // Note: We only expect this class to be used with structs that have a decode_struct function.
-                        //       If an error is encoutered here due to a new struct type, the struct decoders need to be
-                        //       updated to support the new type.
+                        //       If an error is encountered here due to a new struct type, the struct decoders need to
+                        //       be updated to support the new type.
                         bytes_read +=
                             DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &inner_decoded_structs[j]);
                     }
@@ -393,8 +393,8 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
                     {
                         inner_decoded_structs[j].decoded_value = &inner_struct_memory[j];
                         // Note: We only expect this class to be used with structs that have a decode_struct function.
-                        //       If an error is encoutered here due to a new struct type, the struct decoders need to be
-                        //       updated to support the new type.
+                        //       If an error is encountered here due to a new struct type, the struct decoders need to
+                        //       be updated to support the new type.
                         bytes_read += T::DecodeAppropriate(
                             (buffer + bytes_read), (buffer_size - bytes_read), &inner_decoded_structs[j]);
                     }
