@@ -302,7 +302,7 @@ class DxDllInitializer
 
   private:
     typedef bool (*InitializeFuncT)(DispatchTableT*);
-    typedef void (*ReleaseFuncT)(DispatchTableT*);
+    typedef void(WINAPI* ReleaseFuncT)(DispatchTableT*);
 
   private:
     DispatchTableT dispatch_table_;
