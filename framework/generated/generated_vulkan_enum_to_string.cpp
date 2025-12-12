@@ -1419,6 +1419,58 @@ template <> std::string ToString<VkDataGraphModelCacheTypeQCOM>(const VkDataGrap
     return "Unhandled VkDataGraphModelCacheTypeQCOM";
 }
 
+std::string VkDataGraphPipelineDispatchFlagBitsARMToString(const VkDataGraphPipelineDispatchFlagBitsARM value)
+{
+    return "Unhandled VkDataGraphPipelineDispatchFlagBitsARM";
+}
+
+std::string VkDataGraphPipelineDispatchFlagsARMToString(VkFlags64 vkFlags)
+{
+    return BitmaskToString<VkDataGraphPipelineDispatchFlagBitsARM>(vkFlags, VkDataGraphPipelineDispatchFlagBitsARMToString);
+}
+
+template <> std::string ToString<VkDataGraphPipelinePropertyARM>(const VkDataGraphPipelinePropertyARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_PROPERTY_CREATION_LOG_ARM: return "VK_DATA_GRAPH_PIPELINE_PROPERTY_CREATION_LOG_ARM";
+    case VK_DATA_GRAPH_PIPELINE_PROPERTY_IDENTIFIER_ARM: return "VK_DATA_GRAPH_PIPELINE_PROPERTY_IDENTIFIER_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelinePropertyARM";
+}
+
+template <> std::string ToString<VkDataGraphPipelineSessionBindPointARM>(const VkDataGraphPipelineSessionBindPointARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TRANSIENT_ARM: return "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TRANSIENT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelineSessionBindPointARM";
+}
+
+template <> std::string ToString<VkDataGraphPipelineSessionBindPointTypeARM>(const VkDataGraphPipelineSessionBindPointTypeARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM: return "VK_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_TYPE_MEMORY_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelineSessionBindPointTypeARM";
+}
+
+std::string VkDataGraphPipelineSessionCreateFlagBitsARMToString(const VkDataGraphPipelineSessionCreateFlagBitsARM value)
+{
+    switch (value) {
+    case VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM: return "VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM";
+    default: break;
+    }
+    return "Unhandled VkDataGraphPipelineSessionCreateFlagBitsARM";
+}
+
+std::string VkDataGraphPipelineSessionCreateFlagsARMToString(VkFlags64 vkFlags)
+{
+    return BitmaskToString<VkDataGraphPipelineSessionCreateFlagBitsARM>(vkFlags, VkDataGraphPipelineSessionCreateFlagBitsARMToString);
+}
+
 template <> std::string ToString<VkDebugReportFlagBitsEXT>(const VkDebugReportFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -3705,6 +3757,17 @@ template <> std::string ToString<VkPhysicalDeviceDataGraphOperationTypeARM>(cons
     default: break;
     }
     return "Unhandled VkPhysicalDeviceDataGraphOperationTypeARM";
+}
+
+template <> std::string ToString<VkPhysicalDeviceDataGraphProcessingEngineTypeARM>(const VkPhysicalDeviceDataGraphProcessingEngineTypeARM& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_DEFAULT_ARM: return "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_DEFAULT_ARM";
+    case VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_NEURAL_QCOM: return "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_NEURAL_QCOM";
+    case VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_COMPUTE_QCOM: return "VK_PHYSICAL_DEVICE_DATA_GRAPH_PROCESSING_ENGINE_TYPE_COMPUTE_QCOM";
+    default: break;
+    }
+    return "Unhandled VkPhysicalDeviceDataGraphProcessingEngineTypeARM";
 }
 
 template <> std::string ToString<VkPhysicalDeviceLayeredApiKHR>(const VkPhysicalDeviceLayeredApiKHR& value, ToStringFlags, uint32_t, uint32_t)

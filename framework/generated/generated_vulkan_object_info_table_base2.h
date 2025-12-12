@@ -47,6 +47,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddVkBufferViewInfo(VulkanBufferViewInfo&& info) { AddVkObjectInfo(std::move(info), &bufferView_map_); }
     void AddVkCommandBufferInfo(VulkanCommandBufferInfo&& info) { AddVkObjectInfo(std::move(info), &commandBuffer_map_); }
     void AddVkCommandPoolInfo(VulkanCommandPoolInfo&& info) { AddVkObjectInfo(std::move(info), &commandPool_map_); }
+    void AddVkDataGraphPipelineSessionARMInfo(VulkanDataGraphPipelineSessionARMInfo&& info) { AddVkObjectInfo(std::move(info), &dataGraphPipelineSessionARM_map_); }
     void AddVkDebugReportCallbackEXTInfo(VulkanDebugReportCallbackEXTInfo&& info) { AddVkObjectInfo(std::move(info), &debugReportCallbackEXT_map_); }
     void AddVkDebugUtilsMessengerEXTInfo(VulkanDebugUtilsMessengerEXTInfo&& info) { AddVkObjectInfo(std::move(info), &debugUtilsMessengerEXT_map_); }
     void AddVkDeferredOperationKHRInfo(VulkanDeferredOperationKHRInfo&& info) { AddVkObjectInfo(std::move(info), &deferredOperationKHR_map_); }
@@ -96,6 +97,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveVkBufferViewInfo(format::HandleId id) { bufferView_map_.erase(id); }
     void RemoveVkCommandBufferInfo(format::HandleId id) { commandBuffer_map_.erase(id); }
     void RemoveVkCommandPoolInfo(format::HandleId id) { commandPool_map_.erase(id); }
+    void RemoveVkDataGraphPipelineSessionARMInfo(format::HandleId id) { dataGraphPipelineSessionARM_map_.erase(id); }
     void RemoveVkDebugReportCallbackEXTInfo(format::HandleId id) { debugReportCallbackEXT_map_.erase(id); }
     void RemoveVkDebugUtilsMessengerEXTInfo(format::HandleId id) { debugUtilsMessengerEXT_map_.erase(id); }
     void RemoveVkDeferredOperationKHRInfo(format::HandleId id) { deferredOperationKHR_map_.erase(id); }
@@ -145,6 +147,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
     const VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
     const VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
+    const VulkanDataGraphPipelineSessionARMInfo* GetVkDataGraphPipelineSessionARMInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDataGraphPipelineSessionARMInfo>(id, &dataGraphPipelineSessionARM_map_); }
     const VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
     const VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
     const VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
@@ -194,6 +197,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     VulkanBufferViewInfo* GetVkBufferViewInfo(format::HandleId id) { return GetVkObjectInfo<VulkanBufferViewInfo>(id, &bufferView_map_); }
     VulkanCommandBufferInfo* GetVkCommandBufferInfo(format::HandleId id) { return GetVkObjectInfo<VulkanCommandBufferInfo>(id, &commandBuffer_map_); }
     VulkanCommandPoolInfo* GetVkCommandPoolInfo(format::HandleId id) { return GetVkObjectInfo<VulkanCommandPoolInfo>(id, &commandPool_map_); }
+    VulkanDataGraphPipelineSessionARMInfo* GetVkDataGraphPipelineSessionARMInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDataGraphPipelineSessionARMInfo>(id, &dataGraphPipelineSessionARM_map_); }
     VulkanDebugReportCallbackEXTInfo* GetVkDebugReportCallbackEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDebugReportCallbackEXTInfo>(id, &debugReportCallbackEXT_map_); }
     VulkanDebugUtilsMessengerEXTInfo* GetVkDebugUtilsMessengerEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
     VulkanDeferredOperationKHRInfo* GetVkDeferredOperationKHRInfo(format::HandleId id) { return GetVkObjectInfo<VulkanDeferredOperationKHRInfo>(id, &deferredOperationKHR_map_); }
@@ -243,6 +247,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitVkBufferViewInfo(std::function<void(const VulkanBufferViewInfo*)> visitor) const {  for (const auto& entry : bufferView_map_) { visitor(&entry.second); }  }
     void VisitVkCommandBufferInfo(std::function<void(const VulkanCommandBufferInfo*)> visitor) const {  for (const auto& entry : commandBuffer_map_) { visitor(&entry.second); }  }
     void VisitVkCommandPoolInfo(std::function<void(const VulkanCommandPoolInfo*)> visitor) const {  for (const auto& entry : commandPool_map_) { visitor(&entry.second); }  }
+    void VisitVkDataGraphPipelineSessionARMInfo(std::function<void(const VulkanDataGraphPipelineSessionARMInfo*)> visitor) const {  for (const auto& entry : dataGraphPipelineSessionARM_map_) { visitor(&entry.second); }  }
     void VisitVkDebugReportCallbackEXTInfo(std::function<void(const VulkanDebugReportCallbackEXTInfo*)> visitor) const {  for (const auto& entry : debugReportCallbackEXT_map_) { visitor(&entry.second); }  }
     void VisitVkDebugUtilsMessengerEXTInfo(std::function<void(const VulkanDebugUtilsMessengerEXTInfo*)> visitor) const {  for (const auto& entry : debugUtilsMessengerEXT_map_) { visitor(&entry.second); }  }
     void VisitVkDeferredOperationKHRInfo(std::function<void(const VulkanDeferredOperationKHRInfo*)> visitor) const {  for (const auto& entry : deferredOperationKHR_map_) { visitor(&entry.second); }  }
@@ -293,6 +298,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, VulkanBufferViewInfo> bufferView_map_;
      std::unordered_map<format::HandleId, VulkanCommandBufferInfo> commandBuffer_map_;
      std::unordered_map<format::HandleId, VulkanCommandPoolInfo> commandPool_map_;
+     std::unordered_map<format::HandleId, VulkanDataGraphPipelineSessionARMInfo> dataGraphPipelineSessionARM_map_;
      std::unordered_map<format::HandleId, VulkanDebugReportCallbackEXTInfo> debugReportCallbackEXT_map_;
      std::unordered_map<format::HandleId, VulkanDebugUtilsMessengerEXTInfo> debugUtilsMessengerEXT_map_;
      std::unordered_map<format::HandleId, VulkanDeferredOperationKHRInfo> deferredOperationKHR_map_;

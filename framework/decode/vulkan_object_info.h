@@ -89,6 +89,7 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV = 22,
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeVectorPropertiesNV                   = 23,
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM = 24,
+    kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM               = 25,
 
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
@@ -109,6 +110,8 @@ enum DeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
     kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR    = 7,
     kDeviceArrayGetPipelineBinaryDataKHR                                = 8,
+    kDeviceArrayGetDataGraphPipelineSessionBindPointRequirementsARM     = 9,
+    kDeviceArrayGetDataGraphPipelineAvailablePropertiesARM              = 10,
 
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
@@ -736,6 +739,13 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+};
+
+struct VulkanDataGraphPipelineSessionARMInfo : public VulkanObjectInfo<VkDataGraphPipelineSessionARM>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData    allocator_data{ 0 };
+    VkDataGraphPipelineSessionCreateFlagsARM flags{};
 };
 
 struct VulkanDescriptorSetBindingInfo
