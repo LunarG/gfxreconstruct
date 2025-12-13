@@ -32,6 +32,7 @@
 #include "generated/generated_openxr_struct_decoders.h"
 #include "generated/generated_openxr_consumer.h"
 #include "util/defines.h"
+#include "util/info_output.h"
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
@@ -39,18 +40,38 @@
 #include <set>
 #include <unordered_map>
 
+#include <nlohmann/json.hpp>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
+class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer, public gfxrecon::util::InfoOutputInterface
 {
-  public:
-    const std::string& GetAppName() const { return app_name_; }
-    uint32_t           GetAppVersion() const { return app_version_; }
-    const std::string& GetEngineName() const { return engine_name_; }
-    uint32_t           GetEngineVersion() const { return engine_version_; }
-    uint32_t           GetApiVersion() const { return api_version_; }
+  private:
+    std::string MakeVersionString(XrVersion version) const
+    {
+        return std::to_string(XR_VERSION_MAJOR(version)) + "." + std::to_string(XR_VERSION_MINOR(version)) + "." +
+               std::to_string(XR_VERSION_PATCH(version));
+    }
 
+    struct OpenXrInstanceTracker
+    {
+        OpenXrInstanceTracker() {}
+        OpenXrInstanceTracker(const XrApplicationInfo& app_info, const uint32_t ext_count, const char* const* exts) :
+            app_name(app_info.applicationName), app_version(app_info.applicationVersion),
+            engine_name(app_info.engineName), engine_version(app_info.engineVersion), api_version(app_info.apiVersion)
+        {
+            enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
+        }
+        std::string              app_name;
+        uint32_t                 app_version{ 0 };
+        std::string              engine_name;
+        uint32_t                 engine_version{ 0 };
+        XrVersion                api_version{ 0 };
+        std::vector<std::string> enabled_extensions;
+    };
+
+  public:
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override {}
 
     virtual void Process_xrCreateApiLayerInstance(
@@ -58,26 +79,84 @@ class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
         XrResult                                                                                returnValue,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_XrInstanceCreateInfo>* info,
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
-        gfxrecon::decode::HandlePointerDecoder<XrInstance>*) override
+        gfxrecon::decode::HandlePointerDecoder<XrInstance>*                                     pInstance) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(apiLayerInfo);
         if ((info != nullptr) && (returnValue >= 0) && !info->IsNull())
         {
-            auto create_info = info->GetPointer();
-            app_name_        = create_info->applicationInfo.applicationName;
-            app_version_     = create_info->applicationInfo.applicationVersion;
-            engine_name_     = create_info->applicationInfo.engineName;
-            engine_version_  = create_info->applicationInfo.engineVersion;
-            api_version_     = create_info->applicationInfo.apiVersion;
+            auto                  create_info = info->GetPointer();
+            OpenXrInstanceTracker instance_tracker(
+                create_info->applicationInfo, create_info->enabledExtensionCount, create_info->enabledExtensionNames);
+
+            const gfxrecon::format::HandleId inst = *pInstance->GetPointer();
+            last_created_instance_                = inst;
+            instance_info_[inst]                  = std::move(instance_tracker);
         }
     }
 
+    void GenerateInstanceJsonData(nlohmann::json& inst_json_array) const
+    {
+        for (const auto& [instance, value] : instance_info_)
+        {
+            nlohmann::json instance_json;
+
+            // Write application data
+            instance_json["application-info"]["application"]["name"]    = value.app_name;
+            instance_json["application-info"]["application"]["version"] = value.app_version;
+            instance_json["application-info"]["engine"]["name"]         = value.engine_name;
+            instance_json["application-info"]["engine"]["version"]      = value.engine_version;
+            instance_json["application-info"]["api-version"]            = MakeVersionString(value.api_version);
+            instance_json["extensions"]                                 = value.enabled_extensions;
+
+            inst_json_array.push_back(instance_json);
+        }
+    }
+
+    void GenerateInstanceStrings(std::vector<std::string>& out_strings, const OpenXrInstanceTracker& inst_tracker) const
+    {
+        // Write application data
+        out_strings.push_back("");
+        out_strings.push_back("OpenXr application info:");
+        out_strings.push_back("\tApplication name:    " + inst_tracker.app_name);
+        out_strings.push_back("\tApplication version: " + std::to_string(inst_tracker.app_version));
+        out_strings.push_back("\tEngine name:         " + inst_tracker.engine_name);
+        out_strings.push_back("\tEngine version:      " + std::to_string(inst_tracker.engine_version));
+        out_strings.push_back("\tTarget API version:  " + std::to_string(inst_tracker.api_version) + " (" +
+                              MakeVersionString(inst_tracker.api_version) + ")");
+    }
+
+    std::pair<const std::string, const nlohmann::json*> GenerateJson() const override
+    {
+        nlohmann::json* openxr_base = new nlohmann::json;
+
+        (*openxr_base)["openxr"]["header-version"] = MakeVersionString(static_cast<XrVersion>(XR_CURRENT_API_VERSION));
+
+        (*openxr_base)["instances"] = nlohmann::json::array();
+        GenerateInstanceJsonData((*openxr_base)["instances"]);
+
+        return std::make_pair("openxr", openxr_base);
+    }
+
+    const std::vector<std::string> GenerateStrings() const override
+    {
+        std::vector<std::string> out_strings;
+        out_strings.push_back("");
+        out_strings.push_back("OpenXR info:");
+        out_strings.push_back("\tHeader Version:             " +
+                              MakeVersionString(static_cast<XrVersion>(XR_CURRENT_API_VERSION)));
+        if (instance_info_.size())
+        {
+            out_strings.push_back("\tNumber of OpenXR Instances: " + std::to_string(instance_info_.size()));
+
+            // Only generate data for the last instance.
+            GenerateInstanceStrings(out_strings, instance_info_.at(last_created_instance_));
+        }
+        return out_strings;
+    }
+
   private:
-    // Application info.
-    std::string app_name_;
-    uint32_t    app_version_{ 0 };
-    std::string engine_name_;
-    uint32_t    engine_version_{ 0 };
-    uint32_t    api_version_{ 0 };
+    gfxrecon::format::HandleId                                            last_created_instance_{ 0 };
+    std::unordered_map<gfxrecon::format::HandleId, OpenXrInstanceTracker> instance_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

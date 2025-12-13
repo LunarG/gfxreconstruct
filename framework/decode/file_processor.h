@@ -203,7 +203,7 @@ class FileProcessor
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
-    BlockIOError             error_state_;
+    BlockIOError             error_state_{ BlockIOError::kErrorNone };
     uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
