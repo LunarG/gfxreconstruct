@@ -952,7 +952,168 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
             image_wrapper->queue_family_index = modified_create_info.pQueueFamilyIndices[0];
         }
     }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            if (converter->ConvertCreateImage(pCreateInfo_unwrapped))
+            {
+                modified_create_info = (*pCreateInfo_unwrapped);
+                VkImage rgb_image    = VK_NULL_HANDLE;
+                result               = vulkan_wrappers::GetDeviceTable(device)->CreateImage(
+                    device, &modified_create_info, pAllocator, &rgb_image);
+                if (result >= 0)
+                {
+                    vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
+                                                         vulkan_wrappers::NoParentWrapper,
+                                                         vulkan_wrappers::ImageWrapper>(
+                        device,
+                        vulkan_wrappers::NoParentWrapper::kHandleValue,
+                        &rgb_image,
+                        VulkanCaptureManager::GetUniqueId);
+
+                    converter->AddImage(*pImage, rgb_image);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR(
+                        "Failed to create rgb image when converting image format!(Returned error value: %ld)", result);
+                }
+
+                converter->ConvertCreateImage(pCreateInfo);
+            }
+        }
+    }
+#endif
     return result;
+}
+void VulkanCaptureManager::OverrideDestroyImage(VkDevice device, VkImage image, const VkAllocationCallbacks* pAllocator)
+{
+    ScopedDestroyLock exclusive_scoped_lock;
+    vulkan_wrappers::GetDeviceTable(device)->DestroyImage(device, image, pAllocator);
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            converter->DestroyImage(image, pAllocator);
+        }
+    }
+#endif
+}
+
+VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                     device,
+                                                       const VkImageViewCreateInfo* pCreateInfo,
+                                                       const VkAllocationCallbacks* pAllocator,
+                                                       VkImageView*                 pView)
+{
+    auto                         handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkImageViewCreateInfo* pCreateInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result =
+        vulkan_wrappers::GetDeviceTable(device)->CreateImageView(device, pCreateInfo_unwrapped, pAllocator, pView);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
+                                             vulkan_wrappers::NoParentWrapper,
+                                             vulkan_wrappers::ImageViewWrapper>(
+            device, vulkan_wrappers::NoParentWrapper::kHandleValue, pView, VulkanCaptureManager::GetUniqueId);
+    }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            converter->ConvertCreateImageView(pCreateInfo);
+        }
+    }
+#endif
+
+    return result;
+}
+
+void VulkanCaptureManager::OverrideFreeMemory(VkDevice                     device,
+                                              VkDeviceMemory&              memory,
+                                              const VkAllocationCallbacks* pAllocator)
+{
+    ScopedDestroyLock exclusive_scoped_lock;
+    vulkan_wrappers::GetDeviceTable(device)->FreeMemory(device, memory, pAllocator);
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            converter->FreeMemory(memory, pAllocator);
+        }
+    }
+#endif
+}
+
+VkResult VulkanCaptureManager::OverrideCreateSampler(VkDevice                     device,
+                                                     const VkSamplerCreateInfo*   pCreateInfo,
+                                                     const VkAllocationCallbacks* pAllocator,
+                                                     VkSampler*                   pSampler)
+{
+    auto                       handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    const VkSamplerCreateInfo* pCreateInfo_unwrapped =
+        vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result =
+        vulkan_wrappers::GetDeviceTable(device)->CreateSampler(device, pCreateInfo_unwrapped, pAllocator, pSampler);
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
+                                             vulkan_wrappers::NoParentWrapper,
+                                             vulkan_wrappers::SamplerWrapper>(
+            device, vulkan_wrappers::NoParentWrapper::kHandleValue, pSampler, VulkanCaptureManager::GetUniqueId);
+    }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            converter->ConvertCreateSampler(pCreateInfo);
+        }
+    }
+#endif
+
+    return result;
+}
+
+void VulkanCaptureManager::OverrideDestroyDevice(VkDevice device, const VkAllocationCallbacks* pAllocator)
+{
+    ScopedDestroyLock exclusive_scoped_lock;
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+            converter->DestroyFormatConverterObjects();
+            ahb_format_converter_.erase(it);
+        }
+    }
+#endif
+    vulkan_wrappers::GetDeviceTable(device)->DestroyDevice(device, pAllocator);
 }
 
 VkResult
@@ -1241,6 +1402,55 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         manager->FreeMemory(external_memory, external_memory_size);
     }
 
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    if (enable_hardwarebuffer_format_conversion_)
+    {
+        auto it = ahb_format_converter_.find(device);
+        if (it != ahb_format_converter_.end())
+        {
+            util::AHardwareBufferFormatConverter* converter = it->second.get();
+
+            auto import_ahb_info =
+                graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(pAllocateInfo_unwrapped);
+            if (import_ahb_info)
+            {
+                auto entry_ahb = hardware_buffers_.find(import_ahb_info->buffer);
+                if (entry_ahb != hardware_buffers_.end() && hardware_buffers_[import_ahb_info->buffer].hasProperties)
+                {
+                    VkAndroidHardwareBufferFormatPropertiesANDROID properties =
+                        hardware_buffers_[import_ahb_info->buffer].properties;
+                    VkQueue        queue           = device_wrapper->child_queues.front()->handle;
+                    VkDeviceMemory rgb_memory      = VK_NULL_HANDLE;
+                    VkDeviceSize   allocation_size = 0;
+
+                    if (converter->AllocateMemory(pAllocateInfo,
+                                                  pMemory,
+                                                  queue,
+                                                  pAllocateInfo_unwrapped,
+                                                  import_ahb_info,
+                                                  properties,
+                                                  rgb_memory,
+                                                  allocation_size) == VK_SUCCESS)
+                    {
+                        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
+                                                             vulkan_wrappers::NoParentWrapper,
+                                                             vulkan_wrappers::DeviceMemoryWrapper>(
+                            device, vulkan_wrappers::NoParentWrapper::kHandleValue, &rgb_memory, GetUniqueId);
+                        ProcessImportAndroidHardwareBuffer(device, rgb_memory, import_ahb_info->buffer);
+
+                        converter->PostProcess_AllocateMemory(
+                            pMemory, pAllocateInfo, import_ahb_info, properties, rgb_memory, allocation_size);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Failed to convert image format!(Returned error value: %ld)", result);
+                        return result;
+                    }
+                }
+            }
+        }
+    }
+#endif
     return result;
 }
 
@@ -1857,10 +2067,13 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
     auto     device_table     = vulkan_wrappers::GetDeviceTable(device);
 
     // Query the AHB size
+    VkAndroidHardwareBufferFormatPropertiesANDROID ahb_format_properties;
+    memset(&ahb_format_properties, 0, sizeof(ahb_format_properties));
+    ahb_format_properties.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
     VkAndroidHardwareBufferPropertiesANDROID properties = {
-        VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+        VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID, &ahb_format_properties, 0, 0
     };
-    properties.pNext = nullptr;
+    // properties.pNext = nullptr;
 
     VkResult vk_result =
         device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
@@ -1870,7 +2083,13 @@ void VulkanCaptureManager::ProcessHardwareBuffer(format::ThreadId thread_id,
         const size_t ahb_size = properties.allocationSize;
         assert(ahb_size);
 
-        CommonProcessHardwareBuffer(thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr);
+        bool is_standard_format = false;
+        CommonProcessHardwareBuffer(
+            thread_id, device_wrapper, memory_id, hardware_buffer, ahb_size, this, nullptr, is_standard_format);
+
+        ahb_info.isStandardFormat = is_standard_format;
+        ahb_info.properties       = ahb_format_properties;
+        ahb_info.hasProperties    = true;
     }
     else
     {
@@ -3105,6 +3324,22 @@ void VulkanCaptureManager::PreProcess_vkGetAndroidHardwareBufferPropertiesANDROI
     if (hardware_buffer != nullptr)
     {
         ProcessHardwareBuffer(thread_data->thread_id_, const_cast<AHardwareBuffer*>(hardware_buffer), device);
+    }
+
+    AHardwareBuffer* hardware_buffer_query = const_cast<AHardwareBuffer*>(hardware_buffer);
+    auto             entry                 = hardware_buffers_.find(hardware_buffer_query);
+    if (entry != hardware_buffers_.end() && hardware_buffers_[hardware_buffer_query].hasProperties &&
+        !hardware_buffers_[hardware_buffer_query].isStandardFormat && !IsTrimEnabled())
+    {
+        enable_hardwarebuffer_format_conversion_ = true;
+        auto it                                  = ahb_format_converter_.find(device);
+        if (it == ahb_format_converter_.end())
+        {
+            // Create a Android format converter for this device
+            ahb_format_converter_[device] = std::make_unique<util::AHardwareBufferFormatConverter>(device);
+            GFXRECON_LOG_INFO_ONCE("The app is using non standard format Android hardware buffer! This capture will "
+                                   "convert it to R8G8B8A8_UNORM format!");
+        }
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(device);
