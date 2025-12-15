@@ -138,7 +138,7 @@ def gfxrTestAndroid(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './runJobAndroid.sh'
+                        sh './ci/runJobAndroid.sh'
 
                     }
                 }
@@ -350,7 +350,7 @@ def gfxrTestAndroidManual(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './runJobAndroid.sh'
+                        sh './ci/runJobAndroid.sh'
                     }
 
                     archiveArtifacts(
