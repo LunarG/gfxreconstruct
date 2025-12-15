@@ -89,7 +89,7 @@ class BlockParser
     // Threshhold data came from a histogram of numerous large traces and is chosen as a trade-off
     // that allows the majority of blocks to be decompressed when parsed and enqueued (for preloaded replay), while
     // the 3/4 of the *bytes* are not decompressed when enqueued, limiting the memory impact
-    static constexpr size_t kSmallThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
+    static constexpr size_t kDeferThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
 
     using UncompressedStore = ParsedBlock::UncompressedStore;
 
@@ -121,6 +121,7 @@ class BlockParser
         bool                           success            = false;
     };
     DecompressionResult DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
+    bool                ShouldDeferDecompression(size_t block_size);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
     BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
@@ -138,10 +139,16 @@ class BlockParser
         size_t                 uncompressed_size = 0;
         BlockBuffer::BlockSpan buffer;
     };
+
+    template <typename ArgPayload>
+    [[nodiscard]] ParsedBlock MakeCompressibleParsedBlock(util::DataSpan&&                        block_data,
+                                                          const BlockParser::ParameterReadResult& result,
+                                                          ArgPayload&&                            args);
+
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
-    bool                DecompressWhenParsed(const ParsedBlock& parsed_block);
+
     BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
     ErrorHandler        err_handler_;
     util::Compressor*   compressor_           = nullptr;
