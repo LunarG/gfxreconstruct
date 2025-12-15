@@ -645,8 +645,8 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 
 struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
 {
-    VkDataGraphPipelineSessionBindPointARM bindPoint;
-    uint32_t                               objectIndex;
+    VkDataGraphPipelineSessionBindPointARM bind_point;
+    uint32_t                               object_index;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
