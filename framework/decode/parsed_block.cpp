@@ -46,20 +46,6 @@ BlockBuffer::BlockSpan ParsedBlock::GetCompressedSpan(Args& args)
     return BlockBuffer::BlockSpan();
 }
 
-template <typename Args>
-BlockBuffer::BlockSpan::size_type ParsedBlock::GetUncompressedSize(Args& args)
-{
-    if constexpr (DispatchTraits<Args>::kHasDataSize)
-    {
-        return args.data_size;
-    }
-    else if constexpr (DispatchTraits<Args>::kHasCommandHeader)
-    {
-        return args.command_header.data_size;
-    }
-    return 0;
-}
-
 bool ParsedBlock::Decompress(BlockParser& parser)
 {
     // Shouldn't call this unless we know it's needed
@@ -75,8 +61,9 @@ bool ParsedBlock::Decompress(BlockParser& parser)
         if constexpr (DispatchTraits<Args>::kHasData)
         {
             auto compressed_span   = GetCompressedSpan(args);
-            auto uncompressed_size = GetUncompressedSize(args);
+            auto uncompressed_size = GetDispatchArgsDataSize(args);
             auto result            = parser.DecompressSpan(compressed_span, uncompressed_size);
+
             if (result.success)
             {
                 // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
