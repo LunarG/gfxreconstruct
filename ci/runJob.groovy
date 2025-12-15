@@ -36,7 +36,7 @@ def gfxrTestWindows(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        bat 'runJob.bat'
+                        bat 'ci/runJob.bat'
                     }
                 }
 
@@ -87,7 +87,7 @@ def gfxrTestLinux(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './runJob.sh'
+                        sh './ci/runJob.sh'
                     }
                 }
 
@@ -220,7 +220,7 @@ def gfxrTestWindowsManual(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        bat 'runJob.bat'
+                        bat 'ci/runJob.bat'
                     }
                 }
 
@@ -285,7 +285,7 @@ def gfxrTestLinuxManual(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './runJob.sh'
+                        sh './ci/runJob.sh'
                     }
 
                     archiveArtifacts(

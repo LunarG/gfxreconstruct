@@ -53,7 +53,7 @@ pipeline {
 
                     node {
                         checkout scm
-                        def runJob = load 'runJob.groovy'
+                        def runJob = load 'ci/runJob.groovy'
 
                         tests = [
                             'Android Rel64': runJob.gfxrTestAndroidManual('Android R64', runJob.AndroidLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
