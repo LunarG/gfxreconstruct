@@ -6,7 +6,7 @@
                 "key": "accel_struct_padding",
                 "label": "Acceleration Struct Size Padding",
                 "description":
-                    "[D3D12 Only] Increase the required acceleration structure size that is reported to the application by calls to `GetRaytracingAccelerationStructurePrebuildInfo`. This can enable replay in environments with increased acceleration structure size requirements. The value should be specified as a percent of size increase. For example, a value of `5` would increase the reported acceleration structure sizes by `5%`.",
+                    "Increase the required acceleration structure size that is reported to the application by calls to `GetRaytracingAccelerationStructurePrebuildInfo`. This can enable replay in environments with increased acceleration structure size requirements. The value should be specified as a percent of size increase. For example, a value of `5` would increase the reported acceleration structure sizes by `5%`.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -22,7 +22,7 @@
                 "key": "allow_pipeline_compile_required",
                 "label": "Allow Application Compiled Pipeline Behavior",
                 "description":
-                    "[Vulkan Only] The default behavior forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.",
+                    "The default behavior forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -133,7 +133,7 @@
                 "key": "capture_draw_calls",
                 "label": "Capture Specific Draw Calls",
                 "description":
-                    "[D3D12 Only] Specify one index or a range indices drawcalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like `0,0,0` or `0,0,0-2` or `0,0,0-2,0`. The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. If not defined, all drawcalls are captured.",
+                    "Specify one index or a range indices drawcalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like `0,0,0` or `0,0,0-2` or `0,0,0-2,0`. The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. If not defined, all drawcalls are captured.",
                 "apis": [
                     "D3D12"
                 ],
@@ -213,7 +213,7 @@
                 "key": "capture_iunknown_wrapping",
                 "label": "Capture IID_IUnknown Wrapping",
                 "description":
-                    "[D3D12 Only] If GFXRECON_CAPTURE_IUNKNOWN_WRAPPING is enabled detect when applications call QueryInterface(IID_IUnknown) and switch IID_IUnknown to original IID, so that GFXR returns original interface wrapper.",
+                    "If GFXRECON_CAPTURE_IUNKNOWN_WRAPPING is enabled detect when applications call QueryInterface(IID_IUnknown) and switch IID_IUnknown to original IID, so that GFXR returns original interface wrapper.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -447,7 +447,7 @@
                 "key": "debug_device_lost",
                 "label": "Debug Device Lost",
                 "description":
-                    "[D3D12 Only] Enables automatic injection of breadcrumbs into command buffers and page fault reporting. Used to debug device removed problems.",
+                    "Enables automatic injection of breadcrumbs into command buffers and page fault reporting. Used to debug device removed problems.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -462,7 +462,7 @@
             {
                 "key": "debug_layer",
                 "label": "Enable Debug Layer",
-                "description": "[D3D12 Only] Enable the Direct3D debug layer for Direct3D 12 application captures.",
+                "description": "Enable the Direct3D debug layer for Direct3D 12 application captures.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -478,7 +478,7 @@
                 "key": "disable_dxr",
                 "label": "Disable DXR Support",
                 "description":
-                    "[D3D12 Only] Override the result of `CheckFeatureSupport` to report the `RaytracingTier` as `D3D12_RAYTRACING_TIER_NOT_SUPPORTED`.",
+                    "Override the result of `CheckFeatureSupport` to report the `RaytracingTier` as `D3D12_RAYTRACING_TIER_NOT_SUPPORTED`.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -494,7 +494,7 @@
                 "key": "disable_meta_command",
                 "label": "Disable MetaCommmand Support",
                 "description":
-                    "[D3D12 Only] Override the result of `CheckFeatureSupport` to report the D3D12_FEATURE_QUERY_META_COMMAND is invalid. Some games might use DirectStorage to improve performance, GFXR could not fully support the feature. By using this option, could bypass the feature and force game to use regular I/O to read from harddisk.",
+                    "Override the result of `CheckFeatureSupport` to report the D3D12_FEATURE_QUERY_META_COMMAND is invalid. Some games might use DirectStorage to improve performance, GFXR could not fully support the feature. By using this option, could bypass the feature and force game to use regular I/O to read from harddisk.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -526,7 +526,7 @@
                 "key": "force_fifo_present_mode",
                 "label": "Force FIFO Present Mode",
                 "description":
-                    "[Vulkan Only] When the `force_fifo_present_mode` is enabled, force all present modes in vkGetPhysicalDeviceSurfacePresentModesKHR to VK_PRESENT_MODE_FIFO_KHR, app present mode is set in vkCreateSwapchain to VK_PRESENT_MODE_FIFO_KHR. Otherwise the original present mode will be used.",
+                    "When the `force_fifo_present_mode` is enabled, force all present modes in vkGetPhysicalDeviceSurfacePresentModesKHR to VK_PRESENT_MODE_FIFO_KHR, app present mode is set in vkCreateSwapchain to VK_PRESENT_MODE_FIFO_KHR. Otherwise the original present mode will be used.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -545,7 +545,7 @@
                 "key": "ignore_frame_boundary_android",
                 "label": "Ignore vkFrameBoundaryANDROID",
                 "description":
-                    "[Android Vulkan Only] Ignore any calls to vkFrameBoundaryANDROID when determining frame boundaries.",
+                    "Ignore any calls to vkFrameBoundaryANDROID when determining frame boundaries.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -756,7 +756,7 @@
                 "key": "log_output_to_os_debug_string",
                 "label": "Log Output to Debug Console",
                 "description":
-                    "[Windows Only] Log messages will be written to the Debug Console with OutputDebugStringA",
+                    "Log messages will be written to the Debug Console with OutputDebugStringA",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -823,7 +823,7 @@
                 "key": "page_guard_align_buffer_sizes",
                 "label": "Page Guard Align Buffer Sizes",
                 "description":
-                    "[Vulkan Only] When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size. This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the page_guard shadow allocation to the real allocation. This data loss can result in visible corruption during capture. Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.",
+                    "When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size. This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the page_guard shadow allocation to the real allocation. This data loss can result in visible corruption during capture. Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -866,7 +866,7 @@
                 "key": "page_guard_external_memory",
                 "label": "Page Guard External Memory",
                 "description":
-                    "[Windows Only] When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory.",
+                    "When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -960,7 +960,7 @@
                 "key": "page_guard_track_ahb_memory",
                 "label": "Page Guard Track AHB Memory",
                 "description":
-                    "[Android Only] When the `page_guard` memory tracking mode is enabled, eliminate the need for shadow memory allocations for Android Hardware Buffers.",
+                    "When the `page_guard` memory tracking mode is enabled, eliminate the need for shadow memory allocations for Android Hardware Buffers.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -1036,7 +1036,7 @@
                 "key": "rv_annotation_descriptor",
                 "label": "Specify GPU Descriptor Handle RV Annotation",
                 "description":
-                    "[D3D12 Only] By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPU descriptors. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
+                    "By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPU descriptors. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -1056,7 +1056,7 @@
                 "key": "rv_annotation_experimental",
                 "label": "Enable Experimental RV Search",
                 "description":
-                    "[D3D12 Only] Experimental feature to help enable replay of certain DXR/ExecuteIndirect workloads. RV annotation is a capture mode which attempts to detect when applications write Resource Values (RVs) to memory. Conceptually, RVs represent different types of GPU pointers that applications write as resource data. This capture mode writes GFXR-specific identifier values into unoccupied bits of application-facing RVs and then searches for the identifier values when the application performs a memory write. This allows GFXR to better track RV locations and eventually produce an RV-optimized capture file that may be replayed. Enabling this feature introduces performance overhead during capture, and may result in unstable capture and/or replay.",
+                    "Experimental feature to help enable replay of certain DXR/ExecuteIndirect workloads. RV annotation is a capture mode which attempts to detect when applications write Resource Values (RVs) to memory. Conceptually, RVs represent different types of GPU pointers that applications write as resource data. This capture mode writes GFXR-specific identifier values into unoccupied bits of application-facing RVs and then searches for the identifier values when the application performs a memory write. This allows GFXR to better track RV locations and eventually produce an RV-optimized capture file that may be replayed. Enabling this feature introduces performance overhead during capture, and may result in unstable capture and/or replay.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -1072,7 +1072,7 @@
                 "key": "rv_annotation_gpuva",
                 "label": "Specify GPU VA RV Annotation",
                 "description":
-                    "[D3D12 Only] By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPUVAs. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
+                    "By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPUVAs. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -1092,7 +1092,7 @@
                 "key": "rv_annotation_rand",
                 "label": "Use Random RV Annotation",
                 "description":
-                    "[D3D12 Only] By default, the 2-byte identifier values are hard-coded. This option generates random identifier values used for annotating GPUVAs and GPU descriptors. Use this if capture-time crashes are observed.",
+                    "By default, the 2-byte identifier values are hard-coded. This option generates random identifier values used for annotating GPUVAs and GPU descriptors. Use this if capture-time crashes are observed.",
                 "tools": [
                     "CAPTURE"
                 ],
@@ -1198,7 +1198,7 @@
                 "key": "skip_threads_with_invalid_data",
                 "label": "Skip Threads With Invalid Data",
                 "description":
-                    "[OpenXR Only] When a thread is encountered which contains data that is unexpected, skip the data and mark the thread as skippable.  This is important especially in OpenXR where other API commands (such as Vulkan) may be generated inside of the OpenXR commands, but may still be referenced in some fashion outside of the OpenXR commands.  This results in issues during replay.  So, this option prevents those commands, and the threads containing those commands from being recorded to the capture file.",
+                    "When a thread is encountered which contains data that is unexpected, skip the data and mark the thread as skippable.  This is important especially in OpenXR where other API commands (such as Vulkan) may be generated inside of the OpenXR commands, but may still be referenced in some fashion outside of the OpenXR commands.  This results in issues during replay.  So, this option prevents those commands, and the threads containing those commands from being recorded to the capture file.",
                 "tools": [
                     "CAPTURE"
                 ],
