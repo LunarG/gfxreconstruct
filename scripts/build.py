@@ -144,6 +144,9 @@ def parse_args():
         '-g', '--generator', dest='generator',
         metavar='GENERATOR', action='store', default=None,
         help='CMake generator to use for the build. If not specified, the default generator will be used.')
+    arg_parser.add_argument(
+        '--generate-settings', dest='generate_settings',
+        action='store_true', default=False,help='Generate Settings from settings.json')
     return arg_parser.parse_args()
 
 
@@ -243,6 +246,9 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DBUILD_LAUNCHER_AND_INTERCEPTOR={}'.format(
                 'OFF' if not args.build_launcher else 'ON'))
+        generate_options.append(
+            '-DGENERATE_SETTINGS_OPTIONS={}'.format(
+                'OFF' if not args.generate_settings else 'ON'))
         generate_options.extend('-D' + arg for arg in args.cmake_extra)
         if args.generator:
             generate_options.append('-G{}'.format(args.generator))
