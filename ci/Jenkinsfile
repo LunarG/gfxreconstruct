@@ -14,7 +14,7 @@ pipeline {
                     // Checkout and load on any available node
                     node {
                         checkout scm
-                        def runJob = load 'runJob.groovy'
+                        def runJob = load 'ci/runJob.groovy'
 
                         tests = [
                             'Android Rel64': runJob.gfxrTestAndroid('Android R64', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "commit-suite.json"),
@@ -51,7 +51,7 @@ pipeline {
 
                     node {
                         checkout scm
-                        def runJob = load 'runJob.groovy'
+                        def runJob = load 'ci/runJob.groovy'
 
                         tests = [
                             'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json"),

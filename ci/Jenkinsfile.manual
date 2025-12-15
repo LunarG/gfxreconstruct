@@ -62,7 +62,7 @@ pipeline {
 
                     node {
                         checkout scm
-                        def runJob = load 'runJob.groovy'
+                        def runJob = load 'ci/runJob.groovy'
 
                         def selectedNodes = params.NODES?.split(',')?.collect { it.trim() }?.findAll { it }
 
