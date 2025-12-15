@@ -87,7 +87,7 @@ def gfxrTestLinux(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './ci/runJob.sh'
+                        sh 'ci/runJob.sh'
                     }
                 }
 
@@ -138,7 +138,7 @@ def gfxrTestAndroid(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './ci/runJobAndroid.sh'
+                        sh 'ci/runJobAndroid.sh'
 
                     }
                 }
@@ -285,7 +285,7 @@ def gfxrTestLinuxManual(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './ci/runJob.sh'
+                        sh 'ci/runJob.sh'
                     }
 
                     archiveArtifacts(
@@ -350,7 +350,7 @@ def gfxrTestAndroidManual(
                         "BUILD_MODE=${buildMode}",
                         "RESULTS_DIR=../vulkantest-results/${name}"
                     ]) {
-                        sh './ci/runJobAndroid.sh'
+                        sh 'ci/runJobAndroid.sh'
                     }
 
                     archiveArtifacts(
