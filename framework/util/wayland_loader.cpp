@@ -91,6 +91,12 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_display_flush"));
             function_table_.display_roundtrip = reinterpret_cast<decltype(wl_display_roundtrip)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_display_roundtrip"));
+            function_table_.display_create_queue = reinterpret_cast<decltype(wl_display_create_queue)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_display_create_queue"));
+            function_table_.display_roundtrip_queue = reinterpret_cast<decltype(wl_display_roundtrip_queue)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_display_roundtrip_queue"));
+            function_table_.event_queue_destroy = reinterpret_cast<decltype(wl_event_queue_destroy)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_event_queue_destroy"));
 
             // Proxy functions
             function_table_.proxy_add_listener = reinterpret_cast<decltype(wl_proxy_add_listener)*>(
@@ -104,6 +110,12 @@ bool WaylandLoader::Initialize()
             function_table_.proxy_marshal_constructor_versioned =
                 reinterpret_cast<decltype(wl_proxy_marshal_constructor_versioned)*>(
                     util::platform::GetProcAddress(libwayland_, "wl_proxy_marshal_constructor_versioned"));
+            function_table_.proxy_create_wrapper = reinterpret_cast<decltype(wl_proxy_create_wrapper)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_proxy_create_wrapper"));
+            function_table_.proxy_set_queue = reinterpret_cast<decltype(wl_proxy_set_queue)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_proxy_set_queue"));
+            function_table_.proxy_wrapper_destroy = reinterpret_cast<decltype(wl_proxy_wrapper_destroy)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_proxy_wrapper_destroy"));
 
             // Interfaces
             function_table_.compositor_interface = reinterpret_cast<decltype(wl_compositor_interface)*>(

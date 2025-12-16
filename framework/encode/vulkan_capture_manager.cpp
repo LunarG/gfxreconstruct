@@ -2265,13 +2265,36 @@ void VulkanCaptureManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance      
                                                                 VkSurfaceKHR*                        pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(instance);
-    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+    assert(pCreateInfo != nullptr);
+    if (pCreateInfo && !GetTrimKey().empty())
+    {
+        if (!GetKeyboard().Initialize(pCreateInfo->display))
+        {
+            GFXRECON_LOG_ERROR("Failed to initialize XCB keyboard capture trigger");
+        }
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
     if (!GetTrimKey().empty())
     {
-        GFXRECON_LOG_WARNING("Wayland keyboard capture trigger is not implemented");
+        GFXRECON_LOG_WARNING("Wayland keyboard capture trigger is not enabled on this system");
     }
+#endif
+}
+
+void VulkanCaptureManager::PreProcess_vkDestroySurfaceKHR(VkInstance                   instance,
+                                                          VkSurfaceKHR                 pSurface,
+                                                          const VkAllocationCallbacks* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+    GetKeyboard().Shutdown();
 }
 
 void VulkanCaptureManager::PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
