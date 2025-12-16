@@ -279,11 +279,20 @@ class WaylandLoader
 
     ~WaylandLoader();
 
+    WaylandLoader(const WaylandLoader& other)            = delete;
+    WaylandLoader& operator=(const WaylandLoader& other) = delete;
+    WaylandLoader(WaylandLoader&& other) noexcept;
+    WaylandLoader& operator=(WaylandLoader&& other) noexcept;
+
+    void swap(WaylandLoader& other) noexcept;
+
     bool Initialize();
 
     const FunctionTable& GetFunctionTable() const { return function_table_; }
 
   private:
+    void Deinitialize();
+
     util::platform::LibraryHandle libwayland_;
     FunctionTable                 function_table_;
 };

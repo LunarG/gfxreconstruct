@@ -38,13 +38,34 @@ const std::vector<std::string> kWaylandLibNames = {
 
 WaylandLoader::WaylandLoader() : libwayland_(nullptr), function_table_{} {}
 
-WaylandLoader::~WaylandLoader()
+void WaylandLoader::Deinitialize()
 {
     if (libwayland_)
     {
         util::platform::CloseLibrary(libwayland_);
         libwayland_ = nullptr;
     }
+}
+
+WaylandLoader::~WaylandLoader()
+{
+    Deinitialize();
+}
+
+WaylandLoader::WaylandLoader(WaylandLoader&& other) noexcept
+{
+    swap(other);
+}
+WaylandLoader& WaylandLoader::operator=(WaylandLoader&& other) noexcept
+{
+    swap(other);
+    return *this;
+}
+
+void WaylandLoader::swap(WaylandLoader& other) noexcept
+{
+    std::swap(libwayland_, other.libwayland_);
+    std::swap(function_table_, other.function_table_);
 }
 
 bool WaylandLoader::Initialize()
