@@ -212,6 +212,11 @@ const static std::unordered_map<HRESULT, std::string> kHresults{
     // D3D9 Errors inherited by D3D12:
     { D3DERR_INVALIDCALL, "D3DERR_INVALIDCALL" },
     { D3DERR_WASSTILLDRAWING, "D3DERR_WASSTILLDRAWING" },
+    // DXGI Status codes from <winerror.h>:
+    // https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-status
+    { DXGI_STATUS_OCCLUDED, "DXGI_STATUS_OCCLUDED" },
+    { DXGI_STATUS_MODE_CHANGED, "DXGI_STATUS_MODE_CHANGED" },
+    { DXGI_STATUS_MODE_CHANGE_IN_PROGRESS, "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS" },
     // DXGI Errors from <winerror.h>:
     // https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-error
     { DXGI_ERROR_ACCESS_DENIED, "DXGI_ERROR_ACCESS_DENIED" },
