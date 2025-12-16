@@ -134,6 +134,11 @@ class MetadataConsumerBase
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)
     {}
+    virtual void ProcessSetGpuVirtualAddressRangeCommand(format::HandleId device_id,
+                                                         format::HandleId pageable_id,
+                                                         uint64_t         start_address,
+                                                         uint64_t         size)
+    {}
 
   protected:
     uint64_t block_index_ = 0;

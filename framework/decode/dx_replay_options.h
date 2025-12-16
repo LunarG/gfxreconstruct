@@ -47,6 +47,7 @@ struct DxReplayOptions : public ReplayOptions
     std::vector<int32_t> AllowedDebugMessages;
     std::vector<int32_t> DeniedDebugMessages;
     bool                 override_object_names{ false };
+    bool                 scan_recreate_at{ false };
     bool                 ags_inject_markers{ false };
     int32_t              memory_usage{ kDefaultBatchingMemoryUsage };
 };

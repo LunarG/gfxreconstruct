@@ -1537,6 +1537,36 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                  "Failed to read init subresource data meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetGpuVirtualAddressRangeCommand)
+    {
+        // This command does not support compression.
+        GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetGpuVirtualAddressRangeCommand header;
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.range.device_id);
+        success = success && block_buffer.Read(header.range.pageable_id);
+        success = success && block_buffer.Read(header.range.start_address);
+        success = success && block_buffer.Read(header.range.size);
+
+        if (success)
+        {
+            return ParsedBlock(std::move(block_buffer.ReleaseData()),
+                               SetGpuVirtualAddressRangeArgs{ meta_data_id,
+                                                              header.thread_id,
+                                                              header.range.device_id,
+                                                              header.range.pageable_id,
+                                                              header.range.start_address,
+                                                              header.range.size },
+                               std::move(uncompressed_store));
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set gpu virtual address range meta-data block header");
+        }
+    }
     else
     {
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||

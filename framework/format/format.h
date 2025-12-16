@@ -168,6 +168,8 @@ enum class MetaDataType : uint16_t
     kExecuteBlocksFromFile                              = 34,
     kCreateHardwareBufferCommand                        = 35,
     kInitializeMetaCommand                              = 36,
+    kSetGpuVirtualAddressRangeCommand                   = 37,
+    kReserveGpuVirtualAddressRangesCommandHeader        = 38,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -770,6 +772,29 @@ struct InitializeMetaCommand
     // In the capture file, initialize metacommand data is written in the following order:
     // InitializeMetaCommandHeder
     // parameters data
+};
+
+struct GpuVirtualAddressRangeData
+{
+    format::HandleId device_id;
+    format::HandleId pageable_id;
+    uint64_t         start_address;
+    uint64_t         size;
+};
+
+struct SetGpuVirtualAddressRangeCommand
+{
+    MetaDataHeader             meta_header;
+    format::ThreadId           thread_id;
+    GpuVirtualAddressRangeData range;
+};
+
+struct ReserveGpuVirtualAddressRangesCommandHeader
+{
+    MetaDataHeader             meta_header;
+    format::ThreadId           thread_id;
+    uint64_t                   range_count;
+    GpuVirtualAddressRangeData ranges[0];
 };
 
 // Restore size_t to normal behavior.

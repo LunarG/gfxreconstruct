@@ -34,7 +34,7 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--scan-recreate-at";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -379,7 +379,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --dump-resources-image-format <format>");
     GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use when dumping image resources.");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are: bmp, png");
-
+    GFXRECON_WRITE_CONSOLE("  --scan-recreate-at");
+    GFXRECON_WRITE_CONSOLE("          \t\tPre-process the capture file to scan for 'Recreate At' GPU VA ranges,");
+    GFXRECON_WRITE_CONSOLE("          \t\twhich need to be reserved at device creation.");
+    GFXRECON_WRITE_CONSOLE("");
 #endif
 }
 

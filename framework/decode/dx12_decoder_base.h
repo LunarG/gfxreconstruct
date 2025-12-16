@@ -222,6 +222,12 @@ class Dx12DecoderBase : public ApiDecoder
     virtual void DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
                                                const uint8_t* initialization_parameters_data) override;
 
+    virtual void DispatchSetGpuVirtualAddressRangeCommand(format::ThreadId thread_id,
+                                                          format::HandleId device_id,
+                                                          format::HandleId pageable_id,
+                                                          uint64_t         start_address,
+                                                          uint64_t         size) override;
+
   protected:
     const std::vector<Dx12Consumer*>& GetConsumers() const { return consumers_; }
 

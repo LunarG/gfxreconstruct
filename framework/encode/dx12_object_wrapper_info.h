@@ -393,6 +393,7 @@ struct ID3D12DeviceInfo : public DxWrapperInfo
 
     // Cache features of the device to avoid repeated queries
     bool is_uma{ false };
+    bool supports_recreate_at{ false };
 };
 
 struct ID3D12ResourceInfo : public DxWrapperInfo
