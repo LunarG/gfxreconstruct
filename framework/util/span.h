@@ -91,10 +91,11 @@ class Span
     size_type size_;
 };
 
-// A type anonymous union that can represent a data span from one of three sources:
+// A type anonymous union that can represent a data span from one of four sources:
 // 1) A heap allocated buffer owned by this object
 // 2) An entry from a heap buffer pool
 // 3) A shared pointer to externally owned data
+// 4) A non-owned, sized reference to other storage.  NOTE: Must be lifecycle managed
 //
 // NOTE: Access is designed to be read-only
 // NOTE: Only one of the available sources will be active at any time.
@@ -127,7 +128,7 @@ class DataSpan
     // NOTE: we use SharedBuffer instead std::monostate, as
     //       1) it's a safe "empty" state
     //       2) it avoids issues with variant's triviality when using monostate (MSVC 17.14 specific)
-    using Storage      = std::variant<SharedBuffer, HeapBuffer, PoolEntry>;
+    using Storage      = std::variant<SharedBuffer, HeapBuffer, PoolEntry, OutputSpan>;
     using FirstVariant = std::variant_alternative_t<0, Storage>;
     // NOTE: When adding supported types
     //     * they must be move-assignable
@@ -165,6 +166,20 @@ class DataSpan
 
     DataSpan() : size_(0), data_(nullptr) {}
     DataSpan(const DataSpan&) = delete;
+
+    // Create an unowned DataSpan from a pointer or a span... OutputSpan is default initialized no reason to double
+    // store the span but *do* set the holds to something value.
+    DataSpan(const DataType* data, size_type size) : data_(data), size_(size), store_(OutputSpan())
+    {
+        GFXRECON_ASSERT((data_ != nullptr) || (size_ == 0));
+    }
+
+    // Get a Non-Owning DataSpan that copies anything with a data() and a size() of the correct type
+    struct NonOwnedSpanTag
+    {};
+    template <typename SpanType>
+    DataSpan(const SpanType& data_span, NonOwnedSpanTag) : DataSpan(data_span.data(), data_span.size())
+    {}
 
     DataSpan(DataSpan&& other) noexcept : size_(other.size_), data_(other.data_), store_(std::move(other.store_))
     {
