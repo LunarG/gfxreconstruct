@@ -129,92 +129,6 @@ void WriteOutput(const char* format_string, ...)
     }
 }
 
-std::string ParseJsonForAnnotationData(const nlohmann::json& json_obj, const std::string& key)
-{
-    std::string out                    = "";
-    auto        search_result_iterator = json_obj.find(key);
-    if (search_result_iterator != json_obj.end())
-    {
-        const nlohmann::json& value = *search_result_iterator;
-        if (value.is_object())
-        {
-            // Write the value of this object
-            out += value.dump();
-        }
-        else
-        {
-            out = value;
-        }
-    }
-
-    return out;
-}
-
-class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
-{
-  public:
-    struct AnnotationInfo
-    {
-        std::string desc;
-        std::string key;
-        std::string data;
-    };
-
-    AnnotationRecorder()
-    {
-        // Define all possible Annotation fields and let them record the info as encountered
-        AnnotationRecorder::AnnotationInfo expected_annotations[] = {
-            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion, "" },
-            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp, "" },
-            { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion, "" },
-            { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters, "" }
-        };
-        expected_annotations_.assign(expected_annotations, expected_annotations + 5);
-    }
-
-    virtual void ProcessAnnotation(uint64_t                         block_index,
-                                   gfxrecon::format::AnnotationType type,
-                                   const std::string&               label,
-                                   const std::string&               data) override
-    {
-        if (type == gfxrecon::format::AnnotationType::kJson &&
-            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
-        {
-            if (data.size() > 0)
-            {
-                // Inspect annotations spotted in the capture file
-                nlohmann::json json_obj = nlohmann::json::parse(data);
-                if (json_obj.is_discarded())
-                {
-                    GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
-                }
-                else
-                {
-                    // Loop through all possible annotations and see if their key is found in
-                    // the JSON content of this annotation
-                    for (auto& expected_annotation : expected_annotations_)
-                    {
-                        // If a target annotation, cache it
-                        std::string annotation = ParseJsonForAnnotationData(json_obj, expected_annotation.key);
-                        if (!annotation.empty())
-                        {
-                            expected_annotation.data = annotation;
-                            num_valid_annotations_++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    const uint32_t                     GetNumValidAnnotations() const { return num_valid_annotations_; }
-    const std::vector<AnnotationInfo>& GetAnnotationData() const { return expected_annotations_; }
-
-  private:
-    uint32_t                    num_valid_annotations_{ 0 };
-    std::vector<AnnotationInfo> expected_annotations_;
-};
-
 struct ApiAgnosticStats
 {
     gfxrecon::format::CompressionType compression_type;
@@ -244,6 +158,36 @@ struct FileFormatInfo
     bool NeedsUpdate() const
     {
         return major_version == 0 && minor_version == 0 && uses_frame_markers && !file_supports_frame_markers;
+    }
+};
+
+class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
+{
+  public:
+    std::vector<std::string> operation_annotations_;
+
+    virtual void ProcessAnnotation(uint64_t                         block_index,
+                                   gfxrecon::format::AnnotationType type,
+                                   const std::string&               label,
+                                   const std::string&               data) override
+    {
+        if (type == gfxrecon::format::AnnotationType::kJson &&
+            label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+        {
+            if (data.size() > 0)
+            {
+                // Inspect annotations spotted in the capture file
+                nlohmann::json json_obj = nlohmann::json::parse(data);
+                if (json_obj.is_discarded())
+                {
+                    GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
+                }
+                else
+                {
+                    operation_annotations_.push_back(data);
+                }
+            }
+        }
     }
 };
 
@@ -373,39 +317,56 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
 
-void PrintAnnotationsJson(const std::vector<AnnotationRecorder::AnnotationInfo> all_annotation_infos,
-                          nlohmann::json&                                       json_output)
+void PrintAnnotationsJson(const AnnotationRecorder& annotation_recorder, nlohmann::json& json_output)
 {
     // If the capture file had target annotations, display them in an info block
-    if (!all_annotation_infos.empty())
+    if (!annotation_recorder.operation_annotations_.empty())
     {
         json_output["annotations"] = nlohmann::json::array();
-        for (const auto& annotation_info : all_annotation_infos)
+        for (const auto& annotation_info : annotation_recorder.operation_annotations_)
         {
-            if (annotation_info.data.size() > 0)
-            {
-                nlohmann::json annotation;
-                annotation["description"] = annotation_info.desc;
-                annotation["data"]        = annotation_info.data;
-                json_output["annotations"].push_back(annotation);
-            }
+            nlohmann::json json_obj = nlohmann::json::parse(annotation_info);
+            json_output["annotations"].push_back(json_obj);
         }
     }
 }
 
-void PrintAnnotationsText(const std::vector<AnnotationRecorder::AnnotationInfo> all_annotation_infos)
+void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
 {
     // If the capture file had target annotations, display them in an info block
-    if (!all_annotation_infos.empty())
+    if (!annotation_recorder.operation_annotations_.empty())
     {
+        static const std::map<std::string, std::string> kTargetAnnotations = {
+            { gfxrecon::format::kOperationAnnotationGfxreconstructVersion, "GFXR version" },
+            { gfxrecon::format::kOperationAnnotationTimestamp, "Capture timestamp" },
+            { gfxrecon::format::kOperationAnnotationVulkanVersion, "Vulkan version" },
+            { gfxrecon::format::kOperationAnnotationCaptureParameters, "Non-default capture options" },
+        };
+
         WriteOutput("");
         WriteOutput("Annotations:");
-
-        for (const auto& annotation_info : all_annotation_infos)
+        for (const auto& annotation_info : annotation_recorder.operation_annotations_)
         {
-            if (annotation_info.data.size() > 0)
+            nlohmann::json json_obj = nlohmann::json::parse(annotation_info);
+            for (const auto& item : json_obj.items())
             {
-                WriteOutput("\t%s: %s", annotation_info.desc.c_str(), annotation_info.data.c_str());
+                const auto target = kTargetAnnotations.find(item.key());
+                if (target != kTargetAnnotations.end())
+                {
+                    if (item.value().is_object())
+                    {
+                        // Convert the JSON annotation object into multiline output.
+                        // Unfortunately, this puts the last brace on a new line at column 0.
+                        // So insert a tab right in  front of it.
+                        std::string out = "\n\t" + item.value().dump(kDefaultIndent);
+                        out.insert(out.size() - 1, 1, '\t');
+                        WriteOutput("\t%s: %s", target->second.c_str(), out.c_str());
+                    }
+                    else
+                    {
+                        WriteOutput("\t%s: %s", target->second.c_str(), item.value().get<std::string>().c_str());
+                    }
+                }
             }
         }
     }
@@ -1117,7 +1078,7 @@ void PrintD3D12StatsJson(gfxrecon::decode::FileProcessor&     file_processor,
                          gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                          const ApiAgnosticStats&              api_agnostic_stats,
                          gfxrecon::decode::InfoConsumer&      info_consumer,
-                         const AnnotationRecorder&            annotation_recoder,
+                         const AnnotationRecorder&            annotation_recorder,
                          nlohmann::json*                      json_output)
 {
     if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
@@ -1136,7 +1097,7 @@ void PrintD3D12StatsText(gfxrecon::decode::FileProcessor&     file_processor,
                          gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                          const ApiAgnosticStats&              api_agnostic_stats,
                          gfxrecon::decode::InfoConsumer&      info_consumer,
-                         const AnnotationRecorder&            annotation_recoder)
+                         const AnnotationRecorder&            annotation_recorder)
 {
     if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
     {
@@ -1442,10 +1403,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                         PrintOpenXrStatsJson(file_processor, openxr_stats_consumer, json_content);
                     }
 #endif
-                    if (annotation_recorder.GetNumValidAnnotations())
-                    {
-                        PrintAnnotationsJson(annotation_recorder.GetAnnotationData(), json_content);
-                    }
+                    PrintAnnotationsJson(annotation_recorder, json_content);
                 }
                 else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
                 {
@@ -1487,10 +1445,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                     }
 #endif
 
-                    if (annotation_recorder.GetNumValidAnnotations())
-                    {
-                        PrintAnnotationsText(annotation_recorder.GetAnnotationData());
-                    }
+                    PrintAnnotationsText(annotation_recorder);
                 }
                 else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
                 {
