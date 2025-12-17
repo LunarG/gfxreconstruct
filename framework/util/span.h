@@ -119,7 +119,7 @@ class DataSpan
     using OutputSpan                      = Span<const DataType>;
     static constexpr size_type kRemainder = static_cast<size_type>(-1);
 
-    using PoolEntry = HeapBufferPool::Entry;
+    using PoolEntry    = HeapBufferPool::Entry;
     using SharedBuffer = std::shared_ptr<DataType>;
 
     // NOTE: we use SharedBuffer instead std::monostate, as
