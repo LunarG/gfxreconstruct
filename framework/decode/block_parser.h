@@ -115,21 +115,23 @@ class BlockParser
     void
     WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
 
-    struct DecompressionResult
-    {
-        ParsedBlock::UncompressedStore decompressed_store = {};
-        bool                           success            = false;
-    };
-    DecompressionResult DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
-    bool                ShouldDeferDecompression(size_t block_size);
+    ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
+    bool                           ShouldDeferDecompression(size_t block_size);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
     BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
         pool_(pool), err_handler_(std::move(err)), compressor_(compressor)
     {}
+    BlockParser() = delete;
 
-    void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
-    DecompressionPolicy GetDecompressionPolicy() const { return decompression_policy_; }
+    void SetDecompressionPolicy(DecompressionPolicy policy) noexcept { decompression_policy_ = policy; }
+    void SetBlockReferencePolicy(ParsedBlock::BlockReferencePolicy policy) noexcept
+    {
+        block_reference_policy_ = policy;
+    }
+
+    DecompressionPolicy               GetDecompressionPolicy() const noexcept { return decompression_policy_; }
+    ParsedBlock::BlockReferencePolicy GetBlockReferencePolicy() const noexcept { return block_reference_policy_; }
 
   private:
     struct ParameterReadResult
@@ -141,18 +143,23 @@ class BlockParser
     };
 
     template <typename ArgPayload>
-    [[nodiscard]] ParsedBlock MakeCompressibleParsedBlock(util::DataSpan&&                        block_data,
+    [[nodiscard]] ParsedBlock MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
                                                           const BlockParser::ParameterReadResult& result,
                                                           ArgPayload&&                            args);
+
+    template <typename ArgPayload>
+    ParsedBlock
+    MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer = false);
 
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
 
-    BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
-    ErrorHandler        err_handler_;
-    util::Compressor*   compressor_           = nullptr;
-    DecompressionPolicy decompression_policy_ = DecompressionPolicy::kAlways;
+    BufferPool                        pool_; // TODO: Get a better pool, and share with FileInputStream
+    ErrorHandler                      err_handler_;
+    util::Compressor*                 compressor_             = nullptr;
+    DecompressionPolicy               decompression_policy_   = DecompressionPolicy::kAlways;
+    ParsedBlock::BlockReferencePolicy block_reference_policy_ = ParsedBlock::BlockReferencePolicy::kNonOwnedReference;
 
     uint64_t frame_number_ = 0;
     uint64_t block_index_  = 0;
