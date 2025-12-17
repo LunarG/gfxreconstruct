@@ -167,7 +167,6 @@ class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
             { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion, "" },
             { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp, "" },
             { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion, "" },
-            { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions, "" },
             { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters, "" }
         };
         expected_annotations_.assign(expected_annotations, expected_annotations + 5);
