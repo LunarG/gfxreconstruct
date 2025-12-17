@@ -74,9 +74,9 @@ bool ParsedBlock::Decompress(BlockParser& parser)
         using Args = std::decay_t<decltype(args)>;
         if constexpr (DispatchTraits<Args>::kHasData)
         {
-            auto compressed_span     = GetCompressedSpan(args);
-            auto uncompressed_size   = GetUncompressedSize(args);
-            auto result              = parser.DecompressSpan(compressed_span, uncompressed_size);
+            auto compressed_span   = GetCompressedSpan(args);
+            auto uncompressed_size = GetUncompressedSize(args);
+            auto result            = parser.DecompressSpan(compressed_span, uncompressed_size);
             if (result.success)
             {
                 // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block

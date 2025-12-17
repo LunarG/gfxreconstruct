@@ -52,10 +52,10 @@ class FStreamFileInputStream
     bool IsError() const { return IsOpen() && (ferror(fd_) != 0); }
     bool IsReady() const { return IsOpen() && !IsEof() && !IsError(); }
 
-    bool Open(const std::string& filename);
-    void Close();
-    bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-    bool ReadBytes(void* buffer, size_t bytes);
+    bool     Open(const std::string& filename);
+    void     Close();
+    bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+    bool     ReadBytes(void* buffer, size_t bytes);
     bool     PeekBytes(void* buffer, size_t bytes);
     DataSpan ReadSpan(const size_t bytes);
 
@@ -64,8 +64,8 @@ class FStreamFileInputStream
   protected:
     size_t ReadFromPeekBuffer(void* buffer, size_t bytes);
 
-    std::string filename_;
-    FILE*       fd_{ nullptr };
+    std::string   filename_;
+    FILE*         fd_{ nullptr };
     BufferPoolPtr buffer_pool_;
     size_t        peek_bytes_  = 0U;
     size_t        peek_offset_ = 0U;
