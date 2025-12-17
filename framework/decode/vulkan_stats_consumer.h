@@ -64,10 +64,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct VulkanDeviceTracker
 {
     VulkanDeviceTracker() {}
-    VulkanDeviceTracker(const uint32_t ext_count, const char* const* exts)
-    {
-        enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
-    }
+    VulkanDeviceTracker(const uint32_t ext_count, const char* const* exts) : enabled_extensions(exts, exts + ext_count)
+    {}
+
     std::vector<std::string> enabled_extensions;
 
     // Total pipeline counts by type.
@@ -119,14 +118,14 @@ struct VulkanInstanceTracker
     VulkanInstanceTracker(const VkApplicationInfo* ai,
                           const uint32_t           ext_count,
                           const char* const*       exts,
-                          VkInstance               inst)
+                          VkInstance               inst) :
+        enabled_extensions(exts, exts + ext_count),
+        instance_id(inst)
     {
         if (ai)
         {
             app_info = std::move(VulkanInstanceAppInfo(*ai));
         }
-        enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
-        instance_id        = inst;
     }
     VulkanInstanceAppInfo            app_info;
     std::vector<std::string>         enabled_extensions;
@@ -189,6 +188,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
         gfxrecon::decode::HandlePointerDecoder<VkInstance>*                                      pInstance) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         GFXRECON_UNREFERENCED_PARAMETER(allocCb);
         if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
@@ -211,6 +211,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                     PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
                                                     HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if (returnValue >= 0 && *pPhysicalDeviceCount->GetPointer() > 0 && pPhysicalDevices->GetPointer())
         {
             uint32_t   pd_count    = *pPhysicalDeviceCount->GetPointer();
@@ -237,6 +238,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         PointerDecoder<uint32_t>*                                      pPhysicalDeviceGroupCount,
         StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if (returnValue >= 0 && *pPhysicalDeviceGroupCount->GetPointer() > 0 &&
             pPhysicalDeviceGroupProperties->GetPointer())
         {
@@ -273,6 +275,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties>* pProperties)
         override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if ((pProperties != nullptr) && !pProperties->IsNull())
         {
             physical_device_properties_[physicalDevice] = *pProperties->GetPointer();
@@ -285,6 +288,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties2>* pProperties)
         override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if ((pProperties != nullptr) && !pProperties->IsNull())
         {
             auto properties2                            = pProperties->GetPointer();
@@ -298,6 +302,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkPhysicalDeviceProperties2>* pProperties)
         override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if ((pProperties != nullptr) && !pProperties->IsNull())
         {
             auto properties2                            = pProperties->GetPointer();
@@ -313,6 +318,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>* allocCb,
         gfxrecon::decode::HandlePointerDecoder<VkDevice>*                                        pDevice) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         GFXRECON_UNREFERENCED_PARAMETER(allocCb);
         if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
@@ -359,6 +365,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
         if (returnValue >= 0)
         {
             total_graphics_pipelines_ += createInfoCount;
@@ -378,6 +386,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
         if (returnValue >= 0)
         {
             total_compute_pipelines_ += createInfoCount;
@@ -397,6 +407,9 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
                                                 HandlePointerDecoder<VkPipeline>*) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(deferredOperation);
+        GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
         if (returnValue >= 0)
         {
             total_raytracing_pipelines_ += createInfoCount;
@@ -413,6 +426,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                    uint32_t,
                                    uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -424,6 +438,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                           int32_t,
                                           uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -434,6 +449,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                            uint32_t,
                                            uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -444,6 +460,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                   uint32_t,
                                                   uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -456,6 +473,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                    uint32_t,
                                                    uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -468,6 +486,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                           uint32_t,
                                                           uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -480,6 +499,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                        uint32_t,
                                                        uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -492,6 +512,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                    uint32_t,
                                                    uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -504,6 +525,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                           uint32_t,
                                                           uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -512,6 +534,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                               uint32_t,
                                               uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -522,6 +545,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                       uint32_t,
                                                       uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -534,6 +558,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                            uint32_t,
                                                            uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
     }
 
@@ -543,6 +568,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                        uint32_t,
                                        uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_dispatch_count_;
     }
 
@@ -551,6 +577,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                gfxrecon::format::HandleId,
                                                VkDeviceSize) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_dispatch_count_;
     }
 
@@ -563,6 +590,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                            uint32_t,
                                            uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_dispatch_count_;
     }
 
@@ -575,6 +603,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                               uint32_t,
                                               uint32_t) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_dispatch_count_;
     }
 
@@ -616,6 +645,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkDeviceMemory>*) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         assert(pAllocateInfo != nullptr);
 
         if (returnValue >= 0)
@@ -660,7 +690,10 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
         gfxrecon::decode::HandlePointerDecoder<VkSwapchainKHR>*                                     pSwapchain) override
     {
-        if (!pCreateInfo->IsNull())
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+        GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
+        if (returnValue >= 0 && !pCreateInfo->IsNull())
         {
             const auto& extent   = pCreateInfo->GetPointer()->imageExtent;
             VkInstance  instance = device_to_instance_map_[reinterpret_cast<VkDevice>(device)];
@@ -677,7 +710,10 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchains) override
     {
-        if (!pCreateInfos->IsNull())
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+        GFXRECON_UNREFERENCED_PARAMETER(pSwapchains);
+        if (returnValue >= 0 && !pCreateInfos->IsNull())
         {
             for (uint32_t i = 0; i < swapchainCount; ++i)
             {

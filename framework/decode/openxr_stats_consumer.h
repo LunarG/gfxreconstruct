@@ -47,10 +47,10 @@ struct OpenXrInstanceTracker
     OpenXrInstanceTracker() {}
     OpenXrInstanceTracker(const XrApplicationInfo& app_info, const uint32_t ext_count, const char* const* exts) :
         app_name(app_info.applicationName), app_version(app_info.applicationVersion), engine_name(app_info.engineName),
-        engine_version(app_info.engineVersion), api_version(app_info.apiVersion)
-    {
-        enabled_extensions = std::move(std::vector<std::string>(exts, exts + ext_count));
-    }
+        engine_version(app_info.engineVersion), api_version(app_info.apiVersion),
+        enabled_extensions(exts, exts + ext_count)
+    {}
+
     std::string              app_name;
     uint32_t                 app_version{ 0 };
     std::string              engine_name;
@@ -76,6 +76,7 @@ class OpenXrStatsConsumer : public gfxrecon::decode::OpenXrConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
         gfxrecon::decode::HandlePointerDecoder<XrInstance>*                                     pInstance) override
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
         GFXRECON_UNREFERENCED_PARAMETER(apiLayerInfo);
         if ((info != nullptr) && (returnValue >= 0) && !info->IsNull())
         {
