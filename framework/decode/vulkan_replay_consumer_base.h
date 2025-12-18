@@ -1665,6 +1665,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           VkPipeline*             pipelines,
                                           uint32_t                pipelineCount);
 
+    void WarmUpDevice(const VulkanQueueInfo* queue_info, uint32_t warm_up_load);
+
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
 
   private:
@@ -1689,6 +1691,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         format::HandleId                     device_id;
         bool                                 compatible_strides;
         std::vector<HardwareBufferPlaneInfo> plane_info;
+    };
+
+    struct WarmupResources
+    {
+        VkCommandPool       command_pool{ VK_NULL_HANDLE };
+        VkCommandBuffer     command_buffer{ VK_NULL_HANDLE };
+        VkShaderModule      shader_module{ VK_NULL_HANDLE };
+        VkDescriptorPool    descriptor_pool{ VK_NULL_HANDLE };
+        VkDescriptorSetLayout descriptor_set_layout{ VK_NULL_HANDLE };
+        VkDescriptorSet     descriptor_set{ VK_NULL_HANDLE };
+        VkPipelineLayout    pipeline_layout{ VK_NULL_HANDLE };
+        VkPipeline          pipeline{ VK_NULL_HANDLE };
+        VkBuffer            buffer{ VK_NULL_HANDLE };
+        VkDeviceMemory      buffer_memory{ VK_NULL_HANDLE };
+        std::vector<VkSemaphore> semaphores;
+        uint32_t            next_semaphore_index{ 0 };
     };
 
     typedef std::unordered_map<uint64_t, HardwareBufferInfo>               HardwareBufferMap;
@@ -1760,6 +1778,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>            removed_swapchain_indices_;
     std::vector<uint32_t>                   capture_image_indices_;
     std::vector<VulkanSwapchainKHRInfo*>    swapchain_infos_;
+
+    std::unordered_map<VkDevice, WarmupResources> warmup_resources_;
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

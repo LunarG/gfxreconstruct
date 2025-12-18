@@ -80,6 +80,7 @@ const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kRepeatFrameNTimesArgument[]          = "--frame-repeats";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
 const char kDiscardCachedPsosShortOption[]       = "--dcp";
@@ -118,6 +119,9 @@ const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
 const char kQuitAfterMeasurementRangeOption[]    = "--quit-after-measurement-range";
 const char kQuitAfterFrameArgument[]             = "--quit-after-frame";
+const char kWaitBeforeFirstFrameMsArgument[]     = "--wait-before-first-frame-ms";
+const char kSleepAroundGpuFrameMsArgument[]      = "--sleep-around-gpu-frame-ms";
+const char kFrameWarmUpGpuLoadArgument[]         = "--frame-warm-up-gpu-load";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
@@ -135,6 +139,7 @@ const char kFrameRange[]                          = "--frame-range";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
+const char kRenderPassBarrier[]                   = "--render-pass-barrier";
 const char kPrintBlockInfoAllOption[]             = "--pbi-all";
 const char kPrintBlockInfosArgument[]             = "--pbis";
 const char kNumPipelineCreationJobs[]             = "--pipeline-creation-jobs";
@@ -324,6 +329,18 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     }
 
     return pause_frame;
+}
+
+static uint32_t GetRepeatFrameNTimes(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value       = arg_parser.GetArgumentValue(kRepeatFrameNTimesArgument);
+
+    if (!value.empty())
+    {
+        return std::stoi(value);
+    }
+
+    return 0;
 }
 
 static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -1181,6 +1198,29 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     {
         replay_options.wait_before_present = true;
     }
+    if (arg_parser.IsOptionSet(kRenderPassBarrier))
+    {
+        replay_options.render_pass_barrier = true;
+    }
+
+    const std::string& wait_before_first_frame_ms = arg_parser.GetArgumentValue(kWaitBeforeFirstFrameMsArgument);
+    if (!wait_before_first_frame_ms.empty())
+    {
+        replay_options.wait_before_first_frame_ms = std::stoi(wait_before_first_frame_ms);
+    }
+
+    const std::string& sleep_around_gpu_frame_ms = arg_parser.GetArgumentValue(kSleepAroundGpuFrameMsArgument);
+    if (!sleep_around_gpu_frame_ms.empty())
+    {
+        replay_options.sleep_around_gpu_frame_ms = std::stoi(sleep_around_gpu_frame_ms);
+    }   
+
+    const std::string& frame_warm_up_gpu_load = arg_parser.GetArgumentValue(kFrameWarmUpGpuLoadArgument);
+    if (!frame_warm_up_gpu_load.empty())
+    {
+        replay_options.frame_warm_up_gpu_load = std::stoi(frame_warm_up_gpu_load);
+    }   
+
     if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
     {
         replay_options.preload_measurement_range = true;

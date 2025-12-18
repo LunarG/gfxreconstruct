@@ -52,6 +52,7 @@
 #include "util/logging.h"
 #include "util/linear_hashmap.h"
 #include "decode/mark_injected_commands.h"
+#include "android/trace.h"
 
 #include "spirv_reflect.h"
 
@@ -62,13 +63,17 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <limits>
 #include <numeric>
 #include <unordered_set>
 #include <future>
 
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+bool frame_first_queue_submit = false;
 
 const size_t kMaxEventStatusRetries      = 16;
 const size_t kMaxQueryPoolResultsRetries = 16;
@@ -349,6 +354,7 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
     }
+    frame_first_queue_submit = true;
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -2851,11 +2857,11 @@ void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance   
     }
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
-                                                 const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                                 HandlePointerDecoder<VkInstance>*                          pInstance)
+VkResult VulkanReplayConsumerBase::OverrideCreateInstance(
+    VkResult                                                       original_result,
+    const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkInstance>* pInstance)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
@@ -2868,6 +2874,43 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     //       addresses of create_state members which a return value doesn't appear to preserve
     CreateInstanceInfoState create_state;
     ModifyCreateInstanceInfo(pCreateInfo, create_state);
+
+    // --- START OF MODIFICATION ---
+    // This local variable provides storage for a new VkApplicationInfo struct if the
+    // capture file did not contain one. Its scope ensures it lives until vkCreateInstance is called.
+    VkApplicationInfo local_app_info_storage;
+
+    // Ensure the replay instance is created with at least Vulkan 1.1 support.
+    // This is necessary for using features like vkGetPhysicalDeviceFeatures2.
+    // We get a mutable pointer to the application info struct.
+    VkApplicationInfo* app_info = const_cast<VkApplicationInfo*>(create_state.modified_create_info.pApplicationInfo);
+
+    if (app_info == nullptr)
+    {
+        // If no app info was provided in the capture, create one to specify the API version.
+        // The spec states that a null pApplicationInfo is equivalent to apiVersion 1.0.
+        GFXRECON_LOG_INFO("No VkApplicationInfo found in capture file. Creating one to request Vulkan API version 1.1.");
+        
+        // Use the local storage declared at the function scope.
+        local_app_info_storage = {}; // Zero-initialize the struct
+        local_app_info_storage.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        local_app_info_storage.apiVersion = VK_API_VERSION_1_1;
+        
+        // Point the main create info struct to our new app info.
+        create_state.modified_create_info.pApplicationInfo = &local_app_info_storage;
+    }
+    else if (app_info->apiVersion < VK_API_VERSION_1_1)
+    {
+        GFXRECON_LOG_INFO("Overriding application API version from %u.%u.%u to 1.1.0 for replay.",
+                          VK_API_VERSION_MAJOR(app_info->apiVersion),
+                          VK_API_VERSION_MINOR(app_info->apiVersion),
+                          VK_API_VERSION_PATCH(app_info->apiVersion));
+                          
+        // The pApplicationInfo should point to a mutable copy inside create_state,
+        // so it's safe to modify its apiVersion here.
+        app_info->apiVersion = VK_API_VERSION_1_1;
+    }
+    // --- END OF MODIFICATION ---
 
     VkInstance* replay_instance = pInstance->GetHandlePointer();
     assert(replay_instance);
@@ -3207,6 +3250,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
     VulkanDeviceInfo* device_info = reinterpret_cast<VulkanDeviceInfo*>(pDevice->GetConsumerData(0));
     assert(device_info);
     result = PostCreateDeviceUpdateState(physical_device_info, *replay_device, create_state, device_info);
+
     return result;
 }
 
@@ -3253,6 +3297,7 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
     VkPhysicalDevice* replay_devices          = pPhysicalDevices->GetHandlePointer();
 
     VkResult result = func(instance, replay_device_count_ptr, replay_devices);
+    GFXRECON_LOG_INFO("Found %u physical devices.", *replay_device_count_ptr);
 
     if ((result >= 0) && (replay_devices != nullptr))
     {
@@ -3301,8 +3346,8 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     PFN_vkEnumeratePhysicalDeviceGroups                            func,
     VkResult                                                       original_result,
-    VulkanInstanceInfo*                                            instance_info,
-    PointerDecoder<uint32_t>*                                      pPhysicalDeviceGroupCount,
+    VulkanInstanceInfo* instance_info,
+    PointerDecoder<uint32_t>* pPhysicalDeviceGroupCount,
     StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>* pPhysicalDeviceGroupProperties)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -3311,9 +3356,9 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
            !pPhysicalDeviceGroupCount->IsNull() && (pPhysicalDeviceGroupCount->GetOutputPointer() != nullptr) &&
            (pPhysicalDeviceGroupProperties != nullptr));
 
-    VkInstance                       instance                      = instance_info->handle;
-    uint32_t*                        replay_device_group_count_ptr = pPhysicalDeviceGroupCount->GetOutputPointer();
-    VkPhysicalDeviceGroupProperties* replay_device_groups          = pPhysicalDeviceGroupProperties->GetOutputPointer();
+    VkInstance                           instance                        = instance_info->handle;
+    uint32_t* replay_device_group_count_ptr = pPhysicalDeviceGroupCount->GetOutputPointer();
+    VkPhysicalDeviceGroupProperties* replay_device_groups            = pPhysicalDeviceGroupProperties->GetOutputPointer();
 
     VkResult result = func(instance, replay_device_group_count_ptr, replay_device_groups);
 
@@ -3321,6 +3366,40 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
     {
         assert(!pPhysicalDeviceGroupProperties->IsNull() &&
                (pPhysicalDeviceGroupProperties->GetLength() == (*pPhysicalDeviceGroupCount->GetPointer())));
+
+        // --- ADDED LOGGING ---
+        uint32_t replay_group_count = (*replay_device_group_count_ptr);
+        GFXRECON_LOG_INFO("--------------------------------------------------");
+        GFXRECON_LOG_INFO("Found %u physical device group(s) on replay.", replay_group_count);
+
+        for (uint32_t i = 0; i < replay_group_count; ++i)
+        {
+            const auto& group = replay_device_groups[i];
+            GFXRECON_LOG_INFO("  Group %u:", i);
+            GFXRECON_LOG_INFO("    - Device Count: %u", group.physicalDeviceCount);
+            GFXRECON_LOG_INFO("    - Subset Allocation: %s", (group.subsetAllocation ? "True" : "False"));
+
+            for (uint32_t j = 0; j < group.physicalDeviceCount; ++j)
+            {
+                VkPhysicalDeviceProperties device_properties;
+                GetDeviceAddrProc(group.physicalDevices[j]);
+                GetInstanceTable(group.physicalDevices[j])->GetPhysicalDeviceProperties(group.physicalDevices[j], &device_properties);
+
+                GFXRECON_LOG_INFO("    Device %u: '%s'", j, device_properties.deviceName);
+                GFXRECON_LOG_INFO("      - API Version: %u.%u.%u",
+                                  VK_API_VERSION_MAJOR(device_properties.apiVersion),
+                                  VK_API_VERSION_MINOR(device_properties.apiVersion),
+                                  VK_API_VERSION_PATCH(device_properties.apiVersion));
+                GFXRECON_LOG_INFO("      - Driver Version: %u (0x%x)",
+                                  device_properties.driverVersion,
+                                  device_properties.driverVersion);
+                GFXRECON_LOG_INFO("      - Vendor ID: 0x%04x, Device ID: 0x%04x",
+                                  device_properties.vendorID,
+                                  device_properties.deviceID);
+            }
+        }
+        GFXRECON_LOG_INFO("--------------------------------------------------");
+        // --- END OF ADDED LOGGING ---
 
         const Decoded_VkPhysicalDeviceGroupProperties* meta_info =
             pPhysicalDeviceGroupProperties->GetMetaStructPointer();
@@ -3337,9 +3416,9 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
         // Build a map of captured physical device IDs to physical device handles retrieved at replay.
         for (size_t i = 0; i < device_group_count; ++i)
         {
-            size_t                  capture_device_count = 0;
+            size_t                      capture_device_count = 0;
             const format::HandleId* capture_devices      = nullptr;
-            size_t                  replay_device_count  = 0;
+            size_t                      replay_device_count  = 0;
             const VkPhysicalDevice* replay_devices       = nullptr;
 
             if (i < capture_device_group_count)
@@ -3384,16 +3463,16 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
 
         // Build lists of capture physical device IDs and replay physical device handles, inserting ID/handle values at
         // matching indexes at the start of the lists, with unpaired values appended to the end.
-        std::vector<format::HandleId> capture_devices;
-        std::vector<VkPhysicalDevice> replay_devices;
+        std::vector<format::HandleId> capture_devices_vec;
+        std::vector<VkPhysicalDevice> replay_devices_vec;
 
         for (const auto& entry : physical_devices)
         {
-            capture_devices.push_back(entry.first);
+            capture_devices_vec.push_back(entry.first);
 
             if (entry.second != VK_NULL_HANDLE)
             {
-                replay_devices.push_back(entry.second);
+                replay_devices_vec.push_back(entry.second);
 
                 // There is currently no way to provide pre-initialized info data for a newly created handle that is a
                 // member of a struct, so we insert the handle here.  The generated code will also perform a handle
@@ -3409,27 +3488,27 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDeviceGroups(
             }
         }
 
-        replay_devices.insert(replay_devices.end(), overflow_replay_devices.begin(), overflow_replay_devices.end());
+        replay_devices_vec.insert(replay_devices_vec.end(), overflow_replay_devices.begin(), overflow_replay_devices.end());
 
         SetInstancePhysicalDeviceEntries(instance_info,
-                                         capture_devices.size(),
-                                         capture_devices.data(),
-                                         replay_devices.size(),
-                                         replay_devices.data());
+                                         capture_devices_vec.size(),
+                                         capture_devices_vec.data(),
+                                         replay_devices_vec.size(),
+                                         replay_devices_vec.data());
 
-        if ((!replay_devices.empty()) && (replay_devices.size() < capture_devices.size()))
+        if ((!replay_devices_vec.empty()) && (replay_devices_vec.size() < capture_devices_vec.size()))
         {
             // Make sure all of the capture physical device IDs map to a valid replay physical device handle.
             // The generated code will only add handle mappings for handles returned by vkEnumeratePhysicalDevices on
             // replay, so we add mappings for the handle IDs without matching devices here.
-            VkPhysicalDevice overflow_device = replay_devices[0];
+            VkPhysicalDevice overflow_device = replay_devices_vec[0];
 
-            for (size_t i = replay_devices.size(); i < capture_devices.size(); ++i)
+            for (size_t i = replay_devices_vec.size(); i < capture_devices_vec.size(); ++i)
             {
                 VulkanPhysicalDeviceInfo overflow_info;
 
                 overflow_info.handle     = overflow_device;
-                overflow_info.capture_id = capture_devices[i];
+                overflow_info.capture_id = capture_devices_vec[i];
                 overflow_info.parent_id  = instance_info->capture_id;
                 SetPhysicalDeviceInstanceInfo(instance_info, &overflow_info, overflow_device);
 
@@ -3807,6 +3886,30 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
                                                        const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                                        const VulkanFenceInfo*                            fence_info)
 {
+    if (frame_first_queue_submit) {
+        frame_first_queue_submit = false;
+        static bool first_time = true;
+        if (first_time && options_.wait_before_first_frame_ms > 0) {
+            ATrace_beginSection("FirstTimeWait");
+            usleep(options_.wait_before_first_frame_ms * 1000);
+            ATrace_endSection();
+            first_time = false;
+        }
+        if (options_.sleep_around_gpu_frame_ms > 0) {
+            WaitDevicesIdle();
+            usleep(options_.sleep_around_gpu_frame_ms * 1000);
+
+        }
+
+        if (options_.frame_warm_up_gpu_load > 0) {
+            // Add device warm up using dispatch
+            WarmUpDevice(queue_info, options_.frame_warm_up_gpu_load);        
+        }
+        ATrace_beginSection("GFXRFrame");
+        if (options_.sleep_around_gpu_frame_ms > 0) {
+            usleep(options_.sleep_around_gpu_frame_ms * 1000);
+        }
+    }
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
     VkResult            result       = VK_SUCCESS;
@@ -3822,6 +3925,48 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
 
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
+
+    auto queue_submit = [&](const VkSubmitInfo* submit_infos, uint32_t submitCount) {
+        VkDevice         device       = device_info->handle;
+        WarmupResources& resources    = warmup_resources_[device];
+        if(resources.next_semaphore_index < resources.semaphores.size()) {           
+            std::vector<VkSubmitInfo> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
+            std::vector<std::vector<VkSemaphore>> new_wait_semaphore_lists(submitCount);
+            std::vector<std::vector<VkPipelineStageFlags>> new_wait_stage_mask_lists(submitCount);
+
+            for (uint32_t i = 0; i < submitCount; ++i)
+            {
+                const VkSubmitInfo& original_submit = submit_infos[i];
+                std::vector<VkSemaphore>& new_list = new_wait_semaphore_lists[i];
+                new_list.reserve(original_submit.waitSemaphoreCount + 1);
+                new_list.assign(original_submit.pWaitSemaphores, 
+                                original_submit.pWaitSemaphores + original_submit.waitSemaphoreCount);
+
+                std::vector<VkPipelineStageFlags>& new_stage_list = new_wait_stage_mask_lists[i];
+                new_stage_list.reserve(original_submit.waitSemaphoreCount + 1);
+                if (original_submit.waitSemaphoreCount > 0 && original_submit.pWaitDstStageMask)
+                {
+                    new_stage_list.assign(original_submit.pWaitDstStageMask,
+                                          original_submit.pWaitDstStageMask + original_submit.waitSemaphoreCount);
+                }
+                
+                if(resources.next_semaphore_index < resources.semaphores.size()) {           
+                    VkSemaphore warm_up_semaphore = resources.semaphores[resources.next_semaphore_index++];
+                    new_list.push_back(warm_up_semaphore);
+                    new_stage_list.push_back(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);                    
+                }
+
+                VkSubmitInfo& modified_submit = modified_submit_infos[i];
+                modified_submit.waitSemaphoreCount = static_cast<uint32_t>(new_list.size());
+                modified_submit.pWaitSemaphores = new_list.data();
+                modified_submit.pWaitDstStageMask = new_stage_list.data();
+            }
+
+
+            return func(queue_info->handle, submitCount, modified_submit_infos.data(), fence);        
+        } 
+        return func(queue_info->handle, submitCount, submit_infos, fence);
+    };
 
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
@@ -3856,7 +4001,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
     // tracked.
     if ((!have_imported_semaphores_) && (options_.surface_index == -1) && (!options_.dumping_resources))
     {
-        result = func(queue_info->handle, submitCount, submit_infos, fence);
+        result = queue_submit(submit_infos, submitCount);
     }
     else
     {
@@ -3889,7 +4034,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
 
         if (altered_submits.empty() && !options_.dumping_resources)
         {
-            result = func(queue_info->handle, submitCount, submit_infos, fence);
+            result = queue_submit(submit_infos, submitCount);
         }
         else
         {
@@ -3951,10 +4096,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit      fu
             }
             else
             {
-                result = func(queue_info->handle,
-                              static_cast<uint32_t>(modified_submit_infos.size()),
-                              modified_submit_infos.data(),
-                              fence);
+                result = queue_submit(modified_submit_infos.data(), static_cast<uint32_t>(modified_submit_infos.size()));
             }
         }
     }
@@ -7563,6 +7705,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                   const VulkanQueueInfo*                                queue_info,
                                                   const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
+    if(!frame_first_queue_submit) {
+        frame_first_queue_submit = true;
+        if (options_.sleep_around_gpu_frame_ms > 0) {
+            WaitDevicesIdle();
+            usleep(options_.sleep_around_gpu_frame_ms * 1000);
+        }
+        ATrace_endSection();
+    }
+
     assert((queue_info != nullptr) && (pPresentInfo != nullptr) && !pPresentInfo->IsNull());
 
     VkResult   result             = VK_SUCCESS;
@@ -9288,6 +9439,31 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
+
+    if (options_.render_pass_barrier) {
+        const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GFXRECON_ASSERT(device_info != nullptr);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        // Insert a pipeline barrier to fully synchronize
+        VkMemoryBarrier memoryBarrier = {
+            VK_STRUCTURE_TYPE_MEMORY_BARRIER,    // sType
+            nullptr,                             // pNext
+            VK_ACCESS_MEMORY_WRITE_BIT,          // srcAccessMask
+            VK_ACCESS_MEMORY_READ_BIT |
+            VK_ACCESS_MEMORY_WRITE_BIT,      // dstAccessMask
+        };
+
+        device_table->CmdPipelineBarrier(
+            command_buffer,
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, // srcStageMask
+            VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, // dstStageMask
+            0,                                  // dependencyFlags
+            1, &memoryBarrier,                  // memoryBarrierCount, pMemoryBarriers
+            0, nullptr,                         // bufferMemoryBarrierCount, pBufferMemoryBarriers
+            0, nullptr                          // imageMemoryBarrierCount, pImageMemoryBarriers
+        );
+    }
 
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), contents);
 }
@@ -11369,6 +11545,398 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
         pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }
 }
+
+// A helper function to find a suitable memory type index.
+static uint32_t FindMemoryType(const VkPhysicalDeviceMemoryProperties& memory_properties, uint32_t type_filter, VkMemoryPropertyFlags properties)
+{
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++)
+    {
+        if ((type_filter & (1 << i)) && (memory_properties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+    // A real application should have more robust error handling.
+    return 0;
+}
+
+void VulkanReplayConsumerBase::WarmUpDevice(const VulkanQueueInfo* queue_info, uint32_t warm_up_load)
+{
+    VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
+    if (device_info == nullptr)
+    {
+        return;
+    }
+
+    ATrace_beginSection("WarmUpDevice");
+    VkDevice         device       = device_info->handle;
+    auto             device_table = GetDeviceTable(device);
+    WarmupResources& resources    = warmup_resources_[device];
+
+    VkResult result = VK_SUCCESS;
+
+    if (resources.command_pool == VK_NULL_HANDLE)
+    {
+        VkCommandPoolCreateInfo cmd_pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        cmd_pool_info.queueFamilyIndex        = queue_info->family_index;
+        cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+        result = device_table->CreateCommandPool(device, &cmd_pool_info, nullptr, &resources.command_pool);
+        GFXRECON_LOG_WARNING("CreateCommandPool %s.", util::ToString<VkResult>(result).c_str());
+    }
+
+    if (result == VK_SUCCESS && resources.shader_module == VK_NULL_HANDLE)
+    {
+        // Minimal SPIR-V compute shader:
+        // #version 450
+
+        // // Define the size of the workgroup.
+        // // This means 64 invocations of this shader will run in parallel as a single group.
+        // layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+        // // Define a storage buffer that the application will provide.
+        // // It's an array of floating-point numbers that we can both read from and write to.
+        // // 'binding = 0' means it will be bound to the first descriptor slot (index 0).
+        // layout(std430, binding = 0) buffer DataBuffer {
+        //     float data[];
+        // };
+
+        // void main() {
+        //     // Get the unique global ID for this specific shader invocation.
+        //     // This gives us a unique index into our data buffer.
+        //     uint index = gl_GlobalInvocationID.x;
+
+        //     // Read the initial value from the buffer.
+        //     float value = data[index];
+
+        //     // --- DUMMY WORK ---
+        //     // Perform a series of arbitrary calculations in a loop to keep the GPU busy.
+        //     // This is designed to be work that the compiler can't easily optimize away.
+        //     for (int i = 0; i < 1000; i++) {
+        //         value = sin(value) * 0.999 + cos(float(i)) * 0.001;
+        //     }
+
+        //     // Write the final, modified value back into the same position in the buffer.
+        //     data[index] = value;
+        // }        
+        unsigned char spirv[] = {
+        0x03, 0x02, 0x23, 0x07, 0x00, 0x00, 0x01, 0x00, 0x0b, 0x00, 0x0d, 0x00,
+        0x3b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x00, 0x02, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x06, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x47, 0x4c, 0x53, 0x4c, 0x2e, 0x73, 0x74, 0x64, 0x2e, 0x34, 0x35, 0x30,
+        0x00, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x06, 0x00, 0x05, 0x00, 0x00, 0x00,
+        0x04, 0x00, 0x00, 0x00, 0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x10, 0x00, 0x06, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x11, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0xc2, 0x01, 0x00, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x47, 0x4c, 0x5f, 0x47,
+        0x4f, 0x4f, 0x47, 0x4c, 0x45, 0x5f, 0x63, 0x70, 0x70, 0x5f, 0x73, 0x74,
+        0x79, 0x6c, 0x65, 0x5f, 0x6c, 0x69, 0x6e, 0x65, 0x5f, 0x64, 0x69, 0x72,
+        0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x00, 0x00, 0x04, 0x00, 0x08, 0x00,
+        0x47, 0x4c, 0x5f, 0x47, 0x4f, 0x4f, 0x47, 0x4c, 0x45, 0x5f, 0x69, 0x6e,
+        0x63, 0x6c, 0x75, 0x64, 0x65, 0x5f, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74,
+        0x69, 0x76, 0x65, 0x00, 0x05, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00,
+        0x08, 0x00, 0x00, 0x00, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x08, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x67, 0x6c, 0x5f, 0x47,
+        0x6c, 0x6f, 0x62, 0x61, 0x6c, 0x49, 0x6e, 0x76, 0x6f, 0x63, 0x61, 0x74,
+        0x69, 0x6f, 0x6e, 0x49, 0x44, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00,
+        0x12, 0x00, 0x00, 0x00, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x00, 0x00, 0x00,
+        0x05, 0x00, 0x05, 0x00, 0x14, 0x00, 0x00, 0x00, 0x44, 0x61, 0x74, 0x61,
+        0x42, 0x75, 0x66, 0x66, 0x65, 0x72, 0x00, 0x00, 0x06, 0x00, 0x05, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x64, 0x61, 0x74, 0x61,
+        0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x03, 0x00, 0x16, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x03, 0x00, 0x1e, 0x00, 0x00, 0x00,
+        0x69, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x0b, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+        0x13, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x47, 0x00, 0x03, 0x00, 0x14, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+        0x48, 0x00, 0x05, 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x23, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x47, 0x00, 0x04, 0x00, 0x16, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x47, 0x00, 0x04, 0x00, 0x3a, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00, 0x13, 0x00, 0x02, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x21, 0x00, 0x03, 0x00, 0x03, 0x00, 0x00, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x15, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+        0x07, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x17, 0x00, 0x04, 0x00, 0x09, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x0a, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+        0x0a, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x0d, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x16, 0x00, 0x03, 0x00,
+        0x10, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+        0x11, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x1d, 0x00, 0x03, 0x00, 0x13, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x1e, 0x00, 0x03, 0x00, 0x14, 0x00, 0x00, 0x00, 0x13, 0x00, 0x00, 0x00,
+        0x20, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
+        0x14, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x15, 0x00, 0x00, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x15, 0x00, 0x04, 0x00,
+        0x17, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x04, 0x00, 0x17, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00, 0x1a, 0x00, 0x00, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x20, 0x00, 0x04, 0x00,
+        0x1d, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x04, 0x00, 0x17, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00,
+        0xe8, 0x03, 0x00, 0x00, 0x14, 0x00, 0x02, 0x00, 0x26, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00,
+        0x77, 0xbe, 0x7f, 0x3f, 0x2b, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x2f, 0x00, 0x00, 0x00, 0x6f, 0x12, 0x83, 0x3a, 0x2b, 0x00, 0x04, 0x00,
+        0x17, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
+        0x40, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x39, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x06, 0x00,
+        0x09, 0x00, 0x00, 0x00, 0x3a, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00,
+        0x39, 0x00, 0x00, 0x00, 0x39, 0x00, 0x00, 0x00, 0x36, 0x00, 0x05, 0x00,
+        0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00, 0x05, 0x00, 0x00, 0x00,
+        0x3b, 0x00, 0x04, 0x00, 0x07, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
+        0x07, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00, 0x11, 0x00, 0x00, 0x00,
+        0x12, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x3b, 0x00, 0x04, 0x00,
+        0x1d, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
+        0x41, 0x00, 0x05, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+        0x0b, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+        0x06, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+        0x3e, 0x00, 0x03, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0f, 0x00, 0x00, 0x00,
+        0x3d, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00, 0x19, 0x00, 0x00, 0x00,
+        0x08, 0x00, 0x00, 0x00, 0x41, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00,
+        0x1b, 0x00, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00,
+        0x19, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x1c, 0x00, 0x00, 0x00, 0x1b, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00,
+        0x12, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00,
+        0x1e, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0xf9, 0x00, 0x02, 0x00,
+        0x1f, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00, 0x1f, 0x00, 0x00, 0x00,
+        0xf6, 0x00, 0x04, 0x00, 0x21, 0x00, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0xf9, 0x00, 0x02, 0x00, 0x23, 0x00, 0x00, 0x00,
+        0xf8, 0x00, 0x02, 0x00, 0x23, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+        0x17, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
+        0xb1, 0x00, 0x05, 0x00, 0x26, 0x00, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00,
+        0x24, 0x00, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0xfa, 0x00, 0x04, 0x00,
+        0x27, 0x00, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00,
+        0xf8, 0x00, 0x02, 0x00, 0x20, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+        0x10, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00,
+        0x0c, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00,
+        0x85, 0x00, 0x05, 0x00, 0x10, 0x00, 0x00, 0x00, 0x2b, 0x00, 0x00, 0x00,
+        0x29, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+        0x17, 0x00, 0x00, 0x00, 0x2c, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00,
+        0x6f, 0x00, 0x04, 0x00, 0x10, 0x00, 0x00, 0x00, 0x2d, 0x00, 0x00, 0x00,
+        0x2c, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x06, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x2e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
+        0x2d, 0x00, 0x00, 0x00, 0x85, 0x00, 0x05, 0x00, 0x10, 0x00, 0x00, 0x00,
+        0x30, 0x00, 0x00, 0x00, 0x2e, 0x00, 0x00, 0x00, 0x2f, 0x00, 0x00, 0x00,
+        0x81, 0x00, 0x05, 0x00, 0x10, 0x00, 0x00, 0x00, 0x31, 0x00, 0x00, 0x00,
+        0x2b, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00, 0x00, 0x3e, 0x00, 0x03, 0x00,
+        0x12, 0x00, 0x00, 0x00, 0x31, 0x00, 0x00, 0x00, 0xf9, 0x00, 0x02, 0x00,
+        0x22, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00, 0x22, 0x00, 0x00, 0x00,
+        0x3d, 0x00, 0x04, 0x00, 0x17, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00,
+        0x1e, 0x00, 0x00, 0x00, 0x80, 0x00, 0x05, 0x00, 0x17, 0x00, 0x00, 0x00,
+        0x34, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00, 0x00,
+        0x3e, 0x00, 0x03, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00,
+        0xf9, 0x00, 0x02, 0x00, 0x1f, 0x00, 0x00, 0x00, 0xf8, 0x00, 0x02, 0x00,
+        0x21, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00, 0x06, 0x00, 0x00, 0x00,
+        0x35, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x3d, 0x00, 0x04, 0x00,
+        0x10, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x12, 0x00, 0x00, 0x00,
+        0x41, 0x00, 0x06, 0x00, 0x1a, 0x00, 0x00, 0x00, 0x37, 0x00, 0x00, 0x00,
+        0x16, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x35, 0x00, 0x00, 0x00,
+        0x3e, 0x00, 0x03, 0x00, 0x37, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00,
+        0xfd, 0x00, 0x01, 0x00, 0x38, 0x00, 0x01, 0x00
+        };
+
+        VkShaderModuleCreateInfo sm_create_info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
+        sm_create_info.codeSize                 = sizeof(spirv);
+        sm_create_info.pCode                    = (uint32_t*)spirv;
+        result = device_table->CreateShaderModule(device, &sm_create_info, nullptr, &resources.shader_module);
+        GFXRECON_LOG_WARNING("CreateShaderModule %s.", util::ToString<VkResult>(result).c_str());
+    }
+    const uint32_t   num_invocations = warm_up_load * 1000 * 64 * 1 * 1; // Dispatch(X,Y,Z) * local_size(X,Y,Z)
+    const VkDeviceSize buffer_size   = sizeof(float) * num_invocations;
+
+    if (result == VK_SUCCESS && resources.buffer == VK_NULL_HANDLE)
+    {
+        VkBufferCreateInfo buffer_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        buffer_info.size               = buffer_size;
+        buffer_info.usage              = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        buffer_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+        result = device_table->CreateBuffer(device, &buffer_info, nullptr, &resources.buffer);
+        GFXRECON_LOG_WARNING("CreateBuffer for warm-up %s.", util::ToString<VkResult>(result).c_str());
+
+        if (result == VK_SUCCESS)
+        {
+            VkMemoryRequirements mem_requirements;
+            device_table->GetBufferMemoryRequirements(device, resources.buffer, &mem_requirements);
+
+            VulkanPhysicalDeviceInfo* physical_device_info = object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+            VkPhysicalDeviceMemoryProperties* memory_properties = &physical_device_info->capture_memory_properties;
+
+            GFXRECON_ASSERT(physical_device_info != nullptr && physical_device_info->replay_device_info != nullptr &&
+                            physical_device_info->replay_device_info->memory_properties.has_value());
+
+            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+            alloc_info.allocationSize       = mem_requirements.size;
+            alloc_info.memoryTypeIndex =
+                FindMemoryType(*memory_properties,
+                               mem_requirements.memoryTypeBits,
+                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+            if (alloc_info.memoryTypeIndex != std::numeric_limits<uint32_t>::max())
+            {
+                result = device_table->AllocateMemory(device, &alloc_info, nullptr, &resources.buffer_memory);
+                GFXRECON_LOG_WARNING("AllocateMemory for warm-up buffer %s.", util::ToString<VkResult>(result).c_str());
+                if (result == VK_SUCCESS)
+                {
+                    result = device_table->BindBufferMemory(device, resources.buffer, resources.buffer_memory, 0);
+                }
+            }
+            else
+            {
+                result = VK_ERROR_INITIALIZATION_FAILED;
+            }
+        }
+    }
+
+    if (result == VK_SUCCESS && resources.descriptor_set_layout == VK_NULL_HANDLE)
+    {
+        VkDescriptorSetLayoutBinding layout_binding = {};
+        layout_binding.binding                      = 0;
+        layout_binding.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        layout_binding.descriptorCount              = 1;
+        layout_binding.stageFlags                   = VK_SHADER_STAGE_COMPUTE_BIT;
+
+        VkDescriptorSetLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+        layout_info.bindingCount                    = 1;
+        layout_info.pBindings                       = &layout_binding;
+        result = device_table->CreateDescriptorSetLayout(device, &layout_info, nullptr, &resources.descriptor_set_layout);
+        GFXRECON_LOG_WARNING("CreateDescriptorSetLayout %s.", util::ToString<VkResult>(result).c_str());
+    }    
+
+    if (result == VK_SUCCESS && resources.pipeline_layout == VK_NULL_HANDLE)
+    {
+        VkPipelineLayoutCreateInfo pl_create_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+        pl_create_info.setLayoutCount             = 1;
+        pl_create_info.pSetLayouts                = &resources.descriptor_set_layout; // Link the layout
+        result = device_table->CreatePipelineLayout(device, &pl_create_info, nullptr, &resources.pipeline_layout);
+        GFXRECON_LOG_WARNING("CreatePipelineLayout %s.", util::ToString<VkResult>(result).c_str());
+    }
+
+        if (result == VK_SUCCESS && resources.descriptor_pool == VK_NULL_HANDLE)
+    {
+        VkDescriptorPoolSize pool_size = {};
+        pool_size.type                 = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        pool_size.descriptorCount      = 1;
+
+        VkDescriptorPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+        pool_info.poolSizeCount              = 1;
+        pool_info.pPoolSizes                 = &pool_size;
+        pool_info.maxSets                    = 1;
+        result = device_table->CreateDescriptorPool(device, &pool_info, nullptr, &resources.descriptor_pool);
+        GFXRECON_LOG_WARNING("CreateDescriptorPool %s.", util::ToString<VkResult>(result).c_str());
+    }
+
+    if (result == VK_SUCCESS && resources.descriptor_set == VK_NULL_HANDLE)
+    {
+        VkDescriptorSetAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+        alloc_info.descriptorPool              = resources.descriptor_pool;
+        alloc_info.descriptorSetCount          = 1;
+        alloc_info.pSetLayouts                 = &resources.descriptor_set_layout;
+        result = device_table->AllocateDescriptorSets(device, &alloc_info, &resources.descriptor_set);
+        GFXRECON_LOG_WARNING("AllocateDescriptorSets %s.", util::ToString<VkResult>(result).c_str());
+
+        // NEW: Update the descriptor set to point to our buffer
+        if (result == VK_SUCCESS)
+        {
+            VkDescriptorBufferInfo buffer_info_for_descriptor = {};
+            buffer_info_for_descriptor.buffer                 = resources.buffer;
+            buffer_info_for_descriptor.offset                 = 0;
+            buffer_info_for_descriptor.range                  = buffer_size;
+
+            VkWriteDescriptorSet descriptor_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+            descriptor_write.dstSet               = resources.descriptor_set;
+            descriptor_write.dstBinding           = 0;
+            descriptor_write.dstArrayElement      = 0;
+            descriptor_write.descriptorType       = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+            descriptor_write.descriptorCount      = 1;
+            descriptor_write.pBufferInfo          = &buffer_info_for_descriptor;
+            device_table->UpdateDescriptorSets(device, 1, &descriptor_write, 0, nullptr);
+        }
+    }
+    
+    if (result == VK_SUCCESS && resources.pipeline == VK_NULL_HANDLE)
+    {
+        VkComputePipelineCreateInfo cp_create_info = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+        cp_create_info.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        cp_create_info.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
+        cp_create_info.stage.module                = resources.shader_module;
+        cp_create_info.stage.pName                 = "main";
+        cp_create_info.layout                      = resources.pipeline_layout;
+        result =
+            device_table->CreateComputePipelines(device, VK_NULL_HANDLE, 1, &cp_create_info, nullptr, &resources.pipeline);
+        GFXRECON_LOG_WARNING("CreateComputePipelines %s.", util::ToString<VkResult>(result).c_str());
+    }
+
+    if (result == VK_SUCCESS && resources.semaphores.empty())
+    {
+        resources.semaphores.resize(10);
+        VkSemaphoreCreateInfo semaphore_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+        for (size_t i = 0; i < resources.semaphores.size(); ++i)
+        {
+            result = device_table->CreateSemaphore(device, &semaphore_info, nullptr, &resources.semaphores[i]);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Failed to create semaphore for warm-up. Error %s.", util::ToString<VkResult>(result).c_str());
+                resources.semaphores.clear();
+                break;
+            }
+        }
+    }
+
+    if (result == VK_SUCCESS && resources.command_buffer == VK_NULL_HANDLE)
+    {
+        VkCommandBufferAllocateInfo cmd_buf_alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        cmd_buf_alloc_info.commandPool                 = resources.command_pool;
+        cmd_buf_alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        cmd_buf_alloc_info.commandBufferCount          = 1;
+        result = device_table->AllocateCommandBuffers(device, &cmd_buf_alloc_info, &resources.command_buffer);
+        GFXRECON_LOG_WARNING("AllocateCommandBuffers %s.", util::ToString<VkResult>(result).c_str());
+
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+        device_table->BeginCommandBuffer(resources.command_buffer, &begin_info);
+        device_table->CmdBindPipeline(resources.command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, resources.pipeline);
+        device_table->CmdBindDescriptorSets(resources.command_buffer,
+                                    VK_PIPELINE_BIND_POINT_COMPUTE,
+                                    resources.pipeline_layout,
+                                    0,
+                                    1,
+                                    &resources.descriptor_set,
+                                    0,
+                                    nullptr);
+        device_table->CmdDispatch(resources.command_buffer, warm_up_load * 64, 1, 1);
+        device_table->EndCommandBuffer(resources.command_buffer);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers    = &resources.command_buffer;
+        // next_semaphore_index > 0 means we know how many of them we need from previous frame render
+        submit_info.signalSemaphoreCount = resources.next_semaphore_index > 0 ? resources.next_semaphore_index : static_cast<uint32_t>(resources.semaphores.size());
+        submit_info.pSignalSemaphores    = resources.semaphores.data();
+        device_table->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
+        resources.next_semaphore_index = 0;
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Device warm-up dispatch failed with error %s.", util::ToString<VkResult>(result).c_str());
+    }
+    ATrace_endSection();
+}
+
 
 VkResult VulkanReplayConsumerBase::OverrideCreatePipelineLayout(
     PFN_vkCreatePipelineLayout                                func,

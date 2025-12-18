@@ -74,7 +74,12 @@ Application::Application(const std::string&     name,
     }
 }
 
-Application ::~Application() {}
+Application::~Application() {}
+
+void Application::SetRepeatFrameNTimes(uint32_t repeat_frame_n_times) 
+{ 
+    file_processor_->SetRepeatFrameNTimes(repeat_frame_n_times);
+}
 
 const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, bool auto_select) const
 {

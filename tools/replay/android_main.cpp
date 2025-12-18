@@ -197,6 +197,7 @@ void android_main(struct android_app* app)
                                                       replay_options.block_index_to);
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+                application->SetRepeatFrameNTimes(GetRepeatFrameNTimes(arg_parser));
 
 #if ENABLE_OPENXR_SUPPORT
                 gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};

@@ -88,6 +88,8 @@ class FileProcessor
 
     bool Initialize(const std::string& filename);
 
+    void SetRepeatFrameNTimes(uint32_t repeat_frame_n_times) { repeat_frame_n_times_ = repeat_frame_n_times; }
+
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
     bool ProcessNextFrame();
@@ -249,6 +251,7 @@ class FileProcessor
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
+    uint32_t                            repeat_frame_n_times_{ 0 };
 
     struct ActiveFiles
     {

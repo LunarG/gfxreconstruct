@@ -81,6 +81,10 @@ struct VulkanReplayOptions : public ReplayOptions
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
+    bool                         render_pass_barrier{ false };
+    uint32_t                     frame_warm_up_gpu_load{ 0 };
+    int32_t                      sleep_around_gpu_frame_ms{ 0 };
+    int32_t                      wait_before_first_frame_ms{ 0 };
     VkFlags                      debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
