@@ -2946,6 +2946,43 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(
     VkCommandBuffer                             commandBuffer,
     const VkPerTileEndInfoQCOM*                 pPerTileEndInfo);
 
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSizeEXT(
+    VkDevice                                    device,
+    VkDescriptorSetLayout                       layout,
+    VkDeviceSize*                               pLayoutSizeInBytes);
+
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutBindingOffsetEXT(
+    VkDevice                                    device,
+    VkDescriptorSetLayout                       layout,
+    uint32_t                                    binding,
+    VkDeviceSize*                               pOffset);
+
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorEXT(
+    VkDevice                                    device,
+    const VkDescriptorGetInfoEXT*               pDescriptorInfo,
+    size_t                                      dataSize,
+    void*                                       pDescriptor);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBuffersEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    bufferCount,
+    const VkDescriptorBufferBindingInfoEXT*     pBindingInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsetsEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    setCount,
+    const uint32_t*                             pBufferIndices,
+    const VkDeviceSize*                         pOffsets);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(
     VkCommandBuffer                             commandBuffer,
     VkFragmentShadingRateNV                     shadingRate,

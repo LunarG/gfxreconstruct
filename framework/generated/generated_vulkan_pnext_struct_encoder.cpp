@@ -212,6 +212,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDepthBiasRepresentationInfoEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDescriptorPoolInlineUniformBlockCreateInfo*>(base));
             break;
@@ -473,6 +476,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkMutableDescriptorTypeCreateInfoEXT*>(base));
             break;
+        case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(base));
+            break;
         case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(base));
             break;
@@ -640,6 +646,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDepthStencilResolveProperties*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeatures*>(base));

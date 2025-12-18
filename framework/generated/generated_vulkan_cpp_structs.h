@@ -1758,6 +1758,30 @@ std::string GenerateStruct_VkRenderPassTileShadingCreateInfoQCOM(std::ostream &o
 
 std::string GenerateStruct_VkQueryLowLatencySupportNV(std::ostream &out, const VkQueryLowLatencySupportNV* structInfo, Decoded_VkQueryLowLatencySupportNV* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkAccelerationStructureCaptureDescriptorDataInfoEXT(std::ostream &out, const VkAccelerationStructureCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkBufferCaptureDescriptorDataInfoEXT(std::ostream &out, const VkBufferCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkBufferCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorAddressInfoEXT(std::ostream &out, const VkDescriptorAddressInfoEXT* structInfo, Decoded_VkDescriptorAddressInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorBufferBindingInfoEXT(std::ostream &out, const VkDescriptorBufferBindingInfoEXT* structInfo, Decoded_VkDescriptorBufferBindingInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT(std::ostream &out, const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* structInfo, Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkImageCaptureDescriptorDataInfoEXT(std::ostream &out, const VkImageCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkImageCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkImageViewCaptureDescriptorDataInfoEXT(std::ostream &out, const VkImageViewCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkImageViewCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkOpaqueCaptureDescriptorDataCreateInfoEXT(std::ostream &out, const VkOpaqueCaptureDescriptorDataCreateInfoEXT* structInfo, Decoded_VkOpaqueCaptureDescriptorDataCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT(std::ostream &out, const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorBufferFeaturesEXT(std::ostream &out, const VkPhysicalDeviceDescriptorBufferFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceDescriptorBufferPropertiesEXT(std::ostream &out, const VkPhysicalDeviceDescriptorBufferPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSamplerCaptureDescriptorDataInfoEXT(std::ostream &out, const VkSamplerCaptureDescriptorDataInfoEXT* structInfo, Decoded_VkSamplerCaptureDescriptorDataInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkGraphicsPipelineLibraryCreateInfoEXT(std::ostream &out, const VkGraphicsPipelineLibraryCreateInfoEXT* structInfo, Decoded_VkGraphicsPipelineLibraryCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT(std::ostream &out, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);

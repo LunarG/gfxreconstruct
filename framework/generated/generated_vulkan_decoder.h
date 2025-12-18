@@ -1139,6 +1139,18 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdEndPerTileExecutionQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetDescriptorSetLayoutSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDescriptorSetLayoutBindingOffsetEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDescriptorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDescriptorBufferOffsetsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdSetFragmentShadingRateEnumNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetDeviceFaultInfoEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

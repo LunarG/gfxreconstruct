@@ -382,7 +382,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
         const auto* image_info = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(value.srcImage);
         for (size_t i = 0; i < value.regionCount; ++i)
         {
-            const auto& region = value.pRegions[i];
+            const auto&  region = value.pRegions[i];
             VkDeviceSize host_size =
                 graphics::GetBufferSizeFromCopyImage(region, image_info->array_layers, image_info->format);
 
@@ -432,6 +432,69 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
             encoder->EncodeStringArray(static_cast<const char* const*>(value.pValues), value.valueCount);
             break;
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+            encoder->EncodeVulkanHandlePtr<vulkan_wrappers::SamplerWrapper>(value.data.pSampler);
+            break;
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            encoder->EncodeStructPtrPreamble(value.data.pCombinedImageSampler);
+
+            if (value.data.pCombinedImageSampler)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pCombinedImageSampler);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            encoder->EncodeStructPtrPreamble(value.data.pInputAttachmentImage);
+
+            if (value.data.pInputAttachmentImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pInputAttachmentImage);
+            }
+
+            break;
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            encoder->EncodeStructPtrPreamble(value.data.pSampledImage);
+
+            if (value.data.pSampledImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pSampledImage);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            encoder->EncodeStructPtrPreamble(value.data.pStorageImage);
+
+            if (value.data.pStorageImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pStorageImage);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            EncodeStructPtr(encoder, value.data.pUniformTexelBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            EncodeStructPtr(encoder, value.data.pStorageTexelBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            EncodeStructPtr(encoder, value.data.pUniformBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            EncodeStructPtr(encoder, value.data.pStorageBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            encoder->EncodeUInt64Value(value.data.accelerationStructure);
+            break;
+        default:
             break;
     }
 }

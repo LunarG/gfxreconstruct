@@ -11784,6 +11784,140 @@ size_t VulkanDecoder::Decode_vkCmdEndPerTileExecutionQCOM(const ApiCallInfo& cal
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetDescriptorSetLayoutSizeEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId layout;
+    PointerDecoder<VkDeviceSize> pLayoutSizeInBytes;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
+    bytes_read += pLayoutSizeInBytes.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDescriptorSetLayoutSizeEXT(call_info, device, layout, &pLayoutSizeInBytes);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDescriptorSetLayoutBindingOffsetEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId layout;
+    uint32_t binding;
+    PointerDecoder<VkDeviceSize> pOffset;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &binding);
+    bytes_read += pOffset.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDescriptorSetLayoutBindingOffsetEXT(call_info, device, layout, binding, &pOffset);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDescriptorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT> pDescriptorInfo;
+    size_t dataSize;
+    PointerDecoder<uint8_t> pDescriptor;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pDescriptorInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dataSize);
+    bytes_read += pDescriptor.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDescriptorEXT(call_info, device, &pDescriptorInfo, dataSize, &pDescriptor);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindDescriptorBuffersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t bufferCount;
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT> pBindingInfos;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCount);
+    bytes_read += pBindingInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindDescriptorBuffersEXT(call_info, commandBuffer, bufferCount, &pBindingInfos);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdSetDescriptorBufferOffsetsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineBindPoint pipelineBindPoint;
+    format::HandleId layout;
+    uint32_t firstSet;
+    uint32_t setCount;
+    PointerDecoder<uint32_t> pBufferIndices;
+    PointerDecoder<VkDeviceSize> pOffsets;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineBindPoint);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstSet);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &setCount);
+    bytes_read += pBufferIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pOffsets.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetDescriptorBufferOffsetsEXT(call_info, commandBuffer, pipelineBindPoint, layout, firstSet, setCount, &pBufferIndices, &pOffsets);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineBindPoint pipelineBindPoint;
+    format::HandleId layout;
+    uint32_t set;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineBindPoint);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &set);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(call_info, commandBuffer, pipelineBindPoint, layout, set);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdSetFragmentShadingRateEnumNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -16657,6 +16791,24 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdEndPerTileExecutionQCOM:
         Decode_vkCmdEndPerTileExecutionQCOM(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSizeEXT:
+        Decode_vkGetDescriptorSetLayoutSizeEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutBindingOffsetEXT:
+        Decode_vkGetDescriptorSetLayoutBindingOffsetEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDescriptorEXT:
+        Decode_vkGetDescriptorEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindDescriptorBuffersEXT:
+        Decode_vkCmdBindDescriptorBuffersEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsetsEXT:
+        Decode_vkCmdSetDescriptorBufferOffsetsEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplersEXT:
+        Decode_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetFragmentShadingRateEnumNV:
         Decode_vkCmdSetFragmentShadingRateEnumNV(call_info, parameter_buffer, buffer_size);

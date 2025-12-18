@@ -3600,6 +3600,48 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkPerTileEndInfoQCOM>* pPerTileEndInfo) override;
+    virtual void Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            layout,
+        uint32_t                                    set) override;
+
+    virtual void Process_vkCmdBindDescriptorBuffersEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    bufferCount,
+        StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos) override;
+
+    virtual void Process_vkCmdSetDescriptorBufferOffsetsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            layout,
+        uint32_t                                    firstSet,
+        uint32_t                                    setCount,
+        PointerDecoder<uint32_t>*                   pBufferIndices,
+        PointerDecoder<VkDeviceSize>*               pOffsets) override;
+
+    virtual void Process_vkGetDescriptorEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+        size_t                                      dataSize,
+        PointerDecoder<uint8_t>*                    pDescriptor) override;
+
+    virtual void Process_vkGetDescriptorSetLayoutBindingOffsetEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            layout,
+        uint32_t                                    binding,
+        PointerDecoder<VkDeviceSize>*               pOffset) override;
+
+    virtual void Process_vkGetDescriptorSetLayoutSizeEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            layout,
+        PointerDecoder<VkDeviceSize>*               pLayoutSizeInBytes) override;
     virtual void Process_vkCmdSetFragmentShadingRateEnumNV(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

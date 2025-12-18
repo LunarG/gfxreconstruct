@@ -1736,6 +1736,79 @@ void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* wrapp
     }
 }
 
+void MapStructHandles(Decoded_VkDescriptorBufferBindingInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* value = wrapper->decoded_value;
+
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkBufferCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkBufferCaptureDescriptorDataInfoEXT* value = wrapper->decoded_value;
+
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkImageCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkImageCaptureDescriptorDataInfoEXT* value = wrapper->decoded_value;
+
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkImageViewCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkImageViewCaptureDescriptorDataInfoEXT* value = wrapper->decoded_value;
+
+        value->imageView = handle_mapping::MapHandle<VulkanImageViewInfo>(wrapper->imageView, object_info_table, &CommonObjectInfoTable::GetVkImageViewInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkSamplerCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSamplerCaptureDescriptorDataInfoEXT* value = wrapper->decoded_value;
+
+        value->sampler = handle_mapping::MapHandle<VulkanSamplerInfo>(wrapper->sampler, object_info_table, &CommonObjectInfoTable::GetVkSamplerInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureCaptureDescriptorDataInfoEXT* value = wrapper->decoded_value;
+
+        value->accelerationStructure = handle_mapping::MapHandle<VulkanAccelerationStructureKHRInfo>(wrapper->accelerationStructure, object_info_table, &CommonObjectInfoTable::GetVkAccelerationStructureKHRInfo);
+
+        value->accelerationStructureNV = handle_mapping::MapHandle<VulkanAccelerationStructureNVInfo>(wrapper->accelerationStructureNV, object_info_table, &CommonObjectInfoTable::GetVkAccelerationStructureNVInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -2246,6 +2319,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
             break;
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
             MapStructHandles(reinterpret_cast<Decoded_VkDeviceGroupDeviceCreateInfo*>(wrapper), object_info_table);

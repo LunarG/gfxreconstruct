@@ -243,6 +243,12 @@ void TrackCmdExecuteGeneratedCommandsNVHandles(vulkan_wrappers::CommandBufferWra
 
 void TrackCmdBindPipelineShaderGroupNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline);
 
+void TrackCmdBindDescriptorBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bufferCount, const VkDescriptorBufferBindingInfoEXT* pBindingInfos);
+
+void TrackCmdSetDescriptorBufferOffsetsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout);
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout);
+
 void TrackCmdBindInvocationMaskHUAWEIHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImageView imageView);
 
 void TrackCmdBuildMicromapsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t infoCount, const VkMicromapBuildInfoEXT* pInfos);

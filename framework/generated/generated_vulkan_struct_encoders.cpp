@@ -7314,7 +7314,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureInfoNV
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt64Value(value.compactedSize);
     EncodeStruct(encoder, value.info);
 }
@@ -8404,6 +8404,129 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& v
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVoidPtr(value.pQueriedLowLatencyData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.combinedImageSamplerDescriptorSingleArray);
+    encoder->EncodeUInt32Value(value.bufferlessPushDescriptors);
+    encoder->EncodeUInt32Value(value.allowSamplerImageViewPostSubmitCreation);
+    encoder->EncodeUInt64Value(value.descriptorBufferOffsetAlignment);
+    encoder->EncodeUInt32Value(value.maxDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxResourceDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxSamplerDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxEmbeddedImmutableSamplerBindings);
+    encoder->EncodeUInt32Value(value.maxEmbeddedImmutableSamplers);
+    encoder->EncodeSizeTValue(value.bufferCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.imageCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.imageViewCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.samplerCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.accelerationStructureCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.samplerDescriptorSize);
+    encoder->EncodeSizeTValue(value.combinedImageSamplerDescriptorSize);
+    encoder->EncodeSizeTValue(value.sampledImageDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageImageDescriptorSize);
+    encoder->EncodeSizeTValue(value.uniformTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustUniformTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustStorageTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.uniformBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustUniformBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustStorageBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.inputAttachmentDescriptorSize);
+    encoder->EncodeSizeTValue(value.accelerationStructureDescriptorSize);
+    encoder->EncodeUInt64Value(value.maxSamplerDescriptorBufferRange);
+    encoder->EncodeUInt64Value(value.maxResourceDescriptorBufferRange);
+    encoder->EncodeUInt64Value(value.samplerDescriptorBufferAddressSpaceSize);
+    encoder->EncodeUInt64Value(value.resourceDescriptorBufferAddressSpaceSize);
+    encoder->EncodeUInt64Value(value.descriptorBufferAddressSpaceSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeSizeTValue(value.combinedImageSamplerDensityMapDescriptorSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorBuffer);
+    encoder->EncodeUInt32Value(value.descriptorBufferCaptureReplay);
+    encoder->EncodeUInt32Value(value.descriptorBufferImageLayoutIgnored);
+    encoder->EncodeUInt32Value(value.descriptorBufferPushDescriptors);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorAddressInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.address);
+    encoder->EncodeUInt64Value(value.range);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferBindingInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.address);
+    encoder->EncodeFlagsValue(value.usage);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.image);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageViewWrapper>(value.imageView);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SamplerWrapper>(value.sampler);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkOpaqueCaptureDescriptorDataCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.opaqueCaptureDescriptorData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::AccelerationStructureKHRWrapper>(value.accelerationStructure);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::AccelerationStructureNVWrapper>(value.accelerationStructureNV);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& value)

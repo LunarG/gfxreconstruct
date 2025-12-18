@@ -22,10 +22,7 @@
 #include "custom_vulkan_struct_decoders.h"
 
 #include "vulkan/vulkan.h"
-
-#include <util/defines.h>
 #include <util/strings.h>
-#include <iostream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -162,6 +159,11 @@ std::string GenerateStruct_VkLayerSettingEXT(std::ostream&              out,
                                              const VkLayerSettingEXT*   structInfo,
                                              Decoded_VkLayerSettingEXT* metaInfo,
                                              VulkanCppConsumerBase&     consumer);
+
+std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                   out,
+                                                  const VkDescriptorGetInfoEXT*   structInfo,
+                                                  Decoded_VkDescriptorGetInfoEXT* metaInfo,
+                                                  VulkanCppConsumerBase&          consumer);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

@@ -2833,6 +2833,58 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkQueryLowLatencySupportNV*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorBufferPropertiesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkDescriptorAddressInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkDescriptorGetInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkImageCaptureDescriptorDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(pNext), 1, out_ptr);

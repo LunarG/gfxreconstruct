@@ -347,6 +347,20 @@ void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* u
 
 void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkDescriptorBufferBindingInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBufferCaptureDescriptorDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageCaptureDescriptorDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageViewCaptureDescriptorDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSamplerCaptureDescriptorDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureCaptureDescriptorDataInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
