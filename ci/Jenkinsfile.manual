@@ -54,6 +54,15 @@ pipeline {
         )
     }
 
+    options {
+        buildDiscarder(logRotator(
+            daysToKeepStr: '90',
+            numToKeepStr: '100',
+            artifactDaysToKeepStr: '90',
+            artifactNumToKeepStr: '100'
+        ))
+    }
+
     stages {
         stage('Run Tests') {
             steps {
