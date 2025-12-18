@@ -180,9 +180,14 @@ class Dx12StatsConsumer : public Dx12Consumer
         InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
-    std::string GetSwapchainDimensions()
+    std::string GetSwapchainDimensionsString()
     {
         return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
+    }
+
+    std::pair<UINT, UINT> GetSwapchainDimensions()
+    {
+        return {swapchain_width_, swapchain_height_};
     }
 
     virtual void Process_IDXGIFactory_CreateSwapChain(const ApiCallInfo&                                  call_info,

@@ -68,6 +68,7 @@
 #include <set>
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 #include <nlohmann/json.hpp>
 
@@ -317,18 +318,14 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
 
-void PrintAnnotationsJson(const AnnotationRecorder& annotation_recorder, nlohmann::json& json_output)
+nlohmann::json GetOperationsJson(const AnnotationRecorder& annotation_recorder)
 {
-    // If the capture file had target annotations, display them in an info block
-    if (!annotation_recorder.operation_annotations_.empty())
+    nlohmann::json annotations_json = nlohmann::json::array();
+    for (const auto& annotation_info : annotation_recorder.operation_annotations_)
     {
-        json_output["annotations"] = nlohmann::json::array();
-        for (const auto& annotation_info : annotation_recorder.operation_annotations_)
-        {
-            nlohmann::json json_obj = nlohmann::json::parse(annotation_info);
-            json_output["annotations"].push_back(json_obj);
-        }
+        annotations_json.push_back(nlohmann::json::parse(annotation_info));
     }
+    return annotations_json;
 }
 
 void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
@@ -377,13 +374,17 @@ inline std::string GetFrameMarkerString(bool uses_frame_markers, bool needs_upda
     return uses_frame_markers ? (needs_update ? "explicit (unsupported)" : "explicit") : "implicit";
 }
 
-void PrintFileFormatInfoJson(const gfxrecon::decode::FileProcessor& file_processor, nlohmann::json& json_output)
+nlohmann::json GetFileFormatInfoJson(const gfxrecon::decode::FileProcessor& file_processor)
 {
     FileFormatInfo file_format_info(file_processor);
-    json_output["capture-file"]["file-version"] =
-        std::to_string(file_format_info.major_version) + "." + std::to_string(file_format_info.minor_version);
-    json_output["capture-file"]["frame-delimiters"] =
-        GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate());
+
+    std::string file_format_version = std::to_string(file_format_info.major_version) + "." + std::to_string(file_format_info.minor_version);
+    std::string frame_marker_string = GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate());
+
+    return {
+        {"file-version", file_format_version},
+        {"frame-delimiters", frame_marker_string},
+    };
 }
 
 void PrintFileFormatInfoText(const gfxrecon::decode::FileProcessor& file_processor)
@@ -394,15 +395,15 @@ void PrintFileFormatInfoText(const gfxrecon::decode::FileProcessor& file_process
                 GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate()).c_str());
 }
 
-void PrintDriverInfoJson(const gfxrecon::decode::InfoConsumer& driver_info_consumer, nlohmann::json& json_output)
+std::string GetDriverInfoString(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
 {
     if (gfxrecon::util::platform::StringLength(driver_info_consumer.GetDriverDesc()) > 0)
     {
-        json_output["driver"] = driver_info_consumer.GetDriverDesc();
+        return driver_info_consumer.GetDriverDesc();
     }
     else
     {
-        json_output["driver"] = "Not available";
+        return "Not available";
     }
 }
 
@@ -421,18 +422,21 @@ void PrintDriverInfoText(const gfxrecon::decode::InfoConsumer& driver_info_consu
     }
 }
 
-void PrintExeInfoJson(const gfxrecon::decode::InfoConsumer& info_consumer, nlohmann::json& json_output)
+nlohmann::json GetExeInfoJson(const gfxrecon::decode::InfoConsumer& info_consumer)
 {
     auto        exe_version  = info_consumer.GetAppVersion();
     std::string file_desc    = info_consumer.GetFileDescription();
     std::string product_name = info_consumer.GetProductName();
-
-    json_output["exe"]["name"]    = info_consumer.GetAppExeName();
-    json_output["exe"]["version"] = std::to_string(exe_version[0]) + "." + std::to_string(exe_version[1]) + "." +
+    std::string version = std::to_string(exe_version[0]) + "." + std::to_string(exe_version[1]) + "." +
                                     std::to_string(exe_version[2]) + "." + std::to_string(exe_version[3]);
-    json_output["exe"]["company"]          = info_consumer.GetCompanyName();
-    json_output["exe"]["product"]          = product_name;
-    json_output["exe"]["file-description"] = file_desc;
+
+    return {
+        {"name", info_consumer.GetAppExeName()},
+        {"version", version},
+        {"company", info_consumer.GetCompanyName()},
+        {"product", product_name},
+        {"file-description", file_desc},
+    };
 }
 
 void PrintExeInfoText(const gfxrecon::decode::InfoConsumer& info_consumer)
@@ -460,16 +464,20 @@ void PrintExeInfoText(const gfxrecon::decode::InfoConsumer& info_consumer)
     WriteOutput("\tProduct name: %s", app_data.c_str());
 }
 
-void PrintEnvironmentVariableInfoJson(gfxrecon::decode::InfoConsumer& info_consumer, nlohmann::json& json_output)
+nlohmann::json GetEnvironmentVariableInfoJson(gfxrecon::decode::InfoConsumer& info_consumer)
 {
+    nlohmann::json environment;
+
     std::string delimiter = "=";
     for (const std::string& var : info_consumer.GetEnvironmentVariables())
     {
         const auto& delimiter_pos       = var.find(delimiter);
         std::string key                 = var.substr(0, delimiter_pos);
         std::string value               = var.substr(delimiter_pos + 1);
-        json_output["environment"][key] = value;
+        environment[key] = value;
     }
+
+    return environment;
 }
 
 void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consumer)
@@ -481,7 +489,7 @@ void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consu
     }
 }
 
-void PrintDetectedApiInfoJson(bool vulkan_present, bool dx12_present, bool openxr_present, nlohmann::json& json_output)
+nlohmann::json GetDetectedApiInfoJson(bool vulkan_present, bool dx12_present, bool openxr_present)
 {
     std::vector<std::string> apis;
     if (vulkan_present)
@@ -494,13 +502,9 @@ void PrintDetectedApiInfoJson(bool vulkan_present, bool dx12_present, bool openx
     }
     if (openxr_present)
     {
-        apis.push_back("OpenXr");
+        apis.push_back("OpenXR");
     }
-    if (apis.size() == 0)
-    {
-        apis.push_back("Unable to detect capture file APIs. Writing all stats.");
-    }
-    json_output["apis_detected"] = apis;
+    return apis;
 }
 
 void PrintDetectedApiInfoText(bool vulkan_present, bool dx12_present, bool openxr_present)
@@ -511,10 +515,9 @@ void PrintDetectedApiInfoText(bool vulkan_present, bool dx12_present, bool openx
     }
 }
 
-void PrintApiAgnosticStatsJson(const ApiAgnosticStats& api_agnostic_stats,
+nlohmann::json GetApiAgnosticStatsJson(const ApiAgnosticStats& api_agnostic_stats,
                                bool                    vulkan_present,
-                               bool                    dx12_present,
-                               nlohmann::json&         json_output)
+                               bool                    dx12_present)
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
@@ -523,14 +526,18 @@ void PrintApiAgnosticStatsJson(const ApiAgnosticStats& api_agnostic_stats,
         compression_type_name = kUnrecognizedFormatString;
     }
 
-    json_output["capture-file"]["compression"]["format"]  = compression_type_name;
-    json_output["capture-file"]["frames"]["blank-count"]  = api_agnostic_stats.blank_frame_count;
-    json_output["capture-file"]["frames"]["actual-count"] = api_agnostic_stats.frame_count;
-    json_output["capture-file"]["frames"]["total-count"] =
-        api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count;
-    json_output["capture-file"]["frames"]["start-frame"] = api_agnostic_stats.trim_start_frame;
-    json_output["capture-file"]["frames"]["end-frame"] =
-        api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1;
+    return {
+        {"compression", {
+            {"format", compression_type_name},
+        }},
+        {"frames", {
+            {"blank-count", api_agnostic_stats.blank_frame_count},
+            {"actual-count", api_agnostic_stats.frame_count},
+            {"total-count", api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count},
+            {"start-frame", api_agnostic_stats.trim_start_frame},
+            {"end-frame", api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1},
+        }}
+    };
 }
 
 void PrintApiAgnosticStatsText(const ApiAgnosticStats& api_agnostic_stats, bool vulkan_present, bool dx12_present)
@@ -578,20 +585,25 @@ void PrintApiAgnosticStatsText(const ApiAgnosticStats& api_agnostic_stats, bool 
     }
 }
 
-void PrintVulkanDeviceMemoryStatsJson(uint64_t        alloc_count,
+nlohmann::json GetVulkanDeviceMemoryStatsJson(uint64_t        alloc_count,
                                       uint64_t        min_alloc,
                                       uint64_t        max_alloc,
                                       uint32_t        gfx_pipelines,
                                       uint32_t        comp_pipelines,
-                                      uint32_t        rt_pipelines,
-                                      nlohmann::json& json_output)
+                                      uint32_t        rt_pipelines)
 {
-    json_output["memory-alloc"]["count"]             = alloc_count;
-    json_output["memory-alloc"]["min-size"]          = min_alloc;
-    json_output["memory-alloc"]["max-size"]          = max_alloc;
-    json_output["pipeline-info"]["graphics-count"]   = gfx_pipelines;
-    json_output["pipeline-info"]["compute-count"]    = comp_pipelines;
-    json_output["pipeline-info"]["raytracing-count"] = rt_pipelines;
+    return {
+        {"memory-alloc", {
+            {"count", alloc_count},
+            {"min-size", min_alloc},
+            {"max-size", max_alloc},
+        }},
+        {"pipeline-info", {
+            {"graphics-count", gfx_pipelines},
+            {"compute-count", comp_pipelines},
+            {"raytracing-count", rt_pipelines},
+        }},
+    };
 }
 
 void PrintVulkanDeviceMemoryStatsText(uint64_t alloc_count,
@@ -616,47 +628,45 @@ void PrintVulkanDeviceMemoryStatsText(uint64_t alloc_count,
     WriteOutput("\tTotal raytracing pipelines: %" PRIu64, rt_pipelines);
 }
 
-void PrintVulkanDeviceType(VkPhysicalDeviceType device_type, std::string& device_string)
+std::string GetVulkanDeviceTypeString(VkPhysicalDeviceType device_type)
 {
     switch (device_type)
     {
         case VK_PHYSICAL_DEVICE_TYPE_OTHER:
-            device_string = "VK_PHYSICAL_DEVICE_TYPE_OTHER";
+            return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
             break;
         case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-            device_string = "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
+            return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
             break;
         case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-            device_string = "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
+            return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
             break;
         case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
-            device_string = "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
+            return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
             break;
         case VK_PHYSICAL_DEVICE_TYPE_CPU:
-            device_string = "VK_PHYSICAL_DEVICE_TYPE_CPU";
+            return "VK_PHYSICAL_DEVICE_TYPE_CPU";
             break;
         default:
-            device_string = " Unknown (";
-            device_string += std::to_string(device_type);
-            device_string += ")";
+            return std::format("Unknown ({})", static_cast<int>(device_type));
             break;
     }
 }
 
-void PrintVulkanStatsJson(const gfxrecon::decode::FileProcessor&       file_processor,
-                          const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
-                          nlohmann::json&                              json_output)
+nlohmann::json GetVulkanStatsJson(const gfxrecon::decode::FileProcessor&       file_processor,
+                          const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer)
 {
+    nlohmann::json vulkan_stats;
 
     uint32_t inst_count    = vulkan_stats_consumer.GetInstanceCount();
     auto     instance_info = vulkan_stats_consumer.GetInstanceInfo();
     auto     pd_info       = vulkan_stats_consumer.GetPhysicalDeviceInfo();
     auto     dev_info      = vulkan_stats_consumer.GetDeviceInfo();
 
-    json_output["vulkan"]["header-version"] = std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+    vulkan_stats["header-version"] = std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                               std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-    json_output["vulkan"]["instances"] = nlohmann::json::array();
+    auto& instances_json = vulkan_stats["instances"] = nlohmann::json::array();
 
     uint32_t       inst_index = 0;
     nlohmann::json instance_array;
@@ -664,88 +674,65 @@ void PrintVulkanStatsJson(const gfxrecon::decode::FileProcessor&       file_proc
     {
         nlohmann::json instance_json;
 
-        instance_json["application-info"]["application"]["name"]    = it.second.app_info.app_name;
-        instance_json["application-info"]["application"]["version"] = it.second.app_info.app_version;
-        instance_json["application-info"]["engine"]["name"]         = it.second.app_info.engine_name;
-        instance_json["application-info"]["engine"]["version"]      = it.second.app_info.engine_version;
-        instance_json["application-info"]["api-version"] = GetVkVersionString(it.second.app_info.api_version);
+        auto& application_info = instance_json["application-info"];
+        application_info["application"]["name"]    = it.second.app_info.app_name;
+        application_info["application"]["version"] = it.second.app_info.app_version;
+        application_info["engine"]["name"]         = it.second.app_info.engine_name;
+        application_info["engine"]["version"]      = it.second.app_info.engine_version;
+        application_info["api-version"] = GetVkVersionString(it.second.app_info.api_version);
 
-        if (it.second.enabled_extensions.size() > 0)
-        {
-            instance_json["extensions"] = nlohmann::json::array();
-            for (uint32_t ext = 0; ext < it.second.enabled_extensions.size(); ++ext)
-            {
-                instance_json["extensions"].push_back(it.second.enabled_extensions[ext]);
-            }
-        }
+        instance_json["extensions"] = it.second.enabled_extensions;
 
-        instance_json["application-info"]["resolutions"] = nlohmann::json::array();
+        auto& resolutions = application_info["resolutions"] = nlohmann::json::array();
         for (const auto& resolution : it.second.resolutions)
         {
-            instance_json["application-info"]["resolutions"].push_back(std::to_string(resolution.width) + "x" +
-                                                                       std::to_string(resolution.height));
+            resolutions.push_back({{"width", resolution.width}, {"height", resolution.height}});
         }
 
-        instance_json["physical-devices"] = nlohmann::json::array();
-        uint32_t pd_index                 = 0;
+        auto& physical_devices = application_info["physical-devices"] = nlohmann::json::array();
         for (auto pd : it.second.used_physical_devices)
         {
             nlohmann::json pd_json;
-            auto           properties =
+            const auto&           properties =
                 vulkan_stats_consumer.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
             if (properties != nullptr)
             {
                 pd_json["name"] = properties->deviceName;
-                std::string device_type_string;
-                PrintVulkanDeviceType(properties->deviceType, device_type_string);
-                pd_json["type"]        = device_type_string;
+                pd_json["type"]        = GetVulkanDeviceTypeString(properties->deviceType);
                 pd_json["api-version"] = GetVkVersionString(properties->apiVersion);
-
                 pd_json["id"]             = properties->deviceID;
                 pd_json["vendor"]         = properties->vendorID;
                 pd_json["driver-version"] = properties->driverVersion;
                 std::string uuid_string   = gfxrecon::util::uuid_to_string(VK_UUID_SIZE, properties->pipelineCacheUUID);
                 pd_json["uuid"]           = uuid_string;
 
-                pd_json["vulkan-devices"] = nlohmann::json::array();
+                auto& vulkan_devices = pd_json["vulkan-devices"] = nlohmann::json::array();
 
                 for (auto dev : pd_info[pd].devices)
                 {
                     nlohmann::json dev_json;
 
-                    if (dev_info[dev].enabled_extensions.size() > 0)
-                    {
-                        dev_json["extensions"] = nlohmann::json::array();
-                        for (uint32_t ext = 0; ext < dev_info[dev].enabled_extensions.size(); ++ext)
-                        {
-                            dev_json["extensions"].push_back(dev_info[dev].enabled_extensions[ext]);
-                        }
-                    }
+                    dev_json["extensions"] = dev_info[dev].enabled_extensions;
 
-                    // For Verbose, we right out each devices alloc info.
-                    PrintVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
+                    // For Verbose, we write out each devices alloc info.
+                    auto memory_stats_json = GetVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
                                                      dev_info[dev].min_allocation_size,
                                                      dev_info[dev].max_allocation_size,
                                                      dev_info[dev].graphics_pipelines,
                                                      dev_info[dev].compute_pipelines,
-                                                     dev_info[dev].raytracing_pipelines,
-                                                     dev_json);
+                                                     dev_info[dev].raytracing_pipelines);
+                    dev_json.update(memory_stats_json);
 
-                    pd_json["vulkan-devices"].push_back(dev_json);
+                    vulkan_devices.push_back(dev_json);
                 }
 
-                instance_json["physical-devices"].push_back(pd_json);
+                physical_devices.push_back(pd_json);
             }
         }
 
-        json_output["vulkan"]["instances"].push_back(instance_json);
+        instances_json.push_back(instance_json);
     }
-
-    if (file_processor.GetCurrentFrameNumber() == 0)
-    {
-        json_output["capture-file"]["frames"]["total-count"] = 0;
-        WriteOutput("\nFile did not contain any frames");
-    }
+    return vulkan_stats;
 }
 
 void PrintVulkanStatsText(const gfxrecon::decode::FileProcessor&       file_processor,
@@ -799,7 +786,6 @@ void PrintVulkanStatsText(const gfxrecon::decode::FileProcessor&       file_proc
     WriteOutput(resolutions.c_str());
 
     WriteOutput("\nVulkan physical device info:");
-    uint32_t pd_index = 0;
     for (auto pd : best_instance_info.used_physical_devices)
     {
         auto properties = vulkan_stats_consumer.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
@@ -853,7 +839,7 @@ void PrintVulkanStatsText(const gfxrecon::decode::FileProcessor&       file_proc
 }
 
 #if defined(D3D12_SUPPORT)
-void PrintDx12RuntimeInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json& json_output)
+nlohmann::json GetDx12RuntimeInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
     gfxrecon::format::Dx12RuntimeInfo runtime_info = dx12_consumer.GetDx12RuntimeInfo();
 
@@ -867,8 +853,10 @@ void PrintDx12RuntimeInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
                       std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
     }
 
-    json_output["runtime"]["version"] = runtime_ver;
-    json_output["runtime"]["source"]  = runtime_src;
+    return {
+        {"version", runtime_ver},
+        {"source", runtime_src},
+    };
 }
 
 void PrintDx12RuntimeInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
@@ -891,16 +879,16 @@ void PrintDx12RuntimeInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
     WriteOutput("");
 }
 
-void PrintDx12AdapterInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json& json_output)
+nlohmann::json GetDx12AdapterInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
     const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
+    nlohmann::json                                       adapters_json = nlohmann::json::array();
 
-    if (adapters.empty() == false)
+    if (!adapters.empty())
     {
         std::unordered_map<int64_t, std::string> adapter_workload;
         dx12_consumer.CalcAdapterWorkload(adapter_workload, adapters);
 
-        json_output["adapters"] = nlohmann::json::array();
         for (const auto& adapter : adapters)
         {
             const int64_t luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
@@ -929,19 +917,18 @@ void PrintDx12AdapterInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
             json_adapter["device-id"]                       = adapter.DeviceId;
             json_adapter["subsys-id"]                       = adapter.SubSysId;
             json_adapter["revision"]                        = adapter.Revision;
-            json_adapter["memory"]["dedicated"]["video"]    = adapter.DedicatedVideoMemory;
-            json_adapter["memory"]["dedicated"]["system"]   = adapter.DedicatedSystemMemory;
-            json_adapter["memory"]["shared"]                = adapter.SharedSystemMemory;
-            json_adapter["memory"]["luid"]["low"]           = adapter.LuidLowPart;
-            json_adapter["memory"]["luid"]["high"]          = adapter.LuidHighPart;
+            auto& memory = json_adapter["memory"];
+            memory["dedicated"]["video"]    = adapter.DedicatedVideoMemory;
+            memory["dedicated"]["system"]   = adapter.DedicatedSystemMemory;
+            memory["shared"]                = adapter.SharedSystemMemory;
+            memory["luid"]["low"]           = adapter.LuidLowPart;
+            memory["luid"]["high"]          = adapter.LuidHighPart;
             json_adapter["adapter-type"]                    = adapter_type;
-            json_output["adapters"].push_back(json_adapter);
+            adapters_json.push_back(json_adapter);
         }
     }
-    else
-    {
-        json_output["adapters"] = "not available";
-    }
+
+    return adapters_json;
 }
 
 void PrintDx12AdapterInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
@@ -999,16 +986,10 @@ void PrintDx12AdapterInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
     }
 }
 
-void PrintDx12SwapchainInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json& json_output)
+nlohmann::json GetDx12SwapchainInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
-    if (dx12_consumer.FoundSwapchainInfo())
-    {
-        json_output["swapchain"]["dimensions"] = dx12_consumer.GetSwapchainDimensions();
-    }
-    else
-    {
-        json_output["swapchain"]["dimensions"] = "unavailable";
-    }
+    auto [width, height] = dx12_consumer.GetSwapchainDimensions();
+    return {"dimensions", {{"width", width}, {"height", height}}};
 }
 
 void PrintDx12SwapchainInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
@@ -1017,7 +998,7 @@ void PrintDx12SwapchainInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consum
 
     if (dx12_consumer.FoundSwapchainInfo())
     {
-        WriteOutput("\tDimensions: %s", dx12_consumer.GetSwapchainDimensions().c_str());
+        WriteOutput("\tDimensions: %s", dx12_consumer.GetSwapchainDimensionsString().c_str());
     }
     else
     {
@@ -1027,14 +1008,16 @@ void PrintDx12SwapchainInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consum
     WriteOutput("");
 }
 
-void PrintDxrEiInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, nlohmann::json& json_output)
+nlohmann::json GetDxrEiInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
-    json_output["ei-workload"]  = dx12_consumer.ContainsEiWorkload() ? "yes" : "no";
-    json_output["dxr-workload"] = dx12_consumer.ContainsDxrWorkload() ? "yes" : "no";
+    nlohmann::json dxr_ei_info;
+    dxr_ei_info["ei-workload"]  = dx12_consumer.ContainsEiWorkload() ? "yes" : "no";
+    dxr_ei_info["dxr-workload"] = dx12_consumer.ContainsDxrWorkload() ? "yes" : "no";
     if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
     {
-        json_output["dxr/ei-optimized"] = dx12_consumer.ContainsOptFillMem() ? "yes" : "no";
+        dxr_ei_info["dxr/ei-optimized"] = dx12_consumer.ContainsOptFillMem() ? "yes" : "no";
     }
+    return dxr_ei_info;
 }
 
 void PrintDxrEiInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
@@ -1074,23 +1057,29 @@ void PrintDxrEiInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     }
 }
 
-void PrintD3D12StatsJson(gfxrecon::decode::FileProcessor&     file_processor,
+nlohmann::json GetD3D12StatsJson(gfxrecon::decode::FileProcessor&     file_processor,
                          gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                          const ApiAgnosticStats&              api_agnostic_stats,
                          gfxrecon::decode::InfoConsumer&      info_consumer,
-                         const AnnotationRecorder&            annotation_recorder,
-                         nlohmann::json*                      json_output)
+                         const AnnotationRecorder&            annotation_recorder)
 {
+    nlohmann::json d3d12_json;
+
     if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
     {
-        json_output["d3d12"]["total-present-count"] = dx12_consumer.GetDXGITestPresentCount();
+        d3d12_json["total-present-count"] = dx12_consumer.GetDXGITestPresentCount();
     }
 
-    PrintDriverInfoJson(info_consumer, json_output["d3d12"]);
-    PrintDx12RuntimeInfoJson(dx12_consumer, json_output["d3d12"]);
-    PrintDx12AdapterInfoJson(dx12_consumer, json_output["d3d12"]);
-    PrintDx12SwapchainInfoJson(dx12_consumer, json_output["d3d12"]);
-    PrintDxrEiInfoJson(dx12_consumer, json_output["d3d12"]);
+    d3d12_json["driver"] = GetDriverInfoString(info_consumer);
+    d3d12_json["runtime"] = GetDx12RuntimeInfoJson(dx12_consumer);
+    d3d12_json["adapters"] = GetDx12AdapterInfoJson(dx12_consumer);
+    if (dx12_consumer.FoundSwapchainInfo()) {
+        d3d12_json["swapchain"] = GetDx12SwapchainInfoJson(dx12_consumer);
+    }
+    auto dxr_ei_json = GetDxrEiInfoJson(dx12_consumer);
+    d3d12_json.update(dxr_ei_json);
+
+    return d3d12_json;
 }
 
 void PrintD3D12StatsText(gfxrecon::decode::FileProcessor&     file_processor,
@@ -1158,16 +1147,17 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 #endif
 
 #if ENABLE_OPENXR_SUPPORT
-void PrintOpenXrStatsJson(const gfxrecon::decode::FileProcessor&       file_processor,
-                          const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer,
-                          nlohmann::json&                              json_output)
+nlohmann::json GetOpenXrStatsJson(const gfxrecon::decode::FileProcessor&       file_processor,
+                          const gfxrecon::decode::OpenXrStatsConsumer& openxr_stats_consumer)
 {
     auto instance_info = openxr_stats_consumer.GetInstanceInfo();
 
-    json_output["openxr"]["header-version"] = std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+    nlohmann::json openxr_stats;
+
+    openxr_stats["header-version"] = std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
                                               std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
                                               std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
-    json_output["openxr"]["instances"] = nlohmann::json::array();
+    auto& instances_json = openxr_stats["instances"] = nlohmann::json::array();
 
     uint32_t       inst_index = 0;
     nlohmann::json instance_array;
@@ -1175,23 +1165,19 @@ void PrintOpenXrStatsJson(const gfxrecon::decode::FileProcessor&       file_proc
     {
         nlohmann::json instance_json;
 
-        instance_json["application-info"]["application"]["name"]    = it.second.app_name;
-        instance_json["application-info"]["application"]["version"] = it.second.app_version;
-        instance_json["application-info"]["engine"]["name"]         = it.second.engine_name;
-        instance_json["application-info"]["engine"]["version"]      = it.second.engine_version;
-        instance_json["application-info"]["api-version"]            = GetXrVersionString(it.second.api_version);
+        auto& application_info = instance_json["application-info"];
+        application_info["application"]["name"]    = it.second.app_name;
+        application_info["application"]["version"] = it.second.app_version;
+        application_info["engine"]["name"]         = it.second.engine_name;
+        application_info["engine"]["version"]      = it.second.engine_version;
+        application_info["api-version"]            = GetXrVersionString(it.second.api_version);
 
-        if (it.second.enabled_extensions.size() > 0)
-        {
-            instance_json["extensions"] = nlohmann::json::array();
-            for (uint32_t ext = 0; ext < it.second.enabled_extensions.size(); ++ext)
-            {
-                instance_json["extensions"].push_back(it.second.enabled_extensions[ext]);
-            }
-        }
+        instance_json["extensions"] = it.second.enabled_extensions;
 
-        json_output["openxr"]["instances"].push_back(instance_json);
+        instances_json.push_back(instance_json);
     }
+
+    return openxr_stats;
 }
 
 void PrintOpenXrStatsText(const gfxrecon::decode::FileProcessor&       file_processor,
@@ -1373,49 +1359,44 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             {
                 nlohmann::json json_content;
 
-                PrintDetectedApiInfoJson(vulkan_present, dx12_present, openxr_present, json_content);
-                PrintExeInfoJson(info_consumer, json_content);
-                PrintFileFormatInfoJson(file_processor, json_content);
-                PrintEnvironmentVariableInfoJson(info_consumer, json_content);
+                json_content["exe"] = GetExeInfoJson(info_consumer);
+                json_content["environment"] = GetEnvironmentVariableInfoJson(info_consumer);
+                json_content["capture-file"] = GetFileFormatInfoJson(file_processor);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    PrintApiAgnosticStatsJson(api_agnostic_stats, vulkan_present, dx12_present, json_content);
+                    auto api_agnostic = GetApiAgnosticStatsJson(api_agnostic_stats, vulkan_present, dx12_present);
+                    json_content["capture-file"].update(api_agnostic);
 
                     if (vulkan_present)
                     {
-                        PrintVulkanStatsJson(file_processor, vulkan_stats_consumer, json_content);
+                        json_content["vulkan"] = GetVulkanStatsJson(file_processor, vulkan_stats_consumer);
                     }
 
 #if defined(D3D12_SUPPORT)
                     if (dx12_present)
                     {
-                        PrintD3D12StatsJson(file_processor,
+                        json_content["d3d12"] = GetD3D12StatsJson(file_processor,
                                             dx12_consumer,
                                             api_agnostic_stats,
                                             info_consumer,
-                                            annotation_recorder,
-                                            json_content);
+                                            annotation_recorder);
                     }
 #endif
 #if ENABLE_OPENXR_SUPPORT
                     if (openxr_present)
                     {
-                        PrintOpenXrStatsJson(file_processor, openxr_stats_consumer, json_content);
+                        json_content["openxr"] = GetOpenXrStatsJson(file_processor, openxr_stats_consumer);
                     }
 #endif
-                    PrintAnnotationsJson(annotation_recorder, json_content);
+                    if (!annotation_recorder.operation_annotations_.empty()) {
+                        json_content["operations"] = GetOperationsJson(annotation_recorder);
+                    }
                 }
-                else if (api_agnostic_stats.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
-                {
-                    WriteOutput("A failure has occurred during file processing");
-                    gfxrecon::util::Log::Release();
-                    exit(-1);
-                }
-                else
+                if (file_processor.GetCurrentFrameNumber() == 0)
                 {
                     json_content["capture-file"]["frames"]["total-count"] = 0;
-                    WriteOutput("File did not contain any frames");
                 }
+
                 WriteOutput(json_content.dump(4, ' ', true).c_str());
             }
             else
