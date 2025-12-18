@@ -77,6 +77,7 @@ const int8_t   kNoneIndex                 = -1;
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
 const char* const kAnnotationLabelOperation          = "operation";
+const char* const kAnnotationLabelReplayOptions      = "replayopts";
 const char* const kAnnotationLabelRemovedResource    = "removed-resource";
 const char* const kAnnotationLabelTransformer        = "transformer";
 const char* const kAnnotationPipelineCreationAttempt = "pipelinecreationattempt";
