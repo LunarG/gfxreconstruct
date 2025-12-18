@@ -457,6 +457,23 @@ class VulkanReplayDumpResourcesBase
                     pipeline_info->shader_stages |=
                         static_cast<VkShaderStageFlags>(in_p_create_infos[i].pStages[ss].stage);
                 }
+
+                // handle optional VkPipelineLibraryCreateInfoKHR
+                const auto* pipeline_library_info =
+                    GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
+                if (pipeline_library_info != nullptr)
+                {
+                    const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
+                    const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+
+                    for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
+                    {
+                        const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[lib_idx]);
+
+                        // Accumulate shader stages from the other pipelines from the library
+                        pipeline_info->shader_stages |= gpl_ppl->shader_stages;
+                    }
+                }
             }
         }
     }
