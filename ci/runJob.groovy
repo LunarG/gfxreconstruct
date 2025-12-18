@@ -14,7 +14,7 @@ def gfxrTestWindows(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
@@ -65,7 +65,7 @@ def gfxrTestLinux(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
@@ -116,7 +116,7 @@ def gfxrTestAndroid(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
@@ -190,7 +190,7 @@ def gfxrTestWindowsManual(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
@@ -255,7 +255,7 @@ def gfxrTestLinuxManual(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
@@ -320,7 +320,7 @@ def gfxrTestAndroidManual(
 
                 retry(3) {
                     try {
-                        cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        cleanWs(deleteDirs: true)
                     } catch (Exception e) {
                         sleep(time: 5)
                         throw e
