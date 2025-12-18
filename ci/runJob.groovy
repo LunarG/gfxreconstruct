@@ -93,7 +93,7 @@ def gfxrTestLinux(
 
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
-                    excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                    excludes: '**/*.gfxr,**/core,**/core.*,**.*.jsonl,**/*.gfxa',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
                 )
@@ -145,7 +145,7 @@ def gfxrTestAndroid(
 
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
-                    excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                    excludes: '**/*.gfxr,**/core,**/core.*,**.*.jsonl,**/*.gfxa',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
                 )
@@ -226,7 +226,7 @@ def gfxrTestWindowsManual(
 
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
-                    excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                    excludes: '**/*.gfxr,**/core,**/core.*,**.*.jsonl,**/*.gfxa',
                     allowEmptyArchive: true,
                     onlyIfSuccessful: false
                 )
@@ -290,7 +290,7 @@ def gfxrTestLinuxManual(
 
                     archiveArtifacts(
                         artifacts: 'vulkantest-results/**',
-                        excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**.*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
                     )
@@ -355,7 +355,7 @@ def gfxrTestAndroidManual(
 
                     archiveArtifacts(
                         artifacts: 'vulkantest-results/**',
-                        excludes: 'vulkantest-results/**/*.gfxr,vulkantest-results/**/core*,vulkantest-results/**/*.jsonl',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**.*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
                     )
