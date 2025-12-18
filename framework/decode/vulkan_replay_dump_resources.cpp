@@ -2404,6 +2404,9 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                     pipeline_info->dynamic_vertex_input          = gpl_ppl->dynamic_vertex_input;
                     pipeline_info->dynamic_vertex_binding_stride = gpl_ppl->dynamic_vertex_binding_stride;
                 }
+
+                // Accumulate shader stages from the other pipelines from the library
+                pipeline_info->shader_stages |= gpl_ppl->shader_stages;
             }
         }
 
