@@ -464,12 +464,12 @@ void PrintExeInfoText(const gfxrecon::decode::InfoConsumer& info_consumer)
     WriteOutput("\tProduct name: %s", app_data.c_str());
 }
 
-nlohmann::json GetEnvironmentVariableInfoJson(gfxrecon::decode::InfoConsumer& info_consumer)
+nlohmann::json GetEnvironmentVariableInfoJson(const std::vector<std::string>& environment_variables)
 {
     nlohmann::json environment;
 
-    std::string delimiter = "=";
-    for (const std::string& var : info_consumer.GetEnvironmentVariables())
+    static const std::string delimiter = "=";
+    for (const auto& var : environment_variables)
     {
         const auto& delimiter_pos       = var.find(delimiter);
         std::string key                 = var.substr(0, delimiter_pos);
@@ -483,7 +483,7 @@ nlohmann::json GetEnvironmentVariableInfoJson(gfxrecon::decode::InfoConsumer& in
 void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consumer)
 {
     WriteOutput("Environment variables:");
-    for (const std::string& var : info_consumer.GetEnvironmentVariables())
+    for (const auto& var : info_consumer.GetEnvironmentVariables())
     {
         WriteOutput("\t%s", var.c_str());
     }
@@ -689,7 +689,7 @@ nlohmann::json GetVulkanStatsJson(const gfxrecon::decode::FileProcessor&       f
             resolutions.push_back({{"width", resolution.width}, {"height", resolution.height}});
         }
 
-        auto& physical_devices = application_info["physical-devices"] = nlohmann::json::array();
+        auto& physical_devices = instance_json["physical-devices"] = nlohmann::json::array();
         for (auto pd : it.second.used_physical_devices)
         {
             nlohmann::json pd_json;
@@ -881,7 +881,7 @@ void PrintDx12RuntimeInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
 
 nlohmann::json GetDx12AdapterInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
-    const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
+    const auto & adapters = dx12_consumer.GetAdapters();
     nlohmann::json                                       adapters_json = nlohmann::json::array();
 
     if (!adapters.empty())
@@ -935,7 +935,7 @@ void PrintDx12AdapterInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
 {
     WriteOutput("D3D12 adapter info:");
 
-    const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
+    const auto& adapters = dx12_consumer.GetAdapters();
 
     if (adapters.empty() == false)
     {
@@ -1360,7 +1360,10 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 nlohmann::json json_content;
 
                 json_content["exe"] = GetExeInfoJson(info_consumer);
-                json_content["environment"] = GetEnvironmentVariableInfoJson(info_consumer);
+                const auto& environment_variables = info_consumer.GetEnvironmentVariables();
+                if(!environment_variables.empty()) {
+                    json_content["environment"] = GetEnvironmentVariableInfoJson(environment_variables);
+                }
                 json_content["capture-file"] = GetFileFormatInfoJson(file_processor);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
