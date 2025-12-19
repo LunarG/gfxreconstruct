@@ -266,8 +266,10 @@ bool FileProcessor::ProcessBlocks()
     BlockBuffer         block_buffer;
     bool                success = true;
 
-    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+    auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
+        HandleBlockReadError(err, message);
+    } };
+    BlockParser block_parser(err_handler, pool_, compressor_.get());
     // NOTE: To test deferred decompression operation uncomment next line
     // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 
