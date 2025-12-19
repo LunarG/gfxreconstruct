@@ -413,7 +413,7 @@ decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const d
     if (init_cmd.data_size > 0)
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.data_size);
-        size_t data_size = static_cast<size_t>(init_cmd.data_size);
+        size_t         data_size    = static_cast<size_t>(init_cmd.data_size);
         const uint8_t* data_address = args.data;
 
         PrepMetadataBlock(init_cmd.meta_header, args.meta_data_id, data_address, data_size);
@@ -501,8 +501,8 @@ CompressionConverter::WriteMetaData(const decode::InitDx12AccelerationStructureA
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geom_descs = args.geometry_descs;
     GFXRECON_ASSERT(args.geometry_descs.size() == init_cmd.inputs_num_geometry_descs);
 
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.inputs_data_size);
-    size_t         data_size    = static_cast<size_t>(init_cmd.inputs_data_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.data_size);
+    size_t         data_size    = static_cast<size_t>(init_cmd.data_size);
     const uint8_t* data_address = args.data;
 
     PrepMetadataBlock(init_cmd.meta_header, args.meta_data_id, data_address, data_size);

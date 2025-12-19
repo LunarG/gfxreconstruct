@@ -236,9 +236,8 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
 
         // Map GPU VAs in instance desc input data.
         temp_instance_desc_input_data_.clear();
-        temp_instance_desc_input_data_.insert(temp_instance_desc_input_data_.end(),
-                                              build_inputs_data,
-                                              build_inputs_data + command_header.inputs_data_size);
+        temp_instance_desc_input_data_.insert(
+            temp_instance_desc_input_data_.end(), build_inputs_data, build_inputs_data + command_header.data_size);
         constexpr auto address_stride = sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
         constexpr auto address_offset = offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
         for (UINT i = 0; i < inputs_desc.NumDescs; ++i)
@@ -260,7 +259,7 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     graphics::dx12::GetAccelerationStructureInputsBufferEntries(
         inputs_desc, temp_geometry_descs_.data(), inputs_buffer_size, inputs_buffer_entries);
 
-    GFXRECON_ASSERT(inputs_buffer_size == command_header.inputs_data_size);
+    GFXRECON_ASSERT(inputs_buffer_size == command_header.data_size);
 
     // Get required sizes and update buffers.
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
@@ -275,7 +274,7 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     UpdateBufferSize(device5_,
                      inputs_buffer_,
                      inputs_buffer_size_,
-                     command_header.inputs_data_size,
+                     command_header.data_size,
                      D3D12_HEAP_TYPE_UPLOAD,
                      D3D12_RESOURCE_STATE_GENERIC_READ,
                      D3D12_RESOURCE_FLAG_NONE);
@@ -292,9 +291,9 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     }
 
     // Write inputs data to resources.
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, command_header.inputs_data_size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, command_header.data_size);
     HRESULT hr =
-        MapSubresourceAndWriteData(inputs_buffer_, 0, static_cast<size_t>(command_header.inputs_data_size), final_data);
+        MapSubresourceAndWriteData(inputs_buffer_, 0, static_cast<size_t>(command_header.data_size), final_data);
     GFXRECON_ASSERT(SUCCEEDED(hr));
 
     // Fix GPU VAs that point into buffers.
