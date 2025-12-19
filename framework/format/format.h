@@ -616,7 +616,7 @@ struct InitDx12AccelerationStructureCommandHeader
     uint32_t       inputs_flags{ 0 };
     uint32_t       inputs_num_instance_descs{ 0 }; ///< NumDescs for TLAS
     uint32_t       inputs_num_geometry_descs{ 0 }; ///< NumDescs for BLAS
-    uint64_t       inputs_data_size{ 0 };
+    uint64_t       data_size{ 0 };
 
     // In the capture file, accel struct data is written in the following order:
     // InitDx12AccelerationStructureCommandHeader

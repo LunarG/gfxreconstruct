@@ -1223,7 +1223,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = success && block_buffer.Read(header.inputs_flags);
         success = success && block_buffer.Read(header.inputs_num_instance_descs);
         success = success && block_buffer.Read(header.inputs_num_geometry_descs);
-        success = success && block_buffer.Read(header.inputs_data_size);
+        success = success && block_buffer.Read(header.data_size);
 
         // Parse geometry descs.
         std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
@@ -1250,15 +1250,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (success)
         {
             const char*         label       = "init DX12 acceleration structure meta-data block";
-            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
             if (read_result.success)
             {
                 return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitDx12AccelerationStructureArgs{ meta_data_id,
-                                                                      read_result.uncompressed_size,
-                                                                      header,
-                                                                      geom_descs,
-                                                                      read_result.buffer.GetDataAs<uint8_t>() },
+                                   InitDx12AccelerationStructureArgs{
+                                       meta_data_id, header, geom_descs, read_result.buffer.GetDataAs<uint8_t>() },
                                    read_result.is_compressed);
             }
         }

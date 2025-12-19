@@ -115,11 +115,11 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
         json_options);
     FieldToJson(jdata["inputs_num_instance_descs"], command_header.inputs_num_instance_descs, json_options);
     FieldToJson(jdata["inputs_num_geometry_descs"], command_header.inputs_num_geometry_descs, json_options);
-    FieldToJson(jdata["inputs_data_size"], command_header.inputs_data_size, json_options);
+    FieldToJson(jdata["data_size"], command_header.data_size, json_options);
     RepresentBinaryFile(*(this->writer_),
                         jdata[format::kNameData],
                         "initdx12accelerationstructurecommand.bin",
-                        command_header.inputs_data_size,
+                        command_header.data_size,
                         build_inputs_data);
     FieldToJson(jdata["geometry_descs"], geometry_descs.data(), geometry_descs.size(), json_options);
     writer_->WriteBlockEnd();

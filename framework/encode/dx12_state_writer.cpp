@@ -38,7 +38,8 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
                                  util::Compressor*       compressor,
                                  format::ThreadId        thread_id,
                                  util::FileOutputStream* asset_file_stream) :
-    output_stream_(output_stream), compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
+    output_stream_(output_stream),
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
 }
@@ -790,7 +791,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
         for (auto wrapper : metacommand_wrappers)
         {
             // Write the meta command init call.
-            auto                          wrapper_info = wrapper->GetObjectInfo();
+            auto wrapper_info = wrapper->GetObjectInfo();
             if (wrapper_info->was_initialized == true)
             {
                 format::InitializeMetaCommand init_meta_command;
@@ -846,13 +847,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id       = thread_id_;
-            begin_cmd.device_id       = device_id;
+            begin_cmd.thread_id = thread_id_;
+            begin_cmd.device_id = device_id;
 
             // TODO: adjust to hold sum of resource-sizes
             begin_cmd.total_copy_size = max_resource_size;
 
-            begin_cmd.max_copy_size   = max_resource_size;
+            begin_cmd.max_copy_size = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
@@ -1748,12 +1749,12 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
 
         // Get NumDescs and data sizes.
         size_t inputs_data_ptr_file_size = 0;
-        cmd.inputs_data_size             = 0;
+        cmd.data_size                    = 0;
         cmd.inputs_num_instance_descs    = 0;
         cmd.inputs_num_geometry_descs    = 0;
         if (write_build_data)
         {
-            cmd.inputs_data_size = as_build.input_data_size - as_build.input_data_header_size;
+            cmd.data_size = as_build.input_data_size - as_build.input_data_header_size;
             if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
             {
                 cmd.inputs_num_geometry_descs = as_build.inputs.NumDescs;
@@ -1767,15 +1768,15 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                 GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE.");
             }
 
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, cmd.inputs_data_size);
-            inputs_data_ptr_file_size = static_cast<size_t>(cmd.inputs_data_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, cmd.data_size);
+            inputs_data_ptr_file_size = static_cast<size_t>(cmd.data_size);
             if (compressor_ != nullptr)
             {
                 // Compress block data.
                 size_t compressed_size =
                     compressor_->Compress(inputs_data_ptr_file_size, inputs_data_ptr, &compressed_parameter_buffer_, 0);
 
-                if ((compressed_size > 0) && (compressed_size < cmd.inputs_data_size))
+                if ((compressed_size > 0) && (compressed_size < cmd.data_size))
                 {
                     cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 

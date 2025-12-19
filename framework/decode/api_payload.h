@@ -429,8 +429,6 @@ struct InitSubresourceArgs
 struct InitDx12AccelerationStructureArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
-    // Note: the command header has uniquely named size field... so duplicate this info for visitor use
-    size_t data_size; // Needed for deferred decompression, but not ApiDecoder
 
     format::InitDx12AccelerationStructureCommandHeader             command_header;
     std::vector<format::InitDx12AccelerationStructureGeometryDesc> geometry_descs;
@@ -548,7 +546,7 @@ struct AnnotationArgs
 
     // NOTE: The string name is intentionally *not* data to differ from the "data" fields that are uint8_t *
     // parameter data for the next level Decode operations, simplifying DispatchHasData logic
-    std::string            annotation_data;
+    std::string annotation_data;
 
     auto GetTuple() const { return std::tie(block_index, type, label, annotation_data); }
 };
