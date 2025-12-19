@@ -346,10 +346,16 @@ VkResult VulkanOffscreenSwapchain::QueueSubmit(PFN_vkQueueSubmit                
         std::vector<VkFrameBoundaryEXT>   inserted_frame_boundaries;
         std::vector<std::vector<VkImage>> inserted_frame_boundaries_images;
 
+        bool capture_has_frame_boundary = false;
+
         for (uint32_t i = 0; i < submit_count; ++i)
         {
+            const bool found_frame_boundary =
+                (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) != nullptr);
+            capture_has_frame_boundary = (capture_has_frame_boundary || found_frame_boundary);
+
             // If the submit already contains a VkFrameBoundaryEXT, we can assume we don't need to convert it
-            if (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) == nullptr)
+            if (!found_frame_boundary)
             {
                 VkFrameBoundaryEXT*   frame_boundary = nullptr;
                 std::vector<VkImage>* images         = nullptr;
@@ -404,7 +410,7 @@ VkResult VulkanOffscreenSwapchain::QueueSubmit(PFN_vkQueueSubmit                
         }
 
         // If the queue submission contains a frame boundary, increment the frame counter
-        if (!inserted_frame_boundaries.empty())
+        if (capture_has_frame_boundary || !inserted_frame_boundaries.empty())
         {
             ++frame_boundary_.frameID;
         }
@@ -447,11 +453,16 @@ VkResult VulkanOffscreenSwapchain::QueueSubmit2(PFN_vkQueueSubmit2              
         std::vector<VkFrameBoundaryEXT>   inserted_frame_boundaries;
         std::vector<std::vector<VkImage>> inserted_frame_boundaries_images;
 
+        bool capture_has_frame_boundary = false;
+
         for (uint32_t i = 0; i < submit_count; ++i)
         {
+            const bool found_frame_boundary =
+                (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) != nullptr);
+            capture_has_frame_boundary = (capture_has_frame_boundary || found_frame_boundary);
+
             // If the submit already contains a VkFrameBoundaryEXT, we can assume we don't need to convert it
-            if (graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(&submit_infos[i]) == nullptr &&
-                meta_submit_infos[i].pCommandBufferInfos != nullptr)
+            if (!found_frame_boundary && meta_submit_infos[i].pCommandBufferInfos != nullptr)
             {
                 VkFrameBoundaryEXT*   frame_boundary = nullptr;
                 std::vector<VkImage>* images         = nullptr;
@@ -507,7 +518,7 @@ VkResult VulkanOffscreenSwapchain::QueueSubmit2(PFN_vkQueueSubmit2              
         }
 
         // If the queue submission contains a frame boundary, increment the frame counter
-        if (!inserted_frame_boundaries.empty())
+        if (capture_has_frame_boundary || !inserted_frame_boundaries.empty())
         {
             ++frame_boundary_.frameID;
         }
