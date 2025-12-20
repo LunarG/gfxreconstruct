@@ -57,6 +57,7 @@ class FStreamFileInputStream
     bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
     bool     ReadBytes(void* buffer, size_t bytes);
     bool     PeekBytes(void* buffer, size_t bytes);
+    bool     ReadOverwriteSpan(const size_t bytes, DataSpan& span);
     DataSpan ReadSpan(const size_t bytes);
 
     explicit operator bool() const { return IsOpen(); }

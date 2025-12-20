@@ -116,8 +116,18 @@ class HeapBufferPool : public std::enable_shared_from_this<HeapBufferPool>
         Entry& operator=(Entry&& other) noexcept;
         Entry() = default;
 
+        void  Reset() noexcept;
+        Pool* GetPool() const { return pool_; }
+
+        // The public "pool" constructor aquires an entry from the pool
+        // suitable for use in emplaced containers or wrappers
+        Entry(Pool* pool, size_t size) : Entry(pool->Acquire(size)) {}
+
       private:
-        Entry(Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
+        // The private constructor is used by the pool to create new entries
+        struct PoolAcquireTag
+        {};
+        Entry(PoolAcquireTag, Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
         void DisavowPool() { pool_ = nullptr; }
 
         // Pool is guarded by a refcount of Acquire'd Entry objects

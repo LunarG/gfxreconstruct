@@ -76,10 +76,11 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
         if (status == kErrorNone)
         {
             // Note this leave the BlockBuffer read position at the first byte following the header.
-            util::DataSpan block_span = input_stream->ReadSpan(static_cast<size_t>(total_block_size));
-            if (block_span.IsValid())
+            bool success =
+                input_stream->ReadOverwriteSpan(static_cast<size_t>(total_block_size), block_buffer.GetBlockStore());
+            if (success)
             {
-                block_buffer.Reset(std::move(block_span));
+                block_buffer.InitBlockHeaderFromSpan();
             }
             else
             {

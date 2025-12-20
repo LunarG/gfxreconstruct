@@ -119,7 +119,9 @@ class DataSpan
     using OutputSpan                      = Span<const DataType>;
     static constexpr size_type kRemainder = static_cast<size_type>(-1);
 
-    using PoolEntry    = HeapBufferPool::Entry;
+    using PoolEntry   = HeapBufferPool::Entry;
+    using PoolPointer = HeapBufferPool::PoolPtr;
+
     using SharedBuffer = std::shared_ptr<DataType>;
 
     // NOTE: we use SharedBuffer instead std::monostate, as
@@ -191,14 +193,14 @@ class DataSpan
     DataSpan(HeapBuffer&& from_heap, size_type size) : size_(size)
     {
         store_.emplace<HeapBuffer>(std::move(from_heap));
-        data_ = std::get<HeapBuffer>(store_).get();
+        data_ = std::get<HeapBuffer>(store_).GetAs<DataType>();
     }
 
     DataSpan(PoolEntry&& from_pool, size_type size) : size_(size)
     {
         GFXRECON_ASSERT(size <= from_pool.Capacity());
         store_.emplace<PoolEntry>(std::move(from_pool));
-        data_ = std::get<PoolEntry>(store_).Get();
+        data_ = std::get<PoolEntry>(store_).GetAs<DataType>();
     }
 
     void Reset() noexcept
@@ -208,6 +210,24 @@ class DataSpan
         store_.emplace<FirstVariant>();
     }
     void reset() noexcept { Reset(); }
+
+    void Reset(const PoolPointer& buffer_pool, size_t size)
+    {
+        PoolEntry* entry = std::get_if<PoolEntry>(&store_);
+        if ((entry != nullptr) && (entry->GetPool() == buffer_pool.get()))
+        {
+            // If we already have a pool entry from the same pool, reuse it, no need to Release and re-Acquire
+            // Reserve does a capacity check and only reallocates if needed
+            entry->ReserveDiscarding(size);
+            data_ = entry->GetAs<DataType>();
+        }
+        else
+        {
+            data_ = store_.emplace<PoolEntry>(buffer_pool.get(), size).GetAs<DataType>();
+        }
+
+        size_ = size;
+    }
 
     [[nodiscard]] OutputSpan AsSpan(size_type offset = 0, size_type count = kRemainder) const noexcept
     {
