@@ -50,20 +50,11 @@ bool BlockBuffer::ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const
 
 BlockBuffer::BlockSpan BlockBuffer::ReadSpan(size_t buffer_size)
 {
-    BlockSpan read_span = ReadSpanAt(buffer_size, read_pos_);
-    if (!read_span.empty())
+    if (IsAvailableAt(buffer_size, read_pos_))
     {
-        read_pos_ += read_span.size();
-    }
-    return read_span;
-}
-
-BlockBuffer::BlockSpan BlockBuffer::ReadSpanAt(size_t buffer_size, size_t at)
-{
-    if (IsAvailableAt(buffer_size, at))
-    {
-        // Create a borrowed data span from our private buffer
-        return BlockSpan(block_span_.data() + at, buffer_size);
+        const auto span_pos = read_pos_;
+        read_pos_ += buffer_size;
+        return BlockSpan(block_span_.data() + span_pos, buffer_size);
     }
     return BlockSpan();
 }
@@ -77,7 +68,10 @@ BlockBuffer::BlockBuffer(util::DataSpan&& block_span) : read_pos_{ 0 }, block_sp
 
 void BlockBuffer::InitBlockHeaderFromSpan()
 {
-    GFXRECON_ASSERT(block_span_.IsValid())
+    GFXRECON_ASSERT(block_span_.IsValid());
+
+    // Block header is always at the start of the block span
+    read_pos_          = 0;
     const bool success = ReadBytes(&header_, sizeof(format::BlockHeader));
 
     // Bad or incorrect block data should never be present
@@ -90,13 +84,6 @@ void BlockBuffer::InitBlockHeaderFromSpan()
         // Tag block buffer as invalid
         block_span_.Reset();
     }
-}
-
-void BlockBuffer::Reset(util::DataSpan&& block_span)
-{
-    read_pos_   = 0;
-    block_span_ = std::move(block_span);
-    InitBlockHeaderFromSpan();
 }
 
 // TODO: Remove this when preload_file_processor is converted to the common BlockParser/ParsedBlock approach

@@ -174,7 +174,7 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
         }
 
         // Copy missing bytes to peek_buffer_
-        std::byte*   dest         = peek_buffer_.Get() + peek_offset_ + peek_bytes_;
+        char*        dest         = peek_buffer_.GetAs<char>() + peek_offset_ + peek_bytes_;
         const size_t bytes_needed = bytes - peek_bytes_; // we know bytes > peek_bytes as we are in the else clause
         success                   = util::platform::FileRead(dest, bytes_needed, fd_);
         if (success)
@@ -186,17 +186,24 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
 
     if (success)
     {
-        std::memcpy(buffer, peek_buffer_.Get() + peek_offset_, bytes);
+        std::memcpy(buffer, peek_buffer_.GetAs<char>() + peek_offset_, bytes);
     }
 
     return success;
 }
 
+bool FStreamFileInputStream::ReadOverwriteSpan(const size_t bytes, DataSpan& span)
+{
+    span.Reset(buffer_pool_, bytes);
+    bool success = ReadBytes(const_cast<char*>(span.GetDataAs<const char>()), bytes);
+    return success;
+}
+
 DataSpan FStreamFileInputStream::ReadSpan(const size_t bytes)
 {
-    auto       pool_entry = buffer_pool_->Acquire(bytes);
-    std::byte* buffer     = pool_entry.Get();
-    bool       success    = ReadBytes(buffer, bytes);
+    auto  pool_entry = buffer_pool_->Acquire(bytes);
+    char* buffer     = pool_entry.GetAs<char>();
+    bool  success    = ReadBytes(buffer, bytes);
     if (success)
     {
         return DataSpan(std::move(pool_entry), bytes);
