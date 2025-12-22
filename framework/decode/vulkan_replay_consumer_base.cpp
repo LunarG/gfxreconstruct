@@ -1668,32 +1668,48 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties2(VulkanPhysicalDevice
 {
     SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
 
-    if (auto ray_capture_props =
+    if (auto* ray_capture_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(capture_properties))
     {
         physical_device_info->capture_raytracing_properties = *ray_capture_props;
     }
 
-    if (auto driver_properties_replay_props =
+    if (auto* driver_properties_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDriverProperties>(replay_properties))
     {
         physical_device_info->replay_device_info->driver_properties        = *driver_properties_replay_props;
         physical_device_info->replay_device_info->driver_properties->pNext = nullptr;
     }
 
-    if (auto ray_replay_props =
+    if (auto* ray_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(replay_properties))
     {
         physical_device_info->replay_device_info->raytracing_properties        = *ray_replay_props;
         physical_device_info->replay_device_info->raytracing_properties->pNext = nullptr;
     }
 
-    if (auto acceleration_structure_replay_props =
+    if (auto* acceleration_structure_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceAccelerationStructurePropertiesKHR>(replay_properties))
     {
         physical_device_info->replay_device_info->acceleration_structure_properties =
             *acceleration_structure_replay_props;
         physical_device_info->replay_device_info->acceleration_structure_properties->pNext = nullptr;
+    }
+
+    // VK_EXT_descriptor_buffer: capture-properties
+    if (auto* capture_descriptor_buffer_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(capture_properties))
+    {
+        physical_device_info->capture_descriptor_buffer_properties        = *capture_descriptor_buffer_props;
+        physical_device_info->capture_descriptor_buffer_properties->pNext = nullptr;
+    }
+
+    // VK_EXT_descriptor_buffer: replay-properties
+    if (auto* descriptor_buffer_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(replay_properties))
+    {
+        physical_device_info->replay_device_info->descriptor_buffer_properties        = *descriptor_buffer_props;
+        physical_device_info->replay_device_info->descriptor_buffer_properties->pNext = nullptr;
     }
 }
 
