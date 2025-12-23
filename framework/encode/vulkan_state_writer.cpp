@@ -1875,7 +1875,12 @@ void VulkanStateWriter::WriteAccelerationStructureStateMetaCommands(const Vulkan
             EncodeAccelerationStructureWritePropertiesCommand(device_id, cmd_properties);
         }
 
-        EncodeAccelerationStructuresCopyMetaCommand(device_id, command.copy_infos);
+        // Check if there are actually any kVulkanCopyAccelerationStructuresCommand before dumping.
+        // This saves from dumping a basically empty block
+        if (!command.copy_infos.empty())
+        {
+            EncodeAccelerationStructuresCopyMetaCommand(device_id, command.copy_infos);
+        }
 
         for (auto& tlas_build : command.tlas_build)
         {
