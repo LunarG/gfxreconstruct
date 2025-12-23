@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -46,15 +46,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 DrawCallsDumpingContext::DrawCallsDumpingContext(
-    const CommandIndices*                       draw_indices,
-    const RenderPassIndices*                    renderpass_indices,
-    const CommandImageSubresource&              dc_subresources,
-    CommonObjectInfoTable&                      object_info_table,
-    const VulkanReplayOptions&                  options,
-    VulkanDumpResourcesDelegate&                delegate,
-    const util::Compressor*                     compressor,
-    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&       address_trackers) :
+    const CommandIndices*                             draw_indices,
+    const RenderPassIndices*                          renderpass_indices,
+    const CommandImageSubresource&                    dc_subresources,
+    CommonObjectInfoTable&                            object_info_table,
+    const VulkanReplayOptions&                        options,
+    VulkanDumpResourcesDelegate&                      delegate,
+    const util::Compressor*                           compressor,
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
     current_cb_index_(0), dc_subresources_(dc_subresources), active_renderpass_(nullptr),
     active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
@@ -1173,7 +1173,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             const auto& dc_entry = dc_param_entry->second.get();
 
             const VulkanDelegateDumpDrawCallContext draw_call_info{
-                DumpResourcesCommandType::kGraphics, instance_table_, device_table_, dc_entry
+                DumpResourcesPipelineStage::kGraphics, instance_table_, device_table_, dc_entry
             };
 
             delegate_.DumpDrawCallInfo(draw_call_info);
@@ -1598,7 +1598,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 array_index,
                                 image_info,
                                 can_dump_image,
-                                DumpResourcesCommandType::kGraphics);
+                                DumpResourcesPipelineStage::kGraphics);
 
                             if (can_dump_image != ImageDumpResult::kCanDump)
                             {
@@ -1698,10 +1698,11 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry =
@@ -1780,10 +1781,11 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry =
@@ -1845,7 +1847,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         desc_binding.desc_type,
                         desc_set_index,
                         desc_binding_index,
-                        DumpResourcesCommandType::kGraphics);
+                        DumpResourcesPipelineStage::kGraphics);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
@@ -1878,10 +1880,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             array_index,
                             as_info,
                             options_.dump_resources_dump_build_AS_input_buffers,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
-                        auto& new_dumped_as =
-                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        auto& new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_descs_entry =
                             render_pass_dumped_descriptors_[rp].acceleration_structures.find(loc);
@@ -1895,14 +1896,19 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             auto& dumped_as_data =
                                 std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
 
-                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
-                                                                             dumped_as_data.data,
-                                                                             acceleration_structures_context_,
-                                                                             device_info,
-                                                                             *device_table_,
-                                                                             object_info_table_,
-                                                                             *instance_table_,
-                                                                             address_trackers_);
+                            auto tlas_context_entry = acceleration_structures_context_.find(as_info);
+                            GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context_.end());
+                            AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
+
+                            VkResult res = DumpAccelerationStructure(new_dumped_as,
+                                                                     dumped_as_data.data,
+                                                                     tlas_context,
+                                                                     acceleration_structures_context_,
+                                                                     device_info,
+                                                                     *device_table_,
+                                                                     object_info_table_,
+                                                                     *instance_table_,
+                                                                     address_trackers_);
                             if (res != VK_SUCCESS)
                             {
                                 GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
@@ -2250,7 +2256,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 dc_index,
                 qs_index,
                 index_type,
-                dc_params.referenced_index_buffer.buffer_info,
+                dc_params.referenced_index_buffer.buffer_info->handle,
+                dc_params.referenced_index_buffer.buffer_info->capture_id,
                 total_size,
                 offset);
 
@@ -2496,15 +2503,16 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry.buffer_info->size - offset;
                 }
 
-                auto& new_dumped_vertex_buffer =
-                    dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(DumpResourceType::kVertex,
-                                                                                        bcb_index,
-                                                                                        dc_index,
-                                                                                        qs_index,
-                                                                                        binding_index,
-                                                                                        vb_entry.buffer_info,
-                                                                                        total_size,
-                                                                                        offset);
+                auto& new_dumped_vertex_buffer = dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(
+                    DumpResourceType::kVertex,
+                    bcb_index,
+                    dc_index,
+                    qs_index,
+                    binding_index,
+                    vb_entry.buffer_info->handle,
+                    vb_entry.buffer_info->capture_id,
+                    total_size,
+                    offset);
 
                 VulkanDelegateDumpResourceContext res_info = res_info_base;
                 res_info.dumped_resource                   = &new_dumped_vertex_buffer;

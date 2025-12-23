@@ -62,15 +62,15 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCountAMD
     };
 
-    DrawCallsDumpingContext(const CommandIndices*                       dc_indices,
-                            const RenderPassIndices*                    rp_indices,
-                            const CommandImageSubresource&              dc_subresources,
-                            CommonObjectInfoTable&                      object_info_table,
-                            const VulkanReplayOptions&                  options,
-                            VulkanDumpResourcesDelegate&                delegate,
-                            const util::Compressor*                     compressor,
-                            DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-                            const VulkanPerDeviceAddressTrackers&       address_trackers);
+    DrawCallsDumpingContext(const CommandIndices*                             dc_indices,
+                            const RenderPassIndices*                          rp_indices,
+                            const CommandImageSubresource&                    dc_subresources,
+                            CommonObjectInfoTable&                            object_info_table,
+                            const VulkanReplayOptions&                        options,
+                            VulkanDumpResourcesDelegate&                      delegate,
+                            const util::Compressor*                           compressor,
+                            const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                            const VulkanPerDeviceAddressTrackers&             address_trackers);
 
     ~DrawCallsDumpingContext();
 
@@ -746,9 +746,9 @@ class DrawCallsDumpingContext
     // multiple times
     struct RenderPassDumpedDescriptors
     {
-        std::map<DescriptorLocation, const DumpedImage&>                         image_descriptors;
-        std::map<DescriptorLocation, const DumpedBuffer&>                        buffer_descriptors;
-        std::map<DescriptorLocation, const DumpedTopLevelAccelerationStructure&> acceleration_structures;
+        std::map<DescriptorLocation, const DumpedImage&>                 image_descriptors;
+        std::map<DescriptorLocation, const DumpedBuffer&>                buffer_descriptors;
+        std::map<DescriptorLocation, const DumpedAccelerationStructure&> acceleration_structures;
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
@@ -765,7 +765,7 @@ class DrawCallsDumpingContext
     CommonObjectInfoTable&                  object_info_table_;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
 
-    DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
     const VulkanPerDeviceAddressTrackers& address_trackers_;
 

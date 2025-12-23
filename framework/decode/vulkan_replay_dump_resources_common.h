@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -26,14 +26,15 @@
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
-#include "util/logging.h"
-#include "vulkan/vulkan_core.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "util/defines.h"
 #include "util/logging.h"
+#include "util/defines.h"
 #include "util/options.h"
 
+#include <bit>
 #include <cstdint>
 #include <memory>
 #include <utility>
@@ -75,7 +76,7 @@ struct MinMaxVertexIndex
 
 using BoundDescriptorSets = std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
-enum class DumpResourcesCommandType
+enum class DumpResourcesPipelineStage
 {
     kNone,
     kGraphics,
@@ -101,40 +102,34 @@ enum class DumpResourceType
     kAccelerationStructure
 };
 
-using DumpedRawData      = std::vector<uint8_t>;
-using DumpedImageRawData = std::vector<DumpedRawData>;
+using DumpedHostData      = std::vector<uint8_t>;
+using DumpedImageHostData = std::vector<DumpedHostData>;
 
-struct BLASDumpedHostData
+struct AccelerationStructureDumpedHostData
 {
-    struct Triangles
+    struct TrianglesBuffers
     {
-        DumpedRawData vertex_buffer;
-        DumpedRawData index_buffer;
-        DumpedRawData transform_buffer;
+        DumpedHostData vertex_buffer;
+        DumpedHostData index_buffer;
+        DumpedHostData transform_buffer;
     };
 
-    struct AABBS
+    struct AABBBuffer
     {
-        DumpedRawData aabb_buffer;
+        DumpedHostData aabb_buffer;
     };
 
-    std::vector<std::variant<std::monostate, Triangles, AABBS>> build_data;
-
-    DumpedRawData serialized_data;
-};
-
-struct TLASDumpedHostData
-{
-    struct Instances
+    struct InstanceBuffer
     {
-        DumpedRawData instance_buffer;
+        DumpedHostData instance_buffer;
     };
 
-    std::vector<Instances> instance_data;
+    std::vector<std::variant<std::monostate, TrianglesBuffers, AABBBuffer, InstanceBuffer>> build_data;
 
-    DumpedRawData serialized_data;
+    DumpedHostData serialized_data;
 
-    std::vector<BLASDumpedHostData> blass_dumped_data;
+    // Used only by TLASes
+    std::vector<AccelerationStructureDumpedHostData> blass_dumped_data;
 };
 
 enum ImageDumpResult
@@ -158,21 +153,40 @@ struct DumpedBuffer : DumpedFile
 {
     DumpedBuffer() = default;
 
-    DumpedBuffer(const VulkanBufferInfo* bi, VkDeviceSize o, VkDeviceSize s) : DumpedFile(s), buffer_info(bi), offset(o)
-    {}
+    DumpedBuffer(VkBuffer buffer, format::HandleId id, VkDeviceSize o, VkDeviceSize s) : DumpedFile(s), offset(o)
+    {
+        buffer_info.handle     = buffer;
+        buffer_info.capture_id = id;
+    }
 
-    DumpedBuffer(VkDeviceSize s) : DumpedFile(s), buffer_info(nullptr), offset(0) {}
+    DumpedBuffer(VkBuffer buffer, VkDeviceSize s) : DumpedFile(s), offset(0)
+    {
+        buffer_info.handle     = buffer;
+        buffer_info.capture_id = format::kNullHandleId;
+    }
 
-    const VulkanBufferInfo* buffer_info{ nullptr };
-    VkDeviceSize            offset{ 0 };
+    DumpedBuffer(VkDeviceSize s) : DumpedFile(s), offset(0)
+    {
+        buffer_info.handle     = VK_NULL_HANDLE;
+        buffer_info.capture_id = format::kNullHandleId;
+    }
+
+    struct
+    {
+        VkBuffer         handle{ VK_NULL_HANDLE };
+        format::HandleId capture_id{ format::kNullHandleId };
+    } buffer_info;
+
+    VkDeviceSize offset{ 0 };
 
     void CopyDumpedInfo(const DumpedBuffer& other)
     {
-        buffer_info     = other.buffer_info;
-        offset          = other.offset;
-        filename        = other.filename;
-        size            = other.size;
-        compressed_size = other.compressed_size;
+        buffer_info.handle     = other.buffer_info.handle;
+        buffer_info.capture_id = other.buffer_info.capture_id;
+        offset                 = other.offset;
+        filename               = other.filename;
+        size                   = other.size;
+        compressed_size        = other.compressed_size;
     }
 };
 
@@ -223,27 +237,44 @@ struct DumpedImage
     ImageDumpResult can_dump;
 };
 
-struct DumpedBottomLevelAccelerationStructure
+struct DumpedAccelerationStructure
 {
-    DumpedBottomLevelAccelerationStructure() = delete;
+    static constexpr uint32_t instance_buffer_stride{ static_cast<uint32_t>(
+        sizeof(VkAccelerationStructureInstanceKHR)) };
 
-    DumpedBottomLevelAccelerationStructure(const VulkanAccelerationStructureKHRInfo* as_info) : blas_info(as_info) {}
+    DumpedAccelerationStructure() = delete;
 
-    struct DumpedBuildInputDataTriangles
+    DumpedAccelerationStructure(const VulkanAccelerationStructureKHRInfo* as_info, bool dump_input_buffers) :
+        as_info(as_info), dump_build_input_buffers(dump_input_buffers)
+    {}
+
+    void CopyDumpedInfo(const DumpedAccelerationStructure& other)
     {
-        DumpedBuildInputDataTriangles() = delete;
+        input_buffers            = other.input_buffers;
+        serialized_buffer        = other.serialized_buffer;
+        dump_build_input_buffers = other.dump_build_input_buffers;
+        as_info                  = other.as_info;
+        BLASes                   = other.BLASes;
+    }
 
-        DumpedBuildInputDataTriangles(VkFormat                                        vf,
-                                      uint32_t                                        mv,
-                                      VkDeviceSize                                    vbs,
-                                      VkDeviceSize                                    strd,
-                                      VkIndexType                                     it,
-                                      VkDeviceSize                                    ibs,
-                                      VkDeviceSize                                    tbs,
-                                      const VkAccelerationStructureBuildRangeInfoKHR& r) :
+    struct DumpedBuildInputTriangleBuffer
+    {
+        DumpedBuildInputTriangleBuffer() = delete;
+
+        DumpedBuildInputTriangleBuffer(VkFormat                                        vf,
+                                       uint32_t                                        mv,
+                                       VkBuffer                                        vb,
+                                       VkDeviceSize                                    vbs,
+                                       VkDeviceSize                                    strd,
+                                       VkIndexType                                     it,
+                                       VkBuffer                                        ib,
+                                       VkDeviceSize                                    ibs,
+                                       VkBuffer                                        tb,
+                                       VkDeviceSize                                    tbs,
+                                       const VkAccelerationStructureBuildRangeInfoKHR& r) :
             vertex_format(vf),
-            max_vertex(mv), vertex_buffer_stride(strd), vertex_buffer(vbs), index_type(it), index_buffer(ibs),
-            transform_buffer(tbs), range(r)
+            max_vertex(mv), vertex_buffer_stride(strd), vertex_buffer(vb, vbs), index_type(it), index_buffer(ib, ibs),
+            transform_buffer(tb, tbs), range(r)
         {}
 
         VkFormat     vertex_format{ VK_FORMAT_UNDEFINED };
@@ -259,12 +290,12 @@ struct DumpedBottomLevelAccelerationStructure
         VkAccelerationStructureBuildRangeInfoKHR range;
     };
 
-    struct DumpedBuildInputDataAABB
+    struct DumpedBuildInputAABBBuffer
     {
-        DumpedBuildInputDataAABB() = delete;
+        DumpedBuildInputAABBBuffer() = delete;
 
-        DumpedBuildInputDataAABB(VkDeviceSize s, const VkAccelerationStructureBuildRangeInfoKHR& r) :
-            aabb_buffer(s), range(r)
+        DumpedBuildInputAABBBuffer(VkBuffer b, VkDeviceSize bs, const VkAccelerationStructureBuildRangeInfoKHR& r) :
+            aabb_buffer(b, bs), range(r)
         {}
 
         DumpedBuffer aabb_buffer;
@@ -272,56 +303,53 @@ struct DumpedBottomLevelAccelerationStructure
         VkAccelerationStructureBuildRangeInfoKHR range;
     };
 
-    std::vector<std::variant<std::monostate, DumpedBuildInputDataTriangles, DumpedBuildInputDataAABB>> input_data;
-
-    const VulkanAccelerationStructureKHRInfo* blas_info;
-
-    DumpedBuffer serialized_data;
-};
-
-struct DumpedTopLevelAccelerationStructure
-{
-    DumpedTopLevelAccelerationStructure() = delete;
-
-    DumpedTopLevelAccelerationStructure(const VulkanAccelerationStructureKHRInfo* as, bool dump_input_buffers) :
-        as_info(as), dump_build_input_buffers(dump_input_buffers)
+    struct DumpedBuildInputInstanceBuffer
     {
-        GFXRECON_ASSERT(as != nullptr);
-    }
+        DumpedBuildInputInstanceBuffer(VkBuffer buffer, VkDeviceSize s) : instance_buffer(buffer, s) {}
 
-    std::vector<DumpedBuffer> instance_data;
-    const uint32_t instance_buffer_stride{ static_cast<uint32_t>(sizeof(VkAccelerationStructureInstanceKHR)) };
+        DumpedBuffer instance_buffer;
+    };
 
-    DumpedBuffer serialized_data;
+    std::vector<std::variant<std::monostate,
+                             DumpedBuildInputTriangleBuffer,
+                             DumpedBuildInputAABBBuffer,
+                             DumpedBuildInputInstanceBuffer>>
+        input_buffers;
 
     const VulkanAccelerationStructureKHRInfo* as_info;
+    bool                                      dump_build_input_buffers;
+    DumpedBuffer                              serialized_buffer;
 
-    std::vector<DumpedBottomLevelAccelerationStructure> blass;
-
-    bool dump_build_input_buffers;
-
-    void CopyDumpedInfo(const DumpedTopLevelAccelerationStructure& other)
-    {
-        instance_data   = other.instance_data;
-        serialized_data = other.serialized_data;
-        as_info         = other.as_info;
-        blass           = other.blass;
-    }
+    // Used by TLASes
+    std::vector<DumpedAccelerationStructure> BLASes;
 };
 
 struct DumpedResourceBase
 {
     DumpedResourceBase() = default;
 
-    DumpedResourceBase(DumpResourceType t, uint64_t bcb, uint64_t cmd, uint64_t qs) :
-        type(t), bcb_index(bcb), cmd_index(cmd), qs_index(qs)
+    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t bcb, uint64_t cmd, uint64_t qs) :
+        type(t), ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs)
     {}
 
-    DumpedResourceBase(DumpResourceType t, uint64_t bcb, uint64_t cmd, uint64_t qs, uint64_t rp, uint64_t sp) :
-        type(t), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp)
+    DumpedResourceBase(DumpResourceType           t,
+                       DumpResourcesPipelineStage ps,
+                       uint64_t                   bcb,
+                       uint64_t                   cmd,
+                       uint64_t                   qs,
+                       uint64_t                   rp,
+                       uint64_t                   sp) :
+        type(t),
+        ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp)
+    {}
+
+    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t cmd, uint64_t qs) :
+        type(t), ppl_stage(ps), bcb_index(0), cmd_index(cmd), qs_index(qs), render_pass(0), subpass(0)
     {}
 
     DumpResourceType type{ DumpResourceType::kNone };
+
+    DumpResourcesPipelineStage ppl_stage{ DumpResourcesPipelineStage::kNone };
 
     // BeginCommandBuffer index
     uint64_t bcb_index{ 0 };
@@ -346,29 +374,31 @@ struct DumpedVertexIndexBuffer : DumpedResourceBase
     DumpedVertexIndexBuffer() = delete;
 
     // For vertex buffers
-    DumpedVertexIndexBuffer(DumpResourceType        t,
-                            uint64_t                bcb,
-                            uint64_t                cmd,
-                            uint64_t                qs,
-                            uint32_t                b,
-                            const VulkanBufferInfo* bi,
-                            VkDeviceSize            s,
-                            VkDeviceSize            o) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        buffer(bi, o, s), binding(b)
+    DumpedVertexIndexBuffer(DumpResourceType t,
+                            uint64_t         bcb,
+                            uint64_t         cmd,
+                            uint64_t         qs,
+                            uint32_t         b,
+                            VkBuffer         buffer,
+                            format::HandleId id,
+                            VkDeviceSize     s,
+                            VkDeviceSize     o) :
+        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+        buffer(buffer, id, o, s), binding(b)
     {}
 
     // For index buffers
-    DumpedVertexIndexBuffer(DumpResourceType        t,
-                            uint64_t                bcb,
-                            uint64_t                cmd,
-                            uint64_t                qs,
-                            VkIndexType             it,
-                            const VulkanBufferInfo* bi,
-                            VkDeviceSize            s,
-                            VkDeviceSize            o) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        buffer(bi, o, s), index_type(it)
+    DumpedVertexIndexBuffer(DumpResourceType t,
+                            uint64_t         bcb,
+                            uint64_t         cmd,
+                            uint64_t         qs,
+                            VkIndexType      it,
+                            VkBuffer         buffer,
+                            format::HandleId id,
+                            VkDeviceSize     s,
+                            VkDeviceSize     o) :
+        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+        buffer(buffer, id, o, s), index_type(it)
     {}
 
     DumpedBuffer buffer;
@@ -387,113 +417,115 @@ struct DumpedDescriptor : DumpedResourceBase
     DumpedDescriptor() = delete;
 
     // Buffer descriptors for graphics
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     uint64_t                 rp,
-                     uint64_t                 sp,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     uint32_t                 ai,
-                     const VulkanBufferInfo*  buffer_info,
-                     VkDeviceSize             offset,
-                     VkDeviceSize             size,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     uint64_t                   rp,
+                     uint64_t                   sp,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     uint32_t                   ai,
+                     VkBuffer                   buffer,
+                     format::HandleId           id,
+                     VkDeviceSize               offset,
+                     VkDeviceSize               size,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Inline uniform buffers for graphics
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     uint64_t                 rp,
-                     uint64_t                 sp,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     uint64_t                   rp,
+                     uint64_t                   sp,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
+        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Graphics image descriptors
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     uint64_t                 rp,
-                     uint64_t                 sp,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     uint32_t                 ai,
-                     const VulkanImageInfo*   img_info,
-                     ImageDumpResult          cd,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     uint64_t                   rp,
+                     uint64_t                   sp,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     uint32_t                   ai,
+                     const VulkanImageInfo*     img_info,
+                     ImageDumpResult            cd,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
         dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing image descriptors
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     uint32_t                 ai,
-                     const VulkanImageInfo*   img_info,
-                     ImageDumpResult          cd,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     uint32_t                   ai,
+                     const VulkanImageInfo*     img_info,
+                     ImageDumpResult            cd,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
         dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     uint32_t                 ai,
-                     const VulkanBufferInfo*  buffer_info,
-                     VkDeviceSize             offset,
-                     VkDeviceSize             size,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, buffer_info, offset, size)
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     uint32_t                   ai,
+                     VkBuffer                   buffer,
+                     format::HandleId           id,
+                     VkDeviceSize               offset,
+                     VkDeviceSize               size,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Dispatch ray tracing inline uniform buffers
-    DumpedDescriptor(DumpResourceType         t,
-                     uint64_t                 bcb,
-                     uint64_t                 cmd,
-                     uint64_t                 qs,
-                     VkShaderStageFlags       ss,
-                     VkDescriptorType         dt,
-                     uint32_t                 s,
-                     uint32_t                 b,
-                     DumpResourcesCommandType rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedBuffer>, nullptr, 0, 0)
+    DumpedDescriptor(DumpResourceType           t,
+                     uint64_t                   bcb,
+                     uint64_t                   cmd,
+                     uint64_t                   qs,
+                     VkShaderStageFlags         ss,
+                     VkDescriptorType           dt,
+                     uint32_t                   s,
+                     uint32_t                   b,
+                     DumpResourcesPipelineStage ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
+        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Acceleration structure for TraceRays
@@ -508,14 +540,14 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint32_t                                  ai,
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib,
-                     DumpResourcesCommandType                  rt) :
-        DumpedResourceBase(t, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai), resource_type(rt),
-        dumped_resource(std::in_place_type<DumpedTopLevelAccelerationStructure>, as_info, dbib)
+                     DumpResourcesPipelineStage                ps) :
+        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
     // The dumped resource
-    std::variant<std::monostate, DumpedImage, DumpedBuffer, DumpedTopLevelAccelerationStructure> dumped_resource;
+    std::variant<std::monostate, DumpedImage, DumpedBuffer, DumpedAccelerationStructure> dumped_resource;
 
     bool has_before{ false };
 
@@ -529,8 +561,6 @@ struct DumpedDescriptor : DumpedResourceBase
     uint32_t         set{ 0 };
     uint32_t         binding{ 0 };
     uint32_t         array_index{ 0 };
-
-    DumpResourcesCommandType resource_type{ DumpResourcesCommandType::kNone };
 };
 
 struct DumpedRenderTarget : DumpedResourceBase
@@ -549,7 +579,7 @@ struct DumpedRenderTarget : DumpedResourceBase
                        bool                   before,
                        const VulkanImageInfo* img_info,
                        ImageDumpResult        cd) :
-        DumpedResourceBase(t, bcb, cmd, qs, rp, sp),
+        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs, rp, sp),
         location(l), dumped_image(img_info, cd)
     {
         if (before)
@@ -590,14 +620,13 @@ struct AccelerationStructureDumpResourcesContext
 
     AccelerationStructureDumpResourcesContext(const VulkanAccelerationStructureKHRInfo* ai,
                                               const graphics::VulkanDeviceTable&        dt,
-                                              const VulkanObjectInfoTable&              oit) :
+                                              const CommonObjectInfoTable&              oit,
+                                              const VulkanPerDeviceAddressTrackers&     at) :
         as_info(ai),
-        device_table(dt), object_info_table(oit)
+        device_table(dt), object_info_table(oit), address_trackers(at)
     {}
 
     ~AccelerationStructureDumpResourcesContext() { ReleaseResources(); }
-
-    const VulkanAccelerationStructureKHRInfo* as_info{ nullptr };
 
     struct Triangles
     {
@@ -644,7 +673,7 @@ struct AccelerationStructureDumpResourcesContext
         VkPipelineLayout compute_ppl_layout{ VK_NULL_HANDLE };
     };
 
-    std::vector<std::variant<std::monostate, Triangles, AABBS, Instances>> as_build_data;
+    std::vector<std::variant<std::monostate, Triangles, AABBS, Instances>> as_build_objects;
 
     struct
     {
@@ -653,10 +682,24 @@ struct AccelerationStructureDumpResourcesContext
         VkDeviceMemory memory{ VK_NULL_HANDLE };
     } serialized_data;
 
+    // Clones buffers used as inputs in vkCmdBuildAccelerationStructuresKHR command.
+    VkResult CloneBuildAccelerationStructuresInputBuffers(
+        VkCommandBuffer                                            original_command_buffer,
+        const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* p_infos_meta,
+        const VkAccelerationStructureBuildRangeInfoKHR*            range_infos,
+        bool                                                       dump_as_build_input_buffers);
+
+    // Clones input buffers from src_context
+    VkResult CloneBuildAccelerationStructuresInputBuffers(VkCommandBuffer original_command_buffer,
+                                                          const AccelerationStructureDumpResourcesContext& src_context,
+                                                          bool dump_as_build_input_buffers);
+
     void ReleaseResources();
 
-    const graphics::VulkanDeviceTable& device_table;
-    const VulkanObjectInfoTable&       object_info_table;
+    const graphics::VulkanDeviceTable&        device_table;
+    const CommonObjectInfoTable&              object_info_table;
+    const VulkanAccelerationStructureKHRInfo* as_info;
+    const VulkanPerDeviceAddressTrackers&     address_trackers;
 };
 
 using DumpResourcesAccelerationStructuresContext =
@@ -679,14 +722,14 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
                             uint32_t                                type_bits,
                             VkMemoryPropertyFlags                   property_flags);
 
-VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
+VkResult CloneImage(const CommonObjectInfoTable&            object_info_table,
                     const graphics::VulkanDeviceTable*      device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                     const VulkanImageInfo*                  image_info,
                     VkImage*                                new_image,
                     VkDeviceMemory*                         new_image_memory);
 
-VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
+VkResult CloneBuffer(const CommonObjectInfoTable&            object_info_table,
                      const graphics::VulkanDeviceTable*      device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                      const VulkanBufferInfo*                 buffer_info,
@@ -710,32 +753,36 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table
                              VkPhysicalDevice                     phys_dev,
                              const VulkanImageInfo*               image_info);
 
+// Fetch image from the GPU into host memory
 VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
                    const VkImageSubresourceRange&       subresource_range,
-                   std::vector<DumpedRawData>&          data,
+                   DumpedImageHostData&                 data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
                    const graphics::VulkanInstanceTable* instance_table,
-                   CommonObjectInfoTable&               object_info_table);
+                   const CommonObjectInfoTable&         object_info_table);
 
+// Fetch a buffer from the GPU into host memory
 VkResult DumpBuffer(const DumpedBuffer&                  buffer,
-                    DumpedRawData&                       data,
+                    DumpedHostData&                      data,
                     const VulkanDeviceInfo*              device_info,
                     const graphics::VulkanDeviceTable*   device_table,
                     const graphics::VulkanInstanceTable* instance_table,
-                    CommonObjectInfoTable&               object_info_table);
+                    const CommonObjectInfoTable&         object_info_table);
 
-VkResult DumpTopLevelAccelerationStructure(DumpedTopLevelAccelerationStructure&        dumped_tlas,
-                                           TLASDumpedHostData&                         dumped_tlas_data,
-                                           DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-                                           const VulkanDeviceInfo*                     device_info,
-                                           const graphics::VulkanDeviceTable&          device_table,
-                                           const VulkanObjectInfoTable&                object_info_table,
-                                           const graphics::VulkanInstanceTable&        instance_table,
-                                           const VulkanPerDeviceAddressTrackers&       address_trackers);
+// Fetch an acceleration structure from the GPU into host memory
+VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                      dumped_as,
+                                   AccelerationStructureDumpedHostData&              dumped_as_data,
+                                   AccelerationStructureDumpResourcesContext*        as_context,
+                                   const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                                   const VulkanDeviceInfo*                           device_info,
+                                   const graphics::VulkanDeviceTable&                device_table,
+                                   const CommonObjectInfoTable&                      object_info_table,
+                                   const graphics::VulkanInstanceTable&              instance_table,
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
@@ -764,6 +811,35 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
 uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
 
 uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
+
+using FindQueueFamilyIndex_fp = uint32_t(const VulkanDeviceInfo::EnabledQueueFamilyFlags&);
+
+struct TemporaryCommandBuffer
+{
+    TemporaryCommandBuffer() = default;
+    TemporaryCommandBuffer(const TemporaryCommandBuffer& other)
+    {
+        device_info    = other.device_info;
+        device_table   = other.device_table;
+        command_pool   = other.command_pool;
+        command_buffer = other.command_buffer;
+        queue          = other.queue;
+    }
+
+    const VulkanDeviceInfo*            device_info{ nullptr };
+    const graphics::VulkanDeviceTable* device_table{ nullptr };
+
+    VkCommandPool   command_pool   = VK_NULL_HANDLE;
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    VkQueue         queue          = VK_NULL_HANDLE;
+};
+
+VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_finder_fp,
+                                     const VulkanDeviceInfo*            device_info,
+                                     const graphics::VulkanDeviceTable& device_table,
+                                     TemporaryCommandBuffer&            cmd_buf_objects);
+
+VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects);
 
 static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
 {
@@ -838,12 +914,6 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
                     uint32_t                        binding,
                     uint32_t                        array_index,
                     VkImageSubresourceRange*        subresource_range = nullptr);
-
-VkResult
-SerializeAccelerationStructures(const std::vector<AccelerationStructureDumpResourcesContext*>& acceleration_structures,
-                                const VulkanDeviceInfo*                                        device_info,
-                                const graphics::VulkanDeviceTable&                             device_table,
-                                const VulkanObjectInfoTable&                                   object_info_table_);
 
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;
