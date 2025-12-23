@@ -20,18 +20,19 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_resources_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -39,7 +40,6 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 #if !defined(WIN32)
 #include <dirent.h>
 #endif
@@ -119,6 +119,212 @@ void DispatchTraceRaysDumpingContext::Release()
     bound_descriptor_sets_ray_tracing_.clear();
     dispatch_params_.clear();
     trace_rays_params_.clear();
+}
+
+void DispatchTraceRaysDumpingContext::CmdDispatch(const ApiCallInfo& call_info,
+                                                  PFN_vkCmdDispatch  func,
+                                                  VkCommandBuffer    original_command_buffer,
+                                                  uint32_t           groupCountX,
+                                                  uint32_t           groupCountY,
+                                                  uint32_t           groupCountZ)
+{
+    const uint64_t disp_index = call_info.index;
+    const bool     must_dump  = MustDumpDispatch(disp_index);
+
+    if (must_dump)
+    {
+        InsertNewDispatchParameters(disp_index, groupCountX, groupCountY, groupCountZ);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, groupCountX, groupCountY, groupCountZ);
+    }
+
+    if (must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, false);
+        FinalizeCommandBuffer(true);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdDispatchIndirect(const ApiCallInfo&        call_info,
+                                                          PFN_vkCmdDispatchIndirect func,
+                                                          VkCommandBuffer           original_command_buffer,
+                                                          const VulkanBufferInfo*   buffer_info,
+                                                          VkDeviceSize              offset)
+{
+    const uint64_t disp_index = call_info.index;
+    const bool     must_dump  = MustDumpDispatch(disp_index);
+
+    if (must_dump)
+    {
+        InsertNewDispatchParameters(disp_index, buffer_info, offset);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    func(dispatch_rays_command_buffer, buffer_info->handle, offset);
+
+    if (must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, false);
+        FinalizeCommandBuffer(true);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysKHR(
+    const ApiCallInfo&                                             call_info,
+    PFN_vkCmdTraceRaysKHR                                          func,
+    VkCommandBuffer                                                original_command_buffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysParameters(tr_index,
+                                     in_pRaygenShaderBindingTable,
+                                     in_pMissShaderBindingTable,
+                                     in_pHitShaderBindingTable,
+                                     in_pCallableShaderBindingTable,
+                                     width,
+                                     height,
+                                     depth);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirectKHR(
+    const ApiCallInfo&                                             call_info,
+    PFN_vkCmdTraceRaysIndirectKHR                                  func,
+    VkCommandBuffer                                                original_command_buffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    VkDeviceAddress                                                indirectDeviceAddress)
+{
+    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
+
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysIndirectParameters(tr_index,
+                                             in_pRaygenShaderBindingTable,
+                                             in_pMissShaderBindingTable,
+                                             in_pHitShaderBindingTable,
+                                             in_pCallableShaderBindingTable,
+                                             indirectDeviceAddress);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             indirectDeviceAddress);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
+                                                               PFN_vkCmdTraceRaysIndirect2KHR func,
+                                                               VkCommandBuffer                original_command_buffer,
+                                                               VkDeviceAddress                indirectDeviceAddress)
+{
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysIndirect2Parameters(tr_index, indirectDeviceAddress);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, indirectDeviceAddress);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
 }
 
 VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
