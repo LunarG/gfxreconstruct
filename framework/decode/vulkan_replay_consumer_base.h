@@ -79,7 +79,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     ~VulkanReplayConsumerBase() override;
 
-    void SetCurrentBlockIndex(uint64_t block_index) override;
+    void BeginProcessBlock(const ParsedBlock* parsed_block) override;
 
     void SetCurrentFrameNumber(uint64_t frame_number) override;
 

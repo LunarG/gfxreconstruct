@@ -283,11 +283,6 @@ bool FileProcessor::ProcessBlocks()
         {
             success = GetBlockBuffer(block_parser, block_buffer);
 
-            for (auto decoder : decoders_)
-            {
-                decoder->SetCurrentBlockIndex(block_index_);
-            }
-
             if (success)
             {
                 if (SkipBlockProcessing())
@@ -296,11 +291,10 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    block_parser.SetBlockIndex(block_index_);
                     block_parser.SetFrameNumber(current_frame_number_);
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
-                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer, block_index_);
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
@@ -314,7 +308,9 @@ bool FileProcessor::ProcessBlocks()
                             success = process_visitor.IsSuccess();
                             if (success)
                             {
+                                dispatch_visitor.SetCurrentBlock(&parsed_block);
                                 std::visit(dispatch_visitor, parsed_block.GetArgs());
+                                dispatch_visitor.SetCurrentBlock(nullptr);
                             }
                         }
                     }

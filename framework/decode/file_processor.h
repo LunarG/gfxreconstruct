@@ -243,6 +243,8 @@ class FileProcessor
     class DispatchVisitor
     {
       public:
+        void SetCurrentBlock(ParsedBlock* current_block) { current_block_ = current_block; }
+
         template <typename Args>
         void operator()(const Args& args)
         {
@@ -251,12 +253,15 @@ class FileProcessor
             {
                 if (DecoderSupportsDispatch(*decoder, args))
                 {
+                    GFXRECON_ASSERT(current_block_ != nullptr);
+                    decoder->BeginDispatchBlock(current_block_);
                     [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
                     SetDecoderApiCallId(*decoder, args);
                     auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
                         (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
                     };
                     std::apply(dispatch_call, args.GetTuple());
+                    decoder->EndDispatchBlock();
                 }
             }
         }
@@ -285,6 +290,7 @@ class FileProcessor
       private:
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
+        ParsedBlock*                    current_block_;
     };
 
     class ProcessVisitor

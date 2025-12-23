@@ -58,7 +58,7 @@ bool Dx12JsonConsumerBase::IsValid() const
 
 void Dx12JsonConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("CreateHeapAllocationCommand");
     FieldToJson(jdata["allocation_id"], allocation_id, json_options);
@@ -69,7 +69,7 @@ void Dx12JsonConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocatio
 void Dx12JsonConsumerBase::ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                          const uint8_t*                              data)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("InitSubresourceCommand");
 
@@ -95,7 +95,7 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
     const uint8_t*                                                        build_inputs_data)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("InitDx12AccelerationStructureCommand");
     FieldToJson(jdata["thread_id"], command_header.thread_id, json_options);
@@ -131,7 +131,7 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
 void Dx12JsonConsumerBase::ProcessFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("FillMemoryResourceValueCommand");
     FieldToJson(jdata["thread_id"], command_header.thread_id, json_options);
@@ -151,7 +151,7 @@ void Dx12JsonConsumerBase::ProcessFillMemoryResourceValueCommand(
 
 void Dx12JsonConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("DxgiAdapterInfo");
     FieldToJson(jdata["thread_id"], adapter_info_header.thread_id, json_options);
@@ -162,7 +162,7 @@ void Dx12JsonConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoC
 /// @see DriverInfoBlock in format.h
 void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("DriverInfo");
     char                     driver_record[gfxrecon::util::filepath::kMaxDriverInfoSize + 1];
@@ -176,7 +176,7 @@ void Dx12JsonConsumerBase::Process_DriverInfo(const char* info_record)
 
 void Dx12JsonConsumerBase::ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
 {
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     const util::JsonOptions& json_options = writer_->GetOptions();
     auto&                    jdata        = writer_->WriteMetaCommandStart("Dx12RuntimeInfoCommandHeader");
 

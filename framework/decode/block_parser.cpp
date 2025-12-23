@@ -163,16 +163,18 @@ void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* 
     }
 
     GFXRECON_LOG_WARNING(
-        "%s (frame %" PRIu64 " block %" PRIu32 ")", message.str().c_str(), frame_number_, block_index_);
+        "%s (frame %" PRIu64 " block %" PRIu32 ")", message.str().c_str(), frame_number_, GetBlockIndex());
 }
 
-ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
+ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer, uint64_t block_index)
 {
+    current_block_index_ = block_index;
+
     // Note that header parsing has been done by the BlockParser before this call is made.
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
     const format::BlockHeader& block_header = block_buffer.Header();
     format::BlockType          base_type    = format::RemoveCompressedBlockBit(block_header.type);
-    ParsedBlock                parsed_block = ParsedBlock(ParsedBlock::InvalidBlockTag());
+    ParsedBlock                parsed_block = ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
     switch (base_type)
     {
         case format::kFunctionCallBlock:
@@ -196,7 +198,7 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
         case format::kUnknownBlock:
         default:
             WarnUnknownBlock(block_buffer);
-            parsed_block = ParsedBlock{ ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData() };
+            parsed_block = ParsedBlock(GetBlockIndex(), ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
             break;
     }
 
@@ -206,9 +208,11 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
         GFXRECON_ASSERT(format::IsBlockCompressed(block_buffer.Header().type));
         if (!parsed_block.Decompress(*this))
         {
-            parsed_block = ParsedBlock(ParsedBlock::InvalidBlockTag());
+            parsed_block = ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
         }
     }
+
+    current_block_index_ = 0;
 
     return parsed_block;
 }
@@ -303,6 +307,7 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
         if (read_result.success)
         {
             return ParsedBlock(
+                GetBlockIndex(),
                 block_buffer.ReleaseData(),
                 FunctionCallArgs{
                     api_call_id, call_info, read_result.buffer.GetDataAs<uint8_t>(), read_result.uncompressed_size },
@@ -314,7 +319,7 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
@@ -337,7 +342,8 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer);
         if (read_result.success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                MethodCallArgs{ call_id,
                                                object_id,
                                                call_info,
@@ -351,7 +357,7 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
@@ -366,7 +372,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag());
+        return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
     }
 
     // Optional backing store for the various uncompressed metadata contents
@@ -389,7 +395,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.memory_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    FillMemoryArgs{ meta_data_id,
                                                    header.thread_id,
                                                    header.memory_id,
@@ -423,6 +430,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             if (read_result.success)
             {
                 return ParsedBlock(
+                    GetBlockIndex(),
                     std::move(block_buffer.ReleaseData()),
                     // Note that both the meta_data_id and the data_size are not passed to the decoder in Dispatch
                     // but needed by the Dispatch and Decompression visitors respectively.
@@ -452,6 +460,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (success)
         {
             return ParsedBlock(
+                GetBlockIndex(),
                 std::move(block_buffer.ReleaseData()),
                 ResizeWindowArgs{ meta_data_id, command.thread_id, command.surface_id, command.width, command.height },
                 std::move(uncompressed_store));
@@ -476,7 +485,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                ResizeWindow2Args{ meta_data_id,
                                                   command.thread_id,
                                                   command.surface_id,
@@ -516,7 +526,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                ExeFileArgs{ meta_data_id, header.thread_id, header },
                                std::move(uncompressed_store));
         }
@@ -531,7 +542,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                DriverArgs{ meta_data_id, header.thread_id, header },
                                std::move(uncompressed_store));
         }
@@ -559,7 +571,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                 const char* message_start = parameter_data.GetDataAs<char>();
                 std::string message(message_start, std::next(message_start, static_cast<size_t>(message_size)));
 
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    DisplayMessageArgs{ meta_data_id, header.thread_id, message },
                                    std::move(uncompressed_store));
             }
@@ -611,7 +624,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    CreateHardwareBufferArgs{ meta_data_id,
                                                              header.thread_id,
                                                              0u,
@@ -680,7 +694,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    CreateHardwareBufferArgs{ meta_data_id,
                                                              header.thread_id,
                                                              0u,
@@ -750,7 +765,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    CreateHardwareBufferArgs{ meta_data_id,
                                                              header.thread_id,
                                                              header.device_id,
@@ -794,7 +810,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                DestroyHardwareBufferArgs{ meta_data_id, command.thread_id, command.buffer_id },
                                std::move(uncompressed_store));
         }
@@ -816,7 +833,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                CreateHeapAllocationArgs{
                                    meta_data_id, header.thread_id, header.allocation_id, header.allocation_size },
                                std::move(uncompressed_store));
@@ -855,7 +873,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    SetDevicePropertiesArgs(meta_data_id,
                                                            header.thread_id,
                                                            header.physical_device_id,
@@ -925,7 +944,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    SetDeviceMemoryPropertiesArgs{
                                        meta_data_id, header.thread_id, header.physical_device_id, types, heaps },
                                    std::move(uncompressed_store));
@@ -956,7 +976,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                SetOpaqueAddressArgs{
                                    meta_data_id, header.thread_id, header.device_id, header.object_id, header.address },
                                std::move(uncompressed_store));
@@ -990,7 +1011,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                SetRayTracingShaderGroupHandlesArgs{ meta_data_id,
                                                                     header.thread_id,
                                                                     header.device_id,
@@ -1037,7 +1059,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    SetSwapchainImageStateArgs{ meta_data_id,
                                                                header.thread_id,
                                                                header.device_id,
@@ -1073,6 +1096,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (success)
         {
             return ParsedBlock(
+                GetBlockIndex(),
                 std::move(block_buffer.ReleaseData()),
                 BeginResourceInitArgs{
                     meta_data_id, header.thread_id, header.device_id, header.total_copy_size, header.max_copy_size },
@@ -1095,7 +1119,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                EndResourceInitArgs{ meta_data_id, header.thread_id, header.device_id },
                                std::move(uncompressed_store));
         }
@@ -1119,7 +1144,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    InitBufferArgs{ meta_data_id,
                                                    header.thread_id,
                                                    header.device_id,
@@ -1162,7 +1188,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    InitImageArgs{ meta_data_id,
                                                   header.thread_id,
                                                   header.device_id,
@@ -1200,7 +1227,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    InitSubresourceArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
                                    read_result.is_compressed);
             }
@@ -1253,7 +1281,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    InitDx12AccelerationStructureArgs{ meta_data_id,
                                                                       read_result.uncompressed_size,
                                                                       header,
@@ -1289,7 +1318,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                GetDxgiAdapterArgs{ meta_data_id, adapter_info_header },
                                std::move(uncompressed_store));
         }
@@ -1309,7 +1339,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                GetDx12RuntimeArgs{ meta_data_id, dx12_runtime_info_header },
                                std::move(uncompressed_store));
         }
@@ -1346,6 +1377,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                     if (success)
                     {
                         return ParsedBlock(
+                            GetBlockIndex(),
                             std::move(block_buffer.ReleaseData()),
                             SetTlasToBlasDependencyArgs{ meta_data_id, header.parent_id, std::move(blases) },
                             std::move(uncompressed_store));
@@ -1379,7 +1411,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
-            return ParsedBlock(ParsedBlock::InvalidBlockTag());
+            return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
         }
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
@@ -1390,11 +1422,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
-            return ParsedBlock(ParsedBlock::InvalidBlockTag());
+            return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
         }
 
         const char* env_string = parameter_data.GetDataAs<char>();
-        return ParsedBlock(block_buffer.ReleaseData(),
+        return ParsedBlock(GetBlockIndex(),
+                           block_buffer.ReleaseData(),
                            SetEnvironmentVariablesArgs{ meta_data_id, header, env_string },
                            std::move(uncompressed_store));
     }
@@ -1408,7 +1441,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                VulkanAccelerationStructuresBuildMetaArgs{
                                    meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
                                std::move(uncompressed_store));
@@ -1429,7 +1463,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                VulkanAccelerationStructuresCopyMetaArgs{
                                    meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
                                std::move(uncompressed_store));
@@ -1445,7 +1480,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                VulkanAccelerationStructuresWritePropertiesMetaArgs{
                                    meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
                                std::move(uncompressed_store));
@@ -1467,7 +1503,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             {
                 if (success)
                 {
-                    return ParsedBlock(block_buffer.ReleaseData(),
+                    return ParsedBlock(GetBlockIndex(),
+                                       block_buffer.ReleaseData(),
                                        ExecuteBlocksFromFileArgs{ meta_data_id,
                                                                   exec_from_file.thread_id,
                                                                   exec_from_file.n_blocks,
@@ -1500,7 +1537,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
                                ViewRelativeLocationArgs{ meta_data_id, thread_id, location },
                                std::move(uncompressed_store));
         }
@@ -1526,7 +1564,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
+                return ParsedBlock(GetBlockIndex(),
+                                   block_buffer.ReleaseData(),
                                    InitializeMetaArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
                                    read_result.is_compressed);
             }
@@ -1560,7 +1599,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             // be passed through, even as unknown.
             //
             // A warning has been generated above
-            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
+            return ParsedBlock(GetBlockIndex(), ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
         else
         {
@@ -1569,7 +1608,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         }
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
@@ -1583,7 +1622,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag());
+        return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
     }
 
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
@@ -1595,13 +1634,15 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         // Unlike most blocks, only one subtype results in a dispatchable command
         if (marker_type == format::kEndMarker)
         {
-            return ParsedBlock(
-                block_buffer.ReleaseData(), FrameEndMarkerArgs{ frame_number }, ParsedBlock::UncompressedStore());
+            return ParsedBlock(GetBlockIndex(),
+                               block_buffer.ReleaseData(),
+                               FrameEndMarkerArgs{ frame_number },
+                               ParsedBlock::UncompressedStore());
         }
         else
         {
             WarnUnknownBlock(block_buffer, "frame marker", static_cast<uint32_t>(marker_type));
-            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
+            return ParsedBlock(GetBlockIndex(), ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1609,7 +1650,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
@@ -1623,7 +1664,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag());
+        return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
     }
 
     uint64_t frame_number = 0;
@@ -1633,18 +1674,22 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     {
         if (marker_type == format::kBeginMarker)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()), StateBeginMarkerArgs{ frame_number }, UncompressedStore());
+            return ParsedBlock(GetBlockIndex(),
+                               std::move(block_buffer.ReleaseData()),
+                               StateBeginMarkerArgs{ frame_number },
+                               UncompressedStore());
         }
         else if (marker_type == format::kEndMarker)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()), StateEndMarkerArgs{ frame_number }, UncompressedStore());
+            return ParsedBlock(GetBlockIndex(),
+                               std::move(block_buffer.ReleaseData()),
+                               StateEndMarkerArgs{ frame_number },
+                               UncompressedStore());
         }
         else
         {
             WarnUnknownBlock(block_buffer, "state marker", static_cast<uint32_t>(marker_type));
-            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
+            return ParsedBlock(GetBlockIndex(), ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1652,7 +1697,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
@@ -1666,7 +1711,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag());
+        return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
     }
 
     decltype(format::AnnotationHeader::label_length) label_length = 0;
@@ -1702,9 +1747,11 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
                     data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }
 
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   AnnotationArgs{ block_index_, annotation_type, std::move(label), std::move(data) },
-                                   UncompressedStore());
+                return ParsedBlock(
+                    GetBlockIndex(),
+                    block_buffer.ReleaseData(),
+                    AnnotationArgs{ GetBlockIndex(), annotation_type, std::move(label), std::move(data) },
+                    UncompressedStore());
             }
             else
             {
@@ -1717,7 +1764,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+    return ParsedBlock(GetBlockIndex(), ParsedBlock::InvalidBlockTag());
 }
 
 GFXRECON_END_NAMESPACE(decode)
