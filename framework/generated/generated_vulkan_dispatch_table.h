@@ -45,6 +45,8 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
+#include <unordered_map>
+
 #ifdef WIN32
 #ifdef CreateEvent
 #undef CreateEvent
@@ -2260,6 +2262,9 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectEXT", &table->CmdDrawMeshTasksIndirectEXT);
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectCountEXT", &table->CmdDrawMeshTasksIndirectCountEXT);
 }
+
+using DeviceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>;
+using InstanceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable>;
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -289,6 +289,10 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     background_queue_.join_all();
     main_thread_queue_.poll();
 
+    // This will call the destructor for dump resources.
+    // This needs to be done before parent devices are destroyed
+    resource_dumper_ = nullptr;
+
     // Cleanup screenshot resources before destroying device.
     object_info_table_->VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
         assert(info != nullptr);
@@ -330,8 +334,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         graphics::ReleaseLoader(loader_handle_);
     }
 
-    resource_dumper_ = nullptr;
-
     CommonObjectInfoTable::ReleaseSingleton();
     object_info_table_ = nullptr;
 }
@@ -365,6 +367,11 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     if (fps_info_ != nullptr)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
+    }
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->ProcessStateEndMarker();
     }
 }
 
@@ -1127,6 +1134,11 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
                 }
             }
         }
+
+        if (options_.dumping_resources)
+        {
+            resource_dumper_->ProcessInitBufferCommand(block_index_, device_id, buffer_id, data_size, data);
+        }
     }
     else
     {
@@ -1262,6 +1274,18 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     ", handle = 0x%" PRIx64 ")",
                     image_id,
                     image);
+            }
+
+            if (options_.dumping_resources)
+            {
+                VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+                if (!copy_regions.empty())
+                {
+                    initializer->BeginCommandBuffer(image_info->queue_family_index, &command_buffer);
+                }
+
+                resource_dumper_->ProcessInitImageCommand(
+                    command_buffer, block_index_, device_id, image_id, data_size, aspect, layout, level_sizes, data);
             }
         }
     }
@@ -2037,8 +2061,8 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
 {
     if (resource_dumper_ == nullptr)
     {
-        resource_dumper_ =
-            std::make_unique<VulkanReplayDumpResources>(options_, object_info_table_, _device_address_trackers);
+        resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(
+            options_, object_info_table_, _device_address_trackers, instance_tables_, device_tables_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
@@ -4238,7 +4262,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 resource_dumper_->MustDumpQueueSubmitIndex(index))
             {
                 resource_dumper_->QueueSubmit(
-                    modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info->handle, fence, index);
+                    modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info, fence, index);
             }
             else
             {
@@ -11284,6 +11308,17 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
 
         MapStructArrayHandles(copy_infos->GetMetaStructPointer(), copy_infos->GetLength(), GetObjectInfoTable());
 
+        if (options_.dumping_resources)
+        {
+            const auto* info_meta = copy_infos->GetMetaStructPointer();
+            if (info_meta != nullptr)
+            {
+                const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
+                const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
+                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+            }
+        }
+
         if (UseAddressReplacement(device_info))
         {
             const auto& address_tracker  = GetDeviceAddressTracker(device_info);
@@ -11323,6 +11358,19 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
             GetDeviceAddressReplacer(device_info)
                 .ProcessBuildVulkanAccelerationStructuresMetaCommand(
                     info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
+        }
+
+        if (options_.dumping_resources)
+        {
+            ApiCallInfo call_info{ block_index_, 0 };
+            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(
+                call_info,
+                GetDeviceTable(device_info->handle)->CmdBuildAccelerationStructuresKHR,
+                VK_NULL_HANDLE,
+                info_count,
+                pInfos,
+                ppRangeInfos,
+                false);
         }
     }
 }

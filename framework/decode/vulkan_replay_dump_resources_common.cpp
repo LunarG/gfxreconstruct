@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <sstream>
+#include <unordered_set>
 #include <variant>
 #include <vulkan/vulkan_core.h>
 
@@ -1260,16 +1261,18 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     GFXRECON_ASSERT(phys_dev_info != nullptr);
 
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
+    const VkDevice                          device    = device_info->handle;
 
-    const VkQueryPoolCreateInfo qci = {
-        VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO, nullptr,
-        VK_QUERY_POOL_CREATE_RESET_BIT_KHR,       VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
-        static_cast<uint32_t>(query_count),       VkQueryPipelineStatisticFlags(0)
-    };
+    // A query pool is required for vkCmdWriteAccelerationStructuresPropertiesKHR
+    const VkQueryPoolCreateInfo qci = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+                                        nullptr,
+                                        VkQueryPoolCreateFlagBits(0),
+                                        VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR,
+                                        static_cast<uint32_t>(query_count),
+                                        VkQueryPipelineStatisticFlags(0) };
 
-    const VkDevice device = device_info->handle;
-    VkQueryPool    query_pool;
-    VkResult       res = device_table.CreateQueryPool(device, &qci, nullptr, &query_pool);
+    VkQueryPool query_pool;
+    VkResult    res = device_table.CreateQueryPool(device, &qci, nullptr, &query_pool);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: CreateQueryPool failed (%s)", __func__, util::ToString(res).c_str())
@@ -1283,6 +1286,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return VK_ERROR_UNKNOWN;
     }
 
+    // Create temporary command pool and buffer to execute vkCmdWriteAccelerationStructuresPropertiesKHR
     const VkCommandPoolCreateInfo cpci = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                                            nullptr,
                                            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
@@ -1323,6 +1327,10 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return res;
     }
 
+    // Reset query pool
+    device_table.CmdResetQueryPool(cmd_buffer, query_pool, 0, 1);
+
+    // Flush any pending writes to the acceleration structure
     const VkMemoryBarrier mem_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER,
                                           nullptr,
                                           VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1340,6 +1348,8 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         0,
         nullptr);
 
+    // Do vkCmdWriteAccelerationStructuresPropertiesKHR to request
+    // VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR
     for (uint32_t i = 0; i < query_count; ++i)
     {
         GFXRECON_ASSERT(acceleration_structure->as_info != nullptr);
@@ -1447,6 +1457,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return res;
     }
 
+    // Do CmdCopyAccelerationStructureToMemoryKHR to copy the serialized AS into a buffer
     for (uint32_t i = 0; i < query_count; ++i)
     {
         const VkDeviceSize serialized_size           = query_results[i];
@@ -1457,6 +1468,9 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             continue;
         }
 
+        // These should be NULL otherwise we are leaking objects
+        GFXRECON_ASSERT(acceleration_structure->serialized_data.buffer == VK_NULL_HANDLE &&
+                        acceleration_structure->serialized_data.memory == VK_NULL_HANDLE);
         res = CreateVkBuffer(serialized_size,
                              device_table,
                              device,
@@ -1536,6 +1550,11 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         GFXRECON_LOG_ERROR("%s: WaitForFences (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
+
+    // Release temporary vulkan objects
+    device_table.DestroyCommandPool(device, cmd_pool, nullptr);
+    device_table.DestroyQueryPool(device, query_pool, nullptr);
+    device_table.DestroyFence(device, fence, nullptr);
 
     return VK_SUCCESS;
 }
@@ -1834,8 +1853,8 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
     GFXRECON_ASSERT(as_info != nullptr);
     GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
-    std::vector<AccelerationStructureDumpResourcesContext*> referenced_BLASes;
-    const auto                                              address_tracker_entry = address_trackers.find(device_info);
+    std::unordered_set<AccelerationStructureDumpResourcesContext*> referenced_BLASes;
+    const auto address_tracker_entry = address_trackers.find(device_info);
     if (address_tracker_entry == address_trackers.end())
     {
         GFXRECON_LOG_WARNING("Could not detect address tracker for device %" PRIu64, device_info->capture_id);
@@ -1905,7 +1924,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                 // has been properly built.
                 if (blas_context_entry != acceleration_structures_context.end())
                 {
-                    referenced_BLASes.push_back(blas_context_entry->second.get());
+                    referenced_BLASes.insert(blas_context_entry->second.get());
                     break;
                 }
             }
@@ -2486,7 +2505,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                                                   nullptr,
                                                   nullptr,
                                                   &mem_props,
-                                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                                   &new_instances.instance_buffer,
                                                   &new_instances.instance_buffer_memory);
                     if (res != VK_SUCCESS)
@@ -2539,7 +2558,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                                        nullptr,
                                        nullptr,
                                        &mem_props,
-                                       VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                       VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                        &new_instances.instance_buffer,
                                        &new_instances.instance_buffer_memory);
                     if (res != VK_SUCCESS)
