@@ -33,7 +33,6 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
-#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
@@ -233,12 +232,12 @@ struct Decoded_VkIndirectCommandsLayoutTokenEXT
 {
     using struct_type = VkIndirectCommandsLayoutTokenEXT;
 
-    VkIndirectCommandsLayoutTokenEXT* decoded_value;
+    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
 
     PNextNode*                              pNext{ nullptr };
     VkIndirectCommandsTokenTypeEXT          decoded_type;
-    Decoded_VkIndirectCommandsTokenDataEXT* data;
-    uint32_t                                offset;
+    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
+    uint32_t                                offset{};
 };
 
 struct Decoded_VkCopyMemoryToImageInfo
@@ -287,6 +286,17 @@ struct Decoded_VkImageToMemoryCopy
     Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
     Decoded_VkOffset3D*               imageOffset{ nullptr };
     Decoded_VkExtent3D*               imageExtent{ nullptr };
+};
+
+struct Decoded_VkLayerSettingEXT
+{
+    using struct_type = VkLayerSettingEXT;
+
+    VkLayerSettingEXT* decoded_value{ nullptr };
+
+    StringDecoder           pLayerName;
+    StringDecoder           pSettingName;
+    PointerDecoder<uint8_t> pValues;
 };
 
 GFXRECON_END_NAMESPACE(decode)

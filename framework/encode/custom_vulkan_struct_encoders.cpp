@@ -399,5 +399,43 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
+{
+    encoder->EncodeString(value.pLayerName);
+    encoder->EncodeString(value.pSettingName);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeUInt32Value(value.valueCount);
+
+    switch (value.type)
+    {
+        case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+            encoder->EncodeUInt32Array(static_cast<const VkBool32*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT32_EXT:
+            encoder->EncodeInt32Array(static_cast<const int32_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT64_EXT:
+            encoder->EncodeInt64Array(static_cast<const int64_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+            encoder->EncodeUInt32Array(static_cast<const uint32_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+            encoder->EncodeUInt64Array(static_cast<const uint64_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+            encoder->EncodeFloatArray(static_cast<const float*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+            encoder->EncodeFloat64Array(static_cast<const double*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_STRING_EXT:
+            encoder->EncodeString(static_cast<const char*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+            break;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
