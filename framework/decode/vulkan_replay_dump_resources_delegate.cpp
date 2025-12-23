@@ -51,6 +51,9 @@ void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDelegateDu
         case DumpResourcesPipelineStage::kRayTracing:
             GenerateOutputJsonTraceRaysIndex(draw_call_info);
             break;
+        case DumpResourcesPipelineStage::kTransfer:
+            GenerateOutputJsonTransferInfo(draw_call_info);
+            break;
         default:
             break;
     }
@@ -83,7 +86,21 @@ bool DefaultVulkanDumpResourcesDelegate::DumpResource(const VulkanDelegateDumpRe
             return DumpAccelerationStructureToFile(delegate_context);
             break;
 
+        case DumpResourceType::kInitBufferMetaCommand:
+        case DumpResourceType::kInitImageMetaCommand:
+        case DumpResourceType::kCopyBuffer:
+        case DumpResourceType::kCopyBufferToImage:
+        case DumpResourceType::kCopyImage:
+        case DumpResourceType::kCopyImageToBuffer:
+        case DumpResourceType::kBlitImage:
+        case DumpResourceType::kBuildAccelerationStructure:
+        case DumpResourceType::kCopyAccelerationStructure:
+            return DumpTransferCommandToFile(delegate_context);
+            break;
+
         default:
+            GFXRECON_LOG_ERROR("%s(): Unexpected resources type (%d)", __func__, static_cast<int>(resource_info->type));
+            GFXRECON_ASSERT(0);
             break;
     }
 
@@ -284,6 +301,123 @@ GetDumpedImageFormat(const DumpedImage& dumped_image, bool dump_images_raw, util
     return KFormatRaw;
 }
 
+bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*        dumped_resource,
+                                                         DumpedImage&               dumped_image,
+                                                         const DumpedImageHostData& image_dumped_data,
+                                                         ImageFilenameGenerator     filename_generator,
+                                                         bool                       before_command,
+                                                         const util::Compressor*    compressor)
+{
+    const VulkanImageInfo* image_info = dumped_image.image_info;
+
+    const DumpedImageFormat output_image_format = GetDumpedImageFormat(
+        dumped_image, options_.dump_resources_dump_raw_images, options_.dump_resources_image_format);
+
+    dumped_image.dumped_raw = (output_image_format == DumpedImageFormat::KFormatRaw);
+
+    GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
+
+    for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
+    {
+        auto& sub_res = dumped_image.dumped_subresources[i];
+
+        const std::string filename = std::invoke(filename_generator,
+                                                 *this,
+                                                 *dumped_resource,
+                                                 output_image_format,
+                                                 sub_res.aspect,
+                                                 sub_res.level,
+                                                 sub_res.layer,
+                                                 before_command);
+
+        sub_res.filename = filename;
+
+        if (output_image_format != KFormatRaw)
+        {
+            const util::imagewriter::DataFormats image_writer_format =
+                VkFormatToImageWriterDataFormat(dumped_image.dumped_format, sub_res.aspect);
+            assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
+
+            const uint32_t texel_size = vkuFormatElementSizeWithAspect(dumped_image.dumped_format, sub_res.aspect);
+            const uint32_t stride     = texel_size * sub_res.scaled_extent.width;
+
+            if (output_image_format == kFormatBMP)
+            {
+                if (options_.dump_resources_dump_separate_alpha)
+                {
+                    util::imagewriter::WriteBmpImageSeparateAlpha(filename,
+                                                                  sub_res.scaled_extent.width,
+                                                                  sub_res.scaled_extent.height,
+                                                                  static_cast<const void*>(image_dumped_data[i].data()),
+                                                                  stride,
+                                                                  image_writer_format);
+                }
+                else
+                {
+                    util::imagewriter::WriteBmpImage(filename,
+                                                     sub_res.scaled_extent.width,
+                                                     sub_res.scaled_extent.height,
+                                                     static_cast<const void*>(image_dumped_data[i].data()),
+                                                     stride,
+                                                     image_writer_format,
+                                                     vkuFormatHasAlpha(image_info->format));
+                }
+            }
+            else if (output_image_format == KFormatPNG)
+            {
+                if (options_.dump_resources_dump_separate_alpha)
+                {
+                    util::imagewriter::WritePngImageSeparateAlpha(filename,
+                                                                  sub_res.scaled_extent.width,
+                                                                  sub_res.scaled_extent.height,
+                                                                  static_cast<const void*>(image_dumped_data[i].data()),
+                                                                  stride,
+                                                                  image_writer_format);
+                }
+                else
+                {
+                    util::imagewriter::WritePngImage(filename,
+                                                     sub_res.scaled_extent.width,
+                                                     sub_res.scaled_extent.height,
+                                                     static_cast<const void*>(image_dumped_data[i].data()),
+                                                     stride,
+                                                     image_writer_format,
+                                                     vkuFormatHasAlpha(image_info->format));
+                }
+            }
+        }
+        else
+        {
+            if (!options_.dump_resources_dump_raw_images)
+            {
+                GFXRECON_LOG_WARNING(
+                    "%s format is not handled. Images with that format will be dump as a plain binary file.",
+                    util::ToString<VkFormat>(image_info->format).c_str());
+            }
+
+            sub_res.size = image_dumped_data[i].size();
+            const size_t bytes_written =
+                util::bufferwriter::WriteBuffer(filename,
+                                                static_cast<const void*>(image_dumped_data[i].data()),
+                                                image_dumped_data[i].size(),
+                                                compressor);
+
+            if (!bytes_written)
+            {
+                GFXRECON_LOG_ERROR("Failed writing file %s", filename.c_str());
+                return false;
+            }
+
+            if (compressor != nullptr)
+            {
+                sub_res.compressed_size = bytes_written;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDumpResourceContext& delegate_context)
 {
     DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
@@ -333,121 +467,15 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
             GFXRECON_LOG_ERROR("%s(): Unexpected resource type", __func__)
     }
 
-    const VulkanImageInfo*  image_info  = dumped_image->image_info;
-    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(image_info->parent_id);
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    const DumpedImageFormat output_image_format = GetDumpedImageFormat(
-        *dumped_image, options_.dump_resources_dump_raw_images, options_.dump_resources_image_format);
-
-    dumped_image->dumped_raw = (output_image_format == DumpedImageFormat::KFormatRaw);
-
-    GFXRECON_ASSERT(!dumped_image->dumped_subresources.empty());
-
     const VulkanDelegateImageDumpedData& image_dumped_data =
         std::get<VulkanDelegateImageDumpedData>(delegate_context.dumped_data);
 
-    for (size_t i = 0; i < dumped_image->dumped_subresources.size(); ++i)
-    {
-        auto& sub_res = dumped_image->dumped_subresources[i];
-
-        const std::string filename = std::invoke(filename_generator,
-                                                 *this,
-                                                 *dumped_resource,
-                                                 output_image_format,
-                                                 sub_res.aspect,
-                                                 sub_res.level,
-                                                 sub_res.layer,
-                                                 delegate_context.before_command);
-
-        sub_res.filename = filename;
-
-        if (output_image_format != KFormatRaw)
-        {
-            const util::imagewriter::DataFormats image_writer_format =
-                VkFormatToImageWriterDataFormat(dumped_image->dumped_format, sub_res.aspect);
-            assert(image_writer_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED);
-
-            const uint32_t texel_size = vkuFormatElementSizeWithAspect(dumped_image->dumped_format, sub_res.aspect);
-            const uint32_t stride     = texel_size * sub_res.scaled_extent.width;
-
-            if (output_image_format == kFormatBMP)
-            {
-                if (options_.dump_resources_dump_separate_alpha)
-                {
-                    util::imagewriter::WriteBmpImageSeparateAlpha(
-                        filename,
-                        sub_res.scaled_extent.width,
-                        sub_res.scaled_extent.height,
-                        static_cast<const void*>(image_dumped_data.data[i].data()),
-                        stride,
-                        image_writer_format);
-                }
-                else
-                {
-                    util::imagewriter::WriteBmpImage(filename,
-                                                     sub_res.scaled_extent.width,
-                                                     sub_res.scaled_extent.height,
-                                                     static_cast<const void*>(image_dumped_data.data[i].data()),
-                                                     stride,
-                                                     image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
-                }
-            }
-            else if (output_image_format == KFormatPNG)
-            {
-                if (options_.dump_resources_dump_separate_alpha)
-                {
-                    util::imagewriter::WritePngImageSeparateAlpha(
-                        filename,
-                        sub_res.scaled_extent.width,
-                        sub_res.scaled_extent.height,
-                        static_cast<const void*>(image_dumped_data.data[i].data()),
-                        stride,
-                        image_writer_format);
-                }
-                else
-                {
-                    util::imagewriter::WritePngImage(filename,
-                                                     sub_res.scaled_extent.width,
-                                                     sub_res.scaled_extent.height,
-                                                     static_cast<const void*>(image_dumped_data.data[i].data()),
-                                                     stride,
-                                                     image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
-                }
-            }
-        }
-        else
-        {
-            if (!options_.dump_resources_dump_raw_images)
-            {
-                GFXRECON_LOG_WARNING(
-                    "%s format is not handled. Images with that format will be dump as a plain binary file.",
-                    util::ToString<VkFormat>(image_info->format).c_str());
-            }
-
-            sub_res.size = image_dumped_data.data[i].size();
-            const size_t bytes_written =
-                util::bufferwriter::WriteBuffer(filename,
-                                                static_cast<const void*>(image_dumped_data.data[i].data()),
-                                                image_dumped_data.data[i].size(),
-                                                delegate_context.compressor);
-
-            if (!bytes_written)
-            {
-                GFXRECON_LOG_ERROR("Failed writing file %s", filename.c_str());
-                return false;
-            }
-
-            if (delegate_context.compressor != nullptr)
-            {
-                sub_res.compressed_size = bytes_written;
-            }
-        }
-    }
-
-    return true;
+    return DumpImageToFile(dumped_resource,
+                           *dumped_image,
+                           image_dumped_data.data,
+                           filename_generator,
+                           delegate_context.before_command,
+                           delegate_context.compressor);
 }
 
 bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase&                  dumped_resource,
@@ -843,6 +871,115 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(cons
     filename << "indexBuffer_"
              << "qs_" << dumped_resource.qs_index << "_bcb_" << dumped_resource.bcb_index << "_dc_"
              << dumped_resource.cmd_index << index_type_name << ".bin";
+
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(filename.str());
+    return (filedirname / filebasename).string();
+}
+
+std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFilename(
+    const DumpedResourceBase& dumped_resource, bool before_command, uint32_t region_index) const
+{
+    const auto& dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
+
+    std::stringstream filename;
+    filename << capture_filename_ << "_";
+
+    switch (dumped_resource.type)
+    {
+        case DumpResourceType::kInitBufferMetaCommand:
+            filename << "initBuffer_";
+            break;
+
+        case DumpResourceType::kCopyBuffer:
+            filename << "copyBuffer_";
+            break;
+        case DumpResourceType::kCopyImageToBuffer:
+            filename << "copyImageToBuffer_";
+            break;
+        default:
+            GFXRECON_LOG_ERROR(
+                "%s(): Unexpected resource type (%u)", __func__, static_cast<uint32_t>(dumped_resource.type))
+    }
+
+    if (options_.dump_resources_before)
+    {
+        if (before_command)
+        {
+            filename << "before_";
+        }
+        else
+        {
+            filename << "after_";
+        }
+    }
+
+    filename << "cmd_" << dumped_cmd.cmd_index;
+    if (region_index != NO_INDEX)
+    {
+        filename << "_region_index_" << region_index;
+    }
+
+    filename << "_qs_" << dumped_cmd.qs_index << ".bin";
+
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(filename.str());
+    return (filedirname / filebasename).string();
+}
+
+std::string
+DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const DumpedResourceBase& dumped_resource,
+                                                                          DumpedImageFormat         output_image_format,
+                                                                          VkImageAspectFlagBits     aspect,
+                                                                          uint32_t                  mip_level,
+                                                                          uint32_t                  layer,
+                                                                          bool before_command) const
+{
+    std::stringstream filename;
+    filename << capture_filename_ << "_";
+
+    switch (dumped_resource.type)
+    {
+        case DumpResourceType::kInitImageMetaCommand:
+            filename << "initImage_";
+            break;
+
+        case DumpResourceType::kCopyImage:
+            filename << "copyImage_";
+            break;
+
+        case DumpResourceType::kCopyBufferToImage:
+            filename << "copyBufferToImage_";
+            break;
+
+        case DumpResourceType::kBlitImage:
+            filename << "blitImage_";
+            break;
+
+        default:
+            GFXRECON_LOG_ERROR(
+                "%s(): Unexpected resource type (%u)", __func__, static_cast<uint32_t>(dumped_resource.type))
+    }
+
+    if (options_.dump_resources_before)
+    {
+        if (before_command)
+        {
+            filename << "before_";
+        }
+        else
+        {
+            filename << "after_";
+        }
+    }
+
+    const std::string aspect_str = ImageAspectToStr(aspect);
+    const auto&       dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
+
+    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_aspect_" << aspect_str << "_level_"
+             << mip_level << "_layer_" << layer;
+
+    filename << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1776,6 +1913,10 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
             filename << "TraceRays_";
             break;
 
+        case DumpResourcesPipelineStage::kTransfer:
+            filename << "Transfer_";
+            break;
+
         default:
             GFXRECON_LOG_ERROR(
                 "%s: Unrecognized command type (%u)", __func__, static_cast<unsigned>(dumped_command_type));
@@ -1849,6 +1990,665 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
+}
+
+bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
+    const VulkanDelegateDumpResourceContext& delegate_context)
+{
+    const auto* dumped_transfer_host_data =
+        std::get_if<VulkanDelegateTransferCommandDumpedData>(&delegate_context.dumped_data);
+    GFXRECON_ASSERT(dumped_transfer_host_data != nullptr);
+
+    auto* dumped_transfer_command = static_cast<DumpedTransferCommand*>(delegate_context.dumped_resource);
+    GFXRECON_ASSERT(dumped_transfer_command != nullptr);
+
+    if (const auto* init_buffer_host_data =
+            std::get_if<VulkanDelegateBufferDumpedData>(&dumped_transfer_host_data->dumped_data))
+    {
+        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
+        GFXRECON_ASSERT(resource_info->type == DumpResourceType::kInitBufferMetaCommand);
+
+        auto* dumped_init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&dumped_transfer_command->dumped_resource);
+        GFXRECON_ASSERT(dumped_init_buffer != nullptr);
+        const std::string filename =
+            GenerateTransferToBufferRegionFilename(*delegate_context.dumped_resource, false, NO_INDEX);
+        gfxrecon::decode::DumpBufferToFile(
+            dumped_init_buffer->dumped_buffer, filename, init_buffer_host_data->data, delegate_context.compressor);
+    }
+    else if (const auto* init_image_host_data =
+                 std::get_if<VulkanDelegateImageDumpedData>(&dumped_transfer_host_data->dumped_data))
+    {
+        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
+        GFXRECON_ASSERT(resource_info->type == DumpResourceType::kInitImageMetaCommand);
+
+        auto* dumped_init_image = std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command->dumped_resource);
+        GFXRECON_ASSERT(dumped_init_image != nullptr);
+
+        DumpImageToFile(delegate_context.dumped_resource,
+                        dumped_init_image->dumped_image,
+                        init_image_host_data->data,
+                        &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                        delegate_context.before_command,
+                        delegate_context.compressor);
+    }
+    else if (const auto* buffer_copy_host_data =
+                 std::get_if<VulkanDelegateDumpedCopyBufferRegions>(&dumped_transfer_host_data->dumped_data))
+    {
+        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
+        if (resource_info->type == DumpResourceType::kCopyBuffer)
+        {
+            auto* dumped_copy_buffer = std::get_if<DumpedCopyBuffer>(
+                delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                                : &dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_buffer != nullptr);
+
+            GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_buffer->regions.size());
+            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            {
+                const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
+                const std::string filename         = GenerateTransferToBufferRegionFilename(
+                    *delegate_context.dumped_resource, delegate_context.before_command, i);
+                gfxrecon::decode::DumpBufferToFile(dumped_copy_buffer->regions[i].dumped_buffer,
+                                                   filename,
+                                                   region_host_data,
+                                                   delegate_context.compressor);
+            }
+        }
+        else
+        {
+            GFXRECON_ASSERT(resource_info->type == DumpResourceType::kCopyImageToBuffer)
+
+            auto* dumped_copy_image_to_buffer = std::get_if<DumpedCopyImageToBuffer>(
+                delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                                : &dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_image_to_buffer != nullptr);
+
+            GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_image_to_buffer->regions.size());
+            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            {
+                const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
+                const std::string filename         = GenerateTransferToBufferRegionFilename(
+                    *delegate_context.dumped_resource, delegate_context.before_command, i);
+                gfxrecon::decode::DumpBufferToFile(dumped_copy_image_to_buffer->regions[i].dumped_buffer,
+                                                   filename,
+                                                   region_host_data,
+                                                   delegate_context.compressor);
+            }
+        }
+    }
+    else if (const auto* image_copy_host_data =
+                 std::get_if<VulkanDelegateDumpedCopyImageRegions>(&dumped_transfer_host_data->dumped_data))
+    {
+        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
+        if (resource_info->type == DumpResourceType::kCopyBufferToImage)
+        {
+            auto* dumped_copy_buffer_to_image = std::get_if<DumpedCopyBufferToImage>(
+                delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                                : &dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_buffer_to_image != nullptr);
+
+            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_buffer_to_image->regions.size());
+            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
+            {
+                DumpImageToFile(delegate_context.dumped_resource,
+                                dumped_copy_buffer_to_image->regions[i].dumped_image,
+                                image_copy_host_data->regions_data[i],
+                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                                delegate_context.before_command,
+                                delegate_context.compressor);
+            }
+        }
+        else if (resource_info->type == DumpResourceType::kCopyImage)
+        {
+            auto* dumped_copy_image = std::get_if<DumpedCopyImage>(
+                delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                                : &dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_image != nullptr);
+
+            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_image->regions.size());
+            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
+            {
+                DumpImageToFile(delegate_context.dumped_resource,
+                                dumped_copy_image->regions[i].dumped_image,
+                                image_copy_host_data->regions_data[i],
+                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                                delegate_context.before_command,
+                                delegate_context.compressor);
+            }
+        }
+        else if (resource_info->type == DumpResourceType::kBlitImage)
+        {
+            auto* dumped_blit_image = std::get_if<DumpedBlitImage>(
+                delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                                : &dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_blit_image != nullptr);
+
+            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_blit_image->regions.size());
+            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
+            {
+                DumpImageToFile(delegate_context.dumped_resource,
+                                dumped_blit_image->regions[i].dumped_image,
+                                image_copy_host_data->regions_data[i],
+                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                                delegate_context.before_command,
+                                delegate_context.compressor);
+            }
+        }
+    }
+    else if (const auto* build_as_host_data =
+                 std::get_if<VulkanDelegateDumpedBuildAccelerationStructures>(&dumped_transfer_host_data->dumped_data))
+    {
+        auto* dump_build_as = std::get_if<DumpedBuildAccelerationStructure>(
+            delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                            : &dumped_transfer_command->dumped_resource);
+        GFXRECON_ASSERT(dump_build_as != nullptr);
+
+        GFXRECON_ASSERT(dump_build_as->dumped_build_infos.size() == build_as_host_data->data.size());
+        for (size_t i = 0; i < dump_build_as->dumped_build_infos.size(); ++i)
+        {
+            if (dump_build_as->dumped_build_infos[i].dumped_as.as_info->type ==
+                VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+            {
+                return DumpTLASToFile(*dumped_transfer_command,
+                                      dump_build_as->dumped_build_infos[i].dumped_as,
+                                      build_as_host_data->data[i],
+                                      delegate_context.before_command,
+                                      delegate_context.compressor);
+            }
+            else
+            {
+                return DumpBLASToFile(*dumped_transfer_command,
+                                      dump_build_as->dumped_build_infos[i].dumped_as,
+                                      build_as_host_data->data[i],
+                                      delegate_context.before_command,
+                                      delegate_context.compressor);
+            }
+        }
+    }
+    else if (const auto* copy_as_host_data =
+                 std::get_if<VulkanDelegateDumpedCopyAccelerationStructure>(&dumped_transfer_host_data->dumped_data))
+    {
+        auto* dump_copy_as = std::get_if<DumpedCopyAccelerationStructure>(
+            delegate_context.before_command ? &dumped_transfer_command->dumped_resource_before
+                                            : &dumped_transfer_command->dumped_resource);
+        GFXRECON_ASSERT(dump_copy_as != nullptr);
+
+        if (dump_copy_as->dumped_copy_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+        {
+            return DumpTLASToFile(*dumped_transfer_command,
+                                  dump_copy_as->dumped_copy_info.dumped_as,
+                                  copy_as_host_data->data,
+                                  delegate_context.before_command,
+                                  delegate_context.compressor);
+        }
+        else
+        {
+            return DumpBLASToFile(*dumped_transfer_command,
+                                  dump_copy_as->dumped_copy_info.dumped_as,
+                                  copy_as_host_data->data,
+                                  delegate_context.before_command,
+                                  delegate_context.compressor);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("%s(): Unexpected transfer command type", __func__);
+        GFXRECON_ASSERT(0);
+    }
+
+    return true;
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
+    const VulkanDelegateDumpDrawCallContext& draw_call_info)
+{
+    const TransferDumpingContext::TransferParams* params =
+        std::get<const TransferDumpingContext::TransferParams*>(draw_call_info.command_parameters);
+    GFXRECON_ASSERT(params != nullptr);
+
+    const DumpedResourcesInfo& dumped_resources = params->dumped_resources;
+    if (options_.dump_resources_json_per_command)
+    {
+        std::stringstream filename;
+        filename << capture_filename_ << "_";
+        filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_cmd_"
+                 << dumped_resources.cmd_index << "_dr.json";
+
+        std::filesystem::path filedirname(options_.dump_resources_output_dir);
+        std::filesystem::path filebasename(filename.str());
+        std::string           full_filename = (filedirname / filebasename).string();
+
+        dump_json_.Open(full_filename);
+        dump_json_.BlockStart();
+    }
+
+    auto& current_block = dump_json_.GetCurrentSubEntry();
+    auto& transfer_json_entries =
+        !options_.dump_resources_json_per_command ? current_block["transferCommands"] : current_block;
+
+    const uint32_t transfer_json_entry = dump_json_.FetchAndAddTransferEntryIndex();
+    auto&          transfer_entry =
+        !options_.dump_resources_json_per_command ? transfer_json_entries[transfer_json_entry] : transfer_json_entries;
+
+    transfer_entry["cmdType"]          = TransferDumpingContext::TransferCommandTypeToStr(params->type);
+    transfer_entry["cmdIndex"]         = dumped_resources.cmd_index;
+    transfer_entry["queueSubmitIndex"] = dumped_resources.qs_index;
+
+    auto& transf_params_json_entry = transfer_entry["parameters"];
+
+    for (const auto& cmd : dumped_resources.dumped_transfer_commands)
+    {
+        switch (params->type)
+        {
+            case TransferDumpingContext::TransferCommandTypes::kCmdInitBuffer:
+            {
+                const auto* init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(init_buffer != nullptr);
+
+                transf_params_json_entry["buffer"] = init_buffer->buffer;
+                dump_json_.InsertBufferInfo(transf_params_json_entry, init_buffer->dumped_buffer);
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdInitImage:
+            {
+                const auto* init_image = std::get_if<DumpedInitImageMetaCommand>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(init_image != nullptr);
+
+                transf_params_json_entry["image"] = init_image->image;
+
+                for (size_t sr = 0; sr < init_image->dumped_image.dumped_subresources.size(); ++sr)
+                {
+                    const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource =
+                        init_image->dumped_image.dumped_subresources[sr];
+                    auto& subresource_json_entry = transf_params_json_entry["subresources"];
+                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                          dumped_image_sub_resource,
+                                                          init_image->dumped_image.image_info->format,
+                                                          options_.dump_resources_dump_separate_alpha,
+                                                          init_image->dumped_image.dumped_raw);
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdCopyBuffer:
+            {
+                const auto* copy_buffer = std::get_if<DumpedCopyBuffer>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(copy_buffer != nullptr);
+
+                transf_params_json_entry["srcBuffer"] = copy_buffer->src_buffer;
+                transf_params_json_entry["dstBuffer"] = copy_buffer->dst_buffer;
+
+                auto& regions_entries = transf_params_json_entry["regions"];
+
+                for (size_t i = 0; i < copy_buffer->regions.size(); ++i)
+                {
+                    const auto& region              = copy_buffer->regions[i];
+                    regions_entries[i]["srcOffset"] = region.region.srcOffset;
+                    regions_entries[i]["dstOffset"] = region.region.dstOffset;
+                    regions_entries[i]["size"]      = region.region.size;
+                    dump_json_.InsertBufferInfo(regions_entries[i], region.dumped_buffer);
+
+                    if (cmd.has_before)
+                    {
+                        const auto* copy_buffer_before = std::get_if<DumpedCopyBuffer>(&cmd.dumped_resource_before);
+                        GFXRECON_ASSERT(copy_buffer_before != nullptr);
+                        dump_json_.InsertBeforeBufferInfo(regions_entries[i],
+                                                          copy_buffer_before->regions[i].dumped_buffer);
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdCopyBufferToImage:
+            {
+                const auto* copy_buffer_to_image = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(copy_buffer_to_image != nullptr);
+
+                transf_params_json_entry["srcBuffer"] = copy_buffer_to_image->src_buffer;
+                transf_params_json_entry["dstImage"]  = copy_buffer_to_image->dst_image;
+                transf_params_json_entry["dstImageLayout"] =
+                    util::ToString<VkImageLayout>(copy_buffer_to_image->dst_image_layout);
+
+                auto& regions_entries = transf_params_json_entry["regions"];
+                for (size_t i = 0; i < copy_buffer_to_image->regions.size(); ++i)
+                {
+                    const auto& region = copy_buffer_to_image->regions[i];
+
+                    auto& region_entry                = regions_entries[i];
+                    region_entry["bufferOffset"]      = region.region.bufferOffset;
+                    region_entry["bufferRowLength"]   = region.region.bufferRowLength;
+                    region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+                    auto& img_subresource             = region_entry["imageSubresource"];
+                    img_subresource["aspectMask"] =
+                        util::ToString(static_cast<VkImageAspectFlagBits>(region.region.imageSubresource.aspectMask));
+                    img_subresource["mipLevel"]       = region.region.imageSubresource.mipLevel;
+                    img_subresource["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
+                    img_subresource["layerCount"]     = region.region.imageSubresource.layerCount;
+
+                    auto& img_offset = region_entry["imageOffset"];
+                    img_offset["x"]  = region.region.imageOffset.x;
+                    img_offset["y"]  = region.region.imageOffset.y;
+                    img_offset["z"]  = region.region.imageOffset.z;
+
+                    auto& img_extent = region_entry["imageOffset"];
+                    img_offset["x"]  = region.region.imageOffset.x;
+                    img_offset["y"]  = region.region.imageOffset.y;
+                    img_offset["z"]  = region.region.imageOffset.z;
+
+                    auto& extent     = region_entry["imageExtent"];
+                    extent["width"]  = region.region.imageExtent.width;
+                    extent["height"] = region.region.imageExtent.height;
+                    extent["depth"]  = region.region.imageExtent.depth;
+
+                    auto& subresource_json_entry = region_entry["subresources"];
+                    for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+                    {
+                        const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                              dumped_image_sub_resource,
+                                                              region.dumped_image.image_info->format,
+                                                              options_.dump_resources_dump_separate_alpha,
+                                                              region.dumped_image.dumped_raw);
+
+                        if (cmd.has_before)
+                        {
+                            const auto* copy_image_before =
+                                std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
+                            GFXRECON_ASSERT(copy_image_before != nullptr);
+                            const auto& region_before = copy_image_before->regions[i];
+                            const auto& dumped_image_sub_resource_before =
+                                region_before.dumped_image.dumped_subresources[sr];
+                            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                                        dumped_image_sub_resource_before,
+                                                                        region_before.dumped_image.image_info->format,
+                                                                        options_.dump_resources_dump_separate_alpha,
+                                                                        region_before.dumped_image.dumped_raw);
+                        }
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdCopyImage:
+            {
+                const auto* copy_image = std::get_if<DumpedCopyImage>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(copy_image != nullptr);
+
+                transf_params_json_entry["srcImage"] = copy_image->src_image;
+                transf_params_json_entry["srcImageLayout"] =
+                    util::ToString<VkImageLayout>(copy_image->src_image_layout);
+                transf_params_json_entry["dstImage"] = copy_image->dst_image;
+                transf_params_json_entry["dstImageLayout"] =
+                    util::ToString<VkImageLayout>(copy_image->dst_image_layout);
+
+                auto& regions_entries = transf_params_json_entry["regions"];
+                for (size_t i = 0; i < copy_image->regions.size(); ++i)
+                {
+                    const auto& region          = copy_image->regions[i];
+                    auto&       region_entry    = regions_entries[i];
+                    auto&       src_subresource = region_entry["srcSubresource"];
+                    src_subresource["aspectMask"] =
+                        util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
+                    src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
+                    src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
+                    src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+
+                    auto& srcOffset = region_entry["srcOffset"];
+                    srcOffset["x"]  = region.region.srcOffset.x;
+                    srcOffset["y"]  = region.region.srcOffset.y;
+                    srcOffset["z"]  = region.region.srcOffset.z;
+
+                    auto& dst_subresource = region_entry["dstSubresource"];
+                    dst_subresource["aspectMask"] =
+                        util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
+                    dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
+                    dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
+                    dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+
+                    auto& dstOffset = region_entry["dstOffset"];
+                    dstOffset["x"]  = region.region.dstOffset.x;
+                    dstOffset["y"]  = region.region.dstOffset.y;
+                    dstOffset["z"]  = region.region.dstOffset.z;
+
+                    auto& extent     = region_entry["extent"];
+                    extent["width"]  = region.region.extent.width;
+                    extent["height"] = region.region.extent.height;
+                    extent["depth"]  = region.region.extent.depth;
+
+                    auto& subresource_json_entry = region_entry["subresources"];
+                    for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+                    {
+                        const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                              dumped_image_sub_resource,
+                                                              region.dumped_image.image_info->format,
+                                                              options_.dump_resources_dump_separate_alpha,
+                                                              region.dumped_image.dumped_raw);
+
+                        if (cmd.has_before)
+                        {
+                            const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+                            GFXRECON_ASSERT(copy_image_before != nullptr);
+                            const auto& region_before = copy_image_before->regions[i];
+                            const auto& dumped_image_sub_resource_before =
+                                region_before.dumped_image.dumped_subresources[sr];
+                            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                                        dumped_image_sub_resource_before,
+                                                                        region_before.dumped_image.image_info->format,
+                                                                        options_.dump_resources_dump_separate_alpha,
+                                                                        region_before.dumped_image.dumped_raw);
+                        }
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdCopyImageToBuffer:
+            {
+                const auto* copy_image_to_buffer = std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(copy_image_to_buffer != nullptr);
+
+                transf_params_json_entry["srcImage"] = copy_image_to_buffer->src_image;
+                transf_params_json_entry["srcImageLayout"] =
+                    util::ToString<VkImageLayout>(copy_image_to_buffer->src_image_layout);
+                transf_params_json_entry["dstBuffer"] = copy_image_to_buffer->dst_buffer;
+
+                auto& regions_entries = transf_params_json_entry["regions"];
+                for (size_t i = 0; i < copy_image_to_buffer->regions.size(); ++i)
+                {
+                    const auto& region       = copy_image_to_buffer->regions[i];
+                    auto&       region_entry = regions_entries[i];
+
+                    region_entry["bufferOffset"]      = region.region.bufferOffset;
+                    region_entry["bufferRowLength"]   = region.region.bufferRowLength;
+                    region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+
+                    auto& img_subresource_entry             = region_entry["imageSubresource"];
+                    img_subresource_entry["aspectMask"]     = region.region.imageSubresource.aspectMask;
+                    img_subresource_entry["mipLevel"]       = region.region.imageSubresource.mipLevel;
+                    img_subresource_entry["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
+                    img_subresource_entry["layerCount"]     = region.region.imageSubresource.layerCount;
+
+                    auto& image_offset = region_entry["imageOffset"];
+                    image_offset["x"]  = region.region.imageOffset.x;
+                    image_offset["y"]  = region.region.imageOffset.y;
+                    image_offset["z"]  = region.region.imageOffset.z;
+
+                    auto& image_extent     = region_entry["imageExtent"];
+                    image_extent["width"]  = region.region.imageExtent.width;
+                    image_extent["height"] = region.region.imageExtent.height;
+                    image_extent["depth"]  = region.region.imageExtent.depth;
+
+                    dump_json_.InsertBufferInfo(region_entry, region.dumped_buffer);
+
+                    if (cmd.has_before)
+                    {
+                        const auto* copy_buffer_before =
+                            std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource_before);
+                        GFXRECON_ASSERT(copy_buffer_before != nullptr);
+                        dump_json_.InsertBeforeBufferInfo(region_entry, copy_buffer_before->regions[i].dumped_buffer);
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdBlitImage:
+            {
+                const auto* blit_image = std::get_if<DumpedBlitImage>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(blit_image != nullptr);
+
+                transf_params_json_entry["srcImage"] = blit_image->src_image;
+                transf_params_json_entry["srcImageLayout"] =
+                    util::ToString<VkImageLayout>(blit_image->src_image_layout);
+                transf_params_json_entry["dstImage"] = blit_image->dst_image;
+                transf_params_json_entry["dstImageLayout"] =
+                    util::ToString<VkImageLayout>(blit_image->dst_image_layout);
+                transf_params_json_entry["filter"] = util::ToString<VkFilter>(blit_image->filter);
+
+                auto& regions_entries = transf_params_json_entry["regions"];
+                for (size_t i = 0; i < blit_image->regions.size(); ++i)
+                {
+                    const auto& region          = blit_image->regions[i];
+                    auto&       region_entry    = regions_entries[i];
+                    auto&       src_subresource = region_entry["srcSubresource"];
+                    src_subresource["aspectMask"] =
+                        util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
+                    src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
+                    src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
+                    src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+
+                    auto& srcOffsets    = region_entry["srcOffset"];
+                    srcOffsets["[0].x"] = region.region.srcOffsets[0].x;
+                    srcOffsets["[0].y"] = region.region.srcOffsets[0].y;
+                    srcOffsets["[0].z"] = region.region.srcOffsets[0].z;
+                    srcOffsets["[1].x"] = region.region.srcOffsets[1].x;
+                    srcOffsets["[1].y"] = region.region.srcOffsets[1].y;
+                    srcOffsets["[1].z"] = region.region.srcOffsets[1].z;
+
+                    auto& dst_subresource = region_entry["dstSubresource"];
+                    dst_subresource["aspectMask"] =
+                        util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
+                    dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
+                    dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
+                    dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+
+                    auto& dstOffsets    = region_entry["dstOffset"];
+                    dstOffsets["[0].x"] = region.region.dstOffsets[0].x;
+                    dstOffsets["[0].y"] = region.region.dstOffsets[0].y;
+                    dstOffsets["[0].z"] = region.region.dstOffsets[0].z;
+                    dstOffsets["[1].x"] = region.region.dstOffsets[1].x;
+                    dstOffsets["[1].y"] = region.region.dstOffsets[1].y;
+                    dstOffsets["[1].z"] = region.region.dstOffsets[1].z;
+
+                    auto& subresource_json_entry = region_entry["subresources"];
+                    for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+                    {
+                        const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+                        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                              dumped_image_sub_resource,
+                                                              region.dumped_image.image_info->format,
+                                                              options_.dump_resources_dump_separate_alpha,
+                                                              region.dumped_image.dumped_raw);
+
+                        if (cmd.has_before)
+                        {
+                            const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+                            GFXRECON_ASSERT(copy_image_before != nullptr);
+                            const auto& region_before = copy_image_before->regions[i];
+                            const auto& dumped_image_sub_resource_before =
+                                region_before.dumped_image.dumped_subresources[sr];
+                            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                                        dumped_image_sub_resource_before,
+                                                                        region_before.dumped_image.image_info->format,
+                                                                        options_.dump_resources_dump_separate_alpha,
+                                                                        region_before.dumped_image.dumped_raw);
+                        }
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdBuildAccelerationStructures:
+            {
+                const auto* dumped_build_as = std::get_if<DumpedBuildAccelerationStructure>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(dumped_build_as != nullptr);
+
+                auto& builds_entries = transf_params_json_entry["builds"];
+                for (size_t i = 0; i < dumped_build_as->dumped_build_infos.size(); ++i)
+                {
+                    const auto& build_info                        = dumped_build_as->dumped_build_infos[i];
+                    builds_entries[i]["srcAccelerationStructure"] = build_info.src_as;
+                    builds_entries[i]["dstAccelerationStructure"] = build_info.dst_as;
+                    builds_entries[i]["mode"] =
+                        util::ToString(static_cast<VkBuildAccelerationStructureModeKHR>(build_info.mode));
+                    builds_entries[i]["dstAccelerationStructureType"] =
+                        util::ToString<VkAccelerationStructureTypeKHR>(build_info.dumped_as.as_info->type);
+
+                    auto& as_content_entries = builds_entries[i]["asContent"];
+                    if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+                    {
+                        GenerateTLASJsonInfo(as_content_entries, build_info.dumped_as);
+                    }
+                    else if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
+                    {
+                        GenerateBLASJsonInfo(as_content_entries, build_info.dumped_as);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("%s() Unhandled AS type %d",
+                                           __func__,
+                                           static_cast<int>(build_info.dumped_as.as_info->type));
+                        GFXRECON_ASSERT(0);
+                    }
+                }
+            }
+            break;
+
+            case TransferDumpingContext::TransferCommandTypes::kCmdCopyAccelerationStructure:
+            {
+                const auto* dumped_copy_as = std::get_if<DumpedCopyAccelerationStructure>(&cmd.dumped_resource);
+                GFXRECON_ASSERT(dumped_copy_as != nullptr);
+
+                auto& copy_info_entries   = transf_params_json_entry["copyInfo"];
+                copy_info_entries["src"]  = dumped_copy_as->dumped_copy_info.src_as;
+                copy_info_entries["dst"]  = dumped_copy_as->dumped_copy_info.dst_as;
+                copy_info_entries["mode"] = util::ToString(
+                    static_cast<VkCopyAccelerationStructureModeKHR>(dumped_copy_as->dumped_copy_info.mode));
+
+                auto& as_content_entries = copy_info_entries["asContent"];
+                if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type ==
+                    VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+                {
+                    GenerateTLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
+                }
+                else if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type ==
+                         VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
+                {
+                    GenerateBLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("%s() Unhandled AS type %d",
+                                       __func__,
+                                       static_cast<int>(dumped_copy_as->dumped_copy_info.dumped_as.as_info->type));
+                    GFXRECON_ASSERT(0);
+                }
+            }
+            break;
+
+            default:
+                GFXRECON_LOG_WARNING(
+                    "%s(): Transfer command type %d not handled", __func__, static_cast<int>(params->type));
+                GFXRECON_ASSERT(0);
+        }
+    }
+
+    if (options_.dump_resources_json_per_command)
+    {
+        dump_json_.BlockEnd();
+        dump_json_.Close();
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -84,6 +84,8 @@ class VulkanReplayDumpResourcesJson
 
     uint32_t FetchAndAddTraceRaysEntryIndex() { return trace_rays_entry_index++; }
 
+    uint32_t FetchAndAddTransferEntryIndex() { return transfer_entry_index++; }
+
   private:
     bool InitializeFile(const std::string& filename);
 
@@ -96,6 +98,7 @@ class VulkanReplayDumpResourcesJson
     uint32_t draw_calls_entry_index;
     uint32_t dispatch_entry_index;
     uint32_t trace_rays_entry_index;
+    uint32_t transfer_entry_index;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

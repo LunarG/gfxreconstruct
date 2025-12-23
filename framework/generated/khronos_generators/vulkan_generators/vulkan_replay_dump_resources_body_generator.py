@@ -115,9 +115,10 @@ class VulkanReplayDumpResourcesBodyGenerator(
         body = ''
 
         is_override = name in self.DUMP_RESOURCES_OVERRIDES
+        is_transfer = name in self.DUMP_RESOURCES_TRANSFER_API_CALLS
 
         if not is_override:
-            body += '    if (IsRecording(commandBuffer))\n'
+            body += '    if (IsRecording(commandBuffer, call_info.index))\n'
             body += '    {\n'
             body += '        const std::vector<DrawCallsDumpingContext*> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);\n'
             body += '        for (auto dc_context : dc_contexts)\n'
@@ -163,8 +164,12 @@ class VulkanReplayDumpResourcesBodyGenerator(
                 else:
                     override_call_expr += '{}, '.format(val.name)
 
-            override_call_expr = override_call_expr[:-2]
-            body += '    if (IsRecording(commandBuffer))\n'
+            if is_transfer:
+                override_call_expr += 'before_command'
+            else:
+                override_call_expr = override_call_expr[:-2]
+
+            body += '    if (IsRecording(commandBuffer, call_info.index))\n'
             body += '    {\n'
             body += '        {}({});\n'.format(self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr)
             body += '    }\n'
