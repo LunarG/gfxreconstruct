@@ -40,31 +40,37 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct VulkanDelegateDumpDrawCallContext
 {
-    VulkanDelegateDumpDrawCallContext(DumpResourcesCommandType                       t,
+    VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                     t,
                                       const graphics::VulkanInstanceTable*           it,
                                       const graphics::VulkanDeviceTable*             dt,
                                       const DrawCallsDumpingContext::DrawCallParams* dc_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(dc_params)
-    {}
+    {
+        GFXRECON_ASSERT(t == DumpResourcesPipelineStage::kGraphics);
+    }
 
-    VulkanDelegateDumpDrawCallContext(DumpResourcesCommandType                               t,
+    VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                             t,
                                       const graphics::VulkanInstanceTable*                   it,
                                       const graphics::VulkanDeviceTable*                     dt,
                                       const DispatchTraceRaysDumpingContext::DispatchParams* disp_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(disp_params)
-    {}
+    {
+        GFXRECON_ASSERT(t == DumpResourcesPipelineStage::kCompute);
+    }
 
-    VulkanDelegateDumpDrawCallContext(DumpResourcesCommandType                                t,
+    VulkanDelegateDumpDrawCallContext(DumpResourcesPipelineStage                              t,
                                       const graphics::VulkanInstanceTable*                    it,
                                       const graphics::VulkanDeviceTable*                      dt,
                                       const DispatchTraceRaysDumpingContext::TraceRaysParams* tr_params) :
         command_type(t),
         instance_table(it), device_table(dt), command_parameters(tr_params)
-    {}
+    {
+        GFXRECON_ASSERT(t == DumpResourcesPipelineStage::kRayTracing);
+    }
 
-    DumpResourcesCommandType             command_type;
+    DumpResourcesPipelineStage           command_type;
     const graphics::VulkanInstanceTable* instance_table;
     const graphics::VulkanDeviceTable*   device_table;
 
@@ -78,21 +84,21 @@ struct VulkanDelegateBufferDumpedData
 {
     VulkanDelegateBufferDumpedData() = default;
 
-    DumpedRawData data;
+    DumpedHostData data;
 };
 
 struct VulkanDelegateImageDumpedData
 {
     VulkanDelegateImageDumpedData() = default;
 
-    DumpedImageRawData data;
+    DumpedImageHostData data;
 };
 
 struct VulkanDelegateAccelerationStructureDumpedData
 {
     VulkanDelegateAccelerationStructureDumpedData() = default;
 
-    TLASDumpedHostData data;
+    AccelerationStructureDumpedHostData data;
 };
 
 struct VulkanDelegateDumpResourceContext
@@ -239,6 +245,18 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Acceleration structures
     bool DumpAccelerationStructureToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
+    bool DumpTLASToFile(const DumpedResourceBase&                  dumped_resource,
+                        DumpedAccelerationStructure&               dumped_tlas,
+                        const AccelerationStructureDumpedHostData& dumped_tlas_data,
+                        bool                                       before_command,
+                        const util::Compressor*                    compressor);
+
+    bool DumpBLASToFile(const DumpedResourceBase&                  dumped_resource,
+                        DumpedAccelerationStructure&               dumped_blas,
+                        const AccelerationStructureDumpedHostData& dumped_blas_data,
+                        bool                                       before_command,
+                        const util::Compressor*                    compressor);
+
     enum class AccelerationStructureDumpedBufferType
     {
         kInstance,
@@ -253,7 +271,8 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     std::string GenerateASDumpedBufferFilename(const DumpedResourceBase&             resource_info,
                                                format::HandleId                      handle_id,
                                                AccelerationStructureDumpedBufferType type,
-                                               DumpResourcesCommandType              dumped_command_type,
+                                               DumpResourcesPipelineStage            dumped_command_type,
+                                               bool                                  before_command,
                                                uint32_t buffer_index = std::numeric_limits<uint32_t>::max());
 
     // Json generators
@@ -265,6 +284,12 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     void GenerateDescriptorsJsonInfo(nlohmann::ordered_json&    dispatch_json_entry,
                                      const DumpedResourcesInfo& dumped_resources);
+
+    void GenerateTLASJsonInfo(nlohmann::ordered_json&            dispatch_json_entry,
+                              const DumpedAccelerationStructure& dumped_as);
+
+    void GenerateBLASJsonInfo(nlohmann::ordered_json&            dispatch_json_entry,
+                              const DumpedAccelerationStructure& dumped_as);
 
     VulkanReplayDumpResourcesJson dump_json_;
     const VulkanReplayOptions&    options_;

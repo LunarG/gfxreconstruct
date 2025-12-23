@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -48,16 +48,16 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
-    const CommandIndices*                       dispatch_indices,
-    const CommandImageSubresource&              disp_subresources,
-    const CommandIndices*                       trace_rays_indices,
-    const CommandImageSubresource&              tr_subresources,
-    CommonObjectInfoTable&                      object_info_table,
-    const VulkanReplayOptions&                  options,
-    VulkanDumpResourcesDelegate&                delegate,
-    const util::Compressor*                     compressor,
-    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&       address_trackers) :
+    const CommandIndices*                             dispatch_indices,
+    const CommandImageSubresource&                    disp_subresources,
+    const CommandIndices*                             trace_rays_indices,
+    const CommandImageSubresource&                    tr_subresources,
+    CommonObjectInfoTable&                            object_info_table,
+    const VulkanReplayOptions&                        options,
+    VulkanDumpResourcesDelegate&                      delegate,
+    const util::Compressor*                           compressor,
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
     DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
     delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
@@ -1353,7 +1353,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
         }
 
         const VulkanDelegateDumpDrawCallContext draw_call_info(
-            DumpResourcesCommandType::kCompute, instance_table_, device_table_, disp_params.get());
+            DumpResourcesPipelineStage::kCompute, instance_table_, device_table_, disp_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
@@ -1380,7 +1380,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
         }
 
         const VulkanDelegateDumpDrawCallContext draw_call_info(
-            DumpResourcesCommandType::kRayTracing, instance_table_, device_table_, tr_params.get());
+            DumpResourcesPipelineStage::kRayTracing, instance_table_, device_table_, tr_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
@@ -1483,7 +1483,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             mutable_resources_clones.images[i].array_index,
             &mutable_resources_clones.images[i].new_image_info,
             can_dump_image,
-            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+            is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing);
 
         if (can_dump_image != ImageDumpResult::kCanDump)
         {
@@ -1582,10 +1582,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             mutable_resources_clones.buffers[i].desc_set,
             mutable_resources_clones.buffers[i].desc_binding,
             mutable_resources_clones.buffers[i].array_index,
-            &mutable_resources_clones.buffers[i].new_buffer_info,
+            mutable_resources_clones.buffers[i].new_buffer_info.handle,
+            mutable_resources_clones.buffers[i].new_buffer_info.capture_id,
             0,
             mutable_resources_clones.buffers[i].cloned_size,
-            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+            is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing);
 
         // Dump the "after" resource
         VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1617,7 +1618,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
             new_dumped_desc.has_before = true;
             new_dumped_desc.dumped_resource_before =
-                DumpedBuffer(&mutable_resources_clones_before.buffers[i].new_buffer_info,
+                DumpedBuffer(mutable_resources_clones_before.buffers[i].new_buffer_info.handle,
+                             mutable_resources_clones_before.buffers[i].new_buffer_info.capture_id,
                              0,
                              mutable_resources_clones_before.buffers[i].cloned_size);
 
@@ -1667,8 +1669,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
     DumpedResourcesInfo& dumped_resources =
         is_dispatch ? dispatch_params_[cmd_index]->dumped_resources : trace_rays_params_[cmd_index]->dumped_resources;
 
-    const DumpResourcesCommandType resource_type =
-        is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing;
+    const DumpResourcesPipelineStage ppl_stage =
+        is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing;
 
     const CommandImageSubresource&  command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
     CommandImageSubresourceIterator cmd_subresources_entry;
@@ -1735,7 +1737,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                 array_index,
                                 img_info,
                                 can_dump_image,
-                                resource_type);
+                                ppl_stage);
 
                             if (can_dump_image != ImageDumpResult::kCanDump)
                             {
@@ -1817,10 +1819,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            resource_type);
+                            ppl_stage);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
@@ -1894,10 +1897,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            resource_type);
+                            ppl_stage);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto               dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
@@ -1956,7 +1960,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         desc_binding_info.desc_type,
                         desc_set_index,
                         desc_binding_index,
-                        resource_type);
+                        ppl_stage);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
@@ -1989,10 +1993,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             array_index,
                             as_info,
                             options_.dump_resources_dump_build_AS_input_buffers,
-                            resource_type);
+                            ppl_stage);
 
-                        auto& new_dumped_as =
-                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        auto& new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                         const DescriptorLocation loc  = { desc_set_index, desc_binding_index, array_index };
                         const auto& dumped_desc_entry = dumped_descriptors.acceleration_structures.find(loc);
                         if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end())
@@ -2005,14 +2008,19 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             auto& dumped_as_data =
                                 std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
 
-                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
-                                                                             dumped_as_data.data,
-                                                                             acceleration_structures_context_,
-                                                                             device_info,
-                                                                             *device_table_,
-                                                                             object_info_table_,
-                                                                             *instance_table_,
-                                                                             address_trackers_);
+                            auto tlas_context_entry = acceleration_structures_context_.find(as_info);
+                            GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context_.end());
+                            AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
+
+                            VkResult res = DumpAccelerationStructure(new_dumped_as,
+                                                                     dumped_as_data.data,
+                                                                     tlas_context,
+                                                                     acceleration_structures_context_,
+                                                                     device_info,
+                                                                     *device_table_,
+                                                                     object_info_table_,
+                                                                     *instance_table_,
+                                                                     address_trackers_);
                             if (res != VK_SUCCESS)
                             {
                                 GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",

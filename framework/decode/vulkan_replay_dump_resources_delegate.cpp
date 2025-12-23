@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/buffer_writer.h"
@@ -30,10 +30,8 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <unordered_set>
-#include <vulkan/vulkan_core.h>
-
-#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include <variant>
 #include <vulkan/vulkan_core.h>
 
@@ -44,13 +42,13 @@ void DefaultVulkanDumpResourcesDelegate::DumpDrawCallInfo(const VulkanDelegateDu
 {
     switch (draw_call_info.command_type)
     {
-        case DumpResourcesCommandType::kGraphics:
+        case DumpResourcesPipelineStage::kGraphics:
             GenerateOutputJsonDrawCallInfo(draw_call_info);
             break;
-        case DumpResourcesCommandType::kCompute:
+        case DumpResourcesPipelineStage::kCompute:
             GenerateOutputJsonDispatchInfo(draw_call_info);
             break;
-        case DumpResourcesCommandType::kRayTracing:
+        case DumpResourcesPipelineStage::kRayTracing:
             GenerateOutputJsonTraceRaysIndex(draw_call_info);
             break;
         default:
@@ -94,7 +92,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpResource(const VulkanDelegateDumpRe
 
 static bool DumpBufferToFile(DumpedBuffer&           dumped_buffer,
                              const std::string&      filename,
-                             const DumpedRawData&    data,
+                             const DumpedHostData&   data,
                              const util::Compressor* compressor)
 {
     const size_t bytes_written = util::bufferwriter::WriteBuffer(filename, data.data(), data.size(), compressor);
@@ -118,7 +116,7 @@ static bool DumpBufferToFile(DumpedBuffer&           dumped_buffer,
 
 bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDumpResourceContext& delegate_context)
 {
-    DumpedResourceBase* dumped_resource = static_cast<DumpedResourceBase*>(delegate_context.dumped_resource);
+    DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
     GFXRECON_ASSERT(dumped_resource != nullptr);
 
     DumpedBuffer*           dumped_buffer;
@@ -452,148 +450,220 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
     return true;
 }
 
-bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
-    const VulkanDelegateDumpResourceContext& delegate_context)
+bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase&                  dumped_resource,
+                                                        DumpedAccelerationStructure&               dumped_as,
+                                                        const AccelerationStructureDumpedHostData& dumped_as_data,
+                                                        bool                                       before_command,
+                                                        const util::Compressor*                    compressor)
 {
-    DumpedDescriptor* dumped_descriptor = static_cast<DumpedDescriptor*>(delegate_context.dumped_resource);
-    DumpedTopLevelAccelerationStructure* dumped_tlas =
-        std::get_if<DumpedTopLevelAccelerationStructure>(&dumped_descriptor->dumped_resource);
-    GFXRECON_ASSERT(dumped_tlas != nullptr);
+    GFXRECON_ASSERT(dumped_as.as_info != nullptr);
+    GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
-    const VulkanDelegateAccelerationStructureDumpedData& dumped_tlas_data =
-        std::get<VulkanDelegateAccelerationStructureDumpedData>(delegate_context.dumped_data);
-
-    // Dump input instance buffers
-    GFXRECON_ASSERT(dumped_tlas_data.data.instance_data.size() == dumped_tlas->instance_data.size());
-    for (size_t i = 0; i < dumped_tlas_data.data.instance_data.size(); ++i)
+    // Dump serialized version
+    if (dumped_as.serialized_buffer.size)
     {
-        // Instance buffer
-        if (dumped_tlas->instance_data[i].size && dumped_tlas->dump_build_input_buffers)
+        std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                              dumped_as.as_info->capture_id,
+                                                              AccelerationStructureDumpedBufferType::kSerializedTlas,
+                                                              dumped_resource.ppl_stage,
+                                                              before_command);
+
+        gfxrecon::decode::DumpBufferToFile(
+            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor);
+    }
+
+    // Dump instance buffers
+    for (size_t i = 0; i < dumped_as_data.build_data.size(); ++i)
+    {
+        GFXRECON_ASSERT(std::get_if<AccelerationStructureDumpedHostData::TrianglesBuffers>(
+                            &dumped_as_data.build_data[i]) == nullptr);
+        GFXRECON_ASSERT(std::get_if<AccelerationStructureDumpedHostData::AABBBuffer>(&dumped_as_data.build_data[i]) ==
+                        nullptr);
+
+        const auto* instance_buffer_host_data =
+            std::get_if<AccelerationStructureDumpedHostData::InstanceBuffer>(&dumped_as_data.build_data[i]);
+        GFXRECON_ASSERT(instance_buffer_host_data != nullptr);
+
+        auto* instance_buffer =
+            std::get_if<DumpedAccelerationStructure::DumpedBuildInputInstanceBuffer>(&dumped_as.input_buffers[i]);
+        if (instance_buffer->instance_buffer.size)
         {
-            GFXRECON_ASSERT(dumped_tlas->as_info != nullptr);
-            std::string filename = GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                                                  dumped_tlas->as_info->capture_id,
+            std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                                  dumped_as.as_info->capture_id,
                                                                   AccelerationStructureDumpedBufferType::kInstance,
-                                                                  dumped_descriptor->resource_type,
+                                                                  dumped_resource.ppl_stage,
+                                                                  before_command,
                                                                   static_cast<uint32_t>(i));
-            gfxrecon::decode::DumpBufferToFile(dumped_tlas->instance_data[i],
-                                               filename,
-                                               dumped_tlas_data.data.instance_data[i].instance_buffer,
-                                               delegate_context.compressor);
-        }
-
-        // Serialized AS data
-        if (dumped_tlas->serialized_data.size)
-        {
-            std::string filename =
-                GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                               dumped_tlas->as_info->capture_id,
-                                               AccelerationStructureDumpedBufferType::kSerializedTlas,
-                                               dumped_descriptor->resource_type);
-
-            gfxrecon::decode::DumpBufferToFile(dumped_tlas->serialized_data,
-                                               filename,
-                                               dumped_tlas_data.data.serialized_data,
-                                               delegate_context.compressor);
+            gfxrecon::decode::DumpBufferToFile(
+                instance_buffer->instance_buffer, filename, instance_buffer_host_data->instance_buffer, compressor);
         }
     }
 
-    // Traverse and dump referenced BLASes
-    GFXRECON_ASSERT(dumped_tlas_data.data.blass_dumped_data.size() == dumped_tlas->blass.size());
-    for (size_t i = 0; i < dumped_tlas_data.data.blass_dumped_data.size(); ++i)
+    // Dump referenced BLASes
+    for (size_t i = 0; i < dumped_as.BLASes.size(); ++i)
     {
-        auto&       blas      = dumped_tlas->blass[i];
-        const auto& blas_data = dumped_tlas_data.data.blass_dumped_data[i];
-
-        // Serialized AS data
-        if (blas.serialized_data.size)
+        if (!DumpBLASToFile(
+                dumped_resource, dumped_as.BLASes[i], dumped_as_data.blass_dumped_data[i], before_command, compressor))
         {
-            std::string filename =
-                GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                               blas.blas_info->capture_id,
-                                               AccelerationStructureDumpedBufferType::kSerializedBlas,
-                                               dumped_descriptor->resource_type);
-            gfxrecon::decode::DumpBufferToFile(
-                blas.serialized_data, filename, blas_data.serialized_data, delegate_context.compressor);
+            return false;
         }
+    }
 
-        if (!dumped_tlas->dump_build_input_buffers)
-        {
-            continue;
-        }
+    if (!dumped_as.dump_build_input_buffers)
+    {
+        return true;
+    }
 
-        // Build input buffers
-        for (size_t d = 0; d < dumped_tlas_data.data.blass_dumped_data[i].build_data.size(); ++d)
+    // Dump instance buffers
+    for (size_t i = 0; i < dumped_as_data.build_data.size(); ++i)
+    {
+        GFXRECON_ASSERT(std::get_if<AccelerationStructureDumpedHostData::TrianglesBuffers>(
+                            &dumped_as_data.build_data[i]) == nullptr);
+        GFXRECON_ASSERT(std::get_if<AccelerationStructureDumpedHostData::AABBBuffer>(&dumped_as_data.build_data[i]) ==
+                        nullptr);
+    }
+
+    return true;
+}
+
+bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase&                  dumped_resource,
+                                                        DumpedAccelerationStructure&               dumped_as,
+                                                        const AccelerationStructureDumpedHostData& dumped_as_data,
+                                                        bool                                       before_command,
+                                                        const util::Compressor*                    compressor)
+{
+    GFXRECON_ASSERT(dumped_as.as_info != nullptr);
+    GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
+
+    // Dump serialized version
+    if (dumped_as.serialized_buffer.size)
+    {
+        std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                              dumped_as.as_info->capture_id,
+                                                              AccelerationStructureDumpedBufferType::kSerializedBlas,
+                                                              dumped_resource.ppl_stage,
+                                                              before_command);
+
+        gfxrecon::decode::DumpBufferToFile(
+            dumped_as.serialized_buffer, filename, dumped_as_data.serialized_data, compressor);
+    }
+
+    if (!dumped_as.dump_build_input_buffers)
+    {
+        return true;
+    }
+
+    // Build input buffers
+    for (size_t i = 0; i < dumped_as_data.build_data.size(); ++i)
+    {
+        GFXRECON_ASSERT(
+            std::get_if<AccelerationStructureDumpedHostData::InstanceBuffer>(&dumped_as_data.build_data[i]) == nullptr);
+
+        // Triangles
+        if (const auto* triangles_data =
+                std::get_if<AccelerationStructureDumpedHostData::TrianglesBuffers>(&dumped_as_data.build_data[i]))
         {
-            // Triangles
-            if (const auto* triangles_data = std::get_if<BLASDumpedHostData::Triangles>(
-                    &dumped_tlas_data.data.blass_dumped_data[i].build_data[d]))
+            auto* triangles =
+                std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(&dumped_as.input_buffers[i]);
+            GFXRECON_ASSERT(triangles != nullptr);
+
+            // Vertex buffer
+            if (triangles->vertex_buffer.size)
             {
-                auto* triangles = std::get_if<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataTriangles>(
-                    &blas.input_data[d]);
-                GFXRECON_ASSERT(triangles != nullptr);
-
-                // Vertex buffer
-                if (triangles->vertex_buffer.size)
-                {
-                    GFXRECON_ASSERT(blas.blas_info != nullptr);
-                    std::string filename =
-                        GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                                       blas.blas_info->capture_id,
-                                                       AccelerationStructureDumpedBufferType::kVertex,
-                                                       dumped_descriptor->resource_type,
-                                                       static_cast<uint32_t>(d));
-                    gfxrecon::decode::DumpBufferToFile(
-                        triangles->vertex_buffer, filename, triangles_data->vertex_buffer, delegate_context.compressor);
-                }
-
-                // Index buffer
-                if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR && triangles->index_buffer.size)
-                {
-                    std::string filename = GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                                                          blas.blas_info->capture_id,
-                                                                          AccelerationStructureDumpedBufferType::kIndex,
-                                                                          dumped_descriptor->resource_type,
-                                                                          static_cast<uint32_t>(d));
-                    gfxrecon::decode::DumpBufferToFile(
-                        triangles->index_buffer, filename, triangles_data->index_buffer, delegate_context.compressor);
-                }
-
-                // Transform buffer
-                if (triangles->transform_buffer.size)
-                {
-                    std::string filename =
-                        GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                                       blas.blas_info->capture_id,
-                                                       AccelerationStructureDumpedBufferType::kTransform,
-                                                       dumped_descriptor->resource_type,
-                                                       static_cast<uint32_t>(d));
-                    gfxrecon::decode::DumpBufferToFile(triangles->transform_buffer,
-                                                       filename,
-                                                       triangles_data->transform_buffer,
-                                                       delegate_context.compressor);
-                }
+                std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                                      dumped_as.as_info->capture_id,
+                                                                      AccelerationStructureDumpedBufferType::kVertex,
+                                                                      dumped_resource.ppl_stage,
+                                                                      before_command,
+                                                                      static_cast<uint32_t>(i));
+                gfxrecon::decode::DumpBufferToFile(
+                    triangles->vertex_buffer, filename, triangles_data->vertex_buffer, compressor);
             }
-            // AABBs
-            else if (const auto* aabb_data = std::get_if<BLASDumpedHostData::AABBS>(
-                         &dumped_tlas_data.data.blass_dumped_data[i].build_data[d]))
-            {
-                auto* aabb =
-                    std::get_if<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataAABB>(&blas.input_data[d]);
-                GFXRECON_ASSERT(aabb != nullptr);
 
-                if (aabb->aabb_buffer.size)
-                {
-                    std::string filename = GenerateASDumpedBufferFilename(*dumped_descriptor,
-                                                                          blas.blas_info->capture_id,
-                                                                          AccelerationStructureDumpedBufferType::kAABB,
-                                                                          dumped_descriptor->resource_type,
-                                                                          static_cast<uint32_t>(d));
-                    gfxrecon::decode::DumpBufferToFile(
-                        aabb->aabb_buffer, filename, aabb_data->aabb_buffer, delegate_context.compressor);
-                }
+            // Index buffer
+            if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR && triangles->index_buffer.size)
+            {
+                std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                                      dumped_as.as_info->capture_id,
+                                                                      AccelerationStructureDumpedBufferType::kIndex,
+                                                                      dumped_resource.ppl_stage,
+                                                                      before_command,
+                                                                      static_cast<uint32_t>(i));
+                gfxrecon::decode::DumpBufferToFile(
+                    triangles->index_buffer, filename, triangles_data->index_buffer, compressor);
+            }
+
+            // Transform buffer
+            if (triangles->transform_buffer.size)
+            {
+                std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                                      dumped_as.as_info->capture_id,
+                                                                      AccelerationStructureDumpedBufferType::kTransform,
+                                                                      dumped_resource.ppl_stage,
+                                                                      before_command,
+                                                                      static_cast<uint32_t>(i));
+                gfxrecon::decode::DumpBufferToFile(
+                    triangles->transform_buffer, filename, triangles_data->transform_buffer, compressor);
             }
         }
+        // AABBs
+        else if (const auto* aabb_data =
+                     std::get_if<AccelerationStructureDumpedHostData::AABBBuffer>(&dumped_as_data.build_data[i]))
+        {
+            auto* aabb =
+                std::get_if<DumpedAccelerationStructure::DumpedBuildInputAABBBuffer>(&dumped_as.input_buffers[i]);
+            GFXRECON_ASSERT(aabb != nullptr);
+
+            if (aabb->aabb_buffer.size)
+            {
+                std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
+                                                                      dumped_as.as_info->capture_id,
+                                                                      AccelerationStructureDumpedBufferType::kAABB,
+                                                                      dumped_resource.ppl_stage,
+                                                                      before_command,
+                                                                      static_cast<uint32_t>(i));
+                gfxrecon::decode::DumpBufferToFile(aabb->aabb_buffer, filename, aabb_data->aabb_buffer, compressor);
+            }
+        }
+    }
+
+    return true;
+}
+
+bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
+    const VulkanDelegateDumpResourceContext& delegate_context)
+{
+    DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
+    GFXRECON_ASSERT(dumped_resource != nullptr);
+
+    DumpedDescriptor* dumped_descriptor = static_cast<DumpedDescriptor*>(dumped_resource);
+    GFXRECON_ASSERT(dumped_descriptor != nullptr);
+    DumpedAccelerationStructure* dumped_as =
+        std::get_if<DumpedAccelerationStructure>(&dumped_descriptor->dumped_resource);
+
+    GFXRECON_ASSERT(dumped_as != nullptr);
+
+    const VulkanDelegateAccelerationStructureDumpedData& dumped_as_host_data =
+        std::get<VulkanDelegateAccelerationStructureDumpedData>(delegate_context.dumped_data);
+
+    GFXRECON_ASSERT(dumped_as_host_data.data.build_data.size() == dumped_as->input_buffers.size());
+    GFXRECON_ASSERT(dumped_as->as_info != nullptr);
+    if (dumped_as->as_info != nullptr && dumped_as->as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+    {
+        return DumpTLASToFile(*dumped_resource,
+                              *dumped_as,
+                              dumped_as_host_data.data,
+                              delegate_context.before_command,
+                              delegate_context.compressor);
+    }
+    else if (dumped_as->as_info != nullptr &&
+             dumped_as->as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
+    {
+        return DumpBLASToFile(*dumped_resource,
+                              *dumped_as,
+                              dumped_as_host_data.data,
+                              delegate_context.before_command,
+                              delegate_context.compressor);
     }
 
     return true;
@@ -712,12 +782,10 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(con
     const DumpedBuffer* dumped_buffer = std::get_if<DumpedBuffer>(&dumped_desc.dumped_resource);
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
-    const VulkanBufferInfo* buffer_info = dumped_buffer->buffer_info;
-
     std::stringstream filename;
 
     filename << capture_filename_ << "_"
-             << "buffer_" << buffer_info->capture_id << "_qs_" << dumped_desc.qs_index << "_bcb_"
+             << "buffer_" << dumped_buffer->buffer_info.capture_id << "_qs_" << dumped_desc.qs_index << "_bcb_"
              << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_" << dumped_desc.set << "_binding_"
              << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
 
@@ -1097,9 +1165,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     const VulkanImageInfo* image_info = dumped_image->image_info;
     GFXRECON_ASSERT(image_info != nullptr);
 
-    GFXRECON_ASSERT(dumped_image_desc.resource_type == DumpResourcesCommandType::kCompute ||
-                    dumped_image_desc.resource_type == DumpResourcesCommandType::kRayTracing);
-    const bool is_dispatch = dumped_image_desc.resource_type == DumpResourcesCommandType::kCompute;
+    GFXRECON_ASSERT(dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kCompute ||
+                    dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kRayTracing);
+    const bool is_dispatch = dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
 
     const std::string aspect_str = ImageAspectToStr(aspect);
 
@@ -1150,9 +1218,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename(cons
     const DumpedBuffer*     dumped_buffer      = std::get_if<DumpedBuffer>(&dumped_buffer_desc.dumped_resource);
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
-    GFXRECON_ASSERT(dumped_buffer_desc.resource_type == DumpResourcesCommandType::kCompute ||
-                    dumped_buffer_desc.resource_type == DumpResourcesCommandType::kRayTracing);
-    const bool is_dispatch = dumped_buffer_desc.resource_type == DumpResourcesCommandType::kCompute;
+    GFXRECON_ASSERT(dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute ||
+                    dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kRayTracing);
+    const bool is_dispatch = dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
 
     std::stringstream filename;
 
@@ -1229,13 +1297,11 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferD
     const DumpedBuffer*     dumped_buffer    = std::get_if<DumpedBuffer>(&buffer_desc_info.dumped_resource);
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
-    const VulkanBufferInfo* buffer_info = dumped_buffer->buffer_info;
-    GFXRECON_ASSERT(buffer_info != nullptr);
-
     std::stringstream filename;
-    filename << capture_filename_ << "_buffer_" << buffer_info->capture_id << "_set_" << buffer_desc_info.set
-             << "_binding_" << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+    filename << capture_filename_ << "_buffer_" << dumped_buffer->buffer_info.capture_id << "_set_"
+             << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
+             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+             << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1257,6 +1323,120 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateBLASJsonInfo(nlohmann::ordered_json&            blas_json_entry,
+                                                              const DumpedAccelerationStructure& dumped_as)
+{
+    GFXRECON_ASSERT(dumped_as.as_info != nullptr);
+    GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR);
+
+    GFXRECON_ASSERT(dumped_as.as_info != nullptr);
+    blas_json_entry["BlasId"]               = dumped_as.as_info->capture_id;
+    blas_json_entry["CaptureDeviceAddress"] = dumped_as.as_info->capture_address;
+    blas_json_entry["ReplayDeviceAddress"]  = dumped_as.as_info->replay_address;
+
+    // BLAS serialized data
+    if (dumped_as.serialized_buffer.size)
+    {
+        auto& serialized_entry = blas_json_entry["SerializedData"];
+        dump_json_.InsertBufferInfo(serialized_entry, dumped_as.serialized_buffer);
+    }
+
+    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
+    if (dumped_as.input_buffers.empty())
+    {
+        return;
+    }
+
+    std::string input_type_string;
+    if (std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(&dumped_as.input_buffers[0]))
+    {
+        input_type_string = "Triangles";
+    }
+    else
+    {
+        input_type_string = "AABBs";
+    }
+
+    auto& inputs_array_entries = blas_inputs_entry[input_type_string];
+    for (size_t blas_input = 0; blas_input < dumped_as.input_buffers.size(); ++blas_input)
+    {
+        if (const auto* triangles = std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(
+                &dumped_as.input_buffers[blas_input]))
+        {
+            dump_json_.InsertASBuildRangeInfo(inputs_array_entries[blas_input], triangles->range);
+
+            auto& vertex_buffer_entry        = inputs_array_entries[blas_input]["VertexBuffer"];
+            vertex_buffer_entry["Format"]    = util::ToString(triangles->vertex_format);
+            vertex_buffer_entry["MaxVertex"] = triangles->max_vertex;
+            vertex_buffer_entry["Stride"]    = triangles->vertex_buffer_stride;
+            dump_json_.InsertBufferInfo(vertex_buffer_entry, triangles->vertex_buffer);
+
+            if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR)
+            {
+                auto& index_buffer_entry        = inputs_array_entries[blas_input]["IndexBuffer"];
+                index_buffer_entry["IndexType"] = util::ToString(triangles->index_type);
+                dump_json_.InsertBufferInfo(index_buffer_entry, triangles->index_buffer);
+            }
+
+            if (triangles->transform_buffer.size)
+            {
+                auto& transform_buffer_entry = inputs_array_entries[blas_input]["TransformBuffer"];
+                dump_json_.InsertBufferInfo(transform_buffer_entry, triangles->transform_buffer);
+            }
+        }
+        else if (const auto* aabbs = std::get_if<DumpedAccelerationStructure::DumpedBuildInputAABBBuffer>(
+                     &dumped_as.input_buffers[blas_input]))
+        {
+            dump_json_.InsertASBuildRangeInfo(inputs_array_entries[blas_input], triangles->range);
+            auto& aabb_buffer_entry = inputs_array_entries[blas_input]["AABBBuffer"];
+            dump_json_.InsertBufferInfo(aabb_buffer_entry, aabbs->aabb_buffer);
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateTLASJsonInfo(nlohmann::ordered_json&            tlas_json_entry,
+                                                              const DumpedAccelerationStructure& dumped_as)
+{
+    GFXRECON_ASSERT(dumped_as.as_info != nullptr);
+    GFXRECON_ASSERT(dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
+
+    if (!dumped_as.input_buffers.empty() && options_.dump_resources_dump_build_AS_input_buffers)
+    {
+        auto& instances_entries = tlas_json_entry["InstanceBuffers"];
+        for (size_t inst_idx = 0; inst_idx < dumped_as.input_buffers.size(); ++inst_idx)
+        {
+            GFXRECON_ASSERT(std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(
+                                &dumped_as.input_buffers[inst_idx]) == nullptr);
+            GFXRECON_ASSERT(std::get_if<DumpedAccelerationStructure::DumpedBuildInputAABBBuffer>(
+                                &dumped_as.input_buffers[inst_idx]) == nullptr);
+            const auto* instance_buffer = std::get_if<DumpedAccelerationStructure::DumpedBuildInputInstanceBuffer>(
+                &dumped_as.input_buffers[inst_idx]);
+            GFXRECON_ASSERT(instance_buffer != nullptr);
+
+            instances_entries[inst_idx]["Stride"] = dumped_as.instance_buffer_stride;
+            dump_json_.InsertBufferInfo(instances_entries[inst_idx], instance_buffer->instance_buffer);
+        }
+    }
+
+    // TLAS serialized data
+    if (dumped_as.serialized_buffer.size)
+    {
+        auto& serialized_entry = tlas_json_entry["SerializedData"];
+        dump_json_.InsertBufferInfo(serialized_entry, dumped_as.serialized_buffer);
+    }
+
+    // Iterate BLASes
+    if (!dumped_as.BLASes.empty())
+    {
+        auto& blas_entries = tlas_json_entry["BLASes"];
+        for (size_t blas = 0; blas < dumped_as.BLASes.size(); ++blas)
+        {
+            auto& blas_entry = blas_entries[blas];
+            GenerateBLASJsonInfo(blas_entry, dumped_as.BLASes[blas]);
+        }
+    }
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::ordered_json&    dispatch_json_entry,
@@ -1353,9 +1533,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
         }
         else
         {
-            const DumpedTopLevelAccelerationStructure* tlas =
-                std::get_if<DumpedTopLevelAccelerationStructure>(&desc.dumped_resource);
+            const DumpedAccelerationStructure* tlas = std::get_if<DumpedAccelerationStructure>(&desc.dumped_resource);
             GFXRECON_ASSERT(tlas != nullptr);
+            GFXRECON_ASSERT(tlas->as_info != nullptr);
+            GFXRECON_ASSERT(tlas->as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
 
             for (const std::string& stage_name : shader_stages_names)
             {
@@ -1365,108 +1546,15 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 entry["set"]                = desc.set;
                 entry["binding"]            = desc.binding;
                 entry["arrayIndex"]         = desc.array_index;
+                entry["TlasId"]             = tlas->as_info->capture_id;
 
-                entry["TlasId"] = tlas->as_info->capture_id;
-
-                if (tlas->instance_data.empty() && tlas->blass.empty())
+                if (tlas->input_buffers.empty() && tlas->BLASes.empty())
                 {
                     continue;
                 }
 
                 auto& tlas_content_entries = entry["TlasContent"];
-                if (!tlas->instance_data.empty() && options_.dump_resources_dump_build_AS_input_buffers)
-                {
-                    auto& instances_entries = tlas_content_entries["InstanceBuffers"];
-                    for (size_t inst_idx = 0; inst_idx < tlas->instance_data.size(); ++inst_idx)
-                    {
-                        instances_entries[inst_idx]["Stride"] = tlas->instance_buffer_stride;
-                        dump_json_.InsertBufferInfo(instances_entries[inst_idx], tlas->instance_data[inst_idx]);
-                    }
-                }
-
-                // TLAS serialized data
-                if (tlas->serialized_data.size)
-                {
-                    auto& serialized_entry = tlas_content_entries["SerializedData"];
-                    dump_json_.InsertBufferInfo(serialized_entry, tlas->serialized_data);
-                }
-
-                // Iterate BLASes
-                if (!tlas->blass.empty())
-                {
-                    auto& blas_entries = tlas_content_entries["BLASes"];
-                    for (size_t blas = 0; blas < tlas->blass.size(); ++blas)
-                    {
-                        auto& blas_entry = blas_entries[blas];
-
-                        GFXRECON_ASSERT(tlas->blass[blas].blas_info != nullptr);
-                        blas_entry["BlasId"]               = tlas->blass[blas].blas_info->capture_id;
-                        blas_entry["CaptureDeviceAddress"] = tlas->blass[blas].blas_info->capture_address;
-                        blas_entry["ReplayDeviceAddress"]  = tlas->blass[blas].blas_info->replay_address;
-
-                        // BLAS serialized data
-                        if (tlas->blass[blas].serialized_data.size)
-                        {
-                            auto& serialized_entry = blas_entry["SerializedData"];
-                            dump_json_.InsertBufferInfo(serialized_entry, tlas->blass[blas].serialized_data);
-                        }
-
-                        auto& blas_inputs_entry = blas_entry["BuildInputs"];
-                        if (tlas->blass[blas].input_data.empty())
-                        {
-                            continue;
-                        }
-
-                        std::string input_type_string;
-                        if (std::get_if<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataTriangles>(
-                                &tlas->blass[blas].input_data[0]))
-                        {
-                            input_type_string = "Triangles";
-                        }
-                        else
-                        {
-                            input_type_string = "AABBs";
-                        }
-
-                        auto& inputs_array_entries = blas_inputs_entry[input_type_string];
-                        for (size_t blas_input = 0; blas_input < tlas->blass[blas].input_data.size(); ++blas_input)
-                        {
-                            if (const auto* triangles =
-                                    std::get_if<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataTriangles>(
-                                        &tlas->blass[blas].input_data[blas_input]))
-                            {
-                                dump_json_.InsertASBuildRangeInfo(inputs_array_entries[blas_input], triangles->range);
-
-                                auto& vertex_buffer_entry        = inputs_array_entries[blas_input]["VertexBuffer"];
-                                vertex_buffer_entry["Format"]    = util::ToString(triangles->vertex_format);
-                                vertex_buffer_entry["MaxVertex"] = triangles->max_vertex;
-                                vertex_buffer_entry["Stride"]    = triangles->vertex_buffer_stride;
-                                dump_json_.InsertBufferInfo(vertex_buffer_entry, triangles->vertex_buffer);
-
-                                if (triangles->index_type != VK_INDEX_TYPE_NONE_KHR)
-                                {
-                                    auto& index_buffer_entry        = inputs_array_entries[blas_input]["IndexBuffer"];
-                                    index_buffer_entry["IndexType"] = util::ToString(triangles->index_type);
-                                    dump_json_.InsertBufferInfo(index_buffer_entry, triangles->index_buffer);
-                                }
-
-                                if (triangles->transform_buffer.size)
-                                {
-                                    auto& transform_buffer_entry = inputs_array_entries[blas_input]["TransformBuffer"];
-                                    dump_json_.InsertBufferInfo(transform_buffer_entry, triangles->transform_buffer);
-                                }
-                            }
-                            else if (const auto* aabbs =
-                                         std::get_if<DumpedBottomLevelAccelerationStructure::DumpedBuildInputDataAABB>(
-                                             &tlas->blass[blas].input_data[blas_input]))
-                            {
-                                dump_json_.InsertASBuildRangeInfo(inputs_array_entries[blas_input], triangles->range);
-                                auto& aabb_buffer_entry = inputs_array_entries[blas_input]["AABBBuffer"];
-                                dump_json_.InsertBufferInfo(aabb_buffer_entry, aabbs->aabb_buffer);
-                            }
-                        }
-                    }
-                }
+                GenerateTLASJsonInfo(tlas_content_entries, *tlas);
             }
         }
     }
@@ -1666,8 +1754,9 @@ std::string
 DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedResourceBase&             resource_info,
                                                                    format::HandleId                      handle_id,
                                                                    AccelerationStructureDumpedBufferType type,
-                                                                   DumpResourcesCommandType dumped_command_type,
-                                                                   uint32_t                 buffer_index)
+                                                                   DumpResourcesPipelineStage dumped_command_type,
+                                                                   bool                       before_command,
+                                                                   uint32_t                   buffer_index)
 {
     std::stringstream filename;
 
@@ -1675,15 +1764,15 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
 
     switch (dumped_command_type)
     {
-        case DumpResourcesCommandType::kGraphics:
+        case DumpResourcesPipelineStage::kGraphics:
             filename << "DrawCall_";
             break;
 
-        case DumpResourcesCommandType::kCompute:
+        case DumpResourcesPipelineStage::kCompute:
             filename << "Dispatch_";
             break;
 
-        case DumpResourcesCommandType::kRayTracing:
+        case DumpResourcesPipelineStage::kRayTracing:
             filename << "TraceRays_";
             break;
 
@@ -1732,6 +1821,18 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
     else
     {
         filename << "_TLAS_";
+    }
+
+    if (options_.dump_resources_before)
+    {
+        if (before_command)
+        {
+            filename << "before_";
+        }
+        else
+        {
+            filename << "after_";
+        }
     }
 
     filename << handle_id << buffer_type;

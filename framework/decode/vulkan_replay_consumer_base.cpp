@@ -9205,7 +9205,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     // needs to be called before the address replacer
     if (options_.dumping_resources)
     {
-        resource_dumper_->HandleCmdBuildAccelerationStructures(
+        resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
             command_buffer_info, *GetDeviceTable(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
     }
 
@@ -9235,8 +9235,7 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* info_meta = pInfo->GetMetaStructPointer();
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-            command_buffer_info, *GetDeviceTable(device_info->handle), src, dst);
+        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -11315,7 +11314,7 @@ void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
         // it needs to be called before the address replacer
         if (options_.dumping_resources)
         {
-            resource_dumper_->HandleCmdBuildAccelerationStructures(
+            resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
                 nullptr, *GetDeviceTable(device_info->handle), info_count, pInfos, ppRangeInfos);
         }
 

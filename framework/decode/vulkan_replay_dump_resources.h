@@ -506,15 +506,18 @@ class VulkanReplayDumpResourcesBase
 
     void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
 
-    void HandleCmdBuildAccelerationStructures(
+    // Handles population of acceleration_structures_context_ map. For each AS that is build an entry in that map is
+    // created and the input buffers are cloned
+    void OverrideCmdBuildAccelerationStructuresKHR(
         const VulkanCommandBufferInfo*                                             original_command_buffer,
         const graphics::VulkanDeviceTable&                                         device_table,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
 
-    void HandleCmdCopyAccelerationStructureKHR(const VulkanCommandBufferInfo*            original_command_buffer,
-                                               const graphics::VulkanDeviceTable&        device_table,
+    // Like OverrideCmdBuildAccelerationStructuresKHR Handles population of acceleration_structures_context_ map.
+    // In this case of copying AS it simply makes the new entry in the map to point at the src AS's entry.
+    void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanDeviceTable&        device_table,
                                                const VulkanAccelerationStructureKHRInfo* src,
                                                const VulkanAccelerationStructureKHRInfo* dst);
 
@@ -576,18 +579,6 @@ class VulkanReplayDumpResourcesBase
                                            uint32_t                              max_draw_count,
                                            uint32_t                              stride,
                                            DrawCallsDumpingContext::DrawCallType drawcall_type);
-
-    struct PushConstantBlock
-    {
-        VkDeviceAddress array_of_pointers;
-        VkDeviceAddress out_buffer;
-        uint32_t        count;
-    };
-
-    static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device_table,
-                                           VkDevice                           device,
-                                           VkPipeline*                        compute_ppl,
-                                           VkPipelineLayout*                  ppl_layout);
 
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
