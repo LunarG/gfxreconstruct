@@ -64,6 +64,8 @@ pipeline {
     }
 }
 
+// extended should only be run between 8pm and midnight, only on weekdays
+// this function will calculate the amount of time to wait until the next time extended should run
 def calculateQuietPeriod() {
     def now = new Date()
     def hour = now.getHours()
