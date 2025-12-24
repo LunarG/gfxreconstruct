@@ -111,8 +111,6 @@ class MetadataConsumerBase
     {}
     virtual void ProcessExecuteBlocksFromFile(uint32_t n_blocks, int64_t offset, const std::string& filename) {}
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) {}
-
     virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
         format::HandleId                                                           device_id,
         uint32_t                                                                   info_count,
@@ -134,9 +132,6 @@ class MetadataConsumerBase
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)
     {}
-
-  protected:
-    uint64_t block_index_ = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -58,7 +58,7 @@ BlockBuffer::BlockSpan BlockBuffer::ReadSpan(size_t buffer_size)
     return read_span;
 }
 
-BlockBuffer::BlockSpan BlockBuffer::ReadSpanAt(size_t buffer_size, size_t at)
+BlockBuffer::BlockSpan BlockBuffer::ReadSpanAt(size_t buffer_size, size_t at) const
 {
     if (IsAvailableAt(buffer_size, at))
     {
