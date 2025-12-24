@@ -52,7 +52,6 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-#include "util/linear_hashmap.h"
 #include "decode/mark_injected_commands.h"
 
 #include "spirv_reflect.h"
@@ -63,12 +62,11 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
 #include <limits>
 #include <numeric>
 #include <unordered_set>
 #include <future>
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -11731,6 +11729,62 @@ VkResult VulkanReplayConsumerBase::OverrideGetRefreshCycleDurationGOOGLE(
         return func(device_info->handle, swapchain_info->handle, pDisplayTimingProperties->GetPointer());
     }
     return VK_SUCCESS;
+}
+
+void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
+    PFN_vkGetDescriptorEXT                                func,
+    VulkanDeviceInfo*                                     device_info,
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+    size_t                                                dataSize,
+    PointerDecoder<uint8_t>*                              pDescriptor)
+{
+    GFXRECON_ASSERT(device_info != nullptr && !pDescriptorInfo->IsNull() && pDescriptorInfo->GetPointer() != nullptr &&
+                    pDescriptor->GetOutputPointer() != nullptr);
+
+    VkDevice                device             = device_info->handle;
+    VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
+    void*                   out_pDescriptor    = pDescriptor->GetOutputPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        // TODO: will be required for portability -> correct BDAs in descriptor_buffer
+        // auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        // auto& address_replacer = GetDeviceAddressReplacer(device_info);
+    }
+
+    func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
+
+    // compare capture/replay descriptor-data
+    auto capture_data = std::span(pDescriptor->GetPointer(), pDescriptor->GetPointer() + pDescriptor->GetLength());
+    auto replay_data =
+        std::span(pDescriptor->GetOutputPointer(), pDescriptor->GetOutputPointer() + pDescriptor->GetOutputLength());
+
+    // NOTE: this assumption is true for linux/nvidia but fails for radv
+    GFXRECON_ASSERT(capture_data.size() == replay_data.size());
+    GFXRECON_ASSERT(memcmp(capture_data.data(), replay_data.data(), capture_data.size()) == 0);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBindDescriptorBuffersEXT(
+    PFN_vkCmdBindDescriptorBuffersEXT                               func,
+    VulkanCommandBufferInfo*                                        commandBuffer_info,
+    uint32_t                                                        bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    GFXRECON_ASSERT(commandBuffer_info != nullptr && pBindingInfos->GetPointer() != nullptr);
+
+    VulkanDeviceInfo*                 device_info = object_info_table_->GetVkDeviceInfo(commandBuffer_info->parent_id);
+    VkCommandBuffer                   command_buffer   = commandBuffer_info->handle;
+    VkDescriptorBufferBindingInfoEXT* in_pBindingInfos = pBindingInfos->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        // auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        // auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        // address_replacer.ProcessCmdBindDescriptorBuffersEXT(
+        //     commandBuffer_info, bufferCount, in_pBindingInfos, address_tracker);
+    }
+
+    func(command_buffer, bufferCount, in_pBindingInfos);
 }
 
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(

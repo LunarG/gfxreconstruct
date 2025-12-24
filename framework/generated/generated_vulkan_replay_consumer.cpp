@@ -9438,12 +9438,12 @@ void VulkanReplayConsumer::Process_vkGetDescriptorEXT(
     size_t                                      dataSize,
     PointerDecoder<uint8_t>*                    pDescriptor)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
-    MapStructHandles(pDescriptorInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    void* out_pDescriptor = pDescriptor->IsNull() ? nullptr : pDescriptor->AllocateOutputData(dataSize);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
 
-    GetDeviceTable(in_device)->GetDescriptorEXT(in_device, in_pDescriptorInfo, dataSize, out_pDescriptor);
+    MapStructHandles(pDescriptorInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (!pDescriptor->IsNull()) { pDescriptor->AllocateOutputData(dataSize); }
+
+    OverrideGetDescriptorEXT(GetDeviceTable(in_device->handle)->GetDescriptorEXT, in_device, pDescriptorInfo, dataSize, pDescriptor);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBindDescriptorBuffersEXT(
@@ -9452,15 +9452,15 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorBuffersEXT(
     uint32_t                                    bufferCount,
     StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkDescriptorBufferBindingInfoEXT* in_pBindingInfos = pBindingInfos->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructArrayHandles(pBindingInfos->GetMetaStructPointer(), pBindingInfos->GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBuffersEXT(in_commandBuffer, bufferCount, in_pBindingInfos);
+    OverrideCmdBindDescriptorBuffersEXT(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorBuffersEXT, in_commandBuffer, bufferCount, pBindingInfos);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBindDescriptorBuffersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBuffersEXT, in_commandBuffer, bufferCount, in_pBindingInfos);
+        resource_dumper_->Process_vkCmdBindDescriptorBuffersEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorBuffersEXT, in_commandBuffer->handle, bufferCount, pBindingInfos->GetPointer());
     }
 }
 

@@ -1578,6 +1578,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanSwapchainKHRInfo*                               swapchain_info,
         StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>* pDisplayTimingProperties);
 
+    void OverrideGetDescriptorEXT(PFN_vkGetDescriptorEXT                                func,
+                                  VulkanDeviceInfo*                                     device_info,
+                                  StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+                                  size_t                                                dataSize,
+                                  PointerDecoder<uint8_t>*                              pDescriptor);
+
+    void
+    OverrideCmdBindDescriptorBuffersEXT(PFN_vkCmdBindDescriptorBuffersEXT func,
+                                        VulkanCommandBufferInfo*          commandBuffer_info,
+                                        uint32_t                          bufferCount,
+                                        StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
