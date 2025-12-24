@@ -86,6 +86,7 @@ class ParsedBlock
     bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
     bool IsUnknown() const { return state_ == BlockState::kUnknown; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
+    uint64_t GetBlockIndex() const { return block_index_; }
     BlockState            GetState() const { return state_; }
     const util::DataSpan& GetBlockData() const { return block_data_; }
     const DispatchArgs&   GetArgs() const { return dispatch_args_; }
@@ -118,28 +119,35 @@ class ParsedBlock
     // obvious.
     struct InvalidBlockTag // Marks an empty block with no valid data
     {};
-    ParsedBlock(const InvalidBlockTag&) : block_data_(), uncompressed_store_(), state_(BlockState::kInvalid) {}
+    ParsedBlock(uint64_t block_index, const InvalidBlockTag&) :
+        block_index_(block_index), block_data_(), uncompressed_store_(), state_(BlockState::kInvalid)
+    {}
 
     struct UnknownBlockTag // Marks an unparsed block, either because the block type is unknown, or is known, but has no
                            // matching Args struct
     {};
-    ParsedBlock(const UnknownBlockTag&, util::DataSpan&& block_data) :
-        block_data_(std::move(block_data)), uncompressed_store_(), state_(BlockState::kUnknown)
+    ParsedBlock(uint64_t block_index, const UnknownBlockTag&, util::DataSpan&& block_data) :
+        block_index_(block_index), block_data_(std::move(block_data)), uncompressed_store_(),
+        state_(BlockState::kUnknown)
     {}
 
     // NOTE: need to ensure correct state is state vis-a-vis uncompressed store
     // This is called for compressed blocks to provide the backing store for the uncompress parameter block views
     // Needs update when deferred decompression is added
     template <typename ArgPayload>
-    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, UncompressedStore&& uncompressed_store) :
+    ParsedBlock(uint64_t            block_index,
+                util::DataSpan&&    block_data,
+                ArgPayload&&        args,
+                UncompressedStore&& uncompressed_store) :
+        block_index_(block_index),
         block_data_(std::move(block_data)), uncompressed_store_(std::move(uncompressed_store)),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(BlockState::kReady)
     {}
 
     // This is called for for when blocks are parsed with deferred decompression
     template <typename ArgPayload>
-    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, bool is_compressed) :
-        block_data_(std::move(block_data)), uncompressed_store_(),
+    ParsedBlock(uint64_t block_index, util::DataSpan&& block_data, ArgPayload&& args, bool is_compressed) :
+        block_index_(block_index), block_data_(std::move(block_data)), uncompressed_store_(),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))),
         state_(is_compressed ? BlockState::kDeferredDecompress : BlockState::kReady)
     {}
@@ -166,6 +174,8 @@ class ParsedBlock
 
         return DispatchArgs(std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload));
     }
+
+    uint64_t block_index_;
 
     // The original contents of the read block (also backing store for uncompressed parameter views)
     util::DataSpan block_data_;
