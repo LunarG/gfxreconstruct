@@ -902,7 +902,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureOpaqueCaptureDescriptor
     GFXRECON_UNREFERENCED_PARAMETER(pInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pData);
     GFXRECON_LOG_WARNING_ONCE(
-        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported");
+        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported",
+        __func__);
     return VK_SUCCESS;
 }
 
@@ -913,7 +914,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetBufferOpaqueCaptureDescriptorDataEXT(
     GFXRECON_UNREFERENCED_PARAMETER(pInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pData);
     GFXRECON_LOG_WARNING_ONCE(
-        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported");
+        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported",
+        __func__);
     return VK_SUCCESS;
 }
 
@@ -924,7 +926,8 @@ vkGetImageOpaqueCaptureDescriptorDataEXT(VkDevice device, const VkImageCaptureDe
     GFXRECON_UNREFERENCED_PARAMETER(pInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pData);
     GFXRECON_LOG_WARNING_ONCE(
-        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported");
+        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported",
+        __func__);
     return VK_SUCCESS;
 }
 
@@ -935,7 +938,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSamplerOpaqueCaptureDescriptorDataEXT(
     GFXRECON_UNREFERENCED_PARAMETER(pInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pData);
     GFXRECON_LOG_WARNING_ONCE(
-        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported");
+        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported",
+        __func__);
     return VK_SUCCESS;
 }
 
@@ -946,7 +950,8 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewOpaqueCaptureDescriptorDataEXT(
     GFXRECON_UNREFERENCED_PARAMETER(pInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pData);
     GFXRECON_LOG_WARNING_ONCE(
-        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported");
+        "%s: VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay is currently not supported",
+        __func__);
     return VK_SUCCESS;
 }
 
