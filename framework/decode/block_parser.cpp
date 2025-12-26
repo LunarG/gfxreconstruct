@@ -38,15 +38,15 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
     BlockSizeType block_size;
     BlockIOError  status = kErrorNone;
 
-    if (!input_stream->PeekBytes(&block_size, 1))
+    const size_t peeked_bytes = input_stream->PeekBytes(&block_size, sizeof(block_size));
+    if (peeked_bytes == 0)
     {
-        // No bytes remaining in file, or an error condition
-        // If no error return kEndOfFile with an empty block
+        // We're at EOF without a single byte to read
         status = input_stream->IsError() ? kErrorReadingBlockHeader : kEndOfFile;
     }
-    else if (!input_stream->PeekBytes(&block_size, sizeof(block_size)))
+    else if (peeked_bytes < sizeof(block_size))
     {
-        // The file is empty, but doesn't contain even a full header's information
+        // The file ended, but doesn't contain even a full header's information
         status = kErrorReadingBlockHeader;
     }
 
