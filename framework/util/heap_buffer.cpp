@@ -30,6 +30,7 @@
 */
 
 #include "util/heap_buffer.h"
+#include "util/alignment_utils.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -39,6 +40,7 @@ void HeapBuffer::ReserveDiscarding(size_t capacity)
 {
     if (capacity && (capacity > capacity_))
     {
+        capacity  = util::next_pow_2(capacity);
         store_    = Store(new DataType[capacity]);
         capacity_ = capacity;
     }
