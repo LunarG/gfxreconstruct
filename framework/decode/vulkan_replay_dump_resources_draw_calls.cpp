@@ -60,8 +60,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
     delegate_(delegate), options_(options), compressor_(compressor), current_render_pass_type_(kNone),
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), recording_(false), device_table_(nullptr),
-    instance_table_(nullptr), object_info_table_(object_info_table),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
+    object_info_table_(object_info_table),
     replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
@@ -1012,8 +1012,6 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     // Increment index of command buffer that is going to be finalized next
     ++current_cb_index_;
-
-    recording_ = current_cb_index_ < command_buffers_.size();
 }
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
@@ -2618,8 +2616,6 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
         GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
-
-    recording_ = true;
 
     return VK_SUCCESS;
 }

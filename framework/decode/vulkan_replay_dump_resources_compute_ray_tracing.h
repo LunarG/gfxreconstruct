@@ -105,8 +105,6 @@ class DispatchTraceRaysDumpingContext
                                   VkCommandBuffer                original_command_buffer,
                                   VkDeviceAddress                indirectDeviceAddress);
 
-    bool IsRecording() const;
-
     bool MustDumpDispatch(uint64_t index) const;
 
     bool MustDumpTraceRays(uint64_t index) const;
@@ -542,7 +540,6 @@ class DispatchTraceRaysDumpingContext
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props_;
     size_t                                  current_dispatch_index_;
     size_t                                  current_trace_rays_index_;
-    bool                                    reached_end_command_buffer_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

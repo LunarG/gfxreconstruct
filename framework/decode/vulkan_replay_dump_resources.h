@@ -416,7 +416,7 @@ class VulkanReplayDumpResourcesBase
 
     bool DumpingBeginCommandBufferIndex(uint64_t index) const;
 
-    bool IsRecording(VkCommandBuffer original_command_buffer, uint64_t cmd_index) const;
+    bool IsRecording() const { return active_contexts_; }
 
     void Release();
 
@@ -707,6 +707,11 @@ class VulkanReplayDumpResourcesBase
     std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
                                                                 decode::Index   qs_index);
 
+    // Context tracking. These functions should be called when a dumping context has done its job.
+    void ReleaseDrawCallContexts(decode::Index qs_index);
+    void ReleaseDispatchTraceRaysContexts(decode::Index qs_index);
+    void ReleaseTransferContexts(decode::Index qs_index);
+
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,
                                      VkCommandBuffer             original_command_buffer,
@@ -757,7 +762,14 @@ class VulkanReplayDumpResourcesBase
     // Transfer call dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
     std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<TransferDumpingContext>> transfer_contexts_;
 
-    bool                   recording_;
+    // Keep track of the number of active dumping contexts. A context is considered active when it's associated
+    // BeginCommandBuffer is issued and until it is submitted in its associated QueueSubmit index.
+    //
+    // TransferDumpingContext is a bit different as it is not strictly associated with a command buffer and as a result
+    // it does not require to a BeginCommandBuffer to become active. This is convenient in cases when dumping transfer
+    // commands from the state setup section which are not recorded as part of a Vulkan command buffer
+    size_t active_contexts_;
+
     bool                   dump_resources_before_;
     CommonObjectInfoTable* object_info_table_;
     bool                   output_json_per_command;

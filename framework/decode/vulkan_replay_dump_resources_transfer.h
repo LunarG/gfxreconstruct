@@ -54,6 +54,8 @@ class TransferDumpingContext
                            const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
                            const util::Compressor*                           compressor);
 
+    ~TransferDumpingContext() { Release(); }
+
     VkResult HandleInitBufferCommand(uint64_t         cmd_index,
                                      format::HandleId device_id,
                                      format::HandleId buffer_id,
@@ -155,10 +157,6 @@ class TransferDumpingContext
                                           VkCommandBuffer    commandBuffer,
                                           StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo,
                                           bool before_command);
-
-    void EndCommandBuffer() { reached_end_command_buffer_ = true; };
-
-    bool IsRecording() const { return !reached_end_command_buffer_; }
 
     bool MustDumpTransfer(uint64_t index) const;
 
@@ -801,8 +799,6 @@ class TransferDumpingContext
     void GetDispatchTables(format::HandleId device_id);
 
     std::map<uint64_t, TransferParams> transfer_params_;
-
-    bool reached_end_command_buffer_;
 
     CommandIndices                                    transfer_indices_;
     CommonObjectInfoTable&                            object_info_table_;

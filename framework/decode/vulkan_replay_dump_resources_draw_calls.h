@@ -129,8 +129,6 @@ class DrawCallsDumpingContext
                                      uint32_t                              stride,
                                      DrawCallsDumpingContext::DrawCallType drawcall_type);
 
-    bool IsRecording() const { return recording_; }
-
     bool MustDumpDrawCall(uint64_t index) const;
 
     bool ShouldHandleRenderPass(uint64_t index) const;
@@ -756,9 +754,6 @@ class DrawCallsDumpingContext
     VkCommandBuffer                 aux_command_buffer_;
     VkFence                         aux_fence_;
     DumpResourcesCommandBufferLevel command_buffer_level_;
-
-    // recording_ will be true between the corresponding BCB and the last FinalizeCommandBuffer
-    bool recording_;
 
     const graphics::VulkanDeviceTable*      device_table_;
     const graphics::VulkanInstanceTable*    instance_table_;

@@ -64,8 +64,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
     device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), reached_end_command_buffer_(false),
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
+    current_trace_rays_index_(0), acceleration_structures_context_(acceleration_structures_context),
+    address_trackers_(address_trackers)
 {
     if (dispatch_indices != nullptr)
     {
@@ -105,8 +105,7 @@ void DispatchTraceRaysDumpingContext::Release()
                 assert(pool_info);
 
                 device_table_->FreeCommandBuffers(device, pool_info->handle, 1, &DR_command_buffer_);
-                DR_command_buffer_          = VK_NULL_HANDLE;
-                reached_end_command_buffer_ = false;
+                DR_command_buffer_ = VK_NULL_HANDLE;
             }
         }
 
@@ -936,8 +935,6 @@ void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParams& tr
 VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescriptorSets&     referenced_descriptors,
                                                                 MutableResourcesBackupContext& resource_backup_context)
 {
-    assert(IsRecording());
-
     for (const auto& [desc_set_index, desc_set_info] : referenced_descriptors)
     {
         for (const auto& [binding_index, desc_info] : desc_set_info)
@@ -1647,11 +1644,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     }
 
     return VK_SUCCESS;
-}
-
-bool DispatchTraceRaysDumpingContext::IsRecording() const
-{
-    return !reached_end_command_buffer_;
 }
 
 VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
@@ -2385,7 +2377,6 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
 
 void DispatchTraceRaysDumpingContext::EndCommandBuffer()
 {
-    reached_end_command_buffer_ = true;
     device_table_->EndCommandBuffer(DR_command_buffer_);
 }
 
