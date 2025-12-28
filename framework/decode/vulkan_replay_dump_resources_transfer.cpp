@@ -53,10 +53,9 @@ TransferDumpingContext::TransferDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const util::Compressor*                           compressor) :
     object_info_table_(object_info_table),
-    reached_end_command_buffer_(false), instance_tables_(instance_tables), device_tables_(device_tables),
-    options_(options), delegate_(delegate), address_trackers_(address_trackers),
-    acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_table_(nullptr),
-    device_info_(nullptr)
+    instance_tables_(instance_tables), device_tables_(device_tables), options_(options), delegate_(delegate),
+    address_trackers_(address_trackers), acceleration_structures_context_(acceleration_structures_context),
+    compressor_(compressor), device_table_(nullptr), device_info_(nullptr)
 {
     if (transfer_indices != nullptr)
     {
