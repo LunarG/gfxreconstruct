@@ -2389,8 +2389,8 @@ void DispatchTraceRaysDumpingContext::EndCommandBuffer()
     device_table_->EndCommandBuffer(DR_command_buffer_);
 }
 
-void DispatchTraceRaysDumpingContext::AssignSecondary(uint64_t                         execute_commands_index,
-                                                      DispatchTraceRaysDumpingContext* secondary_context)
+void DispatchTraceRaysDumpingContext::AssignSecondary(
+    uint64_t execute_commands_index, std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context)
 {
     GFXRECON_ASSERT(secondary_context);
 
