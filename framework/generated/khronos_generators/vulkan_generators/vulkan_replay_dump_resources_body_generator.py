@@ -120,7 +120,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
         if not is_override:
             body += '    if (IsRecording(commandBuffer, call_info.index))\n'
             body += '    {\n'
-            body += '        const std::vector<DrawCallsDumpingContext*> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);\n'
+            body += '        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);\n'
             body += '        for (auto dc_context : dc_contexts)\n'
             body += '        {\n'
             body += '            CommandBufferIterator first, last;\n'
@@ -139,7 +139,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
             body += '            }\n'
             body += '        }\n'
             body += '\n'
-            body += '        const std::vector<DispatchTraceRaysDumpingContext*> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);\n'
+            body += '        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);\n'
             body += '        for (auto dr_context : dr_contexts)\n'
             body += '        {\n'
             body += '            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();\n'

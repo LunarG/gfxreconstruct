@@ -214,7 +214,7 @@ class DrawCallsDumpingContext
 
     const std::vector<VkCommandBuffer>& GetCommandBuffers() const { return command_buffers_; }
 
-    void AssignSecondary(uint64_t execute_commands_index, DrawCallsDumpingContext* secondary_context);
+    void AssignSecondary(uint64_t execute_commands_index, std::shared_ptr<DrawCallsDumpingContext> secondary_context);
 
     uint32_t RecaclulateCommandBuffers();
 
@@ -298,7 +298,7 @@ class DrawCallsDumpingContext
     bool                         secondary_with_dynamic_rendering_;
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<DrawCallsDumpingContext*>> secondaries_;
+    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DrawCallsDumpingContext>>> secondaries_;
 
     enum RenderPassType
     {

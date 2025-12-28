@@ -3742,7 +3742,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
         for (const auto& ex_com : secondaries_)
         {
             const uint64_t execute_commands_index = ex_com.first;
-            for (const DrawCallsDumpingContext* secondary_context : ex_com.second)
+            for (const auto secondary_context : ex_com.second)
             {
                 const CommandIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
 
@@ -3864,8 +3864,8 @@ void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>
     new_entry_it->second.depth_attachment_layout  = depth_attachment_layout;
 }
 
-void DrawCallsDumpingContext::AssignSecondary(uint64_t                 execute_commands_index,
-                                              DrawCallsDumpingContext* secondary_context)
+void DrawCallsDumpingContext::AssignSecondary(uint64_t                                 execute_commands_index,
+                                              std::shared_ptr<DrawCallsDumpingContext> secondary_context)
 {
     GFXRECON_ASSERT(secondary_context);
 

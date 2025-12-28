@@ -140,7 +140,8 @@ class DispatchTraceRaysDumpingContext
 
     void UpdateSecondaries();
 
-    void AssignSecondary(uint64_t execute_commands_index, DispatchTraceRaysDumpingContext* secondary_context);
+    void AssignSecondary(uint64_t                                         execute_commands_index,
+                         std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context);
 
     bool ShouldHandleExecuteCommands(uint64_t index) const;
 
@@ -528,7 +529,7 @@ class DispatchTraceRaysDumpingContext
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
 
     // Execute commands block index : DrawCallContexts
-    std::unordered_map<uint64_t, std::vector<DispatchTraceRaysDumpingContext*>> secondaries_;
+    std::unordered_map<uint64_t, std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>> secondaries_;
 
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
