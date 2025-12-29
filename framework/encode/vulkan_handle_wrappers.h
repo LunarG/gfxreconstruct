@@ -147,9 +147,10 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 
-    // Track RayTracingPipeline / AccelerationStructure properties
+    // track properties of various physical-device extensions
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    ray_tracing_pipeline_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+    std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT>      descriptor_buffer_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>

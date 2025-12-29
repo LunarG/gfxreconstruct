@@ -1259,7 +1259,7 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice
         vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
     }
 
-    if (auto raytracing_props =
+    if (auto* raytracing_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(pProperties))
     {
         if (IsCaptureModeTrack())
@@ -1268,12 +1268,21 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice
         }
     }
 
-    if (auto acceleration_props =
+    if (auto* acceleration_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceAccelerationStructurePropertiesKHR>(pProperties))
     {
         if (IsCaptureModeTrack())
         {
             state_tracker_->TrackAccelerationStructureProperties(physicalDevice, acceleration_props);
+        }
+    }
+
+    if (auto* descriptor_buffer_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(pProperties))
+    {
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackDescriptorBufferProperties(physicalDevice, descriptor_buffer_props);
         }
     }
 }

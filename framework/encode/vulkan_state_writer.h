@@ -165,7 +165,7 @@ class VulkanStateWriter
 
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
-    void WriteRayTracingPropertiesState(const VulkanStateTable& state_table);
+    void WritePhysicalDeviceExtensionPropertiesState(const VulkanStateTable& state_table);
 
     void WriteRayTracingShaderGroupHandlesState(const VulkanStateTable& state_table);
 
