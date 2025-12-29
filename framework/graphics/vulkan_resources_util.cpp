@@ -1425,6 +1425,26 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
     copy_region.size      = size;
 
     device_table_.CmdCopyBuffer(command_buffer, source_buffer, destination_buffer, 1, &copy_region);
+
+    const VkBufferMemoryBarrier barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                            nullptr,
+                                            VK_ACCESS_TRANSFER_WRITE_BIT,
+                                            VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_READ_BIT,
+                                            VK_QUEUE_FAMILY_IGNORED,
+                                            VK_QUEUE_FAMILY_IGNORED,
+                                            destination_buffer,
+                                            dst_offset,
+                                            size };
+    device_table_.CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
+                                     VkDependencyFlags(0),
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &barrier,
+                                     0,
+                                     nullptr);
 }
 
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
