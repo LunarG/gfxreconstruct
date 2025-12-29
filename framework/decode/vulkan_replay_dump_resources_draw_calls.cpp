@@ -956,11 +956,11 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
-    if (current_render_pass_type_ == kRenderPass)
+    if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
     }
-    else if (current_render_pass_type_ == kDynamicRendering)
+    else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
     {
         device_table_->CmdEndRenderingKHR(current_command_buffer);
 
@@ -1009,9 +1009,12 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
     // Copy indirect draw params.
     // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_) represents
     // both "before" and "after" case, we should do this only once. For the "before" commands dc_params in
-    // FinalizeCommandBuffer() will be null so we distinquish between "befre" and "after" and call
+    // FinalizeCommandBuffer() will be null so we distinguish between "before" and "after" and call
     // CopyDrawIndirectParameters() just once.
-    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type))
+    // If current_render_pass_type_ == RenderPassType::kNone it means that we are inside a secondary which means that we
+    // will be inside a render pass once vkCmdExecuteCommands is issued
+    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type) &&
+        current_render_pass_type_ != RenderPassType::kNone)
     {
         CopyDrawIndirectParameters(*dc_params);
     }
@@ -4020,6 +4023,14 @@ void DrawCallsDumpingContext::UpdateSecondaries()
                 const auto new_entry = draw_call_params_.insert(
                     std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
                 GFXRECON_ASSERT(new_entry.second);
+
+                FinalizeCommandBuffer(new_entry.first->second.get());
+
+                // Finalize the command buffer for the before case as well
+                if (options_.dump_resources_before)
+                {
+                    FinalizeCommandBuffer();
+                }
             }
             secondary_dc_params.clear();
         }
