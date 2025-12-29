@@ -956,11 +956,11 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
-    if (current_render_pass_type_ == kRenderPass)
+    if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
     }
-    else if (current_render_pass_type_ == kDynamicRendering)
+    else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
     {
         device_table_->CmdEndRenderingKHR(current_command_buffer);
 
@@ -1009,9 +1009,12 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
     // Copy indirect draw params.
     // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_) represents
     // both "before" and "after" case, we should do this only once. For the "before" commands dc_params in
-    // FinalizeCommandBuffer() will be null so we distinquish between "befre" and "after" and call
+    // FinalizeCommandBuffer() will be null so we distinguish between "before" and "after" and call
     // CopyDrawIndirectParameters() just once.
-    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type))
+    // If current_render_pass_type_ == RenderPassType::kNone it means that we are inside a secondary which means that we
+    // will be inside a render pass once vkCmdExecuteCommands is issued
+    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type) &&
+        current_render_pass_type_ != RenderPassType::kNone)
     {
         CopyDrawIndirectParameters(*dc_params);
     }
@@ -3989,41 +3992,37 @@ void DrawCallsDumpingContext::MergeRenderPasses(const DrawCallsDumpingContext& s
     current_renderpass_ += secondary_context.rendering_attachment_layouts_.size();
 }
 
-void DrawCallsDumpingContext::UpdateSecondaries()
+void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& secondary_context)
 {
     // The purpose of this function is to transfer rendering context from a primary to its secondaries.
     // This function must be called only for primary command buffer contexes, even if a secondary has secondaries.
     GFXRECON_ASSERT(command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary);
 
-    for (auto& execute_commands : secondaries_)
-    {
-        for (auto& secondary_context : execute_commands.second)
-        {
-            secondary_context->SecondaryUpdateContextFromPrimary(bound_gr_pipeline_,
-                                                                 bound_vertex_buffers_,
-                                                                 bound_index_buffer_,
-                                                                 dynamic_vertex_input_state_,
-                                                                 bound_descriptor_sets_gr_);
-        }
-    }
+    secondary_context.SecondaryUpdateContextFromPrimary(bound_gr_pipeline_,
+                                                        bound_vertex_buffers_,
+                                                        bound_index_buffer_,
+                                                        dynamic_vertex_input_state_,
+                                                        bound_descriptor_sets_gr_);
 
     // Move secondary draw call parameters to primary's list of draw call params.
     // When DumpDrawCalls is called it's better to have all draw call parameters available in the primary which is
     // submitted.
-    for (auto& execute_commands : secondaries_)
+    DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
+    for (auto& secondary_dc_param : secondary_dc_params)
     {
-        for (auto& secondary_context : execute_commands.second)
+        const auto new_entry =
+            draw_call_params_.insert(std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
+        GFXRECON_ASSERT(new_entry.second);
+
+        FinalizeCommandBuffer(new_entry.first->second.get());
+
+        // Finalize the command buffer for the before case as well
+        if (options_.dump_resources_before)
         {
-            DrawCallParameters& secondary_dc_params = secondary_context->GetDrawCallParameters();
-            for (auto& secondary_dc_param : secondary_dc_params)
-            {
-                const auto new_entry = draw_call_params_.insert(
-                    std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
-                GFXRECON_ASSERT(new_entry.second);
-            }
-            secondary_dc_params.clear();
+            FinalizeCommandBuffer();
         }
     }
+    secondary_dc_params.clear();
 }
 
 void DrawCallsDumpingContext::SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,

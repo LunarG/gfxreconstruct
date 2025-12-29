@@ -2231,7 +2231,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                                  accumulated_secondaries_command_buffers.data());
 
                             func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
-                            dc_primary_context->FinalizeCommandBuffer();
                             dc_primary_context->MergeRenderPasses(*dc_secondary_context);
                             ++finalized_primaries;
                         }
@@ -2248,6 +2247,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                         {
                             func(*primary_it, 1, &pCommandBuffers[i]);
                         }
+
+                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get());
 
                         // All primaries have been finalized. Nothing else to do
                         if (finalized_primaries == primary_last - primary_first)
@@ -2266,7 +2267,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     }
                 }
             }
-            dc_primary_context->UpdateSecondaries();
         }
         else
         {

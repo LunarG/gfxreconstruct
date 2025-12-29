@@ -217,7 +217,7 @@ class DrawCallsDumpingContext
 
     uint32_t RecaclulateCommandBuffers();
 
-    void UpdateSecondaries();
+    void UpdateSecondaries(DrawCallsDumpingContext& secondary_context);
 
     void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
 
@@ -721,8 +721,8 @@ class DrawCallsDumpingContext
     };
 
   private:
-    // One entry for each draw call
-    using DrawCallParameters = std::unordered_map<uint64_t, std::unique_ptr<DrawCallParams>>;
+    // One entry for each draw call. It is important that this is an ordered map
+    using DrawCallParameters = std::map<uint64_t, std::unique_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
     DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
