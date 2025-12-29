@@ -20961,30 +20961,6 @@ std::string GenerateStruct_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT(s
 }
 
 
-std::string GenerateStruct_VkLayerSettingEXT(std::ostream &out, const VkLayerSettingEXT* structInfo, Decoded_VkLayerSettingEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pvalues_array = "NULL";
-    if (structInfo->pValues != NULL) {
-        std::string pvalues_values;
-        for (uint32_t idx0 = 0; idx0 < structInfo->valueCount; ++idx0) {
-            pvalues_values += std::to_string(reinterpret_cast<const uint8_t*>(structInfo->pValues)[idx0]) + ", ";
-        }
-        pvalues_array = "pValues_" + std::to_string(consumer.GetNextId());
-        out << "\t\t" << "uint8_t " << pvalues_array << "[] = {" << pvalues_values << "};" << std::endl;
-    }
-    struct_body << "\t" << VulkanCppConsumerBase::ToEscape(structInfo->pLayerName) << "," << std::endl;
-    struct_body << "\t\t\t" << VulkanCppConsumerBase::ToEscape(structInfo->pSettingName) << "," << std::endl;
-    struct_body << "\t\t\t" << "VkLayerSettingTypeEXT(" << structInfo->type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->valueCount << "," << std::endl;
-    struct_body << "\t\t\t" << pvalues_array << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "layerSettingEXT");
-    out << "\t\t" << "VkLayerSettingEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkLayerSettingsCreateInfoEXT(std::ostream &out, const VkLayerSettingsCreateInfoEXT* structInfo, Decoded_VkLayerSettingsCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

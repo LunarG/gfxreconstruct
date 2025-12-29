@@ -46,6 +46,7 @@
     "VkCopyMemoryToImageInfo",
     "VkMemoryToImageCopy",
     "VkCopyImageToMemoryInfo",
-    "VkImageToMemoryCopy"
+    "VkImageToMemoryCopy",
+    "VkLayerSettingEXT"
   ]
 }

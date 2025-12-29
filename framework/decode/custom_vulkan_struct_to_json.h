@@ -159,6 +159,10 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
     }
 }
 
+void FieldToJson(nlohmann::ordered_json&          jdata,
+                 const Decoded_VkLayerSettingEXT* data,
+                 const util::JsonOptions&         options = util::JsonOptions());
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

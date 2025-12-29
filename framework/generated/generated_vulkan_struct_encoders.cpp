@@ -9941,15 +9941,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLegacyVertexA
     encoder->EncodeUInt32Value(value.nativeUnalignedPerformance);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
-{
-    encoder->EncodeString(value.pLayerName);
-    encoder->EncodeString(value.pSettingName);
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeUInt32Value(value.valueCount);
-    encoder->EncodeVoidArray(value.pValues, value.valueCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingsCreateInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
