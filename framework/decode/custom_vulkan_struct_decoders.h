@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 
+#include "string_array_decoder.h"
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -299,8 +300,7 @@ struct Decoded_VkLayerSettingEXT
     PointerDecoder<uint8_t> pValues;
 
     // if type is VK_LAYER_SETTING_TYPE_STRING_EXT we need to decode an array of strings
-    std::vector<StringDecoder> string_decoders;
-    std::vector<const char*>   string_values;
+    StringArrayDecoder string_decoder;
 };
 
 GFXRECON_END_NAMESPACE(decode)

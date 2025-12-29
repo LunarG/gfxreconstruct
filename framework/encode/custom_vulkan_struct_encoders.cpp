@@ -429,14 +429,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
             encoder->EncodeFloat64Array(static_cast<const double*>(value.pValues), value.valueCount);
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
-        {
-            auto* string_array = static_cast<const char* const*>(value.pValues);
-            for (uint32_t i = 0; i < value.valueCount; i++)
-            {
-                encoder->EncodeString(string_array[i]);
-            }
-        }
-        break;
+            encoder->EncodeStringArray(static_cast<const char* const*>(value.pValues), value.valueCount);
+            break;
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
             break;
     }
