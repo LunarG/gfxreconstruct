@@ -194,6 +194,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     instance_info, instance_table, physical_device, vulkan_1_2_features);
             }
             break;
+
             // samplerYcbcrConversion is required for sampling images with external format
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
             {
@@ -220,6 +221,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     instance_info, instance_table, physical_device, buffer_address_features);
             }
             break;
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 // Enable accelerationStructureCaptureReplay
@@ -249,14 +251,15 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     accel_struct_features->accelerationStructureCaptureReplay;
             }
             break;
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
             {
                 // Enable rayTracingPipelineShaderGroupHandleCaptureReplay
-                auto rt_pipeline_features =
+                auto* rt_pipeline_features =
                     reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(current_struct);
 
                 rayTracingPipelineShaderGroupHandleCaptureReplay_ptr =
-                    (&rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay);
+                    &rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
                 rayTracingPipelineShaderGroupHandleCaptureReplay_original =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
@@ -289,6 +292,31 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                 }
             }
             break;
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            {
+                // Enable descriptorBufferCaptureReplay
+                auto* desc_buffer_features =
+                    reinterpret_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(current_struct);
+
+                descriptorBufferCaptureReplay_ptr      = &desc_buffer_features->descriptorBufferCaptureReplay;
+                descriptorBufferCaptureReplay_original = desc_buffer_features->descriptorBufferCaptureReplay;
+
+                if (desc_buffer_features->descriptorBuffer && !desc_buffer_features->descriptorBufferCaptureReplay)
+                {
+                    VkPhysicalDeviceDescriptorBufferFeaturesEXT supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT, nullptr
+                    };
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+
+                    desc_buffer_features->descriptorBufferCaptureReplay =
+                        supported_features.descriptorBufferCaptureReplay;
+                }
+
+                result.feature_descriptorBufferCaptureReplay = desc_buffer_features->descriptorBufferCaptureReplay;
+            }
+            break;
+
             default:
                 break;
         }

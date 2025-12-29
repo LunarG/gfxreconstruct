@@ -11745,6 +11745,8 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
     VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
     void*                   out_pDescriptor    = pDescriptor->GetOutputPointer();
 
+    func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
+
     if (UseAddressReplacement(device_info))
     {
         // TODO: will be required for portability -> correct BDAs in descriptor_buffer
@@ -11752,16 +11754,10 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
         // auto& address_replacer = GetDeviceAddressReplacer(device_info);
     }
 
-    func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
-
-    // compare capture/replay descriptor-data
-    auto capture_data = std::span(pDescriptor->GetPointer(), pDescriptor->GetPointer() + pDescriptor->GetLength());
-    auto replay_data =
-        std::span(pDescriptor->GetOutputPointer(), pDescriptor->GetOutputPointer() + pDescriptor->GetOutputLength());
-
-    // NOTE: this assumption is true for linux/nvidia but fails for radv
-    GFXRECON_ASSERT(capture_data.size() == replay_data.size());
-    GFXRECON_ASSERT(memcmp(capture_data.data(), replay_data.data(), capture_data.size()) == 0);
+    // NOTE: this assumption is true for linux/nvidia but generally wrong without using 'descriptorBufferCaptureReplay'
+    // TODO: implement descriptorBufferCaptureReplay
+    GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
+    GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) == 0);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdBindDescriptorBuffersEXT(
