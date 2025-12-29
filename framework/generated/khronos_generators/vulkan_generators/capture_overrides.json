@@ -4,6 +4,8 @@
         "vkCreateDevice": "manager->OverrideCreateDevice",
         "vkCreateBuffer": "manager->OverrideCreateBuffer",
         "vkCreateImage": "manager->OverrideCreateImage",
+        "vkCreateImageView": "manager->OverrideCreateImageView",
+        "vkCreateSampler": "manager->OverrideCreateSampler",
         "vkAllocateMemory": "manager->OverrideAllocateMemory",
         "vkGetPhysicalDeviceToolPropertiesEXT": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
         "vkCreateAccelerationStructureKHR": "manager->OverrideCreateAccelerationStructureKHR",

@@ -314,6 +314,13 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                 }
 
                 result.feature_descriptorBufferCaptureReplay = desc_buffer_features->descriptorBufferCaptureReplay;
+
+                // retrieve descriptor-buffer-properties
+                result.descriptor_buffer_properties = {
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT, nullptr
+                };
+                GetPhysicalDeviceProperties(
+                    instance_info, instance_table, physical_device, result.descriptor_buffer_properties);
             }
             break;
 
