@@ -1102,6 +1102,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             submission_fence = fence;
         }
 
+        device_table_->ResetFences(device_info->handle, 1, &submission_fence);
+
         VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence);
         if (res != VK_SUCCESS)
         {
@@ -2764,10 +2766,11 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
         if (!has_external_dependencies_post)
         {
             VkSubpassDependency post_dependency;
-            post_dependency.srcSubpass    = sub;
-            post_dependency.dstSubpass    = VK_SUBPASS_EXTERNAL;
-            post_dependency.dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            post_dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            post_dependency.srcSubpass      = sub;
+            post_dependency.dstSubpass      = VK_SUBPASS_EXTERNAL;
+            post_dependency.dstStageMask    = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            post_dependency.dstAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
+            post_dependency.dependencyFlags = VkDependencyFlags(0);
 
             // Injecting one for color
             if (has_color)
