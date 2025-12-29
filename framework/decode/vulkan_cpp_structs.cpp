@@ -1507,6 +1507,35 @@ std::string GenerateStruct_VkLayerSettingEXT(std::ostream&              out,
         std::string pvalues_values;
         std::string pvalues_typestr;
 
+        switch (structInfo->type)
+        {
+            case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+            case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+                pvalues_typestr = "uint32_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_INT32_EXT:
+                pvalues_typestr = "int32_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_INT64_EXT:
+                pvalues_typestr = "int64_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+                pvalues_typestr = "uint64_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+                pvalues_typestr = "float ";
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+                pvalues_typestr = "double ";
+                break;
+            case VK_LAYER_SETTING_TYPE_STRING_EXT:
+                pvalues_typestr = "const char* ";
+                break;
+            case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+                GFXRECON_ASSERT(false);
+                break;
+        }
+
         for (uint32_t i = 0; i < structInfo->valueCount; ++i)
         {
             std::string val;
@@ -1514,33 +1543,29 @@ std::string GenerateStruct_VkLayerSettingEXT(std::ostream&              out,
             {
                 case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
                 case VK_LAYER_SETTING_TYPE_UINT32_EXT:
-                    val             = std::to_string(static_cast<const uint32_t*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "uint32_t ";
+                    val = std::to_string(static_cast<const uint32_t*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_INT32_EXT:
-                    val             = std::to_string(static_cast<const int32_t*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "int32_t ";
+                    val = std::to_string(static_cast<const int32_t*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_INT64_EXT:
-                    val             = std::to_string(static_cast<const int64_t*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "int64_t ";
+                    val = std::to_string(static_cast<const int64_t*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_UINT64_EXT:
-                    val             = std::to_string(static_cast<const uint64_t*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "uint64_t ";
+                    val = std::to_string(static_cast<const uint64_t*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
-                    val             = std::to_string(static_cast<const float*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "float ";
+                    val = std::to_string(static_cast<const float*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
-                    val             = std::to_string(static_cast<const double*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "double ";
+                    val = std::to_string(static_cast<const double*>(structInfo->pValues)[i]);
                     break;
                 case VK_LAYER_SETTING_TYPE_STRING_EXT:
-                    val             = std::to_string(static_cast<const char*>(structInfo->pValues)[i]);
-                    pvalues_typestr = "char ";
-                    break;
+                {
+                    const auto* string_array = static_cast<const char* const*>(structInfo->pValues);
+                    val                      = std::string("\"") + string_array[i] + "\"";
+                }
+                break;
                 case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
                     GFXRECON_ASSERT(false);
                     break;

@@ -297,6 +297,10 @@ struct Decoded_VkLayerSettingEXT
     StringDecoder           pLayerName;
     StringDecoder           pSettingName;
     PointerDecoder<uint8_t> pValues;
+
+    // if type is VK_LAYER_SETTING_TYPE_STRING_EXT we need to decode an array of strings
+    std::vector<StringDecoder> string_decoders;
+    std::vector<const char*>   string_values;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -613,9 +613,17 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT*
                                                   decoded_value.valueCount);
                 break;
             case VK_LAYER_SETTING_TYPE_STRING_EXT:
-                value_out_json = typed_json_array(reinterpret_cast<const char*>(meta_struct.pValues.GetPointer()),
-                                                  decoded_value.valueCount);
-                break;
+            {
+                const auto* string_array = reinterpret_cast<const char* const*>(meta_struct.pValues.GetPointer());
+                value_out_json           = nlohmann::json::array();
+
+                for (uint32_t i = 0; i < decoded_value.valueCount; ++i)
+                {
+                    auto str_view = std::string_view(string_array[i]);
+                    value_out_json.push_back(str_view);
+                }
+            }
+            break;
             case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
                 GFXRECON_ASSERT(false);
                 break;

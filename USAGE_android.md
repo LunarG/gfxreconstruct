@@ -401,7 +401,7 @@ VkLayerSettingEXT capture_file_setting = {
     .pLayerName = "VK_LAYER_LUNARG_gfxreconstruct",
     .pSettingName = "capture_file",
     .type = VK_LAYER_SETTING_TYPE_STRING_EXT,
-    .valueCount = sizeof(capture_file_value),
+    .valueCount = 1,
     .pValues = capture_file_value,
 };
 

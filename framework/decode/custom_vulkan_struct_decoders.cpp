@@ -599,12 +599,21 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSe
             bytes_read += wrapper->pValues.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
-            bytes_read += wrapper->pValues.DecodeInt8(buffer + bytes_read, buffer_size - bytes_read);
+            wrapper->string_decoders.resize(value->valueCount);
+            wrapper->string_values.resize(value->valueCount);
+
+            for (uint32_t i = 0; i < value->valueCount; ++i)
+            {
+                bytes_read += wrapper->string_decoders[i].Decode(buffer + bytes_read, buffer_size - bytes_read);
+                wrapper->string_values[i] = wrapper->string_decoders[i].GetPointer();
+            }
             break;
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
             break;
     }
-    value->pValues = wrapper->pValues.GetPointer();
+    value->pValues = value->type == VK_LAYER_SETTING_TYPE_STRING_EXT
+                         ? static_cast<const void*>(wrapper->string_values.data())
+                         : static_cast<const void*>(wrapper->pValues.GetPointer());
     return bytes_read;
 }
 

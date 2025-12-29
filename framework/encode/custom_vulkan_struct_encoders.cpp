@@ -24,7 +24,6 @@
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/struct_pointer_encoder.h"
 #include "graphics/vulkan_resources_util.h"
-#include "util/defines.h"
 #include "util/logging.h"
 
 #include <cassert>
@@ -430,8 +429,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
             encoder->EncodeFloat64Array(static_cast<const double*>(value.pValues), value.valueCount);
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
-            encoder->EncodeString(static_cast<const char*>(value.pValues), value.valueCount);
-            break;
+        {
+            auto* string_array = static_cast<const char* const*>(value.pValues);
+            for (uint32_t i = 0; i < value.valueCount; i++)
+            {
+                encoder->EncodeString(string_array[i]);
+            }
+        }
+        break;
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
             break;
     }
