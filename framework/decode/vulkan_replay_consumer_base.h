@@ -868,7 +868,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateBuffer(PFN_vkCreateBuffer                                         func,
                                   VkResult                                                   original_result,
-                                  const VulkanDeviceInfo*                                    device_info,
+                                  VulkanDeviceInfo*                                          device_info,
                                   const StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                   HandlePointerDecoder<VkBuffer>*                            pBuffer);
@@ -887,7 +887,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateImage(PFN_vkCreateImage                                          func,
                                  VkResult                                                   original_result,
-                                 const VulkanDeviceInfo*                                    device_info,
+                                 VulkanDeviceInfo*                                          device_info,
                                  const StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                  HandlePointerDecoder<VkImage>*                             pImage);
@@ -1240,7 +1240,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult OverrideCreateAccelerationStructureKHR(
         PFN_vkCreateAccelerationStructureKHR                                      func,
         VkResult                                                                  original_result,
-        const VulkanDeviceInfo*                                                   device_info,
+        VulkanDeviceInfo*                                                         device_info,
         const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
@@ -1420,10 +1420,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateImageView(PFN_vkCreateImageView                                func,
                                      VkResult                                             original_result,
-                                     const VulkanDeviceInfo*                              device_info,
+                                     VulkanDeviceInfo*                                    device_info,
                                      StructPointerDecoder<Decoded_VkImageViewCreateInfo>* create_info_decoder,
                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
                                      HandlePointerDecoder<VkImageView>*                   view_decoder);
+
+    VkResult OverrideCreateSampler(PFN_vkCreateSampler                                  func,
+                                   VkResult                                             original_result,
+                                   VulkanDeviceInfo*                                    device_info,
+                                   StructPointerDecoder<Decoded_VkSamplerCreateInfo>*   create_info_decoder,
+                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
+                                   HandlePointerDecoder<VkSampler>*                     sampler_decoder);
 
     VkResult OverrideCreateFramebuffer(PFN_vkCreateFramebuffer                                func,
                                        VkResult                                               original_result,

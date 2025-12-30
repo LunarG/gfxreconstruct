@@ -1481,19 +1481,19 @@ void VulkanReplayConsumer::Process_vkCreateSampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSamplerCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSampler->IsNull()) { pSampler->SetHandleLength(1); }
-    VkSampler* out_pSampler = pSampler->GetHandlePointer();
+    VulkanSamplerInfo handle_info;
+    pSampler->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pSampler->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSampler(in_device, in_pCreateInfo, in_pAllocator, out_pSampler);
+    VkResult replay_result = OverrideCreateSampler(GetDeviceTable(in_device->handle)->CreateSampler, returnValue, in_device, pCreateInfo, pAllocator, pSampler);
     CheckResult("vkCreateSampler", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanSamplerInfo>(device, pSampler->GetPointer(), out_pSampler, &CommonObjectInfoTable::AddVkSamplerInfo);
+    AddHandle<VulkanSamplerInfo>(device, pSampler->GetPointer(), pSampler->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSamplerInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySampler(
