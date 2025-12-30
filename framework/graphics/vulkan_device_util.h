@@ -110,7 +110,7 @@ class VulkanDeviceUtil
     VkBool32* rayTracingPipelineShaderGroupHandleCaptureReplay_ptr{ nullptr };
     VkBool32  rayTracingPipelineShaderGroupHandleCaptureReplay_original{ VK_FALSE };
 
-    // VkPhysicalDeviceRayTracingPipelineFeaturesKHR::rayTracingPipelineShaderGroupHandleCaptureReplay
+    // VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay
     VkBool32* descriptorBufferCaptureReplay_ptr{ nullptr };
     VkBool32  descriptorBufferCaptureReplay_original{ VK_FALSE };
 
