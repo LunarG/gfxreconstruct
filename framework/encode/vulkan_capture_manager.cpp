@@ -1270,29 +1270,43 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
     void*                            external_memory = nullptr;
     VkImportMemoryHostPointerInfoEXT import_info;
 
-    auto                  device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice              device_unwrapped     = device_wrapper->handle;
-    auto                  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
+    auto     device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    VkDevice device_unwrapped     = device_wrapper->handle;
+    auto     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto*    pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
-    bool                   uses_address         = false;
-    VkMemoryAllocateFlags* modified_alloc_flags = nullptr;
-    VkMemoryAllocateFlags  incoming_alloc_flags;
+    bool                                     uses_address = false;
+    std::optional<VkMemoryAllocateFlagsInfo> optional_alloc_flags_info;
+
     if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        if (auto alloc_flags_info =
+        if (auto* alloc_flags_info =
                 graphics::vulkan_struct_get_pnext<VkMemoryAllocateFlagsInfo>(pAllocateInfo_unwrapped))
         {
-            if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
-                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
+            optional_alloc_flags_info = *alloc_flags_info;
+
+            if (alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
             {
-                uses_address         = true;
-                incoming_alloc_flags = alloc_flags_info->flags;
+                uses_address = true;
                 alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-                modified_alloc_flags = &(alloc_flags_info->flags);
             }
         }
+    }
+
+    if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
+    {
+        uses_address = true;
+
+        if (!optional_alloc_flags_info)
+        {
+            optional_alloc_flags_info.emplace();
+            optional_alloc_flags_info->sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+        }
+        optional_alloc_flags_info->pNext = nullptr;
+        optional_alloc_flags_info->flags |=
+            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT | VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+        graphics::vulkan_struct_add_pnext(pAllocateInfo_unwrapped, &optional_alloc_flags_info.value());
     }
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -1343,13 +1357,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
                 import_info.pHostPointer = external_memory;
 
                 // TODO: Check pNext chain for use of incompatible extension types.
-                VkBaseOutStructure* end = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped);
-                while (end->pNext != nullptr)
-                {
-                    end = end->pNext;
-                }
-
-                end->pNext = reinterpret_cast<VkBaseOutStructure*>(&import_info);
+                graphics::vulkan_struct_add_pnext(pAllocateInfo_unwrapped, &import_info);
             }
         }
     }
@@ -1364,15 +1372,11 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
                                              vulkan_wrappers::DeviceMemoryWrapper>(
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pMemory, GetUniqueId);
 
-        assert(pMemory != nullptr);
-        auto memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(*pMemory);
+        GFXRECON_ASSERT(pMemory != nullptr);
+        auto* memory_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(*pMemory);
 
         if (uses_address)
         {
-            // Restore modified allocation flags
-            assert(modified_alloc_flags != nullptr);
-            *modified_alloc_flags = incoming_alloc_flags;
-
             VkDeviceMemoryOpaqueCaptureAddressInfo info{ VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO,
                                                          nullptr,
                                                          memory_wrapper->handle };

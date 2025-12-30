@@ -5369,11 +5369,17 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 #endif
 
+        VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
+            VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO
+        };
+        VkMemoryAllocateFlagsInfo flags_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO };
+
         while (current_struct != nullptr)
         {
             if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
             {
-                auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                auto* alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                flags_info             = *alloc_flags_info;
                 if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
                     VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
                 {
@@ -5424,10 +5430,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             current_struct = current_struct->pNext;
         }
 
+        if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+            !UseAddressReplacement(device_info))
+        {
+            uses_address     = true;
+            flags_info.pNext = nullptr;
+            flags_info.flags |=
+                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT | VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+            graphics::vulkan_struct_add_pnext(modified_allocate_info, &flags_info);
+        }
+
         if (uses_address && !address_override_found)
         {
-            // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
-
             // The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT structure,
             // VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zero
             // (https://vulkan.lunarg.com/doc/view/1.3.216.0/linux/1.3-extensions/vkspec.html#VUID-VkMemoryAllocateInfo-pNext-03332)
@@ -5436,26 +5450,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 opaque_address = 0;
             }
 
-            VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
-                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                modified_allocate_info->pNext,
-                opaque_address
-            };
-            modified_allocate_info->pNext = &address_info;
-
-            result = allocator->AllocateMemory(
-                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
-        }
-        else
-        {
-            result = allocator->AllocateMemory(
-                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+            // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
+            address_info.opaqueCaptureAddress = opaque_address;
+            graphics::vulkan_struct_add_pnext(modified_allocate_info, &address_info);
         }
 
-        if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
+        result = allocator->AllocateMemory(
+            modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+
+        if (result == VK_SUCCESS && modified_allocate_info != nullptr && *replay_memory != VK_NULL_HANDLE)
         {
-            auto memory_info = reinterpret_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
-            assert(memory_info != nullptr);
+            auto* memory_info = static_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
+            GFXRECON_ASSERT(memory_info != nullptr);
 
             memory_info->allocator      = allocator;
             memory_info->allocator_data = allocator_data;
@@ -6016,10 +6022,11 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        modified_create_info.flags |= VK_BUFFER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
+            modified_create_info.flags |= VK_BUFFER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
             opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
 
             // add to pNext-chain
@@ -6194,13 +6201,13 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
-            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
 
             // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
             graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
         }
         else
@@ -9124,13 +9131,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
-            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            modified_create_info.createFlags |=
+                VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
 
             // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
             graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
         }
         else
@@ -10235,13 +10243,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        modified_create_info.flags |= VK_IMAGE_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
-            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            modified_create_info.flags |= VK_IMAGE_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
 
             // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
             graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
         }
         else
@@ -10291,13 +10299,13 @@ VulkanReplayConsumerBase::OverrideCreateSampler(PFN_vkCreateSampler             
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        modified_create_info.flags |= VK_SAMPLER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
         if (auto it = device_info->opaque_descriptor_data.find(capture_id);
             it != device_info->opaque_descriptor_data.end())
         {
-            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            modified_create_info.flags |= VK_SAMPLER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
 
             // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
             graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
         }
         else
