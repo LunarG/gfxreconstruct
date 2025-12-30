@@ -595,10 +595,7 @@ struct SetOpaqueDescriptorDataCommand
     format::ThreadId thread_id;
     format::HandleId device_id;
     format::HandleId object_id;
-
-    // directly include a small binary payload (should suffice, according to vulkan.gpuinfo.org)
-    uint32_t size;
-    uint8_t  data[32];
+    uint32_t         data_size;
 };
 
 struct SetRayTracingShaderGroupHandlesCommandHeader

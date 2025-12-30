@@ -328,7 +328,8 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     std::shared_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
-    std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
+    std::unordered_map<format::HandleId, uint64_t>             opaque_addresses;
+    std::unordered_map<format::HandleId, std::vector<uint8_t>> opaque_descriptor_data;
 
     // Map pipeline ID to ray tracing shader group handle capture replay data.
     std::unordered_map<format::HandleId, std::vector<uint8_t>> shader_group_handles;

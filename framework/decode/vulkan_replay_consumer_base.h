@@ -141,6 +141,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
 
+    void ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                               format::HandleId object_id,
+                                               uint32_t         data_size,
+                                               const uint8_t*   data) override;
+
     virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                format::HandleId pipeline_id,
                                                                size_t           data_size,

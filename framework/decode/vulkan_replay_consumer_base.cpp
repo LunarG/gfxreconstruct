@@ -942,6 +942,21 @@ void VulkanReplayConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId d
     }
 }
 
+void VulkanReplayConsumerBase::ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                                                     format::HandleId object_id,
+                                                                     uint32_t         data_size,
+                                                                     const uint8_t*   data)
+{
+    VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
+
+    if (device_info != nullptr && data != nullptr && data_size > 0)
+    {
+        // Store the opaque address to use at object creation.
+        GFXRECON_LOG_INFO("we got descriptor-data for handle: %d (%d bytes)", object_id, data_size);
+        device_info->opaque_descriptor_data[object_id] = { data, data + data_size };
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                              format::HandleId pipeline_id,
                                                                              size_t           data_size,

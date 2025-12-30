@@ -48,7 +48,6 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
-#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1793,9 +1792,10 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
 
-    void WriteSetOpaqueCaptureDescriptorData(format::HandleId          device_id,
-                                             format::HandleId          object_id,
-                                             const std::span<uint8_t>& opaque_data);
+    void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                             format::HandleId object_id,
+                                             size_t           data_size,
+                                             const void*      data);
 
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,

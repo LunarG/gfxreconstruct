@@ -369,9 +369,10 @@ void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_
     }
 }
 
-void VulkanCaptureManager::WriteSetOpaqueCaptureDescriptorData(format::HandleId          device_id,
-                                                               format::HandleId          object_id,
-                                                               const std::span<uint8_t>& opaque_data)
+void VulkanCaptureManager::WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                                               format::HandleId object_id,
+                                                               size_t           data_size,
+                                                               const void*      data)
 {
     if (IsCaptureModeWrite())
     {
@@ -381,16 +382,16 @@ void VulkanCaptureManager::WriteSetOpaqueCaptureDescriptorData(format::HandleId 
         GFXRECON_ASSERT(thread_data != nullptr);
 
         opaque_descriptor_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        opaque_descriptor_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(opaque_descriptor_cmd);
-        opaque_descriptor_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
+        opaque_descriptor_cmd.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(opaque_descriptor_cmd) + data_size;
+        opaque_descriptor_cmd.meta_header.meta_data_id = format::MakeMetaDataId(
             format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetOpaqueCaptureDescriptorDataCommand);
         opaque_descriptor_cmd.thread_id = thread_data->thread_id_;
         opaque_descriptor_cmd.device_id = device_id;
         opaque_descriptor_cmd.object_id = object_id;
-        opaque_descriptor_cmd.size      = opaque_data.size();
-        memcpy(opaque_descriptor_cmd.data, opaque_data.data(), opaque_data.size());
+        opaque_descriptor_cmd.data_size = data_size;
 
-        WriteToFile(&opaque_descriptor_cmd, sizeof(opaque_descriptor_cmd));
+        CombineAndWriteToFile({ { &opaque_descriptor_cmd, sizeof(opaque_descriptor_cmd) }, { data, data_size } });
     }
 }
 
@@ -951,7 +952,8 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                 device_unwrapped, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
-            WriteSetOpaqueCaptureDescriptorData(device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_data);
+            WriteSetOpaqueCaptureDescriptorData(
+                device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_data.size(), opaque_data.data());
         }
     }
     return result;
@@ -1021,7 +1023,8 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
                 device_wrapper->handle, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
-            WriteSetOpaqueCaptureDescriptorData(device_wrapper->handle_id, image_wrapper->handle_id, opaque_data);
+            WriteSetOpaqueCaptureDescriptorData(
+                device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
         }
     }
     return result;
@@ -1067,7 +1070,8 @@ VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                 
                 device_wrapper->handle, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
-            WriteSetOpaqueCaptureDescriptorData(device_wrapper->handle_id, image_view_wrapper->handle_id, opaque_data);
+            WriteSetOpaqueCaptureDescriptorData(
+                device_wrapper->handle_id, image_view_wrapper->handle_id, opaque_data.size(), opaque_data.data());
         }
     }
     return result;
@@ -1113,7 +1117,8 @@ VkResult VulkanCaptureManager::OverrideCreateSampler(VkDevice                   
                 device_wrapper->handle, &descriptor_data_info_ext, opaque_data.data());
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
-            WriteSetOpaqueCaptureDescriptorData(device_wrapper->handle_id, sampler_wrapper->handle_id, opaque_data);
+            WriteSetOpaqueCaptureDescriptorData(
+                device_wrapper->handle_id, sampler_wrapper->handle_id, opaque_data.size(), opaque_data.data());
         }
     }
     return result;
@@ -1206,7 +1211,7 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
             GFXRECON_ASSERT(get_data_result == VK_SUCCESS);
 
             WriteSetOpaqueCaptureDescriptorData(
-                device_wrapper->handle_id, accel_struct_wrapper->handle_id, opaque_data);
+                device_wrapper->handle_id, accel_struct_wrapper->handle_id, opaque_data.size(), opaque_data.data());
         }
     }
     return result;

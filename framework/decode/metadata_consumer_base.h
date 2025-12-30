@@ -74,9 +74,17 @@ class MetadataConsumerBase
                                                          const std::vector<format::DeviceMemoryType>& memory_types,
                                                          const std::vector<format::DeviceMemoryHeap>& memory_heaps)
     {}
+
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address)
     {}
+
+    virtual void ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                                       format::HandleId object_id,
+                                                       uint32_t         data_size,
+                                                       const uint8_t*   data)
+    {}
+
     virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                format::HandleId pipeline_id,
                                                                size_t           data_size,
