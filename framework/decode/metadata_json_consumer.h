@@ -315,13 +315,13 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+    virtual void ProcessVulkanBuildAccelerationStructuresCommand(
         format::HandleId                                                           device_id,
         uint32_t                                                                   info_count,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos) override
     {
-        auto&              jdata        = WriteMetaCommandStart("BuildVulkanAccelerationStructuresMetaCommand");
+        auto&              jdata        = WriteMetaCommandStart("ProcessVulkanBuildAccelerationStructuresCommand");
         const JsonOptions& json_options = GetJsonOptions();
         FieldToJson(jdata["infoCount"], info_count, json_options);
         FieldToJson(jdata["pInfos"], geometry_infos, json_options);
@@ -329,20 +329,20 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+    void ProcessVulkanCopyAccelerationStructuresCommand(
         format::HandleId                                                  device_id,
         StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos) override
     {
-        auto&              jdata        = WriteMetaCommandStart("CopyVulkanAccelerationStructureMetaCommand");
+        auto&              jdata        = WriteMetaCommandStart("VulkanCopyAccelerationStructuresCommand");
         const JsonOptions& json_options = GetJsonOptions();
         FieldToJson(jdata["pInfo"], copy_infos, json_options);
         WriteBlockEnd();
     }
 
-    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+    virtual void ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
         format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id) override
     {
-        auto&              jdata        = WriteMetaCommandStart("BuildVulkanAccelerationStructuresMetaCommand");
+        auto&              jdata        = WriteMetaCommandStart("VulkanWriteAccelerationStructuresPropertiesCommand");
         const JsonOptions& json_options = GetJsonOptions();
         HandleToJson(jdata["device_id"], device_id, json_options);
         FieldToJson(jdata["queryType"], query_type, json_options);
