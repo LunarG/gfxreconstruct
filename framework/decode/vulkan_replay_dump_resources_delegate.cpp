@@ -2199,6 +2199,406 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
     return true;
 }
 
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd,
+                                                                             nlohmann::ordered_json&      json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kInitBufferMetaCommand);
+
+    const auto* init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(init_buffer != nullptr);
+
+    json_entry["buffer"] = init_buffer->buffer;
+    dump_json_.InsertBufferInfo(json_entry, init_buffer->dumped_buffer);
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitImageCommand(const DumpedTransferCommand& cmd,
+                                                                            nlohmann::ordered_json&      json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kInitImageMetaCommand);
+
+    const auto* init_image = std::get_if<DumpedInitImageMetaCommand>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(init_image != nullptr);
+
+    json_entry["image"] = init_image->image;
+
+    for (size_t sr = 0; sr < init_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource =
+            init_image->dumped_image.dumped_subresources[sr];
+        auto& subresource_json_entry = json_entry["subresources"];
+        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              init_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              init_image->dumped_image.dumped_raw);
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferCommand(const DumpedTransferCommand& cmd,
+                                                                             nlohmann::ordered_json&      json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kCopyBuffer);
+
+    const auto* copy_buffer = std::get_if<DumpedCopyBuffer>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(copy_buffer != nullptr);
+
+    json_entry["srcBuffer"] = copy_buffer->src_buffer;
+    json_entry["dstBuffer"] = copy_buffer->dst_buffer;
+
+    auto& regions_entries = json_entry["regions"];
+
+    for (size_t i = 0; i < copy_buffer->regions.size(); ++i)
+    {
+        const auto& region              = copy_buffer->regions[i];
+        regions_entries[i]["srcOffset"] = region.region.srcOffset;
+        regions_entries[i]["dstOffset"] = region.region.dstOffset;
+        regions_entries[i]["size"]      = region.region.size;
+        dump_json_.InsertBufferInfo(regions_entries[i], region.dumped_buffer);
+
+        if (cmd.has_before)
+        {
+            const auto* copy_buffer_before = std::get_if<DumpedCopyBuffer>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_buffer_before != nullptr);
+            dump_json_.InsertBeforeBufferInfo(regions_entries[i], copy_buffer_before->regions[i].dumped_buffer);
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageCommand(const DumpedTransferCommand& cmd,
+                                                                                    nlohmann::ordered_json& json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kCopyBufferToImage);
+
+    const auto* copy_buffer_to_image = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(copy_buffer_to_image != nullptr);
+
+    json_entry["srcBuffer"]      = copy_buffer_to_image->src_buffer;
+    json_entry["dstImage"]       = copy_buffer_to_image->dst_image;
+    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(copy_buffer_to_image->dst_image_layout);
+
+    auto& regions_entries = json_entry["regions"];
+    for (size_t i = 0; i < copy_buffer_to_image->regions.size(); ++i)
+    {
+        const auto& region = copy_buffer_to_image->regions[i];
+
+        auto& region_entry                = regions_entries[i];
+        region_entry["bufferOffset"]      = region.region.bufferOffset;
+        region_entry["bufferRowLength"]   = region.region.bufferRowLength;
+        region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+        auto& img_subresource             = region_entry["imageSubresource"];
+        img_subresource["aspectMask"] =
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.imageSubresource.aspectMask));
+        img_subresource["mipLevel"]       = region.region.imageSubresource.mipLevel;
+        img_subresource["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
+        img_subresource["layerCount"]     = region.region.imageSubresource.layerCount;
+
+        auto& img_offset = region_entry["imageOffset"];
+        img_offset["x"]  = region.region.imageOffset.x;
+        img_offset["y"]  = region.region.imageOffset.y;
+        img_offset["z"]  = region.region.imageOffset.z;
+
+        auto& img_extent = region_entry["imageOffset"];
+        img_offset["x"]  = region.region.imageOffset.x;
+        img_offset["y"]  = region.region.imageOffset.y;
+        img_offset["z"]  = region.region.imageOffset.z;
+
+        auto& extent     = region_entry["imageExtent"];
+        extent["width"]  = region.region.imageExtent.width;
+        extent["height"] = region.region.imageExtent.height;
+        extent["depth"]  = region.region.imageExtent.depth;
+
+        auto& subresource_json_entry = region_entry["subresources"];
+        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+        {
+            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                  dumped_image_sub_resource,
+                                                  region.dumped_image.image_info->format,
+                                                  options_.dump_resources_dump_separate_alpha,
+                                                  region.dumped_image.dumped_raw);
+
+            if (cmd.has_before)
+            {
+                const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
+                GFXRECON_ASSERT(copy_image_before != nullptr);
+                const auto& region_before                    = copy_image_before->regions[i];
+                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            region_before.dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            region_before.dumped_image.dumped_raw);
+            }
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(const DumpedTransferCommand& cmd,
+                                                                            nlohmann::ordered_json&      json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kCopyImage);
+
+    const auto* copy_image = std::get_if<DumpedCopyImage>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(copy_image != nullptr);
+
+    json_entry["srcImage"]       = copy_image->src_image;
+    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(copy_image->src_image_layout);
+    json_entry["dstImage"]       = copy_image->dst_image;
+    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(copy_image->dst_image_layout);
+
+    auto& regions_entries = json_entry["regions"];
+    for (size_t i = 0; i < copy_image->regions.size(); ++i)
+    {
+        const auto& region          = copy_image->regions[i];
+        auto&       region_entry    = regions_entries[i];
+        auto&       src_subresource = region_entry["srcSubresource"];
+        src_subresource["aspectMask"] =
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+
+        auto& srcOffset = region_entry["srcOffset"];
+        srcOffset["x"]  = region.region.srcOffset.x;
+        srcOffset["y"]  = region.region.srcOffset.y;
+        srcOffset["z"]  = region.region.srcOffset.z;
+
+        auto& dst_subresource = region_entry["dstSubresource"];
+        dst_subresource["aspectMask"] =
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+
+        auto& dstOffset = region_entry["dstOffset"];
+        dstOffset["x"]  = region.region.dstOffset.x;
+        dstOffset["y"]  = region.region.dstOffset.y;
+        dstOffset["z"]  = region.region.dstOffset.z;
+
+        auto& extent     = region_entry["extent"];
+        extent["width"]  = region.region.extent.width;
+        extent["height"] = region.region.extent.height;
+        extent["depth"]  = region.region.extent.depth;
+
+        auto& subresource_json_entry = region_entry["subresources"];
+        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+        {
+            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                  dumped_image_sub_resource,
+                                                  region.dumped_image.image_info->format,
+                                                  options_.dump_resources_dump_separate_alpha,
+                                                  region.dumped_image.dumped_raw);
+
+            if (cmd.has_before)
+            {
+                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+                GFXRECON_ASSERT(copy_image_before != nullptr);
+                const auto& region_before                    = copy_image_before->regions[i];
+                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            region_before.dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            region_before.dumped_image.dumped_raw);
+            }
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageToBufferCommand(const DumpedTransferCommand& cmd,
+                                                                                    nlohmann::ordered_json& json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kCopyImageToBuffer);
+
+    const auto* copy_image_to_buffer = std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(copy_image_to_buffer != nullptr);
+
+    json_entry["srcImage"]       = copy_image_to_buffer->src_image;
+    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(copy_image_to_buffer->src_image_layout);
+    json_entry["dstBuffer"]      = copy_image_to_buffer->dst_buffer;
+
+    auto& regions_entries = json_entry["regions"];
+    for (size_t i = 0; i < copy_image_to_buffer->regions.size(); ++i)
+    {
+        const auto& region       = copy_image_to_buffer->regions[i];
+        auto&       region_entry = regions_entries[i];
+
+        region_entry["bufferOffset"]      = region.region.bufferOffset;
+        region_entry["bufferRowLength"]   = region.region.bufferRowLength;
+        region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+
+        auto& img_subresource_entry             = region_entry["imageSubresource"];
+        img_subresource_entry["aspectMask"]     = region.region.imageSubresource.aspectMask;
+        img_subresource_entry["mipLevel"]       = region.region.imageSubresource.mipLevel;
+        img_subresource_entry["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
+        img_subresource_entry["layerCount"]     = region.region.imageSubresource.layerCount;
+
+        auto& image_offset = region_entry["imageOffset"];
+        image_offset["x"]  = region.region.imageOffset.x;
+        image_offset["y"]  = region.region.imageOffset.y;
+        image_offset["z"]  = region.region.imageOffset.z;
+
+        auto& image_extent     = region_entry["imageExtent"];
+        image_extent["width"]  = region.region.imageExtent.width;
+        image_extent["height"] = region.region.imageExtent.height;
+        image_extent["depth"]  = region.region.imageExtent.depth;
+
+        dump_json_.InsertBufferInfo(region_entry, region.dumped_buffer);
+
+        if (cmd.has_before)
+        {
+            const auto* copy_buffer_before = std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_buffer_before != nullptr);
+            dump_json_.InsertBeforeBufferInfo(region_entry, copy_buffer_before->regions[i].dumped_buffer);
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(const DumpedTransferCommand& cmd,
+                                                                            nlohmann::ordered_json&      json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kBlitImage);
+
+    const auto* blit_image = std::get_if<DumpedBlitImage>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(blit_image != nullptr);
+
+    json_entry["srcImage"]       = blit_image->src_image;
+    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(blit_image->src_image_layout);
+    json_entry["dstImage"]       = blit_image->dst_image;
+    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(blit_image->dst_image_layout);
+    json_entry["filter"]         = util::ToString<VkFilter>(blit_image->filter);
+
+    auto& regions_entries = json_entry["regions"];
+    for (size_t i = 0; i < blit_image->regions.size(); ++i)
+    {
+        const auto& region          = blit_image->regions[i];
+        auto&       region_entry    = regions_entries[i];
+        auto&       src_subresource = region_entry["srcSubresource"];
+        src_subresource["aspectMask"] =
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+
+        auto& srcOffsets    = region_entry["srcOffset"];
+        srcOffsets["[0].x"] = region.region.srcOffsets[0].x;
+        srcOffsets["[0].y"] = region.region.srcOffsets[0].y;
+        srcOffsets["[0].z"] = region.region.srcOffsets[0].z;
+        srcOffsets["[1].x"] = region.region.srcOffsets[1].x;
+        srcOffsets["[1].y"] = region.region.srcOffsets[1].y;
+        srcOffsets["[1].z"] = region.region.srcOffsets[1].z;
+
+        auto& dst_subresource = region_entry["dstSubresource"];
+        dst_subresource["aspectMask"] =
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+
+        auto& dstOffsets    = region_entry["dstOffset"];
+        dstOffsets["[0].x"] = region.region.dstOffsets[0].x;
+        dstOffsets["[0].y"] = region.region.dstOffsets[0].y;
+        dstOffsets["[0].z"] = region.region.dstOffsets[0].z;
+        dstOffsets["[1].x"] = region.region.dstOffsets[1].x;
+        dstOffsets["[1].y"] = region.region.dstOffsets[1].y;
+        dstOffsets["[1].z"] = region.region.dstOffsets[1].z;
+
+        auto& subresource_json_entry = region_entry["subresources"];
+        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+        {
+            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
+            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                                  dumped_image_sub_resource,
+                                                  region.dumped_image.image_info->format,
+                                                  options_.dump_resources_dump_separate_alpha,
+                                                  region.dumped_image.dumped_raw);
+
+            if (cmd.has_before)
+            {
+                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+                GFXRECON_ASSERT(copy_image_before != nullptr);
+                const auto& region_before                    = copy_image_before->regions[i];
+                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
+                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                            dumped_image_sub_resource_before,
+                                                            region_before.dumped_image.image_info->format,
+                                                            options_.dump_resources_dump_separate_alpha,
+                                                            region_before.dumped_image.dumped_raw);
+            }
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBuildAccelerationStructuresCommand(
+    const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kBuildAccelerationStructure);
+
+    const auto* dumped_build_as = std::get_if<DumpedBuildAccelerationStructure>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(dumped_build_as != nullptr);
+
+    auto& builds_entries = json_entry["builds"];
+    for (size_t i = 0; i < dumped_build_as->dumped_build_infos.size(); ++i)
+    {
+        const auto& build_info                        = dumped_build_as->dumped_build_infos[i];
+        builds_entries[i]["srcAccelerationStructure"] = build_info.src_as;
+        builds_entries[i]["dstAccelerationStructure"] = build_info.dst_as;
+        builds_entries[i]["mode"] = util::ToString(static_cast<VkBuildAccelerationStructureModeKHR>(build_info.mode));
+        builds_entries[i]["dstAccelerationStructureType"] =
+            util::ToString<VkAccelerationStructureTypeKHR>(build_info.dumped_as.as_info->type);
+
+        auto& as_content_entries = builds_entries[i]["asContent"];
+        if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+        {
+            GenerateTLASJsonInfo(as_content_entries, build_info.dumped_as);
+        }
+        else if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
+        {
+            GenerateBLASJsonInfo(as_content_entries, build_info.dumped_as);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "%s() Unhandled AS type %d", __func__, static_cast<int>(build_info.dumped_as.as_info->type));
+            GFXRECON_ASSERT(0);
+        }
+    }
+}
+
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyAccelerationStructureCommand(
+    const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry)
+{
+    GFXRECON_ASSERT(cmd.type == DumpResourceType::kCopyAccelerationStructure);
+
+    const auto* dumped_copy_as = std::get_if<DumpedCopyAccelerationStructure>(&cmd.dumped_resource);
+    GFXRECON_ASSERT(dumped_copy_as != nullptr);
+
+    auto& copy_info_entries  = json_entry["copyInfo"];
+    copy_info_entries["src"] = dumped_copy_as->dumped_copy_info.src_as;
+    copy_info_entries["dst"] = dumped_copy_as->dumped_copy_info.dst_as;
+    copy_info_entries["mode"] =
+        util::ToString(static_cast<VkCopyAccelerationStructureModeKHR>(dumped_copy_as->dumped_copy_info.mode));
+
+    auto& as_content_entries = copy_info_entries["asContent"];
+    if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
+    {
+        GenerateTLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
+    }
+    else if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type ==
+             VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
+    {
+        GenerateBLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("%s() Unhandled AS type %d",
+                           __func__,
+                           static_cast<int>(dumped_copy_as->dumped_copy_info.dumped_as.as_info->type));
+        GFXRECON_ASSERT(0);
+    }
+}
+
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     const VulkanDelegateDumpDrawCallContext& draw_call_info)
 {
@@ -2241,394 +2641,40 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     switch (transfer_cmd_params->params->type)
     {
         case TransferDumpingContext::TransferCommandTypes::kCmdInitBuffer:
-        {
-            const auto* init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(init_buffer != nullptr);
-
-            transf_params_json_entry["buffer"] = init_buffer->buffer;
-            dump_json_.InsertBufferInfo(transf_params_json_entry, init_buffer->dumped_buffer);
-        }
-        break;
+            GenerateOutputJsonInitBufferCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdInitImage:
-        {
-            const auto* init_image = std::get_if<DumpedInitImageMetaCommand>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(init_image != nullptr);
-
-            transf_params_json_entry["image"] = init_image->image;
-
-            for (size_t sr = 0; sr < init_image->dumped_image.dumped_subresources.size(); ++sr)
-            {
-                const DumpedImage::DumpedImageSubresource& dumped_image_sub_resource =
-                    init_image->dumped_image.dumped_subresources[sr];
-                auto& subresource_json_entry = transf_params_json_entry["subresources"];
-                dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                      dumped_image_sub_resource,
-                                                      init_image->dumped_image.image_info->format,
-                                                      options_.dump_resources_dump_separate_alpha,
-                                                      init_image->dumped_image.dumped_raw);
-            }
-        }
-        break;
+            GenerateOutputJsonInitImageCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdCopyBuffer:
-        {
-            const auto* copy_buffer = std::get_if<DumpedCopyBuffer>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(copy_buffer != nullptr);
-
-            transf_params_json_entry["srcBuffer"] = copy_buffer->src_buffer;
-            transf_params_json_entry["dstBuffer"] = copy_buffer->dst_buffer;
-
-            auto& regions_entries = transf_params_json_entry["regions"];
-
-            for (size_t i = 0; i < copy_buffer->regions.size(); ++i)
-            {
-                const auto& region              = copy_buffer->regions[i];
-                regions_entries[i]["srcOffset"] = region.region.srcOffset;
-                regions_entries[i]["dstOffset"] = region.region.dstOffset;
-                regions_entries[i]["size"]      = region.region.size;
-                dump_json_.InsertBufferInfo(regions_entries[i], region.dumped_buffer);
-
-                if (cmd->has_before)
-                {
-                    const auto* copy_buffer_before = std::get_if<DumpedCopyBuffer>(&cmd->dumped_resource_before);
-                    GFXRECON_ASSERT(copy_buffer_before != nullptr);
-                    dump_json_.InsertBeforeBufferInfo(regions_entries[i], copy_buffer_before->regions[i].dumped_buffer);
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonCopyBufferCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdCopyBufferToImage:
-        {
-            const auto* copy_buffer_to_image = std::get_if<DumpedCopyBufferToImage>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(copy_buffer_to_image != nullptr);
-
-            transf_params_json_entry["srcBuffer"] = copy_buffer_to_image->src_buffer;
-            transf_params_json_entry["dstImage"]  = copy_buffer_to_image->dst_image;
-            transf_params_json_entry["dstImageLayout"] =
-                util::ToString<VkImageLayout>(copy_buffer_to_image->dst_image_layout);
-
-            auto& regions_entries = transf_params_json_entry["regions"];
-            for (size_t i = 0; i < copy_buffer_to_image->regions.size(); ++i)
-            {
-                const auto& region = copy_buffer_to_image->regions[i];
-
-                auto& region_entry                = regions_entries[i];
-                region_entry["bufferOffset"]      = region.region.bufferOffset;
-                region_entry["bufferRowLength"]   = region.region.bufferRowLength;
-                region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
-                auto& img_subresource             = region_entry["imageSubresource"];
-                img_subresource["aspectMask"] =
-                    util::ToString(static_cast<VkImageAspectFlagBits>(region.region.imageSubresource.aspectMask));
-                img_subresource["mipLevel"]       = region.region.imageSubresource.mipLevel;
-                img_subresource["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
-                img_subresource["layerCount"]     = region.region.imageSubresource.layerCount;
-
-                auto& img_offset = region_entry["imageOffset"];
-                img_offset["x"]  = region.region.imageOffset.x;
-                img_offset["y"]  = region.region.imageOffset.y;
-                img_offset["z"]  = region.region.imageOffset.z;
-
-                auto& img_extent = region_entry["imageOffset"];
-                img_offset["x"]  = region.region.imageOffset.x;
-                img_offset["y"]  = region.region.imageOffset.y;
-                img_offset["z"]  = region.region.imageOffset.z;
-
-                auto& extent     = region_entry["imageExtent"];
-                extent["width"]  = region.region.imageExtent.width;
-                extent["height"] = region.region.imageExtent.height;
-                extent["depth"]  = region.region.imageExtent.depth;
-
-                auto& subresource_json_entry = region_entry["subresources"];
-                for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
-                {
-                    const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                          dumped_image_sub_resource,
-                                                          region.dumped_image.image_info->format,
-                                                          options_.dump_resources_dump_separate_alpha,
-                                                          region.dumped_image.dumped_raw);
-
-                    if (cmd->has_before)
-                    {
-                        const auto* copy_image_before =
-                            std::get_if<DumpedCopyBufferToImage>(&cmd->dumped_resource_before);
-                        GFXRECON_ASSERT(copy_image_before != nullptr);
-                        const auto& region_before = copy_image_before->regions[i];
-                        const auto& dumped_image_sub_resource_before =
-                            region_before.dumped_image.dumped_subresources[sr];
-                        dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                                    dumped_image_sub_resource_before,
-                                                                    region_before.dumped_image.image_info->format,
-                                                                    options_.dump_resources_dump_separate_alpha,
-                                                                    region_before.dumped_image.dumped_raw);
-                    }
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonCopyBufferToImageCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdCopyImage:
-        {
-            const auto* copy_image = std::get_if<DumpedCopyImage>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(copy_image != nullptr);
-
-            transf_params_json_entry["srcImage"]       = copy_image->src_image;
-            transf_params_json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(copy_image->src_image_layout);
-            transf_params_json_entry["dstImage"]       = copy_image->dst_image;
-            transf_params_json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(copy_image->dst_image_layout);
-
-            auto& regions_entries = transf_params_json_entry["regions"];
-            for (size_t i = 0; i < copy_image->regions.size(); ++i)
-            {
-                const auto& region          = copy_image->regions[i];
-                auto&       region_entry    = regions_entries[i];
-                auto&       src_subresource = region_entry["srcSubresource"];
-                src_subresource["aspectMask"] =
-                    util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-                src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-                src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-                src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
-
-                auto& srcOffset = region_entry["srcOffset"];
-                srcOffset["x"]  = region.region.srcOffset.x;
-                srcOffset["y"]  = region.region.srcOffset.y;
-                srcOffset["z"]  = region.region.srcOffset.z;
-
-                auto& dst_subresource = region_entry["dstSubresource"];
-                dst_subresource["aspectMask"] =
-                    util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-                dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-                dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-                dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
-
-                auto& dstOffset = region_entry["dstOffset"];
-                dstOffset["x"]  = region.region.dstOffset.x;
-                dstOffset["y"]  = region.region.dstOffset.y;
-                dstOffset["z"]  = region.region.dstOffset.z;
-
-                auto& extent     = region_entry["extent"];
-                extent["width"]  = region.region.extent.width;
-                extent["height"] = region.region.extent.height;
-                extent["depth"]  = region.region.extent.depth;
-
-                auto& subresource_json_entry = region_entry["subresources"];
-                for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
-                {
-                    const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                          dumped_image_sub_resource,
-                                                          region.dumped_image.image_info->format,
-                                                          options_.dump_resources_dump_separate_alpha,
-                                                          region.dumped_image.dumped_raw);
-
-                    if (cmd->has_before)
-                    {
-                        const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd->dumped_resource_before);
-                        GFXRECON_ASSERT(copy_image_before != nullptr);
-                        const auto& region_before = copy_image_before->regions[i];
-                        const auto& dumped_image_sub_resource_before =
-                            region_before.dumped_image.dumped_subresources[sr];
-                        dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                                    dumped_image_sub_resource_before,
-                                                                    region_before.dumped_image.image_info->format,
-                                                                    options_.dump_resources_dump_separate_alpha,
-                                                                    region_before.dumped_image.dumped_raw);
-                    }
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonCopyImageCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdCopyImageToBuffer:
-        {
-            const auto* copy_image_to_buffer = std::get_if<DumpedCopyImageToBuffer>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(copy_image_to_buffer != nullptr);
-
-            transf_params_json_entry["srcImage"] = copy_image_to_buffer->src_image;
-            transf_params_json_entry["srcImageLayout"] =
-                util::ToString<VkImageLayout>(copy_image_to_buffer->src_image_layout);
-            transf_params_json_entry["dstBuffer"] = copy_image_to_buffer->dst_buffer;
-
-            auto& regions_entries = transf_params_json_entry["regions"];
-            for (size_t i = 0; i < copy_image_to_buffer->regions.size(); ++i)
-            {
-                const auto& region       = copy_image_to_buffer->regions[i];
-                auto&       region_entry = regions_entries[i];
-
-                region_entry["bufferOffset"]      = region.region.bufferOffset;
-                region_entry["bufferRowLength"]   = region.region.bufferRowLength;
-                region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
-
-                auto& img_subresource_entry             = region_entry["imageSubresource"];
-                img_subresource_entry["aspectMask"]     = region.region.imageSubresource.aspectMask;
-                img_subresource_entry["mipLevel"]       = region.region.imageSubresource.mipLevel;
-                img_subresource_entry["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
-                img_subresource_entry["layerCount"]     = region.region.imageSubresource.layerCount;
-
-                auto& image_offset = region_entry["imageOffset"];
-                image_offset["x"]  = region.region.imageOffset.x;
-                image_offset["y"]  = region.region.imageOffset.y;
-                image_offset["z"]  = region.region.imageOffset.z;
-
-                auto& image_extent     = region_entry["imageExtent"];
-                image_extent["width"]  = region.region.imageExtent.width;
-                image_extent["height"] = region.region.imageExtent.height;
-                image_extent["depth"]  = region.region.imageExtent.depth;
-
-                dump_json_.InsertBufferInfo(region_entry, region.dumped_buffer);
-
-                if (cmd->has_before)
-                {
-                    const auto* copy_buffer_before = std::get_if<DumpedCopyImageToBuffer>(&cmd->dumped_resource_before);
-                    GFXRECON_ASSERT(copy_buffer_before != nullptr);
-                    dump_json_.InsertBeforeBufferInfo(region_entry, copy_buffer_before->regions[i].dumped_buffer);
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonCopyImageToBufferCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdBlitImage:
-        {
-            const auto* blit_image = std::get_if<DumpedBlitImage>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(blit_image != nullptr);
-
-            transf_params_json_entry["srcImage"]       = blit_image->src_image;
-            transf_params_json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(blit_image->src_image_layout);
-            transf_params_json_entry["dstImage"]       = blit_image->dst_image;
-            transf_params_json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(blit_image->dst_image_layout);
-            transf_params_json_entry["filter"]         = util::ToString<VkFilter>(blit_image->filter);
-
-            auto& regions_entries = transf_params_json_entry["regions"];
-            for (size_t i = 0; i < blit_image->regions.size(); ++i)
-            {
-                const auto& region          = blit_image->regions[i];
-                auto&       region_entry    = regions_entries[i];
-                auto&       src_subresource = region_entry["srcSubresource"];
-                src_subresource["aspectMask"] =
-                    util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-                src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-                src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-                src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
-
-                auto& srcOffsets    = region_entry["srcOffset"];
-                srcOffsets["[0].x"] = region.region.srcOffsets[0].x;
-                srcOffsets["[0].y"] = region.region.srcOffsets[0].y;
-                srcOffsets["[0].z"] = region.region.srcOffsets[0].z;
-                srcOffsets["[1].x"] = region.region.srcOffsets[1].x;
-                srcOffsets["[1].y"] = region.region.srcOffsets[1].y;
-                srcOffsets["[1].z"] = region.region.srcOffsets[1].z;
-
-                auto& dst_subresource = region_entry["dstSubresource"];
-                dst_subresource["aspectMask"] =
-                    util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-                dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-                dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-                dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
-
-                auto& dstOffsets    = region_entry["dstOffset"];
-                dstOffsets["[0].x"] = region.region.dstOffsets[0].x;
-                dstOffsets["[0].y"] = region.region.dstOffsets[0].y;
-                dstOffsets["[0].z"] = region.region.dstOffsets[0].z;
-                dstOffsets["[1].x"] = region.region.dstOffsets[1].x;
-                dstOffsets["[1].y"] = region.region.dstOffsets[1].y;
-                dstOffsets["[1].z"] = region.region.dstOffsets[1].z;
-
-                auto& subresource_json_entry = region_entry["subresources"];
-                for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
-                {
-                    const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-                    dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                          dumped_image_sub_resource,
-                                                          region.dumped_image.image_info->format,
-                                                          options_.dump_resources_dump_separate_alpha,
-                                                          region.dumped_image.dumped_raw);
-
-                    if (cmd->has_before)
-                    {
-                        const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd->dumped_resource_before);
-                        GFXRECON_ASSERT(copy_image_before != nullptr);
-                        const auto& region_before = copy_image_before->regions[i];
-                        const auto& dumped_image_sub_resource_before =
-                            region_before.dumped_image.dumped_subresources[sr];
-                        dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                                    dumped_image_sub_resource_before,
-                                                                    region_before.dumped_image.image_info->format,
-                                                                    options_.dump_resources_dump_separate_alpha,
-                                                                    region_before.dumped_image.dumped_raw);
-                    }
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonBlitImageCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdBuildAccelerationStructures:
-        {
-            const auto* dumped_build_as = std::get_if<DumpedBuildAccelerationStructure>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(dumped_build_as != nullptr);
-
-            auto& builds_entries = transf_params_json_entry["builds"];
-            for (size_t i = 0; i < dumped_build_as->dumped_build_infos.size(); ++i)
-            {
-                const auto& build_info                        = dumped_build_as->dumped_build_infos[i];
-                builds_entries[i]["srcAccelerationStructure"] = build_info.src_as;
-                builds_entries[i]["dstAccelerationStructure"] = build_info.dst_as;
-                builds_entries[i]["mode"] =
-                    util::ToString(static_cast<VkBuildAccelerationStructureModeKHR>(build_info.mode));
-                builds_entries[i]["dstAccelerationStructureType"] =
-                    util::ToString<VkAccelerationStructureTypeKHR>(build_info.dumped_as.as_info->type);
-
-                auto& as_content_entries = builds_entries[i]["asContent"];
-                if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
-                {
-                    GenerateTLASJsonInfo(as_content_entries, build_info.dumped_as);
-                }
-                else if (build_info.dumped_as.as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
-                {
-                    GenerateBLASJsonInfo(as_content_entries, build_info.dumped_as);
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR(
-                        "%s() Unhandled AS type %d", __func__, static_cast<int>(build_info.dumped_as.as_info->type));
-                    GFXRECON_ASSERT(0);
-                }
-            }
-        }
-        break;
+            GenerateOutputJsonBuildAccelerationStructuresCommand(*cmd, transf_params_json_entry);
+            break;
 
         case TransferDumpingContext::TransferCommandTypes::kCmdCopyAccelerationStructure:
-        {
-            const auto* dumped_copy_as = std::get_if<DumpedCopyAccelerationStructure>(&cmd->dumped_resource);
-            GFXRECON_ASSERT(dumped_copy_as != nullptr);
-
-            auto& copy_info_entries  = transf_params_json_entry["copyInfo"];
-            copy_info_entries["src"] = dumped_copy_as->dumped_copy_info.src_as;
-            copy_info_entries["dst"] = dumped_copy_as->dumped_copy_info.dst_as;
-            copy_info_entries["mode"] =
-                util::ToString(static_cast<VkCopyAccelerationStructureModeKHR>(dumped_copy_as->dumped_copy_info.mode));
-
-            auto& as_content_entries = copy_info_entries["asContent"];
-            if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type ==
-                VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
-            {
-                GenerateTLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
-            }
-            else if (dumped_copy_as->dumped_copy_info.dumped_as.as_info->type ==
-                     VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR)
-            {
-                GenerateBLASJsonInfo(as_content_entries, dumped_copy_as->dumped_copy_info.dumped_as);
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("%s() Unhandled AS type %d",
-                                   __func__,
-                                   static_cast<int>(dumped_copy_as->dumped_copy_info.dumped_as.as_info->type));
-                GFXRECON_ASSERT(0);
-            }
-        }
-        break;
+            GenerateOutputJsonCopyAccelerationStructureCommand(*cmd, transf_params_json_entry);
+            break;
 
         default:
             GFXRECON_LOG_WARNING("%s(): Transfer command type %d not handled",
