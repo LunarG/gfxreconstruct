@@ -131,7 +131,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         auto entry = transfer_params_.find(cmd_index - 1);
         if (entry != transfer_params_.end())
         {
-            init_image_params = std::get_if<TransferParams::InitImageMetaCommand>(&entry->second.params);
+            init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(entry->second.params.get());
             if (init_image_params != nullptr && init_image_params->dst_image == image_id)
             {
                 insert_new_entry = false;
@@ -167,7 +167,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
                     image_id, aspect, img_info, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
             GFXRECON_ASSERT(success);
 
-            init_image_params = std::get_if<TransferParams::InitImageMetaCommand>(&new_entry->second.params);
+            init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(new_entry->second.params.get());
 
             // Create an image with the same properties
             const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
@@ -329,8 +329,8 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyBuffer));
             GFXRECON_ASSERT(success);
-            copy_buffer_params = std::get_if<TransferParams::CopyBuffer>(
-                before_command ? &new_entry->second.before_params : &new_entry->second.params);
+            copy_buffer_params = static_cast<TransferParams::CopyBuffer*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -338,7 +338,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            copy_buffer_params = std::get_if<TransferParams::CopyBuffer>(&params_entry->second.params);
+            copy_buffer_params = static_cast<TransferParams::CopyBuffer*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(copy_buffer_params != nullptr);
 
@@ -469,8 +469,8 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyBufferToImage));
             GFXRECON_ASSERT(success);
-            copy_buffer_to_image_params = std::get_if<TransferParams::CopyBufferToImage>(
-                before_command ? &new_entry->second.before_params : &new_entry->second.params);
+            copy_buffer_to_image_params = static_cast<TransferParams::CopyBufferToImage*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -478,7 +478,8 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            copy_buffer_to_image_params = std::get_if<TransferParams::CopyBufferToImage>(&params_entry->second.params);
+            copy_buffer_to_image_params =
+                static_cast<TransferParams::CopyBufferToImage*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(copy_buffer_to_image_params != nullptr);
 
@@ -651,8 +652,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyImage));
             GFXRECON_ASSERT(success);
-            copy_image_params = std::get_if<TransferParams::CopyImage>(before_command ? &new_entry->second.before_params
-                                                                                      : &new_entry->second.params);
+            copy_image_params = static_cast<TransferParams::CopyImage*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -660,7 +661,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            copy_image_params = std::get_if<TransferParams::CopyImage>(&params_entry->second.params);
+            copy_image_params = static_cast<TransferParams::CopyImage*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(copy_image_params != nullptr);
 
@@ -835,8 +836,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyImageToBuffer));
             GFXRECON_ASSERT(success);
-            copy_image_to_buffer_params = std::get_if<TransferParams::CopyImageToBuffer>(
-                before_command ? &new_entry->second.before_params : &new_entry->second.params);
+            copy_image_to_buffer_params = static_cast<TransferParams::CopyImageToBuffer*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -844,7 +845,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            copy_image_to_buffer_params = std::get_if<TransferParams::CopyImageToBuffer>(&params_entry->second.params);
+            copy_image_to_buffer_params =
+                static_cast<TransferParams::CopyImageToBuffer*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(copy_image_to_buffer_params != nullptr);
 
@@ -1003,8 +1005,8 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
                                                                before_command,
                                                                TransferCommandTypes::kCmdBlitImage));
             GFXRECON_ASSERT(success);
-            blit_image_params = std::get_if<TransferParams::BlitImage>(before_command ? &new_entry->second.before_params
-                                                                                      : &new_entry->second.params);
+            blit_image_params = static_cast<TransferParams::BlitImage*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -1012,7 +1014,7 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            blit_image_params = std::get_if<TransferParams::BlitImage>(&params_entry->second.params);
+            blit_image_params = static_cast<TransferParams::BlitImage*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(blit_image_params != nullptr);
 
@@ -1166,7 +1168,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
         // Need to grab a device_info, device_table pair
         const auto* dst_as =
-                object_info_table_.GetVkAccelerationStructureKHRInfo(p_infos_meta[0].dstAccelerationStructure);
+            object_info_table_.GetVkAccelerationStructureKHRInfo(p_infos_meta[0].dstAccelerationStructure);
         GetDispatchTables(dst_as->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -1184,8 +1186,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                                                before_command,
                                                                TransferCommandTypes::kCmdBuildAccelerationStructures));
             GFXRECON_ASSERT(success);
-            build_params = std::get_if<TransferParams::BuildAccelerationStructure>(
-                before_command ? &new_entry->second.before_params : &new_entry->second.params);
+            build_params = static_cast<TransferParams::BuildAccelerationStructure*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -1193,7 +1195,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            build_params  = std::get_if<TransferParams::BuildAccelerationStructure>(&params_entry->second.params);
+            build_params = static_cast<TransferParams::BuildAccelerationStructure*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(build_params != nullptr);
 
@@ -1412,8 +1414,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                                                before_command,
                                                                TransferCommandTypes::kCmdCopyAccelerationStructure));
             GFXRECON_ASSERT(success);
-            copy_as_params = std::get_if<TransferParams::CopyAccelerationStructure>(
-                before_command ? &new_entry->second.before_params : &new_entry->second.params);
+            copy_as_params = static_cast<TransferParams::CopyAccelerationStructure*>(
+                before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
         }
         else
         {
@@ -1421,7 +1423,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
 
             auto params_entry = transfer_params_.find(call_info.index);
             GFXRECON_ASSERT(params_entry != transfer_params_.end());
-            copy_as_params = std::get_if<TransferParams::CopyAccelerationStructure>(&params_entry->second.params);
+            copy_as_params = static_cast<TransferParams::CopyAccelerationStructure*>(params_entry->second.params.get());
         }
         GFXRECON_ASSERT(copy_as_params != nullptr);
 
@@ -1547,126 +1549,107 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
         res_info.dumped_data = VulkanDelegateTransferCommandDumpedData();
         auto& host_data      = std::get<VulkanDelegateTransferCommandDumpedData>(res_info.dumped_data);
 
-        cmd.dumped_resources.cmd_index = cmd_index;
-        cmd.dumped_resources.qs_index  = qs_index;
+        TransferParams::TransferParamsBase* base_transfer_cmd = cmd.params.get();
+        base_transfer_cmd->dumped_resources.cmd_index         = cmd_index;
+        base_transfer_cmd->dumped_resources.qs_index          = qs_index;
 
-        if (const auto* init_buffer = std::get_if<TransferParams::InitBufferMetaCommand>(&cmd.params))
+        switch (base_transfer_cmd->type)
         {
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kInitBufferMetaCommand,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           init_buffer->dst_buffer,
-                                                                           init_buffer->data.size());
-            auto& new_dumped_init_buffer =
-                std::get<DumpedInitBufferMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
-
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateBufferDumpedData();
-
-            auto& dumped_host_data = std::get<VulkanDelegateBufferDumpedData>(host_data.dumped_data);
-            dumped_host_data.data  = init_buffer->data;
-            delegate_.DumpResource(res_info);
-        }
-        else if (const auto* init_image = std::get_if<TransferParams::InitImageMetaCommand>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kInitImageMetaCommand,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           init_image->dst_image,
-                                                                           &init_image->copied_image.image_info);
-
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateImageDumpedData();
-
-            // Images initialized in the state setup block should be dumpable, otherwise it wouldn't have been possible
-            // to be dumped in the capture file in the first place.
-            GFXRECON_ASSERT(CanDumpImage(instance_table_, device_info_->parent, &init_image->copied_image.image_info) ==
-                            ImageDumpResult::kCanDump);
-
-            auto& new_dumped_init_image = std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
-            auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
-
-            const VkImageSubresourceRange subresource_range = { static_cast<VkImageAspectFlags>(init_image->aspect),
-                                                                0,
-                                                                VK_REMAINING_MIP_LEVELS,
-                                                                0,
-                                                                VK_REMAINING_ARRAY_LAYERS };
-
-            VkResult res = DumpImage(new_dumped_init_image.dumped_image,
-                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                     options_.dump_resources_scale,
-                                     options_.dump_resources_dump_raw_images,
-                                     subresource_range,
-                                     dumped_image_host_data.data,
-                                     device_info_,
-                                     device_table_,
-                                     instance_table_,
-                                     object_info_table_);
-            if (res != VK_SUCCESS)
+            case kCmdInitBuffer:
             {
-                GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
-                return res;
+                auto* init_buffer             = static_cast<TransferParams::InitBufferMetaCommand*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd = init_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
+                    DumpResourceType::kInitBufferMetaCommand,
+                    cmd_index,
+                    qs_index,
+                    init_buffer->dst_buffer,
+                    init_buffer->data.size());
+                auto& new_dumped_init_buffer =
+                    std::get<DumpedInitBufferMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
+
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateBufferDumpedData();
+
+                auto& dumped_host_data = std::get<VulkanDelegateBufferDumpedData>(host_data.dumped_data);
+                dumped_host_data.data  = init_buffer->data;
+                delegate_.DumpResource(res_info);
             }
+            break;
 
-            delegate_.DumpResource(res_info);
-        }
-        else if (const auto* copy_buffer = std::get_if<TransferParams::CopyBuffer>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyBuffer,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           copy_buffer->src_buffer,
-                                                                           copy_buffer->dst_buffer,
-                                                                           cmd.has_before_command);
-            auto& new_dumped_copy_buffer = std::get<DumpedCopyBuffer>(new_dumped_transfer_cmd.dumped_resource);
-
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
-
-            auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
-            for (const auto& region : copy_buffer->regions)
+            case kCmdInitImage:
             {
-                auto& new_dumped_region = new_dumped_copy_buffer.regions.emplace_back(
-                    region.region, region.vk_objects.buffer, region.vk_objects.size);
+                auto* init_image              = static_cast<TransferParams::InitImageMetaCommand*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd = init_image->dumped_resources.dumped_transfer_commands.emplace_back(
+                    DumpResourceType::kInitImageMetaCommand,
+                    cmd_index,
+                    qs_index,
+                    init_image->dst_image,
+                    &init_image->copied_image.image_info);
 
-                auto& host_dumped_region = dumped_regions_host_data.regions_data.emplace_back();
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
-                VkResult res = DumpBuffer(new_dumped_region.dumped_buffer,
-                                          host_dumped_region,
-                                          device_info_,
-                                          device_table_,
-                                          instance_table_,
-                                          object_info_table_);
+                // Images initialized in the state setup block should be dumpable, otherwise it wouldn't have been
+                // possible to be dumped in the capture file in the first place.
+                GFXRECON_ASSERT(CanDumpImage(instance_table_,
+                                             device_info_->parent,
+                                             &init_image->copied_image.image_info) == ImageDumpResult::kCanDump);
+
+                auto& new_dumped_init_image =
+                    std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+
+                const VkImageSubresourceRange subresource_range = { static_cast<VkImageAspectFlags>(init_image->aspect),
+                                                                    0,
+                                                                    VK_REMAINING_MIP_LEVELS,
+                                                                    0,
+                                                                    VK_REMAINING_ARRAY_LAYERS };
+
+                VkResult res = DumpImage(new_dumped_init_image.dumped_image,
+                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                         options_.dump_resources_scale,
+                                         options_.dump_resources_dump_raw_images,
+                                         subresource_range,
+                                         dumped_image_host_data.data,
+                                         device_info_,
+                                         device_table_,
+                                         instance_table_,
+                                         object_info_table_);
                 if (res != VK_SUCCESS)
                 {
-                    GFXRECON_LOG_ERROR("Error dumping buffer of transfer command (%s)", util::ToString(res).c_str());
+                    GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                     return res;
                 }
+
+                delegate_.DumpResource(res_info);
             }
+            break;
 
-            delegate_.DumpResource(res_info);
-
-            if (cmd.has_before_command)
+            case kCmdCopyBuffer:
             {
-                dumped_regions_host_data.regions_data.clear();
+                auto* copy_buffer             = static_cast<TransferParams::CopyBuffer*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd = copy_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
+                    DumpResourceType::kCopyBuffer,
+                    cmd_index,
+                    qs_index,
+                    copy_buffer->src_buffer,
+                    copy_buffer->dst_buffer,
+                    copy_buffer->has_before_command);
+                auto& new_dumped_copy_buffer = std::get<DumpedCopyBuffer>(new_dumped_transfer_cmd.dumped_resource);
 
-                const auto* copy_buffer_before = std::get_if<TransferParams::CopyBuffer>(&cmd.before_params);
-                GFXRECON_ASSERT(copy_buffer_before != nullptr);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
 
-                auto* new_dumped_copy_buffer_before =
-                    std::get_if<DumpedCopyBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
-                for (const auto& region : copy_buffer_before->regions)
+                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
+                for (const auto& region : copy_buffer->regions)
                 {
-                    auto& new_dumped_region_before = new_dumped_copy_buffer_before->regions.emplace_back(
-                        region.region, region.vk_objects.buffer, region.region.size);
+                    auto& new_dumped_region = new_dumped_copy_buffer.regions.emplace_back(
+                        region.region, region.vk_objects.buffer, region.vk_objects.size);
 
-                    auto& host_dumped_region_before = dumped_regions_host_data.regions_data.emplace_back();
+                    auto& host_dumped_region = dumped_regions_host_data.regions_data.emplace_back();
 
-                    VkResult res = DumpBuffer(new_dumped_region_before.dumped_buffer,
-                                              host_dumped_region_before,
+                    VkResult res = DumpBuffer(new_dumped_region.dumped_buffer,
+                                              host_dumped_region,
                                               device_info_,
                                               device_table_,
                                               instance_table_,
@@ -1679,86 +1662,70 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     }
                 }
 
-                res_info.before_command = true;
                 delegate_.DumpResource(res_info);
-            }
-        }
-        else if (const auto* copy_buffer_to_image = std::get_if<TransferParams::CopyBufferToImage>(&cmd.params))
-        {
-            const ImageDumpResult can_dump_image =
-                CanDumpImage(instance_table_, device_info_->parent, &copy_buffer_to_image->copied_image.image_info);
 
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyBufferToImage,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           copy_buffer_to_image->src_buffer,
-                                                                           copy_buffer_to_image->dst_image,
-                                                                           copy_buffer_to_image->dst_image_layout,
-                                                                           cmd.has_before_command);
-
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
-
-            auto& new_dumped_copy_buffer_to_image =
-                std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource);
-            auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-            for (const auto& region : copy_buffer_to_image->regions)
-            {
-                auto& new_dumped_image_region = new_dumped_copy_buffer_to_image.regions.emplace_back(
-                    region.region, &copy_buffer_to_image->copied_image.image_info, can_dump_image);
-
-                if (can_dump_image != ImageDumpResult::kCanDump)
+                if (copy_buffer->has_before_command)
                 {
-                    continue;
-                }
+                    dumped_regions_host_data.regions_data.clear();
 
-                auto& new_copy_buffer_to_image_image_region_host_data =
-                    dumped_regions_host_data.regions_data.emplace_back();
+                    const auto* copy_buffer_before = static_cast<TransferParams::CopyBuffer*>(cmd.before_params.get());
+                    GFXRECON_ASSERT(copy_buffer_before != nullptr);
 
-                const VkImageSubresourceRange subresource_range = { region.region.imageSubresource.aspectMask,
-                                                                    region.region.imageSubresource.mipLevel,
-                                                                    1,
-                                                                    region.region.imageSubresource.baseArrayLayer,
-                                                                    region.region.imageSubresource.layerCount };
+                    auto* new_dumped_copy_buffer_before =
+                        std::get_if<DumpedCopyBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
+                    for (const auto& region : copy_buffer_before->regions)
+                    {
+                        auto& new_dumped_region_before = new_dumped_copy_buffer_before->regions.emplace_back(
+                            region.region, region.vk_objects.buffer, region.region.size);
 
-                // Dump region's subresources
-                VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                         new_dumped_image_region.dumped_image.image_info->intermediate_layout,
-                                         options_.dump_resources_scale,
-                                         options_.dump_resources_dump_raw_images,
-                                         subresource_range,
-                                         new_copy_buffer_to_image_image_region_host_data,
-                                         device_info_,
-                                         device_table_,
-                                         instance_table_,
-                                         object_info_table_);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
-                    return res;
+                        auto& host_dumped_region_before = dumped_regions_host_data.regions_data.emplace_back();
+
+                        VkResult res = DumpBuffer(new_dumped_region_before.dumped_buffer,
+                                                  host_dumped_region_before,
+                                                  device_info_,
+                                                  device_table_,
+                                                  instance_table_,
+                                                  object_info_table_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping buffer of transfer command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    res_info.before_command = true;
+                    delegate_.DumpResource(res_info);
                 }
             }
+            break;
 
-            if (can_dump_image == ImageDumpResult::kCanDump)
+            case kCmdCopyBufferToImage:
             {
-                delegate_.DumpResource(res_info);
-            }
+                auto* copy_buffer_to_image = static_cast<TransferParams::CopyBufferToImage*>(cmd.params.get());
+                const ImageDumpResult can_dump_image =
+                    CanDumpImage(instance_table_, device_info_->parent, &copy_buffer_to_image->copied_image.image_info);
 
-            if (cmd.has_before_command)
-            {
-                dumped_regions_host_data.regions_data.clear();
+                auto& new_dumped_transfer_cmd =
+                    copy_buffer_to_image->dumped_resources.dumped_transfer_commands.emplace_back(
+                        DumpResourceType::kCopyBufferToImage,
+                        cmd_index,
+                        qs_index,
+                        copy_buffer_to_image->src_buffer,
+                        copy_buffer_to_image->dst_image,
+                        copy_buffer_to_image->dst_image_layout,
+                        copy_buffer_to_image->has_before_command);
 
-                const auto* copy_buffer_to_image_before =
-                    std::get_if<TransferParams::CopyBufferToImage>(&cmd.before_params);
-                GFXRECON_ASSERT(copy_buffer_to_image_before != nullptr);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
-                auto& new_dumped_copy_buffer_to_image_before =
-                    std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource_before);
-                for (const auto& region : copy_buffer_to_image_before->regions)
+                auto& new_dumped_copy_buffer_to_image =
+                    std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource);
+                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
+                for (const auto& region : copy_buffer_to_image->regions)
                 {
-                    auto& new_dumped_image_region_before = new_dumped_copy_buffer_to_image_before.regions.emplace_back(
-                        region.region, &copy_buffer_to_image_before->copied_image.image_info, can_dump_image);
+                    auto& new_dumped_image_region = new_dumped_copy_buffer_to_image.regions.emplace_back(
+                        region.region, &copy_buffer_to_image->copied_image.image_info, can_dump_image);
 
                     if (can_dump_image != ImageDumpResult::kCanDump)
                     {
@@ -1775,17 +1742,16 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                                                                         region.region.imageSubresource.layerCount };
 
                     // Dump region's subresources
-                    VkResult res =
-                        DumpImage(new_dumped_image_region_before.dumped_image,
-                                  new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                  options_.dump_resources_scale,
-                                  options_.dump_resources_dump_raw_images,
-                                  subresource_range,
-                                  new_copy_buffer_to_image_image_region_host_data,
-                                  device_info_,
-                                  device_table_,
-                                  instance_table_,
-                                  object_info_table_);
+                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
+                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                                             options_.dump_resources_scale,
+                                             options_.dump_resources_dump_raw_images,
+                                             subresource_range,
+                                             new_copy_buffer_to_image_image_region_host_data,
+                                             device_info_,
+                                             device_table_,
+                                             instance_table_,
+                                             object_info_table_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
@@ -1795,87 +1761,95 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    res_info.before_command = true;
                     delegate_.DumpResource(res_info);
                 }
-            }
-        }
-        else if (const auto* copy_image = std::get_if<TransferParams::CopyImage>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyImage,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           copy_image->src_image,
-                                                                           copy_image->src_image_layout,
-                                                                           copy_image->dst_image,
-                                                                           copy_image->dst_image_layout,
-                                                                           cmd.has_before_command);
 
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
-
-            const ImageDumpResult can_dump_image =
-                CanDumpImage(instance_table_, device_info_->parent, &copy_image->copied_image.image_info);
-
-            auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd.dumped_resource);
-            auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-            for (const auto& region : copy_image->regions)
-            {
-                auto& new_dumped_image_region = new_dumped_copy_image.regions.emplace_back(
-                    region.region, &copy_image->copied_image.image_info, can_dump_image);
-
-                if (can_dump_image != ImageDumpResult::kCanDump)
+                if (copy_buffer_to_image->has_before_command)
                 {
-                    continue;
+                    dumped_regions_host_data.regions_data.clear();
+
+                    const auto* copy_buffer_to_image_before =
+                        static_cast<TransferParams::CopyBufferToImage*>(cmd.before_params.get());
+                    GFXRECON_ASSERT(copy_buffer_to_image_before != nullptr);
+
+                    auto& new_dumped_copy_buffer_to_image_before =
+                        std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource_before);
+                    for (const auto& region : copy_buffer_to_image_before->regions)
+                    {
+                        auto& new_dumped_image_region_before =
+                            new_dumped_copy_buffer_to_image_before.regions.emplace_back(
+                                region.region, &copy_buffer_to_image_before->copied_image.image_info, can_dump_image);
+
+                        if (can_dump_image != ImageDumpResult::kCanDump)
+                        {
+                            continue;
+                        }
+
+                        auto& new_copy_buffer_to_image_image_region_host_data =
+                            dumped_regions_host_data.regions_data.emplace_back();
+
+                        const VkImageSubresourceRange subresource_range = {
+                            region.region.imageSubresource.aspectMask,
+                            region.region.imageSubresource.mipLevel,
+                            1,
+                            region.region.imageSubresource.baseArrayLayer,
+                            region.region.imageSubresource.layerCount
+                        };
+
+                        // Dump region's subresources
+                        VkResult res =
+                            DumpImage(new_dumped_image_region_before.dumped_image,
+                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
+                                      options_.dump_resources_scale,
+                                      options_.dump_resources_dump_raw_images,
+                                      subresource_range,
+                                      new_copy_buffer_to_image_image_region_host_data,
+                                      device_info_,
+                                      device_table_,
+                                      instance_table_,
+                                      object_info_table_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    if (can_dump_image == ImageDumpResult::kCanDump)
+                    {
+                        res_info.before_command = true;
+                        delegate_.DumpResource(res_info);
+                    }
                 }
-
-                auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                    region.region.dstSubresource.mipLevel,
-                                                                    1,
-                                                                    region.region.dstSubresource.baseArrayLayer,
-                                                                    region.region.dstSubresource.layerCount };
-
-                // Dump region's subresources
-                VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                         new_dumped_image_region.dumped_image.image_info->intermediate_layout,
-                                         options_.dump_resources_scale,
-                                         options_.dump_resources_dump_raw_images,
-                                         subresource_range,
-                                         new_copy_image_region_host_data,
-                                         device_info_,
-                                         device_table_,
-                                         instance_table_,
-                                         object_info_table_);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
-                    return res;
-                }
             }
+            break;
 
-            if (can_dump_image == ImageDumpResult::kCanDump)
+            case kCmdCopyImage:
             {
-                delegate_.DumpResource(res_info);
-            }
+                auto* copy_image = static_cast<TransferParams::CopyImage*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd =
+                    copy_image->dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyImage,
+                                                                                       cmd_index,
+                                                                                       qs_index,
+                                                                                       copy_image->src_image,
+                                                                                       copy_image->src_image_layout,
+                                                                                       copy_image->dst_image,
+                                                                                       copy_image->dst_image_layout,
+                                                                                       copy_image->has_before_command);
 
-            if (cmd.has_before_command)
-            {
-                dumped_regions_host_data.regions_data.clear();
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
-                const auto* copy_image_before = std::get_if<TransferParams::CopyImage>(&cmd.before_params);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
+                const ImageDumpResult can_dump_image =
+                    CanDumpImage(instance_table_, device_info_->parent, &copy_image->copied_image.image_info);
 
-                auto* new_dumped_copy_image_before =
-                    std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd.dumped_resource_before);
-                GFXRECON_ASSERT(new_dumped_copy_image_before != nullptr);
-
-                for (const auto& region : copy_image_before->regions)
+                auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd.dumped_resource);
+                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
+                for (const auto& region : copy_image->regions)
                 {
-                    auto& new_dumped_image_region_before = new_dumped_copy_image_before->regions.emplace_back(
-                        region.region, &copy_image_before->copied_image.image_info, can_dump_image);
+                    auto& new_dumped_image_region = new_dumped_copy_image.regions.emplace_back(
+                        region.region, &copy_image->copied_image.image_info, can_dump_image);
 
                     if (can_dump_image != ImageDumpResult::kCanDump)
                     {
@@ -1891,17 +1865,16 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                                                                         region.region.dstSubresource.layerCount };
 
                     // Dump region's subresources
-                    VkResult res =
-                        DumpImage(new_dumped_image_region_before.dumped_image,
-                                  new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                  options_.dump_resources_scale,
-                                  options_.dump_resources_dump_raw_images,
-                                  subresource_range,
-                                  new_copy_image_region_host_data,
-                                  device_info_,
-                                  device_table_,
-                                  instance_table_,
-                                  object_info_table_);
+                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
+                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                                             options_.dump_resources_scale,
+                                             options_.dump_resources_dump_raw_images,
+                                             subresource_range,
+                                             new_copy_image_region_host_data,
+                                             device_info_,
+                                             device_table_,
+                                             instance_table_,
+                                             object_info_table_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
@@ -1911,67 +1884,93 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    res_info.before_command = true;
                     delegate_.DumpResource(res_info);
                 }
-            }
-        }
-        else if (const auto* copy_image_to_buffer = std::get_if<TransferParams::CopyImageToBuffer>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyImageToBuffer,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           copy_image_to_buffer->src_image,
-                                                                           copy_image_to_buffer->src_image_layout,
-                                                                           copy_image_to_buffer->dst_buffer,
-                                                                           cmd.has_before_command);
-            auto& new_dumped_copy_image_to_buffer =
-                std::get<DumpedCopyImageToBuffer>(new_dumped_transfer_cmd.dumped_resource);
 
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
-
-            auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
-            for (const auto& region : copy_image_to_buffer->regions)
-            {
-                auto& new_dumped_region = new_dumped_copy_image_to_buffer.regions.emplace_back(
-                    region.region, region.vk_objects.buffer, region.vk_objects.size);
-                auto&    host_dumped_region = dumped_regions_host_data.regions_data.emplace_back();
-                VkResult res                = DumpBuffer(new_dumped_region.dumped_buffer,
-                                          host_dumped_region,
-                                          device_info_,
-                                          device_table_,
-                                          instance_table_,
-                                          object_info_table_);
-                if (res != VK_SUCCESS)
+                if (copy_image->has_before_command)
                 {
-                    GFXRECON_LOG_ERROR("Error dumping buffer of transfer command (%s)", util::ToString(res).c_str());
-                    return res;
+                    dumped_regions_host_data.regions_data.clear();
+
+                    const auto* copy_image_before = static_cast<TransferParams::CopyImage*>(cmd.before_params.get());
+                    GFXRECON_ASSERT(copy_image_before != nullptr);
+
+                    auto* new_dumped_copy_image_before =
+                        std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd.dumped_resource_before);
+                    GFXRECON_ASSERT(new_dumped_copy_image_before != nullptr);
+
+                    for (const auto& region : copy_image_before->regions)
+                    {
+                        auto& new_dumped_image_region_before = new_dumped_copy_image_before->regions.emplace_back(
+                            region.region, &copy_image_before->copied_image.image_info, can_dump_image);
+
+                        if (can_dump_image != ImageDumpResult::kCanDump)
+                        {
+                            continue;
+                        }
+
+                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
+
+                        const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
+                                                                            region.region.dstSubresource.mipLevel,
+                                                                            1,
+                                                                            region.region.dstSubresource.baseArrayLayer,
+                                                                            region.region.dstSubresource.layerCount };
+
+                        // Dump region's subresources
+                        VkResult res =
+                            DumpImage(new_dumped_image_region_before.dumped_image,
+                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
+                                      1.0f,
+                                      options_.dump_resources_dump_raw_images,
+                                      subresource_range,
+                                      new_copy_image_region_host_data,
+                                      device_info_,
+                                      device_table_,
+                                      instance_table_,
+                                      object_info_table_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    if (can_dump_image == ImageDumpResult::kCanDump)
+                    {
+                        res_info.before_command = true;
+                        delegate_.DumpResource(res_info);
+                    }
                 }
             }
+            break;
 
-            delegate_.DumpResource(res_info);
-
-            if (cmd.has_before_command)
+            case kCmdCopyImageToBuffer:
             {
-                dumped_regions_host_data.regions_data.clear();
+                auto* copy_image_to_buffer = static_cast<TransferParams::CopyImageToBuffer*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd =
+                    copy_image_to_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
+                        DumpResourceType::kCopyImageToBuffer,
+                        cmd_index,
+                        qs_index,
+                        copy_image_to_buffer->src_image,
+                        copy_image_to_buffer->src_image_layout,
+                        copy_image_to_buffer->dst_buffer,
+                        copy_image_to_buffer->has_before_command);
+                auto& new_dumped_copy_image_to_buffer =
+                    std::get<DumpedCopyImageToBuffer>(new_dumped_transfer_cmd.dumped_resource);
 
-                const auto* copy_image_to_buffer_before =
-                    std::get_if<TransferParams::CopyImageToBuffer>(&cmd.before_params);
-                GFXRECON_ASSERT(copy_image_to_buffer_before != nullptr);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
 
-                auto* new_dumped_copy_image_to_buffer_before =
-                    std::get_if<DumpedCopyImageToBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
-                for (const auto& region : copy_image_to_buffer_before->regions)
+                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
+                for (const auto& region : copy_image_to_buffer->regions)
                 {
-                    auto& new_dumped_region_before = new_dumped_copy_image_to_buffer_before->regions.emplace_back(
+                    auto& new_dumped_region = new_dumped_copy_image_to_buffer.regions.emplace_back(
                         region.region, region.vk_objects.buffer, region.vk_objects.size);
-
-                    auto& host_dumped_region_before = dumped_regions_host_data.regions_data.emplace_back();
-
-                    VkResult res = DumpBuffer(new_dumped_region_before.dumped_buffer,
-                                              host_dumped_region_before,
+                    auto&    host_dumped_region = dumped_regions_host_data.regions_data.emplace_back();
+                    VkResult res                = DumpBuffer(new_dumped_region.dumped_buffer,
+                                              host_dumped_region,
                                               device_info_,
                                               device_table_,
                                               instance_table_,
@@ -1984,94 +1983,78 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     }
                 }
 
-                res_info.before_command = true;
                 delegate_.DumpResource(res_info);
-            }
-        }
-        else if (const auto* blit_image = std::get_if<TransferParams::BlitImage>(&cmd.params))
-        {
-            const ImageDumpResult can_dump_image =
-                CanDumpImage(instance_table_, device_info_->parent, &blit_image->copied_image.image_info);
 
-            auto& new_dumped_transfer_cmd =
-                cmd.dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kBlitImage,
-                                                                           cmd_index,
-                                                                           qs_index,
-                                                                           blit_image->src_image,
-                                                                           blit_image->src_image_layout,
-                                                                           blit_image->dst_image,
-                                                                           blit_image->dst_image_layout,
-                                                                           blit_image->filter,
-                                                                           cmd.has_before_command);
-
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
-
-            auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd.dumped_resource);
-            auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-            for (const auto& region : blit_image->regions)
-            {
-                auto& new_dumped_image_region = new_dumped_blit_image.regions.emplace_back(
-                    region.region, &blit_image->copied_image.image_info, can_dump_image);
-
-                if (can_dump_image != ImageDumpResult::kCanDump)
+                if (copy_image_to_buffer->has_before_command)
                 {
-                    continue;
-                }
+                    dumped_regions_host_data.regions_data.clear();
 
-                auto& new_blit_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
+                    const auto* copy_image_to_buffer_before =
+                        static_cast<TransferParams::CopyImageToBuffer*>(cmd.before_params.get());
+                    GFXRECON_ASSERT(copy_image_to_buffer_before != nullptr);
 
-                const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                    region.region.dstSubresource.mipLevel,
-                                                                    1,
-                                                                    region.region.dstSubresource.baseArrayLayer,
-                                                                    region.region.dstSubresource.layerCount };
+                    auto* new_dumped_copy_image_to_buffer_before =
+                        std::get_if<DumpedCopyImageToBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
+                    for (const auto& region : copy_image_to_buffer_before->regions)
+                    {
+                        auto& new_dumped_region_before = new_dumped_copy_image_to_buffer_before->regions.emplace_back(
+                            region.region, region.vk_objects.buffer, region.vk_objects.size);
 
-                // Dump region's subresources
-                VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                         new_dumped_image_region.dumped_image.image_info->intermediate_layout,
-                                         options_.dump_resources_scale,
-                                         options_.dump_resources_dump_raw_images,
-                                         subresource_range,
-                                         new_blit_image_region_host_data,
-                                         device_info_,
-                                         device_table_,
-                                         instance_table_,
-                                         object_info_table_);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
-                    return res;
+                        auto& host_dumped_region_before = dumped_regions_host_data.regions_data.emplace_back();
+
+                        VkResult res = DumpBuffer(new_dumped_region_before.dumped_buffer,
+                                                  host_dumped_region_before,
+                                                  device_info_,
+                                                  device_table_,
+                                                  instance_table_,
+                                                  object_info_table_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping buffer of transfer command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    res_info.before_command = true;
+                    delegate_.DumpResource(res_info);
                 }
             }
+            break;
 
-            if (can_dump_image == ImageDumpResult::kCanDump)
+            case kCmdBlitImage:
             {
-                delegate_.DumpResource(res_info);
-            }
+                auto*                 blit_image = static_cast<TransferParams::BlitImage*>(cmd.params.get());
+                const ImageDumpResult can_dump_image =
+                    CanDumpImage(instance_table_, device_info_->parent, &blit_image->copied_image.image_info);
 
-            if (cmd.has_before_command)
-            {
-                dumped_regions_host_data.regions_data.clear();
+                auto& new_dumped_transfer_cmd =
+                    blit_image->dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kBlitImage,
+                                                                                       cmd_index,
+                                                                                       qs_index,
+                                                                                       blit_image->src_image,
+                                                                                       blit_image->src_image_layout,
+                                                                                       blit_image->dst_image,
+                                                                                       blit_image->dst_image_layout,
+                                                                                       blit_image->filter,
+                                                                                       blit_image->has_before_command);
 
-                const auto* blit_image_before = std::get_if<TransferParams::BlitImage>(&cmd.before_params);
-                GFXRECON_ASSERT(blit_image_before != nullptr);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
-                auto* new_dumped_blit_image_before =
-                    std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd.dumped_resource_before);
-                GFXRECON_ASSERT(new_dumped_blit_image_before != nullptr);
-
-                for (const auto& region : blit_image_before->regions)
+                auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd.dumped_resource);
+                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
+                for (const auto& region : blit_image->regions)
                 {
-                    auto& new_dumped_image_region_before = new_dumped_blit_image_before->regions.emplace_back(
-                        region.region, &blit_image_before->copied_image.image_info, can_dump_image);
+                    auto& new_dumped_image_region = new_dumped_blit_image.regions.emplace_back(
+                        region.region, &blit_image->copied_image.image_info, can_dump_image);
 
                     if (can_dump_image != ImageDumpResult::kCanDump)
                     {
                         continue;
                     }
 
-                    auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
+                    auto& new_blit_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
 
                     const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
                                                                         region.region.dstSubresource.mipLevel,
@@ -2080,17 +2063,16 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                                                                         region.region.dstSubresource.layerCount };
 
                     // Dump region's subresources
-                    VkResult res =
-                        DumpImage(new_dumped_image_region_before.dumped_image,
-                                  new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                  options_.dump_resources_scale,
-                                  options_.dump_resources_dump_raw_images,
-                                  subresource_range,
-                                  new_copy_image_region_host_data,
-                                  device_info_,
-                                  device_table_,
-                                  instance_table_,
-                                  object_info_table_);
+                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
+                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                                             options_.dump_resources_scale,
+                                             options_.dump_resources_dump_raw_images,
+                                             subresource_range,
+                                             new_blit_image_region_host_data,
+                                             device_info_,
+                                             device_table_,
+                                             instance_table_,
+                                             object_info_table_);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
@@ -2100,66 +2082,84 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    res_info.before_command = true;
                     delegate_.DumpResource(res_info);
                 }
-            }
-        }
-        else if (auto* build_as = std::get_if<TransferParams::BuildAccelerationStructure>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd = cmd.dumped_resources.dumped_transfer_commands.emplace_back(
-                DumpResourceType::kBuildAccelerationStructure, cmd_index, qs_index, cmd.has_before_command);
-            auto& new_dumped_build_as =
-                std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
 
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedBuildAccelerationStructures();
-
-            auto& host_dumped_build_infos =
-                std::get<VulkanDelegateDumpedBuildAccelerationStructures>(host_data.dumped_data);
-
-            for (auto& build_info : build_as->build_infos)
-            {
-                auto& new_dumped_build_info = new_dumped_build_as.dumped_build_infos.emplace_back(
-                    build_info.src_as,
-                    build_info.dst_as,
-                    build_info.mode,
-                    &build_info.vk_objects.as_info,
-                    options_.dump_resources_dump_build_AS_input_buffers);
-                auto& new_host_data_build_info = host_dumped_build_infos.data.emplace_back();
-
-                VkResult res = DumpAccelerationStructure(new_dumped_build_info.dumped_as,
-                                                         new_host_data_build_info,
-                                                         &build_info.vk_objects.as_context,
-                                                         acceleration_structures_context_,
-                                                         device_info_,
-                                                         *device_table_,
-                                                         object_info_table_,
-                                                         *instance_table_,
-                                                         address_trackers_);
-                if (res != VK_SUCCESS)
+                if (blit_image->has_before_command)
                 {
-                    GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
-                                       util::ToString(res).c_str());
-                    return res;
+                    dumped_regions_host_data.regions_data.clear();
+
+                    const auto* blit_image_before = static_cast<TransferParams::BlitImage*>(cmd.before_params.get());
+                    GFXRECON_ASSERT(blit_image_before != nullptr);
+
+                    auto* new_dumped_blit_image_before =
+                        std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd.dumped_resource_before);
+                    GFXRECON_ASSERT(new_dumped_blit_image_before != nullptr);
+
+                    for (const auto& region : blit_image_before->regions)
+                    {
+                        auto& new_dumped_image_region_before = new_dumped_blit_image_before->regions.emplace_back(
+                            region.region, &blit_image_before->copied_image.image_info, can_dump_image);
+
+                        if (can_dump_image != ImageDumpResult::kCanDump)
+                        {
+                            continue;
+                        }
+
+                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
+
+                        const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
+                                                                            region.region.dstSubresource.mipLevel,
+                                                                            1,
+                                                                            region.region.dstSubresource.baseArrayLayer,
+                                                                            region.region.dstSubresource.layerCount };
+
+                        // Dump region's subresources
+                        VkResult res =
+                            DumpImage(new_dumped_image_region_before.dumped_image,
+                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
+                                      1.0f,
+                                      options_.dump_resources_dump_raw_images,
+                                      subresource_range,
+                                      new_copy_image_region_host_data,
+                                      device_info_,
+                                      device_table_,
+                                      instance_table_,
+                                      object_info_table_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    if (can_dump_image == ImageDumpResult::kCanDump)
+                    {
+                        res_info.before_command = true;
+                        delegate_.DumpResource(res_info);
+                    }
                 }
             }
+            break;
 
-            delegate_.DumpResource(res_info);
-
-            if (cmd.has_before_command)
+            case kCmdBuildAccelerationStructures:
             {
-                host_dumped_build_infos.data.clear();
+                auto* build_as = static_cast<TransferParams::BuildAccelerationStructure*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd = build_as->dumped_resources.dumped_transfer_commands.emplace_back(
+                    DumpResourceType::kBuildAccelerationStructure, cmd_index, qs_index, build_as->has_before_command);
+                auto& new_dumped_build_as =
+                    std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
 
-                auto* build_as_before = std::get_if<TransferParams::BuildAccelerationStructure>(&cmd.before_params);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedBuildAccelerationStructures();
 
-                auto* new_dumped_build_as_before =
-                    std::get_if<DumpedBuildAccelerationStructure>(&new_dumped_transfer_cmd.dumped_resource_before);
-                GFXRECON_ASSERT(new_dumped_build_as_before != nullptr);
+                auto& host_dumped_build_infos =
+                    std::get<VulkanDelegateDumpedBuildAccelerationStructures>(host_data.dumped_data);
 
-                for (auto& build_info : build_as_before->build_infos)
+                for (auto& build_info : build_as->build_infos)
                 {
-                    auto& new_dumped_build_info = new_dumped_build_as_before->dumped_build_infos.emplace_back(
+                    auto& new_dumped_build_info = new_dumped_build_as.dumped_build_infos.emplace_back(
                         build_info.src_as,
                         build_info.dst_as,
                         build_info.mode,
@@ -2184,59 +2184,77 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     }
                 }
 
-                res_info.before_command = true;
                 delegate_.DumpResource(res_info);
+
+                if (build_as->has_before_command)
+                {
+                    host_dumped_build_infos.data.clear();
+
+                    auto* build_as_before =
+                        static_cast<TransferParams::BuildAccelerationStructure*>(cmd.before_params.get());
+
+                    auto* new_dumped_build_as_before =
+                        std::get_if<DumpedBuildAccelerationStructure>(&new_dumped_transfer_cmd.dumped_resource_before);
+                    GFXRECON_ASSERT(new_dumped_build_as_before != nullptr);
+
+                    for (auto& build_info : build_as_before->build_infos)
+                    {
+                        auto& new_dumped_build_info = new_dumped_build_as_before->dumped_build_infos.emplace_back(
+                            build_info.src_as,
+                            build_info.dst_as,
+                            build_info.mode,
+                            &build_info.vk_objects.as_info,
+                            options_.dump_resources_dump_build_AS_input_buffers);
+                        auto& new_host_data_build_info = host_dumped_build_infos.data.emplace_back();
+
+                        VkResult res = DumpAccelerationStructure(new_dumped_build_info.dumped_as,
+                                                                 new_host_data_build_info,
+                                                                 &build_info.vk_objects.as_context,
+                                                                 acceleration_structures_context_,
+                                                                 device_info_,
+                                                                 *device_table_,
+                                                                 object_info_table_,
+                                                                 *instance_table_,
+                                                                 address_trackers_);
+                        if (res != VK_SUCCESS)
+                        {
+                            GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
+                                               util::ToString(res).c_str());
+                            return res;
+                        }
+                    }
+
+                    res_info.before_command = true;
+                    delegate_.DumpResource(res_info);
+                }
             }
-        }
-        else if (auto* copy_as = std::get_if<TransferParams::CopyAccelerationStructure>(&cmd.params))
-        {
-            auto& new_dumped_transfer_cmd = cmd.dumped_resources.dumped_transfer_commands.emplace_back(
-                DumpResourceType::kCopyAccelerationStructure,
-                cmd_index,
-                qs_index,
-                copy_as->src_as,
-                copy_as->dst_as,
-                copy_as->mode,
-                &copy_as->vk_objects.as_info,
-                options_.dump_resources_dump_build_AS_input_buffers,
-                cmd.has_before_command);
-            auto& new_dumped_copy_as =
-                std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
+            break;
 
-            res_info.dumped_resource = &new_dumped_transfer_cmd;
-            host_data.dumped_data    = VulkanDelegateDumpedCopyAccelerationStructure();
-
-            auto& host_dumped_copy_info =
-                std::get<VulkanDelegateDumpedCopyAccelerationStructure>(host_data.dumped_data);
-
-            VkResult res = DumpAccelerationStructure(new_dumped_copy_as.dumped_copy_info.dumped_as,
-                                                     host_dumped_copy_info.data,
-                                                     &copy_as->vk_objects.as_context,
-                                                     acceleration_structures_context_,
-                                                     device_info_,
-                                                     *device_table_,
-                                                     object_info_table_,
-                                                     *instance_table_,
-                                                     address_trackers_);
-            if (res != VK_SUCCESS)
+            case kCmdCopyAccelerationStructure:
             {
-                GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
-                                   util::ToString(res).c_str());
-                return res;
-            }
+                auto* copy_as = static_cast<TransferParams::CopyAccelerationStructure*>(cmd.params.get());
+                auto& new_dumped_transfer_cmd = copy_as->dumped_resources.dumped_transfer_commands.emplace_back(
+                    DumpResourceType::kCopyAccelerationStructure,
+                    cmd_index,
+                    qs_index,
+                    copy_as->src_as,
+                    copy_as->dst_as,
+                    copy_as->mode,
+                    &copy_as->vk_objects.as_info,
+                    options_.dump_resources_dump_build_AS_input_buffers,
+                    copy_as->has_before_command);
+                auto& new_dumped_copy_as =
+                    std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
 
-            delegate_.DumpResource(res_info);
+                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                host_data.dumped_data    = VulkanDelegateDumpedCopyAccelerationStructure();
 
-            if (cmd.has_before_command)
-            {
-                host_dumped_copy_info.data.clear();
-                auto* copy_as_before = std::get_if<TransferParams::CopyAccelerationStructure>(&cmd.before_params);
-                auto& new_dumped_copy_as_before =
-                    std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource_before);
+                auto& host_dumped_copy_info =
+                    std::get<VulkanDelegateDumpedCopyAccelerationStructure>(host_data.dumped_data);
 
-                VkResult res = DumpAccelerationStructure(new_dumped_copy_as_before.dumped_copy_info.dumped_as,
+                VkResult res = DumpAccelerationStructure(new_dumped_copy_as.dumped_copy_info.dumped_as,
                                                          host_dumped_copy_info.data,
-                                                         &copy_as_before->vk_objects.as_context,
+                                                         &copy_as->vk_objects.as_context,
                                                          acceleration_structures_context_,
                                                          device_info_,
                                                          *device_table_,
@@ -2250,14 +2268,41 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     return res;
                 }
 
-                res_info.before_command = true;
                 delegate_.DumpResource(res_info);
+
+                if (copy_as->has_before_command)
+                {
+                    host_dumped_copy_info.data.clear();
+                    auto* copy_as_before =
+                        static_cast<TransferParams::CopyAccelerationStructure*>(cmd.before_params.get());
+                    auto& new_dumped_copy_as_before =
+                        std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource_before);
+
+                    VkResult res = DumpAccelerationStructure(new_dumped_copy_as_before.dumped_copy_info.dumped_as,
+                                                             host_dumped_copy_info.data,
+                                                             &copy_as_before->vk_objects.as_context,
+                                                             acceleration_structures_context_,
+                                                             device_info_,
+                                                             *device_table_,
+                                                             object_info_table_,
+                                                             *instance_table_,
+                                                             address_trackers_);
+                    if (res != VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
+                                           util::ToString(res).c_str());
+                        return res;
+                    }
+
+                    res_info.before_command = true;
+                    delegate_.DumpResource(res_info);
+                }
             }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("%s() Unhandled dump resources type", __func__)
-            GFXRECON_ASSERT(0);
+            break;
+
+            default:
+                GFXRECON_LOG_ERROR("%s() Unhandled dump resources type", __func__)
+                GFXRECON_ASSERT(0);
         }
 
         const VulkanDelegateDumpDrawCallContext transfer_info{

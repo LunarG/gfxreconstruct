@@ -2202,11 +2202,11 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     const VulkanDelegateDumpDrawCallContext& draw_call_info)
 {
-    const TransferDumpingContext::TransferParams* params =
+    const TransferDumpingContext::TransferParams* transfer_cmd_params =
         std::get<const TransferDumpingContext::TransferParams*>(draw_call_info.command_parameters);
-    GFXRECON_ASSERT(params != nullptr);
+    GFXRECON_ASSERT(transfer_cmd_params != nullptr);
 
-    const DumpedResourcesInfo& dumped_resources = params->dumped_resources;
+    const DumpedResourcesInfo& dumped_resources = transfer_cmd_params->params->dumped_resources;
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
@@ -2230,15 +2230,15 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     auto&          transfer_entry =
         !options_.dump_resources_json_per_command ? transfer_json_entries[transfer_json_entry] : transfer_json_entries;
 
-    transfer_entry["cmdType"]          = TransferDumpingContext::TransferCommandTypeToStr(params->type);
-    transfer_entry["cmdIndex"]         = dumped_resources.cmd_index;
+    transfer_entry["cmdType"]  = TransferDumpingContext::TransferCommandTypeToStr(transfer_cmd_params->params->type);
+    transfer_entry["cmdIndex"] = dumped_resources.cmd_index;
     transfer_entry["queueSubmitIndex"] = dumped_resources.qs_index;
 
     auto& transf_params_json_entry = transfer_entry["parameters"];
 
     for (const auto& cmd : dumped_resources.dumped_transfer_commands)
     {
-        switch (params->type)
+        switch (transfer_cmd_params->params->type)
         {
             case TransferDumpingContext::TransferCommandTypes::kCmdInitBuffer:
             {
@@ -2638,8 +2638,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
             break;
 
             default:
-                GFXRECON_LOG_WARNING(
-                    "%s(): Transfer command type %d not handled", __func__, static_cast<int>(params->type));
+                GFXRECON_LOG_WARNING("%s(): Transfer command type %d not handled",
+                                     __func__,
+                                     static_cast<int>(transfer_cmd_params->params->type));
                 GFXRECON_ASSERT(0);
         }
     }
