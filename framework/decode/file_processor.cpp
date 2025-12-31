@@ -74,10 +74,21 @@ bool FileProcessor::Initialize(const std::string& filename)
         error_state_ = kErrorOpeningFile;
     }
 
-    // Find absolute path of capture file
     if (success)
     {
+        // Find absolute path of capture file
         absolute_path_ = util::filepath::GetBasedir(filename);
+
+        // Initialize block parser, with the compressor created during file header processing.
+        auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
+            HandleBlockReadError(err, message);
+        } };
+        block_parser_ = std::make_unique<BlockParser>(err_handler, pool_, compressor_.get());
+        success       = block_parser_.get() != nullptr;
+        if (!success)
+        {
+            error_state_ = kErrorOpeningFile;
+        }
     }
 
     return success;
@@ -105,6 +116,7 @@ bool FileProcessor::ProcessBlocksOneFrame()
     {
         decoder->SetCurrentFrameNumber(current_frame_number_);
     }
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
     return ProcessBlocks();
 }
 
@@ -266,9 +278,7 @@ bool FileProcessor::ProcessBlocks()
     BlockBuffer block_buffer;
     bool        success = true;
 
-    BlockParser block_parser([this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); },
-                             pool_,
-                             compressor_.get());
+    BlockParser& block_parser = GetBlockParser();
     // NOTE: To test deferred decompression operation uncomment next line
     // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 

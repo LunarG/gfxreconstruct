@@ -202,6 +202,8 @@ class ParsedBlock
     struct DecompressedBlockTag
     {};
     static util::DataSpan MakeDecompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept;
+
+    // For owned uncompressed store
     template <typename ArgPayload>
     ParsedBlock(DecompressedBlockTag,
                 BlockBuffer&         block_buffer,
@@ -210,6 +212,13 @@ class ParsedBlock
                 ArgPayload&&         args) :
         block_data_(MakeDecompressedBlockData(block_buffer, policy)),
         uncompressed_store_(std::move(uncompressed_store)),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
+    {}
+
+    // For unowned uncompressed store
+    template <typename ArgPayload>
+    ParsedBlock(DecompressedBlockTag, const BlockBuffer& block_buffer, ArgPayload&& args) :
+        block_data_(block_buffer.MakeNonOwnedData()), uncompressed_store_(),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
     {}
 

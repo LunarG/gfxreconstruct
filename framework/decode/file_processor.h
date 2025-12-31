@@ -236,6 +236,12 @@ class FileProcessor
         return file_stack_.back().active_file->IsEof();
     }
 
+    BlockParser& GetBlockParser()
+    {
+        GFXRECON_ASSERT(block_parser_.get() != nullptr);
+        return *block_parser_;
+    }
+
   private:
     class DispatchVisitor
     {
@@ -421,6 +427,7 @@ class FileProcessor
   protected:
     BufferPool                        pool_;
     std::unique_ptr<util::Compressor> compressor_;
+    std::unique_ptr<BlockParser>      block_parser_;
 
     struct ActiveFileContext
     {
