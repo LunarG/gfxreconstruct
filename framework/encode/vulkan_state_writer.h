@@ -139,6 +139,8 @@ class VulkanStateWriter
 
     void WriteImageViewState(const VulkanStateTable& state_table);
 
+    void WriteSamplerState(const VulkanStateTable& state_table);
+
     void WriteFramebufferState(const VulkanStateTable& state_table);
 
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
@@ -334,6 +336,11 @@ class VulkanStateWriter
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
 
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, VkDeviceAddress address);
+
+    void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                             format::HandleId object_id,
+                                             size_t           data_size,
+                                             const void*      data);
 
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,

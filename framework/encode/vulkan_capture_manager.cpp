@@ -351,7 +351,7 @@ void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_
 {
     if (IsCaptureModeWrite())
     {
-        format::SetOpaqueAddressCommand opaque_address_cmd;
+        format::SetOpaqueAddressCommand opaque_address_cmd{};
 
         auto thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
@@ -998,6 +998,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
 
         auto* image_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(*pImage);
         GFXRECON_ASSERT(image_wrapper);
+        image_wrapper->bind_device = device_wrapper;
 
         // These are required to generate a fill command in case external memory is bound to this image
         image_wrapper->image_type     = modified_create_info.imageType;
@@ -1065,6 +1066,7 @@ VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                 
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pImageView, VulkanCaptureManager::GetUniqueId);
         auto* image_view_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(*pImageView);
         GFXRECON_ASSERT(image_view_wrapper);
+        image_view_wrapper->device_id = device_wrapper->handle_id;
 
         // request and store opaque descriptor-data for image
         if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
@@ -1117,6 +1119,9 @@ VkResult VulkanCaptureManager::OverrideCreateSampler(VkDevice                   
             device, vulkan_wrappers::NoParentWrapper::kHandleValue, pSampler, VulkanCaptureManager::GetUniqueId);
         auto* sampler_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(*pSampler);
         GFXRECON_ASSERT(sampler_wrapper);
+
+        // keep track of device_id
+        sampler_wrapper->device_id = device_wrapper->handle_id;
 
         // request and store opaque descriptor-data for image
         if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)

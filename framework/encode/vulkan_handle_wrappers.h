@@ -263,6 +263,7 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 
 struct SamplerWrapper : public HandleWrapper<VkSampler>
 {
+    format::HandleId                          device_id{ format::kNullHandleId };
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
     // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
@@ -311,6 +312,7 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
+    format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
 

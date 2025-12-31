@@ -179,7 +179,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // Sampler and image view create infos can reference a VkSamplerYcbcrConversion object (through VkSamplerYcbcrConversionInfo
     // in the pnext chain). For that reason dump VkSamplerYcbcrConversion object first.
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
-    StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
+    WriteSamplerState(state_table);
 
     WriteImageViewState(state_table);
 
@@ -544,9 +544,35 @@ void VulkanStateWriter::WriteImageViewState(const VulkanStateTable& state_table)
         // Omit the current image view object if the image used to create it no longer exists.
         if (IsImageValid(wrapper->image_id, state_table))
         {
+            if (!wrapper->opaque_descriptor_data.empty())
+            {
+                WriteSetOpaqueCaptureDescriptorData(wrapper->device_id,
+                                                    wrapper->handle_id,
+                                                    wrapper->opaque_descriptor_data.size(),
+                                                    wrapper->opaque_descriptor_data.data());
+            }
+
             // Write image view creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         }
+    });
+}
+
+void VulkanStateWriter::WriteSamplerState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::SamplerWrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+
+        if (!wrapper->opaque_descriptor_data.empty())
+        {
+            WriteSetOpaqueCaptureDescriptorData(wrapper->device_id,
+                                                wrapper->handle_id,
+                                                wrapper->opaque_descriptor_data.size(),
+                                                wrapper->opaque_descriptor_data.data());
+        }
+
+        // Write sampler creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
 
@@ -1444,13 +1470,25 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
         GFXRECON_ASSERT(wrapper != nullptr && wrapper->device != VK_NULL_HANDLE);
 
-        if (wrapper->device != VK_NULL_HANDLE && wrapper->opaque_address != 0)
+        if (wrapper->device != VK_NULL_HANDLE)
         {
-            // If the buffer has a device address, write the 'set opaque address' command before writing the API call to
-            // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
-            // list.
             auto device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(wrapper->device, true);
-            WriteSetOpaqueAddressCommand(device_id, wrapper->handle_id, wrapper->opaque_address);
+
+            if (wrapper->opaque_address != 0)
+            {
+                // If the buffer has a device address, write the 'set opaque address' command before writing the API
+                // call to create the buffer.  The address will need to be passed to vkCreateBuffer through the
+                // pCreateInfo pNext list.
+                WriteSetOpaqueAddressCommand(device_id, wrapper->handle_id, wrapper->opaque_address);
+            }
+
+            if (!wrapper->opaque_descriptor_data.empty())
+            {
+                WriteSetOpaqueCaptureDescriptorData(device_id,
+                                                    wrapper->handle_id,
+                                                    wrapper->opaque_descriptor_data.size(),
+                                                    wrapper->opaque_descriptor_data.data());
+            }
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -1467,6 +1505,15 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
         {
             return;
         }
+
+        if (!image_wrapper->opaque_descriptor_data.empty())
+        {
+            WriteSetOpaqueCaptureDescriptorData(image_wrapper->bind_device->handle_id,
+                                                image_wrapper->handle_id,
+                                                image_wrapper->opaque_descriptor_data.size(),
+                                                image_wrapper->opaque_descriptor_data.data());
+        }
+
         // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
         // all reference the same parameter buffer.
         if (processed.find(image_wrapper->create_parameters.get()) == processed.end())
@@ -2154,12 +2201,23 @@ void VulkanStateWriter::WriteAccelerationStructureKHRState(const VulkanStateTabl
     state_table.VisitWrappers([&](const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        if ((wrapper->device != nullptr) && (wrapper->address != 0))
+        if (wrapper->device != nullptr)
         {
-            // If the acceleration struct has a device address, write the 'set opaque address' command before writing
-            // the API call to create the acceleration struct.  The address will need to be passed to
-            // vkCreateAccelerationStructKHR through the VkAccelerationStructureCreateInfoKHR::deviceAddress.
-            WriteSetOpaqueAddressCommand(wrapper->device->handle_id, wrapper->handle_id, wrapper->address);
+            if (wrapper->address != 0)
+            {
+                // If the acceleration struct has a device address, write the 'set opaque address' command before
+                // writing the API call to create the acceleration struct.  The address will need to be passed to
+                // vkCreateAccelerationStructKHR through the VkAccelerationStructureCreateInfoKHR::deviceAddress.
+                WriteSetOpaqueAddressCommand(wrapper->device->handle_id, wrapper->handle_id, wrapper->address);
+            }
+
+            if (!wrapper->opaque_descriptor_data.empty())
+            {
+                WriteSetOpaqueCaptureDescriptorData(wrapper->device->handle_id,
+                                                    wrapper->handle_id,
+                                                    wrapper->opaque_descriptor_data.size(),
+                                                    wrapper->opaque_descriptor_data.data());
+            }
         }
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         WriteGetAccelerationStructureDeviceAddressKHRCall(state_table, wrapper);
@@ -4451,6 +4509,31 @@ void VulkanStateWriter::WriteSetOpaqueAddressCommand(format::HandleId device_id,
 
     output_stream_->Write(&opaque_address_cmd, sizeof(opaque_address_cmd));
 
+    ++blocks_written_;
+}
+
+void VulkanStateWriter::WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                                            format::HandleId object_id,
+                                                            size_t           data_size,
+                                                            const void*      data)
+{
+    format::SetOpaqueDescriptorDataCommand opaque_descriptor_cmd{};
+
+    auto thread_data = GetThreadData();
+    GFXRECON_ASSERT(thread_data != nullptr);
+
+    opaque_descriptor_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    opaque_descriptor_cmd.meta_header.block_header.size =
+        format::GetMetaDataBlockBaseSize(opaque_descriptor_cmd) + data_size;
+    opaque_descriptor_cmd.meta_header.meta_data_id = format::MakeMetaDataId(
+        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetOpaqueCaptureDescriptorDataCommand);
+    opaque_descriptor_cmd.thread_id = thread_data->thread_id_;
+    opaque_descriptor_cmd.device_id = device_id;
+    opaque_descriptor_cmd.object_id = object_id;
+    opaque_descriptor_cmd.data_size = data_size;
+
+    output_stream_->CombineAndWrite({ { &opaque_descriptor_cmd, sizeof(opaque_descriptor_cmd) }, { data, data_size } },
+                                    GetThreadData()->GetScratchBuffer());
     ++blocks_written_;
 }
 
