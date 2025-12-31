@@ -353,6 +353,28 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 
     void GenerateOutputJsonTransferInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
 
+    void GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
+
+    void GenerateOutputJsonInitImageCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
+
+    void GenerateOutputJsonCopyBufferCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
+
+    void GenerateOutputJsonCopyBufferToImageCommand(const DumpedTransferCommand& cmd,
+                                                    nlohmann::ordered_json&      json_entry);
+
+    void GenerateOutputJsonCopyImageCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
+
+    void GenerateOutputJsonCopyImageToBufferCommand(const DumpedTransferCommand& cmd,
+                                                    nlohmann::ordered_json&      json_entry);
+
+    void GenerateOutputJsonBlitImageCommand(const DumpedTransferCommand& cmd, nlohmann::ordered_json& json_entry);
+
+    void GenerateOutputJsonBuildAccelerationStructuresCommand(const DumpedTransferCommand& cmd,
+                                                              nlohmann::ordered_json&      json_entry);
+
+    void GenerateOutputJsonCopyAccelerationStructureCommand(const DumpedTransferCommand& cmd,
+                                                            nlohmann::ordered_json&      json_entry);
+
     void GenerateDescriptorsJsonInfo(nlohmann::ordered_json&    dispatch_json_entry,
                                      const DumpedResourcesInfo& dumped_resources);
 
