@@ -1397,7 +1397,23 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
             WriteSetOpaqueAddressCommand(wrapper->device_id, wrapper->handle_id, wrapper->address);
         }
 
-        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        if (wrapper->modified_allocation_info != nullptr)
+        {
+            const VkAllocationCallbacks* alloc_callbacks = nullptr;
+
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->device_id);
+            EncodeStructPtr(&encoder_, wrapper->modified_allocation_info);
+            EncodeStructPtr(&encoder_, alloc_callbacks);
+            encoder_.EncodeHandleIdPtr(&wrapper->handle_id);
+            encoder_.EncodeEnumValue(VK_SUCCESS);
+            WriteFunctionCall(format::ApiCall_vkAllocateMemory, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
+        else
+        {
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
     });
 }
 

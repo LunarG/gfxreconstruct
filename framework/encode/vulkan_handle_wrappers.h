@@ -286,6 +286,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
     std::unordered_set<AssetWrapperBase*> bound_assets;
     std::mutex                            asset_map_lock;
+
+    // optional deep-copy of modified allocate-info, required for state-tracking / trimming
+    VkMemoryAllocateInfo*      modified_allocation_info{ nullptr };
+    std::unique_ptr<uint8_t[]> modified_allocation_info_data{ nullptr };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>

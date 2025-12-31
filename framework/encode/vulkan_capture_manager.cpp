@@ -1270,10 +1270,11 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
     void*                            external_memory = nullptr;
     VkImportMemoryHostPointerInfoEXT import_info;
 
-    auto     device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice device_unwrapped     = device_wrapper->handle;
-    auto     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    auto*    pAllocateInfo_unwrapped =
+    auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    VkDevice device_unwrapped = device_wrapper->handle;
+
+    auto  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
     bool                                     uses_address = false;
@@ -1398,6 +1399,10 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
             if (IsCaptureModeTrack())
             {
                 state_tracker_->TrackDeviceMemoryDeviceAddress(device, *pMemory, address);
+
+                // keep track of modified allocation-params
+                memory_wrapper->modified_allocation_info = vulkan_trackers::TrackStructs(
+                    pAllocateInfo_unwrapped, 1, memory_wrapper->modified_allocation_info_data);
             }
         }
 
