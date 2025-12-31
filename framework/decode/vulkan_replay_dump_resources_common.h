@@ -996,9 +996,9 @@ struct DumpedResourcesInfo
     uint64_t cmd_index{ 0 };
     uint64_t qs_index{ 0 };
 
-    std::vector<DumpedVertexIndexBuffer> dumped_vertex_index_buffers;
-    std::vector<DumpedRenderTarget>      dumped_render_targets;
-    std::vector<DumpedTransferCommand>   dumped_transfer_commands;
+    std::vector<DumpedVertexIndexBuffer>   dumped_vertex_index_buffers;
+    std::vector<DumpedRenderTarget>        dumped_render_targets;
+    std::unique_ptr<DumpedTransferCommand> dumped_transfer_command;
 
     // We need to keep references to inserted elements. Use a list instead of a vector
     std::list<DumpedDescriptor> dumped_descriptors;
