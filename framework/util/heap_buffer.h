@@ -74,6 +74,14 @@ class HeapBuffer
         return reinterpret_cast<T*>(store_.get());
     }
 
+    template <typename T>
+    [[nodiscard]] auto GetAs() const noexcept
+    {
+        static_assert(!std::is_reference_v<T>, "T must not be a reference type");
+        static_assert(IsByteEquivalent_v<T>, "Buffer reinterpretation only valid for byte-like types.");
+        return reinterpret_cast<const std::decay_t<T>*>(store_.get());
+    }
+
     size_t Capacity() const { return store_ ? capacity_ : 0U; }
     bool   IsEmpty() const { return store_ == nullptr; }
 

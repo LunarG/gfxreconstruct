@@ -119,26 +119,54 @@ bool BlockParser::ShouldDeferDecompression(size_t block_size)
     return block_size > kDeferThreshold;
 }
 
-ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
-                                                           size_t                        expanded_size)
+bool BlockParser::DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
+                                 size_t                          expanded_size,
+                                 ParsedBlock::UncompressedStore& uncompressed_buffer)
 {
     GFXRECON_ASSERT(!compressed_span.empty());
-    auto   uncompressed_buffer = pool_->Acquire(expanded_size);
-    size_t uncompressed_size   = compressor_->Decompress(compressed_span.size(),
+    size_t uncompressed_size = compressor_->Decompress(compressed_span.size(),
                                                        reinterpret_cast<const uint8_t*>(compressed_span.data()),
                                                        expanded_size,
                                                        uncompressed_buffer.GetAs<uint8_t>());
     if (uncompressed_size == expanded_size)
     {
-        return uncompressed_buffer;
+        return true;
     }
     else
     {
         HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
-        return ParsedBlock::UncompressedStore();
+        return false;
     }
 }
 
+ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
+                                                           size_t                        expanded_size)
+{
+    auto uncompressed_buffer = pool_->Acquire(expanded_size);
+    if (DecompressSpan(compressed_span, expanded_size, uncompressed_buffer))
+    {
+        return uncompressed_buffer;
+    }
+    else
+    {
+        return ParsedBlock::UncompressedStore();
+    }
+}
+const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
+                                           size_t                        expanded_size,
+                                           UseParserLocalStorageTag)
+{
+    uncompressed_working_buffer_.ReserveDiscarding(expanded_size);
+    if (DecompressSpan(compressed_span, expanded_size, uncompressed_working_buffer_))
+    {
+        return reinterpret_cast<const uint8_t*>(uncompressed_working_buffer_.data());
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
+        return nullptr;
+    }
+}
 void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label, uint32_t sub_type)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
@@ -178,6 +206,20 @@ template <typename ArgPayload>
         }
         else
         {
+            if (block_reference_policy_ == ParsedBlock::kNonOwnedReference)
+            {
+                // Use parser local storage for decompression to avoid retaining owned references in this mode
+                const uint8_t* uncompressed_data =
+                    DecompressSpan(read_result.buffer, read_result.uncompressed_size, UseParserLocalStorageTag{});
+                if (uncompressed_data == nullptr)
+                {
+                    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+                }
+                args.data = uncompressed_data;
+                return ParsedBlock(ParsedBlock::DecompressedBlockTag{}, block_buffer, std::forward<ArgPayload>(args));
+            }
+
+            // Use owned uncompressed storage only as needed
             UncompressedStore uncompressed_store = DecompressSpan(read_result.buffer, read_result.uncompressed_size);
             args.data                            = uncompressed_store.template GetAs<const uint8_t>();
             if (uncompressed_store.empty())

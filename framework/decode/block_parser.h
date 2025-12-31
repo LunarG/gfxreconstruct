@@ -115,8 +115,17 @@ class BlockParser
     void
     WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
 
+    bool ShouldDeferDecompression(size_t block_size);
+
+    // Control use of parser local storage for decompression
+    struct UseParserLocalStorageTag
+    {};
+    bool                           DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
+                                                  size_t                          expanded_size,
+                                                  ParsedBlock::UncompressedStore& uncompressed_buffer);
     ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
-    bool                           ShouldDeferDecompression(size_t block_size);
+    const uint8_t*
+    DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
     BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
@@ -163,6 +172,8 @@ class BlockParser
 
     uint64_t frame_number_ = 0;
     uint64_t block_index_  = 0;
+
+    ParsedBlock::UncompressedStore uncompressed_working_buffer_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
