@@ -1557,17 +1557,17 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
         {
             case kCmdInitBuffer:
             {
-                auto* init_buffer             = static_cast<TransferParams::InitBufferMetaCommand*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd = init_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
-                    DumpResourceType::kInitBufferMetaCommand,
-                    cmd_index,
-                    qs_index,
-                    init_buffer->dst_buffer,
-                    init_buffer->data.size());
+                auto* init_buffer             = static_cast<TransferParams::InitBufferMetaCommand*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = init_buffer->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitBufferMetaCommand,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            init_buffer->dst_buffer,
+                                                            init_buffer->data.size());
                 auto& new_dumped_init_buffer =
-                    std::get<DumpedInitBufferMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedInitBufferMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateBufferDumpedData();
 
                 auto& dumped_host_data = std::get<VulkanDelegateBufferDumpedData>(host_data.dumped_data);
@@ -1578,15 +1578,15 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdInitImage:
             {
-                auto* init_image              = static_cast<TransferParams::InitImageMetaCommand*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd = init_image->dumped_resources.dumped_transfer_commands.emplace_back(
-                    DumpResourceType::kInitImageMetaCommand,
-                    cmd_index,
-                    qs_index,
-                    init_image->dst_image,
-                    &init_image->copied_image.image_info);
+                auto* init_image              = static_cast<TransferParams::InitImageMetaCommand*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = init_image->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitImageMetaCommand,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            init_image->dst_image,
+                                                            &init_image->copied_image.image_info);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
                 // Images initialized in the state setup block should be dumpable, otherwise it wouldn't have been
@@ -1596,7 +1596,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                                              &init_image->copied_image.image_info) == ImageDumpResult::kCanDump);
 
                 auto& new_dumped_init_image =
-                    std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
 
                 const VkImageSubresourceRange subresource_range = { static_cast<VkImageAspectFlags>(init_image->aspect),
@@ -1627,17 +1627,17 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdCopyBuffer:
             {
-                auto* copy_buffer             = static_cast<TransferParams::CopyBuffer*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd = copy_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
-                    DumpResourceType::kCopyBuffer,
-                    cmd_index,
-                    qs_index,
-                    copy_buffer->src_buffer,
-                    copy_buffer->dst_buffer,
-                    copy_buffer->has_before_command);
-                auto& new_dumped_copy_buffer = std::get<DumpedCopyBuffer>(new_dumped_transfer_cmd.dumped_resource);
+                auto* copy_buffer             = static_cast<TransferParams::CopyBuffer*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = copy_buffer->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBuffer,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            copy_buffer->src_buffer,
+                                                            copy_buffer->dst_buffer,
+                                                            copy_buffer->has_before_command);
+                auto& new_dumped_copy_buffer = std::get<DumpedCopyBuffer>(new_dumped_transfer_cmd->dumped_resource);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
 
                 auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
@@ -1672,7 +1672,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     GFXRECON_ASSERT(copy_buffer_before != nullptr);
 
                     auto* new_dumped_copy_buffer_before =
-                        std::get_if<DumpedCopyBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get_if<DumpedCopyBuffer>(&new_dumped_transfer_cmd->dumped_resource_before);
                     for (const auto& region : copy_buffer_before->regions)
                     {
                         auto& new_dumped_region_before = new_dumped_copy_buffer_before->regions.emplace_back(
@@ -1702,25 +1702,24 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdCopyBufferToImage:
             {
-                auto* copy_buffer_to_image = static_cast<TransferParams::CopyBufferToImage*>(cmd.params.get());
+                auto* copy_buffer_to_image = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
                 const ImageDumpResult can_dump_image =
                     CanDumpImage(instance_table_, device_info_->parent, &copy_buffer_to_image->copied_image.image_info);
 
-                auto& new_dumped_transfer_cmd =
-                    copy_buffer_to_image->dumped_resources.dumped_transfer_commands.emplace_back(
-                        DumpResourceType::kCopyBufferToImage,
-                        cmd_index,
-                        qs_index,
-                        copy_buffer_to_image->src_buffer,
-                        copy_buffer_to_image->dst_image,
-                        copy_buffer_to_image->dst_image_layout,
-                        copy_buffer_to_image->has_before_command);
+                auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBufferToImage,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            copy_buffer_to_image->src_buffer,
+                                                            copy_buffer_to_image->dst_image,
+                                                            copy_buffer_to_image->dst_image_layout,
+                                                            copy_buffer_to_image->has_before_command);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
                 auto& new_dumped_copy_buffer_to_image =
-                    std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
                 for (const auto& region : copy_buffer_to_image->regions)
                 {
@@ -1773,7 +1772,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     GFXRECON_ASSERT(copy_buffer_to_image_before != nullptr);
 
                     auto& new_dumped_copy_buffer_to_image_before =
-                        std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource_before);
                     for (const auto& region : copy_buffer_to_image_before->regions)
                     {
                         auto& new_dumped_image_region_before =
@@ -1827,24 +1826,24 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdCopyImage:
             {
-                auto* copy_image = static_cast<TransferParams::CopyImage*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd =
-                    copy_image->dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kCopyImage,
-                                                                                       cmd_index,
-                                                                                       qs_index,
-                                                                                       copy_image->src_image,
-                                                                                       copy_image->src_image_layout,
-                                                                                       copy_image->dst_image,
-                                                                                       copy_image->dst_image_layout,
-                                                                                       copy_image->has_before_command);
+                auto* copy_image              = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImage,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            copy_image->src_image,
+                                                            copy_image->src_image_layout,
+                                                            copy_image->dst_image,
+                                                            copy_image->dst_image_layout,
+                                                            copy_image->has_before_command);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
                 const ImageDumpResult can_dump_image =
                     CanDumpImage(instance_table_, device_info_->parent, &copy_image->copied_image.image_info);
 
-                auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd.dumped_resource);
+                auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
                 for (const auto& region : copy_image->regions)
                 {
@@ -1895,7 +1894,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     GFXRECON_ASSERT(copy_image_before != nullptr);
 
                     auto* new_dumped_copy_image_before =
-                        std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_copy_image_before != nullptr);
 
                     for (const auto& region : copy_image_before->regions)
@@ -1947,20 +1946,19 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdCopyImageToBuffer:
             {
-                auto* copy_image_to_buffer = static_cast<TransferParams::CopyImageToBuffer*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd =
-                    copy_image_to_buffer->dumped_resources.dumped_transfer_commands.emplace_back(
-                        DumpResourceType::kCopyImageToBuffer,
-                        cmd_index,
-                        qs_index,
-                        copy_image_to_buffer->src_image,
-                        copy_image_to_buffer->src_image_layout,
-                        copy_image_to_buffer->dst_buffer,
-                        copy_image_to_buffer->has_before_command);
+                auto* copy_image_to_buffer    = static_cast<TransferParams::CopyImageToBuffer*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = copy_image_to_buffer->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImageToBuffer,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            copy_image_to_buffer->src_image,
+                                                            copy_image_to_buffer->src_image_layout,
+                                                            copy_image_to_buffer->dst_buffer,
+                                                            copy_image_to_buffer->has_before_command);
                 auto& new_dumped_copy_image_to_buffer =
-                    std::get<DumpedCopyImageToBuffer>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedCopyImageToBuffer>(new_dumped_transfer_cmd->dumped_resource);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyBufferRegions();
 
                 auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyBufferRegions>(host_data.dumped_data);
@@ -1994,7 +1992,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     GFXRECON_ASSERT(copy_image_to_buffer_before != nullptr);
 
                     auto* new_dumped_copy_image_to_buffer_before =
-                        std::get_if<DumpedCopyImageToBuffer>(&new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get_if<DumpedCopyImageToBuffer>(&new_dumped_transfer_cmd->dumped_resource_before);
                     for (const auto& region : copy_image_to_buffer_before->regions)
                     {
                         auto& new_dumped_region_before = new_dumped_copy_image_to_buffer_before->regions.emplace_back(
@@ -2024,25 +2022,25 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdBlitImage:
             {
-                auto*                 blit_image = static_cast<TransferParams::BlitImage*>(cmd.params.get());
+                auto*                 blit_image = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
                 const ImageDumpResult can_dump_image =
                     CanDumpImage(instance_table_, device_info_->parent, &blit_image->copied_image.image_info);
 
-                auto& new_dumped_transfer_cmd =
-                    blit_image->dumped_resources.dumped_transfer_commands.emplace_back(DumpResourceType::kBlitImage,
-                                                                                       cmd_index,
-                                                                                       qs_index,
-                                                                                       blit_image->src_image,
-                                                                                       blit_image->src_image_layout,
-                                                                                       blit_image->dst_image,
-                                                                                       blit_image->dst_image_layout,
-                                                                                       blit_image->filter,
-                                                                                       blit_image->has_before_command);
+                auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kBlitImage,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            blit_image->src_image,
+                                                            blit_image->src_image_layout,
+                                                            blit_image->dst_image,
+                                                            blit_image->dst_image_layout,
+                                                            blit_image->filter,
+                                                            blit_image->has_before_command);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
 
-                auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd.dumped_resource);
+                auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
                 for (const auto& region : blit_image->regions)
                 {
@@ -2093,7 +2091,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     GFXRECON_ASSERT(blit_image_before != nullptr);
 
                     auto* new_dumped_blit_image_before =
-                        std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_blit_image_before != nullptr);
 
                     for (const auto& region : blit_image_before->regions)
@@ -2145,13 +2143,16 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdBuildAccelerationStructures:
             {
-                auto* build_as = static_cast<TransferParams::BuildAccelerationStructure*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd = build_as->dumped_resources.dumped_transfer_commands.emplace_back(
-                    DumpResourceType::kBuildAccelerationStructure, cmd_index, qs_index, build_as->has_before_command);
+                auto* build_as = static_cast<TransferParams::BuildAccelerationStructure*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = build_as->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kBuildAccelerationStructure,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            build_as->has_before_command);
                 auto& new_dumped_build_as =
-                    std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd->dumped_resource);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedBuildAccelerationStructures();
 
                 auto& host_dumped_build_infos =
@@ -2194,7 +2195,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                         static_cast<TransferParams::BuildAccelerationStructure*>(cmd.before_params.get());
 
                     auto* new_dumped_build_as_before =
-                        std::get_if<DumpedBuildAccelerationStructure>(&new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get_if<DumpedBuildAccelerationStructure>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_build_as_before != nullptr);
 
                     for (auto& build_info : build_as_before->build_infos)
@@ -2232,21 +2233,21 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
 
             case kCmdCopyAccelerationStructure:
             {
-                auto* copy_as = static_cast<TransferParams::CopyAccelerationStructure*>(cmd.params.get());
-                auto& new_dumped_transfer_cmd = copy_as->dumped_resources.dumped_transfer_commands.emplace_back(
-                    DumpResourceType::kCopyAccelerationStructure,
-                    cmd_index,
-                    qs_index,
-                    copy_as->src_as,
-                    copy_as->dst_as,
-                    copy_as->mode,
-                    &copy_as->vk_objects.as_info,
-                    options_.dump_resources_dump_build_AS_input_buffers,
-                    copy_as->has_before_command);
+                auto* copy_as = static_cast<TransferParams::CopyAccelerationStructure*>(base_transfer_cmd);
+                auto& new_dumped_transfer_cmd = copy_as->dumped_resources.dumped_transfer_command =
+                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyAccelerationStructure,
+                                                            cmd_index,
+                                                            qs_index,
+                                                            copy_as->src_as,
+                                                            copy_as->dst_as,
+                                                            copy_as->mode,
+                                                            &copy_as->vk_objects.as_info,
+                                                            options_.dump_resources_dump_build_AS_input_buffers,
+                                                            copy_as->has_before_command);
                 auto& new_dumped_copy_as =
-                    std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource);
+                    std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd->dumped_resource);
 
-                res_info.dumped_resource = &new_dumped_transfer_cmd;
+                res_info.dumped_resource = new_dumped_transfer_cmd.get();
                 host_data.dumped_data    = VulkanDelegateDumpedCopyAccelerationStructure();
 
                 auto& host_dumped_copy_info =
@@ -2276,7 +2277,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
                     auto* copy_as_before =
                         static_cast<TransferParams::CopyAccelerationStructure*>(cmd.before_params.get());
                     auto& new_dumped_copy_as_before =
-                        std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd.dumped_resource_before);
+                        std::get<DumpedCopyAccelerationStructure>(new_dumped_transfer_cmd->dumped_resource_before);
 
                     VkResult res = DumpAccelerationStructure(new_dumped_copy_as_before.dumped_copy_info.dumped_as,
                                                              host_dumped_copy_info.data,
