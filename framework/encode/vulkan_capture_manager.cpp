@@ -954,6 +954,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
             WriteSetOpaqueCaptureDescriptorData(
                 device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                buffer_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
         }
     }
     return result;
@@ -1025,6 +1030,11 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
 
             WriteSetOpaqueCaptureDescriptorData(
                 device_wrapper->handle_id, image_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                image_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
         }
     }
     return result;
@@ -1072,6 +1082,11 @@ VkResult VulkanCaptureManager::OverrideCreateImageView(VkDevice                 
 
             WriteSetOpaqueCaptureDescriptorData(
                 device_wrapper->handle_id, image_view_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                image_view_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
         }
     }
     return result;
@@ -1119,6 +1134,11 @@ VkResult VulkanCaptureManager::OverrideCreateSampler(VkDevice                   
 
             WriteSetOpaqueCaptureDescriptorData(
                 device_wrapper->handle_id, sampler_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                sampler_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
         }
     }
     return result;
@@ -1212,6 +1232,11 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
 
             WriteSetOpaqueCaptureDescriptorData(
                 device_wrapper->handle_id, accel_struct_wrapper->handle_id, opaque_data.size(), opaque_data.data());
+
+            if (IsCaptureModeTrack())
+            {
+                accel_struct_wrapper->opaque_descriptor_data = std::move(opaque_data);
+            }
         }
     }
     return result;

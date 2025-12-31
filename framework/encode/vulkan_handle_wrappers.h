@@ -228,6 +228,9 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
     VkDeviceSize created_size{ 0 };
 
     std::unordered_map<VkDeviceAddress, AccelerationStructureBuildState> acceleration_structures;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct ImageViewWrapper;
@@ -253,11 +256,17 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkQueue                                             sparse_bind_queue;
 
     std::set<VkSwapchainKHR> parent_swapchains;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct SamplerWrapper : public HandleWrapper<VkSampler>
 {
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
@@ -306,6 +315,9 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
     ImageWrapper*    image{ nullptr };
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
@@ -624,6 +636,9 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
     // Only used when tracking
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

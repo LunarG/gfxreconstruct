@@ -11910,15 +11910,19 @@ void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
 
     if (UseAddressReplacement(device_info))
     {
-        // TODO: will be required for portability -> correct BDAs in descriptor_buffer
-        // auto& address_tracker  = GetDeviceAddressTracker(device_info);
-        // auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    }
+        GFXRECON_LOG_WARNING("%s: portable replays using '-m rebind' are currently not supported for "
+                             "VK_EXT_descriptor_buffer -> Replay is likely going to fail",
+                             __func__);
 
-    // NOTE: this assumption is true for linux/nvidia but generally wrong without using 'descriptorBufferCaptureReplay'
-    // TODO: implement descriptorBufferCaptureReplay
-    GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
-    GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) == 0);
+        // TODO: portability -> correct BDAs/descriptors/mem-layout for descriptor-buffers
+    }
+    else
+    {
+        // relying on 'descriptorBufferCaptureReplay' we assume this data to match
+        GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
+        GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) ==
+                        0);
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdBindDescriptorBuffersEXT(
