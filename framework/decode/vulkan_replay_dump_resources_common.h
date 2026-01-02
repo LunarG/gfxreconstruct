@@ -195,14 +195,21 @@ struct DumpedBuffer : DumpedFile
 
     VkDeviceSize offset{ 0 };
 
-    void CopyDumpedInfo(const DumpedBuffer& other)
+    DumpedBuffer& operator=(const DumpedBuffer& other)
     {
+        if (this == &other)
+        {
+            return *this;
+        }
+
         buffer_info.handle     = other.buffer_info.handle;
         buffer_info.capture_id = other.buffer_info.capture_id;
         offset                 = other.offset;
         filename               = other.filename;
         size                   = other.size;
         compressed_size        = other.compressed_size;
+
+        return *this;
     }
 };
 
@@ -231,12 +238,21 @@ struct DumpedImage
         uint32_t              layer{ 0 };
     };
 
-    void CopyDumpedInfo(const DumpedImage& other)
+    DumpedImage& operator=(const DumpedImage& other)
     {
+        if (this == &other)
+        {
+            return *this;
+        }
+
+        image_info          = other.image_info;
         scaling_failed      = other.scaling_failed;
         dumped_raw          = other.dumped_raw;
         dumped_format       = other.dumped_format;
+        can_dump            = other.can_dump;
         dumped_subresources = other.dumped_subresources;
+
+        return *this;
     }
 
     const VulkanImageInfo* image_info;
@@ -263,13 +279,19 @@ struct DumpedAccelerationStructure
         as_info(as_info), dump_build_input_buffers(dump_input_buffers)
     {}
 
-    void CopyDumpedInfo(const DumpedAccelerationStructure& other)
+    DumpedAccelerationStructure& operator=(const DumpedAccelerationStructure& other)
     {
+        if (this == &other)
+        {
+            return *this;
+        }
         input_buffers            = other.input_buffers;
         serialized_buffer        = other.serialized_buffer;
         dump_build_input_buffers = other.dump_build_input_buffers;
         as_info                  = other.as_info;
         BLASes                   = other.BLASes;
+
+        return *this;
     }
 
     struct DumpedBuildInputTriangleBuffer

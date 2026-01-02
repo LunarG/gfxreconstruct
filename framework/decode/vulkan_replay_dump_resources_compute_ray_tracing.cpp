@@ -1773,7 +1773,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             }
                             else
                             {
-                                new_dumped_image.CopyDumpedInfo(dumped_descs_entry->second);
+                                new_dumped_image = dumped_descs_entry->second;
                             }
                         }
                     }
@@ -1851,7 +1851,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1929,7 +1929,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -2026,7 +2026,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         }
                         else
                         {
-                            new_dumped_as.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_as = dumped_desc_entry->second;
                         }
                     }
                 }
