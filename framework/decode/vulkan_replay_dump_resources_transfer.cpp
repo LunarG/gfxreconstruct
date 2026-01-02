@@ -173,15 +173,15 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
             const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
             const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
                 &phys_dev_info->replay_device_info->memory_properties.value();
-            VkResult res = CloneImage(object_info_table_,
-                                      device_table_,
-                                      replay_device_phys_mem_props,
-                                      img_info,
-                                      &init_image_params->copied_image.image,
-                                      &init_image_params->copied_image.memory);
+            VkResult res = CreateVkImage(object_info_table_,
+                                         device_table_,
+                                         replay_device_phys_mem_props,
+                                         img_info,
+                                         &init_image_params->copied_image.image,
+                                         &init_image_params->copied_image.memory);
             if (res != VK_SUCCESS)
             {
-                GFXRECON_LOG_ERROR("%s() CloneImage failed (%s)", __func__, util::ToString(res).c_str());
+                GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
                 return res;
             }
 
@@ -487,15 +487,15 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
         const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
             &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CloneImage(object_info_table_,
-                                  device_table_,
-                                  replay_device_phys_mem_props,
-                                  dstImage,
-                                  &copy_buffer_to_image_params->copied_image.image,
-                                  &copy_buffer_to_image_params->copied_image.memory);
+        VkResult res = CreateVkImage(object_info_table_,
+                                     device_table_,
+                                     replay_device_phys_mem_props,
+                                     dstImage,
+                                     &copy_buffer_to_image_params->copied_image.image,
+                                     &copy_buffer_to_image_params->copied_image.memory);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CloneImage failed (%s)", __func__, util::ToString(res).c_str());
+            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
@@ -669,15 +669,15 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
         const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
             &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CloneImage(object_info_table_,
-                                  device_table_,
-                                  replay_device_phys_mem_props,
-                                  dstImage,
-                                  &copy_image_params->copied_image.image,
-                                  &copy_image_params->copied_image.memory);
+        VkResult res = CreateVkImage(object_info_table_,
+                                     device_table_,
+                                     replay_device_phys_mem_props,
+                                     dstImage,
+                                     &copy_image_params->copied_image.image,
+                                     &copy_image_params->copied_image.memory);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CloneImage failed (%s)", __func__, util::ToString(res).c_str());
+            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
@@ -1022,15 +1022,15 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
         const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
             &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CloneImage(object_info_table_,
-                                  device_table_,
-                                  replay_device_phys_mem_props,
-                                  dstImage,
-                                  &blit_image_params->copied_image.image,
-                                  &blit_image_params->copied_image.memory);
+        VkResult res = CreateVkImage(object_info_table_,
+                                     device_table_,
+                                     replay_device_phys_mem_props,
+                                     dstImage,
+                                     &blit_image_params->copied_image.image,
+                                     &blit_image_params->copied_image.memory);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CloneImage failed (%s)", __func__, util::ToString(res).c_str());
+            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
