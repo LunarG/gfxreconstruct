@@ -173,29 +173,25 @@ struct DumpedBuffer : DumpedFile
 {
     DumpedBuffer() = default;
 
-    DumpedBuffer(VkBuffer buffer, format::HandleId id, VkDeviceSize o, VkDeviceSize s) : DumpedFile(s), offset(o)
-    {
-        buffer_info.handle     = buffer;
-        buffer_info.capture_id = id;
-    }
+    DumpedBuffer(VkBuffer buffer, format::HandleId id, VkDeviceSize o, VkDeviceSize s) :
+        DumpedFile(s), buffer_info(buffer, id), offset(o)
+    {}
 
-    DumpedBuffer(VkBuffer buffer, VkDeviceSize s) : DumpedFile(s), offset(0)
-    {
-        buffer_info.handle     = buffer;
-        buffer_info.capture_id = format::kNullHandleId;
-    }
+    DumpedBuffer(VkBuffer buffer, VkDeviceSize s) : DumpedFile(s), buffer_info(buffer, format::kNullHandleId), offset(0)
+    {}
 
-    DumpedBuffer(VkDeviceSize s) : DumpedFile(s), offset(0)
-    {
-        buffer_info.handle     = VK_NULL_HANDLE;
-        buffer_info.capture_id = format::kNullHandleId;
-    }
+    DumpedBuffer(VkDeviceSize s) : DumpedFile(s), buffer_info(VK_NULL_HANDLE, format::kNullHandleId), offset(0) {}
 
-    struct
+    struct BufferInfo
     {
+        BufferInfo() = default;
+        BufferInfo(VkBuffer b, format::HandleId id) : handle(b), capture_id(id) {}
+
         VkBuffer         handle{ VK_NULL_HANDLE };
         format::HandleId capture_id{ format::kNullHandleId };
-    } buffer_info;
+    };
+
+    BufferInfo buffer_info;
 
     VkDeviceSize offset{ 0 };
 
