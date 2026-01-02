@@ -113,23 +113,24 @@ class MetadataConsumerBase
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
-    virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+    virtual void ProcessVulkanBuildAccelerationStructuresCommand(
         format::HandleId                                                           device_id,
         uint32_t                                                                   info_count,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos)
     {}
 
-    virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+    virtual void ProcessVulkanCopyAccelerationStructuresCommand(
         format::HandleId device_id, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
     {}
 
-    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
-        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
+    virtual void ProcessVulkanWriteAccelerationStructuresPropertiesCommand(format::HandleId device_id,
+                                                                           VkQueryType      query_type,
+                                                                           format::HandleId acceleration_structure_id)
     {}
 
-    virtual void ProcessViewRelativeLocation(format::ThreadId                    thread_id,
-                                             const format::ViewRelativeLocation& location){};
+    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, const format::ViewRelativeLocation& location) {
+    };
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)

@@ -591,7 +591,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        consumer->ProcessVulkanBuildAccelerationStructuresCommand(
             device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
     }
 }
@@ -607,7 +607,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessCopyVulkanAccelerationStructuresMetaCommand(device_id, &pInfos);
+        consumer->ProcessVulkanCopyAccelerationStructuresCommand(device_id, &pInfos);
     }
 }
 
@@ -625,7 +625,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        consumer->ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
             device_id, query_type, acceleration_structure_id);
     }
 }
