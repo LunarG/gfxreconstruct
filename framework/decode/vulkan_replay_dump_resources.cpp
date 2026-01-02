@@ -610,9 +610,9 @@ VulkanReplayDumpResourcesBase::FindTransferContext(VkCommandBuffer original_comm
 
 void VulkanReplayDumpResourcesBase::ReleaseDrawCallContexts(decode::Index qs_index)
 {
-    for (auto it = draw_call_contexts_.begin(); it != draw_call_contexts_.end(); ++it)
+    for (const auto& [qs_bcb_pair, context] : draw_call_contexts_)
     {
-        if (it->first.second == qs_index)
+        if (qs_bcb_pair.second == qs_index)
         {
             --active_contexts_;
         }
@@ -621,9 +621,9 @@ void VulkanReplayDumpResourcesBase::ReleaseDrawCallContexts(decode::Index qs_ind
 
 void VulkanReplayDumpResourcesBase::ReleaseDispatchTraceRaysContexts(decode::Index qs_index)
 {
-    for (auto it = dispatch_ray_contexts_.begin(); it != dispatch_ray_contexts_.end(); ++it)
+    for (const auto& [qs_bcb_pair, context] : dispatch_ray_contexts_)
     {
-        if (it->first.second == qs_index)
+        if (qs_bcb_pair.second == qs_index)
         {
             --active_contexts_;
         }
@@ -632,9 +632,9 @@ void VulkanReplayDumpResourcesBase::ReleaseDispatchTraceRaysContexts(decode::Ind
 
 void VulkanReplayDumpResourcesBase::ReleaseTransferContexts(decode::Index qs_index)
 {
-    for (auto it = transfer_contexts_.begin(); it != transfer_contexts_.end(); ++it)
+    for (const auto& [qs_bcb_pair, context] : transfer_contexts_)
     {
-        if (it->first.second == qs_index)
+        if (qs_bcb_pair.second == qs_index)
         {
             --active_contexts_;
         }
