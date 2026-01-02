@@ -1653,7 +1653,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             }
                             else
                             {
-                                new_dumped_image.CopyDumpedInfo(dumped_desc_entry->second);
+                                new_dumped_image = dumped_desc_entry->second;
                             }
                         }
                     }
@@ -1737,7 +1737,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1820,7 +1820,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1920,7 +1920,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         }
                         else
                         {
-                            new_dumped_as.CopyDumpedInfo(dumped_descs_entry->second);
+                            new_dumped_as = dumped_descs_entry->second;
                         }
                     }
                 }
