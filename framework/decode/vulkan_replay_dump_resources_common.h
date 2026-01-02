@@ -1130,20 +1130,12 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
                             uint32_t                                type_bits,
                             VkMemoryPropertyFlags                   property_flags);
 
-VkResult CloneImage(const CommonObjectInfoTable&            object_info_table,
-                    const graphics::VulkanDeviceTable*      device_table,
-                    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                    const VulkanImageInfo*                  image_info,
-                    VkImage*                                new_image,
-                    VkDeviceMemory*                         new_image_memory);
-
-VkResult CloneBuffer(const CommonObjectInfoTable&            object_info_table,
-                     const graphics::VulkanDeviceTable*      device_table,
-                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                     const VulkanBufferInfo*                 buffer_info,
-                     VkBuffer*                               new_buffer,
-                     VkDeviceMemory*                         new_buffer_memory,
-                     VkDeviceSize                            override_size = 0);
+VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
+                       const graphics::VulkanDeviceTable*      device_table,
+                       const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                       const VulkanImageInfo*                  image_info,
+                       VkImage*                                new_image,
+                       VkDeviceMemory*                         new_image_memory);
 
 void FreeAccelerationStructureContextResources(const graphics::VulkanDeviceTable&         device_table,
                                                VkDevice                                   device,

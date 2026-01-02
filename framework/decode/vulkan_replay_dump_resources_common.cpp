@@ -142,12 +142,12 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
     return memory_type_index;
 }
 
-VkResult CloneImage(const CommonObjectInfoTable&            object_info_table,
-                    const graphics::VulkanDeviceTable*      device_table,
-                    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                    const VulkanImageInfo*                  image_info,
-                    VkImage*                                new_image,
-                    VkDeviceMemory*                         new_image_memory)
+VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
+                       const graphics::VulkanDeviceTable*      device_table,
+                       const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                       const VulkanImageInfo*                  image_info,
+                       VkImage*                                new_image,
+                       VkDeviceMemory*                         new_image_memory)
 {
     VkImageCreateInfo ci;
     ci.sType                 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -210,74 +210,6 @@ VkResult CloneImage(const CommonObjectInfoTable&            object_info_table,
         return res;
     }
 
-    return VK_SUCCESS;
-}
-
-VkResult CloneBuffer(const CommonObjectInfoTable&            object_info_table,
-                     const graphics::VulkanDeviceTable*      device_table,
-                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                     const VulkanBufferInfo*                 buffer_info,
-                     VkBuffer*                               new_buffer,
-                     VkDeviceMemory*                         new_buffer_memory,
-                     VkDeviceSize                            override_size)
-{
-    assert(device_table);
-    assert(new_buffer);
-    assert(buffer_info);
-    assert(buffer_info->size || override_size);
-
-    VkBufferCreateInfo ci;
-    ci.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    ci.pNext                 = nullptr;
-    ci.flags                 = VkBufferCreateFlags(0);
-    ci.size                  = override_size ? override_size : buffer_info->size;
-    ci.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    ci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
-    ci.queueFamilyIndexCount = 0;
-    ci.pQueueFamilyIndices   = nullptr;
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(buffer_info->parent_id);
-    VkDevice                device      = device_info->handle;
-
-    VkResult res = device_table->CreateBuffer(device, &ci, nullptr, new_buffer);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("CreateBuffer failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
-    VkMemoryRequirements mem_reqs       = {};
-    VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr };
-
-    device_table->GetBufferMemoryRequirements(device, *new_buffer, &mem_reqs);
-    mem_alloc_info.allocationSize = mem_reqs.size;
-
-    assert(replay_device_phys_mem_props);
-    uint32_t index =
-        GetMemoryTypeIndex(*replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    if (index == std::numeric_limits<uint32_t>::max())
-    {
-        GFXRECON_LOG_ERROR("%s failed to find an appropriate memory type", __func__)
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    mem_alloc_info.memoryTypeIndex = index;
-
-    assert(new_buffer_memory);
-    res = device_table->AllocateMemory(device, &mem_alloc_info, nullptr, new_buffer_memory);
-
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("AllocateMemory failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
-    res = device_table->BindBufferMemory(device, *new_buffer, *new_buffer_memory, 0);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("BindBufferMemory failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
     return VK_SUCCESS;
 }
 

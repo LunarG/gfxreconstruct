@@ -964,12 +964,12 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.desc_binding   = binding_index;
                         new_entry.array_index    = array_index;
 
-                        VkResult res = CloneImage(object_info_table_,
-                                                  device_table_,
-                                                  replay_device_phys_mem_props_,
-                                                  img_info,
-                                                  &new_entry.new_image_info.handle,
-                                                  &new_entry.image_memory);
+                        VkResult res = CreateVkImage(object_info_table_,
+                                                     device_table_,
+                                                     replay_device_phys_mem_props_,
+                                                     img_info,
+                                                     &new_entry.new_image_info.handle,
+                                                     &new_entry.image_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning image resource %" PRIu64 " failed (%s)",
@@ -1003,14 +1003,16 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.cloned_size =
                             buf_desc->range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc->offset) : buf_desc->range;
 
-                        VkResult res = CloneBuffer(object_info_table_,
-                                                   device_table_,
-                                                   replay_device_phys_mem_props_,
-                                                   buf_info,
-                                                   &new_entry.new_buffer_info.handle,
-                                                   &new_entry.buffer_memory,
-                                                   new_entry.cloned_size);
-
+                        VkResult res =
+                            CreateVkBuffer(new_entry.cloned_size,
+                                           *device_table_,
+                                           object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
+                                           nullptr,
+                                           nullptr,
+                                           replay_device_phys_mem_props_,
+                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                           &new_entry.new_buffer_info.handle,
+                                           &new_entry.buffer_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
@@ -1046,14 +1048,16 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.cloned_size =
                             buf_desc.range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc.offset) : buf_desc.range;
 
-                        VkResult res = CloneBuffer(object_info_table_,
-                                                   device_table_,
-                                                   replay_device_phys_mem_props_,
-                                                   buf_info,
-                                                   &new_entry.new_buffer_info.handle,
-                                                   &new_entry.buffer_memory,
-                                                   new_entry.cloned_size);
-
+                        VkResult res =
+                            CreateVkBuffer(new_entry.cloned_size,
+                                           *device_table_,
+                                           object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
+                                           nullptr,
+                                           nullptr,
+                                           replay_device_phys_mem_props_,
+                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                           &new_entry.new_buffer_info.handle,
+                                           &new_entry.buffer_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
@@ -2057,14 +2061,18 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
     GFXRECON_ASSERT(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info != nullptr);
     GFXRECON_ASSERT(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle != VK_NULL_HANDLE);
 
-    const VkDeviceSize size = sizeof(VkDispatchIndirectCommand);
-    VkResult           res  = CloneBuffer(object_info_table_,
-                               device_table_,
-                               replay_device_phys_mem_props_,
-                               disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info,
-                               &disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
-                               &disp_params.dispatch_params_union.dispatch_indirect.new_params_memory,
-                               size);
+    const VkDeviceSize size               = sizeof(VkDispatchIndirectCommand);
+    const auto*        parent_device_info = object_info_table_.GetVkDeviceInfo(
+        disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->parent_id);
+    VkResult res = CreateVkBuffer(size,
+                                  *device_table_,
+                                  parent_device_info->handle,
+                                  nullptr,
+                                  nullptr,
+                                  replay_device_phys_mem_props_,
+                                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  &disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
+                                  &disp_params.dispatch_params_union.dispatch_indirect.new_params_memory);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Cloning buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())

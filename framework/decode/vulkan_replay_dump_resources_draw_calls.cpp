@@ -526,13 +526,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         ic_params.new_params_buffer_size = copy_buffer_size;
 
-        VkResult res = CloneBuffer(object_info_table_,
-                                   device_table_,
-                                   replay_device_phys_mem_props_,
-                                   ic_params.params_buffer_info,
-                                   &ic_params.new_params_buffer,
-                                   &ic_params.new_params_memory,
-                                   copy_buffer_size);
+        VkResult res =
+            CreateVkBuffer(copy_buffer_size,
+                           *device_table_,
+                           object_info_table_.GetVkDeviceInfo(ic_params.params_buffer_info->parent_id)->handle,
+                           nullptr,
+                           nullptr,
+                           replay_device_phys_mem_props_,
+                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                           &ic_params.new_params_buffer,
+                           &ic_params.new_params_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
@@ -600,13 +603,15 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
         // Create a buffer to copy the draw count parameter
         const VkDeviceSize count_buffer_size = sizeof(uint32_t);
         assert(count_buffer_size <= ic_params.count_buffer_info->size);
-        res = CloneBuffer(object_info_table_,
-                          device_table_,
-                          replay_device_phys_mem_props_,
-                          ic_params.count_buffer_info,
-                          &ic_params.new_count_buffer,
-                          &ic_params.new_count_memory,
-                          count_buffer_size);
+        res = CreateVkBuffer(count_buffer_size,
+                             *device_table_,
+                             object_info_table_.GetVkDeviceInfo(ic_params.count_buffer_info->parent_id)->handle,
+                             nullptr,
+                             nullptr,
+                             replay_device_phys_mem_props_,
+                             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                             &ic_params.new_count_buffer,
+                             &ic_params.new_count_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
@@ -669,13 +674,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         i_params.new_params_buffer_size = copy_buffer_size;
 
-        VkResult res = CloneBuffer(object_info_table_,
-                                   device_table_,
-                                   replay_device_phys_mem_props_,
-                                   i_params.params_buffer_info,
-                                   &i_params.new_params_buffer,
-                                   &i_params.new_params_memory,
-                                   copy_buffer_size);
+        VkResult res =
+            CreateVkBuffer(copy_buffer_size,
+                           *device_table_,
+                           object_info_table_.GetVkDeviceInfo(i_params.params_buffer_info->parent_id)->handle,
+                           nullptr,
+                           nullptr,
+                           replay_device_phys_mem_props_,
+                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                           &i_params.new_params_buffer,
+                           &i_params.new_params_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
