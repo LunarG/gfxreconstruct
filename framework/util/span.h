@@ -77,15 +77,6 @@ class Span
     [[nodiscard]] constexpr size_type size() const noexcept { return size_; }
     [[nodiscard]] constexpr bool      empty() const noexcept { return size_ == 0U; }
 
-    // Non-standard accessor
-    template <typename U>
-    [[nodiscard]] const U* GetDataAs() const noexcept
-    {
-        static_assert(!std::is_reference_v<U>, "U must not be a reference type");
-        static_assert(IsByteEquivalent_v<U>, "Buffer reinterpretation only valid for byte-like types.");
-        return reinterpret_cast<const U*>(data_);
-    }
-
   private:
     pointer   data_;
     size_type size_;
