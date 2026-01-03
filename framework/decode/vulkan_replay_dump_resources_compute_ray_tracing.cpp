@@ -29,6 +29,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -627,7 +628,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     {
         copy.srcSubresource.mipLevel = i;
         copy.dstSubresource.mipLevel = i;
-        copy.extent                  = ScaleToMipLevel(src_image_info->extent, i);
+        copy.extent                  = graphics::ScaleToMipLevel(src_image_info->extent, i);
 
         copies[i] = copy;
     }

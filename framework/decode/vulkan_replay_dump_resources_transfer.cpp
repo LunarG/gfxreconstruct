@@ -25,6 +25,7 @@
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/vulkan_replay_dump_resources_transfer.h"
@@ -241,7 +242,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
             copy_regions[m].srcOffset      = { 0, 0, 0 };
             copy_regions[m].dstSubresource = { static_cast<VkImageAspectFlags>(aspect), m, 0, img_info->layer_count };
             copy_regions[m].dstOffset      = { 0, 0, 0 };
-            copy_regions[m].extent         = ScaleToMipLevel(img_info->extent, m);
+            copy_regions[m].extent         = graphics::ScaleToMipLevel(img_info->extent, m);
         }
 
         device_table_->CmdCopyImage(cmd_buf,
@@ -555,7 +556,8 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
                                          { 0, 0, 0 },
                                          pRegions[i].imageSubresource,
                                          { 0, 0, 0 },
-                                         ScaleToMipLevel(dstImage->extent, pRegions[i].imageSubresource.mipLevel) };
+                                         graphics::ScaleToMipLevel(dstImage->extent,
+                                                                   pRegions[i].imageSubresource.mipLevel) };
             device_table_->CmdCopyImage(commandBuffer,
                                         dstImage->handle,
                                         dstImageLayout,
@@ -737,7 +739,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
                                               { 0, 0, 0 },
                                               pRegions[i].dstSubresource,
                                               { 0, 0, 0 },
-                                              ScaleToMipLevel(dstImage->extent, pRegions[i].dstSubresource.mipLevel) };
+                                              graphics::ScaleToMipLevel(dstImage->extent,
+                                                                        pRegions[i].dstSubresource.mipLevel) };
             device_table_->CmdCopyImage(commandBuffer,
                                         dstImage->handle,
                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1089,7 +1092,8 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
                                               { 0, 0, 0 },
                                               pRegions[i].dstSubresource,
                                               { 0, 0, 0 },
-                                              ScaleToMipLevel(dstImage->extent, pRegions[i].dstSubresource.mipLevel) };
+                                              graphics::ScaleToMipLevel(dstImage->extent,
+                                                                        pRegions[i].dstSubresource.mipLevel) };
 
             device_table_->CmdCopyImage(commandBuffer,
                                         srcImage->handle,
