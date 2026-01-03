@@ -123,25 +123,6 @@ static VkFormat ChooseDestinationImageFormat(VkFormat format)
     return dst_format;
 }
 
-uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                            uint32_t                                type_bits,
-                            VkMemoryPropertyFlags                   property_flags)
-{
-    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
-
-    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-    {
-        if ((type_bits & (1 << i)) &&
-            ((memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags))
-        {
-            memory_type_index = i;
-            break;
-        }
-    }
-
-    return memory_type_index;
-}
-
 VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
                        const graphics::VulkanDeviceTable*      device_table,
                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
@@ -185,8 +166,8 @@ VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table
     mem_alloc_info.allocationSize = mem_reqs.size;
 
     assert(replay_device_phys_mem_props);
-    uint32_t index =
-        GetMemoryTypeIndex(*replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    uint32_t index = graphics::GetMemoryTypeIndex(
+        *replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     if (index == std::numeric_limits<uint32_t>::max())
     {
         GFXRECON_LOG_ERROR("%s failed to find an appropriate memory type", __func__)
@@ -652,8 +633,8 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     device_table.GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
     mem_alloc_info.allocationSize = mem_reqs.size;
 
-    uint32_t mem_index =
-        GetMemoryTypeIndex(*replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    uint32_t mem_index = graphics::GetMemoryTypeIndex(
+        *replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     if (mem_index == std::numeric_limits<uint32_t>::max())
     {
         GFXRECON_LOG_ERROR("%s()%u failed to find an appropriate memory type", __func__, __LINE__);
