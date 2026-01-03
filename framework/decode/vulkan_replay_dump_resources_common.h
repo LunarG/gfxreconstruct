@@ -1126,10 +1126,6 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              devi
 
 const char* ImageFileExtension(DumpedImageFormat image_format);
 
-uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                            uint32_t                                type_bits,
-                            VkMemoryPropertyFlags                   property_flags);
-
 VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
                        const graphics::VulkanDeviceTable*      device_table,
                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
