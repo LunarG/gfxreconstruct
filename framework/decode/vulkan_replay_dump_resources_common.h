@@ -1237,25 +1237,6 @@ VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_fi
 
 VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects);
 
-static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
-{
-    const VkExtent3D mip_extent = VkExtent3D{ std::max(1u, extent.width >> level),
-                                              std::max(1u, extent.height >> level),
-                                              std::max(1u, extent.depth >> level) };
-
-    return mip_extent;
-}
-
-static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
-{
-    const VkExtent3D scaled_extent =
-        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * scale)),
-                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * scale)),
-                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.depth) * scale)) };
-
-    return scaled_extent;
-}
-
 static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkImageSubresourceRange& subresource_range,
                                                                      const VulkanImageInfo*         image_info)
 {

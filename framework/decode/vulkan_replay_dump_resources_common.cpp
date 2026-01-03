@@ -29,6 +29,7 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -38,7 +39,6 @@
 #include <sstream>
 #include <unordered_set>
 #include <variant>
-#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -426,8 +426,9 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
         image_resource.dst_format           = dst_format;
         image_resource.all_layers_per_level = false;
 
-        const VkExtent3D scaled_extent =
-            (scale != 1.0f && scaling_supported) ? ScaleExtent(image_info->extent, scale) : image_info->extent;
+        const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
+                                             ? graphics::ScaleExtent(image_info->extent, scale)
+                                             : image_info->extent;
 
         image_resource.resource_size =
             resource_util.GetImageResourceSizesOptimal(dst_format,
@@ -472,8 +473,8 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                  layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
                  ++layer)
             {
-                const VkExtent3D subresource_extent        = ScaleToMipLevel(image_info->extent, mip);
-                const VkExtent3D subresource_scaled_extent = ScaleToMipLevel(scaled_extent, mip);
+                const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
+                const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
 
                 dumped_image.dumped_subresources.emplace_back(
                     aspect, subresource_extent, subresource_scaled_extent, mip, layer);
