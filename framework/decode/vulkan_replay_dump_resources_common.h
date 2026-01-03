@@ -1237,6 +1237,19 @@ VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_fi
 
 VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects);
 
+// Inject a CmdCopyBuffer(command_buffer, src, dst, regions.count(), regions.size()) into the provided command buffer
+// followed by the appropriate pipeline barrier
+void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
+                          const graphics::VulkanDeviceTable& device_table,
+                          VkBuffer                           src,
+                          VkBuffer                           dst,
+                          const std::vector<VkBufferCopy>&   regions,
+                          VkAccessFlags src_access_mask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+                          VkAccessFlags dst_access_mask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_READ_BIT,
+                          VkPipelineStageFlags src_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT,
+                          VkPipelineStageFlags dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                                                VK_PIPELINE_STAGE_HOST_BIT);
+
 static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkImageSubresourceRange& subresource_range,
                                                                      const VulkanImageInfo*         image_info)
 {

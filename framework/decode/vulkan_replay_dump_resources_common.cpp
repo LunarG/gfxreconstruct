@@ -2006,6 +2006,39 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
     return VK_SUCCESS;
 }
 
+void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
+                          const graphics::VulkanDeviceTable& device_table,
+                          VkBuffer                           src,
+                          VkBuffer                           dst,
+                          const std::vector<VkBufferCopy>&   regions,
+                          VkAccessFlags                      src_access_mask,
+                          VkAccessFlags                      dst_access_mask,
+                          VkPipelineStageFlags               src_stage_mask,
+                          VkPipelineStageFlags               dst_stage_mask)
+{
+    device_table.CmdCopyBuffer(command_buffer, src, dst, regions.size(), regions.data());
+
+    const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                                                   nullptr,
+                                                   src_access_mask,
+                                                   dst_access_mask,
+                                                   VK_QUEUE_FAMILY_IGNORED,
+                                                   VK_QUEUE_FAMILY_IGNORED,
+                                                   dst,
+                                                   0,
+                                                   VK_WHOLE_SIZE };
+    device_table.CmdPipelineBarrier(command_buffer,
+                                    src_stage_mask,
+                                    dst_stage_mask,
+                                    VkDependencyFlags(0),
+                                    0,
+                                    nullptr,
+                                    1,
+                                    &buffer_barrier,
+                                    0,
+                                    nullptr);
+}
+
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
     VkCommandBuffer                                            original_command_buffer,
     const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* p_infos_meta,
@@ -2118,35 +2151,10 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 }
 
                 // Copy vertex buffer
-                {
-                    // Copy buffer
-                    const VkBufferCopy copy_region = { static_cast<VkDeviceSize>(buffer_device_address_offset),
-                                                       0,
-                                                       vertex_buffer_size };
-                    device_table.CmdCopyBuffer(
-                        command_buffer, vertex_buffer_info->handle, new_triangles.vertex_buffer, 1, &copy_region);
-
-                    const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                                   nullptr,
-                                                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                   VK_ACCESS_TRANSFER_READ_BIT |
-                                                                       VK_ACCESS_HOST_READ_BIT,
-                                                                   VK_QUEUE_FAMILY_IGNORED,
-                                                                   VK_QUEUE_FAMILY_IGNORED,
-                                                                   new_triangles.vertex_buffer,
-                                                                   0,
-                                                                   VK_WHOLE_SIZE };
-                    device_table.CmdPipelineBarrier(command_buffer,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                                    VkDependencyFlags(0),
-                                                    0,
-                                                    nullptr,
-                                                    1,
-                                                    &buffer_barrier,
-                                                    0,
-                                                    nullptr);
-                }
+                const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{
+                    static_cast<VkDeviceSize>(buffer_device_address_offset), 0, vertex_buffer_size } };
+                CopyBufferAndBarrier(
+                    command_buffer, device_table, vertex_buffer_info->handle, new_triangles.vertex_buffer, copy_region);
 
                 // Index buffer
                 new_triangles.index_type = triangles.indexType;
@@ -2181,34 +2189,14 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                         }
 
                         // Copy Index buffer
-                        {
-                            const VkDeviceSize src_offset = static_cast<VkDeviceSize>(range.primitiveOffset) +
-                                                            static_cast<VkDeviceSize>(buffer_device_address_offset);
-                            const VkBufferCopy copy_region = { src_offset, 0, index_buffer_size };
-                            device_table.CmdCopyBuffer(
-                                command_buffer, index_buffer_info->handle, new_triangles.index_buffer, 1, &copy_region);
-
-                            const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                                           nullptr,
-                                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                           VK_ACCESS_TRANSFER_READ_BIT |
-                                                                               VK_ACCESS_HOST_READ_BIT,
-                                                                           VK_QUEUE_FAMILY_IGNORED,
-                                                                           VK_QUEUE_FAMILY_IGNORED,
-                                                                           new_triangles.index_buffer,
-                                                                           0,
-                                                                           VK_WHOLE_SIZE };
-                            device_table.CmdPipelineBarrier(command_buffer,
-                                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                            VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                                            VkDependencyFlags(0),
-                                                            0,
-                                                            nullptr,
-                                                            1,
-                                                            &buffer_barrier,
-                                                            0,
-                                                            nullptr);
-                        }
+                        const VkDeviceSize src_offset = static_cast<VkDeviceSize>(range.primitiveOffset) +
+                                                        static_cast<VkDeviceSize>(buffer_device_address_offset);
+                        const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ src_offset, 0, index_buffer_size } };
+                        CopyBufferAndBarrier(command_buffer,
+                                             device_table,
+                                             index_buffer_info->handle,
+                                             new_triangles.index_buffer,
+                                             copy_region);
                     }
                 }
 
@@ -2245,38 +2233,14 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     }
 
                     // Copy transform buffer
-                    {
-                        const VkDeviceSize src_offset  = static_cast<VkDeviceSize>(buffer_device_address_offset);
-                        const VkBufferCopy copy_region = { src_offset,
-                                                           0,
-                                                           static_cast<VkDeviceSize>(transform_buffer_size) };
-                        device_table.CmdCopyBuffer(command_buffer,
-                                                   transform_buffer_info->handle,
-                                                   new_triangles.transform_buffer,
-                                                   1,
-                                                   &copy_region);
-
-                        const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                                       nullptr,
-                                                                       VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                       VK_ACCESS_TRANSFER_READ_BIT |
-                                                                           VK_ACCESS_HOST_READ_BIT,
-                                                                       VK_QUEUE_FAMILY_IGNORED,
-                                                                       VK_QUEUE_FAMILY_IGNORED,
-                                                                       new_triangles.transform_buffer,
-                                                                       0,
-                                                                       VK_WHOLE_SIZE };
-                        device_table.CmdPipelineBarrier(command_buffer,
-                                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                                        VkDependencyFlags(0),
-                                                        0,
-                                                        nullptr,
-                                                        1,
-                                                        &buffer_barrier,
-                                                        0,
-                                                        nullptr);
-                    }
+                    const VkDeviceSize src_offset = static_cast<VkDeviceSize>(buffer_device_address_offset);
+                    const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{
+                        src_offset, 0, static_cast<VkDeviceSize>(transform_buffer_size) } };
+                    CopyBufferAndBarrier(command_buffer,
+                                         device_table,
+                                         transform_buffer_info->handle,
+                                         new_triangles.transform_buffer,
+                                         copy_region);
                 }
             }
             break;
@@ -2361,28 +2325,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                         }
                     }
 
-                    device_table.CmdCopyBuffer(
-                        command_buffer, aabb_buffer_info->handle, new_aabbs.buffer, region_count, regions.data());
-
-                    const VkBufferMemoryBarrier buf_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                                nullptr,
-                                                                VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_READ_BIT,
-                                                                VK_QUEUE_FAMILY_IGNORED,
-                                                                VK_QUEUE_FAMILY_IGNORED,
-                                                                new_aabbs.buffer,
-                                                                0,
-                                                                VK_WHOLE_SIZE };
-                    device_table.CmdPipelineBarrier(command_buffer,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                                    0,
-                                                    0,
-                                                    nullptr,
-                                                    1,
-                                                    &buf_barrier,
-                                                    0,
-                                                    nullptr);
+                    CopyBufferAndBarrier(
+                        command_buffer, device_table, aabb_buffer_info->handle, new_aabbs.buffer, regions);
                 }
             }
             break;
@@ -2433,30 +2377,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     // Copy instance buffer
                     const VkDeviceSize src_offset = static_cast<VkDeviceSize>(buffer_device_address_offset) +
                                                     static_cast<VkDeviceSize>(range.primitiveOffset);
-                    const VkBufferCopy copy_region = { src_offset, 0, instance_buffer_size };
-                    device_table.CmdCopyBuffer(
-                        command_buffer, instances_buffer_info->handle, new_instances.instance_buffer, 1, &copy_region);
-
-                    const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                                   nullptr,
-                                                                   VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                                   VK_ACCESS_TRANSFER_READ_BIT |
-                                                                       VK_ACCESS_HOST_READ_BIT,
-                                                                   VK_QUEUE_FAMILY_IGNORED,
-                                                                   VK_QUEUE_FAMILY_IGNORED,
-                                                                   new_instances.instance_buffer,
-                                                                   0,
-                                                                   VK_WHOLE_SIZE };
-                    device_table.CmdPipelineBarrier(command_buffer,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                    VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                                    VkDependencyFlags(0),
-                                                    0,
-                                                    nullptr,
-                                                    1,
-                                                    &buffer_barrier,
-                                                    0,
-                                                    nullptr);
+                    const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ src_offset, 0, instance_buffer_size } };
+                    CopyBufferAndBarrier(command_buffer,
+                                         device_table,
+                                         instances_buffer_info->handle,
+                                         new_instances.instance_buffer,
+                                         copy_region);
                 }
                 else
                 {
@@ -2577,29 +2503,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         serialized_data.size = src_context.serialized_data.size;
 
         // Clone buffer's content
-        const VkBufferCopy copy_region = { 0, 0, serialized_data.size };
-        device_table.CmdCopyBuffer(
-            original_command_buffer, src_context.serialized_data.buffer, serialized_data.buffer, 1, &copy_region);
-
-        const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                     nullptr,
-                                                     VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                     VK_ACCESS_TRANSFER_READ_BIT,
-                                                     VK_QUEUE_FAMILY_IGNORED,
-                                                     VK_QUEUE_FAMILY_IGNORED,
-                                                     serialized_data.buffer,
-                                                     0,
-                                                     VK_WHOLE_SIZE };
-        device_table.CmdPipelineBarrier(original_command_buffer,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                        VkDependencyFlags(0),
-                                        0,
-                                        nullptr,
-                                        1,
-                                        &buff_barrier,
-                                        0,
-                                        nullptr);
+        const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, serialized_data.size } };
+        CopyBufferAndBarrier(original_command_buffer,
+                             device_table,
+                             src_context.serialized_data.buffer,
+                             serialized_data.buffer,
+                             copy_region);
     }
 
     for (const auto& build_object : src_context.as_build_objects)
@@ -2654,29 +2563,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.index_type        = triangles->index_type;
                 new_triangles.index_buffer_size = triangles->index_buffer_size;
 
-                const VkBufferCopy copy_region = { 0, 0, triangles->index_buffer_size };
-                device_table.CmdCopyBuffer(
-                    original_command_buffer, triangles->index_buffer, new_triangles.index_buffer, 1, &copy_region);
-
-                const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                             nullptr,
-                                                             VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                             VK_ACCESS_TRANSFER_READ_BIT,
-                                                             VK_QUEUE_FAMILY_IGNORED,
-                                                             VK_QUEUE_FAMILY_IGNORED,
-                                                             new_triangles.index_buffer,
-                                                             0,
-                                                             VK_WHOLE_SIZE };
-                device_table.CmdPipelineBarrier(original_command_buffer,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                VkDependencyFlags(0),
-                                                0,
-                                                nullptr,
-                                                1,
-                                                &buff_barrier,
-                                                0,
-                                                nullptr);
+                const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->index_buffer_size } };
+                CopyBufferAndBarrier(original_command_buffer,
+                                     device_table,
+                                     triangles->index_buffer,
+                                     new_triangles.index_buffer,
+                                     copy_region);
             }
 
             if (triangles->transform_buffer != VK_NULL_HANDLE)
@@ -2699,32 +2591,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
                 new_triangles.transform_buffer_size = triangles->transform_buffer_size;
 
-                const VkBufferCopy copy_region = { 0, 0, triangles->transform_buffer_size };
-                device_table.CmdCopyBuffer(original_command_buffer,
-                                           triangles->transform_buffer,
-                                           new_triangles.transform_buffer,
-                                           1,
-                                           &copy_region);
-
-                const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                             nullptr,
-                                                             VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                             VK_ACCESS_TRANSFER_READ_BIT,
-                                                             VK_QUEUE_FAMILY_IGNORED,
-                                                             VK_QUEUE_FAMILY_IGNORED,
-                                                             new_triangles.transform_buffer,
-                                                             0,
-                                                             VK_WHOLE_SIZE };
-                device_table.CmdPipelineBarrier(original_command_buffer,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                VkDependencyFlags(0),
-                                                0,
-                                                nullptr,
-                                                1,
-                                                &buff_barrier,
-                                                0,
-                                                nullptr);
+                const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->transform_buffer_size } };
+                CopyBufferAndBarrier(original_command_buffer,
+                                     device_table,
+                                     triangles->transform_buffer,
+                                     new_triangles.transform_buffer,
+                                     copy_region);
             }
         }
         else if (const auto* aabbs = std::get_if<AABBS>(&build_object))
@@ -2751,28 +2623,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
             new_aabbs.buffer_size = aabbs->buffer_size;
 
-            const VkBufferCopy copy_region = { 0, 0, aabbs->buffer_size };
-            device_table.CmdCopyBuffer(original_command_buffer, aabbs->buffer, new_aabbs.buffer, 1, &copy_region);
-
-            const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                         nullptr,
-                                                         VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                         VK_ACCESS_TRANSFER_READ_BIT,
-                                                         VK_QUEUE_FAMILY_IGNORED,
-                                                         VK_QUEUE_FAMILY_IGNORED,
-                                                         new_aabbs.buffer,
-                                                         0,
-                                                         VK_WHOLE_SIZE };
-            device_table.CmdPipelineBarrier(original_command_buffer,
-                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                            VkDependencyFlags(0),
-                                            0,
-                                            nullptr,
-                                            1,
-                                            &buff_barrier,
-                                            0,
-                                            nullptr);
+            const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, aabbs->buffer_size } };
+            CopyBufferAndBarrier(original_command_buffer, device_table, aabbs->buffer, new_aabbs.buffer, copy_region);
         }
         else if (const auto* instance = std::get_if<Instances>(&build_object))
         {
@@ -2799,29 +2651,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             new_instance.instance_buffer_size = instance->instance_buffer_size;
             new_instance.instance_count       = instance->instance_count;
 
-            const VkBufferCopy copy_region = { 0, 0, instance->instance_buffer_size };
-            device_table.CmdCopyBuffer(
-                original_command_buffer, instance->instance_buffer, new_instance.instance_buffer, 1, &copy_region);
-
-            const VkBufferMemoryBarrier buff_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                                                         nullptr,
-                                                         VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                         VK_ACCESS_TRANSFER_READ_BIT,
-                                                         VK_QUEUE_FAMILY_IGNORED,
-                                                         VK_QUEUE_FAMILY_IGNORED,
-                                                         new_instance.instance_buffer,
-                                                         0,
-                                                         VK_WHOLE_SIZE };
-            device_table.CmdPipelineBarrier(original_command_buffer,
-                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                            VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                            VkDependencyFlags(0),
-                                            0,
-                                            nullptr,
-                                            1,
-                                            &buff_barrier,
-                                            0,
-                                            nullptr);
+            const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, instance->instance_buffer_size } };
+            CopyBufferAndBarrier(original_command_buffer,
+                                 device_table,
+                                 instance->instance_buffer,
+                                 new_instance.instance_buffer,
+                                 copy_region);
         }
         else
         {

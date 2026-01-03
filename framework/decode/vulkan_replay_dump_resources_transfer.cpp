@@ -390,22 +390,9 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
                                               nullptr);
 
             // Inject copy command
-            const VkBufferCopy region = { pRegions[i].srcOffset, 0, pRegions[i].size };
-            device_table_->CmdCopyBuffer(commandBuffer, dstBuffer->handle, new_region.vk_objects.buffer, 1, &region);
-
-            // Flush copy
-            buf_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            buf_barrier.buffer        = new_region.vk_objects.buffer;
-            device_table_->CmdPipelineBarrier(commandBuffer,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buf_barrier,
-                                              0,
-                                              nullptr);
+            const std::vector<VkBufferCopy> region{ VkBufferCopy{ pRegions[i].dstOffset, 0, pRegions[i].size } };
+            CopyBufferAndBarrier(
+                commandBuffer, *device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
         }
     }
 
@@ -917,23 +904,9 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
                                               nullptr);
 
             // Copy regions with CmdCopyBuffer
-            const VkBufferCopy buffer_copy_region = { pRegions[i].bufferOffset, 0, region_buffer_size };
-            device_table_->CmdCopyBuffer(
-                commandBuffer, dstBuffer->handle, new_region.vk_objects.buffer, 1, &buffer_copy_region);
-
-            buff_barrier.buffer        = new_region.vk_objects.buffer;
-            buff_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            buff_barrier.offset        = 0;
-            device_table_->CmdPipelineBarrier(commandBuffer,
-                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VkDependencyFlags(0),
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &buff_barrier,
-                                              0,
-                                              nullptr);
+            const std::vector<VkBufferCopy> region{ VkBufferCopy{ pRegions[i].bufferOffset, 0, region_buffer_size } };
+            CopyBufferAndBarrier(
+                commandBuffer, *device_table_, dstBuffer->handle, new_region.vk_objects.buffer, region);
         }
     }
 
@@ -1346,33 +1319,17 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                               nullptr);
 
             // Inject vkCmdCopyBuffer to Copy destination's backing buffer
-            const VkBufferCopy copy_buffer_info = { 0, 0, dst_as->size };
-            device_table_->CmdCopyBuffer(
-                command_buffer, dst_as->buffer, new_build_info.vk_objects.buffer, 1, &copy_buffer_info);
-
-            // Flush copy
-            const VkBufferMemoryBarrier buf_mem_barrier = {
-                VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                nullptr,
+            const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
+            CopyBufferAndBarrier(
+                command_buffer,
+                *device_table_,
+                dst_as->buffer,
+                new_build_info.vk_objects.buffer,
+                region,
                 VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
-                VK_QUEUE_FAMILY_IGNORED,
-                VK_QUEUE_FAMILY_IGNORED,
-                new_build_info.vk_objects.buffer,
-                0,
-                VK_WHOLE_SIZE
-            };
-            device_table_->CmdPipelineBarrier(
-                command_buffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                0,
-                0,
-                nullptr,
-                1,
-                &buf_mem_barrier,
-                0,
-                nullptr);
+                VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR);
 
             if (commandBuffer == VK_NULL_HANDLE)
             {
@@ -1508,33 +1465,16 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                           nullptr);
 
         // Inject vkCmdCopyBuffer to Copy destination's backing buffer
-        const VkBufferCopy copy_buffer_info = { 0, 0, dst_as->size };
-        device_table_->CmdCopyBuffer(
-            commandBuffer, dst_as->buffer, copy_as_params->vk_objects.buffer, 1, &copy_buffer_info);
-
-        // Flush copy
-        const VkBufferMemoryBarrier buf_mem_barrier = {
-            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            copy_as_params->vk_objects.buffer,
-            0,
-            VK_WHOLE_SIZE
-        };
-        device_table_->CmdPipelineBarrier(
-            commandBuffer,
-            VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-            VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-            0,
-            0,
-            nullptr,
-            1,
-            &buf_mem_barrier,
-            0,
-            nullptr);
+        const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
+        CopyBufferAndBarrier(commandBuffer,
+                             *device_table_,
+                             dst_as->buffer,
+                             copy_as_params->vk_objects.buffer,
+                             region,
+                             VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
+                             VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR);
     }
 
     return VK_SUCCESS;
