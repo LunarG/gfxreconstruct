@@ -414,8 +414,6 @@ class VulkanReplayDumpResourcesBase
 
     bool MustDumpQueueSubmitIndex(uint64_t index) const;
 
-    bool DumpingBeginCommandBufferIndex(uint64_t index) const;
-
     bool IsRecording() const { return active_contexts_; }
 
     void Release();
@@ -528,10 +526,10 @@ class VulkanReplayDumpResourcesBase
     void ProcessStateEndMarker();
 
     std::vector<std::shared_ptr<DrawCallsDumpingContext>>
-    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
+    FindDrawCallDumpingContexts(VkCommandBuffer original_command_buffer);
 
     std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
-    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer);
+    FindDispatchTraceRaysContexts(VkCommandBuffer original_command_buffer);
 
     void ProcessInitBufferCommand(uint64_t         cmd_index,
                                   format::HandleId device_id,
@@ -680,29 +678,17 @@ class VulkanReplayDumpResourcesBase
                                             bool before_command);
 
   private:
-    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> FindDispatchTraceRaysContexts(uint64_t bcb_id);
     std::shared_ptr<DispatchTraceRaysDumpingContext>
-    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer, decode::Index qs_index);
+    FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer, decode::Index qs_index);
 
-    std::vector<std::shared_ptr<const DispatchTraceRaysDumpingContext>>
-    FindDispatchRaysCommandBufferContext(uint64_t bcb_id) const;
-    std::vector<std::shared_ptr<const DispatchTraceRaysDumpingContext>>
-    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer) const;
-
-    std::shared_ptr<DrawCallsDumpingContext> FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer,
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>> FindDrawCallDumpingContexts(uint64_t bcb_id);
+    std::shared_ptr<DrawCallsDumpingContext>              FindDrawCallContext(VkCommandBuffer original_command_buffer,
                                                                               decode::Index   qs_index);
 
-    std::vector<std::shared_ptr<DrawCallsDumpingContext>> FindDrawCallCommandBufferContext(uint64_t bcb_id);
-
-    std::vector<std::shared_ptr<const DrawCallsDumpingContext>>
-    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
-    std::vector<std::shared_ptr<const DrawCallsDumpingContext>> FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
-
     // Transfer contexts search funcs
-    std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t qs_index) const;
+    std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t bcb_index) const;
     std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextCmdIndex(uint64_t cmd_index);
-    std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextCmdIndex(uint64_t cmd_index) const;
-    std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextQsIndex(uint64_t qs_index);
     std::shared_ptr<TransferDumpingContext> FindTransferContextBcbQsIndex(uint64_t bcb_index, uint64_t qs_index);
     std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
                                                                 decode::Index   qs_index);

@@ -9850,7 +9850,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     }
 
     VkResult res = VK_SUCCESS;
-    if (options_.dumping_resources && resource_dumper_->DumpingBeginCommandBufferIndex(index))
+    if (options_.dumping_resources)
     {
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 

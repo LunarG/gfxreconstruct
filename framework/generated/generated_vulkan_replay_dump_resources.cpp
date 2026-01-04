@@ -125,7 +125,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdateBuffer(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -136,7 +136,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdateBuffer(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -159,7 +159,7 @@ void VulkanReplayDumpResources::Process_vkCmdFillBuffer(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -170,7 +170,7 @@ void VulkanReplayDumpResources::Process_vkCmdFillBuffer(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -198,7 +198,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -209,7 +209,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -231,7 +231,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQuery(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -242,7 +242,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQuery(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -263,7 +263,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndQuery(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -274,7 +274,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndQuery(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -296,7 +296,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetQueryPool(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -307,7 +307,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetQueryPool(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -329,7 +329,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -340,7 +340,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -366,7 +366,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyQueryPoolResults(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -377,7 +377,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyQueryPoolResults(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -445,7 +445,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearColorImage(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -456,7 +456,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearColorImage(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -504,7 +504,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -515,7 +515,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -536,7 +536,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -547,7 +547,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -576,7 +576,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -587,7 +587,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -611,7 +611,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -622,7 +622,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -644,7 +644,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewport(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -655,7 +655,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewport(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -677,7 +677,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissor(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -688,7 +688,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissor(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -708,7 +708,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineWidth(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -719,7 +719,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineWidth(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -741,7 +741,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -752,7 +752,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -772,7 +772,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetBlendConstants(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -783,7 +783,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetBlendConstants(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -804,7 +804,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBounds(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -815,7 +815,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBounds(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -836,7 +836,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilCompareMask(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -847,7 +847,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilCompareMask(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -868,7 +868,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilWriteMask(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -879,7 +879,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilWriteMask(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -900,7 +900,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilReference(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -911,7 +911,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilReference(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1044,7 +1044,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearDepthStencilImage(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1055,7 +1055,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearDepthStencilImage(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1078,7 +1078,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearAttachments(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1089,7 +1089,7 @@ void VulkanReplayDumpResources::Process_vkCmdClearAttachments(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1114,7 +1114,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1125,7 +1125,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1181,7 +1181,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMask(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1192,7 +1192,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMask(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1217,7 +1217,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBase(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1228,7 +1228,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBase(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1320,7 +1320,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1331,7 +1331,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1353,7 +1353,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1364,7 +1364,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1437,7 +1437,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1448,7 +1448,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1469,7 +1469,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1480,7 +1480,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1502,7 +1502,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1513,7 +1513,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1546,7 +1546,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1557,7 +1557,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1600,7 +1600,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullMode(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1611,7 +1611,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullMode(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1631,7 +1631,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFace(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1642,7 +1642,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFace(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1662,7 +1662,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopology(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1673,7 +1673,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopology(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1694,7 +1694,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCount(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1705,7 +1705,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCount(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1726,7 +1726,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCount(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1737,7 +1737,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCount(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1774,7 +1774,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1785,7 +1785,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1805,7 +1805,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1816,7 +1816,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1836,7 +1836,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOp(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1847,7 +1847,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOp(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1867,7 +1867,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1878,7 +1878,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1898,7 +1898,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1909,7 +1909,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1933,7 +1933,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOp(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1944,7 +1944,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOp(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1964,7 +1964,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -1975,7 +1975,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -1995,7 +1995,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2006,7 +2006,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2026,7 +2026,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnable(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2037,7 +2037,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnable(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2061,7 +2061,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2072,7 +2072,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2095,7 +2095,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2106,7 +2106,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2138,7 +2138,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2149,7 +2149,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2169,7 +2169,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2180,7 +2180,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2200,7 +2200,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2211,7 +2211,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2232,7 +2232,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStipple(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2243,7 +2243,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStipple(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2266,7 +2266,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2277,7 +2277,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2297,7 +2297,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocations(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2308,7 +2308,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocations(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2328,7 +2328,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndices(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2339,7 +2339,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndices(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2359,7 +2359,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginVideoCodingKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2370,7 +2370,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginVideoCodingKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2390,7 +2390,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndVideoCodingKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2401,7 +2401,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndVideoCodingKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2421,7 +2421,7 @@ void VulkanReplayDumpResources::Process_vkCmdControlVideoCodingKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2432,7 +2432,7 @@ void VulkanReplayDumpResources::Process_vkCmdControlVideoCodingKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2452,7 +2452,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecodeVideoKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2463,7 +2463,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecodeVideoKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2506,7 +2506,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMaskKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2517,7 +2517,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDeviceMaskKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2542,7 +2542,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBaseKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2553,7 +2553,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchBaseKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2577,7 +2577,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2588,7 +2588,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2611,7 +2611,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2622,7 +2622,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplateKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2715,7 +2715,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2726,7 +2726,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2746,7 +2746,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocationsKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2757,7 +2757,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingAttachmentLocationsKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2777,7 +2777,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2788,7 +2788,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2808,7 +2808,7 @@ void VulkanReplayDumpResources::Process_vkCmdEncodeVideoKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2819,7 +2819,7 @@ void VulkanReplayDumpResources::Process_vkCmdEncodeVideoKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2840,7 +2840,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2851,7 +2851,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetEvent2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2872,7 +2872,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2883,7 +2883,7 @@ void VulkanReplayDumpResources::Process_vkCmdResetEvent2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2905,7 +2905,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2916,7 +2916,7 @@ void VulkanReplayDumpResources::Process_vkCmdWaitEvents2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2936,7 +2936,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2947,7 +2947,7 @@ void VulkanReplayDumpResources::Process_vkCmdPipelineBarrier2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -2969,7 +2969,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -2980,7 +2980,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3065,7 +3065,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3076,7 +3076,7 @@ void VulkanReplayDumpResources::Process_vkCmdResolveImage2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3124,7 +3124,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3135,7 +3135,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3167,7 +3167,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3178,7 +3178,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushConstants2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3198,7 +3198,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3209,7 +3209,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3229,7 +3229,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3240,7 +3240,7 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3260,7 +3260,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsets2EXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3271,7 +3271,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsets2EXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3291,7 +3291,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3302,7 +3302,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3322,7 +3322,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryIndirectKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3333,7 +3333,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryIndirectKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3353,7 +3353,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToImageIndirectKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3364,7 +3364,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToImageIndirectKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3384,7 +3384,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2KHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3395,7 +3395,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2KHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3415,7 +3415,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3426,7 +3426,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerBeginEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3445,7 +3445,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerEndEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3456,7 +3456,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerEndEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3476,7 +3476,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerInsertEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3487,7 +3487,7 @@ void VulkanReplayDumpResources::Process_vkCmdDebugMarkerInsertEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3511,7 +3511,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindTransformFeedbackBuffersEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3522,7 +3522,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindTransformFeedbackBuffersEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3545,7 +3545,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginTransformFeedbackEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3556,7 +3556,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginTransformFeedbackEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3579,7 +3579,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndTransformFeedbackEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3590,7 +3590,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndTransformFeedbackEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3613,7 +3613,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQueryIndexedEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3624,7 +3624,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQueryIndexedEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3646,7 +3646,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndQueryIndexedEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3657,7 +3657,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndQueryIndexedEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3682,7 +3682,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCountEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3693,7 +3693,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectByteCountEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3747,7 +3747,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3758,7 +3758,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginConditionalRenderingEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3777,7 +3777,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndConditionalRenderingEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3788,7 +3788,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndConditionalRenderingEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3810,7 +3810,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3821,7 +3821,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3843,7 +3843,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3854,7 +3854,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3874,7 +3874,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3885,7 +3885,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3905,7 +3905,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleModeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3916,7 +3916,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDiscardRectangleModeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3936,7 +3936,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3947,7 +3947,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginDebugUtilsLabelEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3966,7 +3966,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndDebugUtilsLabelEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -3977,7 +3977,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndDebugUtilsLabelEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -3997,7 +3997,7 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4008,7 +4008,7 @@ void VulkanReplayDumpResources::Process_vkCmdInsertDebugUtilsLabelEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4028,7 +4028,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4039,7 +4039,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4060,7 +4060,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadingRateImageNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4071,7 +4071,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadingRateImageNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4093,7 +4093,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportShadingRatePaletteNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4104,7 +4104,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportShadingRatePaletteNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4126,7 +4126,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoarseSampleOrderNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4137,7 +4137,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoarseSampleOrderNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4164,7 +4164,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructureNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4175,7 +4175,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructureNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4197,7 +4197,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4208,7 +4208,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4241,7 +4241,7 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4252,7 +4252,7 @@ void VulkanReplayDumpResources::Process_vkCmdTraceRaysNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4276,7 +4276,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4287,7 +4287,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4310,7 +4310,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4321,7 +4321,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarkerAMD(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4344,7 +4344,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarker2AMD(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4355,7 +4355,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteBufferMarker2AMD(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4376,7 +4376,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4387,7 +4387,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4410,7 +4410,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4421,7 +4421,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4446,7 +4446,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4457,7 +4457,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4479,7 +4479,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorEnableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4490,7 +4490,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorEnableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4512,7 +4512,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4523,7 +4523,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExclusiveScissorNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4543,7 +4543,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCheckpointNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4554,7 +4554,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCheckpointNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4575,7 +4575,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceMarkerINTEL(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4586,7 +4586,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceMarkerINTEL(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4607,7 +4607,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceStreamMarkerINTEL(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4618,7 +4618,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceStreamMarkerINTEL(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4639,7 +4639,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceOverrideINTEL(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4650,7 +4650,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPerformanceOverrideINTEL(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4671,7 +4671,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4682,7 +4682,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4702,7 +4702,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullModeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4713,7 +4713,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCullModeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4733,7 +4733,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFaceEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4744,7 +4744,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFrontFaceEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4764,7 +4764,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopologyEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4775,7 +4775,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveTopologyEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4796,7 +4796,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCountEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4807,7 +4807,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWithCountEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4828,7 +4828,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCountEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4839,7 +4839,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetScissorWithCountEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4876,7 +4876,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4887,7 +4887,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthTestEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4907,7 +4907,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4918,7 +4918,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthWriteEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4938,7 +4938,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOpEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4949,7 +4949,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthCompareOpEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -4969,7 +4969,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -4980,7 +4980,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBoundsTestEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5000,7 +5000,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5011,7 +5011,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilTestEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5035,7 +5035,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOpEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5046,7 +5046,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetStencilOpEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5066,7 +5066,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5077,7 +5077,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5098,7 +5098,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5109,7 +5109,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5131,7 +5131,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindPipelineShaderGroupNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5142,7 +5142,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindPipelineShaderGroupNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5162,7 +5162,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias2EXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5173,7 +5173,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBias2EXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5193,7 +5193,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchTileQCOM(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5204,7 +5204,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchTileQCOM(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5224,7 +5224,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginPerTileExecutionQCOM(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5235,7 +5235,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginPerTileExecutionQCOM(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5255,7 +5255,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndPerTileExecutionQCOM(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5266,7 +5266,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndPerTileExecutionQCOM(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5287,7 +5287,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBuffersEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5298,7 +5298,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBuffersEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5323,7 +5323,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsetsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5334,7 +5334,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsetsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5356,7 +5356,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5367,7 +5367,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorBufferEmbeddedSampler
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5388,7 +5388,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateEnumNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5399,7 +5399,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetFragmentShadingRateEnumNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5435,7 +5435,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindInvocationMaskHUAWEI(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5446,7 +5446,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindInvocationMaskHUAWEI(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5466,7 +5466,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPatchControlPointsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5477,7 +5477,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPatchControlPointsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5497,7 +5497,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5508,7 +5508,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizerDiscardEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5528,7 +5528,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5539,7 +5539,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthBiasEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5559,7 +5559,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5570,7 +5570,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5590,7 +5590,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5601,7 +5601,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPrimitiveRestartEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5622,7 +5622,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5633,7 +5633,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5657,7 +5657,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5668,7 +5668,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5693,7 +5693,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiIndexedEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5704,7 +5704,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMultiIndexedEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5725,7 +5725,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildMicromapsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5736,7 +5736,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildMicromapsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5756,7 +5756,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5767,7 +5767,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5787,7 +5787,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapToMemoryEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5798,7 +5798,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMicromapToMemoryEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5818,7 +5818,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToMicromapEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5829,7 +5829,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToMicromapEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5853,7 +5853,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteMicromapsPropertiesEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5864,7 +5864,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteMicromapsPropertiesEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5886,7 +5886,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterHUAWEI(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5897,7 +5897,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterHUAWEI(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5918,7 +5918,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterIndirectHUAWEI(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5929,7 +5929,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawClusterIndirectHUAWEI(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5950,7 +5950,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5961,7 +5961,7 @@ void VulkanReplayDumpResources::Process_vkCmdUpdatePipelineIndirectBufferNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -5981,7 +5981,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClampEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -5992,7 +5992,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClampEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6012,7 +6012,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPolygonModeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6023,7 +6023,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetPolygonModeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6043,7 +6043,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationSamplesEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6054,7 +6054,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationSamplesEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6075,7 +6075,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleMaskEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6086,7 +6086,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleMaskEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6106,7 +6106,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToCoverageEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6117,7 +6117,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToCoverageEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6137,7 +6137,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToOneEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6148,7 +6148,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAlphaToOneEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6168,7 +6168,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6179,7 +6179,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLogicOpEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6201,7 +6201,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6212,7 +6212,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6234,7 +6234,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEquationEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6245,7 +6245,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendEquationEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6267,7 +6267,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteMaskEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6278,7 +6278,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorWriteMaskEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6298,7 +6298,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetTessellationDomainOriginEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6309,7 +6309,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetTessellationDomainOriginEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6329,7 +6329,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationStreamEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6340,7 +6340,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRasterizationStreamEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6360,7 +6360,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetConservativeRasterizationModeEXT
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6371,7 +6371,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetConservativeRasterizationModeEXT
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6391,7 +6391,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExtraPrimitiveOverestimationSize
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6402,7 +6402,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetExtraPrimitiveOverestimationSize
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6422,7 +6422,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6433,7 +6433,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6453,7 +6453,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6464,7 +6464,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetSampleLocationsEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6486,7 +6486,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendAdvancedEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6497,7 +6497,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetColorBlendAdvancedEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6517,7 +6517,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetProvokingVertexModeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6528,7 +6528,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetProvokingVertexModeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6548,7 +6548,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineRasterizationModeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6559,7 +6559,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineRasterizationModeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6579,7 +6579,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6590,7 +6590,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetLineStippleEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6610,7 +6610,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6621,7 +6621,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClipNegativeOneToOneEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6641,7 +6641,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingEnableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6652,7 +6652,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportWScalingEnableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6674,7 +6674,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportSwizzleNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6685,7 +6685,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetViewportSwizzleNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6705,7 +6705,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorEnableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6716,7 +6716,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorEnableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6736,7 +6736,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorLocationNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6747,7 +6747,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageToColorLocationNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6767,7 +6767,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationModeNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6778,7 +6778,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationModeNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6798,7 +6798,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableEnableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6809,7 +6809,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableEnableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6830,7 +6830,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6841,7 +6841,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageModulationTableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6861,7 +6861,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetShadingRateImageEnableNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6872,7 +6872,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetShadingRateImageEnableNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6892,7 +6892,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRepresentativeFragmentTestEnable
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6903,7 +6903,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRepresentativeFragmentTestEnable
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6923,7 +6923,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageReductionModeNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6934,7 +6934,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetCoverageReductionModeNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6955,7 +6955,7 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6966,7 +6966,7 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -6988,7 +6988,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -6999,7 +6999,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7020,7 +7020,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClampRangeEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7031,7 +7031,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetDepthClampRangeEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7052,7 +7052,7 @@ void VulkanReplayDumpResources::Process_vkCmdConvertCooperativeVectorMatrixNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7063,7 +7063,7 @@ void VulkanReplayDumpResources::Process_vkCmdConvertCooperativeVectorMatrixNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7084,7 +7084,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchDataGraphARM(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7095,7 +7095,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchDataGraphARM(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7115,7 +7115,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7126,7 +7126,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7146,7 +7146,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindTileMemoryQCOM(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7157,7 +7157,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindTileMemoryQCOM(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7177,7 +7177,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7188,7 +7188,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7212,7 +7212,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryIndirectCountEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7223,7 +7223,7 @@ void VulkanReplayDumpResources::Process_vkCmdDecompressMemoryIndirectCountEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7243,7 +7243,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildPartitionedAccelerationStructu
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7254,7 +7254,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildPartitionedAccelerationStructu
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7275,7 +7275,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7286,7 +7286,7 @@ void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7307,7 +7307,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7318,7 +7318,7 @@ void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7338,7 +7338,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2EXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7349,7 +7349,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering2EXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7369,7 +7369,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginCustomResolveEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7380,7 +7380,7 @@ void VulkanReplayDumpResources::Process_vkCmdBeginCustomResolveEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7400,7 +7400,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetComputeOccupancyPriorityNV(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7411,7 +7411,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetComputeOccupancyPriorityNV(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7450,7 +7450,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresIndirect
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7461,7 +7461,7 @@ void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresIndirect
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7494,7 +7494,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureToMemoryKH
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7505,7 +7505,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyAccelerationStructureToMemoryKH
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7525,7 +7525,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToAccelerationStructureKH
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7536,7 +7536,7 @@ void VulkanReplayDumpResources::Process_vkCmdCopyMemoryToAccelerationStructureKH
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7560,7 +7560,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7571,7 +7571,7 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7625,7 +7625,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7636,7 +7636,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRayTracingPipelineStackSizeKHR(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7658,7 +7658,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7669,7 +7669,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7692,7 +7692,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7703,7 +7703,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
@@ -7728,7 +7728,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountEXT(
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
         for (auto dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
@@ -7739,7 +7739,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawMeshTasksIndirectCountEXT(
             }
         }
 
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
         for (auto dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
