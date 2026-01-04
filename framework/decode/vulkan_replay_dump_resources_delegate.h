@@ -23,7 +23,6 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_DELEGATE_H
 
-#include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_transfer.h"

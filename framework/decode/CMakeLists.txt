@@ -230,12 +230,15 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_common.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_common.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_as.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_as.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_draw_calls.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_draw_calls.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_compute_ray_tracing.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_compute_ray_tracing.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_delegate.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_delegate.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_delegate_dumped_resources.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_transfer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_transfer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_dump_resources_json.h
