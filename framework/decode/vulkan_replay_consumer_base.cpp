@@ -9140,8 +9140,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
         }
         else
         {
-            GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImageView object (ID = %" PRIu64 ")",
-                               capture_id);
+            GFXRECON_LOG_DEBUG(
+                "Opaque descriptor-data is not available for VkAccelerationStructureKHR object (ID = %" PRIu64 ")",
+                capture_id);
         }
     }
 

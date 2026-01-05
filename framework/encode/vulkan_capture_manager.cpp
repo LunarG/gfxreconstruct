@@ -389,7 +389,9 @@ void VulkanCaptureManager::WriteSetOpaqueCaptureDescriptorData(format::HandleId 
         opaque_descriptor_cmd.thread_id = thread_data->thread_id_;
         opaque_descriptor_cmd.device_id = device_id;
         opaque_descriptor_cmd.object_id = object_id;
-        opaque_descriptor_cmd.data_size = data_size;
+
+        GFXRECON_ASSERT(data_size <= UINT32_MAX);
+        opaque_descriptor_cmd.data_size = static_cast<uint32_t>(data_size);
 
         CombineAndWriteToFile({ { &opaque_descriptor_cmd, sizeof(opaque_descriptor_cmd) }, { data, data_size } });
     }
@@ -1224,8 +1226,8 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
         // request and store opaque descriptor-data for the acceleration-structure
         if (device_wrapper->property_feature_info.feature_descriptorBufferCaptureReplay)
         {
-            std::vector<uint8_t> opaque_data(
-                device_wrapper->property_feature_info.descriptor_buffer_properties.accelerationStructureDescriptorSize);
+            std::vector<uint8_t> opaque_data(device_wrapper->property_feature_info.descriptor_buffer_properties
+                                                 .accelerationStructureCaptureReplayDescriptorDataSize);
 
             VkAccelerationStructureCaptureDescriptorDataInfoEXT descriptor_data_info_ext = {
                 VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT
