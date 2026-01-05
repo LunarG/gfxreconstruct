@@ -189,6 +189,20 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
+    void ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                               format::HandleId object_id,
+                                               uint32_t         data_size,
+                                               const uint8_t*   data) override
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              jdata        = WriteMetaCommandStart("SetOpaqueDescriptorDataCommand");
+        HandleToJson(jdata["device_id"], device_id, json_options);
+        HandleToJson(jdata["object_id"], object_id, json_options);
+        FieldToJson(jdata["data_size"], data_size, json_options);
+        RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "opaque_descriptor_data.bin", data_size, data);
+        WriteBlockEnd();
+    }
+
     virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                format::HandleId pipeline_id,
                                                                size_t           data_size,
