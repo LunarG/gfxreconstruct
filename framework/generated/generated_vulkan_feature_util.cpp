@@ -4864,6 +4864,49 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceDataGraphFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceDataGraphFeaturesARM*>(next);
+                VkPhysicalDeviceDataGraphFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dataGraph == VK_TRUE) && (query.dataGraph == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraph %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphFeaturesARM*>(currentNext)->dataGraph =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->dataGraphUpdateAfterBind == VK_TRUE) && (query.dataGraphUpdateAfterBind == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphUpdateAfterBind %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphFeaturesARM*>(currentNext)->dataGraphUpdateAfterBind =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->dataGraphSpecializationConstants == VK_TRUE) && (query.dataGraphSpecializationConstants == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphSpecializationConstants %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphFeaturesARM*>(currentNext)->dataGraphSpecializationConstants =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->dataGraphDescriptorBuffer == VK_TRUE) && (query.dataGraphDescriptorBuffer == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphDescriptorBuffer %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphFeaturesARM*>(currentNext)->dataGraphDescriptorBuffer =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->dataGraphShaderModule == VK_TRUE) && (query.dataGraphShaderModule == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphShaderModule %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphFeaturesARM*>(currentNext)->dataGraphShaderModule =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
             {
                 const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(next);

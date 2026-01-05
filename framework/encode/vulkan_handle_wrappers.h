@@ -643,6 +643,12 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
     std::vector<uint8_t>      cache_data;
 };
 
+struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
+{
+    VkDataGraphPipelineSessionBindPointARM bind_point;
+    uint32_t                               object_index;
+};
+
 // Handle alias types for extension handle types that have been promoted to core types.
 typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
 typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;

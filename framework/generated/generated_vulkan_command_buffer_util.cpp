@@ -1866,6 +1866,13 @@ void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
     }
 }
 
+void TrackCmdDispatchDataGraphARMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDataGraphPipelineSessionARM session)
+{
+    assert(wrapper != nullptr);
+
+    if(session != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DataGraphPipelineSessionARMHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(session));
+}
+
 void TrackCmdBindTileMemoryQCOMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo)
 {
     assert(wrapper != nullptr);
