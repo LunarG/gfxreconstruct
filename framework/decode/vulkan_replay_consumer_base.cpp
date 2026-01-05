@@ -5971,9 +5971,6 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         UseAddressReplacement(device_info) && (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
                                                replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-    // // VK_EXT_descriptor_buffer unconditionally requires address-support
-    // force_address = force_address || device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay;
-
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
 
