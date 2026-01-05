@@ -28,10 +28,10 @@
 #include "decode/custom_vulkan_struct_decoders.h"
 
 #include "util/platform.h"
-#include "util/defines.h"
 
 #include "nlohmann/json.hpp"
 #include "vulkan/vulkan.h"
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -561,6 +561,73 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCop
         FieldToJson(jdata["imageOffset"], meta_struct.imageOffset, options);
         FieldToJson(jdata["imageExtent"], meta_struct.imageExtent, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkLayerSettingEXT&         decoded_value = *data->decoded_value;
+        const Decoded_VkLayerSettingEXT& meta_struct   = *data;
+
+        FieldToJson(jdata["pLayerName"], &meta_struct.pLayerName, options);
+        FieldToJson(jdata["pSettingName"], &meta_struct.pSettingName, options);
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["valueCount"], decoded_value.valueCount, options);
+
+        auto typed_json_array = [](const auto* ptr, size_t num_elements) -> nlohmann::json {
+            return nlohmann::json(std::span(ptr, ptr + num_elements));
+        };
+
+        auto& value_out_json = jdata["pValues"];
+
+        switch (decoded_value.type)
+        {
+            case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const VkBool32*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_INT32_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const int32_t*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const uint32_t*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_INT64_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const int64_t*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const uint64_t*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const float*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+                value_out_json =
+                    typed_json_array(static_cast<const double*>(decoded_value.pValues), decoded_value.valueCount);
+                break;
+            case VK_LAYER_SETTING_TYPE_STRING_EXT:
+            {
+                const auto* string_array = static_cast<const char* const*>(decoded_value.pValues);
+                value_out_json           = nlohmann::json::array();
+
+                for (uint32_t i = 0; i < decoded_value.valueCount; ++i)
+                {
+                    auto str_view = std::string_view(string_array[i]);
+                    value_out_json.push_back(str_view);
+                }
+            }
+            break;
+            case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+                GFXRECON_ASSERT(false);
+                break;
+        }
     }
 }
 

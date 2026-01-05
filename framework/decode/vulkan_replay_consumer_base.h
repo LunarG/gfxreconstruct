@@ -206,17 +206,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
-    void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+    void ProcessVulkanBuildAccelerationStructuresCommand(
         format::HandleId                                                           device,
         uint32_t                                                                   info_count,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppRangeInfos) override;
 
-    void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+    void ProcessVulkanCopyAccelerationStructuresCommand(
         format::HandleId device, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_info) override;
 
-    void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
-        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id) override;
+    void ProcessVulkanWriteAccelerationStructuresPropertiesCommand(format::HandleId device_id,
+                                                                   VkQueryType      query_type,
+                                                                   format::HandleId acceleration_structure_id) override;
 
     template <typename T>
     void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)
@@ -1628,6 +1629,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void PushRecaptureHandleId(const format::HandleId* id) override;
     virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
     virtual void ClearRecaptureHandleIds() override;
+    virtual bool IsRecapture() override { return options_.capture; }
 
     //// End recapture members
 

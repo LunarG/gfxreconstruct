@@ -51,6 +51,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateI
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value);
 
 // Platform defined structures that are external to Vulkan.
 void EncodeStruct(ParameterEncoder* encoder, const ACL& value);

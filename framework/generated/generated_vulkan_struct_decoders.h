@@ -10092,17 +10092,6 @@ struct Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkLayerSettingEXT
-{
-    using struct_type = VkLayerSettingEXT;
-
-    VkLayerSettingEXT* decoded_value{ nullptr };
-
-    StringDecoder pLayerName;
-    StringDecoder pSettingName;
-    PointerDecoder<uint8_t> pValues;
-};
-
 struct Decoded_VkLayerSettingsCreateInfoEXT
 {
     using struct_type = VkLayerSettingsCreateInfoEXT;

@@ -16163,21 +16163,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLe
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkLayerSettingEXT& decoded_value = *data->decoded_value;
-        const Decoded_VkLayerSettingEXT& meta_struct = *data;
-
-        FieldToJson(jdata["pLayerName"], &meta_struct.pLayerName, options);
-        FieldToJson(jdata["pSettingName"], &meta_struct.pSettingName, options);
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["valueCount"], decoded_value.valueCount, options);
-        FieldToJson(jdata["pValues"], meta_struct.pValues, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingsCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)

@@ -26,7 +26,6 @@
 #include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "util/defines.h"
 #include "util/logging.h"
 
 #include <cassert>
@@ -560,6 +559,54 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageTo
     wrapper->imageExtent->decoded_value = &(value->imageExtent);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->imageExtent);
 
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSettingEXT* wrapper)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t             bytes_read = 0;
+    VkLayerSettingEXT* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->pLayerName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pLayerName = wrapper->pLayerName.GetPointer();
+    bytes_read += wrapper->pSettingName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSettingName = wrapper->pSettingName.GetPointer();
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->valueCount));
+
+    switch (value->type)
+    {
+        case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+        case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+            bytes_read += wrapper->pValues.DecodeUInt32(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT32_EXT:
+            bytes_read += wrapper->pValues.DecodeInt32(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT64_EXT:
+            bytes_read += wrapper->pValues.DecodeInt64(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+            bytes_read += wrapper->pValues.DecodeUInt64(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+            bytes_read += wrapper->pValues.DecodeFloat(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+            bytes_read += wrapper->pValues.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_STRING_EXT:
+            bytes_read += wrapper->string_decoder.Decode(buffer + bytes_read, buffer_size - bytes_read);
+            break;
+        case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+            break;
+    }
+    value->pValues = value->type == VK_LAYER_SETTING_TYPE_STRING_EXT
+                         ? static_cast<const void*>(wrapper->string_decoder.GetPointer())
+                         : static_cast<const void*>(wrapper->pValues.GetPointer());
     return bytes_read;
 }
 

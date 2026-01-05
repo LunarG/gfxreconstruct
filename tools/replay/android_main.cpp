@@ -102,8 +102,8 @@ extern "C"
 
 void android_main(struct android_app* app)
 {
-    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
     gfxrecon::util::Log::Init();
+    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
 
     // Keep screen on while window is active.
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
@@ -303,9 +303,12 @@ void android_main(struct android_app* app)
         app->userData = nullptr;
     }
 
+    GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
+
     gfxrecon::util::Log::Release();
 
     gfxrecon::util::DestroyActivity(app);
+
     raise(SIGTERM);
 }
 
