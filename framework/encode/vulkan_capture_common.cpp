@@ -150,7 +150,8 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                                  AHardwareBuffer*                      hardware_buffer,
                                  size_t                                allocation_size,
                                  VulkanCaptureManager*                 vulkan_capture_manager,
-                                 VulkanStateWriter*                    vulkan_state_writer)
+                                 VulkanStateWriter*                    vulkan_state_writer,
+                                 bool&                                 is_standard_format)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffer != nullptr);
@@ -195,6 +196,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
         }
 #endif
 
+        is_standard_format = util::isStandardAndroidBufferFormat(desc.format);
         // Write CreateHardwareBufferCmd with or without the AHB payload
         CommonWriteCreateHardwareBufferCmd(
             thread_id, 0u, memory_id, hardware_buffer, plane_info, vulkan_capture_manager, vulkan_state_writer);
@@ -205,7 +207,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
             result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
         }
 
-        if (result == 0 && data != nullptr)
+        if (result == 0 && data != nullptr && is_standard_format)
         {
             CommonWriteFillMemoryCmd(memory_id, allocation_size, data, vulkan_capture_manager, vulkan_state_writer);
 
