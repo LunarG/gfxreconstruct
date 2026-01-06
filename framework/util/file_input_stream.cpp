@@ -154,10 +154,9 @@ bool FStreamFileInputStream::ReadBytes(void* buffer, size_t bytes)
 // for non-rewindable streams, consider adding full input-buffer suppport.
 bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
 {
-    GFXRECON_ASSERT(fd_);
-    bool success = true;
+    bool success = false;
 
-    if (peek_bytes_ < bytes)
+    if (fd_ != nullptr && peek_bytes_ < bytes)
     {
         // We don't have all the bytes we need peeked already
 
@@ -179,7 +178,7 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
         success                   = util::platform::FileRead(dest, bytes_needed, fd_);
         if (success)
         {
-            // We now hav bytes in peek_bytes_. We have the requested bytes pre-read from the stream.
+            // We now have bytes in peek_bytes_. We have the requested bytes pre-read from the stream.
             peek_bytes_ = bytes;
         }
     }

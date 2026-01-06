@@ -87,12 +87,11 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
             }
         }
     }
-
-    if (status != kErrorNone)
+    else
     {
+        HandleBlockReadError(kErrorReadingFile, "ReadBlockBuffer failed");
         block_buffer.Reset();
     }
-
     return status;
 }
 

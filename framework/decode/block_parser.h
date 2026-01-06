@@ -30,6 +30,7 @@
 
 #include <functional>
 #include <limits>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -123,8 +124,8 @@ class BlockParser
     DecompressionResult DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
-    BlockParser(const ErrorHandler& err, BufferPool& pool, util::Compressor* compressor) :
-        pool_(pool), err_handler_(err), compressor_(compressor)
+    BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
+        pool_(pool), err_handler_(std::move(err)), compressor_(compressor)
     {}
 
     void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
