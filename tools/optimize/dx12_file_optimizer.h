@@ -43,7 +43,7 @@ class Dx12FileOptimizer : public FileOptimizer
     uint64_t GetNumOptimizedFillCommands() { return num_optimized_fill_commands_; }
 
   private:
-    bool AddFillMemoryResourceValueCommand();
+    bool AddFillMemoryResourceValueCommand(const std::vector<decode::Dx12FillCommandResourceValue>& resource_values);
 
     template <typename Args>
     decode::FileTransformer::VisitResult         VisitMetaData(const Args& args);
