@@ -89,7 +89,10 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
     }
     else
     {
-        HandleBlockReadError(kErrorReadingFile, "ReadBlockBuffer failed");
+        if (status != kEndOfFile)
+        {
+            HandleBlockReadError(status, "ReadBlockBuffer failed");
+        }
         block_buffer.Reset();
     }
     return status;
