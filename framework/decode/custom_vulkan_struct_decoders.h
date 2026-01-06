@@ -303,6 +303,34 @@ struct Decoded_VkLayerSettingEXT
     StringArrayDecoder string_decoder;
 };
 
+struct Decoded_VkDescriptorDataEXT
+{
+    using struct_type = VkDescriptorDataEXT;
+
+    VkDescriptorDataEXT* decoded_value{ nullptr };
+
+    HandlePointerDecoder<VkSampler>                           pSampler;
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pCombinedImageSampler{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pInputAttachmentImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pSampledImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pStorageImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageBuffer{ nullptr };
+};
+
+struct Decoded_VkDescriptorGetInfoEXT
+{
+    using struct_type = VkDescriptorGetInfoEXT;
+
+    VkDescriptorGetInfoEXT* decoded_value{ nullptr };
+
+    PNextNode*                   pNext{ nullptr };
+    VkDescriptorType             decoded_type;
+    Decoded_VkDescriptorDataEXT* data{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

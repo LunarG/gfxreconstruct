@@ -1481,19 +1481,19 @@ void VulkanReplayConsumer::Process_vkCreateSampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkSamplerCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSampler->IsNull()) { pSampler->SetHandleLength(1); }
-    VkSampler* out_pSampler = pSampler->GetHandlePointer();
+    VulkanSamplerInfo handle_info;
+    pSampler->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pSampler->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSampler(in_device, in_pCreateInfo, in_pAllocator, out_pSampler);
+    VkResult replay_result = OverrideCreateSampler(GetDeviceTable(in_device->handle)->CreateSampler, returnValue, in_device, pCreateInfo, pAllocator, pSampler);
     CheckResult("vkCreateSampler", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanSamplerInfo>(device, pSampler->GetPointer(), out_pSampler, &CommonObjectInfoTable::AddVkSamplerInfo);
+    AddHandle<VulkanSamplerInfo>(device, pSampler->GetPointer(), pSampler->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkSamplerInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySampler(
@@ -9404,6 +9404,107 @@ void VulkanReplayConsumer::Process_vkCmdEndPerTileExecutionQCOM(
     }
 }
 
+void VulkanReplayConsumer::Process_vkGetDescriptorSetLayoutSizeEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    PointerDecoder<VkDeviceSize>*               pLayoutSizeInBytes)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkDescriptorSetLayout in_layout = MapHandle<VulkanDescriptorSetLayoutInfo>(layout, &CommonObjectInfoTable::GetVkDescriptorSetLayoutInfo);
+    VkDeviceSize* out_pLayoutSizeInBytes = pLayoutSizeInBytes->IsNull() ? nullptr : pLayoutSizeInBytes->AllocateOutputData(1, static_cast<VkDeviceSize>(0));
+
+    GetDeviceTable(in_device)->GetDescriptorSetLayoutSizeEXT(in_device, in_layout, out_pLayoutSizeInBytes);
+}
+
+void VulkanReplayConsumer::Process_vkGetDescriptorSetLayoutBindingOffsetEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    uint32_t                                    binding,
+    PointerDecoder<VkDeviceSize>*               pOffset)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkDescriptorSetLayout in_layout = MapHandle<VulkanDescriptorSetLayoutInfo>(layout, &CommonObjectInfoTable::GetVkDescriptorSetLayoutInfo);
+    VkDeviceSize* out_pOffset = pOffset->IsNull() ? nullptr : pOffset->AllocateOutputData(1, static_cast<VkDeviceSize>(0));
+
+    GetDeviceTable(in_device)->GetDescriptorSetLayoutBindingOffsetEXT(in_device, in_layout, binding, out_pOffset);
+}
+
+void VulkanReplayConsumer::Process_vkGetDescriptorEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pDescriptor)
+{
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pDescriptorInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (!pDescriptor->IsNull()) { pDescriptor->AllocateOutputData(dataSize); }
+
+    OverrideGetDescriptorEXT(GetDeviceTable(in_device->handle)->GetDescriptorEXT, in_device, pDescriptorInfo, dataSize, pDescriptor);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindDescriptorBuffersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
+    MapStructArrayHandles(pBindingInfos->GetMetaStructPointer(), pBindingInfos->GetLength(), GetObjectInfoTable());
+
+    OverrideCmdBindDescriptorBuffersEXT(GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorBuffersEXT, in_commandBuffer, bufferCount, pBindingInfos);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindDescriptorBuffersEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBindDescriptorBuffersEXT, in_commandBuffer->handle, bufferCount, pBindingInfos->GetPointer());
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetDescriptorBufferOffsetsEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    setCount,
+    PointerDecoder<uint32_t>*                   pBufferIndices,
+    PointerDecoder<VkDeviceSize>*               pOffsets)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkPipelineLayout in_layout = MapHandle<VulkanPipelineLayoutInfo>(layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
+    const uint32_t* in_pBufferIndices = pBufferIndices->GetPointer();
+    const VkDeviceSize* in_pOffsets = pOffsets->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdSetDescriptorBufferOffsetsEXT(in_commandBuffer, pipelineBindPoint, in_layout, firstSet, setCount, in_pBufferIndices, in_pOffsets);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdSetDescriptorBufferOffsetsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDescriptorBufferOffsetsEXT, in_commandBuffer, pipelineBindPoint, in_layout, firstSet, setCount, in_pBufferIndices, in_pOffsets);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    set)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkPipelineLayout in_layout = MapHandle<VulkanPipelineLayoutInfo>(layout, &CommonObjectInfoTable::GetVkPipelineLayoutInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBufferEmbeddedSamplersEXT(in_commandBuffer, pipelineBindPoint, in_layout, set);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindDescriptorBufferEmbeddedSamplersEXT, in_commandBuffer, pipelineBindPoint, in_layout, set);
+    }
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15508,6 +15609,71 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueryLowLatencySupportNV>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorAddressInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorBufferBindingInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DESCRIPTOR_GET_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDescriptorGetInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferCaptureDescriptorDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageCaptureDescriptorDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageViewCaptureDescriptorDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSamplerCaptureDescriptorDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkOpaqueCaptureDescriptorDataCreateInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAccelerationStructureCaptureDescriptorDataInfoEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:

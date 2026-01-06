@@ -3505,6 +3505,42 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            {
+                const VkPhysicalDeviceDescriptorBufferFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(next);
+                VkPhysicalDeviceDescriptorBufferFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->descriptorBuffer == VK_TRUE) && (query.descriptorBuffer == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBuffer %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(currentNext)->descriptorBuffer =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->descriptorBufferCaptureReplay == VK_TRUE) && (query.descriptorBufferCaptureReplay == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBufferCaptureReplay %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(currentNext)->descriptorBufferCaptureReplay =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->descriptorBufferImageLayoutIgnored == VK_TRUE) && (query.descriptorBufferImageLayoutIgnored == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBufferImageLayoutIgnored %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(currentNext)->descriptorBufferImageLayoutIgnored =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->descriptorBufferPushDescriptors == VK_TRUE) && (query.descriptorBufferPushDescriptors == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature descriptorBufferPushDescriptors %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(currentNext)->descriptorBufferPushDescriptors =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             {
                 const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(next);

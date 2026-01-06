@@ -8430,6 +8430,122 @@ struct Decoded_VkQueryLowLatencySupportNV
     uint64_t pQueriedLowLatencyData{ 0 };
 };
 
+struct Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferPropertiesEXT;
+
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT;
+
+    VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferFeaturesEXT;
+
+    VkPhysicalDeviceDescriptorBufferFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorAddressInfoEXT
+{
+    using struct_type = VkDescriptorAddressInfoEXT;
+
+    VkDescriptorAddressInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorBufferBindingInfoEXT
+{
+    using struct_type = VkDescriptorBufferBindingInfoEXT;
+
+    VkDescriptorBufferBindingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT
+{
+    using struct_type = VkDescriptorBufferBindingPushDescriptorBufferHandleEXT;
+
+    VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkBufferCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkBufferCaptureDescriptorDataInfoEXT;
+
+    VkBufferCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkImageCaptureDescriptorDataInfoEXT;
+
+    VkImageCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId image{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageViewCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkImageViewCaptureDescriptorDataInfoEXT;
+
+    VkImageViewCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId imageView{ format::kNullHandleId };
+};
+
+struct Decoded_VkSamplerCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkSamplerCaptureDescriptorDataInfoEXT;
+
+    VkSamplerCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId sampler{ format::kNullHandleId };
+};
+
+struct Decoded_VkOpaqueCaptureDescriptorDataCreateInfoEXT
+{
+    using struct_type = VkOpaqueCaptureDescriptorDataCreateInfoEXT;
+
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t opaqueCaptureDescriptorData{ 0 };
+};
+
+struct Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkAccelerationStructureCaptureDescriptorDataInfoEXT;
+
+    VkAccelerationStructureCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
+    format::HandleId accelerationStructureNV{ format::kNullHandleId };
+};
+
 struct Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT;

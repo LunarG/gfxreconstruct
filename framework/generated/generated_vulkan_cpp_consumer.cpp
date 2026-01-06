@@ -13410,6 +13410,186 @@ void VulkanCppConsumer::Process_vkCmdEndPerTileExecutionQCOM(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndPerTileExecutionQCOM);
 }
+void VulkanCppConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    set)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorBufferEmbeddedSamplersEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(%s, %s, %s, %u);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
+            this->GetHandle(layout).c_str(),
+            set);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplersEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdBindDescriptorBuffersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pbinding_infos;
+    std::string pbinding_infos_array = "NULL";
+    PointerPairContainer<decltype(pBindingInfos->GetPointer()), decltype(pBindingInfos->GetMetaStructPointer())> pbinding_infos_pair{ pBindingInfos->GetPointer(), pBindingInfos->GetMetaStructPointer(), bufferCount };
+    std::string pbinding_infos_names = toStringJoin(pbinding_infos_pair.begin(),
+                                                    pbinding_infos_pair.end(),
+                                                    [&](auto pair) {{ return GenerateStruct_VkDescriptorBufferBindingInfoEXT(stream_pbinding_infos, pair.t1, pair.t2, *this); }},
+                                                    ", ");
+    if (stream_pbinding_infos.str().length() > 0) {
+        fprintf(file, "%s", stream_pbinding_infos.str().c_str());
+        if (bufferCount == 1) {
+            pbinding_infos_array = "&" + pbinding_infos_names;
+        } else if (bufferCount > 1) {
+            pbinding_infos_array = "pBindingInfos_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkDescriptorBufferBindingInfoEXT %s[] = { %s };\n", pbinding_infos_array.c_str(), pbinding_infos_names.c_str());
+        }
+    }
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorBuffersEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorBuffersEXT(%s, %u, %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            bufferCount,
+            pbinding_infos_array.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorBuffersEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsetsEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    setCount,
+    PointerDecoder<uint32_t>*                   pBufferIndices,
+    PointerDecoder<VkDeviceSize>*               pOffsets)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pbuffer_indices_array = "pBufferIndices_" + std::to_string(this->GetNextId());
+    if (setCount > 0) {
+        std::string pbuffer_indices_values = toStringJoin(pBufferIndices->GetPointer(),
+                                                          pBufferIndices->GetPointer() + setCount,
+                                                          [&](const auto current) { return std::to_string(current) + ""; },
+                                                          ", ");
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", pbuffer_indices_array.c_str(), pbuffer_indices_values.c_str());
+    } else {
+        pbuffer_indices_array = "NULL";
+    }
+    std::string poffsets_array = "pOffsets_" + std::to_string(this->GetNextId());
+    if (setCount > 0) {
+        std::string poffsets_values = toStringJoin(pOffsets->GetPointer(),
+                                                   pOffsets->GetPointer() + setCount,
+                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
+                                                   ", ");
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", poffsets_array.c_str(), poffsets_values.c_str());
+    } else {
+        poffsets_array = "NULL";
+    }
+    pfn_loader_.AddMethodName("vkCmdSetDescriptorBufferOffsetsEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetDescriptorBufferOffsetsEXT(%s, %s, %s, %u, %u, %s, %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
+            this->GetHandle(layout).c_str(),
+            firstSet,
+            setCount,
+            pbuffer_indices_array.c_str(),
+            poffsets_array.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsetsEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pDescriptor)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pdescriptor_info;
+    std::string pdescriptor_info_struct = GenerateStruct_VkDescriptorGetInfoEXT(stream_pdescriptor_info,
+                                                                                pDescriptorInfo->GetPointer(),
+                                                                                pDescriptorInfo->GetMetaStructPointer(),
+                                                                                *this);
+    fprintf(file, "%s", stream_pdescriptor_info.str().c_str());
+    std::string pdescriptor_name = "NULL";
+    if (!pDescriptor->IsNull()) {
+        pdescriptor_name = "pDescriptor_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdescriptor_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorEXT(%s, &%s, %" PRIu64 ", %s);\n",
+            this->GetHandle(device).c_str(),
+            pdescriptor_info_struct.c_str(),
+            util::platform::SizeTtoUint64(dataSize),
+            pdescriptor_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutBindingOffsetEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    uint32_t                                    binding,
+    PointerDecoder<VkDeviceSize>*               pOffset)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string poffset_name = "NULL";
+    if (!pOffset->IsNull()) {
+        poffset_name = "pOffset_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceSize %s = %s;\n", poffset_name.c_str(), util::ToString(*pOffset->GetPointer()).c_str());
+        poffset_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutBindingOffsetEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorSetLayoutBindingOffsetEXT(%s, %s, %u, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(layout).c_str(),
+            binding,
+            poffset_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutBindingOffsetEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSizeEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    PointerDecoder<VkDeviceSize>*               pLayoutSizeInBytes)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string playout_size_in_bytes_name = "NULL";
+    if (!pLayoutSizeInBytes->IsNull()) {
+        playout_size_in_bytes_name = "pLayoutSizeInBytes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceSize %s = %s;\n", playout_size_in_bytes_name.c_str(), util::ToString(*pLayoutSizeInBytes->GetPointer()).c_str());
+        playout_size_in_bytes_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutSizeEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorSetLayoutSizeEXT(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(layout).c_str(),
+            playout_size_in_bytes_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSizeEXT);
+}
 void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
