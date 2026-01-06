@@ -32,13 +32,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO GH #1195: frame numbering should be 1-based.
 const uint32_t kFirstFrame = 0;
 
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
     annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
-    pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
+    pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame),
     loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
 {}
 
@@ -551,6 +550,18 @@ bool FileProcessor::ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame)
 {
     // Validate frame end marker's frame number matches current_frame_number_ when capture_uses_frame_markers_ is
     // true.
+    if (capture_uses_frame_markers_ && current_frame_number_ == end_frame.frame_number - first_frame_ - 1)
+    {
+        // Backward compatibility check for first frame end marker:
+        // Old traces used a 1-based frame numbering scheme, while the current code uses a 0-based scheme.
+        // Allow the first frame end marker to be off by one in this case, but emit a warning.
+        GFXRECON_LOG_WARNING("First frame end marker frame number %" PRIu64
+                             " does not match current frame number %" PRIu64
+                             "; assuming 1-based frame numbering from an older capture tool version",
+                             end_frame.frame_number,
+                             current_frame_number_);
+        first_frame_ += 1;
+    }
     GFXRECON_ASSERT((!capture_uses_frame_markers_) ||
                     (current_frame_number_ == (end_frame.frame_number - first_frame_)));
     if (IsFrameDelimiter(format::BlockType::kFrameMarkerBlock, format::MarkerType::kEndMarker))
