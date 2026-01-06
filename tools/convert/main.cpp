@@ -171,7 +171,7 @@ static bool GetFrameIndices(const gfxrecon::util::ArgumentParser& arg_parser, st
     if (!input_ranges.empty())
     {
         std::vector<gfxrecon::util::UintRange> frame_ranges =
-            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true);
+            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true, true);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
