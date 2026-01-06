@@ -483,6 +483,9 @@ class VulkanStateTracker
         VkPhysicalDevice                                    physicalDevice,
         VkPhysicalDeviceAccelerationStructurePropertiesKHR* acceleration_structure_properties);
 
+    void TrackDescriptorBufferProperties(VkPhysicalDevice                               physicalDevice,
+                                         VkPhysicalDeviceDescriptorBufferPropertiesEXT* descriptor_buffer_properties);
+
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
 
     void TrackAcquireFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);

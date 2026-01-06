@@ -161,7 +161,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
     "Draw": [ [ 761 ], [ ] ],
     "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
     "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ],
-    "QueueSubmit": [ 3952 ]
+    "QueueSubmit": [ 3952, 3952 ]
 }
 ```
 
@@ -171,7 +171,7 @@ Indices are provided in GFXReconstruct as vectors of indices. Each index vector,
 
 * `"BeginCommandBuffer"` and `"QueueSubmit"`: **1D**
 
-Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices.
+Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices, so in the case of multiple command buffers being submitted in the same `vkQueueSubmit` the submission index needs to be duplicated.
 
 * `"Draw"`, `"Dispatch"` and `"TraceRays"`: **2D**
 

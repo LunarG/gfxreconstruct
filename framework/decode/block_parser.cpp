@@ -1537,6 +1537,35 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                  "Failed to read init subresource data meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetOpaqueCaptureDescriptorDataCommand)
+    {
+        // This command does not support compression.
+        GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetOpaqueDescriptorDataCommand header{};
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.object_id);
+        success = success && block_buffer.Read(header.data_size);
+
+        if (success)
+        {
+            const char*         label       = "fill opaque descriptor-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+
+            return ParsedBlock(block_buffer.ReleaseData(),
+                               SetOpaqueDescriptorDataArgs{ meta_data_id,
+                                                            header.thread_id,
+                                                            header.device_id,
+                                                            header.object_id,
+                                                            header.data_size,
+                                                            read_result.buffer.GetDataAs<uint8_t>() },
+                               std::move(uncompressed_store));
+        }
+
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set opaque address meta-data block header");
+    }
     else
     {
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||

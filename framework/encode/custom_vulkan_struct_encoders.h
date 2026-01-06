@@ -26,9 +26,6 @@
 
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
-#include "util/defines.h"
-
-#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -51,6 +48,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateI
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value);
 
 // Platform defined structures that are external to Vulkan.
 void EncodeStruct(ParameterEncoder* encoder, const ACL& value);

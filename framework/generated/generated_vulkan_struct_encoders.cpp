@@ -1412,7 +1412,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewCreateInfo& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkCommandPoolCreateInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.queueFamilyIndex);
 }
@@ -7314,7 +7314,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureInfoNV
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt64Value(value.compactedSize);
     EncodeStruct(encoder, value.info);
 }
@@ -8404,6 +8404,129 @@ void EncodeStruct(ParameterEncoder* encoder, const VkQueryLowLatencySupportNV& v
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVoidPtr(value.pQueriedLowLatencyData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.combinedImageSamplerDescriptorSingleArray);
+    encoder->EncodeUInt32Value(value.bufferlessPushDescriptors);
+    encoder->EncodeUInt32Value(value.allowSamplerImageViewPostSubmitCreation);
+    encoder->EncodeUInt64Value(value.descriptorBufferOffsetAlignment);
+    encoder->EncodeUInt32Value(value.maxDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxResourceDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxSamplerDescriptorBufferBindings);
+    encoder->EncodeUInt32Value(value.maxEmbeddedImmutableSamplerBindings);
+    encoder->EncodeUInt32Value(value.maxEmbeddedImmutableSamplers);
+    encoder->EncodeSizeTValue(value.bufferCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.imageCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.imageViewCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.samplerCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.accelerationStructureCaptureReplayDescriptorDataSize);
+    encoder->EncodeSizeTValue(value.samplerDescriptorSize);
+    encoder->EncodeSizeTValue(value.combinedImageSamplerDescriptorSize);
+    encoder->EncodeSizeTValue(value.sampledImageDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageImageDescriptorSize);
+    encoder->EncodeSizeTValue(value.uniformTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustUniformTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustStorageTexelBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.uniformBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustUniformBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.storageBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.robustStorageBufferDescriptorSize);
+    encoder->EncodeSizeTValue(value.inputAttachmentDescriptorSize);
+    encoder->EncodeSizeTValue(value.accelerationStructureDescriptorSize);
+    encoder->EncodeUInt64Value(value.maxSamplerDescriptorBufferRange);
+    encoder->EncodeUInt64Value(value.maxResourceDescriptorBufferRange);
+    encoder->EncodeUInt64Value(value.samplerDescriptorBufferAddressSpaceSize);
+    encoder->EncodeUInt64Value(value.resourceDescriptorBufferAddressSpaceSize);
+    encoder->EncodeUInt64Value(value.descriptorBufferAddressSpaceSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeSizeTValue(value.combinedImageSamplerDensityMapDescriptorSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorBufferFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorBuffer);
+    encoder->EncodeUInt32Value(value.descriptorBufferCaptureReplay);
+    encoder->EncodeUInt32Value(value.descriptorBufferImageLayoutIgnored);
+    encoder->EncodeUInt32Value(value.descriptorBufferPushDescriptors);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorAddressInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.address);
+    encoder->EncodeUInt64Value(value.range);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferBindingInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.address);
+    encoder->EncodeFlagsValue(value.usage);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferWrapper>(value.buffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageWrapper>(value.image);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageViewWrapper>(value.imageView);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::SamplerWrapper>(value.sampler);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkOpaqueCaptureDescriptorDataCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.opaqueCaptureDescriptorData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCaptureDescriptorDataInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::AccelerationStructureKHRWrapper>(value.accelerationStructure);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::AccelerationStructureNVWrapper>(value.accelerationStructureNV);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT& value)
@@ -9941,15 +10064,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLegacyVertexA
     encoder->EncodeUInt32Value(value.nativeUnalignedPerformance);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
-{
-    encoder->EncodeString(value.pLayerName);
-    encoder->EncodeString(value.pSettingName);
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeUInt32Value(value.valueCount);
-    encoder->EncodeVoidArray(value.pValues, value.valueCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingsCreateInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -10068,6 +10182,192 @@ void EncodeStruct(ParameterEncoder* encoder, const VkLatencySurfaceCapabilitiesN
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.presentModeCount);
     encoder->EncodeEnumArray(value.pPresentModes, value.presentModeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphFeaturesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.dataGraph);
+    encoder->EncodeUInt32Value(value.dataGraphUpdateAfterBind);
+    encoder->EncodeUInt32Value(value.dataGraphSpecializationConstants);
+    encoder->EncodeUInt32Value(value.dataGraphDescriptorBuffer);
+    encoder->EncodeUInt32Value(value.dataGraphShaderModule);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.id);
+    encoder->EncodeVoidPtr(value.pConstantData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineResourceInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorSet);
+    encoder->EncodeUInt32Value(value.binding);
+    encoder->EncodeUInt32Value(value.arrayElement);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineCompilerControlCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeString(value.pVendorOptions);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeUInt32Value(value.resourceInfoCount);
+    EncodeStructArray(encoder, value.pResourceInfos, value.resourceInfoCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineShaderModuleCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ShaderModuleWrapper>(value.module);
+    encoder->EncodeString(value.pName);
+    EncodeStructPtr(encoder, value.pSpecializationInfo);
+    encoder->EncodeUInt32Value(value.constantCount);
+    EncodeStructArray(encoder, value.pConstants, value.constantCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.flags);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.dataGraphPipeline);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionBindPointRequirementsInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(value.session);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionBindPointRequirementARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.bindPoint);
+    encoder->EncodeEnumValue(value.bindPointType);
+    encoder->EncodeUInt32Value(value.numObjects);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionMemoryRequirementsInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(value.session);
+    encoder->EncodeEnumValue(value.bindPoint);
+    encoder->EncodeUInt32Value(value.objectIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindDataGraphPipelineSessionMemoryInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(value.session);
+    encoder->EncodeEnumValue(value.bindPoint);
+    encoder->EncodeUInt32Value(value.objectIndex);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceMemoryWrapper>(value.memory);
+    encoder->EncodeUInt64Value(value.memoryOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.dataGraphPipeline);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelinePropertyQueryResultARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.property);
+    encoder->EncodeUInt32Value(value.isText);
+    encoder->EncodeSizeTValue(value.dataSize);
+    encoder->EncodeVoidArray(value.pData, value.dataSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineIdentifierCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.identifierSize);
+    encoder->EncodeUInt8Array(value.pIdentifier, value.identifierSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineDispatchInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFlags64Value(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphProcessingEngineARM& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeUInt32Value(value.isForeign);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphOperationSupportARM& value)
+{
+    encoder->EncodeEnumValue(value.operationType);
+    encoder->EncodeString(value.name);
+    encoder->EncodeUInt32Value(value.version);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyDataGraphPropertiesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodeStruct(encoder, value.engine);
+    EncodeStruct(encoder, value.operation);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphProcessingEngineCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.processingEngineCount);
+    EncodeStructArray(encoder, value.pProcessingEngines, value.processingEngineCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.queueFamilyIndex);
+    encoder->EncodeEnumValue(value.engineType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyDataGraphProcessingEnginePropertiesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.foreignSemaphoreHandleTypes);
+    encoder->EncodeFlagsValue(value.foreignMemoryHandleTypes);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.dimension);
+    encoder->EncodeUInt32Value(value.zeroCount);
+    encoder->EncodeUInt32Value(value.groupSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value)
@@ -10843,13 +11143,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionD
     encoder->EncodeEnumValue(value.cacheType);
     encoder->EncodeUInt32Value(value.cacheVersion);
     encoder->EncodeUInt32Array(value.toolchainVersion, VK_DATA_GRAPH_MODEL_TOOLCHAIN_VERSION_LENGTH_QCOM);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphOperationSupportARM& value)
-{
-    encoder->EncodeEnumValue(value.operationType);
-    encoder->EncodeString(value.name);
-    encoder->EncodeUInt32Value(value.version);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineBuiltinModelCreateInfoQCOM& value)

@@ -220,6 +220,20 @@ void VulkanDecoderBase::DispatchSetOpaqueAddressCommand(format::ThreadId thread_
     }
 }
 
+void VulkanDecoderBase::DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                               format::HandleId device_id,
+                                                               format::HandleId object_id,
+                                                               uint32_t         data_size,
+                                                               const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetOpaqueDescriptorDataCommand(device_id, object_id, data_size, data);
+    }
+}
+
 void VulkanDecoderBase::DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                        format::HandleId device_id,
                                                                        format::HandleId pipeline_id,
@@ -591,7 +605,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        consumer->ProcessVulkanBuildAccelerationStructuresCommand(
             device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
     }
 }
@@ -607,7 +621,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessCopyVulkanAccelerationStructuresMetaCommand(device_id, &pInfos);
+        consumer->ProcessVulkanCopyAccelerationStructuresCommand(device_id, &pInfos);
     }
 }
 
@@ -625,7 +639,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        consumer->ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
             device_id, query_type, acceleration_structure_id);
     }
 }
