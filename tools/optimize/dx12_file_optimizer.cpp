@@ -44,22 +44,20 @@ void Dx12FileOptimizer::SetFillCommandResourceValues(
     }
 }
 
-bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand()
+bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand(
+    const std::vector<decode::Dx12FillCommandResourceValue>& resource_values)
 {
     bool success = true;
-
-    GFXRECON_ASSERT(resource_values_iter_->first == GetCurrentBlockIndex());
 
     format::FillMemoryResourceValueCommandHeader rv_header;
     rv_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     rv_header.meta_header.meta_data_id      = format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12,
                                                                 format::MetaDataType::kFillMemoryResourceValueCommand);
     rv_header.thread_id                     = 0;
-    rv_header.resource_value_count          = resource_values_iter_->second.size();
+    rv_header.resource_value_count          = resource_values.size();
 
     size_t       header_size = sizeof(format::FillMemoryResourceValueCommandHeader);
-    const size_t uncompressed_size =
-        resource_values_iter_->second.size() * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
+    const size_t uncompressed_size = resource_values.size() * (sizeof(format::ResourceValueType) + sizeof(uint64_t));
 
     bool not_compressed = true;
 
@@ -72,7 +70,7 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand()
         auto type_data_pos = write_buffer_.data();
         auto offset_data_pos =
             write_buffer_.data() + (rv_header.resource_value_count * sizeof(format::ResourceValueType));
-        for (const auto& resource_value_pair : resource_values_iter_->second)
+        for (const auto& resource_value_pair : resource_values)
         {
             auto type   = resource_value_pair.type;
             auto offset = resource_value_pair.offset;
@@ -118,9 +116,15 @@ bool Dx12FileOptimizer::AddFillMemoryResourceValueCommand()
         success = success && WriteBytes(write_buffer_.data(), uncompressed_size);
     }
 
-    ++resource_values_iter_;
-    ++num_optimized_fill_commands_;
-
+    if (success)
+    {
+        ++num_optimized_fill_commands_;
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR/EI optimization. "
+                           "Optimized file may be invalid.");
+    }
     return success;
 }
 
@@ -141,43 +145,36 @@ decode::FileTransformer::VisitResult Dx12FileOptimizer::VisitMetaData([[maybe_un
         {
             if (unreferenced_ids_.find(args.command_header.resource_id) != unreferenced_ids_.end())
             {
-                return AddRemovedResourceAnnotation("Removed subresource from resource " +
-                                                    std::to_string(args.command_header.resource_id))
-                           ? kSuccess
-                           : kError;
+                if (AddRemovedResourceAnnotation("Removed subresource from resource " +
+                                                 std::to_string(args.command_header.resource_id)))
+                {
+                    // Omit this block from the output file.
+                    return kSuccess;
+                }
             }
         }
 
         if ((fill_command_resource_values_ != nullptr) && (!fill_command_resource_values_->empty()))
         {
+            // Skip any entries for blocks that may have been removed by other passes
+            while ((resource_values_iter_ != fill_command_resource_values_->end()) &&
+                   (resource_values_iter_->first < GetCurrentBlockIndex()))
+            {
+                ++resource_values_iter_;
+            }
+
             if ((resource_values_iter_ != fill_command_resource_values_->end()) &&
                 (resource_values_iter_->first == GetCurrentBlockIndex()))
             {
-                if (!AddFillMemoryResourceValueCommand())
-                {
-                    GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR or EI "
-                                       "optimization. Optimized file may be invalid.");
-                }
+                AddFillMemoryResourceValueCommand(resource_values_iter_->second);
+                ++resource_values_iter_;
             }
         }
         else if (inject_noop_resource_value_optimization_)
         {
             // Only inject one noop block.
             inject_noop_resource_value_optimization_ = false;
-
-            decode::Dx12FillCommandResourceValueMap rvm;
-            rvm[GetCurrentBlockIndex()]   = {};
-            fill_command_resource_values_ = &rvm;
-            resource_values_iter_         = fill_command_resource_values_->begin();
-
-            if (!AddFillMemoryResourceValueCommand())
-            {
-                GFXRECON_LOG_ERROR("Failed to write the FillMemoryResourceValueCommand needed for DXR/EI optimization. "
-                                   "Optimized file may be invalid.");
-            }
-
-            fill_command_resource_values_ = nullptr;
-            resource_values_iter_         = {};
+            AddFillMemoryResourceValueCommand({});
         }
     }
 
