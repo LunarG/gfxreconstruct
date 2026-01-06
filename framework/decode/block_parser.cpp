@@ -87,19 +87,18 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
             }
         }
     }
-    else
+
+    if (status != kErrorNone)
     {
-        if (status != kEndOfFile)
-        {
-            HandleBlockReadError(status, "ReadBlockBuffer failed");
-        }
         block_buffer.Reset();
     }
+
     return status;
 }
 
 void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
+    GFXRECON_ASSERT(err_handler_);
     err_handler_(error_code, error_message);
 }
 

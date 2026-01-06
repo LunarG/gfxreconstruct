@@ -30,7 +30,6 @@
 
 #include <functional>
 #include <limits>
-#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
