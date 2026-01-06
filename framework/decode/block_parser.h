@@ -143,7 +143,7 @@ class BlockParser
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
     bool                DecompressWhenParsed(const ParsedBlock& parsed_block);
     BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
-    const ErrorHandler& err_handler_;
+    ErrorHandler        err_handler_;
     util::Compressor*   compressor_           = nullptr;
     DecompressionPolicy decompression_policy_ = DecompressionPolicy::kAlways;
 
