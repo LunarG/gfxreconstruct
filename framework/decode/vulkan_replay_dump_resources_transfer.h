@@ -161,7 +161,7 @@ class TransferDumpingContext
 
     bool MustDumpTransfer(uint64_t index) const;
 
-    VkResult DumpTransferCommands(uint64_t qs_index);
+    VkResult DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index);
 
     const CommandIndices& GetCommandIndices() const { return transfer_indices_; }
 

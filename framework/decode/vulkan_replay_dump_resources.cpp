@@ -1923,7 +1923,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         {
             if (bcb_qs_pair.second == index)
             {
-                res       = transf_context->DumpTransferCommands(index);
+                res       = transf_context->DumpTransferCommands(bcb_qs_pair.first, index);
                 submitted = true;
                 if (res != VK_SUCCESS)
                 {
@@ -3222,7 +3222,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
     std::shared_ptr<TransferDumpingContext> transfer_context = FindTransferContextBcbQsIndex(0, 0);
     if (transfer_context != nullptr)
     {
-        VkResult res = transfer_context->DumpTransferCommands(0);
+        VkResult res = transfer_context->DumpTransferCommands(0, 0);
         if (res != VK_SUCCESS)
         {
             Release();

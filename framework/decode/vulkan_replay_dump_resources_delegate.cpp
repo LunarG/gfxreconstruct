@@ -2632,7 +2632,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
 
     transfer_entry["cmdType"]  = TransferDumpingContext::TransferCommandTypeToStr(transfer_cmd_params->params->type);
     transfer_entry["cmdIndex"] = dumped_resources.cmd_index;
-    transfer_entry["queueSubmitIndex"] = dumped_resources.qs_index;
+    transfer_entry["beginCommandBufferIndex"] = dumped_resources.bcb_index;
+    transfer_entry["queueSubmitIndex"]        = dumped_resources.qs_index;
 
     auto& transf_params_json_entry = transfer_entry["parameters"];
 

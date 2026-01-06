@@ -1480,7 +1480,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
     return VK_SUCCESS;
 }
 
-VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
+VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index)
 {
     if (!qs_index)
     {
@@ -1494,6 +1494,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t qs_index)
         auto& host_data      = std::get<VulkanDelegateTransferCommandDumpedData>(res_info.dumped_data);
 
         TransferParams::TransferParamsBase* base_transfer_cmd = cmd.params.get();
+        base_transfer_cmd->dumped_resources.bcb_index         = bcb_index;
         base_transfer_cmd->dumped_resources.cmd_index         = cmd_index;
         base_transfer_cmd->dumped_resources.qs_index          = qs_index;
 
