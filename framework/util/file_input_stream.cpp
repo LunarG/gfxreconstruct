@@ -32,8 +32,44 @@
 #include "util/file_input_stream.h"
 #include "util/logging.h"
 
+#include <cstdlib>
+#include <new>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+
+bool FStreamFileInputStream::IsOpen() const
+{
+#if FILE_INPUT_STREAM_USE_FREAD
+    return fd_ != nullptr;
+#else
+    return fd_ >= 0;
+#endif
+}
+
+bool FStreamFileInputStream::IsEof() const
+{
+    const bool can_be_eof = IsOpen() && !HasReadAhead();
+#if FILE_INPUT_STREAM_USE_FREAD
+    return can_be_eof && (feof(fd_) != 0);
+#else
+    return can_be_eof && (last_read_status_ == util::platform::FileReadStatus::kEof);
+#endif
+}
+
+bool FStreamFileInputStream::IsError() const
+{
+#if FILE_INPUT_STREAM_USE_FREAD
+    return !HasReadAhead() && IsOpen() && (ferror(fd_) != 0);
+#else
+    return !HasReadAhead() && (last_read_status_ == util::platform::FileReadStatus::kError);
+#endif
+}
+
+bool FStreamFileInputStream::IsReady() const
+{
+    return IsOpen() && !IsEof() && !IsError();
+}
 
 bool FStreamFileInputStream::Open(const std::string& filename)
 {
@@ -42,8 +78,38 @@ bool FStreamFileInputStream::Open(const std::string& filename)
         Close();
     }
 
+#if FILE_INPUT_STREAM_USE_FREAD
     const int  result  = util::platform::FileOpen(&fd_, filename.c_str(), "rb");
     const bool success = result == 0;
+#else
+
+#if defined(WIN32)
+    int mode = _O_RDONLY | _O_BINARY;
+#else
+    int mode = O_RDONLY | O_BINARY;
+#endif
+
+    fd_          = util::platform::FileOpenFd(filename.c_str(), mode);
+    bool success = fd_ >= 0;
+    if (success)
+    {
+        last_read_status_ = util::platform::FileReadStatus::kSuccess;
+        GFXRECON_ASSERT(read_ahead_buffer_ == nullptr);
+        read_ahead_buffer_ =
+            static_cast<char*>(util::platform::AlignedAlloc(kReadAheadBufferSize, kReadAheadAlignment));
+        if (read_ahead_buffer_ == nullptr)
+        {
+            GFXRECON_LOG_ERROR("Failed to allocate read-ahead buffer for file input stream.");
+            Close();
+            success           = false;
+            last_read_status_ = util::platform::FileReadStatus::kError;
+        }
+    }
+    else
+    {
+        last_read_status_ = util::platform::FileReadStatus::kError;
+    }
+#endif
 
     if (success)
     {
@@ -54,16 +120,30 @@ bool FStreamFileInputStream::Open(const std::string& filename)
 
 void FStreamFileInputStream::Close()
 {
+#if FILE_INPUT_STREAM_USE_FREAD
     if (fd_)
     {
         util::platform::FileClose(fd_);
         fd_ = nullptr;
     }
+#else
+    if (fd_ != -1)
+    {
+        util::platform::FileClose(fd_);
+        fd_ = -1;
+
+        if (read_ahead_buffer_ != nullptr)
+        {
+            util::platform::AlignedFree(read_ahead_buffer_);
+            read_ahead_buffer_ = nullptr;
+        }
+    }
+#endif
 }
 
 bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    if (fd_)
+    if (IsOpen())
     {
         if (read_ahead_bytes_ && (origin == util::platform::FileSeekOrigin::FileSeekCurrent))
         {
@@ -99,9 +179,22 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
         read_ahead_bytes_  = 0;
         read_ahead_offset_ = 0;
 
-        return util::platform::FileSeek(fd_, offset, origin);
+        bool success = util::platform::FileSeek(fd_, offset, origin);
+
+#if FILE_INPUT_STREAM_USE_FREAD == 0
+        // NOTE: we aren't tracking the specific seek errors here, as we don't have status
+        //       granularity like we do with reads.  However, seek either works or it doesn't,
+        //       and since there is no EOF condition on seek, we can just set success or error.
+        last_read_status_ = success ? util::platform::FileReadStatus::kSuccess : util::platform::FileReadStatus::kError;
+#endif
+        return success;
     }
     return false;
+}
+
+bool FStreamFileInputStream::HasReadAhead() const noexcept
+{
+    return read_ahead_bytes_ > 0;
 }
 
 size_t FStreamFileInputStream::ReadFromReadAheadBuffer(void* buffer, size_t bytes)
@@ -137,7 +230,7 @@ size_t FStreamFileInputStream::ReadFromReadAheadBuffer(void* buffer, size_t byte
         GFXRECON_ASSERT(read_ahead_bytes_ == 0);
         GFXRECON_ASSERT(read_ahead_offset_ == 0);
         char*        tail        = static_cast<char*>(buffer) + copy_bytes;
-        const size_t bytes_read  = util::platform::FileReadBytes(&read_ahead_buffer_[0], kReadAheadBufferSize, fd_);
+        const size_t bytes_read  = ReadBytesImpl(&read_ahead_buffer_[0], kReadAheadBufferSize);
         const size_t remain_read = std::min(remain_bytes, bytes_read);
         std::memcpy(tail, &read_ahead_buffer_[0], remain_read);
 
@@ -149,9 +242,18 @@ size_t FStreamFileInputStream::ReadFromReadAheadBuffer(void* buffer, size_t byte
     return copy_bytes;
 }
 
+size_t FStreamFileInputStream::ReadBytesImpl(void* buffer, size_t bytes)
+{
+#if FILE_INPUT_STREAM_USE_FREAD
+    return util::platform::FileReadBytes(buffer, bytes, fd_);
+#else
+    return util::platform::FileReadBytes(buffer, bytes, fd_, last_read_status_);
+#endif
+}
+
 bool FStreamFileInputStream::ReadBytes(void* buffer, size_t bytes)
 {
-    GFXRECON_ASSERT(fd_);
+    GFXRECON_ASSERT(IsOpen());
     char* dest    = static_cast<char*>(buffer);
     bool  success = true;
 
@@ -162,7 +264,7 @@ bool FStreamFileInputStream::ReadBytes(void* buffer, size_t bytes)
     if (bytes)
     {
         dest += copy_bytes;
-        success = util::platform::FileRead(dest, bytes, fd_);
+        success = (bytes == ReadBytesImpl(dest, bytes));
     }
 
     return success;
@@ -173,7 +275,7 @@ bool FStreamFileInputStream::ReadBytes(void* buffer, size_t bytes)
 // which also serves the ReadBytes function for small reads, and to reduce system calls.
 size_t FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
 {
-    GFXRECON_ASSERT(fd_);
+    GFXRECON_ASSERT(IsOpen());
 
     // Limit to the maximum number of peeked bytes
     bytes = std::min(bytes, kMaxPeekBytes);
@@ -186,7 +288,7 @@ size_t FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
         // Fill the remainder of the read_ahead_buffer_
         char*        read_ahead = &read_ahead_buffer_[read_ahead_bytes_];
         const size_t bytes_fill = kReadAheadBufferSize - read_ahead_bytes_; // fill the rest of the buffer
-        const size_t bytes_read = util::platform::FileReadBytes(read_ahead, bytes_fill, fd_);
+        const size_t bytes_read = ReadBytesImpl(read_ahead, bytes_fill);
 
         // This read may be less than bytes_fill at EOF, which is why we track read_ahead_bytes_ separately
         read_ahead_bytes_ += bytes_read;

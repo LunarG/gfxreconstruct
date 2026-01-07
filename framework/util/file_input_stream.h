@@ -34,13 +34,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+// By default don't use FSTREAMS but leave support for
+// platforms with no POSIX compatibility
+#define FILE_INPUT_STREAM_USE_FREAD 0
+
 class FStreamFileInputStream
 {
   public:
     using BufferPool    = HeapBufferPool;
     using BufferPoolPtr = BufferPool::PoolPtr;
 
+#if FILE_INPUT_STREAM_USE_FREAD
     FStreamFileInputStream() : filename_(), fd_(nullptr), buffer_pool_(BufferPool::Create()) {}
+#else
+    FStreamFileInputStream() : filename_(), fd_(-1), buffer_pool_(BufferPool::Create()) {}
+#endif
     FStreamFileInputStream(const FStreamFileInputStream&)            = delete;
     FStreamFileInputStream& operator=(const FStreamFileInputStream&) = delete;
 
@@ -48,10 +56,10 @@ class FStreamFileInputStream
 
     const std::string& GetFilename() const { return filename_; }
 
-    bool IsOpen() const { return fd_ != nullptr; }
-    bool IsEof() const { return IsOpen() && (read_ahead_bytes_ == 0) && (feof(fd_) != 0); }
-    bool IsError() const { return IsOpen() && (ferror(fd_) != 0); }
-    bool IsReady() const { return IsOpen() && !IsEof() && !IsError(); }
+    bool IsOpen() const;
+    bool IsEof() const;
+    bool IsError() const;
+    bool IsReady() const;
 
     bool     Open(const std::string& filename);
     void     Close();
@@ -67,24 +75,41 @@ class FStreamFileInputStream
     // as useful for performance if using fread.  If we go larger we should
     // go to read/_read system calls, directly and avoid the fread buffer
     // entirely.
+#if FILE_INPUT_STREAM_USE_FREAD
     constexpr static size_t kReadAheadBufferSize = 1024U;
+#else
+    constexpr static size_t        kReadAheadAlignment  = 4096U;
+    constexpr static size_t        kReadAheadBufferSize = 2U * kReadAheadAlignment;
+#endif
 
     // Design assumes kMaxPeekBytes << kReadAheadBufferSize, as we move data when peeking would
     // exceed the read ahead buffer size, and we want to avoid moving large amounts of data.
     constexpr static size_t kMaxPeekBytes = 32U;
 
-    size_t GetMaxPeekBytes() const { return kMaxPeekBytes; }
+    size_t GetMaxPeekBytes() const noexcept
+    {
+        return kMaxPeekBytes;
+    }
 
   protected:
+    bool   HasReadAhead() const noexcept;
     size_t ReadFromReadAheadBuffer(void* buffer, size_t bytes);
+    size_t ReadBytesImpl(void* buffer, size_t bytes);
 
     std::string   filename_;
-    FILE*         fd_{ nullptr };
+
+#if FILE_INPUT_STREAM_USE_FREAD
+    FILE*                                  fd_{ nullptr };
+    std::array<char, kReadAheadBufferSize> read_ahead_buffer_;
+#else
+    util::platform::FileReadStatus last_read_status_{ util::platform::FileReadStatus::kSuccess };
+    int                            fd_{ -1 };
+    char*                          read_ahead_buffer_{ nullptr };
+#endif
+
     BufferPoolPtr buffer_pool_;
     size_t        read_ahead_bytes_  = 0U;
     size_t        read_ahead_offset_ = 0U;
-
-    std::array<char, kReadAheadBufferSize> read_ahead_buffer_;
 };
 
 GFXRECON_END_NAMESPACE(util)
