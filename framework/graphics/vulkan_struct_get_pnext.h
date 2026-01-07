@@ -32,7 +32,8 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 //! concept definition for a vulkan-struct
 template <class T>
-concept VulkanStruct = requires(T t) {
+concept VulkanStruct = requires(T t)
+{
     // sType exists and is accessible
     t.sType;
 
@@ -44,8 +45,8 @@ concept VulkanStruct = requires(T t) {
 
     // check type of pNext
     requires std::is_same_v<decltype(t.pNext), void*> || std::is_same_v<decltype(t.pNext), const void*> ||
-                 std::is_same_v<decltype(t.pNext), const VkBaseInStructure*> ||
-                 std::is_same_v<decltype(t.pNext), VkBaseOutStructure*>;
+        std::is_same_v<decltype(t.pNext), const VkBaseInStructure*> ||
+        std::is_same_v<decltype(t.pNext), VkBaseOutStructure*>;
 };
 
 /**
