@@ -91,6 +91,12 @@ const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 const int kDefaultIndent = 12;
 
+// Overall APIs using flags
+const uint32_t  kApisDetected_Vulkan = 0x00000001;
+const uint32_t  kApisDetected_D3D12  = 0x00000002;
+const uint32_t  kApisDetected_OpenXr = 0x00000004;
+const uint32_t  kApisDetected_All    = 0xFFFFFFFF;
+
 // Global variables defining where we should output results to
 static std::ofstream g_output_file;
 
@@ -318,7 +324,7 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
 
-nlohmann::json GetOperationsJson(const AnnotationRecorder& annotation_recorder)
+nlohmann::json GetGfxrOperationsJson(const AnnotationRecorder& annotation_recorder)
 {
     nlohmann::json annotations_json = nlohmann::json::array();
     for (const auto& annotation_info : annotation_recorder.operation_annotations_)
@@ -489,41 +495,53 @@ void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consu
     }
 }
 
-nlohmann::json GetDetectedApiInfoJson(bool vulkan_present, bool dx12_present, bool openxr_present)
+nlohmann::json GetDetectedApiInfoJson(uint32_t detected_apis)
 {
     std::vector<std::string> apis;
-    if (vulkan_present)
+    if (detected_apis == 0)
     {
-        apis.push_back("Vulkan");
+        apis.push_back("Unable to detect captured APIs");
     }
-    if (dx12_present)
+    else
     {
-        apis.push_back("D3D12");
-    }
-    if (openxr_present)
-    {
-        apis.push_back("OpenXR");
+        if (detected_apis & kApisDetected_Vulkan)
+        {
+            apis.push_back("Vulkan");
+        }
+        if (detected_apis & kApisDetected_D3D12)
+        {
+            apis.push_back("D3D12");
+        }
+        if (detected_apis & kApisDetected_OpenXr)
+        {
+            apis.push_back("OpenXR");
+        }
     }
     return apis;
 }
 
-void PrintDetectedApiInfoText(bool vulkan_present, bool dx12_present, bool openxr_present)
+void PrintDetectedApiInfoText(uint32_t detected_apis)
 {
-    if (!vulkan_present && !dx12_present && !openxr_present)
+    if (detected_apis == 0)
     {
         WriteOutput("Unable to detect capture file API(s). Writing all stats.");
     }
 }
 
-nlohmann::json GetApiAgnosticStatsJson(const ApiAgnosticStats& api_agnostic_stats,
-                               bool                    vulkan_present,
-                               bool                    dx12_present)
+nlohmann::json GetApiAgnosticStatsJson(const gfxrecon::decode::FileProcessor& file_processor,
+                                       const ApiAgnosticStats&                api_agnostic_stats)
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
     if (compression_type_name.empty())
     {
         compression_type_name = kUnrecognizedFormatString;
+    }
+
+    uint32_t total_count = api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count;
+    if (file_processor.GetCurrentFrameNumber() == 0)
+    {
+        total_count = 0;
     }
 
     return {
@@ -533,14 +551,16 @@ nlohmann::json GetApiAgnosticStatsJson(const ApiAgnosticStats& api_agnostic_stat
         {"frames", {
             {"blank-count", api_agnostic_stats.blank_frame_count},
             {"actual-count", api_agnostic_stats.frame_count},
-            {"total-count", api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count},
+            {"total-count", total_count},
             {"start-frame", api_agnostic_stats.trim_start_frame},
             {"end-frame", api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1},
         }}
     };
 }
 
-void PrintApiAgnosticStatsText(const ApiAgnosticStats& api_agnostic_stats, bool vulkan_present, bool dx12_present)
+void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_processor,
+                               const ApiAgnosticStats&                api_agnostic_stats,
+                               bool                                   vulkan_present)
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
@@ -576,7 +596,14 @@ void PrintApiAgnosticStatsText(const ApiAgnosticStats& api_agnostic_stats, bool 
         }
         else
         {
-            WriteOutput("\tTotal frames: %u", api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count);
+
+            uint32_t total_count = api_agnostic_stats.blank_frame_count + api_agnostic_stats.frame_count;
+            if (file_processor.GetCurrentFrameNumber() == 0)
+            {
+                total_count = 0;
+            }
+
+            WriteOutput("\tTotal frames: %u", total_count);
 
             WriteOutput("\tApplication frame range: %u-%u",
                         api_agnostic_stats.trim_start_frame,
@@ -585,24 +612,26 @@ void PrintApiAgnosticStatsText(const ApiAgnosticStats& api_agnostic_stats, bool 
     }
 }
 
-nlohmann::json GetVulkanDeviceMemoryStatsJson(uint64_t        alloc_count,
-                                      uint64_t        min_alloc,
-                                      uint64_t        max_alloc,
-                                      uint32_t        gfx_pipelines,
-                                      uint32_t        comp_pipelines,
-                                      uint32_t        rt_pipelines)
+nlohmann::json GetVulkanDeviceMemoryStatsJson(uint64_t alloc_count,
+                                              uint64_t min_alloc,
+                                              uint64_t max_alloc,
+                                              uint32_t gfx_pipelines,
+                                              uint32_t comp_pipelines,
+                                              uint32_t rt_pipelines)
 {
     return {
-        {"memory-alloc", {
-            {"count", alloc_count},
-            {"min-size", min_alloc},
-            {"max-size", max_alloc},
-        }},
-        {"pipeline-info", {
-            {"graphics-count", gfx_pipelines},
-            {"compute-count", comp_pipelines},
-            {"raytracing-count", rt_pipelines},
-        }},
+        { "memory-alloc",
+          {
+              { "count", alloc_count },
+              { "min-size", min_alloc },
+              { "max-size", max_alloc },
+          } },
+        { "pipeline-info",
+          {
+              { "graphics-count", gfx_pipelines },
+              { "compute-count", comp_pipelines },
+              { "raytracing-count", rt_pipelines },
+          } },
     };
 }
 
@@ -715,13 +744,12 @@ nlohmann::json GetVulkanStatsJson(const gfxrecon::decode::FileProcessor&       f
                     dev_json["extensions"] = dev_info[dev].enabled_extensions;
 
                     // For Verbose, we write out each devices alloc info.
-                    auto memory_stats_json = GetVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
+                    dev_json["memory"] = GetVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
                                                      dev_info[dev].min_allocation_size,
                                                      dev_info[dev].max_allocation_size,
                                                      dev_info[dev].graphics_pipelines,
                                                      dev_info[dev].compute_pipelines,
                                                      dev_info[dev].raytracing_pipelines);
-                    dev_json.update(memory_stats_json);
 
                     vulkan_devices.push_back(dev_json);
                 }
@@ -1010,14 +1038,15 @@ void PrintDx12SwapchainInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consum
 
 nlohmann::json GetDxrEiInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
-    nlohmann::json dxr_ei_info;
-    dxr_ei_info["ei-workload"]  = dx12_consumer.ContainsEiWorkload() ? "yes" : "no";
-    dxr_ei_info["dxr-workload"] = dx12_consumer.ContainsDxrWorkload() ? "yes" : "no";
-    if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
-    {
-        dxr_ei_info["dxr/ei-optimized"] = dx12_consumer.ContainsOptFillMem() ? "yes" : "no";
-    }
-    return dxr_ei_info;
+    return {
+        { "ei-workload", dx12_consumer.ContainsEiWorkload() ? "yes" : "no" },
+        { "dxr-workload", dx12_consumer.ContainsDxrWorkload() ? "yes" : "no" },
+        { "dxr/ei-optimized",
+          ((dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload()) &&
+           dx12_consumer.ContainsOptFillMem())
+              ? "yes"
+              : "no" },
+    };
 }
 
 void PrintDxrEiInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
@@ -1058,10 +1087,10 @@ void PrintDxrEiInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 }
 
 nlohmann::json GetD3D12StatsJson(gfxrecon::decode::FileProcessor&     file_processor,
-                         gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
-                         const ApiAgnosticStats&              api_agnostic_stats,
-                         gfxrecon::decode::InfoConsumer&      info_consumer,
-                         const AnnotationRecorder&            annotation_recorder)
+                                 gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
+                                 const ApiAgnosticStats&              api_agnostic_stats,
+                                 gfxrecon::decode::InfoConsumer&      info_consumer,
+                                 const AnnotationRecorder&            annotation_recorder)
 {
     nlohmann::json d3d12_json;
 
@@ -1070,14 +1099,14 @@ nlohmann::json GetD3D12StatsJson(gfxrecon::decode::FileProcessor&     file_proce
         d3d12_json["total-present-count"] = dx12_consumer.GetDXGITestPresentCount();
     }
 
-    d3d12_json["driver"] = GetDriverInfoString(info_consumer);
-    d3d12_json["runtime"] = GetDx12RuntimeInfoJson(dx12_consumer);
+    d3d12_json["driver"]   = GetDriverInfoString(info_consumer);
+    d3d12_json["runtime"]  = GetDx12RuntimeInfoJson(dx12_consumer);
     d3d12_json["adapters"] = GetDx12AdapterInfoJson(dx12_consumer);
-    if (dx12_consumer.FoundSwapchainInfo()) {
+    if (dx12_consumer.FoundSwapchainInfo())
+    {
         d3d12_json["swapchain"] = GetDx12SwapchainInfoJson(dx12_consumer);
     }
-    auto dxr_ei_json = GetDxrEiInfoJson(dx12_consumer);
-    d3d12_json.update(dxr_ei_json);
+    d3d12_json["dxr-ei"] = GetDxrEiInfoJson(dx12_consumer);
 
     return d3d12_json;
 }
@@ -1321,15 +1350,24 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             uint32_t blank_frame_count = 0;
-            bool     vulkan_present    = vulkan_detection_consumer.WasVulkanAPIDetected();
-            bool     dx12_present      = false;
-            bool     openxr_present    = false;
+            uint32_t detected_apis     = 0;
+
+            if (vulkan_detection_consumer.WasVulkanAPIDetected())
+            {
+                detected_apis |= kApisDetected_Vulkan;
+            }
 #if defined(D3D12_SUPPORT)
             blank_frame_count = dx12_consumer.GetDummyFrameCount();
-            dx12_present      = dx12_detection_consumer.WasD3D12APIDetected();
+            if (dx12_detection_consumer.WasD3D12APIDetected())
+            {
+                detected_apis |= kApisDetected_D3D12;
+            }
 #endif
 #if ENABLE_OPENXR_SUPPORT
-            openxr_present = openxr_detection_consumer.WasOpenXrAPIDetected();
+            if (openxr_detection_consumer.WasOpenXrAPIDetected())
+            {
+                detected_apis |= kApisDetected_OpenXr;
+            }
 #endif
 
             ApiAgnosticStats api_agnostic_stats = {};
@@ -1337,22 +1375,6 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             if (api_agnostic_stats.trim_start_frame < vulkan_stats_consumer.GetTrimmedStartFrame())
             {
                 api_agnostic_stats.trim_start_frame = vulkan_stats_consumer.GetTrimmedStartFrame();
-            }
-
-            // If no APIs were detected, print stats for all APIs.
-            bool missing_api_info = !vulkan_present;
-#if defined(D3D12_SUPPORT)
-            missing_api_info = missing_api_info && !dx12_present;
-#endif
-#if ENABLE_OPENXR_SUPPORT
-            missing_api_info = missing_api_info && !openxr_present;
-#endif
-            // If we're missing API info, force printing everything
-            if (missing_api_info)
-            {
-                vulkan_present = true;
-                dx12_present   = true;
-                openxr_present = true;
             }
 
             if (output_json)
@@ -1364,19 +1386,26 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 if(!environment_variables.empty()) {
                     json_content["environment"] = GetEnvironmentVariableInfoJson(environment_variables);
                 }
-                json_content["capture-file"] = GetFileFormatInfoJson(file_processor);
+                json_content["file-info"] = GetFileFormatInfoJson(file_processor);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    auto api_agnostic = GetApiAgnosticStatsJson(api_agnostic_stats, vulkan_present, dx12_present);
-                    json_content["capture-file"].update(api_agnostic);
+                    json_content["detected-apis"] = GetDetectedApiInfoJson(detected_apis);
+                    json_content["general-info"] =
+                        GetApiAgnosticStatsJson(file_processor, api_agnostic_stats);
 
-                    if (vulkan_present)
+                    // If we're missing API info, force printing everything
+                    if (detected_apis == 0)
+                    {
+                        detected_apis = kApisDetected_All;
+                    }
+
+                    if (detected_apis & kApisDetected_Vulkan)
                     {
                         json_content["vulkan"] = GetVulkanStatsJson(file_processor, vulkan_stats_consumer);
                     }
 
 #if defined(D3D12_SUPPORT)
-                    if (dx12_present)
+                    if ((detected_apis & kApisDetected_D3D12))
                     {
                         json_content["d3d12"] = GetD3D12StatsJson(file_processor,
                                             dx12_consumer,
@@ -1386,44 +1415,46 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                     }
 #endif
 #if ENABLE_OPENXR_SUPPORT
-                    if (openxr_present)
+                    if ((detected_apis & kApisDetected_OpenXr))
                     {
                         json_content["openxr"] = GetOpenXrStatsJson(file_processor, openxr_stats_consumer);
                     }
 #endif
                     if (!annotation_recorder.operation_annotations_.empty()) {
-                        json_content["operations"] = GetOperationsJson(annotation_recorder);
+                        json_content["gfxr-operations"] = GetGfxrOperationsJson(annotation_recorder);
                     }
-                }
-                if (file_processor.GetCurrentFrameNumber() == 0)
-                {
-                    json_content["capture-file"]["frames"]["total-count"] = 0;
                 }
 
                 WriteOutput(json_content.dump(4, ' ', true).c_str());
             }
             else
             {
-                PrintDetectedApiInfoText(vulkan_present, dx12_present, openxr_present);
+                PrintDetectedApiInfoText(detected_apis);
                 PrintExeInfoText(info_consumer);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    PrintApiAgnosticStatsText(api_agnostic_stats, vulkan_present, dx12_present);
+                    // If we're missing API info, force printing everything
+                    if (detected_apis == 0)
+                    {
+                        detected_apis = kApisDetected_All;
+                    }
 
-                    if (vulkan_present)
+                    PrintApiAgnosticStatsText(
+                        file_processor, api_agnostic_stats, (detected_apis & kApisDetected_Vulkan));
+                    if (detected_apis & kApisDetected_Vulkan)
                     {
                         PrintVulkanStatsText(file_processor, vulkan_stats_consumer);
                     }
 
 #if defined(D3D12_SUPPORT)
-                    if (dx12_present)
+                    if ((detected_apis & kApisDetected_D3D12))
                     {
                         PrintD3D12StatsText(
                             file_processor, dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
                     }
 #endif
 #if ENABLE_OPENXR_SUPPORT
-                    if (openxr_present)
+                    if ((detected_apis & kApisDetected_OpenXr))
                     {
                         PrintOpenXrStatsText(file_processor, openxr_stats_consumer);
                     }
