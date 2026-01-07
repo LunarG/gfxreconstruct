@@ -198,6 +198,11 @@ class KhronosStructToJsonBodyGenerator():
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_boolean_type(value_type):
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
+                    elif value_type in ('int8_t', 'int16_t', 'int32_t', 'int64_t',
+                        'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t',
+                        'short', 'int', 'long', 'long long',
+                        'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long'):
+                        to_json = 'jdata["{0}"] = decoded_value.{0}'
 
             to_json = to_json.format(
                 value.name, value_type, flagsEnumType
