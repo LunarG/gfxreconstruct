@@ -241,6 +241,10 @@ class CommonCaptureManager
 
     bool RuntimeWriteAssetsEnabled();
 
+    bool ExternalTriggerEnabled();
+
+    bool ExternalTriggerDisabled();
+
     void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
     void WriteExeFileInfo(format::ApiFamilyId api_family, const gfxrecon::util::filepath::FileInfo& info);
@@ -515,6 +519,11 @@ class CommonCaptureManager
         write_assets_ = true;
     }
 
+    void ExternallySetTrimmingState(bool trimming_state)
+    {
+        external_trimming_state_ = trimming_state;
+    }
+
     bool WriteFrameStateFile();
 
   private:
@@ -604,6 +613,8 @@ class CommonCaptureManager
     bool                                    force_fifo_present_mode_;
     bool                                    use_asset_file_;
     bool                                    write_assets_;
+    bool                                    external_trimming_state_;
+    bool                                    previous_external_trimming_state_;
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;

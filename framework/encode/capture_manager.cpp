@@ -32,6 +32,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "format/format_util.h"
+#include "util/callbacks.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/date_time.h"
@@ -103,7 +104,8 @@ CommonCaptureManager::CommonCaptureManager() :
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false), skip_threads_with_invalid_data_(false)
+    write_assets_(false), external_trimming_state_(false), previous_external_trimming_state_(false),
+    previous_write_assets_(false), skip_threads_with_invalid_data_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -828,6 +830,32 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     return result;
 }
 
+bool CommonCaptureManager::ExternalTriggerEnabled()
+{
+    if (!previous_external_trimming_state_ && external_trimming_state_)
+    {
+        previous_external_trimming_state_ = external_trimming_state_;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool CommonCaptureManager::ExternalTriggerDisabled()
+{
+    if (previous_external_trimming_state_ && !external_trimming_state_)
+    {
+        previous_external_trimming_state_ = external_trimming_state_;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
     CaptureSettings settings;
@@ -895,7 +923,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
     else if (IsTrimHotkeyPressed() ||
              ((trim_key_frames_ > 0) && (current_boundary_count >= (trim_key_first_frame_ + trim_key_frames_))) ||
-             RuntimeTriggerDisabled())
+             RuntimeTriggerDisabled() || ExternalTriggerDisabled())
     {
         // Stop recording and close file.
         DeactivateTrimming(current_lock);
@@ -949,7 +977,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
             }
         }
     }
-    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled())
+    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled() || ExternalTriggerEnabled())
     {
         bool success =
             CreateCaptureFile(api_family, util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));

@@ -187,6 +187,10 @@ class ApiCaptureManager
     uint64_t GetShaderIDMask() const { return common_manager_->GetShaderIDMask(); }
     uint64_t GetBlockIndex() const { return common_manager_->GetBlockIndex(); }
     void     SetWriteAssets() const { return common_manager_->SetWriteAssets(); }
+    void     ExternallySetTrimmingState(bool trimming_state) const
+    {
+        common_manager_->ExternallySetTrimmingState(trimming_state);
+    }
 
     bool                                GetForceFileFlush() const { return common_manager_->GetForceFileFlush(); }
     CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const
