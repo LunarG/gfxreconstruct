@@ -30,20 +30,23 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-template <typename T, typename = int>
-struct is_vulkan_struct : std::false_type
-{};
-
-template <typename T>
-struct is_vulkan_struct<T, decltype((void)T::sType, 0)> : std::is_same<decltype(T::sType), VkStructureType>
-{};
-
-template <typename T>
-inline constexpr bool is_vulkan_struct_v = is_vulkan_struct<T>::value;
-
 //! concept definition for a vulkan-struct
 template <class T>
-concept VulkanStruct = is_vulkan_struct_v<T>;
+concept VulkanStruct = requires(T t) {
+    // sType exists and is accessible
+    t.sType;
+
+    // check type of sType
+    requires std::is_same_v<decltype(t.sType), VkStructureType>;
+
+    // pNext exists and is accessible
+    t.pNext;
+
+    // check type of pNext
+    requires std::is_same_v<decltype(t.pNext), void*> || std::is_same_v<decltype(t.pNext), const void*> ||
+                 std::is_same_v<decltype(t.pNext), const VkBaseInStructure*> ||
+                 std::is_same_v<decltype(t.pNext), VkBaseOutStructure*>;
+};
 
 /**
  * @brief   vulkan_struct_get_pnext can be used to retrieve elements of a
