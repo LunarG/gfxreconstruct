@@ -8318,6 +8318,15 @@ struct Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT;
+
+    VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePresentBarrierFeaturesNV
 {
     using struct_type = VkPhysicalDevicePresentBarrierFeaturesNV;
@@ -11459,6 +11468,24 @@ struct Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderLongVectorFeaturesEXT;
+
+    VkPhysicalDeviceShaderLongVectorFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderLongVectorPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderLongVectorPropertiesEXT;
+
+    VkPhysicalDeviceShaderLongVectorPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC
 {
     using struct_type = VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
@@ -11473,6 +11500,24 @@ struct Decoded_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT
     using struct_type = VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT;
 
     VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkComputeOccupancyPriorityParametersNV
+{
+    using struct_type = VkComputeOccupancyPriorityParametersNV;
+
+    VkComputeOccupancyPriorityParametersNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV;
+
+    VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

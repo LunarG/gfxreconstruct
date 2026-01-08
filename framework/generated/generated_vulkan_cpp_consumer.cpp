@@ -16969,6 +16969,27 @@ void VulkanCppConsumer::Process_vkCmdBeginCustomResolveEXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginCustomResolveEXT);
 }
+void VulkanCppConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pparameters;
+    std::string pparameters_struct = GenerateStruct_VkComputeOccupancyPriorityParametersNV(stream_pparameters,
+                                                                                           pParameters->GetPointer(),
+                                                                                           pParameters->GetMetaStructPointer(),
+                                                                                           *this);
+    fprintf(file, "%s", stream_pparameters.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdSetComputeOccupancyPriorityNV");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetComputeOccupancyPriorityNV(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pparameters_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV);
+}
 void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

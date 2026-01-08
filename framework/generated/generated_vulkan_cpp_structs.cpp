@@ -17604,6 +17604,20 @@ std::string GenerateStruct_VkSamplerCustomBorderColorCreateInfoEXT(std::ostream 
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT(std::ostream &out, const VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->textureCompressionASTC_3D << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceTextureCompressionASTC3DFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDevicePresentBarrierFeaturesNV(std::ostream &out, const VkPhysicalDevicePresentBarrierFeaturesNV* structInfo, Decoded_VkPhysicalDevicePresentBarrierFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -23487,6 +23501,34 @@ std::string GenerateStruct_VkPipelineCacheHeaderVersionDataGraphQCOM(std::ostrea
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceShaderLongVectorFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderLongVectorFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->longVector << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderLongVectorFeaturesEXT");
+    out << "\t\t" << "VkPhysicalDeviceShaderLongVectorFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderLongVectorPropertiesEXT(std::ostream &out, const VkPhysicalDeviceShaderLongVectorPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceShaderLongVectorPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->maxVectorComponents << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderLongVectorPropertiesEXT");
+    out << "\t\t" << "VkPhysicalDeviceShaderLongVectorPropertiesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC(std::ostream &out, const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* structInfo, Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -23509,6 +23551,35 @@ std::string GenerateStruct_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeatur
     struct_body << "\t\t\t" << structInfo->shaderUniformBufferUnsizedArray << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT");
     out << "\t\t" << "VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkComputeOccupancyPriorityParametersNV(std::ostream &out, const VkComputeOccupancyPriorityParametersNV* structInfo, Decoded_VkComputeOccupancyPriorityParametersNV* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->occupancyPriority << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->occupancyThrottling << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "computeOccupancyPriorityParametersNV");
+    out << "\t\t" << "VkComputeOccupancyPriorityParametersNV " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV(std::ostream &out, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* structInfo, Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->computeOccupancyPriority << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceComputeOccupancyPriorityFeaturesNV");
+    out << "\t\t" << "VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

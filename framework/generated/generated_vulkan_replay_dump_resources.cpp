@@ -7662,6 +7662,37 @@ void VulkanReplayDumpResources::Process_vkCmdBeginCustomResolveEXT(
     }
 }
 
+void VulkanReplayDumpResources::Process_vkCmdSetComputeOccupancyPriorityNV(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetComputeOccupancyPriorityNV      func,
+    VkCommandBuffer                             commandBuffer,
+    const VkComputeOccupancyPriorityParametersNV* pParameters)
+{
+    if (IsRecording(commandBuffer))
+    {
+        const std::vector<DrawCallsDumpingContext*> dc_contexts = FindDrawCallCommandBufferContext(commandBuffer);
+        for (auto dc_context : dc_contexts)
+        {
+            CommandBufferIterator first, last;
+            dc_context->GetDrawCallActiveCommandBuffers(first, last);
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                     func(*it, pParameters);
+            }
+        }
+
+        const std::vector<DispatchTraceRaysDumpingContext*> dr_contexts = FindDispatchRaysCommandBufferContext(commandBuffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+             func(dispatch_rays_command_buffer, pParameters);
+            }
+        }
+    }
+}
+
 void VulkanReplayDumpResources::Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBuildAccelerationStructuresKHR     func,

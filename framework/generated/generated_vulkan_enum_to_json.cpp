@@ -4786,6 +4786,96 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG:
             jdata = "VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG";
             break;
+        case VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_3x3x3_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_3x3x3_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_3x3x3_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x3x3_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x3x3_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x3x3_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x3_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x3_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x3_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x4_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x4_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_4x4x4_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x4x4_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x4x4_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x4x4_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x4_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x4_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x4_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x5_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x5_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_5x5x5_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x5x5_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x5x5_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x5x5_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x5_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x5_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x5_SFLOAT_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x6_UNORM_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x6_SRGB_BLOCK_EXT";
+            break;
+        case VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT:
+            jdata = "VK_FORMAT_ASTC_6x6x6_SFLOAT_BLOCK_EXT";
+            break;
         case VK_FORMAT_R8_BOOL_ARM:
             jdata = "VK_FORMAT_R8_BOOL_ARM";
             break;
@@ -10976,6 +11066,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_3D_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_3D_FEATURES_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
             jdata = "VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR";
             break;
@@ -12395,15 +12488,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_SURFACE_CREATE_INFO_OHOS:
             jdata = "VK_STRUCTURE_TYPE_SURFACE_CREATE_INFO_OHOS";
             break;
-        case VK_STRUCTURE_TYPE_NATIVE_BUFFER_OHOS:
-            jdata = "VK_STRUCTURE_TYPE_NATIVE_BUFFER_OHOS";
-            break;
-        case VK_STRUCTURE_TYPE_SWAPCHAIN_IMAGE_CREATE_INFO_OHOS:
-            jdata = "VK_STRUCTURE_TYPE_SWAPCHAIN_IMAGE_CREATE_INFO_OHOS";
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENTATION_PROPERTIES_OHOS:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENTATION_PROPERTIES_OHOS";
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI";
             break;
@@ -12524,11 +12608,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR:
             jdata = "VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_PROPERTIES_EXT:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_PROPERTIES_EXT";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV:
+            jdata = "VK_STRUCTURE_TYPE_COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV";
             break;
         default:
             jdata = to_hex_fixed_width(value);

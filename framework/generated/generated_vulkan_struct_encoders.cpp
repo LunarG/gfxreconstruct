@@ -8308,6 +8308,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderC
     encoder->EncodeUInt32Value(value.customBorderColorWithoutFormat);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.textureCompressionASTC_3D);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentBarrierFeaturesNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -11159,6 +11166,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphMode
     encoder->EncodeUInt32Value(value.dataGraphModel);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderLongVectorFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.longVector);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderLongVectorPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxVectorComponents);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -11171,6 +11192,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUniform
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.shaderUniformBufferUnsizedArray);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkComputeOccupancyPriorityParametersNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFloatValue(value.occupancyPriority);
+    encoder->EncodeFloatValue(value.occupancyThrottling);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.computeOccupancyPriority);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

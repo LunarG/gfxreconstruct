@@ -747,6 +747,7 @@ static inline const std::unordered_map<std::string, PFN_vkVoidFunction> GetVulka
         { "vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",                                  reinterpret_cast<PFN_vkVoidFunction>(encode::vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM) },
         { "vkCmdEndRendering2EXT",                                                                               reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdEndRendering2EXT) },
         { "vkCmdBeginCustomResolveEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdBeginCustomResolveEXT) },
+        { "vkCmdSetComputeOccupancyPriorityNV",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdSetComputeOccupancyPriorityNV) },
         { "vkCreateAccelerationStructureKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkCreateAccelerationStructureKHR) },
         { "vkDestroyAccelerationStructureKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::vkDestroyAccelerationStructureKHR) },
         { "vkCmdBuildAccelerationStructuresKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdBuildAccelerationStructuresKHR) },
