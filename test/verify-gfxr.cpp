@@ -17,6 +17,10 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
         case nlohmann::json::parse_event_t::key:
         {
             auto key = to_string(parsed);
+            if (key == "\"api_version\"")
+                return false;
+            if (key == "\"apiVersion\"")
+                return false;
             if (std::strncmp("\"pfn\"", key.c_str(), 4) == 0)
                 return false;
             if (key == "\"hinstance\"")
