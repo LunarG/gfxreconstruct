@@ -30,16 +30,24 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-template <typename T, typename = int>
-struct is_vulkan_struct : std::false_type
-{};
+//! concept definition for a vulkan-struct
+template <class T>
+concept VulkanStruct = requires(T t)
+{
+    // sType exists and is accessible
+    t.sType;
 
-template <typename T>
-struct is_vulkan_struct<T, decltype((void)T::sType, 0)> : std::is_same<decltype(T::sType), VkStructureType>
-{};
+    // check type of sType
+    requires std::is_same_v<decltype(t.sType), VkStructureType>;
 
-template <typename T>
-inline constexpr bool is_vulkan_struct_v = is_vulkan_struct<T>::value;
+    // pNext exists and is accessible
+    t.pNext;
+
+    // check type of pNext
+    requires std::is_same_v<decltype(t.pNext), void*> || std::is_same_v<decltype(t.pNext), const void*> ||
+        std::is_same_v<decltype(t.pNext), const VkBaseInStructure*> ||
+        std::is_same_v<decltype(t.pNext), VkBaseOutStructure*>;
+};
 
 /**
  * @brief   vulkan_struct_get_pnext can be used to retrieve elements of a
@@ -53,11 +61,9 @@ inline constexpr bool is_vulkan_struct_v = is_vulkan_struct<T>::value;
  * @param   parent      pointer to a const vulkan-structure containing a pNext-chain.
  * @return  a typed const-pointer to a structure found in the pNext-chain or nullptr.
  */
-template <typename T, typename Parent_T>
+template <VulkanStruct T, VulkanStruct Parent_T>
 static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 {
-    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
-
     if (parent != nullptr)
     {
         auto current_struct = reinterpret_cast<const VkBaseInStructure*>(parent->pNext);
@@ -86,11 +92,9 @@ static const T* vulkan_struct_get_pnext(const Parent_T* parent)
  * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
  * @return  a typed pointer to a structure found in the pNext-chain or nullptr.
  */
-template <typename T, typename Parent_T>
+template <VulkanStruct T, VulkanStruct Parent_T>
 static T* vulkan_struct_get_pnext(Parent_T* parent)
 {
-    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
-
     if (parent != nullptr)
     {
         auto current_struct = reinterpret_cast<VkBaseOutStructure*>(parent)->pNext;
@@ -119,11 +123,9 @@ static T* vulkan_struct_get_pnext(Parent_T* parent)
  * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
  * @return  a typed pointer to a structure removed from the pNext-chain or nullptr.
  */
-template <typename T, typename Parent_T>
+template <VulkanStruct T, VulkanStruct Parent_T>
 static T* vulkan_struct_remove_pnext(Parent_T* parent)
 {
-    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
-
     if (parent != nullptr)
     {
         auto prev_struct    = reinterpret_cast<VkBaseOutStructure*>(parent);
@@ -152,11 +154,9 @@ static T* vulkan_struct_remove_pnext(Parent_T* parent)
  * @tparam  Parent_T    implicit type of provided structure
  * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
  */
-template <typename T, typename Parent_T>
+template <VulkanStruct T, VulkanStruct Parent_T>
 static void vulkan_struct_add_pnext(Parent_T* parent, T* pnext_struct)
 {
-    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
-
     // remove potential duplicate
     vulkan_struct_remove_pnext<T>(parent);
 
