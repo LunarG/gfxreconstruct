@@ -133,7 +133,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (entry != transfer_params_.end())
         {
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(entry->second.params.get());
-            if (init_image_params != nullptr && init_image_params->dst_image == image_id)
+            if (init_image_params != nullptr && init_image_params->dst_image.id == image_id)
             {
                 insert_new_entry = false;
             }
@@ -165,7 +165,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
                 std::piecewise_construct,
                 std::forward_as_tuple(cmd_index),
                 std::forward_as_tuple(
-                    image_id, aspect, img_info, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
+                    img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
             GFXRECON_ASSERT(success);
 
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(new_entry->second.params.get());
@@ -450,8 +450,8 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
                                          std::forward_as_tuple(srcBuffer->capture_id,
-                                                               dstImageLayout,
                                                                dstImage,
+                                                               dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
                                                                before_command,
@@ -632,10 +632,10 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage->capture_id,
+                                         std::forward_as_tuple(srcImage,
                                                                srcImageLayout,
-                                                               dstImageLayout,
                                                                dstImage,
+                                                               dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
                                                                before_command,
@@ -818,7 +818,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage->capture_id,
+                                         std::forward_as_tuple(srcImage,
                                                                srcImageLayout,
                                                                dstBuffer->capture_id,
                                                                *device_table_,
@@ -971,10 +971,10 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage->capture_id,
+                                         std::forward_as_tuple(srcImage,
                                                                srcImageLayout,
-                                                               dstImageLayout,
                                                                dstImage,
+                                                               dstImageLayout,
                                                                filter,
                                                                *device_table_,
                                                                device_info_,
@@ -1657,7 +1657,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                             qs_index,
                                                             copy_buffer_to_image->src_buffer,
                                                             copy_buffer_to_image->dst_image,
-                                                            copy_buffer_to_image->dst_image_layout,
                                                             copy_buffer_to_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
@@ -1777,9 +1776,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                             cmd_index,
                                                             qs_index,
                                                             copy_image->src_image,
-                                                            copy_image->src_image_layout,
                                                             copy_image->dst_image,
-                                                            copy_image->dst_image_layout,
                                                             copy_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
@@ -1897,7 +1894,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                             cmd_index,
                                                             qs_index,
                                                             copy_image_to_buffer->src_image,
-                                                            copy_image_to_buffer->src_image_layout,
                                                             copy_image_to_buffer->dst_buffer,
                                                             copy_image_to_buffer->has_before_command);
                 auto& new_dumped_copy_image_to_buffer =
@@ -1976,9 +1972,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                             cmd_index,
                                                             qs_index,
                                                             blit_image->src_image,
-                                                            blit_image->src_image_layout,
                                                             blit_image->dst_image,
-                                                            blit_image->dst_image_layout,
                                                             blit_image->filter,
                                                             blit_image->has_before_command);
 

@@ -23,6 +23,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/buffer_writer.h"
 #include "util/image_writer.h"
@@ -2199,6 +2200,17 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
     return true;
 }
 
+static void GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
+                                            const TransferedImageInfo& transf_img_info)
+{
+    json_entry["image"]     = transf_img_info.id;
+    json_entry["format"]    = util::ToString<VkFormat>(transf_img_info.format);
+    json_entry["extent"][0] = transf_img_info.extent.width;
+    json_entry["extent"][1] = transf_img_info.extent.height;
+    json_entry["extent"][2] = transf_img_info.extent.depth;
+    json_entry["layout"]    = util::ToString<VkImageLayout>(transf_img_info.layout);
+}
+
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd,
                                                                              nlohmann::ordered_json&      json_entry)
 {
@@ -2219,7 +2231,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitImageCommand(cons
     const auto* init_image = std::get_if<DumpedInitImageMetaCommand>(&cmd.dumped_resource);
     GFXRECON_ASSERT(init_image != nullptr);
 
-    json_entry["image"] = init_image->image;
+    auto& dst_image_json_entry = json_entry["dstImage"];
+    GenerateOutputJsonTransferImage(dst_image_json_entry, init_image->image);
 
     for (size_t sr = 0; sr < init_image->dumped_image.dumped_subresources.size(); ++sr)
     {
@@ -2272,9 +2285,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageComm
     const auto* copy_buffer_to_image = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource);
     GFXRECON_ASSERT(copy_buffer_to_image != nullptr);
 
-    json_entry["srcBuffer"]      = copy_buffer_to_image->src_buffer;
-    json_entry["dstImage"]       = copy_buffer_to_image->dst_image;
-    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(copy_buffer_to_image->dst_image_layout);
+    json_entry["srcBuffer"] = copy_buffer_to_image->src_buffer;
+
+    auto& dst_image_json_entry = json_entry["dstImage"];
+    GenerateOutputJsonTransferImage(dst_image_json_entry, copy_buffer_to_image->dst_image);
 
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < copy_buffer_to_image->regions.size(); ++i)
@@ -2341,10 +2355,11 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
     const auto* copy_image = std::get_if<DumpedCopyImage>(&cmd.dumped_resource);
     GFXRECON_ASSERT(copy_image != nullptr);
 
-    json_entry["srcImage"]       = copy_image->src_image;
-    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(copy_image->src_image_layout);
-    json_entry["dstImage"]       = copy_image->dst_image;
-    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(copy_image->dst_image_layout);
+    auto& src_image_json_entry = json_entry["srcImage"];
+    GenerateOutputJsonTransferImage(src_image_json_entry, copy_image->src_image);
+
+    auto& dst_image_json_entry = json_entry["dstImage"];
+    GenerateOutputJsonTransferImage(dst_image_json_entry, copy_image->dst_image);
 
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < copy_image->regions.size(); ++i)
@@ -2414,9 +2429,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageToBufferComm
     const auto* copy_image_to_buffer = std::get_if<DumpedCopyImageToBuffer>(&cmd.dumped_resource);
     GFXRECON_ASSERT(copy_image_to_buffer != nullptr);
 
-    json_entry["srcImage"]       = copy_image_to_buffer->src_image;
-    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(copy_image_to_buffer->src_image_layout);
-    json_entry["dstBuffer"]      = copy_image_to_buffer->dst_buffer;
+    auto& src_image_json_entry = json_entry["srcImage"];
+    GenerateOutputJsonTransferImage(src_image_json_entry, copy_image_to_buffer->src_image);
+
+    json_entry["dstBuffer"] = copy_image_to_buffer->dst_buffer;
 
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < copy_image_to_buffer->regions.size(); ++i)
@@ -2463,11 +2479,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(cons
     const auto* blit_image = std::get_if<DumpedBlitImage>(&cmd.dumped_resource);
     GFXRECON_ASSERT(blit_image != nullptr);
 
-    json_entry["srcImage"]       = blit_image->src_image;
-    json_entry["srcImageLayout"] = util::ToString<VkImageLayout>(blit_image->src_image_layout);
-    json_entry["dstImage"]       = blit_image->dst_image;
-    json_entry["dstImageLayout"] = util::ToString<VkImageLayout>(blit_image->dst_image_layout);
-    json_entry["filter"]         = util::ToString<VkFilter>(blit_image->filter);
+    auto& src_image_json_entry = json_entry["srcImage"];
+    GenerateOutputJsonTransferImage(src_image_json_entry, blit_image->src_image);
+
+    auto& dst_image_json_entry = json_entry["dstImage"];
+    GenerateOutputJsonTransferImage(dst_image_json_entry, blit_image->dst_image);
+
+    json_entry["filter"] = util::ToString<VkFilter>(blit_image->filter);
 
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < blit_image->regions.size(); ++i)

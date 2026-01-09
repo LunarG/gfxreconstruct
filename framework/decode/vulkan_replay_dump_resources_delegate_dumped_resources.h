@@ -591,6 +591,24 @@ struct DumpedRenderTarget : DumpedResourceBase
     uint32_t location{ 0 };
 };
 
+struct TransferedImageInfo
+{
+    TransferedImageInfo() = delete;
+
+    TransferedImageInfo(format::HandleId i, VkFormat f, VkExtent3D e, VkImageLayout l) :
+        id(i), format(f), extent(e), layout(l)
+    {}
+
+    TransferedImageInfo(const TransferedImageInfo& other) :
+        id(other.id), format(other.format), extent(other.extent), layout(other.layout)
+    {}
+
+    format::HandleId id;
+    VkFormat         format;
+    VkExtent3D       extent;
+    VkImageLayout    layout;
+};
+
 struct DumpedInitBufferMetaCommand
 {
     DumpedInitBufferMetaCommand() = delete;
@@ -605,12 +623,12 @@ struct DumpedInitImageMetaCommand
 {
     DumpedInitImageMetaCommand() = delete;
 
-    DumpedInitImageMetaCommand(format::HandleId i, const VulkanImageInfo* img_inf) :
-        image(i), dumped_image(img_inf, ImageDumpResult::kCanDump)
+    DumpedInitImageMetaCommand(const TransferedImageInfo& transf_img_inf, const VulkanImageInfo* img_inf) :
+        image(transf_img_inf), dumped_image(img_inf, ImageDumpResult::kCanDump)
     {}
 
-    format::HandleId image;
-    DumpedImage      dumped_image;
+    TransferedImageInfo image;
+    DumpedImage         dumped_image;
 };
 
 struct DumpedCopyBuffer
@@ -638,8 +656,8 @@ struct DumpedCopyBufferToImage
 {
     DumpedCopyBufferToImage() = delete;
 
-    DumpedCopyBufferToImage(format::HandleId s, format::HandleId d, VkImageLayout dl) :
-        src_buffer(s), dst_image(d), dst_image_layout(dl)
+    DumpedCopyBufferToImage(format::HandleId s, const TransferedImageInfo& transf_img_info) :
+        src_buffer(s), dst_image(transf_img_info)
     {}
 
     struct CopyRegion
@@ -655,17 +673,16 @@ struct DumpedCopyBufferToImage
 
     std::vector<CopyRegion> regions;
 
-    format::HandleId src_buffer;
-    format::HandleId dst_image;
-    VkImageLayout    dst_image_layout;
+    format::HandleId    src_buffer;
+    TransferedImageInfo dst_image;
 };
 
 struct DumpedCopyImage
 {
     DumpedCopyImage() = delete;
 
-    DumpedCopyImage(format::HandleId s, VkImageLayout sl, format::HandleId d, VkImageLayout dl) :
-        src_image(s), src_image_layout(sl), dst_image(d), dst_image_layout(dl)
+    DumpedCopyImage(const TransferedImageInfo& src_img, const TransferedImageInfo& dst_img) :
+        src_image(src_img), dst_image(dst_img)
     {}
 
     struct CopyRegion
@@ -681,20 +698,15 @@ struct DumpedCopyImage
 
     std::vector<CopyRegion> regions;
 
-    format::HandleId src_image;
-    VkImageLayout    src_image_layout;
-
-    format::HandleId dst_image;
-    VkImageLayout    dst_image_layout;
+    TransferedImageInfo src_image;
+    TransferedImageInfo dst_image;
 };
 
 struct DumpedCopyImageToBuffer
 {
     DumpedCopyImageToBuffer() = delete;
 
-    DumpedCopyImageToBuffer(format::HandleId s, VkImageLayout l, format::HandleId d) :
-        src_image(s), src_image_layout(l), dst_buffer(d)
-    {}
+    DumpedCopyImageToBuffer(const TransferedImageInfo& si, format::HandleId d) : src_image(si), dst_buffer(d) {}
 
     struct CopyRegion
     {
@@ -707,18 +719,16 @@ struct DumpedCopyImageToBuffer
 
     std::vector<CopyRegion> regions;
 
-    format::HandleId src_image;
-    VkImageLayout    src_image_layout;
-
-    format::HandleId dst_buffer;
+    TransferedImageInfo src_image;
+    format::HandleId    dst_buffer;
 };
 
 struct DumpedBlitImage
 {
     DumpedBlitImage() = delete;
 
-    DumpedBlitImage(format::HandleId s, VkImageLayout sl, format::HandleId d, VkImageLayout dl, VkFilter f) :
-        src_image(s), src_image_layout(sl), dst_image(d), dst_image_layout(dl), filter(f)
+    DumpedBlitImage(const TransferedImageInfo& si, const TransferedImageInfo& di, VkFilter f) :
+        src_image(si), dst_image(di), filter(f)
     {}
 
     struct CopyRegion
@@ -734,10 +744,8 @@ struct DumpedBlitImage
 
     std::vector<CopyRegion> regions;
 
-    format::HandleId src_image;
-    VkImageLayout    src_image_layout;
-    format::HandleId dst_image;
-    VkImageLayout    dst_image_layout;
+    TransferedImageInfo src_image;
+    TransferedImageInfo dst_image;
 
     VkFilter filter;
 };
@@ -795,10 +803,13 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // InitImageMetaCommand
-    DumpedTransferCommand(
-        DumpResourceType t, uint64_t cmd, uint64_t qs, format::HandleId i, const VulkanImageInfo* img_info) :
+    DumpedTransferCommand(DumpResourceType           t,
+                          uint64_t                   cmd,
+                          uint64_t                   qs,
+                          const TransferedImageInfo& transf_img_info,
+                          const VulkanImageInfo*     img_info) :
         DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedInitImageMetaCommand>, i, img_info), has_before(false)
+        dumped_resource(std::in_place_type<DumpedInitImageMetaCommand>, transf_img_info, img_info), has_before(false)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kInitImageMetaCommand);
     }
@@ -818,81 +829,71 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // CopyBufferToImage
-    DumpedTransferCommand(DumpResourceType t,
-                          uint64_t         cmd,
-                          uint64_t         qs,
-                          format::HandleId s,
-                          format::HandleId d,
-                          VkImageLayout    dl,
-                          bool             hb) :
+    DumpedTransferCommand(DumpResourceType           t,
+                          uint64_t                   cmd,
+                          uint64_t                   qs,
+                          format::HandleId           s,
+                          const TransferedImageInfo& transf_img_info,
+                          bool                       hb) :
         DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedCopyBufferToImage>, s, d, dl), has_before(hb)
+        dumped_resource(std::in_place_type<DumpedCopyBufferToImage>, s, transf_img_info), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBufferToImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyBufferToImage(s, d, dl);
+            dumped_resource_before = DumpedCopyBufferToImage(s, transf_img_info);
         }
     }
 
     // CopyImage
-    DumpedTransferCommand(DumpResourceType t,
-                          uint64_t         cmd,
-                          uint64_t         qs,
-                          format::HandleId s,
-                          VkImageLayout    sl,
-                          format::HandleId d,
-                          VkImageLayout    dl,
-                          bool             hb) :
+    DumpedTransferCommand(DumpResourceType           t,
+                          uint64_t                   cmd,
+                          uint64_t                   qs,
+                          const TransferedImageInfo& si,
+                          const TransferedImageInfo& di,
+                          bool                       hb) :
         DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedCopyImage>, s, sl, d, dl), has_before(hb)
+        dumped_resource(std::in_place_type<DumpedCopyImage>, si, di), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImage(s, sl, d, dl);
+            dumped_resource_before = DumpedCopyImage(si, di);
         }
     }
 
     // CopyImageToBuffer
-    DumpedTransferCommand(DumpResourceType t,
-                          uint64_t         cmd,
-                          uint64_t         qs,
-                          format::HandleId s,
-                          VkImageLayout    l,
-                          format::HandleId d,
-                          bool             hb) :
+    DumpedTransferCommand(
+        DumpResourceType t, uint64_t cmd, uint64_t qs, const TransferedImageInfo& si, format::HandleId d, bool hb) :
         DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedCopyImageToBuffer>, s, l, d), has_before(hb)
+        dumped_resource(std::in_place_type<DumpedCopyImageToBuffer>, si, d), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImageToBuffer);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImageToBuffer(s, l, d);
+            dumped_resource_before = DumpedCopyImageToBuffer(si, d);
         }
     }
 
     // BlitImage
-    DumpedTransferCommand(DumpResourceType t,
-                          uint64_t         cmd,
-                          uint64_t         qs,
-                          format::HandleId s,
-                          VkImageLayout    sl,
-                          format::HandleId d,
-                          VkImageLayout    dl,
-                          VkFilter         f,
-                          bool             hb) :
+    DumpedTransferCommand(DumpResourceType           t,
+                          uint64_t                   cmd,
+                          uint64_t                   qs,
+                          const TransferedImageInfo& si,
+                          const TransferedImageInfo& di,
+                          VkFilter                   f,
+                          bool                       hb) :
         DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedBlitImage>, s, sl, d, dl, f), has_before(hb)
+        dumped_resource(std::in_place_type<DumpedBlitImage>, si, di, f), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kBlitImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedBlitImage(s, sl, d, dl, f);
+            dumped_resource_before = DumpedBlitImage(si, di, f);
         }
     }
 
