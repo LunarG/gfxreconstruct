@@ -4446,6 +4446,10 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT>* pBeginCustomResolveInfo) override;
+    virtual void Process_vkCmdSetComputeOccupancyPriorityNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters) override;
     virtual void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

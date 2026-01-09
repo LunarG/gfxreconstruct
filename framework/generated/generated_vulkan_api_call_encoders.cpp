@@ -27784,6 +27784,40 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(
 
 }
 
+VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(
+    VkCommandBuffer                             commandBuffer,
+    const VkComputeOccupancyPriorityParametersNV* pParameters)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV>::Dispatch(manager, commandBuffer, pParameters);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pParameters);
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetComputeOccupancyPriorityNV(commandBuffer, pParameters);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV>::Dispatch(manager, commandBuffer, pParameters);
+
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     VkDevice                                    device,
     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,

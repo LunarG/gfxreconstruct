@@ -3650,6 +3650,10 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(
     VkCommandBuffer                             commandBuffer,
     const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
 
+VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(
+    VkCommandBuffer                             commandBuffer,
+    const VkComputeOccupancyPriorityParametersNV* pParameters);
+
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     VkDevice                                    device,
     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,

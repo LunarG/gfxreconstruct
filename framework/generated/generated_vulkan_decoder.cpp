@@ -14648,6 +14648,24 @@ size_t VulkanDecoder::Decode_vkCmdBeginCustomResolveEXT(const ApiCallInfo& call_
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdSetComputeOccupancyPriorityNV(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV> pParameters;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pParameters.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdSetComputeOccupancyPriorityNV(call_info, commandBuffer, &pParameters);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateAccelerationStructureKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -17202,6 +17220,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdBeginCustomResolveEXT:
         Decode_vkCmdBeginCustomResolveEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV:
+        Decode_vkCmdSetComputeOccupancyPriorityNV(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR:
         Decode_vkCreateAccelerationStructureKHR(call_info, parameter_buffer, buffer_size);

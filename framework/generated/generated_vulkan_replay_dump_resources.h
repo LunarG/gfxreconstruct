@@ -1953,6 +1953,12 @@ void Process_vkCmdBeginCustomResolveEXT(
     VkCommandBuffer                             commandBuffer,
     const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
 
+void Process_vkCmdSetComputeOccupancyPriorityNV(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetComputeOccupancyPriorityNV      func,
+    VkCommandBuffer                             commandBuffer,
+    const VkComputeOccupancyPriorityParametersNV* pParameters);
+
 void Process_vkCmdBuildAccelerationStructuresKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBuildAccelerationStructuresKHR     func,

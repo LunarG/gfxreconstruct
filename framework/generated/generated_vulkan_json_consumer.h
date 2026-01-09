@@ -4610,6 +4610,11 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkBeginCustomResolveInfoEXT>* pBeginCustomResolveInfo) override;
 
+    virtual void Process_vkCmdSetComputeOccupancyPriorityNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters) override;
+
     virtual void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

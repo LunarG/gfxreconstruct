@@ -905,6 +905,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDeviceMemoryReportCre
 void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePresentBarrierFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesPresentBarrierNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentBarrierCreateInfoNV& value);
@@ -1241,8 +1242,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCustomResolveCreateInfoEXT&
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheHeaderVersionDataGraphQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineBuiltinModelCreateInfoQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphModelFeaturesQCOM& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderLongVectorFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderLongVectorPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkComputeOccupancyPriorityParametersNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);

@@ -740,6 +740,7 @@ template <> constexpr VkStructureType GetSType<VkDeviceDeviceMemoryReportCreateI
 template <> constexpr VkStructureType GetSType<VkSamplerCustomBorderColorCreateInfoEXT>(){ return VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCustomBorderColorPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCustomBorderColorFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_3D_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePresentBarrierFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_BARRIER_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkSurfaceCapabilitiesPresentBarrierNV>(){ return VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_BARRIER_NV; }
 template <> constexpr VkStructureType GetSType<VkSwapchainPresentBarrierCreateInfoNV>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV; }
@@ -1046,8 +1047,12 @@ template <> constexpr VkStructureType GetSType<VkBeginCustomResolveInfoEXT>(){ r
 template <> constexpr VkStructureType GetSType<VkCustomResolveCreateInfoEXT>(){ return VK_STRUCTURE_TYPE_CUSTOM_RESOLVE_CREATE_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkDataGraphPipelineBuiltinModelCreateInfoQCOM>(){ return VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDataGraphModelFeaturesQCOM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderLongVectorFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderLongVectorPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_PROPERTIES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CACHE_INCREMENTAL_MODE_FEATURES_SEC; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkComputeOccupancyPriorityParametersNV>(){ return VK_STRUCTURE_TYPE_COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryTrianglesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryAabbsDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryInstancesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR; }

@@ -760,6 +760,7 @@ inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandleEXT(VkDevice, const 
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryMetalHandlePropertiesEXT(VkDevice, VkExternalMemoryHandleTypeFlagBits, const void*, VkMemoryMetalHandlePropertiesEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetMemoryMetalHandlePropertiesEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(VkCommandBuffer, const VkRenderingEndInfoKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdEndRendering2EXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(VkCommandBuffer, const VkBeginCustomResolveInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBeginCustomResolveEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(VkCommandBuffer, const VkComputeOccupancyPriorityParametersNV*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetComputeOccupancyPriorityNV was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(VkDevice, const VkAccelerationStructureCreateInfoKHR*, const VkAllocationCallbacks*, VkAccelerationStructureKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateAccelerationStructureKHR was called, resulting in no-op behavior."); return VK_SUCCESS; }
 inline VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(VkDevice, VkAccelerationStructureKHR, const VkAllocationCallbacks*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkDestroyAccelerationStructureKHR was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(VkCommandBuffer, uint32_t, const VkAccelerationStructureBuildGeometryInfoKHR*, const VkAccelerationStructureBuildRangeInfoKHR* const*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdBuildAccelerationStructuresKHR was called, resulting in no-op behavior."); }
@@ -1492,6 +1493,7 @@ struct VulkanDeviceTable
     PFN_vkGetMemoryMetalHandlePropertiesEXT GetMemoryMetalHandlePropertiesEXT{ noop::vkGetMemoryMetalHandlePropertiesEXT };
     PFN_vkCmdEndRendering2EXT CmdEndRendering2EXT{ noop::vkCmdEndRendering2EXT };
     PFN_vkCmdBeginCustomResolveEXT CmdBeginCustomResolveEXT{ noop::vkCmdBeginCustomResolveEXT };
+    PFN_vkCmdSetComputeOccupancyPriorityNV CmdSetComputeOccupancyPriorityNV{ noop::vkCmdSetComputeOccupancyPriorityNV };
     PFN_vkCreateAccelerationStructureKHR CreateAccelerationStructureKHR{ noop::vkCreateAccelerationStructureKHR };
     PFN_vkDestroyAccelerationStructureKHR DestroyAccelerationStructureKHR{ noop::vkDestroyAccelerationStructureKHR };
     PFN_vkCmdBuildAccelerationStructuresKHR CmdBuildAccelerationStructuresKHR{ noop::vkCmdBuildAccelerationStructuresKHR };
@@ -2231,6 +2233,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetMemoryMetalHandlePropertiesEXT", &table->GetMemoryMetalHandlePropertiesEXT);
     LoadVulkanFunction(gpa, device, "vkCmdEndRendering2EXT", &table->CmdEndRendering2EXT);
     LoadVulkanFunction(gpa, device, "vkCmdBeginCustomResolveEXT", &table->CmdBeginCustomResolveEXT);
+    LoadVulkanFunction(gpa, device, "vkCmdSetComputeOccupancyPriorityNV", &table->CmdSetComputeOccupancyPriorityNV);
     LoadVulkanFunction(gpa, device, "vkCreateAccelerationStructureKHR", &table->CreateAccelerationStructureKHR);
     LoadVulkanFunction(gpa, device, "vkDestroyAccelerationStructureKHR", &table->DestroyAccelerationStructureKHR);
     LoadVulkanFunction(gpa, device, "vkCmdBuildAccelerationStructuresKHR", &table->CmdBuildAccelerationStructuresKHR);
