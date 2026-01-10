@@ -510,8 +510,7 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
     std::vector<VkRayTracingPipelineCreateInfoKHR> create_infos;
     VkAllocationCallbacks                          allocator{};
     VkAllocationCallbacks*                         p_allocator{ nullptr };
-    std::vector<VkPipeline>                        pipelines;
-    VkPipeline*                                    pPipelines;
+    VkPipeline*                                    pPipelines; // count is the same as create_infos.size().
     VkPipelineCache                                pipelineCache;
     bool                                           pending_state = false;
 };
