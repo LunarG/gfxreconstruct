@@ -692,5 +692,49 @@ void FieldToJson(nlohmann::ordered_json&               jdata,
     }
 }
 
+void FieldToJson(nlohmann::ordered_json&                jdata,
+                 const Decoded_VkPipelineCreateInfoKHR* data,
+                 const util::JsonOptions&               options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineCreateInfoKHR&         decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineCreateInfoKHR& meta_struct   = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+
+        const VkBaseInStructure* pNext = (const VkBaseInStructure*)decoded_value.pNext;
+        switch (pNext->sType)
+        {
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            {
+                FieldToJson(jdata["pNext"],
+                            (const Decoded_VkGraphicsPipelineCreateInfo*)meta_struct.pNext->GetMetaStructPointer(),
+                            options);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            {
+                FieldToJson(jdata["pNext"],
+                            (const Decoded_VkRayTracingPipelineCreateInfoKHR*)meta_struct.pNext->GetMetaStructPointer(),
+                            options);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            {
+                FieldToJson(jdata["pNext"],
+                            (const Decoded_VkComputePipelineCreateInfo*)meta_struct.pNext->GetMetaStructPointer(),
+                            options);
+                break;
+            }
+            default:
+            {
+                GFXRECON_LOG_ERROR("Unrecognized VkPipelineCreateInfoKHR::pNext structure type: %d", pNext->sType);
+                break;
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

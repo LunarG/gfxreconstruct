@@ -1116,8 +1116,6 @@ std::string GenerateStruct_VkPipelineBinaryKeyKHR(std::ostream &out, const VkPip
 
 std::string GenerateStruct_VkPipelineBinaryKeysAndDataKHR(std::ostream &out, const VkPipelineBinaryKeysAndDataKHR* structInfo, Decoded_VkPipelineBinaryKeysAndDataKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPipelineCreateInfoKHR(std::ostream &out, const VkPipelineCreateInfoKHR* structInfo, Decoded_VkPipelineCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkReleaseCapturedPipelineDataInfoKHR(std::ostream &out, const VkReleaseCapturedPipelineDataInfoKHR* structInfo, Decoded_VkReleaseCapturedPipelineDataInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkSurfacePresentModeCompatibilityKHR(std::ostream &out, const VkSurfacePresentModeCompatibilityKHR* structInfo, Decoded_VkSurfacePresentModeCompatibilityKHR* metaInfo, VulkanCppConsumerBase &consumer);
