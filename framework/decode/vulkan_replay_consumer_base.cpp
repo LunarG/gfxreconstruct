@@ -52,7 +52,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-#include "decode/mark_injected_commands.h"
+#include "util/callbacks.h"
 
 #include "spirv_reflect.h"
 
@@ -3101,13 +3101,13 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         // emitted during calls that _aren't_ vkCreateInstance()/vkDestroyInstance()
         if (create_state.messenger_create_info.pfnUserCallback != nullptr)
         {
-            decode::BeginInjectedCommands();
+            util::BeginInjectedCommands();
             GetInstanceTable(*replay_instance)
                 ->CreateDebugUtilsMessengerEXT(*replay_instance,
                                                &create_state.messenger_create_info,
                                                GetAllocationCallbacks(pAllocator),
                                                &instance_info->debug_messenger);
-            decode::EndInjectedCommands();
+            util::EndInjectedCommands();
         }
     }
 
@@ -3119,9 +3119,9 @@ void VulkanReplayConsumerBase::OverrideDestroyInstance(
     const VulkanInstanceInfo*                                  instance_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    decode::BeginInjectedCommands();
+    util::BeginInjectedCommands();
     DestroyInternalInstanceResources(instance_info);
-    decode::EndInjectedCommands();
+    util::EndInjectedCommands();
 
     VkInstance instance = instance_info->handle;
     func(instance, GetAllocationCallbacks(pAllocator));
@@ -3494,11 +3494,11 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
         if (screenshot_handler_ != nullptr)
         {
-            decode::BeginInjectedCommands();
+            util::BeginInjectedCommands();
 
             screenshot_handler_->DestroyDeviceResources(device, GetDeviceTable(device));
 
-            decode::EndInjectedCommands();
+            util::EndInjectedCommands();
         }
 
         // free replacer internal vulkan-resources for the device
@@ -4014,10 +4014,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus  
     {
         // Replay is usually faster than the original application, so there is a good chance the fence is still not
         // ready. In this case, we make sure the fence is signaled by waiting for it.
-        BeginInjectedCommands();
+        util::BeginInjectedCommands();
         result =
             GetDeviceTable(device)->WaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
-        EndInjectedCommands();
+        util::EndInjectedCommands();
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
@@ -4292,7 +4292,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (screenshot_handler_ != nullptr)
     {
-        decode::BeginInjectedCommands();
+        util::BeginInjectedCommands();
 
         VulkanCommandBufferInfo* frame_boundary_command_buffer_info = nullptr;
         for (uint32_t i = 0; i < submitCount; ++i)
@@ -4330,7 +4330,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             }
         }
 
-        decode::EndInjectedCommands();
+        util::EndInjectedCommands();
     }
 
     return result;
@@ -4539,7 +4539,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     // Check whether any of the submitted command buffers are frame boundaries.
     if (screenshot_handler_ != nullptr)
     {
-        decode::BeginInjectedCommands();
+        util::BeginInjectedCommands();
 
         bool is_frame_boundary = false;
         for (uint32_t i = 0; i < submitCount; ++i)
@@ -4566,7 +4566,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
             }
         }
 
-        decode::EndInjectedCommands();
+        util::EndInjectedCommands();
     }
 
     return result;
@@ -5079,7 +5079,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
 
         if ((original_result >= 0) && (result == VK_ERROR_OUT_OF_POOL_MEMORY))
         {
-            decode::BeginInjectedCommands();
+            util::BeginInjectedCommands();
 
             // Handle case where replay runs out of descriptor pool memory when capture did not by creating a new
             // descriptor pool and attempting the allocation a second time.
@@ -5128,7 +5128,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 result = func(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
             }
 
-            decode::EndInjectedCommands();
+            util::EndInjectedCommands();
         }
 
         // The information gathered here is only relevant when dumping or for portability-features
@@ -8319,7 +8319,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         ~local_fence_t() { device_table->DestroyFence(device, fence, nullptr); }
     };
 
-    decode::BeginInjectedCommands();
+    util::BeginInjectedCommands();
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
     {
@@ -8543,7 +8543,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         GetDeviceTable(device)->DeviceWaitIdle(device);
     }
 
-    decode::EndInjectedCommands();
+    util::EndInjectedCommands();
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
     if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
@@ -10460,7 +10460,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
     if (screenshot_handler_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
-        decode::BeginInjectedCommands();
+        util::BeginInjectedCommands();
 
         if (screenshot_handler_->IsScreenshotFrame() && image_info != nullptr)
         {
@@ -10499,7 +10499,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         screenshot_handler_->EndFrame();
 
-        decode::EndInjectedCommands();
+        util::EndInjectedCommands();
     }
 
     func(device, semaphore, image);

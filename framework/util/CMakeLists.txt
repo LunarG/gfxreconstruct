@@ -35,6 +35,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/buffer_writer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/callbacks.h
+                    ${CMAKE_CURRENT_LIST_DIR}/callbacks.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/clock_cache.h
                     ${CMAKE_CURRENT_LIST_DIR}/compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h

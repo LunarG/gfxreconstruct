@@ -24,7 +24,7 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_address_replacer_shaders.h"
-#include "decode/mark_injected_commands.h"
+#include "util/callbacks.h"
 #include "util/alignment_utils.h"
 #include "util/logging.h"
 
@@ -44,7 +44,7 @@ struct MarkInjectedCommandsHelper
         // mark injected commands
         if (semaphore++ == 0)
         {
-            decode::BeginInjectedCommands();
+            util::BeginInjectedCommands();
         };
     }
 
@@ -53,7 +53,7 @@ struct MarkInjectedCommandsHelper
         // mark end of injected commands
         if (--semaphore == 0)
         {
-            decode::EndInjectedCommands();
+            util::EndInjectedCommands();
         }
     }
 };
@@ -652,14 +652,14 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 else
                 {
                     // patch an existing uniform-buffer and retrieve a buffer-address for it
-                    decode::BeginInjectedCommands();
+                    util::BeginInjectedCommands();
                     VkBufferDeviceAddressInfo address_info = {};
                     address_info.sType                     = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
                     address_info.buffer                    = buffer_info->handle;
                     buffer_info->capture_address           = buffer_info->replay_address =
                         get_device_address_fn_(device_, &address_info);
                     GFXRECON_ASSERT(buffer_info->replay_address != 0);
-                    decode::EndInjectedCommands();
+                    util::EndInjectedCommands();
 
                     // track newly acquired buffer/address
                     address_tracker.TrackBuffer(buffer_info);
